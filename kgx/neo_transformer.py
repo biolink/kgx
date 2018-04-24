@@ -18,6 +18,11 @@ class MonarchNeoTransformer(NeoTransformer):
 
     In contrast to a generic import/export, the Monarch neo4j graph
     uses reification (same as Richard's semmeddb implementation in neo4j).
-    This transform should de-reify
+    This transform should de-reify.
+
+    Also:
+
+     - rdf:label to name
+     - neo4j label to category
     """
     

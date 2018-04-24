@@ -5,3 +5,6 @@ SPARQLWrapper==1.8.0
 pandas>=0.0
 pytest>=0.0
 mypy>=0.0
+pystache>=0.0
+pytest_logging>=0.0
+rdflib>=0.0
