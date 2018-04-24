@@ -1,4 +1,5 @@
 import pandas as pd
+import logging
 from .transformer import Transformer
 
 class PandasTransformer(Transformer):
