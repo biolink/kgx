@@ -11,4 +11,10 @@ class RdfTransformer(Transformer):
      - OBAN reification (as used in Monarch)
      - RDF reification
     """
+
+class ObanRdfTransformer(RdfTransformer):
+    """
+    Transforms to and from RDF, assuming OBAN-style modeling
+    """
+
     

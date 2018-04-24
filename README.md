@@ -20,5 +20,10 @@ The structure of this graph is expected to conform to
  * [Nodes](https://biolink.github.io/biolink-model/docs/NamedThing.html)
     * id : required
     * name : string
-    
+    * category : string. broad high level type. Corresponds to label in neo4j
+    * extensible other properties, depending on 
  * [Edges](https://biolink.github.io/biolink-model/docs/Association.html) 
+    * subject : required
+    * predicate : required
+    * object : required
+    * extensible other fields

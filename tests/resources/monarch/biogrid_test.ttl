@@ -1,0 +1,476 @@
+@prefix BIOGRID: <http://thebiogrid.org/> .
+@prefix ECO: <http://purl.obolibrary.org/obo/ECO_> .
+@prefix ENSEMBL: <http://identifiers.org/ensembl/> .
+@prefix HGNC: <http://identifiers.org/hgnc/HGNC:> .
+@prefix MGI: <http://www.informatics.jax.org/accession/MGI:> .
+@prefix MONARCH: <https://monarchinitiative.org/MONARCH_> .
+@prefix MonarchArchive: <https://archive.monarchinitiative.org/201702/> .
+@prefix MonarchData: <https://data.monarchinitiative.org/ttl/> .
+@prefix NCBIGene: <http://www.ncbi.nlm.nih.gov/gene/> .
+@prefix OBAN: <http://purl.org/oban/> .
+@prefix OBO: <http://purl.obolibrary.org/obo/> .
+@prefix PMID: <http://www.ncbi.nlm.nih.gov/pubmed/> .
+@prefix RO: <http://purl.obolibrary.org/obo/RO_> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://thebiogrid.org/106638> owl:equivalentClass ENSEMBL:ENSG00000248144,
+        <http://identifiers.org/hgnc/HGNC:251>,
+        <http://www.ncbi.nlm.nih.gov/gene/126> .
+
+<http://thebiogrid.org/107308> owl:equivalentClass ENSEMBL:ENSG00000124813,
+        <http://identifiers.org/hgnc/HGNC:10472>,
+        <http://www.ncbi.nlm.nih.gov/gene/860> .
+
+<http://thebiogrid.org/107506> owl:equivalentClass ENSEMBL:ENSG00000001626,
+        <http://identifiers.org/hgnc/HGNC:1884>,
+        <http://www.ncbi.nlm.nih.gov/gene/1080> .
+
+<http://thebiogrid.org/107674> owl:equivalentClass ENSEMBL:ENSG00000108821,
+        <http://identifiers.org/hgnc/HGNC:2197>,
+        <http://www.ncbi.nlm.nih.gov/gene/1277> .
+
+<http://thebiogrid.org/107675> owl:equivalentClass ENSEMBL:ENSG00000164692,
+        <http://identifiers.org/hgnc/HGNC:2198>,
+        <http://www.ncbi.nlm.nih.gov/gene/1278> .
+
+<http://thebiogrid.org/108277> owl:equivalentClass <http://identifiers.org/hgnc/HGNC:3237>,
+        <http://www.ncbi.nlm.nih.gov/gene/1957> .
+
+<http://thebiogrid.org/108506> owl:equivalentClass ENSEMBL:ENSG00000143226,
+        <http://identifiers.org/hgnc/HGNC:3616>,
+        <http://www.ncbi.nlm.nih.gov/gene/2212> .
+
+<http://thebiogrid.org/108767> owl:equivalentClass <http://identifiers.org/hgnc/HGNC:3966>,
+        <http://www.ncbi.nlm.nih.gov/gene/2489> .
+
+<http://thebiogrid.org/108814> owl:equivalentClass ENSEMBL:ENSG00000160211,
+        <http://identifiers.org/hgnc/HGNC:4057>,
+        <http://www.ncbi.nlm.nih.gov/gene/2539> .
+
+<http://thebiogrid.org/108899> owl:equivalentClass ENSEMBL:ENSG00000177628,
+        <http://identifiers.org/hgnc/HGNC:4177>,
+        <http://www.ncbi.nlm.nih.gov/gene/2629> .
+
+<http://thebiogrid.org/110308> owl:equivalentClass ENSEMBL:ENSG00000186868,
+        <http://identifiers.org/hgnc/HGNC:6893>,
+        <http://www.ncbi.nlm.nih.gov/gene/4137> .
+
+<http://thebiogrid.org/110364> owl:equivalentClass <http://identifiers.org/hgnc/HGNC:6984>,
+        <http://www.ncbi.nlm.nih.gov/gene/4200> .
+
+<http://thebiogrid.org/110678> owl:equivalentClass ENSEMBL:ENSG00000108395,
+        <http://identifiers.org/hgnc/HGNC:7523>,
+        <http://www.ncbi.nlm.nih.gov/gene/4591> .
+
+<http://thebiogrid.org/111642> owl:equivalentClass ENSEMBL:ENSG00000080815,
+        <http://identifiers.org/hgnc/HGNC:9508>,
+        <http://www.ncbi.nlm.nih.gov/gene/5663> .
+
+<http://thebiogrid.org/112300> owl:equivalentClass ENSEMBL:ENSG00000071537,
+        <http://identifiers.org/hgnc/HGNC:10717>,
+        <http://www.ncbi.nlm.nih.gov/gene/6400> .
+
+<http://thebiogrid.org/112365> owl:equivalentClass <http://identifiers.org/hgnc/HGNC:10848>,
+        <http://www.ncbi.nlm.nih.gov/gene/6469> .
+
+<http://thebiogrid.org/112771> owl:equivalentClass ENSEMBL:ENSG00000112592,
+        <http://identifiers.org/hgnc/HGNC:11588>,
+        <http://www.ncbi.nlm.nih.gov/gene/6908> .
+
+<http://thebiogrid.org/112898> owl:equivalentClass ENSEMBL:ENSG00000105329,
+        <http://identifiers.org/hgnc/HGNC:11766>,
+        <http://www.ncbi.nlm.nih.gov/gene/7040> .
+
+<http://thebiogrid.org/120150> owl:equivalentClass ENSEMBL:ENSG00000148719,
+        <http://identifiers.org/hgnc/HGNC:14891>,
+        <http://www.ncbi.nlm.nih.gov/gene/54788> .
+
+<http://thebiogrid.org/120160> owl:equivalentClass ENSEMBL:ENSG00000147874,
+        <http://identifiers.org/hgnc/HGNC:25948>,
+        <http://www.ncbi.nlm.nih.gov/gene/54801> .
+
+<http://thebiogrid.org/124085> owl:equivalentClass ENSEMBL:ENSG00000162298,
+        <http://identifiers.org/hgnc/HGNC:20738>,
+        <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<http://thebiogrid.org/199832> owl:equivalentClass ENSEMBL:ENSMUSG00000052957,
+        <http://www.informatics.jax.org/accession/MGI:95655>,
+        <http://www.ncbi.nlm.nih.gov/gene/14451> .
+
+<http://thebiogrid.org/203220> owl:equivalentClass ENSEMBL:ENSMUSG00000002633,
+        <http://www.informatics.jax.org/accession/MGI:98297>,
+        <http://www.ncbi.nlm.nih.gov/gene/20423> .
+
+MonarchData:biogrid.ttl a owl:Ontology ;
+    owl:versionIRI <https://archive.monarchinitiative.org/201702/ttl/biogrid.ttl> ;
+    owl:versionInfo "biogrid-201703" .
+
+<https://monarchinitiative.org/MONARCH_00f1b2bde78c72b77b5cdfced290fc0ee1a38899> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<https://monarchinitiative.org/MONARCH_08830ea5e3fc0c0c70e3810c8ddaa29cde9c9467> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/24255109> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/835609> .
+
+<https://monarchinitiative.org/MONARCH_0b454bf4eb292aaf4d4594147bb993ee092b7b63> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/26471130> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6400> ;
+    OBAN:association_has_predicate OBO:RO_0002325 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<https://monarchinitiative.org/MONARCH_17b364944e4e4862043b6b29b680ced289d6927b> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/18375391> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/1278> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/1277> .
+
+<https://monarchinitiative.org/MONARCH_17c5d5d748b3c31175ea4eb5380ab904a2db58db> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000012,
+        OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844005> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844005> .
+
+<https://monarchinitiative.org/MONARCH_29e3f8becd3ba9ebe83bb10778f3d8e120db34ac> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/16186509>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/18264092>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/18711132>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/21454652>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/22119785>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/23356641>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/23867461>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/24366871>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/26471130> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/84447> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/6400> .
+
+<https://monarchinitiative.org/MONARCH_3476a92248d1fa00bdea8472794add9adfceebc3> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/817721> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/817721> .
+
+<https://monarchinitiative.org/MONARCH_347b1b93c0b7332886cac3f759d5de76e0a738c9> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10518493> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/831441> .
+
+<https://monarchinitiative.org/MONARCH_348063cb3b8941a02bb3856eddebb62aa5c0fb68> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000012,
+        OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/817721> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844005> .
+
+<https://monarchinitiative.org/MONARCH_352911fb5ce87abd39e85c42714695f71ab75423> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844005> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/817721> .
+
+<https://monarchinitiative.org/MONARCH_37e158c91ec36f6d74ef1b37c71815b8d7fe88f6> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/9689133> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/4137> ;
+    OBAN:association_has_predicate OBO:RO_0002325 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/5663> .
+
+<https://monarchinitiative.org/MONARCH_38d09a5633e1db2c6c1b8df210f10133385364a4> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/817721> .
+
+<https://monarchinitiative.org/MONARCH_3b41e3c56f87fa306f45a44c15786a09e7b14457> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079,
+        OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11395778> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6469> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/6469> .
+
+<https://monarchinitiative.org/MONARCH_3e3102b7520552350556f8fa45ab37d1b9da1609> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/21357747> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6469> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<https://monarchinitiative.org/MONARCH_4d1a46396e512467c412715329f24d76267c7024> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/24366871> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6469> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/6400> .
+
+<https://monarchinitiative.org/MONARCH_4db54ec52ce59c1e31b23fb3ae248242cac72241> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/18375391> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/1277> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/1277> .
+
+<https://monarchinitiative.org/MONARCH_52e8d4325668bf26d516f54f1ca5379e236fbdb4> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/817721> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<https://monarchinitiative.org/MONARCH_55aae15b3b4a81b9eb47f1843df73d239e890302> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068,
+        OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/12535650>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/15474363> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/5663> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/5663> .
+
+<https://monarchinitiative.org/MONARCH_65c4af9a8464939fff1a09e867717ce1f9d7b09a> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10518493> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/827323> .
+
+<https://monarchinitiative.org/MONARCH_729e0868993f591188f8409a5eeaa64a70ec27b7> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000085 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11279055> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/4591> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/4591> .
+
+<https://monarchinitiative.org/MONARCH_7488b8fd397f33671f23f976566429cf0d3e52f3> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/18477453> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/20423> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/25236> .
+
+<https://monarchinitiative.org/MONARCH_7a60247e4cb697a56564fea8290050c6de7374e4> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/16006578> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/838883> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/831441> .
+
+<https://monarchinitiative.org/MONARCH_8c0c19733b29908a95178ccbcacdc61a8e7ec440> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10518493> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/838883> .
+
+<https://monarchinitiative.org/MONARCH_8c266bb14b58408202029057c5de3273a4950924> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000085 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/9353289> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/4137> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/4137> .
+
+<https://monarchinitiative.org/MONARCH_941e751af3d1903485858a9011a9142f463bf1ca> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10518493> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/816471> .
+
+<https://monarchinitiative.org/MONARCH_9db53f8cbf288a7e818db32973997ff5a7da83f2> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/17189287> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/828658> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/828658> .
+
+<https://monarchinitiative.org/MONARCH_9e4b5b436174c7931f73fa135e5a89d9e427f11f> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/18502753>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/21903092>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/22119785>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/23867461>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/24366871>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/24807418>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/26424800>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/26471130> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6400> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<https://monarchinitiative.org/MONARCH_a3f7a01bd538fe969369796085f5aafe89e2a1b2> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11051556>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/17110338> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/1080> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/1080> .
+
+<https://monarchinitiative.org/MONARCH_a4dafd4b934074555b57c8fa4a3c99914d484e35> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844005> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<https://monarchinitiative.org/MONARCH_aaa9484910024c57ad2ad60ee0a6ad87facf2ac6> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079,
+        OBO:ECO_0000172 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/8650542>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/9311784>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/9603525>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/9674425> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/6908> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/6908> .
+
+<https://monarchinitiative.org/MONARCH_b7cae41b6dd816556e20570f0bef5cb1368274ef> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000011 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10518493> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002435 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/828658> .
+
+<https://monarchinitiative.org/MONARCH_c3d3882aa194c8f3ed29aa90dc8d1fb0c6e81e8b> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068,
+        OBO:ECO_0000324 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/10745013>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/25416956> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/2539> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/2539> .
+
+<https://monarchinitiative.org/MONARCH_c671bf0fd29b777d77a89d8ae668e5fd90c248eb> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068,
+        OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/25422419> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/838883> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/831441> .
+
+<https://monarchinitiative.org/MONARCH_ca066c4d424b9343aba1fc4e77d3f517417d2154> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/24255109> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/828791> .
+
+<https://monarchinitiative.org/MONARCH_cf73e4eb2aecff5a6bfdb95de0d3acbdf186c6f8> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000012,
+        OBO:ECO_0000068 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/22438063> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/844066> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/844005> .
+
+<https://monarchinitiative.org/MONARCH_d91646113d5abf2ffd33878eb1a0fce545be49e5> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11572986> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/14451> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/20423> .
+
+<https://monarchinitiative.org/MONARCH_ee53dca87a6ffe7bed4dd19dd6661b2844a2d701> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000005,
+        OBO:ECO_0000079,
+        OBO:ECO_0000085 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11724934>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/12646171>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/16289116>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/19864457>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/21149444>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/23867461>,
+        <http://www.ncbi.nlm.nih.gov/pubmed/24366871> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/84447> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<https://monarchinitiative.org/MONARCH_f9b8adcfeaac4e40c42d1245f05ab05bc9bbe2ef> a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000079 ;
+    dc:source <http://www.ncbi.nlm.nih.gov/pubmed/11572986> ;
+    OBAN:association_has_object <http://www.ncbi.nlm.nih.gov/gene/20423> ;
+    OBAN:association_has_predicate OBO:RO_0002434 ;
+    OBAN:association_has_subject <http://www.ncbi.nlm.nih.gov/gene/14451> .
+
+<http://www.ncbi.nlm.nih.gov/gene/25236> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/20423> .
+
+<http://www.ncbi.nlm.nih.gov/gene/816471> OBO:RO_0002435 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/827323> OBO:RO_0002435 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/828791> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/835609> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/831441> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/838883> ;
+    OBO:RO_0002435 <http://www.ncbi.nlm.nih.gov/gene/838883>,
+        <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/1080> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/1080> .
+
+<http://www.ncbi.nlm.nih.gov/gene/14451> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/20423> .
+
+<http://www.ncbi.nlm.nih.gov/gene/2539> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/2539> .
+
+<http://www.ncbi.nlm.nih.gov/gene/4591> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/4591> .
+
+<http://www.ncbi.nlm.nih.gov/gene/6908> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/6908> .
+
+<http://www.ncbi.nlm.nih.gov/gene/828658> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/828658> ;
+    OBO:RO_0002435 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/1277> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/1277>,
+        <http://www.ncbi.nlm.nih.gov/gene/1278> .
+
+<http://www.ncbi.nlm.nih.gov/gene/5663> OBO:RO_0002325 <http://www.ncbi.nlm.nih.gov/gene/4137> ;
+    OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/5663> .
+
+<http://www.ncbi.nlm.nih.gov/gene/838883> OBO:RO_0002435 <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/20423> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/14451> .
+
+<http://www.ncbi.nlm.nih.gov/gene/4137> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/4137> .
+
+<http://www.ncbi.nlm.nih.gov/gene/6400> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/6469>,
+        <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<http://www.ncbi.nlm.nih.gov/gene/6469> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/6469> .
+
+<http://www.ncbi.nlm.nih.gov/gene/817721> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/817721>,
+        <http://www.ncbi.nlm.nih.gov/gene/844005>,
+        <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/844005> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/817721>,
+        <http://www.ncbi.nlm.nih.gov/gene/844005>,
+        <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
+<http://www.ncbi.nlm.nih.gov/gene/84447> OBO:RO_0002325 <http://www.ncbi.nlm.nih.gov/gene/6400> ;
+    OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/6400>,
+        <http://www.ncbi.nlm.nih.gov/gene/6469>,
+        <http://www.ncbi.nlm.nih.gov/gene/84447> .
+
+<http://www.ncbi.nlm.nih.gov/gene/844066> OBO:RO_0002434 <http://www.ncbi.nlm.nih.gov/gene/817721>,
+        <http://www.ncbi.nlm.nih.gov/gene/844005>,
+        <http://www.ncbi.nlm.nih.gov/gene/844066> .
+
