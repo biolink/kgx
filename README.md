@@ -27,3 +27,12 @@ The structure of this graph is expected to conform to
     * predicate : required
     * object : required
     * extensible other fields
+
+## RDF
+
+## Neo4J
+
+Neo4j implements property graphs out the box. However, some
+implementations use reification nodes. The transform should allow for
+de-reification.
+

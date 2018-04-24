@@ -12,3 +12,12 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
     
+class MonarchNeoTransformer(NeoTransformer):
+    """
+    TODO: do we need a subclass, or just make parent configurable?
+
+    In contrast to a generic import/export, the Monarch neo4j graph
+    uses reification (same as Richard's semmeddb implementation in neo4j).
+    This transform should de-reify
+    """
+    

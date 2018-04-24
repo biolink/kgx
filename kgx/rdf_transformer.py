@@ -10,6 +10,8 @@ class RdfTransformer(Transformer):
 
      - OBAN reification (as used in Monarch)
      - RDF reification
+
+    TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
 
 class ObanRdfTransformer(RdfTransformer):
