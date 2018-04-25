@@ -39,6 +39,9 @@ class RdfTransformer(Transformer):
             elif filename.endswith(".rdf"):
                 format='xml'
         rdfgraph.parse(filename, format=format)
+
+        # TODO: use source from RDF
+        self.graph_metadata['provided_by'] = filename
         self.load_edges(rdfgraph)
 
         
@@ -61,6 +64,7 @@ class ObanRdfTransformer(RdfTransformer):
                 obj[p] = v
             s = obj['subject']
             o = obj['object']
+            obj['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_edge(o, s, attr_dict=obj)
             
     def curie(self, uri):

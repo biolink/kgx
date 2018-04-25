@@ -8,6 +8,7 @@ class Transformer(object):
         else:
             self.graph = t.graph
         self.filter = {}
+        self.graph_metadata = {}
         
     def report(self):
         g = self.graph
