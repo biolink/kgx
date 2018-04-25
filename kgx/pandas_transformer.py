@@ -56,7 +56,19 @@ class PandasTransformer(Transformer):
             item['object'] = o
             items.append(item)
         df = pd.DataFrame.from_dict(items)
+        cols = df.columns.tolist()
+        cols = self.order_cols(cols)
+        df = df[cols]
         return df
+
+    def order_cols(self, cols):
+        ORDER = ['id', 'subject', 'predicate', 'object', 'relation']
+        cols2 = []
+        for c in ORDER:
+            if c in cols:
+                cols2.append(c)
+                cols.remove(c)
+        return cols2 + cols
         
         
     def save(self, filename, type='n', **args):

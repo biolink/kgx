@@ -1,3 +1,3 @@
-virtualenv -p python3 ./env
-source env/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 export PYTHONPATH=.:$PYTHONPATH

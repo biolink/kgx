@@ -1,4 +1,4 @@
-from kgx import ObanRdfTransformer, PandasTransformer, GraphMLTransformer
+from kgx import ObanRdfTransformer, PandasTransformer, GraphMLTransformer, JsonTransformer
 
 def test_load():
     """
@@ -11,3 +11,5 @@ def test_load():
     w1.save('target/bgcopy.csv', type='e')
     w2 = GraphMLTransformer(t)
     w2.save("target/x1n.graphml")
+    w3 = JsonTransformer(t)
+    w3.save("target/x1n.json")
