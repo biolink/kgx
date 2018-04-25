@@ -1,8 +1,20 @@
 import networkx as nx
 
 class Transformer(object):
+    """
+    Base class for performing a Transformation, this can be
 
+     - from a source to an in-memory property graph (networkx)
+     - from an in-memory property graph to a target format or database
+
+    """
+    
     def __init__(self, t=None):
+        """
+        Create a new Transformer. This should be called directly on a subclass.
+
+        Optional arg: a Transformer
+        """
         if t is None:
             self.graph = nx.MultiDiGraph()
         else:
@@ -26,5 +38,6 @@ class Transformer(object):
          - predicate
          - subject_category
          - object_category
+         - source
         """
         self.filter[p] = v
