@@ -10,6 +10,12 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 
 ## Command Line Usage
 
+### Installation
+
+```
+pip install .
+```
+
 Coming soon. For now see the [tests](tests/) for example
 
 ## Internal Representation
@@ -23,8 +29,8 @@ standard](http://bit.ly/tr-kg-standard), briefly summarized here:
     * id : required
     * name : string
     * category : string. broad high level type. Corresponds to label in neo4j
-    * extensible other properties, depending on 
- * [Edges](https://biolink.github.io/biolink-model/docs/Association.html) 
+    * extensible other properties, depending on
+ * [Edges](https://biolink.github.io/biolink-model/docs/Association.html)
     * subject : required
     * predicate : required
     * object : required
@@ -52,4 +58,3 @@ Intended to support
 Neo4j implements property graphs out the box. However, some
 implementations use reification nodes. The transform should allow for
 de-reification.
-
