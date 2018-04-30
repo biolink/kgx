@@ -20,14 +20,14 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group()
 @click.option('--debug', is_flag=True, help='Prints the stack trace if error occurs')
-@click.version_option(prog_name=kgx.__name__)
+@click.version_option(version=kgx.__version__, prog_name=kgx.__name__)
 @pass_config
 def cli(config, debug):
     config.debug = debug
 
 @cli.command()
-@click.option('--input-type', type=str, help='Extention type of input files: ' + _file_types)
-@click.option('--output-type', type=str, help='Extention type of output files: ' + _file_types)
+@click.option('--input-type', type=str, help='Extention type of input files: ' + _file_types + '. Required if file name does not have appropriate extention.')
+@click.option('--output-type', type=str, help='Extention type of output files: ' + _file_types + '. Required if file name does not have appropriate extention.')
 @click.argument('node', type=click.Path(exists=False))
 @click.argument('edge', type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
@@ -62,6 +62,8 @@ def _dump(node, edge, output, input_type, output_type):
 
     t.parse(node)
     t.parse(edge)
+
+    t.report()
 
     output_transformer = _transformers.get(output_type)
 
