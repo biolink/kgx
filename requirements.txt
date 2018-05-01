@@ -8,4 +8,4 @@ mypy>=0.0
 pystache>=0.0
 pytest_logging>=0.0
 rdflib>=0.0
-pymongo==3.6.1
+click==6.7

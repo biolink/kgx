@@ -95,8 +95,8 @@ class PandasTransformer(Transformer):
         self.export_nodes().to_csv(node_file_path, index=False)
         self.export_edges().to_csv(edge_file_path, index=False)
 
-        if not filename.startswith('.'):
-            filename += filename
+        if not ziptype.startswith('.'):
+            ziptype = '.' + ziptype
 
         if not filename.endswith(ziptype):
             filename += ziptype

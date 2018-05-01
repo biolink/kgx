@@ -66,7 +66,7 @@ def _dump(input, output, input_type, output_type):
     input_transformer = _transformers.get(input_type)
 
     if input_transformer is None:
-        raise Exception('Output does not have a recognized type: ' + _file_types)
+        raise Exception('Input does not have a recognized type: ' + _file_types)
 
     t = input_transformer()
 
