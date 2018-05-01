@@ -8,15 +8,52 @@ the
 
 For additional background see the [Translator Knowledge Graph Drive](http://bit.ly/tr-kg)
 
+## Installation
+```
+pip install -r requirements.txt
+python setup.py install
+```
+
 ## Command Line Usage
+Use the `--help` flag to get help. Right now there is a single command:
+```
+Usage: kgx dump [OPTIONS] [INPUT]... OUTPUT
 
-### Installation
+  Transforms a knowledge graph from one representation to another
+  INPUT  : any number of files or endpoints
+  OUTPUT : the output file
+
+Options:
+  --input-type TEXT   Extention type of input files: ttl, json, csv, rq, tsv,
+                      graphml
+  --output-type TEXT  Extention type of output files: ttl, json, csv, rq, tsv,
+                      graphml
+  --help              Show this message and exit.
+```
+
+CSV/TSV representation require two files, one that represents the vertex set and
+one for the edge set. JSON, TTL, and GRAPHML files represent a whole graph in a
+single file. For this reason when creating CSV/TSV representation we will zip
+the resulting files in a .tar file.
+
+The format will be inferred from the file extention. But if  this cannot be done
+then the `--input-type` and `--output-type` flags are useful to tell the program
+what formats to use. Currently not all conversions are supported.
+
+Here are some examples that mirror the [tests](tests/):
 
 ```
-pip install .
+$ kgx dump --output-type=csv tests/resources/x1n.csv tests/resources/x1e.csv target/x1out
+File created at: target/x1out.tar
+$ kgx dump tests/resources/x1n.csv tests/resources/x1e.csv target/x1n.graphml
+File created at: target/x1n.graphml
+$ kgx dump tests/resources/monarch/biogrid_test.ttl target/bgcopy.csv
+File created at: target/bgcopy.csv.tar
+$ kgx dump tests/resources/monarch/biogrid_test.ttl target/x1n.graphml
+File created at: target/x1n.graphml
+$ kgx dump tests/resources/monarch/biogrid_test.ttl target/x1n.json
+File created at: target/x1n.json
 ```
-
-Coming soon. For now see the [tests](tests/) for example
 
 ## Internal Representation
 

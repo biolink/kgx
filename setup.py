@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='kgx',
+    name='Knowledge Graph Exchange',
     version='0.0.1',
     packages=['kgx'],
     install_requires=['Click'],

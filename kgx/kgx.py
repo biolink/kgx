@@ -1,5 +1,6 @@
 import kgx
 import click
+import os
 
 _transformers = {
     'csv' : kgx.PandasTransformer,
@@ -23,35 +24,44 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 @click.version_option(version=kgx.__version__, prog_name=kgx.__name__)
 @pass_config
 def cli(config, debug):
+    """
+    Knowledge Graph Exchange
+    """
     config.debug = debug
 
 @cli.command()
-@click.option('--input-type', type=str, help='Extention type of input files: ' + _file_types + '. Required if file name does not have appropriate extention.')
-@click.option('--output-type', type=str, help='Extention type of output files: ' + _file_types + '. Required if file name does not have appropriate extention.')
-@click.argument('node', type=click.Path(exists=False))
-@click.argument('edge', type=click.Path(exists=False))
+@click.option('--input-type', type=str, help='Extention type of input files: ' + _file_types)
+@click.option('--output-type', type=str, help='Extention type of output files: ' + _file_types)
+@click.argument('input', nargs=-1, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
-def dump(config, node, edge, output, input_type, output_type):
+def dump(config, input, output, input_type, output_type):
+    """\b
+    Transforms a knowledge graph from one representation to another
+    INPUT  : any number of files or endpoints
+    OUTPUT : the output file
+    """
     try:
-        _dump(node, edge, output, input_type, output_type)
+        _dump(input, output, input_type, output_type)
     except Exception as e:
         if config.debug:
             raise e
         else:
             raise click.ClickException(e)
 
-def _dump(node, edge, output, input_type, output_type):
+def _dump(input, output, input_type, output_type):
     if output_type is None:
         output_type = _get_type(output)
 
     if input_type is None:
-        node_input_type = _get_type(node)
-        edge_input_type = _get_type(edge)
-        if node_input_type != edge_input_type:
-            raise click.ClickException('Node and edge file must have the same file extension')
-        else:
-            input_type = node_input_type
+        input_types = [_get_type(i) for i in input]
+        for t in input_types:
+            if input_types[0] != t:
+                raise Exception("""Each input file must have the same file type.
+                    Try setting the --input-type parameter to enforce a single
+                    type."""
+                )
+            input_type = input_types[0]
 
     input_transformer = _transformers.get(input_type)
 
@@ -60,19 +70,29 @@ def _dump(node, edge, output, input_type, output_type):
 
     t = input_transformer()
 
-    t.parse(node)
-    t.parse(edge)
-
-    t.report()
+    for i in input:
+        t.parse(i)
 
     output_transformer = _transformers.get(output_type)
 
     if output_transformer is None:
         raise Exception('Output does not have a recognized type: ' + _file_types)
 
-    w = output_transformer(t)
+    kwargs = {
+        'app_dir' : click.get_app_dir(kgx.__name__),
+        'extention' : output_type
+    }
 
-    w.save(output)
+    w = output_transformer(t)
+    result_path = w.save(output, **kwargs)
+
+    if result_path is not None and os.path.isfile(result_path):
+        click.echo("File created at: " + result_path)
+    elif os.path.isfile(output):
+        click.echo("File created at: " + output)
+    else:
+        click.echo("Could not create file.")
+
 
 def _get_type(filename):
     for t in _transformers.keys():
