@@ -1,0 +1,420 @@
+{
+    "edges": [
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000324",
+            "http://purl.org/dc/elements/1.1/source": "PMID:25416956",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:2539",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:2539"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000172",
+            "http://purl.org/dc/elements/1.1/source": "PMID:9689133",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:4137",
+            "predicate": "OBO:RO_0002325",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:5663"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000085",
+            "http://purl.org/dc/elements/1.1/source": "PMID:9353289",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:4137",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:4137"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:15474363",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:5663",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:5663"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000005",
+            "http://purl.org/dc/elements/1.1/source": "PMID:23867461",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:84447",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:84447"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:26471130",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:84447",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:6400"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:11572986",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:14451",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:20423"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:18477453",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:20423",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:25236"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:11572986",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:20423",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:14451"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844005",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844066"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844005",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:817721"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844005",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844005"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:24255109",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:828791"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:817721"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:10518493",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:831441"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844005"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:10518493",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:828658"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:10518493",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:838883"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:10518493",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:816471"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844066"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:24255109",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:835609"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:10518493",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:844066",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:827323"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:24366871",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6469",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:6400"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:11395778",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6469",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:6469"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:21357747",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6469",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:84447"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:24807418",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6400",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:84447"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000172",
+            "http://purl.org/dc/elements/1.1/source": "PMID:26471130",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6400",
+            "predicate": "OBO:RO_0002325",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:84447"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:817721",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844066"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:817721",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:817721"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:22438063",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:817721",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:844005"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000172",
+            "http://purl.org/dc/elements/1.1/source": "PMID:18375391",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:1277",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:1277"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000085",
+            "http://purl.org/dc/elements/1.1/source": "PMID:11279055",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:4591",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:4591"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:11051556",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:1080",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:1080"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:17189287",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:828658",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:828658"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000011",
+            "http://purl.org/dc/elements/1.1/source": "PMID:16006578",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:838883",
+            "predicate": "OBO:RO_0002435",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:831441"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000068",
+            "http://purl.org/dc/elements/1.1/source": "PMID:25422419",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:838883",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:831441"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000172",
+            "http://purl.org/dc/elements/1.1/source": "PMID:18375391",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:1278",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:1277"
+        },
+        {
+            "http://purl.obolibrary.org/obo/RO_0002558": "ECO:0000079",
+            "http://purl.org/dc/elements/1.1/source": "PMID:8650542",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "OBAN:association",
+            "object": "NCBIGene:6908",
+            "predicate": "OBO:RO_0002434",
+            "provided_by": "tests/resources/monarch/biogrid_test.ttl",
+            "subject": "NCBIGene:6908"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "NCBIGene:2539"
+        },
+        {
+            "id": "NCBIGene:4137"
+        },
+        {
+            "id": "NCBIGene:5663"
+        },
+        {
+            "id": "NCBIGene:84447"
+        },
+        {
+            "id": "NCBIGene:14451"
+        },
+        {
+            "id": "NCBIGene:20423"
+        },
+        {
+            "id": "NCBIGene:844005"
+        },
+        {
+            "id": "NCBIGene:844066"
+        },
+        {
+            "id": "NCBIGene:828791"
+        },
+        {
+            "id": "NCBIGene:6469"
+        },
+        {
+            "id": "NCBIGene:6400"
+        },
+        {
+            "id": "NCBIGene:817721"
+        },
+        {
+            "id": "NCBIGene:1277"
+        },
+        {
+            "id": "NCBIGene:4591"
+        },
+        {
+            "id": "NCBIGene:1080"
+        },
+        {
+            "id": "NCBIGene:831441"
+        },
+        {
+            "id": "NCBIGene:828658"
+        },
+        {
+            "id": "NCBIGene:25236"
+        },
+        {
+            "id": "NCBIGene:838883"
+        },
+        {
+            "id": "NCBIGene:816471"
+        },
+        {
+            "id": "NCBIGene:1278"
+        },
+        {
+            "id": "NCBIGene:835609"
+        },
+        {
+            "id": "NCBIGene:827323"
+        },
+        {
+            "id": "NCBIGene:6908"
+        }
+    ]
+}

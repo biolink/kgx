@@ -6,6 +6,9 @@ import rdflib
 from rdflib import Namespace
 from rdflib.namespace import RDF
 from prefixcommons.curie_util import contract_uri
+from typing import NewType
+
+UriString = NewType("UriString", str)
 
 OBAN = Namespace('http://purl.org/oban/')
 
@@ -28,7 +31,7 @@ class RdfTransformer(Transformer):
     TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
 
-    def parse(self,filename=None, format=None):
+    def parse(self,filename:str=None, format:str=None):
         """
         Parse a file into an graph, using rdflib
         """
@@ -39,19 +42,21 @@ class RdfTransformer(Transformer):
             elif filename.endswith(".rdf"):
                 format='xml'
         rdfgraph.parse(filename, format=format)
-        self.load_edges(rdfgraph)
 
-        
-    
+        # TODO: use source from RDF
+        self.graph_metadata['provided_by'] = filename
+        # self.load_edges(rdfgraph)
+
+
+
 class ObanRdfTransformer(RdfTransformer):
     """
     Transforms to and from RDF, assuming OBAN-style modeling
     """
-    
-    def load_edges(self, rg):
+
+    def load_edges(self, rg: rdflib.Graph):
         """
         """
-        items = []
         for a in rg.subjects(RDF.type, OBAN.association):
             obj = {}
             for s,p,o in rg.triples( (a, None, None) ):
@@ -61,9 +66,10 @@ class ObanRdfTransformer(RdfTransformer):
                 obj[p] = v
             s = obj['subject']
             o = obj['object']
+            obj['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_edge(o, s, attr_dict=obj)
-            
-    def curie(self, uri):
+
+    def curie(self, uri: UriString) -> str:
         curies = contract_uri(str(uri))
         if len(curies)>0:
             return curies[0]

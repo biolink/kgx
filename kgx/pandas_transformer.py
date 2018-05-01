@@ -5,44 +5,46 @@ import tarfile
 
 from .transformer import Transformer
 
+from typing import Dict, List
+
 class PandasTransformer(Transformer):
     """
     Implements Transformation from a Pandas DataFrame to a NetworkX graph
     """
 
-    def parse(self, filename, **args):
+    def parse(self, filename: str, **args):
         """
         Parse a CSV/TSV
 
         May be either a node file or an edge file
         """
-        df = pd.read_csv(filename, comment='#', **args)
+        df = pd.read_csv(filename, comment='#', **args) # type: pd.DataFrame
         self.load(df)
 
-    def load(self, df):
+    def load(self, df: pd.DataFrame):
         if 'subject' in df:
             self.load_edges(df)
         else:
             self.load_nodes(df)
 
-    def load_nodes(self, df):
+    def load_nodes(self, df: pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
-    def load_node(self, obj):
-        id = obj['id']
+    def load_node(self, obj: Dict):
+        id = obj['id'] # type: str
         self.graph.add_node(id, attr_dict=obj)
 
-    def load_edges(self, df):
+    def load_edges(self, df: pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
-    def load_edge(self, obj):
-        s = obj['subject']
-        o = obj['object']
+    def load_edge(self, obj: Dict):
+        s = obj['subject'] # type: str
+        o = obj['object'] # type: str
         self.graph.add_edge(o, s, attr_dict=obj)
 
-    def export_nodes(self):
+    def export_nodes(self) -> pd.DataFrame:
         items = []
         for n,data in self.graph.nodes_iter(data=True):
             item = data.copy()
@@ -51,7 +53,7 @@ class PandasTransformer(Transformer):
         df = pd.DataFrame.from_dict(items)
         return df
 
-    def export_edges(self):
+    def export_edges(self) -> pd.DataFrame:
         items = []
         for o,s,data in self.graph.edges_iter(data=True):
             item = data.copy()
@@ -64,7 +66,7 @@ class PandasTransformer(Transformer):
         df = df[cols]
         return df
 
-    def order_cols(self, cols):
+    def order_cols(self, cols: List[str]):
         ORDER = ['id', 'subject', 'predicate', 'object', 'relation']
         cols2 = []
         for c in ORDER:
@@ -73,7 +75,7 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
-    def save(self, filename, **kwargs):
+    def save(self, filename: str, **kwargs):
         """
         Write two CSV/TSV files representing the node set and edge set of a
         graph, and zip them in a .tar file. The two files will be written to a
@@ -104,7 +106,7 @@ class PandasTransformer(Transformer):
 
         return filename
 
-    def save_csv(self, filename, type='n', **args):
+    def save_csv(self, filename: str, type='n', **args):
         """
         Write a CSV/TSV
 

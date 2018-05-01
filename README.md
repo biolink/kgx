@@ -80,6 +80,7 @@ Intended to support
  - Generic Graph Formats
  - local or remote files
     - CSV
+    - TSV (such as the [RKB adapted data loading formats](https://github.com/NCATS-Tangerine/translator-knowledge-graph/blob/develop/database/scripts/README.md))
     - RDF (Monarch/OBAN style, ...)
     - GraphML
     - CX
