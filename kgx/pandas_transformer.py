@@ -75,15 +75,13 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
-    def save(self, filename: str, **kwargs):
+    def save(self, filename: str, tmp_dir='.', extention='csv', ziptype='tar', zipmode='w', **kwargs):
         """
         Write two CSV/TSV files representing the node set and edge set of a
         graph, and zip them in a .tar file. The two files will be written to a
         temporary directory if provided in the kwargs, but they will not be
         deleted after use. Each use of this method will overwrite the two files.
         """
-        tmp_dir = kwargs.get('tmp_dir', '.')
-        extention = kwargs.get('extention', 'csv')
 
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
@@ -97,10 +95,13 @@ class PandasTransformer(Transformer):
         self.export_nodes().to_csv(node_file_path, index=False)
         self.export_edges().to_csv(edge_file_path, index=False)
 
-        if not filename.endswith('.tar'):
-            filename += '.tar'
+        if not filename.startswith('.'):
+            filename += filename
 
-        with tarfile.open(name=filename, mode='w') as tar:
+        if not filename.endswith(ziptype):
+            filename += ziptype
+
+        with tarfile.open(name=filename, mode=zipmode) as tar:
             tar.add(name=node_file_path, arcname=node_file_name)
             tar.add(name=edge_file_path, arcname=edge_file_name)
 
