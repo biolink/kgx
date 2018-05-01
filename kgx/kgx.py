@@ -73,13 +73,15 @@ def _dump(input, output, input_type, output_type):
     for i in input:
         t.parse(i)
 
+    t.report()
+
     output_transformer = _transformers.get(output_type)
 
     if output_transformer is None:
         raise Exception('Output does not have a recognized type: ' + _file_types)
 
     kwargs = {
-        'app_dir' : click.get_app_dir(kgx.__name__),
+        'tmp_dir' : click.get_app_dir(kgx.__name__),
         'extention' : output_type
     }
 
