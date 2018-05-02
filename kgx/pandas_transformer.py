@@ -2,6 +2,7 @@ import pandas as pd
 import logging
 import os
 import tarfile
+from tempfile import TemporaryFile
 
 from .transformer import Transformer
 
@@ -11,6 +12,11 @@ class PandasTransformer(Transformer):
     """
     Implements Transformation from a Pandas DataFrame to a NetworkX graph
     """
+    _extention_types = {
+        'csv' : ',',
+        'tsv' : '\t',
+        'txt' : '|'
+    }
 
     def parse(self, filename: str, **args):
         """
@@ -75,42 +81,37 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
-    def get_delimiter(self, extention_type='csv', default=None):
-        return {
-            'csv' : ',',
-            'tsv' : '\t',
-            'txt' : '|'
-        }.get(extention_type, default)
-
-    def save(self, filename: str, tmp_dir='.', extention='csv', ziptype='tar', zipmode='w', **kwargs):
+    def save(self, filename: str, extention='csv', zipmode='w', **kwargs):
         """
         Write two CSV/TSV files representing the node set and edge set of a
-        graph, and zip them in a .tar file. The two files will be written to a
-        temporary directory if provided in the kwargs, but they will not be
-        deleted after use. Each use of this method will overwrite the two files.
+        graph, and zip them in a .tar file.
         """
+        if extention not in self._extention_types:
+            raise Exception('Unsupported extention: ' + extention)
 
-        if not os.path.exists(tmp_dir):
-            os.mkdir(tmp_dir)
+        if not filename.endswith('.tar'):
+            filename += '.tar'
 
-        edge_file_name = 'edges.' + extention
-        node_file_name = 'nodes.' + extention
+        delimiter = self._extention_types[extention]
 
-        edge_file_path = os.path.join(tmp_dir, edge_file_name)
-        node_file_path = os.path.join(tmp_dir, node_file_name)
+        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False)
+        edges_content = self.export_edges().to_csv(sep=delimiter, index=False)
 
-        self.export_nodes().to_csv(node_file_path, sep=self.get_delimiter(extention, ','), index=False)
-        self.export_edges().to_csv(edge_file_path, sep=self.get_delimiter(extention, ','), index=False)
+        nodes_file_name = 'nodes.' + extention
+        edges_file_name = 'edges.' + extention
 
-        if not ziptype.startswith('.'):
-            ziptype = '.' + ziptype
-
-        if not filename.endswith(ziptype):
-            filename += ziptype
+        def add_to_tar(tar, filename, filecontent):
+            content = filecontent.encode()
+            with TemporaryFile() as tmp:
+                tmp.write(content)
+                tmp.seek(0)
+                info = tarfile.TarInfo(name=filename)
+                info.size = len(content)
+                tar.addfile(tarinfo=info, fileobj=tmp)
 
         with tarfile.open(name=filename, mode=zipmode) as tar:
-            tar.add(name=node_file_path, arcname=node_file_name)
-            tar.add(name=edge_file_path, arcname=edge_file_name)
+            add_to_tar(tar, nodes_file_name, nodes_content)
+            add_to_tar(tar, edges_file_name, edges_content)
 
         return filename
 

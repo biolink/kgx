@@ -82,7 +82,6 @@ def _dump(input, output, input_type, output_type):
         raise Exception('Output does not have a recognized type: ' + _file_types)
 
     kwargs = {
-        'tmp_dir' : click.get_app_dir(kgx.__name__),
         'extention' : output_type
     }
 
