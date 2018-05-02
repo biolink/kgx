@@ -75,6 +75,13 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
+    def get_delimiter(self, extention_type='csv', default=None):
+        return {
+            'csv' : ',',
+            'tsv' : '\t',
+            'txt' : '|'
+        }.get(extention_type, default)
+
     def save(self, filename: str, tmp_dir='.', extention='csv', ziptype='tar', zipmode='w', **kwargs):
         """
         Write two CSV/TSV files representing the node set and edge set of a
@@ -92,8 +99,8 @@ class PandasTransformer(Transformer):
         edge_file_path = os.path.join(tmp_dir, edge_file_name)
         node_file_path = os.path.join(tmp_dir, node_file_name)
 
-        self.export_nodes().to_csv(node_file_path, index=False)
-        self.export_edges().to_csv(edge_file_path, index=False)
+        self.export_nodes().to_csv(node_file_path, sep=self.get_delimiter(extention, ','), index=False)
+        self.export_edges().to_csv(edge_file_path, sep=self.get_delimiter(extention, ','), index=False)
 
         if not ziptype.startswith('.'):
             ziptype = '.' + ziptype

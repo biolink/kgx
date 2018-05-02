@@ -3,6 +3,7 @@ import click
 import os
 
 _transformers = {
+    'txt' : kgx.PandasTransformer,
     'csv' : kgx.PandasTransformer,
     'tsv' : kgx.PandasTransformer,
     'graphml' : kgx.GraphMLTransformer,
