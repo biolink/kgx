@@ -1,5 +1,8 @@
 import pandas as pd
 import logging
+import os
+import tarfile
+
 from .transformer import Transformer
 
 from typing import Dict, List
@@ -72,8 +75,39 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
+    def save(self, filename: str, tmp_dir='.', extention='csv', ziptype='tar', zipmode='w', **kwargs):
+        """
+        Write two CSV/TSV files representing the node set and edge set of a
+        graph, and zip them in a .tar file. The two files will be written to a
+        temporary directory if provided in the kwargs, but they will not be
+        deleted after use. Each use of this method will overwrite the two files.
+        """
 
-    def save(self, filename: str, type='n', **args):
+        if not os.path.exists(tmp_dir):
+            os.mkdir(tmp_dir)
+
+        edge_file_name = 'edges.' + extention
+        node_file_name = 'nodes.' + extention
+
+        edge_file_path = os.path.join(tmp_dir, edge_file_name)
+        node_file_path = os.path.join(tmp_dir, node_file_name)
+
+        self.export_nodes().to_csv(node_file_path, index=False)
+        self.export_edges().to_csv(edge_file_path, index=False)
+
+        if not ziptype.startswith('.'):
+            ziptype = '.' + ziptype
+
+        if not filename.endswith(ziptype):
+            filename += ziptype
+
+        with tarfile.open(name=filename, mode=zipmode) as tar:
+            tar.add(name=node_file_path, arcname=node_file_name)
+            tar.add(name=edge_file_path, arcname=edge_file_name)
+
+        return filename
+
+    def save_csv(self, filename: str, type='n', **args):
         """
         Write a CSV/TSV
 

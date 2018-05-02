@@ -13,5 +13,5 @@ class GraphMLTransformer(NetworkxTransformer):
     I/O for graphml
     """
 
-    def save(self, path):
+    def save(self, path, **kwargs):
         nx.write_graphml(self.graph, path)

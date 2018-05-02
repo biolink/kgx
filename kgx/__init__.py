@@ -7,3 +7,5 @@ from .nx_transformer import GraphMLTransformer
 from .sparql_transformer import SparqlTransformer
 from .rdf_transformer import ObanRdfTransformer
 from .json_transformer import JsonTransformer
+
+from .kgx import cli
