@@ -15,11 +15,13 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
-    with open("config.yml", 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+    def __init__(self, t=None):
+        super(NeoTransformer, self).__init__(t)
+        with open("config.yml", 'r') as ymlfile:
+            cfg = yaml.load(ymlfile)
 
-    uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
-    driver = GraphDatabase.driver(uri, auth=(cfg['neo4j']['username'], cfg['neo4j']['password']))
+        uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
+        self.driver = GraphDatabase.driver(uri, auth=(cfg['neo4j']['username'], cfg['neo4j']['password']))
 
     def load(self):
         """
