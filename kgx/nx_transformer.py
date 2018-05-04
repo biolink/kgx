@@ -13,7 +13,7 @@ class GraphMLTransformer(NetworkxTransformer):
     I/O for graphml
     """
 
-    def save(self, path):
+    def save(self, path, **kwargs):
         # self.graph contains python lists in its meta obj, but write_graphml function does not know
         # how to serialize python lists, i.e. graphml does not support lists as a valid type for serialization.
         # As a workaround, we converts lists into comma-separated strings.
