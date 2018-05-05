@@ -33,6 +33,7 @@ class NeoTransformer(Transformer):
         """
         Load a node into neo4j
         """
+
         tx.run("CREATE (n {params})", params=obj)
 
     def load_edge(self, tx, obj):
@@ -40,34 +41,22 @@ class NeoTransformer(Transformer):
         Load an edge into neo4j
         """
 
-        s = obj['subject']
-        p = obj['predicate']
-        o = obj['object']
+        queryString = "MATCH (s {{ id: '{subject_id}' }}) MATCH (o {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
+        queryStringWithLabel = "MATCH (s:{subject_label} {{ id: '{subject_id}' }}) MATCH (o:{object_label} {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
 
-        del obj['subject']
-        del obj['predicate']
-        del obj['object']
+        query_params = {
+            'subject_label': '', 'subject_id': obj['subject'],
+            'object_label': '', 'object_id': obj['object'],
+            'relationship': obj['predicate'], 'relationship_properties': self.parse_properties(obj)
+        }
 
-        queryString = self.build_cypher_string(s, p, o, obj)
-        logging.debug(queryString)
-        tx.run(queryString)
-
-    def build_cypher_string(self, s, p, o, params=None):
-        """
-        Build cypher query from given subject, predicate, object and relationship properties
-        """
-        if ':' in p:
-            # relationship name cannot have ':'
-            p = p.replace(':', '_')
-        if params:
-            queryString = "MATCH (s {id: '" + s + "'}) MATCH (o {id: '" + o + "'}) MERGE (s)-[:" + p + " {"
-            for key in params:
-                queryString += " " + key + ": '{}'".format(NeoTransformer.parse_value(params[key], '|')) + ","
-            queryString = queryString[:-1]
-            queryString += "}]->(o)"
+        if query_params['subject_label'] and query_params['object_label']:
+            query = queryStringWithLabel.format(**query_params)
         else:
-            queryString = "MATCH (s {id: '" + s + "'}) MATCH (o {id: '" + o + "'}) MERGE (s)-[:" + p + "]->(o)"
-        return queryString
+            query = queryString.format(**query_params)
+
+        logging.debug(query)
+        tx.run(query)
 
     def save_from_csv(self, nodes_filename, edges_filename):
         """
@@ -109,19 +98,19 @@ class NeoTransformer(Transformer):
                 logging.info("Number of Edges: {}".format(r.values()[0]))
 
     @staticmethod
-    def parse_value(value, delimiter):
-        """
-        Parse multi-valued properties separated by a delimiter
-        """
-        if delimiter in value:
-            valueString = "["
-            for v in value.split(delimiter):
-                valueString += v + ","
-            valueString = valueString[:-1]
-            valueString += "]"
-        else:
-            valueString = value
-        return valueString
+    def parse_properties(properties, delim = '|'):
+        propertyList = []
+        for key in properties:
+            if key in ['subject', 'predicate', 'object']:
+                continue
+            if delim in properties[key]:
+                values = properties[key].split(delim)
+                pair = "{}: {}".format(key, values)
+            else:
+                values = properties[key]
+                pair = "{}: '{}'".format(key, values)
+            propertyList.append(pair)
+        return ','.join(propertyList)
 
 class MonarchNeoTransformer(NeoTransformer):
     """
