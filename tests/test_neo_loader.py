@@ -19,3 +19,13 @@ def test_graph_to_neo_load():
     t.report()
     n = NeoTransformer(t)
     n.save()
+
+def test_neo_to_graph_transform():
+    """
+    load from neo4j and transform to nx graph
+    """
+    n = NeoTransformer()
+    n.load()
+    n.report()
+    #t = PandasTransformer(n)
+    #t.save("target/neo_graph.csv")

@@ -27,16 +27,75 @@ class NeoTransformer(Transformer):
         """
         Read a neo4j database and create a nx graph
         """
-        pass
 
-    def load_node(self, tx, obj):
+        with self.driver.session() as session:
+            self.load_nodes(session.read_transaction(self.get_nodes))
+            self.load_edges(session.read_transaction(self.get_edges))
+
+    def load_nodes(self, node_records):
+        """
+        Load nodes from neo4j records
+        """
+
+        for node in node_records:
+            self.load_node(node)
+
+    def load_edges(self, edge_records):
+        """
+        Load edges from neo4j records
+        """
+
+        for edge in edge_records:
+            self.load_edge(edge)
+
+    def load_node(self, node_record):
+        """
+        Load node from a neo4j record
+        """
+
+        node=node_record[0]
+        attributes = {}
+        for i in node.items():
+            attributes[i[0]] = i[1]
+
+        self.graph.add_node(node.get('id'), attr_dict=attributes)
+
+    def load_edge(self, edge_record):
+        """
+        Load an edge from a neo4j record
+        """
+
+        s = edge_record[0]
+        p = edge_record[1]
+        o = edge_record[2]
+        attributes = {}
+        for i in p.items():
+            attributes[i[0]] = i[1]
+
+        self.graph.add_edge(s['id'], o['id'], attr_dict=attributes)
+
+    def get_nodes(self, tx):
+        """
+        Get all nodes from neo4j database
+        """
+
+        return tx.run("MATCH (n) RETURN n")
+
+    def get_edges(self, tx):
+        """
+        Get all edges from neo4j database
+        """
+
+        return tx.run("MATCH (s)-[p]->(o) RETURN s,p,o")
+
+    def save_node(self, tx, obj):
         """
         Load a node into neo4j
         """
 
         tx.run("CREATE (n {params})", params=obj)
 
-    def load_edge(self, tx, obj):
+    def save_edge(self, tx, obj):
         """
         Load an edge into neo4j
         """
@@ -67,9 +126,9 @@ class NeoTransformer(Transformer):
 
         with self.driver.session() as session:
             for index, row in nodes_df.iterrows():
-                session.write_transaction(self.load_node, row.to_dict())
+                session.write_transaction(self.save_node, row.to_dict())
             for index, row in edges_df.iterrows():
-                session.write_transaction(self.load_edge, row.to_dict())
+                session.write_transaction(self.save_edge, row.to_dict())
         self.neo4j_report()
 
     def save(self):
@@ -80,12 +139,18 @@ class NeoTransformer(Transformer):
         with self.driver.session() as session:
             for n in self.graph.nodes():
                 # TODO: node attributes
-                session.write_transaction(self.load_node, {'id': n})
+                session.write_transaction(self.save_node, {'id': n})
             for n, nbrs in self.graph.adjacency_iter():
                 for nbr, eattr in nbrs.items():
                     for entry, adjitem in eattr.items():
-                        session.write_transaction(self.load_edge, adjitem)
+                        session.write_transaction(self.save_edge, adjitem)
         self.neo4j_report()
+
+    def report(self):
+        print("Total number of nodes: {}".format(len(self.graph.nodes())))
+        print("Nodes: {}".format(self.graph.nodes()))
+        print("Total number of edges: {}".format(len(self.graph.edges())))
+        print("Edges: {}".format(self.graph.edges()))
 
     def neo4j_report(self):
         """
