@@ -8,7 +8,7 @@ uri = "xxxx"
 driver = GraphDatabase.driver(uri, auth=("xxxx", "xxxx"))
 
 
-def get_all_node_types():
+def get_all_relationship_types():
     query = '''
     match (n)-[r]-()
     return distinct type(r)
