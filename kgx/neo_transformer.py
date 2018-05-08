@@ -93,7 +93,20 @@ class NeoTransformer(Transformer):
         Load a node into neo4j
         """
 
-        tx.run("CREATE (n {params})", params=obj)
+        if 'id' not in obj:
+            raise KeyError("node does not have 'id' property")
+        if 'name' not in obj:
+            logging.warning("node does not have 'name' property")
+
+        if 'category' not in obj:
+            logging.warning("node does not have 'category' property. Using 'named_thing' as default")
+            label = 'named_thing'
+        else:
+            label = obj['category']
+            del obj['category']
+
+        query = "CREATE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
+        tx.run(query)
 
     def save_edge(self, tx, obj):
         """
@@ -103,9 +116,12 @@ class NeoTransformer(Transformer):
         queryString = "MATCH (s {{ id: '{subject_id}' }}) MATCH (o {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
         queryStringWithLabel = "MATCH (s:{subject_label} {{ id: '{subject_id}' }}) MATCH (o:{object_label} {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
 
+        subject_label = obj['subject_label'] if 'subject_label' in obj else 'named_thing'
+        object_label = obj['object_label'] if 'object_label' in obj else 'named_thing'
+
         query_params = {
-            'subject_label': '', 'subject_id': obj['subject'],
-            'object_label': '', 'object_id': obj['object'],
+            'subject_label': subject_label, 'subject_id': obj['subject'],
+            'object_label': object_label, 'object_id': obj['object'],
             'relationship': obj['predicate'], 'relationship_properties': self.parse_properties(obj)
         }
 
@@ -138,8 +154,8 @@ class NeoTransformer(Transformer):
 
         with self.driver.session() as session:
             for n in self.graph.nodes():
-                # TODO: node attributes
-                session.write_transaction(self.save_node, {'id': n})
+                node_attributes = self.graph.node[n]
+                session.write_transaction(self.save_node, node_attributes)
             for n, nbrs in self.graph.adjacency_iter():
                 for nbr, eattr in nbrs.items():
                     for entry, adjitem in eattr.items():

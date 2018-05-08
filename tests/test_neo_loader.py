@@ -5,8 +5,8 @@ def test_csv_to_neo_load():
     load csv to neo4j test
     """
 
-    n = NeoTransformer()
-    n.save_from_csv("tests/resources/x1n.csv", "tests/resources/x1e.csv")
+    #n = NeoTransformer()
+    #n.save_from_csv("tests/resources/x1n.csv", "tests/resources/x1e.csv")
 
 def test_graph_to_neo_load():
     """
@@ -19,6 +19,7 @@ def test_graph_to_neo_load():
     t.report()
     n = NeoTransformer(t)
     n.save()
+    n.neo4j_report()
 
 def test_neo_to_graph_transform():
     """
@@ -27,5 +28,6 @@ def test_neo_to_graph_transform():
     n = NeoTransformer()
     n.load()
     n.report()
-    #t = PandasTransformer(n)
-    #t.save("target/neo_graph.csv")
+    t = PandasTransformer(n)
+    t.save("target/neo_graph.csv")
+ellipsis
