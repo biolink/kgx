@@ -30,4 +30,3 @@ def test_neo_to_graph_transform():
     n.report()
     t = PandasTransformer(n)
     t.save("target/neo_graph.csv")
-ellipsis
