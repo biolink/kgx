@@ -47,6 +47,11 @@ class RdfTransformer(Transformer):
         self.graph_metadata['provided_by'] = filename
         # self.load_edges(rdfgraph)
 
+    def curie(self, uri: UriString) -> str:
+        curies = contract_uri(str(uri))
+        if len(curies)>0:
+            return curies[0]
+        return str(uri)
 
 
 class ObanRdfTransformer(RdfTransformer):
@@ -69,8 +74,29 @@ class ObanRdfTransformer(RdfTransformer):
             obj['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_edge(o, s, attr_dict=obj)
 
-    def curie(self, uri: UriString) -> str:
-        curies = contract_uri(str(uri))
-        if len(curies)>0:
-            return curies[0]
-        return str(uri)
+class RdfOwlTransformer(RdfTransformer):
+    """
+    Transforms from an OWL ontology in RDF, retaining class-class
+    relationships
+    """
+
+    def load_edges(self, rg: rdflib.Graph):
+        """
+        """
+        for s,p,o in rg.triples( (None,RDFS.subClassOf,None) ):
+            pred = None
+            parent = None
+            if o instanceof rdflib.term.BNode:
+                prop = None
+                parent = None
+                for x in rg.objects( (o, OWL.onProperty) ):
+                    prop = x
+                for x in rg.objects( (o, OWL.someValuesFrom) ):
+                    parent = x
+            else:
+                pred = 'owl:subClassOf'
+                parent = s
+            obj['provided_by'] = self.graph_metadata['provided_by']
+            self.graph.add_edge(o, s, attr_dict=obj)
+
+    
