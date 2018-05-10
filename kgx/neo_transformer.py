@@ -144,6 +144,7 @@ class NeoTransformer(Transformer):
         """
 
         with self.driver.session() as session:
+            session.write_transaction(self.create_constraints)
             for n in self.graph.nodes():
                 node_attributes = self.graph.node[n]
                 session.write_transaction(self.save_node, node_attributes)
@@ -168,6 +169,22 @@ class NeoTransformer(Transformer):
                 logging.info("Number of Nodes: {}".format(r.values()[0]))
             for r in session.run("MATCH (s)-->(o) RETURN COUNT(*)"):
                 logging.info("Number of Edges: {}".format(r.values()[0]))
+
+    def create_constraints(self, tx):
+        """
+        Create a unique constraint on node 'id' for all labels
+        """
+
+        labels = {'named_thing'}
+        for n in self.graph.nodes():
+            node = self.graph.node[n]
+
+            if 'category' in node:
+                labels.add(node['category'])
+
+        query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
+        for label in labels:
+            tx.run(query.format(label))
 
     @staticmethod
     def parse_properties(properties, delim = '|'):
