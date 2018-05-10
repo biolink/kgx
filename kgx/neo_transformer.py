@@ -114,22 +114,13 @@ class NeoTransformer(Transformer):
         """
 
         queryString = "MATCH (s {{ id: '{subject_id}' }}) MATCH (o {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
-        queryStringWithLabel = "MATCH (s:{subject_label} {{ id: '{subject_id}' }}) MATCH (o:{object_label} {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
-
-        subject_label = obj['subject_label'] if 'subject_label' in obj else 'named_thing'
-        object_label = obj['object_label'] if 'object_label' in obj else 'named_thing'
 
         query_params = {
-            'subject_label': subject_label, 'subject_id': obj['subject'],
-            'object_label': object_label, 'object_id': obj['object'],
+            'subject_id': obj['subject'], 'object_id': obj['object'],
             'relationship': obj['predicate'], 'relationship_properties': self.parse_properties(obj)
         }
 
-        if query_params['subject_label'] and query_params['object_label']:
-            query = queryStringWithLabel.format(**query_params)
-        else:
-            query = queryString.format(**query_params)
-
+        query = queryString.format(**query_params)
         logging.debug(query)
         tx.run(query)
 
