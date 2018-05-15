@@ -108,6 +108,60 @@ class NeoTransformer(Transformer):
         query = "CREATE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
         tx.run(query)
 
+    def save_node_unwind(self, nodes_by_category, property_names):
+        """
+        Save all nodes into neo4j using the UNWIND cypher clause
+        """
+
+        for category in nodes_by_category.keys():
+            self.populate_missing_properties(nodes_by_category[category], property_names)
+            query = self.generate_unwind_node_query(category, property_names)
+            with self.driver.session() as session:
+                session.run(query, nodes=nodes_by_category[category])
+
+    def save_edge_unwind(self, edges_by_relationship_type, property_names):
+        """
+        Save all edges into neo4j using the UNWIND cypher clause
+        """
+
+        for predicate in edges_by_relationship_type:
+            self.populate_missing_properties(edges_by_relationship_type[predicate], property_names)
+            query = self.generate_unwind_edge_query(predicate, property_names)
+            edges = edges_by_relationship_type[predicate]
+            with self.driver.session() as session:
+                session.run(query, relationship=predicate, edges=edges)
+
+    def generate_unwind_node_query(self, label, property_names):
+        """
+        Generate UNWIND cypher clause for a given label and property names (optional)
+        """
+
+        properties_dict = {}
+        ignore_list = []
+        for property in property_names:
+            if property not in ignore_list:
+                properties_dict[property] = "node.{}".format(property)
+
+        query = "UNWIND $nodes as node CREATE (p:{label} {node_properties})".format(label=label, node_properties=str(properties_dict).replace("'", ""))
+        logging.debug(query)
+        return query
+
+
+    def generate_unwind_edge_query(self, relationship, property_names):
+        """
+        Generate UNWIND cypher clause for a given relationship
+        """
+
+        properties_dict = {}
+        ignore_list = ['subject', 'predicate', 'object']
+        for property in property_names:
+            if property not in ignore_list:
+                properties_dict[property] = "edge.{}".format(property)
+
+        query = "UNWIND $edges as edge MATCH (a {{ id: edge.subject }}) MATCH (b {{ id: edge.object }}) MERGE (a)-[r:{relationship} {relationship_properties} ]->(b)".format(relationship=relationship, relationship_properties=str(properties_dict).replace("'",""))
+        logging.debug(query)
+        return query
+
     def save_edge(self, tx, obj):
         """
         Load an edge into neo4j
@@ -138,13 +192,57 @@ class NeoTransformer(Transformer):
                 session.write_transaction(self.save_edge, row.to_dict())
         self.neo4j_report()
 
+    def save_with_unwind(self):
+        """
+        Load from a nx graph to neo4j using the UNWIND cypher clause
+        """
+
+        nodes_by_category = {}
+        node_properties = []
+        for n in self.graph.nodes():
+            node = self.graph.node[n]
+            if 'id' not in node:
+                continue
+            if 'category' not in node:
+                node['category'] = 'named_thing'
+            if node['category'] not in nodes_by_category:
+                nodes_by_category[node['category']] = [node]
+            else:
+                nodes_by_category[node['category']].append(node)
+            node_properties += [x for x in node if x not in node_properties]
+
+        edges_by_relationship_type = {}
+        edge_properties = []
+        for n, nbrs in self.graph.adjacency_iter():
+            for nbr, eattr in nbrs.items():
+                for entry, adjitem in eattr.items():
+                    print(adjitem)
+                    if adjitem['predicate'] not in edges_by_relationship_type:
+                        edges_by_relationship_type[adjitem['predicate']] = [adjitem]
+                    else:
+                        edges_by_relationship_type[adjitem['predicate']].append(adjitem)
+                    edge_properties += [x for x in adjitem.keys() if x not in edge_properties]
+
+        with self.driver.session() as session:
+            session.write_transaction(self.create_constraints, nodes_by_category.keys())
+
+        self.save_node_unwind(nodes_by_category, node_properties)
+        self.save_edge_unwind(edges_by_relationship_type, edge_properties)
+
     def save(self):
         """
         Load from a nx graph to neo4j
         """
 
+        labels = {'named_thing'}
+        for n in self.graph.nodes():
+            node = self.graph.node[n]
+            if 'category' in node:
+                labels.add(node['category'])
+
+
         with self.driver.session() as session:
-            session.write_transaction(self.create_constraints)
+            session.write_transaction(self.create_constraints, labels)
             for n in self.graph.nodes():
                 node_attributes = self.graph.node[n]
                 session.write_transaction(self.save_node, node_attributes)
@@ -170,17 +268,10 @@ class NeoTransformer(Transformer):
             for r in session.run("MATCH (s)-->(o) RETURN COUNT(*)"):
                 logging.info("Number of Edges: {}".format(r.values()[0]))
 
-    def create_constraints(self, tx):
+    def create_constraints(self, tx, labels):
         """
         Create a unique constraint on node 'id' for all labels
         """
-
-        labels = {'named_thing'}
-        for n in self.graph.nodes():
-            node = self.graph.node[n]
-
-            if 'category' in node:
-                labels.add(node['category'])
 
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
         for label in labels:
@@ -197,9 +288,16 @@ class NeoTransformer(Transformer):
                 pair = "{}: {}".format(key, values)
             else:
                 values = properties[key]
-                pair = "{}: '{}'".format(key, values)
+                pair = "{}: \"{}\"".format(key, values)
             propertyList.append(pair)
         return ','.join(propertyList)
+
+    @staticmethod
+    def populate_missing_properties(objs, properties):
+        for obj in objs:
+            missing_properties = set(properties) - set(obj.keys())
+            for property in missing_properties:
+                obj[property] = ''
 
 class MonarchNeoTransformer(NeoTransformer):
     """
