@@ -283,12 +283,12 @@ class NeoTransformer(Transformer):
         for key in properties:
             if key in ['subject', 'predicate', 'object']:
                 continue
-            if delim in properties[key]:
-                values = properties[key].split(delim)
-                pair = "{}: {}".format(key, values)
+
+            values = properties[key]
+            if type(values) == type(""):
+                pair = "{}: \"{}\"".format(key, str(values))
             else:
-                values = properties[key]
-                pair = "{}: \"{}\"".format(key, values)
+                pair = "{}: {}".format(key, str(values))
             propertyList.append(pair)
         return ','.join(propertyList)
 
