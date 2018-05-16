@@ -1,6 +1,7 @@
 from .transformer import Transformer
 
 import rdflib
+import logging
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from typing import NewType
