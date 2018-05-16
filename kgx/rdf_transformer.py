@@ -56,6 +56,9 @@ class RdfTransformer(Transformer):
         self.load_nodes(rdfgraph)
 
     def curie(self, uri: UriString) -> str:
+        """
+        Translate a URI into a CURIE (prefixed identifier)
+        """
         curies = contract_uri(str(uri))
         if len(curies)>0:
             return curies[0]
@@ -64,7 +67,11 @@ class RdfTransformer(Transformer):
     def load_nodes(self, rg: rdflib.Graph):
         G = self.graph
         for nid in G.nodes():
-            iri = URIRef(G.node[nid]['iri'])
+            n = G.node[nid]
+            if 'iri' not in n:
+                logging.warn("Expected IRI for {}".format(n))
+                continue
+            iri = URIRef(n['iri'])
             npmap = {}
             for s,p,o in rg.triples( (iri, None, None) ):
                 if isinstance(o, rdflib.term.Literal):

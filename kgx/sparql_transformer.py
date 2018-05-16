@@ -41,7 +41,8 @@ class SparqlTransformer(Transformer):
         results = self.query(q)
 
     def query(self, q):
-        sparql = SPARQLWrapper(registry.get(self.endpoint))
+        #sparql = SPARQLWrapper(registry.get(self.endpoint))
+        sparql = SPARQLWrapper()
         sparql.setQuery(q)
         sparql.setReturnFormat(JSON)
         logging.info("Query: {}".format(q))

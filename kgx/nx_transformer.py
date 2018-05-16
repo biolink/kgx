@@ -23,6 +23,12 @@ class GraphMLTransformer(NetworkxTransformer):
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     for prop_uri, obj_curies in adjitem.items():
-                        adjitem[prop_uri] = ','.join(obj_curies)
+                        if obj_curies is None:
+                            adjitem[prop_uri] = ""
+                        else:
+                            if isinstance(obj_curies, list):
+                                adjitem[prop_uri] = ','.join(obj_curies)
+                            else:
+                                adjitem[prop_uri] = str(obj_curies)
 
         nx.write_graphml(dgraph, path)
