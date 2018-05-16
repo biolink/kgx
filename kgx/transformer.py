@@ -12,7 +12,7 @@ class Transformer(object):
 
     """
 
-    def __init__(self, t=None):
+    def __init__(self, t=None, graph=None):
         """
         Create a new Transformer. This should be called directly on a subclass.
 
@@ -22,6 +22,8 @@ class Transformer(object):
             self.graph = nx.MultiDiGraph()
         else:
             self.graph = t.graph
+        if graph is not None:
+            self.graph = graph
         self.filter = {} # type: Dict[str, SimpleValue]
         self.graph_metadata = {}
 

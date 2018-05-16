@@ -2,6 +2,7 @@ from .transformer import Transformer
 
 import rdflib
 import logging
+import uuid
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from typing import NewType
@@ -98,8 +99,8 @@ class ObanRdfTransformer(RdfTransformer):
     inv_cmap = {}
     cmap = {}
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **args):
+        super().__init__(**args)
         # Generate the map and the inverse map from default curie maps, which will be used later.
         for cmap in default_curie_maps:
             for k, v in cmap.items():
@@ -150,17 +151,25 @@ class ObanRdfTransformer(RdfTransformer):
         # Using an iterator of (node, adjacency dict) tuples for all nodes,
         # we iterate every edge (only outgoing adjacencies)
         for n, nbrs in self.graph.adjacency_iter():
+            a_object = n
             for nbr, eattr in nbrs.items():
+                a_subject = nbr
                 for entry, adjitem in eattr.items():
-                    # entity_id here is used as subject for each entry, e.g.,
+                    pred = "relatedTo"
+                    if 'predicate' in adjitem:
+                        pred = adjitem['predicate'][0]
+                    # assoc_id here is used as subject for each entry, e.g.,
                     # <https://monarchinitiative.org/MONARCH_08830...>
-                    entity_id = URIRef(adjitem['id'])
-                    self.unpack_adjitem(rdfgraph, entity_id, adjitem)
+                    if 'id' in adjitem:
+                        assoc_id = URIRef(adjitem['id'])
+                    else:
+                        assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+                    self.unpack_adjitem(rdfgraph, assoc_id, adjitem)
 
                     # The remaining ones are then OBAN's properties and corresponding objects. Store them as triples.
-                    rdfgraph.add((entity_id, mapping['subject'], URIRef(expand_uri(adjitem['subject'][0]))))
-                    rdfgraph.add((entity_id, mapping['predicate'], URIRef(expand_uri(adjitem['predicate'][0]))))
-                    rdfgraph.add((entity_id, mapping['object'], URIRef(expand_uri(adjitem['object'][0]))))
+                    rdfgraph.add((assoc_id, mapping['subject'], URIRef(expand_uri(a_subject))))
+                    rdfgraph.add((assoc_id, mapping['predicate'], URIRef(expand_uri(pred))))
+                    rdfgraph.add((assoc_id, mapping['object'], URIRef(expand_uri(a_object))))
 
         # For now, assume that the default format is turtle if it is not specified.
         if output_format is None:
@@ -169,7 +178,7 @@ class ObanRdfTransformer(RdfTransformer):
         # Serialize the graph into the file.
         rdfgraph.serialize(destination=filename, format=output_format)
 
-    def unpack_adjitem(self, rdfgraph, entity_id, adjitem):
+    def unpack_adjitem(self, rdfgraph, assoc_id, adjitem):
         # Iterate adjacency dict, which contains pairs of properties and objects sharing the same subject.
         for prop_uri, obj_curies in adjitem.items():
             # See whether the current pair's prop/obj is the OBAN's one.
@@ -193,7 +202,7 @@ class ObanRdfTransformer(RdfTransformer):
                     rdfgraph.bind(prop_compact_prefix, Namespace(prop_long_prefix))
 
                 # Store the pair as a triple.
-                rdfgraph.add((entity_id, URIRef(prop_uri), URIRef(obj_uri)))
+                rdfgraph.add((assoc_id, URIRef(prop_uri), URIRef(obj_uri)))
 
     def split_uri(self, prop_uri):
         """
