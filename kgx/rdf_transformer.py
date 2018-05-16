@@ -188,13 +188,16 @@ class ObanRdfTransformer(RdfTransformer):
             # If not, see whether its props and objs can be registered as curies in namespaces.
             # Once they are registered, URI/IRIs can be shorten using the curies registered in namespaces.
             # e.g., register http://purl.obolibrary.org/obo/ECO_ with ECO.
+            if not isinstance(obj_curies,list):
+                obj_curies = [obj_curies]
             for obj_curie in obj_curies:
                 obj_uri = expand_uri(obj_curie)
 
-                obj_compact_prefix, obj_value = obj_curie.split(":")
-                obj_long_prefix = self.cmap.get(obj_compact_prefix, None)
-                if obj_long_prefix is not None:
-                    rdfgraph.bind(obj_compact_prefix, Namespace(obj_long_prefix))
+                if len(obj_curie.split(":")) == 2:
+                    obj_compact_prefix, obj_value = obj_curie.split(":")
+                    obj_long_prefix = self.cmap.get(obj_compact_prefix, None)
+                    if obj_long_prefix is not None:
+                        rdfgraph.bind(obj_compact_prefix, Namespace(obj_long_prefix))
 
                 prop_long_prefix, prop_value = self.split_uri(prop_uri)
                 prop_compact_prefix = self.inv_cmap.get(prop_long_prefix, None)
