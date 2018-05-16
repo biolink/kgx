@@ -12,16 +12,23 @@ class NeoTransformer(Transformer):
     We expect a Translator canonical style http://bit.ly/tr-kg-standard
     E.g. predicates are names with underscores, not IDs.
 
+    Does not load from config file if uri and username are provided.
+
     TODO: also support mapping from Monarch neo4j
     """
 
-    def __init__(self, t=None):
+    def __init__(self, t=None, uri=None, username=None, password=None):
         super(NeoTransformer, self).__init__(t)
-        with open("config.yml", 'r') as ymlfile:
-            cfg = yaml.load(ymlfile)
 
-        uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
-        self.driver = GraphDatabase.driver(uri, auth=(cfg['neo4j']['username'], cfg['neo4j']['password']))
+        if uri is username is None:
+            with open("config.yml", 'r') as ymlfile:
+                cfg = yaml.load(ymlfile)
+                uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
+                username = cfg['neo4j']['username']
+                password = cfg['neo4j']['password']
+
+        self.driver = GraphDatabase.driver(uri, auth=(username, password))
+
 
     def load(self):
         """
@@ -54,25 +61,34 @@ class NeoTransformer(Transformer):
         """
 
         node=node_record[0]
-        attributes = {}
-        for i in node.items():
-            attributes[i[0]] = i[1]
 
-        self.graph.add_node(node.get('id'), attr_dict=attributes)
+        attributes = {
+            'labels' : list(node.labels),
+            'properties' : node.properties
+        }
+
+        self.graph.add_node(node.id, attr_dict=attributes)
 
     def load_edge(self, edge_record):
         """
         Load an edge from a neo4j record
         """
 
-        s = edge_record[0]
-        p = edge_record[1]
-        o = edge_record[2]
-        attributes = {}
-        for i in p.items():
-            attributes[i[0]] = i[1]
+        edge_subject = edge_record[0]
+        edge_predicate = edge_record[1]
+        edge_object = edge_record[2]
 
-        self.graph.add_edge(s['id'], o['id'], attr_dict=attributes)
+        attributes = {
+                'id' : edge_predicate.id,
+                'type' : edge_predicate.type,
+                'properties' : edge_predicate.properties
+        }
+
+        self.graph.add_edge(
+            edge_subject.id,
+            edge_object.id,
+            attr_dict=attributes
+        )
 
     def get_nodes(self, tx):
         """
@@ -312,4 +328,3 @@ class MonarchNeoTransformer(NeoTransformer):
      - rdf:label to name
      - neo4j label to category
     """
-    
