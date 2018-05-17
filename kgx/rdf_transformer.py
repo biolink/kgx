@@ -108,14 +108,19 @@ class ObanRdfTransformer(RdfTransformer):
                 self.cmap[k] = v
 
     def load_edges(self, rg: rdflib.Graph):
+        pm = self.prefix_manager
         for a in rg.subjects(RDF.type, OBAN.association):
             obj = {}
             # Keep the id of this entity (e.g., <https://monarchinitiative.org/MONARCH_08830...>) as the value of 'id'.
-            obj['id'] = str(a)
+            obj['id'] = pm.contract(str(a))
 
             for s, p, o in rg.triples((a, None, None)):
                 if p in rmapping:
                     p = rmapping[p]
+                else:
+                    px = pm.contract(p)
+                    if px is not None:
+                        p = px
                 v = self.curie(o)
                 # Handling multi-value issue, i.e. there can be different v(s) for the same p.
                 if p not in obj:

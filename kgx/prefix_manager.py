@@ -13,12 +13,24 @@ class PrefixManager(object):
 
         # NOTE: this is cached
         # to clear cache: rm ~/.cachier/.prefixcommons.curie_util.read_remote_jsonld_context 
-        self.prefixmap = cu.read_remote_jsonld_context(url)
+        self.set_prefixmap(cu.read_remote_jsonld_context(url))
+
+    def set_prefixmap(self, m):
+        self.prefixmap = m
+        rm = {y: x for x, y in m.items() if isinstance(y, str)}
+        self.rprefixmap = rm
 
     def expand(self, id):
+        if id in self.prefixmap:
+            return self.prefixmap[id]
         uri = cu.expand_uri(id, [self.prefixmap])
         return uri
 
     def contract(self, uri):
+        # always prioritize non-CURIE shortform
+        if uri in self.rprefixmap:
+            return self.rprefixmap[uri]
         shortform = cu.contract_uri(uri, [self.prefixmap])
-        return shortform
+        if shortform == []:
+            return None
+        return shortform[0]
