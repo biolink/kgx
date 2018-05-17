@@ -11,7 +11,7 @@ def test_mapping():
     """
     G = nx.MultiDiGraph()
     
-    N = 1000
+    N = 100
     E = N * 3
     mapping = {}
     for i in range(0,N+1):
@@ -24,7 +24,8 @@ def test_mapping():
         G.add_edge(o,s,predicate='related_to')
     print('Nodes={}'.format(len(G.nodes())))
     mapper.map_graph(G, mapping)
-
+    print("Mapped..")
+    
     count = 0
     for nid in G.nodes_iter():
         src = G.node[nid]['source_curie']

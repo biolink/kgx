@@ -1,5 +1,6 @@
 import networkx as nx
 from typing import Union, List, Dict
+from .prefix_manager import PrefixManager
 
 SimpleValue = Union[List[str], str]
 
@@ -26,6 +27,7 @@ class Transformer(object):
             self.graph = graph
         self.filter = {} # type: Dict[str, SimpleValue]
         self.graph_metadata = {}
+        self.prefix_manager = PrefixManager()
 
     def report(self) -> None:
         g = self.graph
