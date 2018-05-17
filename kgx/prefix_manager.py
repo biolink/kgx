@@ -11,8 +11,11 @@ class PrefixManager(object):
         if url is None:
             url = "https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld"
 
+        # if set, this falls back to other prefixmappings
+        self.fallback = True
+            
         # NOTE: this is cached
-        # to clear cache: rm ~/.cachier/.prefixcommons.curie_util.read_remote_jsonld_context 
+        # to clear cache: rm ~/.cachier/.prefixcommons.curie_util.read_remote_jsonld_context
         self.set_prefixmap(cu.read_remote_jsonld_context(url))
 
     def set_prefixmap(self, m):
@@ -22,15 +25,23 @@ class PrefixManager(object):
 
     def expand(self, id):
         if id in self.prefixmap:
-            return self.prefixmap[id]
+            uri = self.prefixmap[id]
+            # todo: curie util will not unfold objects in json-ld context
+            if isinstance(uri,str):
+                return uri
         uri = cu.expand_uri(id, [self.prefixmap])
+        if uri == id and self.fallback:
+            uri = cu.expand_uri(id)
         return uri
 
     def contract(self, uri):
         # always prioritize non-CURIE shortform
         if uri in self.rprefixmap:
             return self.rprefixmap[uri]
-        shortform = cu.contract_uri(uri, [self.prefixmap])
-        if shortform == []:
-            return None
-        return shortform[0]
+        shortforms = cu.contract_uri(uri, [self.prefixmap])
+        if shortforms == []:
+            if self.fallback:
+                shortforms = cu.contract_uri(uri)
+            if shortforms == []:
+                return None
+        return shortforms[0]
