@@ -9,5 +9,6 @@ from .rdf_transformer import ObanRdfTransformer
 from .rdf_transformer import ObanRdfTransformer, RdfOwlTransformer
 from .json_transformer import JsonTransformer
 from .neo_transformer import NeoTransformer
+from .validator import Validator
 
 from .kgx import cli

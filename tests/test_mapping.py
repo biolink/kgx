@@ -11,7 +11,7 @@ def test_mapping():
     """
     G = nx.MultiDiGraph()
     
-    N = 1000000
+    N = 100
     E = N * 3
     mapping = {}
     for i in range(0,N+1):
