@@ -46,7 +46,7 @@ Similary, any additional columns can be defined with the headers.
 
 ### Bulk import
 
-Once both `nodes.csv` and `edges.csv` and prepared with their proper headers, run the `neo4j-admin import`:
+Once both `nodes.csv` and `edges.csv` are prepared with their proper headers, run the `neo4j-admin import`:
 ```
 neo4j-admin import \
 --database=knowledge-graph.db \
