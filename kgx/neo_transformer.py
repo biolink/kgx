@@ -73,32 +73,43 @@ class NeoTransformer(Transformer):
         Load node from a neo4j record
         """
         node=node_record[0]
+        attributes = {}
 
-        attributes = {
-            'labels' : list(node.labels),
-            'properties' : node.properties
-        }
+        for key, value in node.items():
+            attributes[key] = value
 
-        self.graph.add_node(node.id, attr_dict=attributes)
+        if 'labels' not in attributes:
+            attributes['labels'] = list(node.labels)
+
+        node_id = node['id'] if 'id' in node else node.id
+
+        self.graph.add_node(node_id, attr_dict=attributes)
 
     def load_edge(self, edge_record):
         """
         Load an edge from a neo4j record
         """
-
         edge_subject = edge_record[0]
         edge_predicate = edge_record[1]
         edge_object = edge_record[2]
 
-        attributes = {
-                'id' : edge_predicate.id,
-                'type' : edge_predicate.type,
-                'properties' : edge_predicate.properties
-        }
+        subject_id = edge_subject['id'] if 'id' in edge_subject else edge_subject.id
+        object_id = edge_object['id'] if 'id' in edge_object else edge_object.id
+
+        attributes = {}
+
+        for key, value in edge_predicate.items():
+            attributes[key] = value
+
+        if 'id' not in attributes:
+            attributes['id'] = edge_predicate.id
+
+        if 'type' not in attributes:
+            attributes['type'] = edge_predicate.type
 
         self.graph.add_edge(
-            edge_subject.id,
-            edge_object.id,
+            subject_id,
+            object_id,
             attr_dict=attributes
         )
 
