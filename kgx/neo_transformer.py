@@ -18,7 +18,7 @@ class NeoTransformer(Transformer):
     """
 
     def __init__(self, t=None, uri=None, username=None, password=None):
-        super(NeoTransformer, self).__init__(t)
+        super(NeoTransformer, self).__init__(t.graph)
 
         if uri is username is None:
             with open("config.yml", 'r') as ymlfile:
