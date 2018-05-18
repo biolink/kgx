@@ -17,8 +17,8 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
-    def __init__(self, t=None, uri=None, username=None, password=None):
-        super(NeoTransformer, self).__init__(t.graph)
+    def __init__(self, graph=None, uri=None, username=None, password=None):
+        super(NeoTransformer, self).__init__(graph)
 
         if uri is username is None:
             with open("config.yml", 'r') as ymlfile:
@@ -271,7 +271,6 @@ class NeoTransformer(Transformer):
         for n, nbrs in self.graph.adjacency_iter():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
-                    print(adjitem)
                     if adjitem['predicate'] not in edges_by_relationship_type:
                         edges_by_relationship_type[adjitem['predicate']] = [adjitem]
                     else:
