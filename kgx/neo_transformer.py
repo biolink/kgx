@@ -152,7 +152,6 @@ class NeoTransformer(Transformer):
         """
         Get a page of edges from the database
         """
-        import pudb; pudb.set_trace()
         pageNumber = 1 if pageNumber < 1 else pageNumber
         skip=(pageNumber - 1) * pageSize
 

@@ -52,7 +52,6 @@ class PandasTransformer(Transformer):
 
     def export_nodes(self) -> pd.DataFrame:
         items = []
-        import pudb; pudb.set_trace()
         for n,data in self.graph.nodes_iter(data=True):
             item = data.copy()
             item['id'] = n
