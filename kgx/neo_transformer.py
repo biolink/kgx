@@ -1,9 +1,13 @@
 import pandas as pd
 import networkx as nx
 import logging, yaml
+import itertools
 from .transformer import Transformer
 
 from neo4j.v1 import GraphDatabase
+
+neo4j_log = logging.getLogger("neo4j.bolt")
+neo4j_log.setLevel(logging.WARNING)
 
 class NeoTransformer(Transformer):
     """
@@ -29,15 +33,24 @@ class NeoTransformer(Transformer):
 
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
 
+    def batch_load_records(self, query, size=10000):
+        with self.driver.session() as session:
+            for i in itertools.count(1):
+                records = session.read_transaction(query, pageSize=size, pageNumber=i)
+                if len(records.values()) > 0:
+                    yield records
+                else:
+                    return
 
     def load(self):
         """
         Read a neo4j database and create a nx graph
         """
+        for records in self.batch_load_records(self.get_nodes):
+            self.load_nodes(records)
 
-        with self.driver.session() as session:
-            self.load_nodes(session.read_transaction(self.get_nodes))
-            self.load_edges(session.read_transaction(self.get_edges))
+        for records in self.batch_load_records(self.get_edges):
+            self.load_edges(records)
 
     def load_nodes(self, node_records):
         """
@@ -90,19 +103,33 @@ class NeoTransformer(Transformer):
             attr_dict=attributes
         )
 
-    def get_nodes(self, tx):
+    def get_nodes(self, tx, pageNumber, pageSize):
         """
-        Get all nodes from neo4j database
+        Get a page of nodes from the database
         """
+        pageNumber = 1 if pageNumber < 1 else pageNumber
+        skip=(pageNumber - 1) * pageSize
 
-        return tx.run("MATCH (n) RETURN n")
+        q="""
+        MATCH (n) RETURN n SKIP {skip} LIMIT {pageSize};
+        """.format(skip=skip, pageSize=pageSize).strip()
 
-    def get_edges(self, tx):
-        """
-        Get all edges from neo4j database
-        """
+        logging.info(q)
+        return tx.run(q)
 
-        return tx.run("MATCH (s)-[p]->(o) RETURN s,p,o")
+    def get_edges(self, tx, pageNumber, pageSize):
+        """
+        Get a page of edges from the database
+        """
+        pageNumber = 1 if pageNumber < 1 else pageNumber
+        skip=(pageNumber - 1) * pageSize
+
+        q="""
+        MATCH (s)-[p]->(o) RETURN s,p,o SKIP {skip} LIMIT {pageSize};
+        """.format(skip=skip, pageSize=pageSize).strip()
+
+        logging.info(q)
+        return tx.run(q)
 
     def save_node(self, tx, obj):
         """
