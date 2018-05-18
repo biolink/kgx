@@ -85,7 +85,7 @@ def _dump(input, output, input_type, output_type):
         'extention' : output_type
     }
 
-    w = output_transformer(t)
+    w = output_transformer(t.graph)
     result_path = w.save(output, **kwargs)
 
     if result_path is not None and os.path.isfile(result_path):
