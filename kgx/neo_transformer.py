@@ -95,14 +95,53 @@ class NeoTransformer(Transformer):
         Get all nodes from neo4j database
         """
 
-        return tx.run("MATCH (n) RETURN n")
+        labels = None
+        if 'subject_category' in self.filter:
+            labels = self.filter['subject_category']
+        if 'object_category' in self.filter:
+            labels += ':' + self.filter['object_category']
+
+        properties = {}
+        for key in self.filter:
+            if key not in ['subject_category', 'object_category', 'edge_label']:
+                properties[key] = self.filter[key]
+
+        query = None
+        if labels:
+            query = "MATCH (n:{labels} {{ {properties} }}) RETURN n".format(labels=labels, properties=self.parse_properties(properties))
+        else:
+            query = "MATCH (n {{ {properties} }}) RETURN n".format(properties=self.parse_properties(properties))
+
+        logging.debug(query)
+        return tx.run(query)
 
     def get_edges(self, tx):
         """
         Get all edges from neo4j database
         """
 
-        return tx.run("MATCH (s)-[p]->(o) RETURN s,p,o")
+        params = {}
+        params['subject_category'] = self.filter['subject_category'] if 'subject_category' in self.filter else None
+        params['object_category'] = self.filter['object_category'] if 'object_category' in self.filter else None
+        params['edge_label'] = self.filter['edge_label'] if 'edge_label' in self.filter else None
+
+        properties = {}
+        for key in self.filter:
+            if key not in ['subject_category', 'object_category', 'edge_label']:
+                properties[key] = self.filter[key]
+
+        query = None
+        if params['subject_category'] is not None and params['object_category'] is not None and params['edge_label'] is not None:
+            query = "MATCH (s:{subject_category})-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category}) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+        elif params['subject_category'] is None and params['object_category'] is not None and params['edge_label'] is not None:
+            query = "MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category}) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+        elif params['subject_category'] is None and params['object_category'] is None and params['edge_label'] is not None:
+            query = "MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+        else:
+            query = "MATCH (s)-[p {{ {edge_properties} }}]->(o) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+
+        logging.debug(query)
+        return tx.run(query)
 
     def save_node(self, tx, obj):
         """
@@ -270,9 +309,7 @@ class NeoTransformer(Transformer):
 
     def report(self):
         print("Total number of nodes: {}".format(len(self.graph.nodes())))
-        print("Nodes: {}".format(self.graph.nodes()))
         print("Total number of edges: {}".format(len(self.graph.edges())))
-        print("Edges: {}".format(self.graph.edges()))
 
     def neo4j_report(self):
         """
