@@ -37,7 +37,7 @@ class NeoTransformer(Transformer):
         with self.driver.session() as session:
             for i in itertools.count(1):
                 records = session.read_transaction(query, pageSize=size, pageNumber=i)
-                if len(records.values()) > 0:
+                if records.peek() != None:
                     yield records
                 else:
                     return
@@ -72,7 +72,6 @@ class NeoTransformer(Transformer):
         """
         Load node from a neo4j record
         """
-
         node=node_record[0]
 
         attributes = {
