@@ -259,8 +259,10 @@ class NeoTransformer(Transformer):
 
         with self.driver.session() as session:
             session.write_transaction(self.create_constraints, labels)
-            for n in self.graph.nodes():
-                node_attributes = self.graph.node[n]
+            for node_id in self.graph.nodes():
+                node_attributes = self.graph.node[node_id]
+                if 'id' not in node_attributes:
+                    node_attributes['id'] = node_id
                 session.write_transaction(self.save_node, node_attributes)
             for n, nbrs in self.graph.adjacency_iter():
                 for nbr, eattr in nbrs.items():
