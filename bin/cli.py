@@ -34,28 +34,11 @@ def cli(config, debug):
 @pass_config
 @handle_exception
 def neo4j_download(config, uri, username, password, output, output_type):
-    if output_type is None:
-        output_type = get_type(output)
-
     neo_transformer = kgx.NeoTransformer(uri=uri, username=username, password=password)
 
     neo_transformer.load()
 
-    constructor = get_transformer(output_type)
-
-    kwargs = {
-        'extention' : output_type
-    }
-
-    w = constructor(neo_transformer)
-    result_path = w.save(output, **kwargs)
-
-    if result_path is not None and os.path.isfile(result_path):
-        click.echo("File created at: " + result_path)
-    elif os.path.isfile(output):
-        click.echo("File created at: " + output)
-    else:
-        click.echo("Could not create file.")
+    transform_and_save(neo_transformer, output, output_type)
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=str, help='Extention type of output files: ' + get_file_types())
@@ -67,7 +50,7 @@ def neo4j_download(config, uri, username, password, output, output_type):
 @handle_exception
 def neo4j_upload(config, uri, username, password, inputs, input_type):
     t = load_transformer(inputs, input_type)
-    neo_transformer = kgx.NeoTransformer(t=t, uri=uri, username=username, password=password)
+    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=uri, username=username, password=password)
     neo_transformer.save()
 
 @cli.command()
@@ -117,7 +100,7 @@ def dump(config, inputs, output, input_type, output_type):
         'extention' : output_type
     }
 
-    w = output_transformer(t)
+    w = output_transformer(t.graph)
     result_path = w.save(output, **kwargs)
 
     if result_path is not None and os.path.isfile(result_path):
@@ -132,6 +115,9 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     Creates a transformer with the appropraite file type from the given
     transformer, and applies that new transformation and saves to file.
     """
+    if output_type is None:
+        output_type = get_type(output_path)
+
     output_transformer = get_transformer(output_type)
 
     if output_transformer is None:
@@ -141,13 +127,13 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
         'extention' : output_type
     }
 
-    w = output_transformer(t)
-    result_path = w.save(output, **kwargs)
+    w = output_transformer(t.graph)
+    result_path = w.save(output_path, **kwargs)
 
     if result_path is not None and os.path.isfile(result_path):
         click.echo("File created at: " + result_path)
-    elif os.path.isfile(output):
-        click.echo("File created at: " + output)
+    elif os.path.isfile(output_path):
+        click.echo("File created at: " + output_path)
     else:
         click.echo("Could not create file.")
 

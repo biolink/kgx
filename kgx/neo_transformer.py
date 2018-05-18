@@ -21,8 +21,8 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
-    def __init__(self, t=None, uri=None, username=None, password=None):
-        super(NeoTransformer, self).__init__(t)
+    def __init__(self, graph=None, uri=None, username=None, password=None):
+        super(NeoTransformer, self).__init__(graph)
 
         if uri is username is None:
             with open("config.yml", 'r') as ymlfile:
@@ -33,7 +33,7 @@ class NeoTransformer(Transformer):
 
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
 
-    def batch_load_records(self, query, size=10000):
+    def batch_load_records(self, query, size=1000):
         with self.driver.session() as session:
             for i in itertools.count(1):
                 records = session.read_transaction(query, pageSize=size, pageNumber=i)
@@ -48,9 +48,11 @@ class NeoTransformer(Transformer):
         """
         for records in self.batch_load_records(self.get_nodes):
             self.load_nodes(records)
+            break
 
         for records in self.batch_load_records(self.get_edges):
             self.load_edges(records)
+            break
 
     def load_nodes(self, node_records):
         """
@@ -113,33 +115,90 @@ class NeoTransformer(Transformer):
             attr_dict=attributes
         )
 
-    def get_nodes(self, tx, pageNumber, pageSize):
+    def get_nodes(self, tx, pageNumber=1, pageSize=1000):
         """
         Get a page of nodes from the database
         """
         pageNumber = 1 if pageNumber < 1 else pageNumber
         skip=(pageNumber - 1) * pageSize
 
-        q="""
-        MATCH (n) RETURN n SKIP {skip} LIMIT {pageSize};
-        """.format(skip=skip, pageSize=pageSize).strip()
+        labels = None
+        if 'subject_category' in self.filter:
+            labels = self.filter['subject_category']
+        if 'object_category' in self.filter:
+            labels += ':' + self.filter['object_category']
 
-        logging.info(q)
-        return tx.run(q)
+        properties = {}
+        for key in self.filter:
+            if key not in ['subject_category', 'object_category', 'edge_label']:
+                properties[key] = self.filter[key]
 
-    def get_edges(self, tx, pageNumber, pageSize):
+        query = None
+        if labels:
+            query="""
+            MATCH (n:{labels} {{ {properties} }}) RETURN n SKIP {skip} LIMIT {pageSize};
+            """.format(labels=labels, properties=self.parse_properties(properties), skip=skip, pageSize=pageSize).strip()
+        else:
+            query="""
+            MATCH (n {{ {properties} }}) RETURN n SKIP {skip} LIMIT {pageSize};
+            """.format(properties=self.parse_properties(properties), skip=skip, pageSize=pageSize).strip()
+
+        query = query.replace("{  }", "")
+
+        logging.debug(query)
+        return tx.run(query)
+
+    def get_edges(self, tx, pageNumber=1, pageSize=1000):
         """
         Get a page of edges from the database
         """
+        import pudb; pudb.set_trace()
         pageNumber = 1 if pageNumber < 1 else pageNumber
         skip=(pageNumber - 1) * pageSize
 
-        q="""
-        MATCH (s)-[p]->(o) RETURN s,p,o SKIP {skip} LIMIT {pageSize};
-        """.format(skip=skip, pageSize=pageSize).strip()
+        params = {}
+        params['subject_category'] = self.filter['subject_category'] if 'subject_category' in self.filter else None
+        params['object_category'] = self.filter['object_category'] if 'object_category' in self.filter else None
+        params['edge_label'] = self.filter['edge_label'] if 'edge_label' in self.filter else None
 
-        logging.info(q)
-        return tx.run(q)
+        properties = {}
+        for key in self.filter:
+            if key not in ['subject_category', 'object_category', 'edge_label']:
+                properties[key] = self.filter[key]
+
+        query = None
+        if params['subject_category'] is not None and params['object_category'] is not None and params['edge_label'] is not None:
+            query = """
+            MATCH (s:{subject_category})-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
+        elif params['subject_category'] is None and params['object_category'] is not None and params['edge_label'] is not None:
+            query = """
+            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
+        elif params['subject_category'] is None and params['object_category'] is None and params['edge_label'] is not None:
+            query = """
+            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o)
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
+        else:
+            query = """
+            MATCH (s)-[p {{ {edge_properties} }}]->(o)
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
+        query = query.replace("{  }", "")
+
+        logging.debug(query)
+        return tx.run(query)
 
     def save_node(self, tx, obj):
         """
@@ -309,9 +368,7 @@ class NeoTransformer(Transformer):
 
     def report(self):
         print("Total number of nodes: {}".format(len(self.graph.nodes())))
-        print("Nodes: {}".format(self.graph.nodes()))
         print("Total number of edges: {}".format(len(self.graph.edges())))
-        print("Edges: {}".format(self.graph.edges()))
 
     def neo4j_report(self):
         """

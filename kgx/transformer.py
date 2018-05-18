@@ -13,18 +13,18 @@ class Transformer(object):
 
     """
 
-    def __init__(self, t=None, graph=None):
+    def __init__(self, graph=None):
         """
         Create a new Transformer. This should be called directly on a subclass.
 
         Optional arg: a Transformer
         """
-        if t is None:
-            self.graph = nx.MultiDiGraph()
-        else:
-            self.graph = t.graph
+
         if graph is not None:
             self.graph = graph
+        else:
+            self.graph = nx.MultiDiGraph()
+
         self.filter = {} # type: Dict[str, SimpleValue]
         self.graph_metadata = {}
         self.prefix_manager = PrefixManager()

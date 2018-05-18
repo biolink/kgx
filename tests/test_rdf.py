@@ -17,7 +17,7 @@ def test_load():
     t.save(tg_path, output_format="turtle")
     t.report()
 
-    w1 = PandasTransformer(t)
+    w1 = PandasTransformer(t.graph)
     w1.save('target/biogrid-e.csv', type='e')
     w1.save('target/biogrid-n.csv', type='n')
     
@@ -40,7 +40,7 @@ def test_load():
         if not oban_src_graph.isomorphic(oban_tg_graph):
             raise RuntimeError('The subgraphs whose subject is ' + str(a) + ' are not isomorphic ones.')
 
-    w2 = GraphMLTransformer(t)
+    w2 = GraphMLTransformer(t.graph)
     w2.save("target/x1n.graphml")
-    w3 = JsonTransformer(t)
+    w3 = JsonTransformer(t.graph)
     w3.save("target/x1n.json")
