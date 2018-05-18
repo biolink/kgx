@@ -2,6 +2,7 @@ from .transformer import Transformer
 
 import rdflib
 import logging
+import uuid
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from typing import NewType
@@ -17,6 +18,7 @@ mapping = {
     'subject': OBAN.association_has_subject,
     'object': OBAN.association_has_object,
     'predicate': OBAN.association_has_predicate,
+    'type' : RDF.type,
     'comment': RDFS.comment,
     'name': RDFS.label
 }
@@ -59,10 +61,12 @@ class RdfTransformer(Transformer):
         """
         Translate a URI into a CURIE (prefixed identifier)
         """
-        curies = contract_uri(str(uri))
-        if len(curies)>0:
-            return curies[0]
-        return str(uri)
+        pm = self.prefix_manager
+        return pm.contract(str(uri))
+        #curies = contract_uri(str(uri))
+        #if len(curies)>0:
+        #    return curies[0]
+        #return str(uri)
 
     def load_nodes(self, rg: rdflib.Graph):
         G = self.graph
@@ -98,8 +102,8 @@ class ObanRdfTransformer(RdfTransformer):
     inv_cmap = {}
     cmap = {}
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **args):
+        super().__init__(**args)
         # Generate the map and the inverse map from default curie maps, which will be used later.
         for cmap in default_curie_maps:
             for k, v in cmap.items():
@@ -107,14 +111,20 @@ class ObanRdfTransformer(RdfTransformer):
                 self.cmap[k] = v
 
     def load_edges(self, rg: rdflib.Graph):
+        pm = self.prefix_manager
         for a in rg.subjects(RDF.type, OBAN.association):
             obj = {}
             # Keep the id of this entity (e.g., <https://monarchinitiative.org/MONARCH_08830...>) as the value of 'id'.
+            #obj['id'] = pm.contract(str(a))
             obj['id'] = str(a)
 
             for s, p, o in rg.triples((a, None, None)):
                 if p in rmapping:
                     p = rmapping[p]
+                else:
+                    px = pm.contract(p)
+                    if px is not None:
+                        p = px
                 v = self.curie(o)
                 # Handling multi-value issue, i.e. there can be different v(s) for the same p.
                 if p not in obj:
@@ -134,6 +144,14 @@ class ObanRdfTransformer(RdfTransformer):
             return curies[0]
         return str(uri)
 
+    # move to superclass?
+    def uriref(self, id) -> URIRef:
+        if id in mapping:
+            uri = mapping[id]
+        else:
+            uri = self.prefix_manager.expand(id)
+        return URIRef(uri)
+
     def save(self, filename: str = None, output_format: str = None):
         """
         Transform the internal graph into the RDF graphs that follow OBAN-style modeling and dump into the file.
@@ -150,17 +168,25 @@ class ObanRdfTransformer(RdfTransformer):
         # Using an iterator of (node, adjacency dict) tuples for all nodes,
         # we iterate every edge (only outgoing adjacencies)
         for n, nbrs in self.graph.adjacency_iter():
+            a_object = n
             for nbr, eattr in nbrs.items():
+                a_subject = nbr
                 for entry, adjitem in eattr.items():
-                    # entity_id here is used as subject for each entry, e.g.,
+                    pred = "relatedTo"
+                    if 'predicate' in adjitem:
+                        pred = adjitem['predicate'][0]
+                    # assoc_id here is used as subject for each entry, e.g.,
                     # <https://monarchinitiative.org/MONARCH_08830...>
-                    entity_id = URIRef(adjitem['id'])
-                    self.unpack_adjitem(rdfgraph, entity_id, adjitem)
+                    if 'id' in adjitem and adjitem['id'] is not None:
+                        assoc_id = URIRef(adjitem['id'])
+                    else:
+                        assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+                    self.unpack_adjitem(rdfgraph, assoc_id, adjitem)
 
                     # The remaining ones are then OBAN's properties and corresponding objects. Store them as triples.
-                    rdfgraph.add((entity_id, mapping['subject'], URIRef(expand_uri(adjitem['subject'][0]))))
-                    rdfgraph.add((entity_id, mapping['predicate'], URIRef(expand_uri(adjitem['predicate'][0]))))
-                    rdfgraph.add((entity_id, mapping['object'], URIRef(expand_uri(adjitem['object'][0]))))
+                    rdfgraph.add((assoc_id, mapping['subject'], self.uriref(a_subject)))
+                    rdfgraph.add((assoc_id, mapping['predicate'], self.uriref(pred)))
+                    rdfgraph.add((assoc_id, mapping['object'], self.uriref(a_object)))
 
         # For now, assume that the default format is turtle if it is not specified.
         if output_format is None:
@@ -169,31 +195,23 @@ class ObanRdfTransformer(RdfTransformer):
         # Serialize the graph into the file.
         rdfgraph.serialize(destination=filename, format=output_format)
 
-    def unpack_adjitem(self, rdfgraph, entity_id, adjitem):
+    def unpack_adjitem(self, rdfgraph, assoc_id, adjitem):
         # Iterate adjacency dict, which contains pairs of properties and objects sharing the same subject.
-        for prop_uri, obj_curies in adjitem.items():
+        for prop_id, prop_values in adjitem.items():
             # See whether the current pair's prop/obj is the OBAN's one.
-            if prop_uri in self.rprop_set:
+            if prop_id in self.rprop_set:
                 continue
 
             # If not, see whether its props and objs can be registered as curies in namespaces.
             # Once they are registered, URI/IRIs can be shorten using the curies registered in namespaces.
             # e.g., register http://purl.obolibrary.org/obo/ECO_ with ECO.
-            for obj_curie in obj_curies:
-                obj_uri = expand_uri(obj_curie)
-
-                obj_compact_prefix, obj_value = obj_curie.split(":")
-                obj_long_prefix = self.cmap.get(obj_compact_prefix, None)
-                if obj_long_prefix is not None:
-                    rdfgraph.bind(obj_compact_prefix, Namespace(obj_long_prefix))
-
-                prop_long_prefix, prop_value = self.split_uri(prop_uri)
-                prop_compact_prefix = self.inv_cmap.get(prop_long_prefix, None)
-                if prop_compact_prefix is not None:
-                    rdfgraph.bind(prop_compact_prefix, Namespace(prop_long_prefix))
+            if not isinstance(prop_values,list):
+                prop_values = [prop_values]
+            for prop_value in prop_values:
+                obj_uri = self.uriref(prop_value)
 
                 # Store the pair as a triple.
-                rdfgraph.add((entity_id, URIRef(prop_uri), URIRef(obj_uri)))
+                rdfgraph.add((assoc_id, self.uriref(prop_id), obj_uri))
 
     def split_uri(self, prop_uri):
         """

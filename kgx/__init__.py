@@ -10,3 +10,6 @@ from .rdf_transformer import ObanRdfTransformer, RdfOwlTransformer
 from .json_transformer import JsonTransformer
 from .neo_transformer import NeoTransformer
 from .transformer import Transformer
+
+from .validator import Validator
+from .prefix_manager import PrefixManager

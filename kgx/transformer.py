@@ -1,5 +1,6 @@
 import networkx as nx
 from typing import Union, List, Dict
+from .prefix_manager import PrefixManager
 
 SimpleValue = Union[List[str], str]
 
@@ -12,7 +13,7 @@ class Transformer(object):
 
     """
 
-    def __init__(self, t=None):
+    def __init__(self, t=None, graph=None):
         """
         Create a new Transformer. This should be called directly on a subclass.
 
@@ -22,8 +23,11 @@ class Transformer(object):
             self.graph = nx.MultiDiGraph()
         else:
             self.graph = t.graph
+        if graph is not None:
+            self.graph = graph
         self.filter = {} # type: Dict[str, SimpleValue]
         self.graph_metadata = {}
+        self.prefix_manager = PrefixManager()
 
     def report(self) -> None:
         g = self.graph
