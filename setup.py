@@ -5,8 +5,9 @@ setup(
     version='0.0.1',
     packages=['kgx'],
     install_requires=['Click'],
+    scripts=['bin/cli.py'],
     entry_points="""
         [console_scripts]
-        kgx=kgx:cli
+        kgx=cli:cli
     """
 )

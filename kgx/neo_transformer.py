@@ -1,9 +1,13 @@
 import pandas as pd
 import networkx as nx
 import logging, yaml
+import itertools
 from .transformer import Transformer
 
 from neo4j.v1 import GraphDatabase
+
+neo4j_log = logging.getLogger("neo4j.bolt")
+neo4j_log.setLevel(logging.WARNING)
 
 class NeoTransformer(Transformer):
     """
@@ -29,15 +33,26 @@ class NeoTransformer(Transformer):
 
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
 
+    def batch_load_records(self, query, size=1000):
+        with self.driver.session() as session:
+            for i in itertools.count(1):
+                records = session.read_transaction(query, pageSize=size, pageNumber=i)
+                if records.peek() != None:
+                    yield records
+                else:
+                    return
 
     def load(self):
         """
         Read a neo4j database and create a nx graph
         """
+        for records in self.batch_load_records(self.get_nodes):
+            self.load_nodes(records)
+            break
 
-        with self.driver.session() as session:
-            self.load_nodes(session.read_transaction(self.get_nodes))
-            self.load_edges(session.read_transaction(self.get_edges))
+        for records in self.batch_load_records(self.get_edges):
+            self.load_edges(records)
+            break
 
     def load_nodes(self, node_records):
         """
@@ -59,41 +74,53 @@ class NeoTransformer(Transformer):
         """
         Load node from a neo4j record
         """
-
         node=node_record[0]
+        attributes = {}
 
-        attributes = {
-            'labels' : list(node.labels),
-            'properties' : node.properties
-        }
+        for key, value in node.items():
+            attributes[key] = value
 
-        self.graph.add_node(node.id, attr_dict=attributes)
+        if 'labels' not in attributes:
+            attributes['labels'] = list(node.labels)
+
+        node_id = node['id'] if 'id' in node else node.id
+
+        self.graph.add_node(node_id, attr_dict=attributes)
 
     def load_edge(self, edge_record):
         """
         Load an edge from a neo4j record
         """
-
         edge_subject = edge_record[0]
         edge_predicate = edge_record[1]
         edge_object = edge_record[2]
 
-        attributes = {
-                'id' : edge_predicate.id,
-                'type' : edge_predicate.type,
-                'properties' : edge_predicate.properties
-        }
+        subject_id = edge_subject['id'] if 'id' in edge_subject else edge_subject.id
+        object_id = edge_object['id'] if 'id' in edge_object else edge_object.id
+
+        attributes = {}
+
+        for key, value in edge_predicate.items():
+            attributes[key] = value
+
+        if 'id' not in attributes:
+            attributes['id'] = edge_predicate.id
+
+        if 'type' not in attributes:
+            attributes['type'] = edge_predicate.type
 
         self.graph.add_edge(
-            edge_subject.id,
-            edge_object.id,
+            subject_id,
+            object_id,
             attr_dict=attributes
         )
 
-    def get_nodes(self, tx):
+    def get_nodes(self, tx, pageNumber=1, pageSize=1000):
         """
-        Get all nodes from neo4j database
+        Get a page of nodes from the database
         """
+        pageNumber = 1 if pageNumber < 1 else pageNumber
+        skip=(pageNumber - 1) * pageSize
 
         labels = None
         if 'subject_category' in self.filter:
@@ -108,17 +135,25 @@ class NeoTransformer(Transformer):
 
         query = None
         if labels:
-            query = "MATCH (n:{labels} {{ {properties} }}) RETURN n".format(labels=labels, properties=self.parse_properties(properties))
+            query="""
+            MATCH (n:{labels} {{ {properties} }}) RETURN n SKIP {skip} LIMIT {pageSize};
+            """.format(labels=labels, properties=self.parse_properties(properties), skip=skip, pageSize=pageSize).strip()
         else:
-            query = "MATCH (n {{ {properties} }}) RETURN n".format(properties=self.parse_properties(properties))
+            query="""
+            MATCH (n {{ {properties} }}) RETURN n SKIP {skip} LIMIT {pageSize};
+            """.format(properties=self.parse_properties(properties), skip=skip, pageSize=pageSize).strip()
+
+        query = query.replace("{  }", "")
 
         logging.debug(query)
         return tx.run(query)
 
-    def get_edges(self, tx):
+    def get_edges(self, tx, pageNumber=1, pageSize=1000):
         """
-        Get all edges from neo4j database
+        Get a page of edges from the database
         """
+        pageNumber = 1 if pageNumber < 1 else pageNumber
+        skip=(pageNumber - 1) * pageSize
 
         params = {}
         params['subject_category'] = self.filter['subject_category'] if 'subject_category' in self.filter else None
@@ -132,13 +167,34 @@ class NeoTransformer(Transformer):
 
         query = None
         if params['subject_category'] is not None and params['object_category'] is not None and params['edge_label'] is not None:
-            query = "MATCH (s:{subject_category})-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category}) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+            query = """
+            MATCH (s:{subject_category})-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
         elif params['subject_category'] is None and params['object_category'] is not None and params['edge_label'] is not None:
-            query = "MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category}) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+            query = """
+            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
         elif params['subject_category'] is None and params['object_category'] is None and params['edge_label'] is not None:
-            query = "MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+            query = """
+            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o)
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
         else:
-            query = "MATCH (s)-[p {{ {edge_properties} }}]->(o) RETURN s,p,o".format(**params, edge_properties=self.parse_properties(properties))
+            query = """
+            MATCH (s)-[p {{ {edge_properties} }}]->(o)
+            RETURN s,p,o
+            SKIP {skip} LIMIT {pageSize};
+            """.format(skip=skip, pageSize=pageSize, edge_properties=self.parse_properties(properties), **params).strip()
+
+        query = query.replace("{  }", "")
 
         logging.debug(query)
         return tx.run(query)
@@ -297,8 +353,10 @@ class NeoTransformer(Transformer):
 
         with self.driver.session() as session:
             session.write_transaction(self.create_constraints, labels)
-            for n in self.graph.nodes():
-                node_attributes = self.graph.node[n]
+            for node_id in self.graph.nodes():
+                node_attributes = self.graph.node[node_id]
+                if 'id' not in node_attributes:
+                    node_attributes['id'] = node_id
                 session.write_transaction(self.save_node, node_attributes)
             for n, nbrs in self.graph.adjacency_iter():
                 for nbr, eattr in nbrs.items():
