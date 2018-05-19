@@ -39,7 +39,6 @@ def cli(config, debug):
 @handle_exception
 def neo4j_download(config, uri, username, password, output, output_type, predicate_filter, subject_filter, object_filter, source_filter):
     t = kgx.NeoTransformer(uri=uri, username=username, password=password)
-    import pudb; pudb.set_trace()
     if predicate_filter != ():
         t.set_filter('predicate', predicate_filter)
     if subject_filter != ():
