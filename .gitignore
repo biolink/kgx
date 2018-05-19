@@ -4,3 +4,6 @@ __pycache__
 target/*{csv,graphml}
 *.pyc
 *.egg-info
+_build
+_static
+_templates
