@@ -27,26 +27,18 @@ def cli(config, debug):
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=str, help='Extention type of output files: ' + get_file_types())
-@click.option('--predicate-filter', type=str, multiple=True)
-@click.option('--subject-filter', type=str, multiple=True)
-@click.option('--object-filter', type=str, multiple=True)
-@click.option('--source-filter', type=str, multiple=True)
+@click.option('--property-filter', type=(str, str), multiple=True)
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, uri, username, password, output, output_type, predicate_filter, subject_filter, object_filter, source_filter):
+def neo4j_download(config, uri, username, password, output, output_type, property_filter):
     t = kgx.NeoTransformer(uri=uri, username=username, password=password)
-    if predicate_filter != ():
-        t.set_filter('predicate', predicate_filter)
-    if subject_filter != ():
-        t.set_filter('subject_category', subject_filter)
-    if object_filter != ():
-        t.set_filter('object_category', object_filter)
-    if source_filter != ():
-        t.set_filter('source', source_filter)
+
+    for key, value in property_filter:
+        t.set_filter(key, value)
 
     t.load()
     transform_and_save(t, output, output_type)
