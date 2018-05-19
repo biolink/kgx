@@ -26,7 +26,7 @@ def cli(config, debug):
         logging.basicConfig(level=logging.DEBUG)
 
 @cli.command(name='neo4j-download')
-@click.option('--output-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--property-filter', type=(str, str), multiple=True)
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
@@ -44,7 +44,7 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
     transform_and_save(t, output, output_type)
 
 @cli.command(name='neo4j-upload')
-@click.option('--input-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
@@ -57,8 +57,8 @@ def neo4j_upload(config, uri, username, password, inputs, input_type):
     neo_transformer.save()
 
 @cli.command()
-@click.option('--input-type', type=str, help='Extention type of input files: ' + get_file_types())
-@click.option('--output-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.option('--output-type', type=click.Choice(get_file_types()))
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
