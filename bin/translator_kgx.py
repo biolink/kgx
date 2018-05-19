@@ -36,6 +36,7 @@ def cli(config, debug):
 @handle_exception
 def neo4j_download(config, uri, username, password, output, output_type, property_filter):
     t = kgx.NeoTransformer(uri=uri, username=username, password=password)
+    import pudb; pudb.set_trace()
 
     for key, value in property_filter:
         t.set_filter(key, value)
