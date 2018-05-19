@@ -10,13 +10,11 @@ _transformers = {
     'rq' : kgx.SparqlTransformer
 }
 
-_file_types = ', '.join(_transformers.keys())
-
 def get_transformer(extention):
     return _transformers.get(extention)
 
 def get_file_types():
-    return _file_types
+    return _transformers.keys()
 
 def get_type(filename):
     for t in _transformers.keys():

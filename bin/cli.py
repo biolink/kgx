@@ -26,22 +26,25 @@ def cli(config, debug):
         logging.basicConfig(level=logging.DEBUG)
 
 @cli.command(name='neo4j-download')
-@click.option('--output-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--output-type', type=click.Choice(get_file_types()))
+@click.option('--property-filter', type=(str, str), multiple=True)
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, uri, username, password, output, output_type):
-    neo_transformer = kgx.NeoTransformer(uri=uri, username=username, password=password)
+def neo4j_download(config, uri, username, password, output, output_type, property_filter):
+    t = kgx.NeoTransformer(uri=uri, username=username, password=password)
 
-    neo_transformer.load()
+    for key, value in property_filter:
+        t.set_filter(key, value)
 
-    transform_and_save(neo_transformer, output, output_type)
+    t.load()
+    transform_and_save(t, output, output_type)
 
 @cli.command(name='neo4j-upload')
-@click.option('--input-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
@@ -54,8 +57,8 @@ def neo4j_upload(config, uri, username, password, inputs, input_type):
     neo_transformer.save()
 
 @cli.command()
-@click.option('--input-type', type=str, help='Extention type of input files: ' + get_file_types())
-@click.option('--output-type', type=str, help='Extention type of output files: ' + get_file_types())
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.option('--output-type', type=click.Choice(get_file_types()))
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
@@ -66,49 +69,8 @@ def dump(config, inputs, output, input_type, output_type):
     INPUTS  : any number of files or endpoints
     OUTPUT : the output file
     """
-    if output_type is None:
-        output_type = get_type(output)
-
-    if input_type is None:
-        input_types = [get_type(i) for i in inputs]
-        for t in input_types:
-            if input_types[0] != t:
-                raise Exception("""Each input file must have the same file type.
-                    Try setting the --input-type parameter to enforce a single
-                    type."""
-                )
-            input_type = input_types[0]
-
-    input_transformer = get_transformer(input_type)
-
-    if input_transformer is None:
-        raise Exception('Inputs do not have a recognized type: ' + get_file_types())
-
-    t = input_transformer()
-
-    for i in inputs:
-        t.parse(i)
-
-    t.report()
-
-    output_transformer = get_transformer(output_type)
-
-    if output_transformer is None:
-        raise Exception('Output does not have a recognized type: ' + get_file_types())
-
-    kwargs = {
-        'extention' : output_type
-    }
-
-    w = output_transformer(t.graph)
-    result_path = w.save(output, **kwargs)
-
-    if result_path is not None and os.path.isfile(result_path):
-        click.echo("File created at: " + result_path)
-    elif os.path.isfile(output):
-        click.echo("File created at: " + output)
-    else:
-        click.echo("Could not create file.")
+    t = load_transformer(inputs, input_type)
+    transform_and_save(t, output, output_type)
 
 def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     """
