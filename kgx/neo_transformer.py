@@ -48,11 +48,9 @@ class NeoTransformer(Transformer):
         """
         for records in self.batch_load_records(self.get_nodes):
             self.load_nodes(records)
-            break
 
         for records in self.batch_load_records(self.get_edges):
             self.load_edges(records)
-            break
 
     def load_nodes(self, node_records):
         """
