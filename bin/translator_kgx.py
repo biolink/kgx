@@ -6,6 +6,7 @@ import itertools
 
 from typing import List
 from kgx import Transformer
+from kgx import Validator
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -25,6 +26,17 @@ def cli(config, debug):
     config.debug = debug
     if debug:
         logging.basicConfig(level=logging.DEBUG)
+
+@cli.command()
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def validate(config, inputs, input_type):
+    v = Validator()
+    t = load_transformer(inputs, input_type)
+    result = v.validate(t.graph)
+    click.echo(result)
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
