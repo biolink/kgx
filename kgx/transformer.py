@@ -34,6 +34,8 @@ class Transformer(object):
         print('|Nodes|={}'.format(len(g.nodes())))
         print('|Edges|={}'.format(len(g.edges())))
 
+    def is_empty(self) -> bool:
+        return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
     def set_filter(self, p: str, v: SimpleValue) -> None:
         """
