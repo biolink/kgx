@@ -4,7 +4,10 @@ import logging, yaml
 import itertools
 from .transformer import Transformer
 
+from typing import Union
+
 from neo4j.v1 import GraphDatabase
+from neo4j.v1.types import Node, Record
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
@@ -68,11 +71,16 @@ class NeoTransformer(Transformer):
         for edge in edge_records:
             self.load_edge(edge)
 
-    def load_node(self, node_record):
+    def load_node(self, node_record:Union[Node, Record]):
         """
         Load node from a neo4j record
         """
-        node=node_record[0]
+        node = None
+        if isinstance(node_record, Node):
+            node = node_record
+        elif isinstance(node_record, Record):
+            node = node_record[0]
+
         attributes = {}
 
         for key, value in node.items():
@@ -106,6 +114,12 @@ class NeoTransformer(Transformer):
 
         if 'type' not in attributes:
             attributes['type'] = edge_predicate.type
+
+        if subject_id not in self.graph.nodes():
+            self.load_node(edge_subject)
+
+        if object_id not in self.graph.nodes():
+            self.load_node(edge_object)
 
         self.graph.add_edge(
             subject_id,
