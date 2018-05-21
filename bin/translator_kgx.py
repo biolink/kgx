@@ -2,9 +2,11 @@ import kgx
 import click
 import os
 import logging
+import itertools
 
 from typing import List
 from kgx import Transformer
+from kgx import Validator
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -25,23 +27,56 @@ def cli(config, debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
+@cli.command()
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def validate(config, inputs, input_type):
+    v = Validator()
+    t = load_transformer(inputs, input_type)
+    result = v.validate(t.graph)
+    click.echo(result)
+
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--property-filter', type=(str, str), multiple=True)
+@click.option('--batch-size', type=int, help='The number of records to save in each file')
+@click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, uri, username, password, output, output_type, property_filter):
+def neo4j_download(config, uri, username, password, output, output_type, property_filter, batch_size, batch_start):
+    if batch_start != None and batch_size == None:
+        raise Exception('batch-size must be set if batch-start is set')
+
+    if batch_start == None and batch_size != None:
+        batch_start = 0
+
     t = kgx.NeoTransformer(uri=uri, username=username, password=password)
 
     for key, value in property_filter:
         t.set_filter(key, value)
 
-    t.load()
-    transform_and_save(t, output, output_type)
+    if batch_size != None and batch_start >= 0:
+        for i in itertools.count(batch_start):
+            start = batch_size * i
+            end = start + batch_size
+
+            t.load(start=start, end=end)
+
+            if t.is_empty():
+                return
+
+            name, extention = output.split('.', 1)
+            indexed_output = name + '[{}].'.format(i) + extention
+            transform_and_save(t, indexed_output, output_type)
+    else:
+        t.load()
+        transform_and_save(t, output, output_type)
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))

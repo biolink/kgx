@@ -5,9 +5,9 @@ setup(
     version='0.0.1',
     packages=['kgx'],
     install_requires=['Click'],
-    scripts=['bin/cli.py'],
+    scripts=['bin/translator_kgx.py'],
     entry_points="""
         [console_scripts]
-        kgx=cli:cli
+        kgx=translator_kgx:cli
     """
 )
