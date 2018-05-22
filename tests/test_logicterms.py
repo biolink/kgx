@@ -1,23 +1,34 @@
-from kgx import LogicTermTransformer, ObanRdfTransformer
+from kgx import LogicTermTransformer, ObanRdfTransformer, RdfOwlTransformer
 from rdflib import Namespace
 from rdflib.namespace import RDF
 import rdflib
+import gzip
 
-
-def test_save():
+def test_save1():
     """
     save tests
     """
     src_path = "tests/resources/monarch/biogrid_test.ttl"
-    tg_path = "target/test_output.sxrp"
 
     t = ObanRdfTransformer()
     t.parse(src_path, input_format="turtle")
+    save(t.graph, 'biogrid')
 
-    w = LogicTermTransformer(t.graph)
-    w.graph = t.graph
-    w.save('target/biogrid.sxpr')
+def test_save2():
+    """
+    save tests
+    """
+    f = gzip.open("tests/resources/mody.ttl.gz", 'rb')
+    t = RdfOwlTransformer()
+    t.parse(f, input_format='ttl')
+    save(t.graph, 'mody')
+    
+# TODO: make this a proper test with assertions
+def save(g, outfile):
 
-    w1 = LogicTermTransformer(t.graph, 'prolog')
-    w1.save('target/biogrid.pl')
+    w = LogicTermTransformer(g)
+    w.save('target/' + outfile + '.sxpr')
+
+    w1 = LogicTermTransformer(g, 'prolog')
+    w1.save("target/" + outfile + ".pl")
 
