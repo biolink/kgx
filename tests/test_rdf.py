@@ -1,3 +1,5 @@
+import os
+
 from kgx import ObanRdfTransformer, PandasTransformer, GraphMLTransformer, JsonTransformer
 from rdflib import Namespace
 from rdflib.namespace import RDF
@@ -8,8 +10,12 @@ def test_load():
     """
     load and save tests
     """
-    src_path = "tests/resources/monarch/biogrid_test.ttl"
-    tg_path = "target/test_output.ttl"
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    src_path = os.path.join(cwd, 'resources', 'monarch', 'biogrid_test.ttl')
+    tpath = os.path.join(cwd, 'target')
+    os.makedirs(tpath, exist_ok=True)
+
+    tg_path = os.path.join(tpath, "test_output.ttl")
 
     # execute ObanRdfTransformer's parse and save function
     t = ObanRdfTransformer()
@@ -18,8 +24,8 @@ def test_load():
     t.report()
 
     w1 = PandasTransformer(t.graph)
-    w1.save('target/biogrid-e.csv', type='e')
-    w1.save('target/biogrid-n.csv', type='n')
+    w1.save(os.path.join(tpath, 'biogrid-e.csv'), type='e')
+    w1.save(os.path.join(tpath, 'biogrid-n.csv'), type='n')
     
     # read again the source, test graph
     src_graph = rdflib.Graph()
@@ -41,6 +47,6 @@ def test_load():
             raise RuntimeError('The subgraphs whose subject is ' + str(a) + ' are not isomorphic ones.')
 
     w2 = GraphMLTransformer(t.graph)
-    w2.save("target/x1n.graphml")
+    w2.save(os.path.join(tpath, "x1n.graphml"))
     w3 = JsonTransformer(t.graph)
-    w3.save("target/x1n.json")
+    w3.save(os.path.join(tpath, "x1n.json"))

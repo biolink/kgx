@@ -10,7 +10,6 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 
 ## Installation
 ```
-pip3 install -r requirements.txt
 python3 setup.py install
 ```
 
@@ -18,12 +17,13 @@ The installation requires Python 3.
 
 For convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
 ```
-python3 -m venv env
+python3 -m venv venv
 source env/bin/activate
 
-pip install -r requirements.txt
 python setup.py install
 ```
+
+The above script can be found in [`environment.sh`](environment.sh)
 
 ## Command Line Usage
 Use the `--help` flag to get help. Right now there is a single command:

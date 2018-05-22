@@ -1,3 +1,5 @@
+import os
+
 from kgx import PandasTransformer
 from kgx import ObanRdfTransformer
 from kgx import Validator
@@ -14,7 +16,9 @@ def test_validator_rdf():
     """
     use test files
     """
-    src_path = "tests/resources/monarch/biogrid_test.ttl"
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    resdir = os.path.join(cwd, 'resources')
+    src_path = os.path.join(resdir, 'monarch', 'biogrid_test.ttl')
     t = ObanRdfTransformer()
     t.parse(src_path, input_format="turtle")
     validator = Validator()
@@ -48,4 +52,3 @@ def test_validator_good():
     validator.validate(G)
     write_errors(validator)
     assert validator.ok()
-    

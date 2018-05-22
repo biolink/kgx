@@ -1,9 +1,11 @@
 venv/
 __pycache__
 .pytest_cache/
-target/*{csv,graphml}
+tests/target/
 *.pyc
 *.egg-info
 _build
 _static
 _templates
+.idea/
+
