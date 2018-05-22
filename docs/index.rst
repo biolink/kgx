@@ -61,12 +61,12 @@ There is a `kgx` command line utility that allows for import, export and transfo
    OUTPUT : the output file
 
    Options:
-      --input-type TEXT   Extention type of input files: ttl, json, csv, rq, tsv, graphml
-      --output-type TEXT  Extention type of output files: ttl, json, csv, rq, tsv, graphml
+      --input-type TEXT   Extention type of input files: ttl, json, csv, rq, tsv, graphml, sxpr
+      --output-type TEXT  Extention type of output files: ttl, json, csv, rq, tsv, graphml, sxpr
       --help              Show this message and exit.
 
 CSV/TSV representation require two files, one that represents the vertex set and one for the edge set.
-JSON, TTL, and GRAPHML files represent a whole graph in a single file. For this reason when creating CSV/TSV
+JSON, TTL, SXPR, and GRAPHML files represent a whole graph in a single file. For this reason when creating CSV/TSV
 representation we will zip the resulting files in a .tar file.
 
 The format will be inferred from the file extention. But if this cannot be done then the `--input-type` and
