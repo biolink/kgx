@@ -118,7 +118,7 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     output_transformer = get_transformer(output_type)
 
     if output_transformer is None:
-        raise Exception('Output does not have a recognized type: ' + get_file_types())
+        raise Exception('Output does not have a recognized type: ' + str(get_file_types()))
 
     kwargs = {
         'extention' : output_type
@@ -152,7 +152,7 @@ def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
     transformer_constructor = get_transformer(input_type)
 
     if transformer_constructor is None:
-        raise Exception('Inputs do not have a recognized type: ' + get_file_types())
+        raise Exception('Inputs do not have a recognized type: ' + str(get_file_types()))
 
     t = transformer_constructor()
 
