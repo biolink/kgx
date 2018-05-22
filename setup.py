@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='Knowledge Graph Exchange',
     version='0.0.1',
-    packages=['kgx'],
+    packages=['kgx', 'kgx.cli'],
     install_requires=['Click'],
     scripts=['bin/translator_kgx.py'],
     entry_points="""
