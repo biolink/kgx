@@ -7,6 +7,7 @@ _transformers = {
     'graphml' : kgx.GraphMLTransformer,
     'ttl' : kgx.ObanRdfTransformer,
     'json' : kgx.JsonTransformer,
+    'sxpr' : kgx.LogicTermTransformer,
     'rq' : kgx.SparqlTransformer
 }
 
