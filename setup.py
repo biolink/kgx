@@ -18,7 +18,7 @@ requires = [
 setup(
     name='Knowledge Graph Exchange',
     version='0.0.1',
-    packages=['kgx'],
+    packages=['kgx', 'kgx.cli'],
     install_requires=requires,
     scripts=['bin/translator_kgx.py'],
     entry_points="""
