@@ -25,7 +25,7 @@ class SparqlMapper(object):
         m = {}
         for uri in uris:
             shortform = self.map_uri(parentmap, uri)
-            if shortform is not None:
+            if shortform is not None and ':' not in shortform:
                 m[uri] = shortform
         return m
     
