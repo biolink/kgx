@@ -17,7 +17,7 @@ The installation requires Python 3.
 
 For convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
 ```
-python3 -m venv venv
+python3 -m venv env
 source env/bin/activate
 
 python setup.py install
