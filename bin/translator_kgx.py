@@ -3,10 +3,13 @@ import click
 import os
 import logging
 import itertools
+import pickle
+import pandas as pd
 
 from typing import List
 from kgx import Transformer
 from kgx import Validator
+from kgx import map_graph
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -56,13 +59,12 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
     if batch_start == None and batch_size != None:
         batch_start = 0
 
-    t = kgx.NeoTransformer(uri=uri, username=username, password=password)
-
     for key, value in property_filter:
         t.set_filter(key, value)
 
     if batch_size != None and batch_start >= 0:
         for i in itertools.count(batch_start):
+            t = kgx.NeoTransformer(uri=uri, username=username, password=password)
             start = batch_size * i
             end = start + batch_size
 
@@ -72,9 +74,10 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
                 return
 
             name, extention = output.split('.', 1)
-            indexed_output = name + '[{}].'.format(i) + extention
+            indexed_output = name + '({}).'.format(i) + extention
             transform_and_save(t, indexed_output, output_type)
     else:
+        t = kgx.NeoTransformer(uri=uri, username=username, password=password)
         t.load()
         transform_and_save(t, output, output_type)
 
@@ -94,18 +97,53 @@ def neo4j_upload(config, uri, username, password, inputs, input_type):
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--output-type', type=click.Choice(get_file_types()))
+@click.option('--mapping', type=str)
+@click.option('--preserve', is_flag=True)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def dump(config, inputs, output, input_type, output_type):
+def dump(config, inputs, output, input_type, output_type, mapping, preserve):
     """\b
     Transforms a knowledge graph from one representation to another
     INPUTS  : any number of files or endpoints
     OUTPUT : the output file
     """
     t = load_transformer(inputs, input_type)
+    if mapping != None:
+        path = get_file_path(mapping)
+        with click.open_file(path, 'rb') as f:
+            d = pickle.load(f)
+            click.echo('Performing mapping: ' + mapping)
+            map_graph(G=t.graph, mapping=d, preserve=preserve)
     transform_and_save(t, output, output_type)
+
+@cli.command(name='load-mapping')
+@click.argument('name', type=str)
+@click.argument('source-col', type=str, required=True)
+@click.argument('target-col', type=str, required=True)
+@click.argument('csv', type=click.Path())
+@pass_config
+def load_mapping(config, name, csv, source_col, target_col):
+    import pudb; pudb.set_trace()
+    data = pd.read_csv(csv)
+
+    d = {row[source_col] : row[target_col] for index, row in data.iterrows()}
+
+    path = get_file_path(name)
+
+    with open(path, 'wb') as f:
+        pickle.dump(d, f)
+        click.echo('Mapping \'{}\' saved at {}'.format(name, path))
+
+
+def get_file_path(filename:str) -> str:
+    app_dir = click.get_app_dir(__name__)
+
+    if not os.path.exists(app_dir):
+        os.makedirs(app_dir)
+
+    return os.path.join(app_dir, filename)
 
 def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     """
