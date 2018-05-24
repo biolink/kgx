@@ -120,11 +120,19 @@ class NeoTransformer(Transformer):
         for key, value in edge_predicate.items():
             attributes[key] = value
 
+        if 'subject' not in attributes:
+            attributes['subject'] = edge_subject['id']
+        if 'object' not in attributes:
+            attributes['object'] = edge_object['id']
+
         if 'id' not in attributes:
             attributes['id'] = edge_predicate.id
 
         if 'type' not in attributes:
             attributes['type'] = edge_predicate.type
+
+        if 'predicate' not in attributes:
+            attributes['predicate'] = attributes['type']
 
         if subject_id not in self.graph.nodes():
             self.load_node(edge_subject)
@@ -233,7 +241,7 @@ class NeoTransformer(Transformer):
             label = obj['category']
             del obj['category']
 
-        query = "CREATE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
+        query = "MERGE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
         tx.run(query)
 
     def save_node_unwind(self, nodes_by_category, property_names):
@@ -256,8 +264,12 @@ class NeoTransformer(Transformer):
             self.populate_missing_properties(edges_by_relationship_type[predicate], property_names)
             query = self.generate_unwind_edge_query(predicate, property_names)
             edges = edges_by_relationship_type[predicate]
-            with self.driver.session() as session:
-                session.run(query, relationship=predicate, edges=edges)
+            for i in range(0, len(edges), 1000):
+                end = i + 1000
+                subset = edges[i:end]
+                logging.info("edges subset: {}-{}".format(i, end))
+                with self.driver.session() as session:
+                    session.run(query, relationship=predicate, edges=subset)
 
     def generate_unwind_node_query(self, label, property_names):
         """
@@ -270,7 +282,7 @@ class NeoTransformer(Transformer):
             if property not in ignore_list:
                 properties_dict[property] = "node.{}".format(property)
 
-        query = "UNWIND $nodes as node CREATE (p:{label} {node_properties})".format(label=label, node_properties=str(properties_dict).replace("'", ""))
+        query = "UNWIND $nodes as node MERGE (p:{label} {node_properties})".format(label=label, node_properties=str(properties_dict).replace("'", ""))
         logging.debug(query)
         return query
 
@@ -333,10 +345,18 @@ class NeoTransformer(Transformer):
                 continue
             if 'category' not in node:
                 node['category'] = 'named_thing'
-            if node['category'] not in nodes_by_category:
-                nodes_by_category[node['category']] = [node]
+            if type(node['category']) is type([]):
+                category = ':'.join(node['category'])
+                if category not in nodes_by_category:
+                    nodes_by_category[category] = [node]
+                else:
+                    nodes_by_category[category].append(node)
             else:
-                nodes_by_category[node['category']].append(node)
+                if node['category'] not in nodes_by_category:
+                    nodes_by_category[node['category']] = [node]
+                else:
+                    nodes_by_category[node['category']].append(node)
+
             node_properties += [x for x in node if x not in node_properties]
 
         edges_by_relationship_type = {}
@@ -365,8 +385,10 @@ class NeoTransformer(Transformer):
         for n in self.graph.nodes():
             node = self.graph.node[n]
             if 'category' in node:
-                labels.add(node['category'])
-
+                if isinstance(node['category'], list):
+                    labels.update(node['category'])
+                else:
+                    labels.add(node['category'])
 
         with self.driver.session() as session:
             session.write_transaction(self.create_constraints, labels)
@@ -402,7 +424,13 @@ class NeoTransformer(Transformer):
 
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
         for label in labels:
-            tx.run(query.format(label))
+            if ':' in label:
+                sub_labels = label.split(':')
+                for sublabel in sub_labels:
+                    print("CREATING CONSTRAINT for multiple labels: {}".format(sublabel))
+                    tx.run(query.format(sublabel))
+            else:
+                tx.run(query.format(label))
 
     @staticmethod
     def parse_properties(properties, delim = '|'):
