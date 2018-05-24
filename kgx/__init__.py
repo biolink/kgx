@@ -14,3 +14,4 @@ from .transformer import Transformer
 
 from .validator import Validator
 from .prefix_manager import PrefixManager
+from .mapper import map_graph

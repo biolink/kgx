@@ -66,6 +66,19 @@ $ kgx dump tests/resources/monarch/biogrid_test.ttl target/x1n.json
 File created at: target/x1n.json
 ```
 
+An example of relabelling. First we load a csv file that describes how to
+relabel fields.
+```
+$ kgx load-mapping example-mapping source_id target_id tests/resources/mapping/mapping.csv
+Mapping 'example-mapping' saved at /home/user/.config/translator_kgx/example-mapping
+```
+Then we use the dump command, providing the `--mapping` option. The `--preserve` flag will keep the old labels along with the new ones.
+```
+kgx dump --mapping example-mapping --preserve tests/resources/mapping/nodes.csv tests/resources/mapping/edges.csv target/mapping-out.json
+Performing mapping: example-mapping
+File created at: target/mapping-out.json
+```
+
 ## Internal Representation
 
 Internal representation is networkx MultiDiGraph which is a property graph.
