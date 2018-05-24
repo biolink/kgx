@@ -6,6 +6,7 @@ logging.basicConfig(level=logging.INFO)
 dsink = DebugSink(None)
 psink = ProgressSink(dsink)
 
-neo_src = NeoSource(psink)
+# TODO: uncomment when travis CI supports neo4j.
+#neo_src = NeoSource(psink)
 
-neo_src.load()
+#neo_src.load()
