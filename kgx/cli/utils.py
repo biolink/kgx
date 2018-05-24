@@ -14,7 +14,7 @@ def get_transformer(extention):
     return _transformers.get(extention)
 
 def get_file_types():
-    return _transformers.keys()
+    return tuple(_transformers.keys())
 
 def get_type(filename):
     for t in _transformers.keys():
