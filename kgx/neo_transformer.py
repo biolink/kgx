@@ -242,7 +242,6 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
         query = "MERGE (n:{label} {{id: $id}}) ON CREATE SET {properties}".format(label=label, properties=properties)
-
         tx.run(query, **obj)
 
     def save_node_unwind(self, nodes_by_category, property_names):
@@ -276,15 +275,21 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
-
-        properties_dict = {}
+        # TODO: Load this list from a config file? https://github.com/NCATS-Tangerine/kgx/issues/65
         ignore_list = []
-        for property in property_names:
-            if property not in ignore_list:
-                properties_dict[property] = "node.{}".format(property)
 
-        query = "UNWIND $nodes as node MERGE (p:{label} {node_properties})".format(label=label, node_properties=str(properties_dict).replace("'", ""))
+        properties_dict = {p : p for p in property_names if p not in ignore_list}
+
+        properties = ', '.join('n.{0}=node.{0}'.format(k) for k in properties_dict.keys() if k != 'id')
+
+        query = """\
+        UNWIND $nodes AS node\
+        MERGE (n:{label} {{id: node.id}})\
+        ON CREATE SET {properties}\
+        """.format(label=label, properties=properties)
+
         logging.debug(query)
+
         return query
 
 
@@ -292,15 +297,20 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given relationship
         """
-
-        properties_dict = {}
         ignore_list = ['subject', 'predicate', 'object']
-        for property in property_names:
-            if property not in ignore_list:
-                properties_dict[property] = "edge.{}".format(property)
+        properties_dict = {p : "edge.{}".format(p) for p in property_names if p not in ignore_list}
 
-        query = "UNWIND $edges as edge MATCH (a {{ id: edge.subject }}) MATCH (b {{ id: edge.object }}) MERGE (a)-[r:{relationship} {relationship_properties} ]->(b)".format(relationship=relationship, relationship_properties=str(properties_dict).replace("'",""))
+        properties = ', '.join('r.{0}=edge.{0}'.format(k) for k in properties_dict.keys())
+
+        query="""\
+        UNWIND $edges AS edge\
+        MATCH (s {{id: edge.subject}}), (o {{id: edge.object}})\
+        MERGE (s)-[r:{edge_label}]->(o)\
+        ON CREATE SET {properties}\
+        """.format(properties=properties, edge_label=relationship)
+
         logging.debug(query)
+
         return query
 
     def save_edge(self, tx, obj):
