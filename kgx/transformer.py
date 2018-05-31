@@ -1,6 +1,8 @@
 import networkx as nx
 from typing import Union, List, Dict
 from .prefix_manager import PrefixManager
+from networkx.readwrite import json_graph
+import json
 
 SimpleValue = Union[List[str], str]
 
@@ -50,3 +52,40 @@ class Transformer(object):
          - source
         """
         self.filter[p] = v
+
+    @staticmethod
+    def dump(G):
+        """
+        Convert nx graph G as a JSON dump
+        """
+        data = json_graph.node_link_data(G)
+        return data
+
+    @staticmethod
+    def dump_to_file(G, filename):
+        """
+        Convert nx graph G as a JSON dump and write to file
+        """
+        FH = open(filename, "w")
+        json_data = Transformer.dump(G)
+        FH.write(json.dumps(json_data))
+        FH.close()
+        return json_data
+
+    @staticmethod
+    def restore(json_data):
+        """
+        Create a nx graph with the given JSON data
+        """
+        G = json_graph.node_link_graph(json_data)
+        return G
+
+    @staticmethod
+    def restore_from_file(filename):
+        """
+        Create a nx graph with the given JSON data and write to file
+        """
+        FH = open(filename, "r")
+        data = FH.read()
+        G = Transformer.restore(json.loads(data))
+        return G
