@@ -51,7 +51,7 @@ class NeoTransformer(Transformer):
 
                 records = session.read_transaction(query, skip=skip, limit=limit)
 
-                if records.peek() != None:
+                if records.peek() is not None:
                     yield records
                 else:
                     return
@@ -238,11 +238,12 @@ class NeoTransformer(Transformer):
             logging.warning("node does not have 'category' property. Using 'named_thing' as default")
             label = 'named_thing'
         else:
-            label = obj['category']
-            del obj['category']
+            label = obj.pop('category')
 
-        query = "MERGE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
-        tx.run(query)
+        properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
+        query = "MERGE (n:{label} {{id: $id}}) ON CREATE SET {properties}".format(label=label, properties=properties)
+
+        tx.run(query, **obj)
 
     def save_node_unwind(self, nodes_by_category, property_names):
         """
@@ -306,17 +307,19 @@ class NeoTransformer(Transformer):
         """
         Load an edge into neo4j
         """
+        label = obj.pop('predicate')
+        subject_id = obj.pop('subject')
+        object_id = obj.pop('object')
 
-        queryString = "MATCH (s {{ id: '{subject_id}' }}) MATCH (o {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
+        properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
 
-        query_params = {
-            'subject_id': obj['subject'], 'object_id': obj['object'],
-            'relationship': obj['predicate'], 'relationship_properties': self.parse_properties(obj)
-        }
+        q="""\
+        MATCH (s {{id: $subject_id}}), (o {{id: $object_id}})\
+        MERGE (s)-[r:{label}]->(o)\
+        ON CREATE SET {properties}\
+        """.format(properties=properties, label=label)
 
-        query = queryString.format(**query_params)
-        logging.debug(query)
-        tx.run(query)
+        tx.run(q, subject_id=subject_id, object_id=object_id, **obj)
 
     def save_from_csv(self, nodes_filename, edges_filename):
         """
