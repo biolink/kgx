@@ -83,16 +83,20 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
+@click.option('--use-unwind', is_flag=True, help='Loads using UNWIND, which is quicker')
 @click.argument('uri', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_upload(config, uri, username, password, inputs, input_type):
+def neo4j_upload(config, uri, username, password, inputs, input_type, use_unwind):
     t = load_transformer(inputs, input_type)
     neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=uri, username=username, password=password)
-    neo_transformer.save()
+    if use_unwind:
+        neo_transformer.save_with_unwind()
+    else:
+        neo_transformer.save()
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
