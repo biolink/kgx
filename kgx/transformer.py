@@ -53,6 +53,23 @@ class Transformer(object):
         """
         self.filter[p] = v
 
+    def merge(self, graphs):
+        """
+        Merge all graphs with self.graph
+
+        - If two nodes with same 'id' exist in two graphs, the nodes will be merged based on the 'id'
+        - If two nodes with the same 'id' exists in two graphs and they both have conflicting values
+        for a property, then the value is overwritten from left to right
+        - If two edges with the same 'key' exists in two graphs, the edge will be merged based on the
+        'key' property
+        - If two edges with the same 'key' exists in two graphs and they both have one or more conflicting
+        values for a property, then the value is overwritten from left to right
+
+        """
+
+        graphs.insert(0, self.graph)
+        self.graph = nx.compose_all(graphs, "mergedMultiDiGraph")
+
     @staticmethod
     def dump(G):
         """
