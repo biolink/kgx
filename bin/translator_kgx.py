@@ -99,7 +99,7 @@ def neo4j_upload(config, uri, username, password, inputs, input_type):
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, required=True, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception

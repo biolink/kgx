@@ -9,10 +9,6 @@ the
 For additional background see the [Translator Knowledge Graph Drive](http://bit.ly/tr-kg)
 
 ## Installation
-```
-python3 setup.py install
-```
-
 The installation requires Python 3.
 
 For convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
@@ -20,36 +16,31 @@ For convenience, make use of the `venv` module in Python 3 to create a lightweig
 python3 -m venv env
 source env/bin/activate
 
+pip install -r requirements.txt
 python setup.py install
 ```
 
 The above script can be found in [`environment.sh`](environment.sh)
 
 ## Command Line Usage
-Use the `--help` flag to get help. Right now there is a single command:
+Use the `--help` flag with any command to view documentation.
+
+### Dump
+The dump command takes any number of input file paths (all with the same file format), and outputs a file in the desired format.
+
 ```
-Usage: kgx dump [OPTIONS] [INPUT]... OUTPUT
-
-  Transforms a knowledge graph from one representation to another
-  INPUT  : any number of files or endpoints
-  OUTPUT : the output file
-
-Options:
-  --input-type TEXT   Extention type of input files: ttl, json, csv, rq, tsv,
-                      graphml
-  --output-type TEXT  Extention type of output files: ttl, json, csv, rq, tsv,
-                      graphml
-  --help              Show this message and exit.
+Usage: kgx dump [OPTIONS] INPUTS... OUTPUT
 ```
+The format will be inferred from the file extention. But if  this cannot be done then the `--input-type` and `--output-type` flags are useful to enforce a particular format. The following formats are supported: csv, tsv, txt (pipe delimited text), json, rq, graphml, ttl.
+> *Note:* CSV/TSV representation require two files, one that represents the vertex set and one for the edge set. JSON, TTL, and GRAPHML files represent a whole graph in a single file. For this reason when creating CSV/TSV representation we will zip the resulting files in a .tar file.
 
-CSV/TSV representation require two files, one that represents the vertex set and
-one for the edge set. JSON, TTL, and GRAPHML files represent a whole graph in a
-single file. For this reason when creating CSV/TSV representation we will zip
-the resulting files in a .tar file.
+The dump command can also be used to relabel nodes. This is particularly useful for ensuring that the CURIE identifier of each node reflects its category (e.g. genes having NCBIGene identifiers, proteins having UNIPROT identifiers, and so on). The `--mapping` option can be used to apply a pre-loaded mapping to the output as it gets transformed. If the `--preserve` flag is used then the old labels will be preserved under a modified name. Mappings are loaded with the load-mapping command.
 
-The format will be inferred from the file extention. But if  this cannot be done
-then the `--input-type` and `--output-type` flags are useful to tell the program
-what formats to use. Currently not all conversions are supported.
+### Load Mapping
+A mapping is just a python [dict](https://docs.python.org/2/tutorial/datastructures.html#dictionaries) object. The load-mapping command builds a mapping out of the given CSV file, and saves it for later use with the dump command. The dict
+```
+Usage: kgx load-mapping [OPTIONS] NAME SOURCE_COL TARGET_COL CSV
+```
 
 Here are some examples that mirror the [tests](tests/):
 
