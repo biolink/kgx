@@ -154,19 +154,18 @@ def load_and_merge(merge_config, destination_uri, destination_username, destinat
                                cfg['target'][key]['neo4j']['password'])
         transformers.append(n)
 
-        if 'filter' in cfg['target'][key]:
-            for filter in cfg['target'][key]['filter']:
-                print(cfg['target'][key]['filter'][filter])
+        if 'target_filter' in cfg['target'][key]:
+            for target_filter in cfg['target'][key]['target_filter']:
                 # Set filters
-                n.set_filter(filter, cfg['target'][key]['filter'][filter])
+                n.set_filter(target_filter, cfg['target'][key]['target_filter'][target_filter])
 
         start = 0
         end = None
-        if 'query-limits' in cfg['target'][key]:
-            if 'start' in cfg['target'][key]['query-limits']:
-                start = cfg['target'][key]['query-limits']['start']
-            if 'end' in cfg['target'][key]['query-limits']:
-                end = cfg['target'][key]['query-limits']['end']
+        if 'query_limits' in cfg['target'][key]:
+            if 'start' in cfg['target'][key]['query_limits']:
+                start = cfg['target'][key]['query_limits']['start']
+            if 'end' in cfg['target'][key]['query_limits']:
+                end = cfg['target'][key]['query_limits']['end']
 
         n.load(start=start, end=end)
 
