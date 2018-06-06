@@ -1,15 +1,8 @@
 import kgx
-import click
-import os
-import logging
-import itertools
-import pickle
+import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
-
 from typing import List
-from kgx import Transformer
-from kgx import Validator
-from kgx import map_graph
+from kgx import Transformer, Validator, map_graph
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -140,6 +133,48 @@ def load_mapping(config, name, csv, source_col, target_col):
         pickle.dump(d, f)
         click.echo('Mapping \'{}\' saved at {}'.format(name, path))
 
+@cli.command(name='load-and-merge')
+@click.argument('merge_config', type=str)
+@click.option('--destination-uri', type=str)
+@click.option('--destination-username', type=str)
+@click.option('--destination-password', type=str)
+def load_and_merge(merge_config, destination_uri, destination_username, destination_password):
+    """
+    Load nodes and edges from KGs, as defined in a config YAML, and merge them into a single graph
+    """
+
+    with open(merge_config, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+
+    transformers = []
+    for key in cfg['target']:
+        logging.info("Connecting to {}".format(cfg['target'][key]))
+        uri = "{}:{}".format(cfg['target'][key]['neo4j']['host'], cfg['target'][key]['neo4j']['port'])
+        n = kgx.NeoTransformer(None, uri, cfg['target'][key]['neo4j']['username'],
+                               cfg['target'][key]['neo4j']['password'])
+        transformers.append(n)
+
+        if 'target_filter' in cfg['target'][key]:
+            for target_filter in cfg['target'][key]['target_filter']:
+                # Set filters
+                n.set_filter(target_filter, cfg['target'][key]['target_filter'][target_filter])
+
+        start = 0
+        end = None
+        if 'query_limits' in cfg['target'][key]:
+            if 'start' in cfg['target'][key]['query_limits']:
+                start = cfg['target'][key]['query_limits']['start']
+            if 'end' in cfg['target'][key]['query_limits']:
+                end = cfg['target'][key]['query_limits']['end']
+
+        n.load(start=start, end=end)
+
+    mergedTransformer = Transformer()
+    mergedTransformer.merge([x.graph for x in transformers])
+
+    if destination_uri and destination_username and destination_password:
+        destination = kgx.NeoTransformer(mergedTransformer.graph, uri=destination_uri, username=destination_username, password=destination_password)
+        destination.save_with_unwind()
 
 def get_file_path(filename:str) -> str:
     app_dir = click.get_app_dir(__name__)
