@@ -46,8 +46,8 @@ class PandasTransformer(Transformer):
             self.load_edge(obj)
 
     def load_edge(self, obj: Dict):
-        s = obj['subject'] # type: str
-        o = obj['object'] # type: str
+        s = obj.pop('subject') # type: str
+        o = obj.pop('object') # type: str
         self.graph.add_edge(o, s, attr_dict=obj)
 
     def export_nodes(self) -> pd.DataFrame:
