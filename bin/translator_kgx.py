@@ -32,7 +32,7 @@ def cli(config, debug):
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
 @handle_exception
 def validate(config, inputs, input_type):
@@ -43,28 +43,28 @@ def validate(config, inputs, input_type):
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('--property-filter', type=(str, str), multiple=True)
+@click.option('--predicate-filter', type=str, multiple=True)
+@click.option('--subject-category-filter', type=str, multiple=True)
+@click.option('--object-category-filter', type=str, multiple=True)
+@click.option('--source-filter', type=str, multiple=True)
 @click.option('--batch-size', type=int, help='The number of records to save in each file')
 @click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
-@click.argument('uri', type=str)
+@click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, uri, username, password, output, output_type, property_filter, batch_size, batch_start):
+def neo4j_download(config, address, username, password, output, output_type, predicate_filter, subject_category_filter, object_category_filter, source_filter, batch_size, batch_start):
     if batch_start != None and batch_size == None:
         raise Exception('batch-size must be set if batch-start is set')
 
     if batch_start == None and batch_size != None:
         batch_start = 0
 
-    for key, value in property_filter:
-        t.set_filter(key, value)
-
     if batch_size != None and batch_start >= 0:
         for i in itertools.count(batch_start):
-            t = kgx.NeoTransformer(uri=uri, username=username, password=password)
+            t = kgx.NeoTransformer(uri=address, username=username, password=password)
             start = batch_size * i
             end = start + batch_size
 
@@ -77,21 +77,30 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
             indexed_output = name + '({}).'.format(i) + extention
             transform_and_save(t, indexed_output, output_type)
     else:
-        t = kgx.NeoTransformer(uri=uri, username=username, password=password)
+        t = kgx.NeoTransformer(uri=address, username=username, password=password)
+        for value in predicate_filter:
+            t.set_filter('predicate', value)
+        for value in source_filter:
+            t.set_filter('source', value)
+        for value in subject_category_filter:
+            t.set_filter('subject_category', value)
+        for value in object_category_filter:
+            t.set_filter('object_category', value)
         t.load()
+        t.report()
         transform_and_save(t, output, output_type)
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.argument('uri', type=str)
+@click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
 @handle_exception
-def neo4j_upload(config, uri, username, password, inputs, input_type):
+def neo4j_upload(config, address, username, password, inputs, input_type):
     t = load_transformer(inputs, input_type)
-    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=uri, username=username, password=password)
+    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=address, username=username, password=password)
     neo_transformer.save()
 
 @cli.command()
@@ -120,30 +129,36 @@ def dump(config, inputs, output, input_type, output_type, mapping, preserve):
 
 @cli.command(name='load-mapping')
 @click.argument('name', type=str)
-@click.argument('source-col', type=str, required=True)
-@click.argument('target-col', type=str, required=True)
 @click.argument('csv', type=click.Path())
+@click.option('--no-header', is_flag=True, help='Indicates that the given CSV file has no header, so that the first row will not be ignored')
+@click.option('--columns', type=(int, int), default=(None, None), required=False, help="The zero indexed input and output columns for the mapping")
+@click.option('--show', is_flag=True, help='Shows a small slice of the mapping')
 @pass_config
-def load_mapping(config, name, csv, source_col, target_col):
-    import pudb; pudb.set_trace()
-    data = pd.read_csv(csv)
+@handle_exception
+def load_mapping(config, name, csv, columns, no_header, show):
+    header = None if no_header else 0
+    data = pd.read_csv(csv, header=header)
+    source, target = (0, 1) if columns == (None, None) else columns
+    d = {row[source] : row[target] for index, row in data.iterrows()}
 
-    d = {row[source_col] : row[target_col] for index, row in data.iterrows()}
+    if show:
+        for key, value in itertools.islice(d.items(), 5):
+            click.echo(str(key) + ' : ' + str(value))
 
     path = get_file_path(name)
 
     with open(path, 'wb') as f:
         pickle.dump(d, f)
-        click.echo('Mapping \'{}\' saved at {}'.format(name, path))
+        click.echo('Mapping \'{name}\' saved at {path}'.format(name=name, path=path))
 
 
-def get_file_path(filename:str) -> str:
+def get_file_path(name:str) -> str:
     app_dir = click.get_app_dir(__name__)
 
     if not os.path.exists(app_dir):
         os.makedirs(app_dir)
 
-    return os.path.join(app_dir, filename)
+    return os.path.join(app_dir, name + '.pkl')
 
 def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     """
