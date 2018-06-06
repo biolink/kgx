@@ -1,0 +1,33 @@
+target:
+   kg-one:
+      neo4j:
+         username: neo4j
+         password: neo4j
+         host: bolt://localhost
+         port: 7687
+      target_filter:
+         subject_category: gene
+         object_category: phenotypic_feature
+         edge_label: has_phenotype
+      query_limits:
+         start: 0
+         end: 1000
+   kg-two:
+      neo4j:
+         username: neo4j
+         password: neo4j
+         host: bolt://localhost
+         port: 7687
+      target_filter:
+         subject_category: gene
+         object_category: phenotypic_feature
+         edge_label: has_phenotype
+      query_limits:
+         start: 0
+         end: 1000
+destination:
+   neo4j:
+    username: neo4j
+    password: neo4j
+    host: bolt://localhost
+    port: 7687

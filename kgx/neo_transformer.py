@@ -51,7 +51,7 @@ class NeoTransformer(Transformer):
 
                 records = session.read_transaction(query, skip=skip, limit=limit)
 
-                if records.peek() != None:
+                if records.peek() is not None:
                     yield records
                 else:
                     return
@@ -238,11 +238,11 @@ class NeoTransformer(Transformer):
             logging.warning("node does not have 'category' property. Using 'named_thing' as default")
             label = 'named_thing'
         else:
-            label = obj['category']
-            del obj['category']
+            label = obj.pop('category')
 
-        query = "MERGE (n:{label} {{ {properties} }})".format(label = label, properties = self.parse_properties(obj))
-        tx.run(query)
+        properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
+        query = "MERGE (n:{label} {{id: $id}}) ON CREATE SET {properties}".format(label=label, properties=properties)
+        tx.run(query, **obj)
 
     def save_node_unwind(self, nodes_by_category, property_names):
         """
@@ -275,15 +275,21 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
-
-        properties_dict = {}
+        # TODO: Load this list from a config file? https://github.com/NCATS-Tangerine/kgx/issues/65
         ignore_list = []
-        for property in property_names:
-            if property not in ignore_list:
-                properties_dict[property] = "node.{}".format(property)
 
-        query = "UNWIND $nodes as node MERGE (p:{label} {node_properties})".format(label=label, node_properties=str(properties_dict).replace("'", ""))
+        properties_dict = {p : p for p in property_names if p not in ignore_list}
+
+        properties = ', '.join('n.{0}=node.{0}'.format(k) for k in properties_dict.keys() if k != 'id')
+
+        query = """\
+        UNWIND $nodes AS node\
+        MERGE (n:{label} {{id: node.id}})\
+        ON CREATE SET {properties}\
+        """.format(label=label, properties=properties)
+
         logging.debug(query)
+
         return query
 
 
@@ -291,32 +297,39 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given relationship
         """
-
-        properties_dict = {}
         ignore_list = ['subject', 'predicate', 'object']
-        for property in property_names:
-            if property not in ignore_list:
-                properties_dict[property] = "edge.{}".format(property)
+        properties_dict = {p : "edge.{}".format(p) for p in property_names if p not in ignore_list}
 
-        query = "UNWIND $edges as edge MATCH (a {{ id: edge.subject }}) MATCH (b {{ id: edge.object }}) MERGE (a)-[r:{relationship} {relationship_properties} ]->(b)".format(relationship=relationship, relationship_properties=str(properties_dict).replace("'",""))
+        properties = ', '.join('r.{0}=edge.{0}'.format(k) for k in properties_dict.keys())
+
+        query="""\
+        UNWIND $edges AS edge\
+        MATCH (s {{id: edge.subject}}), (o {{id: edge.object}})\
+        MERGE (s)-[r:{edge_label}]->(o)\
+        ON CREATE SET {properties}\
+        """.format(properties=properties, edge_label=relationship)
+
         logging.debug(query)
+
         return query
 
     def save_edge(self, tx, obj):
         """
         Load an edge into neo4j
         """
+        label = obj.pop('predicate')
+        subject_id = obj.pop('subject')
+        object_id = obj.pop('object')
 
-        queryString = "MATCH (s {{ id: '{subject_id}' }}) MATCH (o {{ id: '{object_id}' }}) MERGE (s)-[r:{relationship} {{ {relationship_properties} }}]->(o)"
+        properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
 
-        query_params = {
-            'subject_id': obj['subject'], 'object_id': obj['object'],
-            'relationship': obj['predicate'], 'relationship_properties': self.parse_properties(obj)
-        }
+        q="""\
+        MATCH (s {{id: $subject_id}}), (o {{id: $object_id}})\
+        MERGE (s)-[r:{label}]->(o)\
+        ON CREATE SET {properties}\
+        """.format(properties=properties, label=label)
 
-        query = queryString.format(**query_params)
-        logging.debug(query)
-        tx.run(query)
+        tx.run(q, subject_id=subject_id, object_id=object_id, **obj)
 
     def save_from_csv(self, nodes_filename, edges_filename):
         """
