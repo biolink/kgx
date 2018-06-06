@@ -24,6 +24,9 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
+    remap_node_properties = []
+    remap_edge_properties = []
+
     def __init__(self, graph=None, uri=None, username=None, password=None):
         super(NeoTransformer, self).__init__(graph)
 
@@ -100,8 +103,15 @@ class NeoTransformer(Transformer):
         if 'labels' not in attributes:
             attributes['labels'] = list(node.labels)
 
-        node_id = node['id'] if 'id' in node else node.id
+        if len(self.remap_node_properties):
+            for pair in self.remap_node_properties:
+                if pair[1] in attributes:
+                    logging.debug("remap {} with {}".format(pair[0], pair[1]))
+                    attributes[pair[0]] = attributes[pair[1]]
+                else:
+                    logging.warning("remap {} with {} failed; property {} missing from node attributes".format(pair[0], pair[1], pair[1]))
 
+        node_id = attributes['id'] if 'id' in attributes else node.id
         self.graph.add_node(node_id, attr_dict=attributes)
 
     def load_edge(self, edge_record):
@@ -139,6 +149,14 @@ class NeoTransformer(Transformer):
 
         if object_id not in self.graph.nodes():
             self.load_node(edge_object)
+
+        if len(self.remap_edge_properties):
+            for pair in self.remap_edge_properties:
+                if pair[1] in attributes:
+                    logging.debug("remap {} with {}".format(pair[0], pair[1]))
+                    attributes[pair[0]] = attributes[pair[1]]
+                else:
+                    logging.warning("remap {} with {} failed; property {} missing from edge attributes".format(pair[0], pair[1], pair[1]))
 
         self.graph.add_edge(
             subject_id,
