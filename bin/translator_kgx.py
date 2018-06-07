@@ -2,7 +2,7 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
-from kgx import Transformer, Validator, map_graph
+from kgx import Transformer, Validator, map_graph, PropertyFilter, LabelFilter, FilterType
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -36,10 +36,9 @@ def validate(config, inputs, input_type):
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('--predicate-filter', type=str, multiple=True)
-@click.option('--subject-category-filter', type=str, multiple=True)
-@click.option('--object-category-filter', type=str, multiple=True)
-@click.option('--source-filter', type=str, multiple=True)
+@click.option('--directed', is_flag=True, help='Enforces subject -> object edge direction')
+@click.option('--labels', type=(click.Choice(FilterType.get_all_types()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterType.get_all_types())))
+@click.option('--properties', type=(click.Choice(FilterType.get_all_types()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterType.get_all_types())))
 @click.option('--batch-size', type=int, help='The number of records to save in each file')
 @click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
 @click.argument('address', type=str)
@@ -48,7 +47,7 @@ def validate(config, inputs, input_type):
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, address, username, password, output, output_type, predicate_filter, subject_category_filter, object_category_filter, source_filter, batch_size, batch_start):
+def neo4j_download(config, address, username, password, output, output_type, batch_size, batch_start, labels, properties, directed):
     if batch_start != None and batch_size == None:
         raise Exception('batch-size must be set if batch-start is set')
 
@@ -58,6 +57,9 @@ def neo4j_download(config, address, username, password, output, output_type, pre
     if batch_size != None and batch_start >= 0:
         for i in itertools.count(batch_start):
             t = kgx.NeoTransformer(uri=address, username=username, password=password)
+
+            set_transformer_filters(transformer=t, labels=labels, properties=properties)
+
             start = batch_size * i
             end = start + batch_size
 
@@ -71,17 +73,23 @@ def neo4j_download(config, address, username, password, output, output_type, pre
             transform_and_save(t, indexed_output, output_type)
     else:
         t = kgx.NeoTransformer(uri=address, username=username, password=password)
-        for value in predicate_filter:
-            t.set_filter('predicate', value)
-        for value in source_filter:
-            t.set_filter('source', value)
-        for value in subject_category_filter:
-            t.set_filter('subject_category', value)
-        for value in object_category_filter:
-            t.set_filter('object_category', value)
-        t.load()
+
+        set_transformer_filters(transformer=t, labels=labels, properties=properties)
+
+        t.load(is_directed=directed)
         t.report()
         transform_and_save(t, output, output_type)
+
+def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
+    for choice, label in labels:
+        filter_type = FilterType.lookup(choice)
+        f = LabelFilter(filter_type=filter_type, value=label)
+        transformer.add_filter(f)
+
+    for choice, key, value in properties:
+        filter_type = FilterType.lookup(choice)
+        f = PropertyFilter(filter_type=filter_type, key=key, value=value)
+        transformer.add_filter(f)
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
