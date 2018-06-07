@@ -1,8 +1,29 @@
 export PYTHONPATH=.
 CONTAINER_NAME=kgx_neo_test
 
+NEO4J_ADDRESS=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password
+
+
 test:
 	pytest tests/*py
+
+example:
+	@echo "1. Validate"
+	kgx validate tests/resources/semmed/cell.json tests/resources/semmed/gene.json tests/resources/semmed/protein.json
+
+	@echo "\n2. Combine three files into one"
+	kgx dump tests/resources/semmed/cell.json tests/resources/semmed/gene.json tests/resources/semmed/protein.json target/combined.json
+
+	@echo "\n3. Uploading combined.json to a local neo4j instance"
+	kgx neo4j-upload $(NEO4J_ADDRESS) $(NEO4J_USER) $(NEO4J_PASSWORD) target/combined.json
+
+	@echo "\n4. Downloading a subset of what we had uploaded. Running in debug mode so we can see the cypher queries"
+	kgx --debug neo4j-download --properties object id UMLS:C1290952 --labels subject disease_or_phenotypic_feature $(NEO4J_ADDRESS) $(NEO4J_USER) $(NEO4J_PASSWORD) target/neo4j-download.json
+
+	@echo "\n5. Downloading another subset, this time filtering on the edge label"
+	kgx --debug neo4j-download --labels edge predisposes $(NEO4J_ADDRESS) $(NEO4J_USER) $(NEO4J_PASSWORD) target/predisposes.json
 
 typecheck:
 	mypy kgx --ignore-missing-imports
