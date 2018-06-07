@@ -23,7 +23,11 @@ python setup.py install
 The above script can be found in [`environment.sh`](environment.sh)
 
 ## Command Line Usage
-Use the `--help` flag with any command to view documentation.
+Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
+
+```
+make examples
+```
 
 ### Neo4j Upload
 The `neo4j-upload` command takes any number of input files, builds a [networkx](https://networkx.github.io/) graph from them, and uploads that graph to a [neo4j](https://neo4j.com/) database. To do this it of course needs the database address, username, and password. This will only work through [bolt](https://neo4j.com/docs/operations-manual/current/configuration/connectors/). By default you can access a local neo4j instance at the address `bolt://localhost:7687`.
@@ -37,7 +41,24 @@ The `neo4j-download` command downloads a neo4j instance, builds a networkx graph
 ```
 Usage: kgx neo4j-download [OPTIONS] ADDRESS USERNAME PASSWORD OUTPUT
 ```
-The `--output-type` option can be used to specify the format of these files: csv, ttl, json, txt, graphml, rq, tsv. There are a four filters that can be used to download only a portion of the graph: `--predicate-filter`, `--source-filter`, `--subject-category-filter`, `--object-category-filter`.
+The `--output-type` option can be used to specify the format of these files: csv, ttl, json, txt, graphml, rq, tsv. The `--labels` and `--properties` options allow for filtering on node and edge labels and properties.
+
+The labels filter takes two inputs. The first input is a choice of where to apply the filter: subject, object, edge, node. The second is the label to apply.
+```
+--labels edge gene
+```
+This will result in searching for triples of the form: (s)-[r:gene]-(o)
+
+The properties filter takes three inputs: the first being a choice of where to apply the filter, the second being the name of the property, and the third being the value of the property.
+```
+--properties subject name FANC
+```
+This will result in searching for triples of the form: (s {name: "FANC"})-[r]-(o). These filter options can be given multiple times.
+
+The `--directed` flag enforces the subject -> object edge direction.
+
+The batch options allow you to download into multiple files. The `--batch-size` option determines the number of entries in each file, and the `--batch-start` determines which batch to start on.
+
 ### Validate
 The `validate` command loads any number of files into a graph and checks that they adhere to the [TKG](https://github.com/NCATS-Tangerine/translator-knowledge-graph) standard.
 ```
@@ -66,7 +87,7 @@ By default the command will treat the first and second columns as the input and 
 
 The `--show` flag can be used to display a slice of the mapping when it is loaded so that the user can see which columns have been used. The `--no-header` flag can be used to indicate that the given CSV file does not have a header. If this flag is used then the first row will be used, otherwise it will be ignored.
 
-## Example:
+#### Example:
 First we load a mapping from a CSV file.
 ```
 $ kgx load-mapping --show --columns 0 1 a_to_b_mapping tests/resources/mapping/mapping.csv
@@ -83,6 +104,10 @@ kgx dump --mapping a_to_b_mapping tests/resources/mapping/nodes.csv target/mappi
 Performing mapping: a_to_b_mapping
 File created at: target/mapping-out.json
 ```
+
+### Load and Merge
+The `load-and-merge` command loads nodes and edges from knowledge graphs as defined in a config YAML, and merges them into a single graph. The destination URI, username, and password can be set with the `--destination-uri`, `--destination-username`, `--destination-password` options.
+
 
 ## Internal Representation
 
