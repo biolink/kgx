@@ -27,6 +27,7 @@ class SparqlMapper(object):
             shortform = self.map_uri(parentmap, uri)
             if shortform is not None and ':' not in shortform:
                 m[uri] = shortform
+        print("F={}".format(__file__))
         return m
     
     def map_uri(self, parentmap, uri):

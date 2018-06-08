@@ -1,6 +1,11 @@
 import networkx as nx
 
 def map_graph(G, mapping, preserve=True):
+    """
+    Rewrite node IDs in graph
+
+    Preserves original IDs using source_subject and source_object
+    """
     if preserve:
         for nid in G.nodes_iter():
             if nid in mapping:
@@ -15,4 +20,4 @@ def map_graph(G, mapping, preserve=True):
                     G[oid][sid][ex].update(source_subject=oid)
     nx.relabel_nodes(G, mapping, copy=False)
 
-
+        

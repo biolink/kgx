@@ -17,7 +17,7 @@ OBAN = Namespace('http://purl.org/oban/')
 mapping = {
     'subject': OBAN.association_has_subject,
     'object': OBAN.association_has_object,
-    'predicate': OBAN.association_has_predicate,
+    'relation': OBAN.association_has_predicate,
     'type' : RDF.type,
     'comment': RDFS.comment,
     'name': RDFS.label
@@ -37,6 +37,10 @@ class RdfTransformer(Transformer):
     TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
 
+    def __init__(self, type_mapping=None, **args):
+        super().__init__(**args)
+        self.type_mapping = type_mapping
+    
     def parse(self, filename:str=None, input_format:str=None, provided_by:str=None):
         """
         Parse a file into an graph, using rdflib
@@ -98,7 +102,7 @@ class ObanRdfTransformer(RdfTransformer):
     """
     Transforms to and from RDF, assuming OBAN-style modeling
     """
-    rprop_set = set(('subject', 'predicate', 'object', 'provided_by', 'id', str(RDF.type)))
+    rprop_set = set(('subject', 'relation', 'object', 'provided_by', 'id', str(RDF.type)))
     inv_cmap = {}
     cmap = {}
 
@@ -112,6 +116,7 @@ class ObanRdfTransformer(RdfTransformer):
 
     def load_edges(self, rg: rdflib.Graph):
         pm = self.prefix_manager
+        tm = self.type_mapping
         for a in rg.subjects(RDF.type, OBAN.association):
             obj = {}
             # Keep the id of this entity (e.g., <https://monarchinitiative.org/MONARCH_08830...>) as the value of 'id'.
@@ -133,6 +138,9 @@ class ObanRdfTransformer(RdfTransformer):
 
             s = obj['subject']
             o = obj['object']
+            r = obj['relation']
+            if tm is not None and r in tm:
+                obj['edge_label'] = tm[r]
             obj['provided_by'] = self.graph_metadata['provided_by']
             for each_s in s:
                 for each_o in o:
@@ -185,7 +193,7 @@ class ObanRdfTransformer(RdfTransformer):
 
                     # The remaining ones are then OBAN's properties and corresponding objects. Store them as triples.
                     rdfgraph.add((assoc_id, mapping['subject'], self.uriref(a_subject)))
-                    rdfgraph.add((assoc_id, mapping['predicate'], self.uriref(pred)))
+                    rdfgraph.add((assoc_id, mapping['relation'], self.uriref(pred)))
                     rdfgraph.add((assoc_id, mapping['object'], self.uriref(a_object)))
 
         # For now, assume that the default format is turtle if it is not specified.
@@ -259,7 +267,7 @@ class RdfOwlTransformer(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = 'owl:subClassOf'
                 parent = o
-            obj['predicate'] = pred
+            obj['relation'] = pred
             obj['provided_by'] = self.graph_metadata['provided_by']
             self.add_edge(parent, s, attr_dict=obj)
 
