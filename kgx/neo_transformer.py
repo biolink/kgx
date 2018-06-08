@@ -195,7 +195,7 @@ class NeoTransformer(Transformer):
                 arg = '{type}_label'.format(type=f.filter_type.name.lower())
                 labels[arg].append(f.value)
 
-        kwargs = {k : '' for k in FilterType.get_all_args()}
+        kwargs = {k : '' for k in FilterType.get_cypher_args()}
 
         for arg, value in properties.items():
             kwargs[arg] = self.build_properties(value)
