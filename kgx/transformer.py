@@ -70,23 +70,48 @@ class Transformer(object):
         graphs.insert(0, self.graph)
         self.graph = nx.compose_all(graphs, "mergedMultiDiGraph")
 
-    def remap_node_identifier(self, new_property):
+    def remap_node_identifier(self, type, new_property, prefix=None):
         """
         Remap node `id` attribute with value from node `new_property` attribute
 
         Parameters
         ----------
+        type: string
+            label referring to nodes whose id needs to be remapped
+
         new_property: string
-            new property name from which the value is pulled from
+            property name from which the new value is pulled from
+
+        prefix: string
+            signifies that the value for `new_property` is a list and the `prefix` indicates which value
+            to pick from the list
 
         """
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
+            if type not in node['labels']:
+                continue
             if new_property in node:
-                mapping[node_id] = node[new_property]
+                if prefix:
+                    # node[new_property] contains a list of values
+                    new_property_values = node[new_property]
+                    for v in new_property_values:
+                        if prefix in v:
+                            # take the first occurring value that contains the given prefix
+                            if 'HGNC:HGNC:' in v:
+                                # TODO: this is a temporary fix and must be removed later
+                                v = ':'.join(v.split(':')[1:])
+                            mapping[node_id] = v
+                            break
+                else:
+                    # node[new_property] contains a string value
+                    mapping[node_id] = node[new_property]
             else:
+                # node does not contain new_property key; fall back to original node 'id'
                 mapping[node_id] = node_id
+
+        nx.set_node_attributes(self.graph, values = mapping, name = 'id')
         nx.relabel_nodes(self.graph, mapping, copy=False)
 
         # update 'subject' of all outgoing edges
@@ -101,12 +126,15 @@ class Transformer(object):
             updated_object_values[edge] = edge[1]
         nx.set_edge_attributes(self.graph, values = updated_object_values, name = 'object')
 
-    def remap_node_property(self, old_property, new_property):
+    def remap_node_property(self, type, old_property, new_property):
         """
         Remap the value in node `old_property` attribute with value from node `new_property` attribute
 
         Parameters
         ----------
+        type: string
+            label referring to nodes whose property needs to be remapped
+
         old_property: string
             old property name whose value needs to be replaced
 
@@ -117,18 +145,23 @@ class Transformer(object):
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
+            if type not in node['labels']:
+                continue
             if new_property in node:
                 mapping[node_id] = node[new_property]
             elif old_property in node:
                 mapping[node_id] = node[old_property]
         nx.set_node_attributes(self.graph, values = mapping, name = old_property)
 
-    def remap_edge_property(self, old_property, new_property):
+    def remap_edge_property(self, type, old_property, new_property):
         """
         Remap the value in edge `old_property` attribute with value from edge `new_property` attribute
 
         Parameters
         ----------
+        type: string
+            label referring to edges whose property needs to be remapped
+
         old_property: string
             old property name whose value needs to be replaced
 
@@ -140,6 +173,8 @@ class Transformer(object):
         for edge in self.graph.edges_iter(data=True, keys=True):
             edge_key = edge[0:3]
             edge_data = edge[3]
+            if type not in edge_data['edge_label']:
+                continue
             if new_property in edge_data:
                 mapping[edge_key] = edge_data[new_property]
             else:
