@@ -45,15 +45,15 @@ The `--output-type` option can be used to specify the format of these files: csv
 
 The labels filter takes two inputs. The first input is a choice of where to apply the filter: subject, object, edge, node. The second is the label to apply.
 ```
---labels edge gene
+--labels edge causes
 ```
-This will result in searching for triples of the form: (s)-[r:gene]-(o)
+This will result in searching for triples of the form: `(s)-[r:gene]-(o)`
 
 The properties filter takes three inputs: the first being a choice of where to apply the filter, the second being the name of the property, and the third being the value of the property.
 ```
 --properties subject name FANC
 ```
-This will result in searching for triples of the form: (s {name: "FANC"})-[r]-(o). These filter options can be given multiple times.
+This will result in searching for triples of the form: `(s {name: "FANC"})-[r]-(o)`. These filter options can be given multiple times.
 
 The `--directed` flag enforces the subject -> object edge direction.
 
