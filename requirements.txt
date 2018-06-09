@@ -12,3 +12,4 @@ rdflib>=0.0
 click==6.7
 neo4j-driver>=1.5.3
 pyyaml>=0.0
+jupyter>=0.0
