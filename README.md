@@ -47,7 +47,7 @@ The labels filter takes two inputs. The first input is a choice of where to appl
 ```
 --labels edge causes
 ```
-This will result in searching for triples of the form: `(s)-[r:gene]-(o)`
+This will result in searching for triples of the form: `(s)-[r:causes]-(o)`
 
 The properties filter takes three inputs: the first being a choice of where to apply the filter, the second being the name of the property, and the third being the value of the property.
 ```
