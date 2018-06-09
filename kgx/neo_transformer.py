@@ -1,7 +1,7 @@
 import pandas as pd
 import networkx as nx
 import logging, yaml
-import itertools
+import itertools, uuid
 from .transformer import Transformer
 
 from typing import Union
@@ -108,6 +108,8 @@ class NeoTransformer(Transformer):
         """
         Load an edge from a neo4j record
         """
+
+        edge_key = str(uuid.uuid4())
         edge_subject = edge_record[0]
         edge_predicate = edge_record[1]
         edge_object = edge_record[2]
@@ -143,6 +145,7 @@ class NeoTransformer(Transformer):
         self.graph.add_edge(
             subject_id,
             object_id,
+            edge_key,
             attr_dict=attributes
         )
 
