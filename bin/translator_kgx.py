@@ -82,8 +82,12 @@ def neo4j_download(config, address, username, password, output, output_type, bat
 
 def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
     for location, label in labels:
-        target = '{}_label'.format(location)
-        transformer.set_filter(target=target, value=label)
+        if location == FilterLocation.EDGE.value:
+            target = '{}_label'.format(location)
+            transformer.set_filter(target=target, value=label)
+        else:
+            target = '{}_category'.format(location)
+            transformer.set_filter(target=target, value=label)
 
     for location, property_name, property_value in properties:
         target = '{}_property'.format(location)

@@ -18,6 +18,7 @@ class FilterLocation(Enum):
 
 class FilterType(Enum):
     LABEL='label'
+    CATEGORY='category'
     PROPERTY='property'
 
     @staticmethod
@@ -42,6 +43,16 @@ class Filter(object):
     def __str__(self):
         """
         A human readable string representation of a Filter object
+        types:
+            subject_category
+            object_category
+            node_category
+            edge_label
+
+            subject_property
+            object_property
+            node_property
+            edge_property
         """
         return 'Filter[target={}, value={}]'.format(self.target, self.value)
 
@@ -49,12 +60,27 @@ class Filter(object):
     def build(filter_local:FilterLocation, filter_type:FilterType, value):
         """
         A factory method for building a Filter using the given enums
+
+        Only edges should have the target "edge_label", and edges should not be
+        combined with the "category" location.
         """
+        assert not (filter_type is FilterType.LABEL and filter_local is not FilterLocation.EDGE)
+        assert not (filter_local is FilterLocation.EDGE and filter_type is FilterType.CATEGORY)
+
         return Filter('{}_{}'.format(filter_local.value, filter_type.value), value)
 
     @staticmethod
     def targets():
-        return [Filter.build(a, b, (None, None)).target for a in FilterLocation for b in FilterType]
+        targets = []
+        for filter_type in FilterType:
+            for filter_local in FilterLocation:
+                try:
+                    targets.append(
+                        Filter.build(filter_type=filter_type, filter_local=filter_local, value=(None, None)).target
+                    )
+                except:
+                    continue
+        return targets
 
 if __name__ == '__main__':
     print(Filter('subject_label', 'gene'))

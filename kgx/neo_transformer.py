@@ -188,7 +188,7 @@ class NeoTransformer(Transformer):
     def build_query_kwargs(self):
         properties = defaultdict(dict)
         labels = defaultdict(list)
-
+        
         for f in self.filters:
             filter_type = f.filter_type
 
@@ -197,7 +197,7 @@ class NeoTransformer(Transformer):
                 property_name, property_value = f.value
                 properties[arg][property_name] = property_value
 
-            elif filter_type is FilterType.LABEL:
+            elif filter_type is FilterType.LABEL or filter_type is FilterType.CATEGORY:
                 arg = f.target
                 labels[arg].append(f.value)
 
@@ -219,7 +219,7 @@ class NeoTransformer(Transformer):
         Get a page of nodes from the database
         """
         query = """
-        MATCH (n{node_label}{node_property})
+        MATCH (n{node_category}{node_property})
         RETURN n
         SKIP {skip} LIMIT {limit}
         """.format(
@@ -240,7 +240,7 @@ class NeoTransformer(Transformer):
         direction = '->' if is_directed else '-'
 
         query = """
-        MATCH (s{subject_label}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_label}{object_property})
+        MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
         RETURN s,p,o
         SKIP {skip} LIMIT {limit};
         """.format(
