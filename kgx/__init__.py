@@ -11,7 +11,7 @@ from .json_transformer import JsonTransformer
 from .neo_transformer import NeoTransformer
 from .logicterm_transformer import LogicTermTransformer
 from .transformer import Transformer
-from .filter import PropertyFilter, LabelFilter, FilterType
+from .filter import Filter, FilterLocation, FilterType
 
 from .validator import Validator
 from .prefix_manager import PrefixManager

@@ -46,6 +46,9 @@ class Transformer(object):
     def add_filter(self, f:Filter) -> None:
         self.filters.append(f)
 
+    def set_filter(self, target: str, value: SimpleValue) -> None:
+        self.filters.append(Filter(target, value))
+
     def merge(self, graphs):
         """
         Merge all graphs with self.graph

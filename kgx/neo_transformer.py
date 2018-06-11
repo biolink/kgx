@@ -3,7 +3,7 @@ import networkx as nx
 import logging, yaml
 import itertools, uuid
 from .transformer import Transformer
-from .filter import PropertyFilter, LabelFilter, FilterType
+from .filter import Filter, FilterLocation, FilterType
 
 from typing import Union, Dict, List
 from collections import defaultdict
@@ -65,7 +65,7 @@ class NeoTransformer(Transformer):
         for page in self.get_pages(self.get_edges, start=start, end=end, is_directed=is_directed):
             self.load_edges(page)
 
-        active_node_filters = any(f.filter_type is FilterType.NODE for f in self.filters)
+        active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
 
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
@@ -190,15 +190,21 @@ class NeoTransformer(Transformer):
         labels = defaultdict(list)
 
         for f in self.filters:
-            if isinstance(f, PropertyFilter):
-                arg = '{type}_property'.format(type=f.filter_type.name.lower())
-                properties[arg][f.key] = f.value
+            filter_type = f.filter_type
 
-            elif isinstance(f, LabelFilter):
-                arg = '{type}_label'.format(type=f.filter_type.name.lower())
+            if filter_type is FilterType.PROPERTY:
+                arg = f.target
+                property_name, property_value = f.value
+                properties[arg][property_name] = property_value
+
+            elif filter_type is FilterType.LABEL:
+                arg = f.target
                 labels[arg].append(f.value)
 
-        kwargs = {k : '' for k in FilterType.get_cypher_args()}
+            else:
+                assert False
+
+        kwargs = {k : '' for k in Filter.targets()}
 
         for arg, value in properties.items():
             kwargs[arg] = self.build_properties(value)
@@ -465,7 +471,6 @@ class NeoTransformer(Transformer):
         """
         Create a unique constraint on node 'id' for all labels
         """
-
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
         for label in labels:
             if ':' in label:

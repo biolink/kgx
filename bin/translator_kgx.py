@@ -2,7 +2,7 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
-from kgx import Transformer, Validator, map_graph, PropertyFilter, LabelFilter, FilterType
+from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -37,8 +37,8 @@ def validate(config, inputs, input_type):
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--directed', is_flag=True, help='Enforces subject -> object edge direction')
-@click.option('--labels', type=(click.Choice(FilterType.get_types()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterType.get_types())))
-@click.option('--properties', type=(click.Choice(FilterType.get_types()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterType.get_types())))
+@click.option('--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
+@click.option('--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.option('--batch-size', type=int, help='The number of records to save in each file')
 @click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
 @click.argument('address', type=str)
@@ -81,15 +81,13 @@ def neo4j_download(config, address, username, password, output, output_type, bat
         transform_and_save(t, output, output_type)
 
 def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
-    for choice, label in labels:
-        filter_type = FilterType.lookup(choice)
-        f = LabelFilter(filter_type=filter_type, value=label)
-        transformer.add_filter(f)
+    for location, label in labels:
+        target = '{}_label'.format(location)
+        transformer.set_filter(target=target, value=label)
 
-    for choice, key, value in properties:
-        filter_type = FilterType.lookup(choice)
-        f = PropertyFilter(filter_type=filter_type, key=key, value=value)
-        transformer.add_filter(f)
+    for location, property_name, property_value in properties:
+        target = '{}_property'.format(location)
+        transformer.set_filter(target=target, value=(property_name, property_value))
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
