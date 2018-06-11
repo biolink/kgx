@@ -3,8 +3,10 @@ import networkx as nx
 import logging, yaml
 import itertools, uuid
 from .transformer import Transformer
+from .filter import Filter, FilterLocation, FilterType
 
-from typing import Union
+from typing import Union, Dict, List
+from collections import defaultdict
 
 from neo4j.v1 import GraphDatabase
 from neo4j.v1.types import Node, Record
@@ -36,7 +38,7 @@ class NeoTransformer(Transformer):
 
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
 
-    def get_pages(self, query, start=0, end=None, page_size=1000):
+    def get_pages(self, method, start=0, end=None, page_size=1000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
@@ -49,22 +51,26 @@ class NeoTransformer(Transformer):
                 if limit <= 0:
                     return
 
-                records = session.read_transaction(query, skip=skip, limit=limit)
+                records = session.read_transaction(method, skip=skip, limit=limit, **kwargs)
 
                 if records.peek() is not None:
                     yield records
                 else:
                     return
 
-    def load(self, start=0, end=None):
+    def load(self, start=0, end=None, is_directed=False):
         """
         Read a neo4j database and create a nx graph
         """
-        for page in self.get_pages(self.get_nodes, start=start, end=end):
-            self.load_nodes(page)
-
-        for page in self.get_pages(self.get_edges, start=start, end=end):
+        for page in self.get_pages(self.get_edges, start=start, end=end, is_directed=is_directed):
             self.load_edges(page)
+
+        active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
+
+        # load_nodes already loads the nodes that belong to the given edges
+        if active_node_filters:
+            for page in self.get_pages(self.get_nodes, start=start, end=end):
+                self.load_nodes(page)
 
     def load_nodes(self, node_records):
         """
@@ -136,10 +142,10 @@ class NeoTransformer(Transformer):
         if 'predicate' not in attributes:
             attributes['predicate'] = attributes['type']
 
-        if subject_id not in self.graph.nodes():
+        if not self.graph.has_node(subject_id):
             self.load_node(edge_subject)
 
-        if object_id not in self.graph.nodes():
+        if not self.graph.has_node(object_id):
             self.load_node(edge_object)
 
         self.graph.add_edge(
@@ -149,80 +155,102 @@ class NeoTransformer(Transformer):
             attr_dict=attributes
         )
 
+    def build_label(self, label:Union[List[str], str, None]) -> str:
+        """
+        Takes a potential label and turns it into the string representation
+        needed to fill a cypher query.
+        """
+        if label is None:
+            return ''
+        elif isinstance(label, str):
+            return ':{label}'.format(label=label)
+        elif isinstance(label, (list, set, tuple)):
+            return ':{labels}'.format(labels=':'.join(label))
+
+    def build_properties(self, properties:Dict[str, str]) -> str:
+        if properties == {}:
+            return ''
+        else:
+            return ' {{ {properties} }}'.format(properties=self.parse_properties(properties))
+
+    def clean_whitespace(self, s:str) -> str:
+        replace = {
+            '  ' : ' ',
+            '\n' : ''
+        }
+
+        while any(k in s for k in replace.keys()):
+            for old_value, new_value in replace.items():
+                s = s.replace(old_value, new_value)
+
+        return s.strip()
+
+    def build_query_kwargs(self):
+        properties = defaultdict(dict)
+        labels = defaultdict(list)
+        
+        for f in self.filters:
+            filter_type = f.filter_type
+
+            if filter_type is FilterType.PROPERTY:
+                arg = f.target
+                property_name, property_value = f.value
+                properties[arg][property_name] = property_value
+
+            elif filter_type is FilterType.LABEL or filter_type is FilterType.CATEGORY:
+                arg = f.target
+                labels[arg].append(f.value)
+
+            else:
+                assert False
+
+        kwargs = {k : '' for k in Filter.targets()}
+
+        for arg, value in properties.items():
+            kwargs[arg] = self.build_properties(value)
+
+        for arg, value in labels.items():
+            kwargs[arg] = self.build_label(value)
+
+        return kwargs
+
     def get_nodes(self, tx, skip, limit):
         """
         Get a page of nodes from the database
         """
-        labels = None
-        if 'subject_category' in self.filter:
-            labels = self.filter['subject_category']
-        if 'object_category' in self.filter:
-            labels += ':' + self.filter['object_category']
+        query = """
+        MATCH (n{node_category}{node_property})
+        RETURN n
+        SKIP {skip} LIMIT {limit}
+        """.format(
+            skip=skip,
+            limit=limit,
+            **self.build_query_kwargs()
+        )
 
-        properties = {}
-        for key in self.filter:
-            if key not in ['subject_category', 'object_category', 'edge_label']:
-                properties[key] = self.filter[key]
-
-        query = None
-        if labels:
-            query="""
-            MATCH (n:{labels} {{ {properties} }}) RETURN n SKIP {skip} LIMIT {limit};
-            """.format(labels=labels, properties=self.parse_properties(properties), skip=skip, limit=limit).strip()
-        else:
-            query="""
-            MATCH (n {{ {properties} }}) RETURN n SKIP {skip} LIMIT {limit};
-            """.format(properties=self.parse_properties(properties), skip=skip, limit=limit).strip()
-
-        query = query.replace("{  }", "")
+        query = self.clean_whitespace(query)
 
         logging.debug(query)
         return tx.run(query)
 
-    def get_edges(self, tx, skip, limit):
+    def get_edges(self, tx, skip, limit, is_directed=False):
         """
         Get a page of edges from the database
         """
-        params = {}
-        params['subject_category'] = self.filter['subject_category'] if 'subject_category' in self.filter else None
-        params['object_category'] = self.filter['object_category'] if 'object_category' in self.filter else None
-        params['edge_label'] = self.filter['edge_label'] if 'edge_label' in self.filter else None
+        direction = '->' if is_directed else '-'
 
-        properties = {}
-        for key in self.filter:
-            if key not in ['subject_category', 'object_category', 'edge_label']:
-                properties[key] = self.filter[key]
+        query = """
+        MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+        RETURN s,p,o
+        SKIP {skip} LIMIT {limit};
+        """.format(
+            skip=skip,
+            limit=limit,
+            direction=direction,
+            **self.build_query_kwargs()
+        )
 
-        query = None
-        if params['subject_category'] is not None and params['object_category'] is not None and params['edge_label'] is not None:
-            query = """
-            MATCH (s:{subject_category})-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
-            RETURN s,p,o
-            SKIP {skip} LIMIT {limit};
-            """.format(skip=skip, limit=limit, edge_properties=self.parse_properties(properties), **params).strip()
-
-        elif params['subject_category'] is None and params['object_category'] is not None and params['edge_label'] is not None:
-            query = """
-            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o:{object_category})
-            RETURN s,p,o
-            SKIP {skip} LIMIT {limit};
-            """.format(skip=skip, limit=limit, edge_properties=self.parse_properties(properties), **params).strip()
-
-        elif params['subject_category'] is None and params['object_category'] is None and params['edge_label'] is not None:
-            query = """
-            MATCH (s)-[p:{edge_label} {{ {edge_properties} }}]->(o)
-            RETURN s,p,o
-            SKIP {skip} LIMIT {limit};
-            """.format(skip=skip, limit=limit, edge_properties=self.parse_properties(properties), **params).strip()
-
-        else:
-            query = """
-            MATCH (s)-[p {{ {edge_properties} }}]->(o)
-            RETURN s,p,o
-            SKIP {skip} LIMIT {limit};
-            """.format(skip=skip, limit=limit, edge_properties=self.parse_properties(properties), **params).strip()
-
-        query = query.replace("{  }", "")
+        query = self.clean_whitespace(query)
 
         logging.debug(query)
         return tx.run(query)
@@ -244,7 +272,7 @@ class NeoTransformer(Transformer):
             label = obj.pop('category')
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
-        query = "MERGE (n:{label} {{id: $id}}) ON CREATE SET {properties}".format(label=label, properties=properties)
+        query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
         tx.run(query, **obj)
 
     def save_node_unwind(self, nodes_by_category, property_names):
@@ -285,11 +313,13 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('n.{0}=node.{0}'.format(k) for k in properties_dict.keys() if k != 'id')
 
-        query = """\
-        UNWIND $nodes AS node\
-        MERGE (n:{label} {{id: node.id}})\
-        ON CREATE SET {properties}\
+        query = """
+        UNWIND $nodes AS node
+        MERGE (n:{label} {{id: node.id}})
+        SET {properties}
         """.format(label=label, properties=properties)
+
+        query = self.clean_whitespace(query)
 
         logging.debug(query)
 
@@ -305,12 +335,14 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('r.{0}=edge.{0}'.format(k) for k in properties_dict.keys())
 
-        query="""\
-        UNWIND $edges AS edge\
-        MATCH (s {{id: edge.subject}}), (o {{id: edge.object}})\
-        MERGE (s)-[r:{edge_label}]->(o)\
-        ON CREATE SET {properties}\
+        query="""
+        UNWIND $edges AS edge
+        MATCH (s {{id: edge.subject}}), (o {{id: edge.object}})
+        MERGE (s)-[r:{edge_label}]->(o)
+        SET {properties}
         """.format(properties=properties, edge_label=relationship)
+
+        query = self.clean_whitespace(query)
 
         logging.debug(query)
 
@@ -326,11 +358,13 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
 
-        q="""\
-        MATCH (s {{id: $subject_id}}), (o {{id: $object_id}})\
-        MERGE (s)-[r:{label}]->(o)\
-        ON CREATE SET {properties}\
+        q="""
+        MATCH (s {{id: $subject_id}}), (o {{id: $object_id}})
+        MERGE (s)-[r:{label}]->(o)
+        SET {properties}
         """.format(properties=properties, label=label)
+
+        q = self.clean_whitespace(q)
 
         tx.run(q, subject_id=subject_id, object_id=object_id, **obj)
 
@@ -437,7 +471,6 @@ class NeoTransformer(Transformer):
         """
         Create a unique constraint on node 'id' for all labels
         """
-
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
         for label in labels:
             if ':' in label:

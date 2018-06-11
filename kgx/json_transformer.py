@@ -6,26 +6,27 @@ from .pandas_transformer import PandasTransformer  # Temp
 class JsonTransformer(PandasTransformer):
     """
     """
-    
+
     def parse(self, filename, **args):
         """
         Parse a JSON file
         """
-        obj = json.load(filename)
-        self.load(obj)
-        
+        with open(filename, 'r') as f:
+            obj = json.load(f)
+            self.load(obj)
+
     def load(self, obj):
         if 'nodes' in obj:
             self.load_nodes(obj['nodes'])
-        else:
-            self.load_edges(obj['nodes'])
-            
+        if 'edges' in obj:
+            self.load_edges(obj['edges'])
+
     def load_nodes(self, objs):
         for obj in objs:
             self.load_node(obj)
     def load_edges(self, objs):
         for obj in objs:
-            self.load_node(obj)
+            self.load_edge(obj)
 
     def export(self):
         nodes=[]
@@ -39,12 +40,12 @@ class JsonTransformer(PandasTransformer):
             edge['subject'] = s
             edge['object'] = o
             edges.append(edge)
-        
+
         return {
             'nodes':nodes,
             'edges':edges,
             }
-    
+
     def save(self, filename, **args):
         """
         Write a JSON file
@@ -52,4 +53,3 @@ class JsonTransformer(PandasTransformer):
         obj = self.export()
         with open(filename,'w') as file:
             file.write(json.dumps(obj, indent=4, sort_keys=True))
-            

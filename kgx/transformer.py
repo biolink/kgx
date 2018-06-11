@@ -1,8 +1,11 @@
 import networkx as nx
-from typing import Union, List, Dict
-from .prefix_manager import PrefixManager
-from networkx.readwrite import json_graph
 import json
+
+from typing import Union, List, Dict
+from networkx.readwrite import json_graph
+
+from .prefix_manager import PrefixManager
+from .filter import Filter
 
 SimpleValue = Union[List[str], str]
 
@@ -27,7 +30,8 @@ class Transformer(object):
         else:
             self.graph = nx.MultiDiGraph()
 
-        self.filter = {} # type: Dict[str, SimpleValue]
+
+        self.filters = [] # Type: List[Filter]
         self.graph_metadata = {}
         self.prefix_manager = PrefixManager()
 
@@ -39,19 +43,11 @@ class Transformer(object):
     def is_empty(self) -> bool:
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
-    def set_filter(self, p: str, v: SimpleValue) -> None:
-        """
-        For pulling from a database endpoint, allow filtering
-        for sets of interest
+    def add_filter(self, f:Filter) -> None:
+        self.filters.append(f)
 
-        Parameters:
-
-         - predicate
-         - subject_category
-         - object_category
-         - source
-        """
-        self.filter[p] = v
+    def set_filter(self, target: str, value: SimpleValue) -> None:
+        self.filters.append(Filter(target, value))
 
     def merge(self, graphs):
         """

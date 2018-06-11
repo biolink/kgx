@@ -2,7 +2,7 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
-from kgx import Transformer, Validator, map_graph
+from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
@@ -25,7 +25,7 @@ def cli(config, debug):
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
 @handle_exception
 def validate(config, inputs, input_type):
@@ -36,28 +36,30 @@ def validate(config, inputs, input_type):
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('--property-filter', type=(str, str), multiple=True)
+@click.option('--directed', is_flag=True, help='Enforces subject -> object edge direction')
+@click.option('--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
+@click.option('--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.option('--batch-size', type=int, help='The number of records to save in each file')
 @click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
-@click.argument('uri', type=str)
+@click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, uri, username, password, output, output_type, property_filter, batch_size, batch_start):
+def neo4j_download(config, address, username, password, output, output_type, batch_size, batch_start, labels, properties, directed):
     if batch_start != None and batch_size == None:
         raise Exception('batch-size must be set if batch-start is set')
 
     if batch_start == None and batch_size != None:
         batch_start = 0
 
-    for key, value in property_filter:
-        t.set_filter(key, value)
-
     if batch_size != None and batch_start >= 0:
         for i in itertools.count(batch_start):
-            t = kgx.NeoTransformer(uri=uri, username=username, password=password)
+            t = kgx.NeoTransformer(uri=address, username=username, password=password)
+
+            set_transformer_filters(transformer=t, labels=labels, properties=properties)
+
             start = batch_size * i
             end = start + batch_size
 
@@ -70,22 +72,39 @@ def neo4j_download(config, uri, username, password, output, output_type, propert
             indexed_output = name + '({}).'.format(i) + extention
             transform_and_save(t, indexed_output, output_type)
     else:
-        t = kgx.NeoTransformer(uri=uri, username=username, password=password)
-        t.load()
+        t = kgx.NeoTransformer(uri=address, username=username, password=password)
+
+        set_transformer_filters(transformer=t, labels=labels, properties=properties)
+
+        t.load(is_directed=directed)
+        t.report()
         transform_and_save(t, output, output_type)
+
+def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
+    for location, label in labels:
+        if location == FilterLocation.EDGE.value:
+            target = '{}_label'.format(location)
+            transformer.set_filter(target=target, value=label)
+        else:
+            target = '{}_category'.format(location)
+            transformer.set_filter(target=target, value=label)
+
+    for location, property_name, property_value in properties:
+        target = '{}_property'.format(location)
+        transformer.set_filter(target=target, value=(property_name, property_value))
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--use-unwind', is_flag=True, help='Loads using UNWIND, which is quicker')
-@click.argument('uri', type=str)
+@click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
 @handle_exception
-def neo4j_upload(config, uri, username, password, inputs, input_type, use_unwind):
+def neo4j_upload(config, address, username, password, inputs, input_type, use_unwind):
     t = load_transformer(inputs, input_type)
-    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=uri, username=username, password=password)
+    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=address, username=username, password=password)
     if use_unwind:
         neo_transformer.save_with_unwind()
     else:
@@ -96,7 +115,7 @@ def neo4j_upload(config, uri, username, password, inputs, input_type, use_unwind
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False))
+@click.argument('inputs', nargs=-1, required=True, type=click.Path(exists=False))
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
@@ -117,21 +136,27 @@ def dump(config, inputs, output, input_type, output_type, mapping, preserve):
 
 @cli.command(name='load-mapping')
 @click.argument('name', type=str)
-@click.argument('source-col', type=str, required=True)
-@click.argument('target-col', type=str, required=True)
 @click.argument('csv', type=click.Path())
+@click.option('--no-header', is_flag=True, help='Indicates that the given CSV file has no header, so that the first row will not be ignored')
+@click.option('--columns', type=(int, int), default=(None, None), required=False, help="The zero indexed input and output columns for the mapping")
+@click.option('--show', is_flag=True, help='Shows a small slice of the mapping')
 @pass_config
-def load_mapping(config, name, csv, source_col, target_col):
-    import pudb; pudb.set_trace()
-    data = pd.read_csv(csv)
+@handle_exception
+def load_mapping(config, name, csv, columns, no_header, show):
+    header = None if no_header else 0
+    data = pd.read_csv(csv, header=header)
+    source, target = (0, 1) if columns == (None, None) else columns
+    d = {row[source] : row[target] for index, row in data.iterrows()}
 
-    d = {row[source_col] : row[target_col] for index, row in data.iterrows()}
+    if show:
+        for key, value in itertools.islice(d.items(), 5):
+            click.echo(str(key) + ' : ' + str(value))
 
     path = get_file_path(name)
 
     with open(path, 'wb') as f:
         pickle.dump(d, f)
-        click.echo('Mapping \'{}\' saved at {}'.format(name, path))
+        click.echo('Mapping \'{name}\' saved at {path}'.format(name=name, path=path))
 
 @cli.command(name='load-and-merge')
 @click.argument('merge_config', type=str)
@@ -176,13 +201,13 @@ def load_and_merge(merge_config, destination_uri, destination_username, destinat
         destination = kgx.NeoTransformer(mergedTransformer.graph, uri=destination_uri, username=destination_username, password=destination_password)
         destination.save_with_unwind()
 
-def get_file_path(filename:str) -> str:
+def get_file_path(name:str) -> str:
     app_dir = click.get_app_dir(__name__)
 
     if not os.path.exists(app_dir):
         os.makedirs(app_dir)
 
-    return os.path.join(app_dir, filename)
+    return os.path.join(app_dir, name + '.pkl')
 
 def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     """
