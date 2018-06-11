@@ -38,7 +38,8 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   command_line_usage.md
+   command_line_usage
+   test
 
 
 Examples
