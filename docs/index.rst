@@ -39,7 +39,6 @@ Documentation
    :maxdepth: 2
 
    command_line_usage
-   test
 
 
 Examples
