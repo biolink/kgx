@@ -38,7 +38,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   command_line_usage
+   command_line_doc
 
 
 Examples
@@ -48,6 +48,7 @@ Examples
    :maxdepth: 2
 
    examples
+   command_line_examples
 
 Internal Representation
 -----------------------
