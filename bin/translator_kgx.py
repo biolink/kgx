@@ -257,9 +257,8 @@ def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
         raise Exception('Inputs do not have a recognized type: ' + str(get_file_types()))
 
     t = transformer_constructor()
-
     for i in input_paths:
-        t.parse(i)
+        t.parse(i, input_type)
 
     t.report()
 
