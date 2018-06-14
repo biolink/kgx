@@ -1,8 +1,15 @@
 ## Command Line Usage
-Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
+Use the `--help` flag with any command to view documentation. 
+
+See the [Makefile](https://github.com/NCATS-Tangerine/kgx/blob/master/Makefile) for examples,
 
 ```
 make examples
+```
+
+To run these examples use,
+```
+make run_examples
 ```
 
 ### Neo4j Upload
