@@ -1,4 +1,4 @@
-Examples queries
+Examples scripts
 ================
 
 
