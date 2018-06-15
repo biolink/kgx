@@ -16,7 +16,7 @@ class CsvSink(Sink):
         self.node_writer.writerow(node)
         # TODO: process attributes as nodeprops?
         #for k,v in attributes.items():
-            #prop = {':ID': id, 'propname': k, 'value': v}
+            #prop = {':ID': node_id, 'propname': k, 'value': v}
             #self.nodeprop_writer.writerow(prop)
 
     def add_edge(self, subject_id, object_id, attributes):
@@ -46,11 +46,11 @@ class CsvSink(Sink):
                                                       # RTX nodes have a list of labels.
                                                       #'category:LABEL'
                                                       ))
-        self.edge_writer = DictWriter(self.edge_out, (':START',
+        self.edge_writer = DictWriter(self.edge_out, (':ID', ':START', ':END',
                                                       # TODO: where do we find :TYPE?
                                                       # Is this 'predicate'?
                                                       #':TYPE',
-                                                      ':END', ':ID'))
+                                                      ))
         self.node_writer.writeheader()
         self.edge_writer.writeheader()
         # TODO:
