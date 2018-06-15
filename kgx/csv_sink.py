@@ -15,9 +15,9 @@ class CsvSink(Sink):
         node[':ID'] = node_id
         self.node_writer.writerow(node)
         # TODO: process attributes as nodeprops?
-        #for k,v in attributes.items():
-            #prop = {':ID': node_id, 'propname': k, 'value': v}
-            #self.nodeprop_writer.writerow(prop)
+        for k,v in attributes.items():
+            prop = {':ID': node_id, 'propname': k, 'value': v}
+            self.nodeprop_writer.writerow(prop)
 
     def add_edge(self, subject_id, object_id, attributes):
         # TODO: should we generate our own arbitrary :IDs in this way?
@@ -29,9 +29,9 @@ class CsvSink(Sink):
         edge[':ID'] = eid
         self.edge_writer.writerow(edge)
         # TODO: process attributes as edgeprops?
-        #for k,v in attributes.items():
-            #prop = {':ID': eid, 'propname': k, 'value': v}
-            #self.edgeprop_writer.writerow(prop)
+        for k,v in attributes.items():
+            prop = {':ID': eid, 'propname': k, 'value': v}
+            self.edgeprop_writer.writerow(prop)
         self.edge_count += 1
 
     def __enter__(self):
@@ -54,17 +54,17 @@ class CsvSink(Sink):
         self.node_writer.writeheader()
         self.edge_writer.writeheader()
         # TODO:
-        #self.nodeprop_out = self._open('nodeprop')
-        #self.edgeprop_out = self._open('edgeprop')
-        #self.nodeprop_writer = DictWriter(self.nodeprop_out, (':ID', 'propname', 'value'))
-        #self.edgeprop_writer = DictWriter(self.edgeprop_out, )
-        #self.nodeprop_writer.writeheader()
-        #self.edgeprop_writer.writeheader()
+        self.nodeprop_out = self._open('nodeprop')
+        self.edgeprop_out = self._open('edgeprop')
+        self.nodeprop_writer = DictWriter(self.nodeprop_out, (':ID', 'propname', 'value'))
+        self.edgeprop_writer = DictWriter(self.edgeprop_out, (':ID', 'propname', 'value'))
+        self.nodeprop_writer.writeheader()
+        self.edgeprop_writer.writeheader()
         return self
 
     def __exit__(self, *args, **kwargs):
         self.node_out.close()
         self.edge_out.close()
         # TODO:
-        #self.nodeprop_out.close()
-        #self.edgeprop_out.close()
+        self.nodeprop_out.close()
+        self.edgeprop_out.close()
