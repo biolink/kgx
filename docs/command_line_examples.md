@@ -1,10 +1,10 @@
-## Command Line Usage
+# Command Line Usage
 
 Here we will walk through the basic work flow of using KGX from the command line. The files can be found in the [github repo](https://github.com/NCATS-Tangerine/kgx).
 
 We'll assume that we're using a local instance of neo4j at `bolt://localhost:7687`, with the username `neo4j` and the password `password`.
 
-### Validate
+## Validate
 ```
 $ kgx validate tests/resources/semmed/cell.json tests/resources/semmed/gene.json tests/resources/semmed/protein.json
 |Nodes|=395
@@ -18,7 +18,7 @@ ERROR:root:Item: n_pmids Message: no such short form
 ERROR:root:Item: is_defined_by Message: no such short form
 ```
 
-### Dump
+## Dump
 Combine three files into one
 ```
 $ kgx dump tests/resources/semmed/cell.json tests/resources/semmed/gene.json tests/resources/semmed/protein.json target/combined.json
@@ -27,7 +27,9 @@ $ kgx dump tests/resources/semmed/cell.json tests/resources/semmed/gene.json tes
 File created at: target/combined.json
 ```
 
-### Neo4j
+## Neo4j
+
+### Neo4j Upload operation
 
 Uploading `combined.json` to a local neo4j instance
 ```
@@ -35,6 +37,8 @@ kgx neo4j-upload bolt://localhost:7687 neo4j password target/combined.json
 |Nodes|=395
 |Edges|=300
 ```
+
+### Neo4j Download operation
 
 Downloading a subset of what we had uploaded. Running in debug mode so we can see the cypher queries
 ```
@@ -45,3 +49,14 @@ Downloading another subset, this time filtering on the edge label
 ```
 kgx --debug neo4j-download --labels edge predisposes bolt://localhost:7687 neo4j password target/predisposes.json
 ```
+
+### Merge operation
+
+Load nodes and edges from multiple Knowledge Graphs, as defined in a config YAML, merge them into a single graph and 
+save the merged graph into a Neo4j database.
+
+```
+kgx --debug neo4j load-and-merge --destination-uri bolt://localhost:7687 neo4j neo4j config.yml
+```
+
+where the `config.yml` is similar to [sample-merge-config.yml](https://github.com/NCATS-Tangerine/kgx/blob/master/examples/sample-merge-config.yml).

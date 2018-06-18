@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Knowledge Graph Exchange's documentation!
-====================================================
+Welcome to Knowledge Graph Exchange's documentation
+===================================================
 
 A utility library and set of command line tools for exchanging data in knowledge graphs.
 
@@ -39,6 +39,7 @@ Documentation
    :maxdepth: 2
 
    command_line_doc
+   import
 
 
 Examples
@@ -47,8 +48,10 @@ Examples
 .. toctree::
    :maxdepth: 2
 
-   examples
    command_line_examples
+   workflows
+   examples
+
 
 Internal Representation
 -----------------------
@@ -61,7 +64,7 @@ The structure of this graph is expected to conform to the `tr-kg <http://bit.ly/
    * `id` : required
    * `name` : string
    * `category` : string. broad high level type. Corresponds to label in neo4j
-   * extensible other properties, depending on
+   * extensible other properties
 
 **Edges**
    * `subject` : required

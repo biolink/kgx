@@ -18,12 +18,13 @@ class PandasTransformer(Transformer):
         'txt' : '|'
     }
 
-    def parse(self, filename: str, **args):
+    def parse(self, filename: str, input_format='csv', **args):
         """
         Parse a CSV/TSV
 
         May be either a node file or an edge file
         """
+        args['delimiter'] = self._extention_types[input_format]
         df = pd.read_csv(filename, comment='#', **args) # type: pd.DataFrame
         self.load(df)
 

@@ -7,7 +7,7 @@ class JsonTransformer(PandasTransformer):
     """
     """
 
-    def parse(self, filename, **args):
+    def parse(self, filename, input_format='json', **args):
         """
         Parse a JSON file
         """
