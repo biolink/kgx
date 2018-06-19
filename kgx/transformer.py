@@ -1,5 +1,5 @@
 import networkx as nx
-import json
+import json, time
 
 from typing import Union, List, Dict
 from networkx.readwrite import json_graph
@@ -213,3 +213,7 @@ class Transformer(object):
         data = FH.read()
         G = Transformer.restore(json.loads(data))
         return G
+
+    @staticmethod
+    def current_time_in_millis():
+            return int(round(time.time() * 1000))

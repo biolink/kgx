@@ -63,14 +63,20 @@ class NeoTransformer(Transformer):
         Read a neo4j database and create a nx graph
         """
         for page in self.get_pages(self.get_edges, start=start, end=end, is_directed=is_directed):
+            start = self.current_time_in_millis()
             self.load_edges(page)
+            end = self.current_time_in_millis()
+            logging.debug("time taken to load edges: {} ms".format(end - start))
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
 
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
             for page in self.get_pages(self.get_nodes, start=start, end=end):
+                start = self.current_time_in_millis()
                 self.load_nodes(page)
+                end = self.current_time_in_millis()
+                logging.debug("time taken to load nodes: {} ms".format(end - start))
 
     def load_nodes(self, node_records):
         """
@@ -299,8 +305,11 @@ class NeoTransformer(Transformer):
                 end = i + 1000
                 subset = edges[i:end]
                 logging.info("edges subset: {}-{}".format(i, end))
+                time_start = self.current_time_in_millis()
                 with self.driver.session() as session:
                     session.run(query, relationship=predicate, edges=subset)
+                time_end = self.current_time_in_millis()
+                logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
     def generate_unwind_node_query(self, label, property_names):
         """
