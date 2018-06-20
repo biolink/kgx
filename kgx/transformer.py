@@ -86,7 +86,7 @@ class Transformer(object):
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
-            if type not in node['labels']:
+            if type not in node['category']:
                 continue
             if new_property in node:
                 if prefix:
@@ -141,7 +141,7 @@ class Transformer(object):
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
-            if type not in node['labels']:
+            if type not in node['category']:
                 continue
             if new_property in node:
                 mapping[node_id] = node[new_property]
@@ -217,3 +217,4 @@ class Transformer(object):
     @staticmethod
     def current_time_in_millis():
             return int(round(time.time() * 1000))
+

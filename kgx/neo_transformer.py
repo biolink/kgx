@@ -109,8 +109,14 @@ class NeoTransformer(Transformer):
         for key, value in node.items():
             attributes[key] = value
 
-        if 'labels' not in attributes:
-            attributes['labels'] = list(node.labels)
+        if 'category' not in attributes:
+            attributes['category'] = list(node.labels)
+        else:
+            if isinstance(attributes['category'], str):
+                attributes['category'] = [attributes['category']]
+
+        if 'Node' not in attributes['category']:
+            attributes['category'].append('Node')
 
         node_id = node['id'] if 'id' in node else node.id
 
@@ -194,7 +200,7 @@ class NeoTransformer(Transformer):
     def build_query_kwargs(self):
         properties = defaultdict(dict)
         labels = defaultdict(list)
-        
+
         for f in self.filters:
             filter_type = f.filter_type
 
@@ -272,8 +278,8 @@ class NeoTransformer(Transformer):
             logging.warning("node does not have 'name' property")
 
         if 'category' not in obj:
-            logging.warning("node does not have 'category' property. Using 'named_thing' as default")
-            label = 'named_thing'
+            logging.warning("node does not have 'category' property. Using 'Node' as default")
+            label = 'Node'
         else:
             label = obj.pop('category')
 
@@ -324,8 +330,8 @@ class NeoTransformer(Transformer):
 
         query = """
         UNWIND $nodes AS node
-        MERGE (n:{label} {{id: node.id}})
-        SET {properties}
+        MERGE (n:Node {{id: node.id}})
+        SET n:{label}, {properties}
         """.format(label=label, properties=properties)
 
         query = self.clean_whitespace(query)
@@ -346,7 +352,7 @@ class NeoTransformer(Transformer):
 
         query="""
         UNWIND $edges AS edge
-        MATCH (s {{id: edge.subject}}), (o {{id: edge.object}})
+        MATCH (s:Node {{id: edge.subject}}), (o:Node {{id: edge.object}})
         MERGE (s)-[r:{edge_label}]->(o)
         SET {properties}
         """.format(properties=properties, edge_label=relationship)
@@ -368,7 +374,7 @@ class NeoTransformer(Transformer):
         properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
 
         q="""
-        MATCH (s {{id: $subject_id}}), (o {{id: $object_id}})
+        MATCH (s:Node {{id: $subject_id}}), (o:Node {{id: $object_id}})
         MERGE (s)-[r:{label}]->(o)
         SET {properties}
         """.format(properties=properties, label=label)
@@ -402,19 +408,12 @@ class NeoTransformer(Transformer):
             node = self.graph.node[n]
             if 'id' not in node:
                 continue
-            if 'category' not in node:
-                node['category'] = 'named_thing'
-            if type(node['category']) is type([]):
-                category = ':'.join(node['category'])
-                if category not in nodes_by_category:
-                    nodes_by_category[category] = [node]
-                else:
-                    nodes_by_category[category].append(node)
+
+            category = ':'.join(node['category'])
+            if category not in nodes_by_category:
+                nodes_by_category[category] = [node]
             else:
-                if node['category'] not in nodes_by_category:
-                    nodes_by_category[node['category']] = [node]
-                else:
-                    nodes_by_category[node['category']].append(node)
+                nodes_by_category[category].append(node)
 
             node_properties += [x for x in node if x not in node_properties]
 
@@ -440,7 +439,7 @@ class NeoTransformer(Transformer):
         Load from a nx graph to neo4j
         """
 
-        labels = {'named_thing'}
+        labels = {'Node'}
         for n in self.graph.nodes():
             node = self.graph.node[n]
             if 'category' in node:
@@ -481,14 +480,19 @@ class NeoTransformer(Transformer):
         Create a unique constraint on node 'id' for all labels
         """
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
+        label_set = set()
+
         for label in labels:
             if ':' in label:
                 sub_labels = label.split(':')
                 for sublabel in sub_labels:
-                    print("CREATING CONSTRAINT for multiple labels: {}".format(sublabel))
-                    tx.run(query.format(sublabel))
+                    label_set.add(sublabel)
             else:
-                tx.run(query.format(label))
+                label_set.add(label)
+
+        for label in label_set:
+            print("CREATING CONSTRAINT for multiple labels: {}".format(label))
+            tx.run(query.format(label))
 
     @staticmethod
     def parse_properties(properties, delim = '|'):
