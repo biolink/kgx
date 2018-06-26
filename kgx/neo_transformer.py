@@ -38,61 +38,37 @@ class NeoTransformer(Transformer):
 
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
 
-    def get_pages(self, method, start=0, end=None, page_size=1000, **kwargs):
-        """
-        Gets (end - start) many pages of size page_size.
-        """
+    def load(self, start=0, end=0, is_directed=False):
+
         with self.driver.session() as session:
-            for i in itertools.count(0):
-
-                skip = start + (page_size * i)
-                limit = page_size if end == None or skip + page_size <= end else end - skip
-
-                if limit <= 0:
-                    return
-
-                records = session.read_transaction(method, skip=skip, limit=limit, **kwargs)
-
-                if records.peek() is not None:
-                    yield records
-                else:
-                    return
-
-    def load(self, start=0, end=None, is_directed=False):
-        """
-        Read a neo4j database and create a nx graph
-        """
-        for page in self.get_pages(self.get_edges, start=start, end=end, is_directed=is_directed):
-            start = self.current_time_in_millis()
-            self.load_edges(page)
-            end = self.current_time_in_millis()
-            logging.debug("time taken to load edges: {} ms".format(end - start))
+            time_start = self.current_time_in_millis()
+            edges = session.read_transaction(self.get_edges, start, end, is_directed)
+            time_end = self.current_time_in_millis()
+            print("time taken to get edges: {} ms".format(time_end - time_start))
+            self.load_edges(edges)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
-
-        # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
-            for page in self.get_pages(self.get_nodes, start=start, end=end):
-                start = self.current_time_in_millis()
-                self.load_nodes(page)
-                end = self.current_time_in_millis()
-                logging.debug("time taken to load nodes: {} ms".format(end - start))
+            time_start = self.current_time_in_millis()
+            with self.driver.session() as session:
+                nodes = session.read_transaction(self.get_nodes, start, end)
+            time_end = self.current_time_in_millis()
+            print("time taken to get nodes: {} ms".format(time_end - time_start))
+            self.load_nodes(nodes)
 
-    def load_nodes(self, node_records):
-        """
-        Load nodes from neo4j records
-        """
-
-        for node in node_records:
-            self.load_node(node)
-
-    def load_edges(self, edge_records):
-        """
-        Load edges from neo4j records
-        """
-
-        for edge in edge_records:
+    def load_edges(self, edges):
+        start = self.current_time_in_millis()
+        for edge in edges:
             self.load_edge(edge)
+        end = self.current_time_in_millis()
+        print("time taken to load edges: {} ms".format(end - start))
+
+    def load_nodes(self, nodes):
+        start = self.current_time_in_millis()
+        for node in nodes:
+            self.load_node(node)
+        end = self.current_time_in_millis()
+        print("time taken to load nodes: {} ms".format(end - start))
 
     def load_node(self, node_record:Union[Node, Record]):
         """
@@ -226,7 +202,7 @@ class NeoTransformer(Transformer):
 
         return kwargs
 
-    def get_nodes(self, tx, skip, limit):
+    def get_nodes(self, tx, start=0, end=0):
         """
         Get a page of nodes from the database
         """
@@ -235,8 +211,8 @@ class NeoTransformer(Transformer):
         RETURN n
         SKIP {skip} LIMIT {limit}
         """.format(
-            skip=skip,
-            limit=limit,
+            skip=start,
+            limit=end,
             **self.build_query_kwargs()
         )
 
@@ -245,7 +221,7 @@ class NeoTransformer(Transformer):
         logging.debug(query)
         return tx.run(query)
 
-    def get_edges(self, tx, skip, limit, is_directed=False):
+    def get_edges(self, tx, start=0, end=0, is_directed=False):
         """
         Get a page of edges from the database
         """
@@ -256,8 +232,8 @@ class NeoTransformer(Transformer):
         RETURN s,p,o
         SKIP {skip} LIMIT {limit};
         """.format(
-            skip=skip,
-            limit=limit,
+            skip=start,
+            limit=end,
             direction=direction,
             **self.build_query_kwargs()
         )
