@@ -36,7 +36,7 @@ class NeoTransformer(Transformer):
                 uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
                 username = cfg['neo4j']['username']
                 password = cfg['neo4j']['password']
-
+        logging.debug("Initializing driver with URI: {}".format(uri))
         self.driver = GraphDatabase.driver(uri, auth=(username, password), **args)
 
     def load(self, start=0, end=0, is_directed=False, paging=False):
@@ -512,8 +512,8 @@ class NeoTransformer(Transformer):
         self.neo4j_report()
 
     def report(self):
-        print("Total number of nodes: {}".format(len(self.graph.nodes())))
-        print("Total number of edges: {}".format(len(self.graph.edges())))
+        logging.info("Total number of nodes: {}".format(len(self.graph.nodes())))
+        logging.info("Total number of edges: {}".format(len(self.graph.edges())))
 
     def neo4j_report(self):
         """

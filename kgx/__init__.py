@@ -16,3 +16,12 @@ from .filter import Filter, FilterLocation, FilterType
 from .validator import Validator
 from .prefix_manager import PrefixManager
 from .mapper import map_graph
+
+import logging
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter("[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
