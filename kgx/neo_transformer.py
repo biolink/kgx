@@ -37,16 +37,46 @@ class NeoTransformer(Transformer):
                 username = cfg['neo4j']['username']
                 password = cfg['neo4j']['password']
 
-        self.driver = GraphDatabase.driver(uri, auth=(username, password),
-        **args)
+        self.driver = GraphDatabase.driver(uri, auth=(username, password), **args)
 
-    def load(self, start=0, end=0, is_directed=False):
+    def load(self, start=0, end=0, is_directed=False, paging=False):
+        """
+        Read a neo4j database and create a nx graph
+        """
+        if paging:
+            self.load_with_paging(start, end, is_directed)
+        else:
+            self.load_without_paging(start, end, is_directed)
 
+    def load_with_paging(self, start=0, end=0, is_directed=False):
+        """
+        Read a neo4j database and create a nx graph, with paging
+        """
+        for page in self.get_pages(self.get_edges, start, end, is_directed=is_directed):
+            start = self.current_time_in_millis()
+            self.load_edges(page)
+            end = self.current_time_in_millis()
+            logging.debug("time taken to load edges: {} ms".format(end - start))
+
+        active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
+
+        # load_nodes already loads the nodes that belong to the given edges
+        if active_node_filters:
+            for page in self.get_pages(self.get_nodes, start, end):
+                start = self.current_time_in_millis()
+                self.load_nodes(page)
+                end = self.current_time_in_millis()
+                logging.debug("time taken to load nodes: {} ms".format(end - start))
+
+    def load_without_paging(self, start=0, end=0, is_directed=False):
+        """
+        Read a neo4j database and create a nx graph, without paging
+        """
         with self.driver.session() as session:
             time_start = self.current_time_in_millis()
             edges = session.read_transaction(self.get_edges, start, end, is_directed)
             time_end = self.current_time_in_millis()
-            print("time taken to get edges: {} ms".format(time_end - time_start))
+            logging.debug("time taken to get edges: {} ms".format(time_end - time_start))
             self.load_edges(edges)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
@@ -55,22 +85,42 @@ class NeoTransformer(Transformer):
             with self.driver.session() as session:
                 nodes = session.read_transaction(self.get_nodes, start, end)
             time_end = self.current_time_in_millis()
-            print("time taken to get nodes: {} ms".format(time_end - time_start))
+            logging.debug("time taken to get nodes: {} ms".format(time_end - time_start))
             self.load_nodes(nodes)
+
+    def get_pages(self, method, start=0, end=None, page_size=1000, **kwargs):
+        """
+        Gets (end - start) many pages of size page_size.
+        """
+        with self.driver.session() as session:
+            for i in itertools.count(0):
+
+                skip = start + (page_size * i)
+                limit = page_size if end == None or skip + page_size <= end else end - skip
+
+                if limit <= 0:
+                    return
+
+                records = session.read_transaction(method, skip=skip, limit=limit, **kwargs)
+
+                if records.peek() is not None:
+                    yield records
+                else:
+                    return
 
     def load_edges(self, edges):
         start = self.current_time_in_millis()
         for edge in edges:
             self.load_edge(edge)
         end = self.current_time_in_millis()
-        print("time taken to load edges: {} ms".format(end - start))
+        logging.debug("time taken to load edges: {} ms".format(end - start))
 
     def load_nodes(self, nodes):
         start = self.current_time_in_millis()
         for node in nodes:
             self.load_node(node)
         end = self.current_time_in_millis()
-        print("time taken to load nodes: {} ms".format(end - start))
+        logging.debug("time taken to load nodes: {} ms".format(end - start))
 
     def load_node(self, node_record:Union[Node, Record]):
         """
@@ -204,41 +254,63 @@ class NeoTransformer(Transformer):
 
         return kwargs
 
-    def get_nodes(self, tx, start=0, end=0):
+    def get_nodes(self, tx, skip=0, limit=0):
         """
         Get a page of nodes from the database
         """
-        query = """
-        MATCH (n{node_category}{node_property})
-        RETURN n
-        SKIP {skip} LIMIT {limit}
-        """.format(
-            skip=start,
-            limit=end,
-            **self.build_query_kwargs()
-        )
+
+        if limit == 0 or limit is None:
+            query = """
+            MATCH (n{node_category}{node_property})
+            RETURN n
+            SKIP {skip};
+            """.format(
+                skip=skip,
+                **self.build_query_kwargs()
+            )
+        else:
+            query = """
+            MATCH (n{node_category}{node_property})
+            RETURN n
+            SKIP {skip} LIMIT {limit};
+            """.format(
+                skip=skip,
+                limit=limit,
+                **self.build_query_kwargs()
+            )
 
         query = self.clean_whitespace(query)
 
         logging.debug(query)
         return tx.run(query)
 
-    def get_edges(self, tx, start=0, end=0, is_directed=False):
+    def get_edges(self, tx, skip=0, limit=0, is_directed=False):
         """
         Get a page of edges from the database
         """
         direction = '->' if is_directed else '-'
 
-        query = """
-        MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
-        RETURN s,p,o
-        SKIP {skip} LIMIT {limit};
-        """.format(
-            skip=start,
-            limit=end,
-            direction=direction,
-            **self.build_query_kwargs()
-        )
+        if limit == 0 or limit is None:
+            query = """
+            MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+            RETURN s,p,o
+            SKIP {skip};
+            """.format(
+                skip=skip,
+                direction=direction,
+                **self.build_query_kwargs()
+            )
+        else:
+            query = """
+            MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+            RETURN s,p,o
+            SKIP {skip} LIMIT {limit};
+            """.format(
+                skip=skip,
+                limit=limit,
+                direction=direction,
+                **self.build_query_kwargs()
+            )
 
         query = self.clean_whitespace(query)
 
@@ -469,7 +541,6 @@ class NeoTransformer(Transformer):
                 label_set.add(label)
 
         for label in label_set:
-            print("CREATING CONSTRAINT for multiple labels: {}".format(label))
             tx.run(query.format(label))
 
     @staticmethod
