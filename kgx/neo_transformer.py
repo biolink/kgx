@@ -26,7 +26,8 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
-    def __init__(self, graph=None, uri=None, username=None, password=None):
+    def __init__(self, graph=None, uri=None, username=None, password=None,
+    **args):
         super(NeoTransformer, self).__init__(graph)
 
         if uri is username is None:
@@ -36,7 +37,8 @@ class NeoTransformer(Transformer):
                 username = cfg['neo4j']['username']
                 password = cfg['neo4j']['password']
 
-        self.driver = GraphDatabase.driver(uri, auth=(username, password))
+        self.driver = GraphDatabase.driver(uri, auth=(username, password),
+        **args)
 
     def load(self, start=0, end=0, is_directed=False):
 
