@@ -534,13 +534,20 @@ class NeoTransformer(Transformer):
                         session.write_transaction(self.save_edge, adjitem)
         self.neo4j_report()
 
-    def save_via_apoc(self, nodes_filename, edge_filename):
+    def save_via_apoc(self, nodes_filename=None, edges_filename=None):
         """
         Load from a nx graph to neo4j, via APOC procedure
         """
 
+        if nodes_filename is None or edges_filename is None:
+            prefix = uuid.uuid4()
+            nodes_filename = "/tmp/{}_nodes.json".format(prefix)
+            edges_filename = "/tmp/{}_edges.json".format(prefix)
+
+        self._save_as_json(nodes_filename, edges_filename)
         self.save_nodes_via_apoc(nodes_filename)
-        self.save_edges_via_apoc(edge_filename)
+        self.save_edges_via_apoc(edges_filename)
+        self.update_node_labels()
 
     def save_nodes_via_apoc(self, filename):
         """
