@@ -1,6 +1,6 @@
 import pandas as pd
 import networkx as nx
-import logging, yaml
+import logging, yaml, json
 import itertools, uuid
 from .transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
@@ -8,15 +8,16 @@ from .filter import Filter, FilterLocation, FilterType
 from typing import Union, Dict, List
 from collections import defaultdict
 
-from neo4j.v1 import GraphDatabase
+from neo4j.v1 import GraphDatabase as bolt_gdb
 from neo4j.v1.types import Node, Record
+
+from neo4jrestclient.client import GraphDatabase as http_gdb
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
 
 class NeoTransformer(Transformer):
     """
-    TODO: use bolt
 
     We expect a Translator canonical style http://bit.ly/tr-kg-standard
     E.g. predicates are names with underscores, not IDs.
@@ -26,18 +27,40 @@ class NeoTransformer(Transformer):
     TODO: also support mapping from Monarch neo4j
     """
 
-    def __init__(self, graph=None, uri=None, username=None, password=None,
-    **args):
+    def __init__(self, graph=None, host=None, ports=None, username=None, password=None, **args):
         super(NeoTransformer, self).__init__(graph)
 
-        if uri is username is None:
-            with open("config.yml", 'r') as ymlfile:
+        self.bolt_driver = None
+        self.http_driver = None
+
+        if ports is None:
+            # read from config
+            with open('config.yml', 'r') as ymlfile:
                 cfg = yaml.load(ymlfile)
-                uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
+                bolt_uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['bolt_port'])
                 username = cfg['neo4j']['username']
                 password = cfg['neo4j']['password']
-        logging.debug("Initializing driver with URI: {}".format(uri))
-        self.driver = GraphDatabase.driver(uri, auth=(username, password), **args)
+                logging.debug("Initializing bolt driver with URI: {}".format(bolt_uri))
+                self.bolt_driver = bolt_gdb.driver(bolt_uri, auth=(username, password), **args)
+
+                if 'http_port' in cfg['neo4j']:
+                    http_uri = "http://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['http_port'])
+                    logging.debug("Initializing http driver with URI: {}".format(http_uri))
+                    self.http_driver = http_gdb(http_uri, username=username, password=password)
+                if 'https_port' in cfg['neo4j']:
+                    https_uri = "https://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['https_port'])
+                    logging.debug("Initializing https driver with URI: {}".format(https_uri))
+                    self.http_driver = http_gdb(https_uri, username=username, password=password)
+        else:
+            if 'bolt' in ports:
+                bolt_uri = "bolt://{}:{}".format(host, ports['bolt'])
+                self.bolt_driver = bolt_gdb.driver(bolt_uri, auth=(username, password), **args)
+            if 'http' in ports:
+                http_uri = "http://{}:{}".format(host, ports['http'])
+                self.http_driver = http_gdb(http_uri, username=username, password=password)
+            if 'https' in ports:
+                https_uri = "https://{}:{}".format(host, ports['https'])
+                self.http_driver = http_gdb(https_uri, username=username, password=password)
 
     def load(self, start=0, end=0, is_directed=False, paging=False):
         """
@@ -52,27 +75,27 @@ class NeoTransformer(Transformer):
         """
         Read a neo4j database and create a nx graph, with paging
         """
+        time_start = self.current_time_in_millis()
         for page in self.get_pages(self.get_edges, start, end, is_directed=is_directed):
-            start = self.current_time_in_millis()
             self.load_edges(page)
-            end = self.current_time_in_millis()
-            logging.debug("time taken to load edges: {} ms".format(end - start))
+        time_end = self.current_time_in_millis()
+        logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
 
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
             for page in self.get_pages(self.get_nodes, start, end):
-                start = self.current_time_in_millis()
+                time_start = self.current_time_in_millis()
                 self.load_nodes(page)
-                end = self.current_time_in_millis()
-                logging.debug("time taken to load nodes: {} ms".format(end - start))
+                time_end = self.current_time_in_millis()
+                logging.debug("time taken to load nodes: {} ms".format(time_end - time_start))
 
     def load_without_paging(self, start=0, end=0, is_directed=False):
         """
         Read a neo4j database and create a nx graph, without paging
         """
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             time_start = self.current_time_in_millis()
             edges = session.read_transaction(self.get_edges, start, end, is_directed)
             time_end = self.current_time_in_millis()
@@ -82,7 +105,7 @@ class NeoTransformer(Transformer):
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         if active_node_filters:
             time_start = self.current_time_in_millis()
-            with self.driver.session() as session:
+            with self.bolt_driver.session() as session:
                 nodes = session.read_transaction(self.get_nodes, start, end)
             time_end = self.current_time_in_millis()
             logging.debug("time taken to get nodes: {} ms".format(time_end - time_start))
@@ -92,7 +115,7 @@ class NeoTransformer(Transformer):
         """
         Gets (end - start) many pages of size page_size.
         """
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             for i in itertools.count(0):
 
                 skip = start + (page_size * i)
@@ -345,7 +368,7 @@ class NeoTransformer(Transformer):
         for category in nodes_by_category.keys():
             self.populate_missing_properties(nodes_by_category[category], property_names)
             query = self.generate_unwind_node_query(category, property_names)
-            with self.driver.session() as session:
+            with self.bolt_driver.session() as session:
                 session.run(query, nodes=nodes_by_category[category])
 
     def save_edge_unwind(self, edges_by_relationship_type, property_names):
@@ -362,7 +385,7 @@ class NeoTransformer(Transformer):
                 subset = edges[i:end]
                 logging.info("edges subset: {}-{}".format(i, end))
                 time_start = self.current_time_in_millis()
-                with self.driver.session() as session:
+                with self.bolt_driver.session() as session:
                     session.run(query, relationship=predicate, edges=subset)
                 time_end = self.current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
@@ -440,7 +463,7 @@ class NeoTransformer(Transformer):
         nodes_df = pd.read_csv(nodes_filename)
         edges_df = pd.read_csv(edges_filename)
 
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             for index, row in nodes_df.iterrows():
                 session.write_transaction(self.save_node, row.to_dict())
             for index, row in edges_df.iterrows():
@@ -478,7 +501,7 @@ class NeoTransformer(Transformer):
                         edges_by_relationship_type[adjitem['predicate']].append(adjitem)
                     edge_properties += [x for x in adjitem.keys() if x not in edge_properties]
 
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             session.write_transaction(self.create_constraints, nodes_by_category.keys())
 
         self.save_node_unwind(nodes_by_category, node_properties)
@@ -498,7 +521,7 @@ class NeoTransformer(Transformer):
                 else:
                     labels.add(node['category'])
 
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             session.write_transaction(self.create_constraints, labels)
             for node_id in self.graph.nodes():
                 node_attributes = self.graph.node[node_id]
@@ -511,6 +534,86 @@ class NeoTransformer(Transformer):
                         session.write_transaction(self.save_edge, adjitem)
         self.neo4j_report()
 
+    def save_via_apoc(self, nodes_filename, edge_filename):
+        """
+        Load from a nx graph to neo4j, via APOC procedure
+        """
+
+        self.save_nodes_via_apoc(nodes_filename)
+        self.save_edges_via_apoc(edge_filename)
+
+    def save_nodes_via_apoc(self, filename):
+        """
+        Load nodes from a nx graph to neo4j, via APOC procedure
+        """
+        logging.info("reading nodes from {} and saving to Neo4j via APOC procedure".format(filename))
+        start = self.current_time_in_millis()
+        query = """
+        CALL apoc.periodic.iterate(
+            "CALL apoc.load.json('file://""" + filename + """') YIELD value AS jsonValue RETURN jsonValue",
+            "MERGE (n:Node {id:jsonValue.id}) set n+=jsonValue",
+            {
+                batchSize: 10000,
+                iterateList: true
+            }
+        )
+        """
+
+        self.http_driver.query(query)
+        end = self.current_time_in_millis()
+        logging.debug("time taken for APOC procedure: {} ms".format(end - start))
+
+    def save_edges_via_apoc(self, filename):
+        """
+        Load edges from a nx graph to neo4j, via APOC procedure
+        """
+        logging.info("reading edges from {} and saving to Neo4j via APOC procedure".format(filename))
+        start = self.current_time_in_millis()
+        query = """
+        CALL apoc.periodic.iterate(
+            "CALL apoc.load.json('file://""" + filename + """') YIELD value AS jsonValue return jsonValue",
+            "MATCH (a:Node {id:jsonValue.subject})
+            MATCH (b:Node {id:jsonValue.object})
+            CALL apoc.merge.relationship(a,jsonValue.predicate,{id:jsonValue.id},jsonValue,b) YIELD rel
+            RETURN count(*) as relationships",
+            {
+                batchSize: 10000,
+                iterateList: true
+            }
+        );
+        """
+
+        self.http_driver.query(query)
+        end = self.current_time_in_millis()
+        logging.debug("time taken for APOC procedure: {} ms".format(end - start))
+
+    def update_node_labels(self):
+        """
+        Update node labels
+        """
+        logging.info("updating node labels")
+        start = self.current_time_in_millis()
+        query_string = """
+        UNWIND $nodes as node
+        MATCH (n:Node {{id: node.id}}) SET n:{node_labels}
+        """
+
+        nodes_by_category = {}
+        for node in self.graph.nodes(data=True):
+            node_data = node[1]
+            key = ':'.join(node_data['category'])
+            if key in nodes_by_category:
+                nodes_by_category[key].append(node_data)
+            else:
+                nodes_by_category[key] = [node_data]
+
+        for category in nodes_by_category:
+            query = query_string.format(node_labels=category)
+            with self.bolt_driver.session() as session:
+                session.run(query, nodes=nodes_by_category[category])
+        end = self.current_time_in_millis()
+        logging.debug("time taken to update node labels: {} ms".format(end - start))
+
     def report(self):
         logging.info("Total number of nodes: {}".format(len(self.graph.nodes())))
         logging.info("Total number of edges: {}".format(len(self.graph.edges())))
@@ -519,7 +622,7 @@ class NeoTransformer(Transformer):
         """
         Give a summary on the number of nodes and edges in neo4j database
         """
-        with self.driver.session() as session:
+        with self.bolt_driver.session() as session:
             for r in session.run("MATCH (n) RETURN COUNT(*)"):
                 logging.info("Number of Nodes: {}".format(r.values()[0]))
             for r in session.run("MATCH (s)-->(o) RETURN COUNT(*)"):
@@ -542,6 +645,37 @@ class NeoTransformer(Transformer):
 
         for label in label_set:
             tx.run(query.format(label))
+
+    def _save_as_json(self, node_filename, edge_filename):
+        """
+        Write a graph as JSON (used internally)
+        """
+        nodes = self._save_nodes_as_json(node_filename)
+        edges = self._save_edges_as_json(edge_filename)
+
+    def _save_nodes_as_json(self, filename):
+        """
+        Write nodes as JSON (used internally)
+        """
+        FH = open(filename, "w")
+        nodes = []
+        for node in self.graph.nodes(data=True):
+            nodes.append(node[1])
+
+        FH.write(json.dumps(nodes))
+        FH.close()
+
+    def _save_edges_as_json(self, filename):
+        """
+        Write edges as JSON (used internally)
+        """
+        FH = open(filename, "w")
+        edges = []
+        for edge in self.graph.edges_iter(data=True, keys=True):
+            edges.append(edge[3])
+
+        FH.write(json.dumps(edges))
+        FH.close()
 
     @staticmethod
     def parse_properties(properties, delim = '|'):

@@ -3,8 +3,11 @@ target:
       neo4j:
          username: neo4j
          password: neo4j
-         host: bolt://localhost
-         port: 7687
+         host: localhost
+         ports:
+            bolt: 7687
+            http: 7474
+            https: 7473
       target_filter:
          subject_category: gene
          object_category: phenotypic_feature
@@ -16,8 +19,11 @@ target:
       neo4j:
          username: neo4j
          password: neo4j
-         host: bolt://localhost
-         port: 7687
+         host: localhost
+         ports:
+            bolt: 7687
+            http: 7474
+            https: 7473
       target_filter:
          subject_category: gene
          object_category: phenotypic_feature
@@ -27,7 +33,10 @@ target:
          end: 1000
 destination:
    neo4j:
-    username: neo4j
-    password: neo4j
-    host: bolt://localhost
-    port: 7687
+      username: neo4j
+      password: neo4j
+      host: localhost
+      ports:
+         bolt: 7687
+         http: 7474
+         https: 7473
