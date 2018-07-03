@@ -15,15 +15,16 @@ usage: read_from_neo4j.py --filter subject_category=molecular_entity
 
 parser = argparse.ArgumentParser(description='Read graph (or subgraph) from Neo4j')
 parser.add_argument('--filter', action='append', help='A filter that can be applied to node and/or edges')
-parser.add_argument('--uri', help='BOLT URI to connect with Neo4j (default: bolt://localhost:7687', default = 'bolt://localhost:7687')
-parser.add_argument('--username', help='username (default: neo4j)', default = 'neo4j')
-parser.add_argument('--password', help='password (default: demo)', default = 'demo')
+parser.add_argument('--host', help='host to connect with Neo4j', default='localhost')
+parser.add_argument('--bolt_port', help='Bolt port to connect with Neo4j', default='7687')
+parser.add_argument('--username', help='username (default: neo4j)', default='neo4j')
+parser.add_argument('--password', help='password (default: demo)', default='demo')
 args = parser.parse_args()
 
 #watch("neo4j.bolt", logging.INFO, sys.stdout)
 
 # Initialize NeoTransformer
-n = NeoTransformer(None, args.uri, args.username, args.password)
+n = NeoTransformer(None, args.host, {'bolt': args.bolt_port}, args.username, args.password)
 
 if args.filter is not None:
     if len(args.filter) > 0:
