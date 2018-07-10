@@ -8,7 +8,7 @@
 
 
 ```
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username <username> \
     --password <password> \
     --filter subject_category=genomic_entity \
@@ -24,7 +24,7 @@ python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
 ### 2. Get all chemical substances and what diseases they treat
 
 ```
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username <username> \
     --password <password> \
     --filter subject_category=chemical_substance \
@@ -41,7 +41,7 @@ python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
 ### 3. Get all chemical substances and the biological process that they affect
 
 ```
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username <username> \
     --password <password> \
     --filter subject_category=chemical_substance \
@@ -55,7 +55,7 @@ python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
 ### 4. Get all anatomical entities and the disease that they are associated with
 
 ```
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username <username> \
     --password <password> \
     --filter subject_category=anatomical_entity \
@@ -70,7 +70,7 @@ python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
 ### 5. Get all activities and behaviors and the diseases that they predispose to
 
 ```
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username <username> \
     --password <password> \
     --filter subject_category=activity_and_behavior \
@@ -86,7 +86,7 @@ python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
 
 ```
 
-python examples/scripts/read_from_neo4j.py --uri bolt://localhost:7687 \
+python examples/scripts/read_from_neo4j.py --host localhost --bolt_port 7687 \
     --username neo4j \
     --password <password> \
     --filter subject_category=chemical_substance \

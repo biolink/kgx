@@ -2,4 +2,6 @@ neo4j:
   username: neo4j
   password: neo4j
   host: localhost
-  port: 7687
+  ports:
+     bolt: 7687
+     http: 7474
