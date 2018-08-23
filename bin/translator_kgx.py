@@ -9,6 +9,11 @@ from kgx.cli.utils import get_file_types, get_type, get_transformer
 
 from kgx.cli.utils import Config
 
+from neo4j.v1 import GraphDatabase
+from neo4j.v1.types import Node, Record
+
+import pandas as pd
+
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group()
@@ -22,6 +27,68 @@ def cli(config, debug):
     config.debug = debug
     if debug:
         logging.basicConfig(level=logging.DEBUG)
+
+@cli.command()
+@click.argument('address', type=str)
+@click.argument('username', type=str)
+@click.argument('password', type=str)
+@click.option('--out', type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def summary(config, address, username, password, out=None):
+    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+
+    query = """
+    MATCH (x) RETURN DISTINCT x.category AS category
+    """
+
+    with bolt_driver.session() as session:
+        records = session.run(query)
+
+    categories = set()
+
+    for record in records:
+        category = record['category']
+        if isinstance(category, str):
+            categories.add(category)
+        elif isinstance(category, (list, set, tuple)):
+            categories.update(category)
+        elif category is None:
+            continue
+        else:
+            raise Exception('Unrecognized value for node.category: {}'.format(category))
+
+    categories = list(categories)
+
+    query = """
+    UNWIND {categories} AS category
+    MATCH (x) WHERE x.category = category
+    RETURN DISTINCT
+        x.category AS category,
+        split(x.id, ':')[0] AS prefix,
+        COUNT(*) AS frequency
+    ORDER BY category, frequency DESC;
+    """
+
+    with bolt_driver.session() as session:
+        records = session.run(query, categories=categories)
+
+    rows = []
+    for record in records:
+        rows.append({
+            'category' : record['category'],
+            'prefix' : record['prefix'],
+            'frequency' : record['frequency']
+        })
+
+    df = pd.DataFrame(rows)
+    df = df[['category', 'prefix', 'frequency']]
+
+    if out is None:
+        click.echo(df)
+    else:
+        df.to_csv(out, sep='|', header=True)
+        click.echo('Saved report to {}'.format(out))
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
