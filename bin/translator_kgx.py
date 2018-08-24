@@ -32,10 +32,13 @@ def cli(config, debug):
 @click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
-@click.option('--out', type=click.Path(exists=False))
+@click.option('--out', type=click.Path(exists=False), help='If provided the results will be saved to here')
 @pass_config
 @handle_exception
 def node_summary(config, address, username, password, out=None):
+    """
+    Gives a summary of the kinds of nodes contained in a Neo4j database
+    """
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -93,10 +96,13 @@ def node_summary(config, address, username, password, out=None):
 @click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
-@click.option('--out', type=click.Path(exists=False))
+@click.option('--out', type=click.Path(exists=False), help='If provided the results will be saved to here')
 @pass_config
 @handle_exception
 def edge_summary(config, address, username, password, out=None):
+    """
+    Gives a summary of the kinds of edges contained in a Neo4j database
+    """
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -148,13 +154,14 @@ def edge_summary(config, address, username, password, out=None):
                     rows.append({
                         'subject_category' : r['subject_category'],
                         'object_category' : r['object_category'],
+                        'edge_type' : r['edge_type'],
                         'subject_prefix' : r['subject_prefix'],
                         'object_prefix' : r['object_prefix'],
                         'frequency' : r['frequency']
                     })
 
     df = pd.DataFrame(rows)
-    df = df[['subject_category', 'subject_prefix', 'object_category', 'object_prefix', 'frequency']]
+    df = df[['subject_category', 'subject_prefix', 'edge_type', 'object_category', 'object_prefix', 'frequency']]
 
     if out is None:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
