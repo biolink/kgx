@@ -7,7 +7,7 @@ from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
 
-from kgx.cli.utils import Config
+from kgx.cli.utils import Config, is_writable
 
 from neo4j.v1 import GraphDatabase
 from neo4j.v1.types import Node, Record
@@ -39,6 +39,9 @@ def node_summary(config, address, username, password, out=None):
     """
     Gives a summary of the kinds of nodes contained in a Neo4j database
     """
+    if out is not None and not is_writable(out):
+        raise Exception('Cannot write to {}'.format(out))
+
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -63,25 +66,28 @@ def node_summary(config, address, username, password, out=None):
 
     rows = []
     with click.progressbar(categories, length=len(categories)) as bar:
-        for category in bar:
-            query = """
-            MATCH (x) WHERE x.category = {category} OR {category} IN x.category
-            RETURN DISTINCT
-                {category} AS category,
-                split(x.id, ':')[0] AS prefix,
-                COUNT(*) AS frequency
-            ORDER BY category, frequency DESC;
-            """
+        try:
+            for category in bar:
+                query = """
+                MATCH (x) WHERE x.category = {category} OR {category} IN x.category
+                RETURN DISTINCT
+                    {category} AS category,
+                    split(x.id, ':')[0] AS prefix,
+                    COUNT(*) AS frequency
+                ORDER BY category, frequency DESC;
+                """
 
-            with bolt_driver.session() as session:
-                records = session.run(query, category=category)
+                with bolt_driver.session() as session:
+                    records = session.run(query, category=category)
 
-            for record in records:
-                rows.append({
-                    'category' : record['category'],
-                    'prefix' : record['prefix'],
-                    'frequency' : record['frequency']
-                })
+                for record in records:
+                    rows.append({
+                        'category' : record['category'],
+                        'prefix' : record['prefix'],
+                        'frequency' : record['frequency']
+                    })
+        except KeyboardInterrupt:
+            click.echo('Summary interupted prematurely...')
 
     df = pd.DataFrame(rows)
     df = df[['category', 'prefix', 'frequency']]
@@ -103,6 +109,9 @@ def edge_summary(config, address, username, password, out=None):
     """
     Gives a summary of the kinds of edges contained in a Neo4j database
     """
+    if out is not None and not is_writable(out):
+        raise Exception('Cannot write to {}'.format(out))
+
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -136,6 +145,7 @@ def edge_summary(config, address, username, password, out=None):
         {category1} AS subject_category,
         {category2} AS object_category,
         type(r) AS edge_type,
+        r.provided_by AS provided_by,
         split(n.id, ':')[0] AS subject_prefix,
         split(m.id, ':')[0] AS object_prefix,
         COUNT(*) AS frequency
@@ -146,22 +156,26 @@ def edge_summary(config, address, username, password, out=None):
 
     rows = []
     with click.progressbar(combinations, length=len(combinations)) as bar:
-        for category1, category2 in bar:
-            with bolt_driver.session() as session:
-                records = session.run(query, category1=category1, category2=category2)
+        try:
+            for category1, category2 in bar:
+                with bolt_driver.session() as session:
+                    records = session.run(query, category1=category1, category2=category2)
 
-                for r in records:
-                    rows.append({
-                        'subject_category' : r['subject_category'],
-                        'object_category' : r['object_category'],
-                        'edge_type' : r['edge_type'],
-                        'subject_prefix' : r['subject_prefix'],
-                        'object_prefix' : r['object_prefix'],
-                        'frequency' : r['frequency']
-                    })
+                    for r in records:
+                        rows.append({
+                            'subject_category' : r['subject_category'],
+                            'object_category' : r['object_category'],
+                            'edge_type' : r['edge_type'],
+                            'subject_prefix' : r['subject_prefix'],
+                            'object_prefix' : r['object_prefix'],
+                            'provided_by' : r['provided_by'],
+                            'frequency' : r['frequency']
+                        })
+        except KeyboardInterrupt:
+            click.echo('Summary interupted prematurely...')
 
     df = pd.DataFrame(rows)
-    df = df[['subject_category', 'subject_prefix', 'edge_type', 'object_category', 'object_prefix', 'frequency']]
+    df = df[['subject_category', 'subject_prefix', 'edge_type', 'object_category', 'object_prefix', 'provided_by', 'frequency']]
 
     if out is None:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
