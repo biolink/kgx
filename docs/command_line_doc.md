@@ -1,5 +1,5 @@
 ## Command Line Usage
-Use the `--help` flag with any command to view documentation. 
+Use the `--help` flag with any command to view documentation.
 
 See the [Makefile](https://github.com/NCATS-Tangerine/kgx/blob/master/Makefile) for examples,
 
@@ -11,6 +11,9 @@ To run these examples use,
 ```
 make run_examples
 ```
+
+### Summary
+The `node-summary` and `edge-summary` commands takes the address, username, and password of a Neo4j instance, and returns a summary of the data.
 
 ### Neo4j Upload
 The `neo4j-upload` command takes any number of input files, builds a [networkx](https://networkx.github.io/) graph from them, and uploads that graph to a [neo4j](https://neo4j.com/) database. To do this it of course needs the database address, username, and password. This will only work through [bolt](https://neo4j.com/docs/operations-manual/current/configuration/connectors/). By default you can access a local neo4j instance at the address `bolt://localhost:7687`.

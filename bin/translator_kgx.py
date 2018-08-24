@@ -28,14 +28,75 @@ def cli(config, debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
-@cli.command()
+@cli.command(name='node-summary')
 @click.argument('address', type=str)
 @click.argument('username', type=str)
 @click.argument('password', type=str)
 @click.option('--out', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def summary(config, address, username, password, out=None):
+def node_summary(config, address, username, password, out=None):
+    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+
+    query = """
+    MATCH (x) RETURN DISTINCT x.category AS category
+    """
+
+    with bolt_driver.session() as session:
+        records = session.run(query)
+
+    categories = set()
+
+    for record in records:
+        category = record['category']
+        if isinstance(category, str):
+            categories.add(category)
+        elif isinstance(category, (list, set, tuple)):
+            categories.update(category)
+        elif category is None:
+            continue
+        else:
+            raise Exception('Unrecognized value for node.category: {}'.format(category))
+
+    rows = []
+    with click.progressbar(categories, length=len(categories)) as bar:
+        for category in bar:
+            query = """
+            MATCH (x) WHERE x.category = {category} OR {category} IN x.category
+            RETURN DISTINCT
+                {category} AS category,
+                split(x.id, ':')[0] AS prefix,
+                COUNT(*) AS frequency
+            ORDER BY category, frequency DESC;
+            """
+
+            with bolt_driver.session() as session:
+                records = session.run(query, category=category)
+
+            for record in records:
+                rows.append({
+                    'category' : record['category'],
+                    'prefix' : record['prefix'],
+                    'frequency' : record['frequency']
+                })
+
+    df = pd.DataFrame(rows)
+    df = df[['category', 'prefix', 'frequency']]
+
+    if out is None:
+        click.echo(df)
+    else:
+        df.to_csv(out, sep='|', header=True)
+        click.echo('Saved report to {}'.format(out))
+
+@cli.command(name='edge-summary')
+@click.argument('address', type=str)
+@click.argument('username', type=str)
+@click.argument('password', type=str)
+@click.option('--out', type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def edge_summary(config, address, username, password, out=None):
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -61,31 +122,43 @@ def summary(config, address, username, password, out=None):
     categories = list(categories)
 
     query = """
-    UNWIND {categories} AS category
-    MATCH (x) WHERE x.category = category
+    MATCH (n)-[r]-(m)
+    WHERE
+        (n.category = {category1} OR {category1} IN n.category) AND
+        (m.category = {category2} OR {category2} IN m.category)
     RETURN DISTINCT
-        x.category AS category,
-        split(x.id, ':')[0] AS prefix,
+        {category1} AS subject_category,
+        {category2} AS object_category,
+        type(r) AS edge_type,
+        split(n.id, ':')[0] AS subject_prefix,
+        split(m.id, ':')[0] AS object_prefix,
         COUNT(*) AS frequency
-    ORDER BY category, frequency DESC;
+    ORDER BY subject_category, object_category, frequency DESC;
     """
 
-    with bolt_driver.session() as session:
-        records = session.run(query, categories=categories)
+    combinations = [(c1, c2) for c1 in categories for c2 in categories]
 
     rows = []
-    for record in records:
-        rows.append({
-            'category' : record['category'],
-            'prefix' : record['prefix'],
-            'frequency' : record['frequency']
-        })
+    with click.progressbar(combinations, length=len(combinations)) as bar:
+        for category1, category2 in bar:
+            with bolt_driver.session() as session:
+                records = session.run(query, category1=category1, category2=category2)
+
+                for r in records:
+                    rows.append({
+                        'subject_category' : r['subject_category'],
+                        'object_category' : r['object_category'],
+                        'subject_prefix' : r['subject_prefix'],
+                        'object_prefix' : r['object_prefix'],
+                        'frequency' : r['frequency']
+                    })
 
     df = pd.DataFrame(rows)
-    df = df[['category', 'prefix', 'frequency']]
+    df = df[['subject_category', 'subject_prefix', 'object_category', 'object_prefix', 'frequency']]
 
     if out is None:
-        click.echo(df)
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            click.echo(df)
     else:
         df.to_csv(out, sep='|', header=True)
         click.echo('Saved report to {}'.format(out))
