@@ -86,7 +86,7 @@ def node_summary(config, address, username, password, out=None):
                         'prefix' : record['prefix'],
                         'frequency' : record['frequency']
                     })
-        except KeyboardInterrupt:
+        except Exception:
             click.echo('Summary interupted prematurely...')
 
     df = pd.DataFrame(rows)
@@ -134,8 +134,6 @@ def edge_summary(config, address, username, password, out=None):
         else:
             raise Exception('Unrecognized value for node.category: {}'.format(category))
 
-    categories = list(categories)
-
     query = """
     MATCH (n)-[r]-(m)
     WHERE
@@ -155,8 +153,8 @@ def edge_summary(config, address, username, password, out=None):
     combinations = [(c1, c2) for c1 in categories for c2 in categories]
 
     rows = []
-    with click.progressbar(combinations, length=len(combinations)) as bar:
-        try:
+    try:
+        with click.progressbar(combinations, length=len(combinations)) as bar:
             for category1, category2 in bar:
                 with bolt_driver.session() as session:
                     records = session.run(query, category1=category1, category2=category2)
@@ -171,8 +169,9 @@ def edge_summary(config, address, username, password, out=None):
                             'provided_by' : r['provided_by'],
                             'frequency' : r['frequency']
                         })
-        except KeyboardInterrupt:
-            click.echo('Summary interupted prematurely...')
+
+    except Exception:
+        click.echo('Summary interupted prematurely...')
 
     df = pd.DataFrame(rows)
     df = df[['subject_category', 'subject_prefix', 'edge_type', 'object_category', 'object_prefix', 'provided_by', 'frequency']]

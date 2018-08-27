@@ -29,6 +29,8 @@ def is_writable(path):
     do not exist.
     """
     dirname = os.path.dirname(path)
+    if dirname == '':
+        dirname = os.getcwd()
     if not os.path.exists(dirname):
         pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
     file_is_writable = os.access(path, os.W_OK)
