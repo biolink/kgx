@@ -1,5 +1,4 @@
 prefixcommons>=0.1.4
-prologterms>=0.0.5
 pip>=9.0.1
 networkx==1.11
 SPARQLWrapper==1.8.0
