@@ -15,7 +15,6 @@ requires = [
     "pyyaml>=0.0",
     "neo4jrestclient",
     "prologterms",
-    "Click",
     "BiolinkMG"
 ]
 
