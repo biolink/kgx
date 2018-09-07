@@ -13,7 +13,11 @@ requires = [
     "click==6.7",
     "neo4j-driver>=1.5.3",
     "pyyaml>=0.0",
-    "Click"]
+    "neo4jrestclient",
+    "prologterms",
+    "Click",
+    "BiolinkMG"
+]
 
 setup(
     name='Knowledge Graph Exchange',
