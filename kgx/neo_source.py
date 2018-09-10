@@ -95,7 +95,7 @@ class NeoSource(Source):
 
         self.sink.add_edge(subject_id, object_id, attributes)
 
-    def get_pages(self, query, start=0, end=None, page_size=1000):
+    def get_pages(self, query, start=0, end=None, page_size=50000):
         """
         Gets (end - start) many pages of size page_size.
         """
