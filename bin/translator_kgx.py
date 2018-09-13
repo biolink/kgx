@@ -2,6 +2,7 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
+from urllib.parse import urlparse
 from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 
 from kgx.cli.decorators import handle_exception
@@ -175,50 +176,54 @@ def validate(config, inputs, input_type):
     click.echo(result)
 
 @cli.command(name='neo4j-download')
-@click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('--directed', is_flag=True, help='Enforces subject -> object edge direction')
-@click.option('--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.option('--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.option('--batch-size', type=int, help='The number of records to save in each file')
-@click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
+@click.option('-o', '--output-type', type=click.Choice(get_file_types()))
+@click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
+@click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
+@click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.argument('address', type=str)
-@click.argument('username', type=str)
-@click.argument('password', type=str)
+@click.option('-u', '--username', type=str)
+@click.option('-p', '--password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, address, username, password, output, output_type, batch_size, batch_start, labels, properties, directed):
-    if batch_start != None and batch_size == None:
-        raise Exception('batch-size must be set if batch-start is set')
+def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed):
+    """
+    TODO: batch parameters have been removed from method signature. Consider adding size and limit instead?
+    This would be more intuitive and still allows the user to download in batches if they wish.
+    """
+    output = os.path.abspath(output)
+    dirname = os.path.dirname(output)
 
-    if batch_start == None and batch_size != None:
-        batch_start = 0
+    is_writable = os.access(output, os.W_OK)
+    is_creatable = not os.path.isfile(output) and os.access(dirname, os.W_OK)
 
-    if batch_size != None and batch_start >= 0:
-        for i in itertools.count(batch_start):
-            t = kgx.NeoTransformer(uri=address, username=username, password=password)
+    if not is_writable and not is_creatable:
+        raise Exception(f'Cannot write to {output}, does directory exist?')
 
-            set_transformer_filters(transformer=t, labels=labels, properties=properties)
+    o = urlparse(address)
 
-            start = batch_size * i
-            end = start + batch_size
+    if o.password is None and password is None:
+        raise Exception('Could not extract the password from the address, please set password argument')
+    elif password is None:
+        password = o.password
 
-            t.load(start=start, end=end)
+    if o.username is None and username is None:
+        raise Exception('Could not extract the username from the address, please set username argument')
+    elif username is None:
+        username = o.username
 
-            if t.is_empty():
-                return
+    t = kgx.NeoTransformer(
+        host=o.hostname,
+        ports={o.scheme : o.port},
+        username=username,
+        password=password
+    )
 
-            name, extention = output.split('.', 1)
-            indexed_output = name + '({}).'.format(i) + extention
-            transform_and_save(t, indexed_output, output_type)
-    else:
-        t = kgx.NeoTransformer(uri=address, username=username, password=password)
+    set_transformer_filters(transformer=t, labels=labels, properties=properties)
 
-        set_transformer_filters(transformer=t, labels=labels, properties=properties)
-
-        t.load(is_directed=directed)
-        t.report()
-        transform_and_save(t, output, output_type)
+    t.load(is_directed=directed)
+    t.report()
+    transform_and_save(t, output, output_type)
 
 def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
     for location, label in labels:
