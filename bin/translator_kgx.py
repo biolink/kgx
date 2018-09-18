@@ -2,12 +2,18 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
+from urllib.parse import urlparse
 from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer
 
 from kgx.cli.utils import Config
+
+from neo4j.v1 import GraphDatabase
+from neo4j.v1.types import Node, Record
+
+import pandas as pd
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
@@ -23,6 +29,141 @@ def cli(config, debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
+@cli.command(name='node-summary')
+@click.argument('address', type=str)
+@click.argument('username', type=str)
+@click.argument('password', type=str)
+@click.option('--out', type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def node_summary(config, address, username, password, out=None):
+    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+
+    query = """
+    MATCH (x) RETURN DISTINCT x.category AS category
+    """
+
+    with bolt_driver.session() as session:
+        records = session.run(query)
+
+    categories = set()
+
+    for record in records:
+        category = record['category']
+        if isinstance(category, str):
+            categories.add(category)
+        elif isinstance(category, (list, set, tuple)):
+            categories.update(category)
+        elif category is None:
+            continue
+        else:
+            raise Exception('Unrecognized value for node.category: {}'.format(category))
+
+    rows = []
+    with click.progressbar(categories, length=len(categories)) as bar:
+        for category in bar:
+            query = """
+            MATCH (x) WHERE x.category = {category} OR {category} IN x.category
+            RETURN DISTINCT
+                {category} AS category,
+                split(x.id, ':')[0] AS prefix,
+                COUNT(*) AS frequency
+            ORDER BY category, frequency DESC;
+            """
+
+            with bolt_driver.session() as session:
+                records = session.run(query, category=category)
+
+            for record in records:
+                rows.append({
+                    'category' : record['category'],
+                    'prefix' : record['prefix'],
+                    'frequency' : record['frequency']
+                })
+
+    df = pd.DataFrame(rows)
+    df = df[['category', 'prefix', 'frequency']]
+
+    if out is None:
+        click.echo(df)
+    else:
+        df.to_csv(out, sep='|', header=True)
+        click.echo('Saved report to {}'.format(out))
+
+@cli.command(name='edge-summary')
+@click.argument('address', type=str)
+@click.argument('username', type=str)
+@click.argument('password', type=str)
+@click.option('--out', type=click.Path(exists=False))
+@pass_config
+@handle_exception
+def edge_summary(config, address, username, password, out=None):
+    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+
+    query = """
+    MATCH (x) RETURN DISTINCT x.category AS category
+    """
+
+    with bolt_driver.session() as session:
+        records = session.run(query)
+
+    categories = set()
+
+    for record in records:
+        category = record['category']
+        if isinstance(category, str):
+            categories.add(category)
+        elif isinstance(category, (list, set, tuple)):
+            categories.update(category)
+        elif category is None:
+            continue
+        else:
+            raise Exception('Unrecognized value for node.category: {}'.format(category))
+
+    categories = list(categories)
+
+    query = """
+    MATCH (n)-[r]-(m)
+    WHERE
+        (n.category = {category1} OR {category1} IN n.category) AND
+        (m.category = {category2} OR {category2} IN m.category)
+    RETURN DISTINCT
+        {category1} AS subject_category,
+        {category2} AS object_category,
+        type(r) AS edge_type,
+        split(n.id, ':')[0] AS subject_prefix,
+        split(m.id, ':')[0] AS object_prefix,
+        COUNT(*) AS frequency
+    ORDER BY subject_category, object_category, frequency DESC;
+    """
+
+    combinations = [(c1, c2) for c1 in categories for c2 in categories]
+
+    rows = []
+    with click.progressbar(combinations, length=len(combinations)) as bar:
+        for category1, category2 in bar:
+            with bolt_driver.session() as session:
+                records = session.run(query, category1=category1, category2=category2)
+
+                for r in records:
+                    rows.append({
+                        'subject_category' : r['subject_category'],
+                        'object_category' : r['object_category'],
+                        'subject_prefix' : r['subject_prefix'],
+                        'object_prefix' : r['object_prefix'],
+                        'frequency' : r['frequency']
+                    })
+
+    df = pd.DataFrame(rows)
+    df = df[['subject_category', 'subject_prefix', 'object_category', 'object_prefix', 'frequency']]
+
+    if out is None:
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            click.echo(df)
+    else:
+        df.to_csv(out, sep='|', header=True)
+        click.echo('Saved report to {}'.format(out))
+
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
@@ -35,50 +176,54 @@ def validate(config, inputs, input_type):
     click.echo(result)
 
 @cli.command(name='neo4j-download')
-@click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('--directed', is_flag=True, help='Enforces subject -> object edge direction')
-@click.option('--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.option('--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.option('--batch-size', type=int, help='The number of records to save in each file')
-@click.option('--batch-start', type=int, help='The index to skip ahead to with: starts at 0')
+@click.option('-o', '--output-type', type=click.Choice(get_file_types()))
+@click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
+@click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
+@click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.argument('address', type=str)
-@click.argument('username', type=str)
-@click.argument('password', type=str)
+@click.option('-u', '--username', type=str)
+@click.option('-p', '--password', type=str)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
 @handle_exception
-def neo4j_download(config, address, username, password, output, output_type, batch_size, batch_start, labels, properties, directed):
-    if batch_start != None and batch_size == None:
-        raise Exception('batch-size must be set if batch-start is set')
+def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed):
+    """
+    TODO: batch parameters have been removed from method signature. Consider adding size and limit instead?
+    This would be more intuitive and still allows the user to download in batches if they wish.
+    """
+    output = os.path.abspath(output)
+    dirname = os.path.dirname(output)
 
-    if batch_start == None and batch_size != None:
-        batch_start = 0
+    is_writable = os.access(output, os.W_OK)
+    is_creatable = not os.path.isfile(output) and os.access(dirname, os.W_OK)
 
-    if batch_size != None and batch_start >= 0:
-        for i in itertools.count(batch_start):
-            t = kgx.NeoTransformer(uri=address, username=username, password=password)
+    if not is_writable and not is_creatable:
+        raise Exception(f'Cannot write to {output}, does directory exist?')
 
-            set_transformer_filters(transformer=t, labels=labels, properties=properties)
+    o = urlparse(address)
 
-            start = batch_size * i
-            end = start + batch_size
+    if o.password is None and password is None:
+        raise Exception('Could not extract the password from the address, please set password argument')
+    elif password is None:
+        password = o.password
 
-            t.load(start=start, end=end)
+    if o.username is None and username is None:
+        raise Exception('Could not extract the username from the address, please set username argument')
+    elif username is None:
+        username = o.username
 
-            if t.is_empty():
-                return
+    t = kgx.NeoTransformer(
+        host=o.hostname,
+        ports={o.scheme : o.port},
+        username=username,
+        password=password
+    )
 
-            name, extention = output.split('.', 1)
-            indexed_output = name + '({}).'.format(i) + extention
-            transform_and_save(t, indexed_output, output_type)
-    else:
-        t = kgx.NeoTransformer(uri=address, username=username, password=password)
+    set_transformer_filters(transformer=t, labels=labels, properties=properties)
 
-        set_transformer_filters(transformer=t, labels=labels, properties=properties)
-
-        t.load(is_directed=directed)
-        t.report()
-        transform_and_save(t, output, output_type)
+    t.load(is_directed=directed)
+    t.report()
+    transform_and_save(t, output, output_type)
 
 def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
     for location, label in labels:
