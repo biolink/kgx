@@ -1,4 +1,5 @@
 # knowledge graph exchange
+[![Build Status](https://travis-ci.org/NCATS-Tangerine/kgx.svg?branch=master)](https://travis-ci.org/NCATS-Tangerine/kgx)
 
 A utility library and set of command line tools for exchanging data in knowledge graphs.
 
