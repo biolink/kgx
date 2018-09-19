@@ -51,4 +51,4 @@ def test_validator_good():
     #print("PM={}".format(validator.prefix_manager.prefixmap))
     validator.validate(G)
     write_errors(validator)
-    assert validator.ok()
+    assert validator.ok() == 0
