@@ -73,7 +73,7 @@ class RdfTransformer(Transformer):
         for nid in G.nodes():
             n = G.node[nid]
             if 'iri' not in n:
-                logging.warn("Expected IRI for {}".format(n))
+                logging.warning("Expected IRI for {}".format(n))
                 continue
             iri = URIRef(n['iri'])
             npmap = {}
@@ -102,8 +102,8 @@ class ObanRdfTransformer(RdfTransformer):
     inv_cmap = {}
     cmap = {}
 
-    def __init__(self, **args):
-        super().__init__(**args)
+    def __init__(self, graph=None):
+        super().__init__(graph)
         # Generate the map and the inverse map from default curie maps, which will be used later.
         for cmap in default_curie_maps:
             for k, v in cmap.items():
@@ -152,7 +152,7 @@ class ObanRdfTransformer(RdfTransformer):
             uri = self.prefix_manager.expand(id)
         return URIRef(uri)
 
-    def save(self, filename: str = None, output_format: str = None):
+    def save(self, filename: str = None, output_format: str = None, **kwargs):
         """
         Transform the internal graph into the RDF graphs that follow OBAN-style modeling and dump into the file.
         """
@@ -254,7 +254,7 @@ class RdfOwlTransformer(RdfTransformer):
                 for x in rg.objects( o, OWL.someValuesFrom ):
                     parent = x
                 if pred is None or parent is None:
-                    logging.warn("Do not know how to handle: {}".format(o))
+                    logging.warning("Do not know how to handle: {}".format(o))
             else:
                 # C SubClassOf D (C and D are named classes)
                 pred = 'owl:subClassOf'
@@ -262,4 +262,3 @@ class RdfOwlTransformer(RdfTransformer):
             obj['predicate'] = pred
             obj['provided_by'] = self.graph_metadata['provided_by']
             self.add_edge(parent, s, attr_dict=obj)
-
