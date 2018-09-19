@@ -75,7 +75,7 @@ class NeoTransformer(Transformer):
         """
         Read a neo4j database and create a nx graph, with paging
         """
-        PAGE_SIZE = 10_000
+        PAGE_SIZE = 10000
         count = self.count(is_directed=is_directed)
         with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
             time_start = self.current_time_in_millis()
