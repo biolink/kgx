@@ -418,8 +418,6 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
-        # TODO: Load this list from a config file? https://github.com/NCATS-Tangerine/kgx/issues/65
-        ignore_list = []
 
         properties_dict = {p : p for p in property_names if p not in ignore_list}
 
