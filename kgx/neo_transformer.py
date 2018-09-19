@@ -62,26 +62,21 @@ class NeoTransformer(Transformer):
                 https_uri = "https://{}:{}".format(host, ports['https'])
                 self.http_driver = http_gdb(https_uri, username=username, password=password)
 
-    def load(self, start=0, end=None, is_directed=False, paging=True):
+    def load(self, start=0, end=None, is_directed=False):
         """
         Read a neo4j database and create a nx graph
         """
-        if paging:
-            self.load_with_paging(start=start, end=end, is_directed=is_directed)
+        PAGE_SIZE = 10_000
+        if end is None:
+            count = self.count(is_directed=is_directed)
         else:
-            self.load_without_paging(start, end, is_directed)
-
-    def load_with_paging(self, start=0, end=None, is_directed=False):
-        """
-        Read a neo4j database and create a nx graph, with paging
-        """
-        PAGE_SIZE = 10000
-        count = self.count(is_directed=is_directed)
+            count = end - start
         with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
             time_start = self.current_time_in_millis()
             for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
+            bar.update(count)
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
@@ -93,26 +88,6 @@ class NeoTransformer(Transformer):
                 self.load_nodes(page)
                 time_end = self.current_time_in_millis()
                 logging.debug("time taken to load nodes: {} ms".format(time_end - time_start))
-
-    def load_without_paging(self, start=0, end=0, is_directed=False):
-        """
-        Read a neo4j database and create a nx graph, without paging
-        """
-        with self.bolt_driver.session() as session:
-            time_start = self.current_time_in_millis()
-            edges = session.read_transaction(self.get_edges, start, end, is_directed)
-            time_end = self.current_time_in_millis()
-            logging.debug("time taken to get edges: {} ms".format(time_end - time_start))
-            self.load_edges(edges)
-
-        active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
-        if active_node_filters:
-            time_start = self.current_time_in_millis()
-            with self.bolt_driver.session() as session:
-                nodes = session.read_transaction(self.get_nodes, start, end)
-            time_end = self.current_time_in_millis()
-            logging.debug("time taken to get nodes: {} ms".format(time_end - time_start))
-            self.load_nodes(nodes)
 
     def count(self, is_directed=False):
         """
@@ -137,7 +112,6 @@ class NeoTransformer(Transformer):
         """
         with self.bolt_driver.session() as session:
             for i in itertools.count(0):
-
                 skip = start + (page_size * i)
                 limit = page_size if end == None or skip + page_size <= end else end - skip
 
@@ -197,7 +171,6 @@ class NeoTransformer(Transformer):
         """
         Load an edge from a neo4j record
         """
-
         edge_key = str(uuid.uuid4())
         edge_subject = edge_record[0]
         edge_predicate = edge_record[1]
@@ -215,9 +188,6 @@ class NeoTransformer(Transformer):
             attributes['subject'] = edge_subject['id']
         if 'object' not in attributes:
             attributes['object'] = edge_object['id']
-
-        if 'id' not in attributes:
-            attributes['id'] = edge_predicate.id
 
         if 'type' not in attributes:
             attributes['type'] = edge_predicate.type

@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
 
 from kgx.cli.decorators import handle_exception
-from kgx.cli.utils import get_file_types, get_type, get_transformer
+from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
 
 from kgx.cli.utils import Config
 
@@ -35,7 +35,6 @@ def cli(config, debug):
 @click.argument('password', type=str)
 @click.option('--out', type=click.Path(exists=False))
 @pass_config
-@handle_exception
 def node_summary(config, address, username, password, out=None):
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
@@ -96,7 +95,6 @@ def node_summary(config, address, username, password, out=None):
 @click.argument('password', type=str)
 @click.option('--out', type=click.Path(exists=False))
 @pass_config
-@handle_exception
 def edge_summary(config, address, username, password, out=None):
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
@@ -168,7 +166,6 @@ def edge_summary(config, address, username, password, out=None):
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
-@handle_exception
 def validate(config, inputs, input_type):
     v = Validator()
     t = load_transformer(inputs, input_type)
@@ -183,22 +180,13 @@ def validate(config, inputs, input_type):
 @click.argument('address', type=str)
 @click.option('-u', '--username', type=str)
 @click.option('-p', '--password', type=str)
+@click.option('--start', type=int, default=0)
+@click.option('--end', type=int)
 @click.argument('output', type=click.Path(exists=False))
 @pass_config
-@handle_exception
-def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed):
-    """
-    TODO: batch parameters have been removed from method signature. Consider adding size and limit instead?
-    This would be more intuitive and still allows the user to download in batches if they wish.
-    """
-    output = os.path.abspath(output)
-    dirname = os.path.dirname(output)
-
-    is_writable = os.access(output, os.W_OK)
-    is_creatable = not os.path.isfile(output) and os.access(dirname, os.W_OK)
-
-    if not is_writable and not is_creatable:
-        raise Exception(f'Cannot write to {output}, does directory exist?')
+def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed, start, end):
+    if not is_writable(output):
+        raise Exception(f'Cannot write to {output}')
 
     o = urlparse(address)
 
@@ -221,7 +209,7 @@ def neo4j_download(config, address, username, password, output, output_type, lab
 
     set_transformer_filters(transformer=t, labels=labels, properties=properties)
 
-    t.load(is_directed=directed)
+    t.load(is_directed=directed, start=start, end=end)
     t.report()
     transform_and_save(t, output, output_type)
 
@@ -246,7 +234,6 @@ def set_transformer_filters(transformer:Transformer, labels:list, properties:lis
 @click.argument('password', type=str)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
-@handle_exception
 def neo4j_upload(config, address, username, password, inputs, input_type, use_unwind):
     t = load_transformer(inputs, input_type)
     neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=address, username=username, password=password)
@@ -260,16 +247,16 @@ def neo4j_upload(config, address, username, password, inputs, input_type, use_un
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
-@click.argument('inputs', nargs=-1, required=True, type=click.Path(exists=False))
-@click.argument('output', type=click.Path(exists=False))
+@click.option('-i', '--inputs', type=click.Path(exists=True), multiple=True)
+@click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-@handle_exception
 def dump(config, inputs, output, input_type, output_type, mapping, preserve):
     """\b
     Transforms a knowledge graph from one representation to another
-    INPUTS  : any number of files or endpoints
-    OUTPUT : the output file
     """
+    if not is_writable(output):
+        raise Exception(f'Cannot write to {output}')
+
     t = load_transformer(inputs, input_type)
     if mapping != None:
         path = get_file_path(mapping)
@@ -286,7 +273,6 @@ def dump(config, inputs, output, input_type, output_type, mapping, preserve):
 @click.option('--columns', type=(int, int), default=(None, None), required=False, help="The zero indexed input and output columns for the mapping")
 @click.option('--show', is_flag=True, help='Shows a small slice of the mapping')
 @pass_config
-@handle_exception
 def load_mapping(config, name, csv, columns, no_header, show):
     header = None if no_header else 0
     data = pd.read_csv(csv, header=header)

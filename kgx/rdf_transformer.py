@@ -102,8 +102,8 @@ class ObanRdfTransformer(RdfTransformer):
     inv_cmap = {}
     cmap = {}
 
-    def __init__(self, **args):
-        super().__init__(**args)
+    def __init__(self, graph, **args):
+        super().__init__(graph, **args)
         # Generate the map and the inverse map from default curie maps, which will be used later.
         for cmap in default_curie_maps:
             for k, v in cmap.items():
@@ -152,7 +152,7 @@ class ObanRdfTransformer(RdfTransformer):
             uri = self.prefix_manager.expand(id)
         return URIRef(uri)
 
-    def save(self, filename: str = None, output_format: str = None):
+    def save(self, filename: str = None, output_format: str = None, **kwargs):
         """
         Transform the internal graph into the RDF graphs that follow OBAN-style modeling and dump into the file.
         """
@@ -262,4 +262,3 @@ class RdfOwlTransformer(RdfTransformer):
             obj['predicate'] = pred
             obj['provided_by'] = self.graph_metadata['provided_by']
             self.add_edge(parent, s, attr_dict=obj)
-
