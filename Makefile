@@ -7,7 +7,7 @@ NEO4J_PASSWORD=password
 
 
 test:
-	pytest tests/*py
+	pytest tests/test_*py
 
 example:
 	@echo "1. Validate"

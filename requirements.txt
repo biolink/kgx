@@ -3,7 +3,7 @@ prologterms>=0.0.5
 pip>=9.0.1
 networkx==1.11
 SPARQLWrapper==1.8.0
-pandas<0.21
+pandas>=0.23
 pytest>=0.0
 mypy>=0.0
 pystache>=0.0

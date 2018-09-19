@@ -4,7 +4,7 @@ requires = [
     "prefixcommons>=0.1.4",
     "networkx==1.11",
     "SPARQLWrapper==1.8.0",
-    "pandas<0.21",
+    "pandas>=0.23",
     "pytest>=0.0",
     "mypy>=0.0",
     "pystache>=0.0",
