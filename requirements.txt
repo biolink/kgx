@@ -13,4 +13,4 @@ neo4j-driver>=1.5.3
 pyyaml>=0.0
 jupyter>=0.0
 neo4jrestclient>=0.0
-BiolinkMG
+BiolinkMG>=0.0
