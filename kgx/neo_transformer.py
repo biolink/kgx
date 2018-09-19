@@ -1,7 +1,7 @@
 import pandas as pd
 import networkx as nx
 import logging, yaml, json
-import itertools, uuid
+import itertools, uuid, click
 from .transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
 
@@ -62,27 +62,30 @@ class NeoTransformer(Transformer):
                 https_uri = "https://{}:{}".format(host, ports['https'])
                 self.http_driver = http_gdb(https_uri, username=username, password=password)
 
-    def load(self, start=0, end=0, is_directed=False, paging=False):
+    def load(self, start=0, end=None, is_directed=False, paging=True):
         """
         Read a neo4j database and create a nx graph
         """
         if paging:
-            self.load_with_paging(start, end, is_directed)
+            self.load_with_paging(start=start, end=end, is_directed=is_directed)
         else:
             self.load_without_paging(start, end, is_directed)
 
-    def load_with_paging(self, start=0, end=0, is_directed=False):
+    def load_with_paging(self, start=0, end=None, is_directed=False):
         """
         Read a neo4j database and create a nx graph, with paging
         """
-        time_start = self.current_time_in_millis()
-        for page in self.get_pages(self.get_edges, start, end, is_directed=is_directed):
-            self.load_edges(page)
-        time_end = self.current_time_in_millis()
-        logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
+        PAGE_SIZE = 10000
+        count = self.count(is_directed=is_directed)
+        with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
+            time_start = self.current_time_in_millis()
+            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+                self.load_edges(page)
+                bar.update(PAGE_SIZE)
+            time_end = self.current_time_in_millis()
+            logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
-
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
             for page in self.get_pages(self.get_nodes, start, end):
@@ -111,7 +114,24 @@ class NeoTransformer(Transformer):
             logging.debug("time taken to get nodes: {} ms".format(time_end - time_start))
             self.load_nodes(nodes)
 
-    def get_pages(self, method, start=0, end=None, page_size=1000, **kwargs):
+    def count(self, is_directed=False):
+        """
+        Get a page of edges from the database
+        """
+        direction = '->' if is_directed else '-'
+        query = """
+        MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+        RETURN COUNT(*) AS count;
+        """.format(
+            direction=direction,
+            **self.build_query_kwargs()
+        )
+
+        with self.bolt_driver.session() as session:
+            for result in session.run(query):
+                return result['count']
+
+    def get_pages(self, method, start=0, end=None, page_size=10_000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
@@ -226,9 +246,13 @@ class NeoTransformer(Transformer):
         if label is None:
             return ''
         elif isinstance(label, str):
-            return ':{label}'.format(label=label)
+            if ' ' in label:
+                return f':`{label}`'
+            else:
+                return f':{label}'
         elif isinstance(label, (list, set, tuple)):
-            return ':{labels}'.format(labels=':'.join(label))
+            label = ''.join([self.build_label(l) for l in label])
+            return f'{label}'
 
     def build_properties(self, properties:Dict[str, str]) -> str:
         if properties == {}:
@@ -394,8 +418,6 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
-        # TODO: Load this list from a config file? https://github.com/NCATS-Tangerine/kgx/issues/65
-        ignore_list = []
 
         properties_dict = {p : p for p in property_names if p not in ignore_list}
 

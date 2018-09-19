@@ -1,5 +1,4 @@
 prefixcommons>=0.1.4
-prologterms>=0.0.5
 pip>=9.0.1
 networkx==1.11
 SPARQLWrapper==1.8.0
@@ -14,3 +13,4 @@ neo4j-driver>=1.5.3
 pyyaml>=0.0
 jupyter>=0.0
 neo4jrestclient>=0.0
+BiolinkMG>=0.0
