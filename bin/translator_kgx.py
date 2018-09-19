@@ -17,6 +17,10 @@ import pandas as pd
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
+def error(msg):
+    click.echo(msg)
+    quit()
+
 @click.group()
 @click.option('--debug', is_flag=True, help='Prints the stack trace if error occurs')
 @click.version_option(version=kgx.__version__, prog_name=kgx.__name__)
@@ -30,12 +34,15 @@ def cli(config, debug):
         logging.basicConfig(level=logging.DEBUG)
 
 @cli.command(name='node-summary')
-@click.argument('address', type=str)
-@click.argument('username', type=str)
-@click.argument('password', type=str)
-@click.option('--out', type=click.Path(exists=False))
+@click.option('-a', '--address', type=str, required=True)
+@click.option('-u', '--username', type=str, required=True)
+@click.option('-p', '--password', type=str, required=True)
+@click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def node_summary(config, address, username, password, out=None):
+def node_summary(config, address, username, password, output=None):
+    if output is not None and not is_writable(output):
+        error(f'Cannot write to {output}')
+
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -56,7 +63,7 @@ def node_summary(config, address, username, password, out=None):
         elif category is None:
             continue
         else:
-            raise Exception('Unrecognized value for node.category: {}'.format(category))
+            error('Unrecognized value for node.category: {}'.format(category))
 
     rows = []
     with click.progressbar(categories, length=len(categories)) as bar:
@@ -83,19 +90,22 @@ def node_summary(config, address, username, password, out=None):
     df = pd.DataFrame(rows)
     df = df[['category', 'prefix', 'frequency']]
 
-    if out is None:
+    if output is None:
         click.echo(df)
     else:
-        df.to_csv(out, sep='|', header=True)
-        click.echo('Saved report to {}'.format(out))
+        df.to_csv(output, sep='|', header=True)
+        click.echo('Saved report to {}'.format(output))
 
 @cli.command(name='edge-summary')
-@click.argument('address', type=str)
-@click.argument('username', type=str)
-@click.argument('password', type=str)
-@click.option('--out', type=click.Path(exists=False))
+@click.option('-a', '--address', type=str, required=True)
+@click.option('-u', '--username', type=str, required=True)
+@click.option('-p', '--password', type=str, required=True)
+@click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def edge_summary(config, address, username, password, out=None):
+def edge_summary(config, address, username, password, output=None):
+    if output is not None and not is_writable(output):
+        error(f'Cannot write to {output}')
+
     bolt_driver = GraphDatabase.driver(address, auth=(username, password))
 
     query = """
@@ -116,7 +126,7 @@ def edge_summary(config, address, username, password, out=None):
         elif category is None:
             continue
         else:
-            raise Exception('Unrecognized value for node.category: {}'.format(category))
+            error('Unrecognized value for node.category: {}'.format(category))
 
     categories = list(categories)
 
@@ -155,12 +165,12 @@ def edge_summary(config, address, username, password, out=None):
     df = pd.DataFrame(rows)
     df = df[['subject_category', 'subject_prefix', 'object_category', 'object_prefix', 'frequency']]
 
-    if out is None:
+    if output is None:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
             click.echo(df)
     else:
-        df.to_csv(out, sep='|', header=True)
-        click.echo('Saved report to {}'.format(out))
+        df.to_csv(output, sep='|', header=True)
+        click.echo('Saved report to {}'.format(output))
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
@@ -173,39 +183,22 @@ def validate(config, inputs, input_type):
     click.echo(result)
 
 @cli.command(name='neo4j-download')
-@click.option('-o', '--output-type', type=click.Choice(get_file_types()))
+@click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
 @click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.argument('address', type=str)
+@click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str)
 @click.option('-p', '--password', type=str)
 @click.option('--start', type=int, default=0)
 @click.option('--end', type=int)
-@click.argument('output', type=click.Path(exists=False))
+@click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @pass_config
 def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed, start, end):
     if not is_writable(output):
-        raise Exception(f'Cannot write to {output}')
+        error(f'Cannot write to {output}')
 
-    o = urlparse(address)
-
-    if o.password is None and password is None:
-        raise Exception('Could not extract the password from the address, please set password argument')
-    elif password is None:
-        password = o.password
-
-    if o.username is None and username is None:
-        raise Exception('Could not extract the username from the address, please set username argument')
-    elif username is None:
-        username = o.username
-
-    t = kgx.NeoTransformer(
-        host=o.hostname,
-        ports={o.scheme : o.port},
-        username=username,
-        password=password
-    )
+    t = make_neo4j_transformer(address, username, password)
 
     set_transformer_filters(transformer=t, labels=labels, properties=properties)
 
@@ -226,17 +219,40 @@ def set_transformer_filters(transformer:Transformer, labels:list, properties:lis
         target = '{}_property'.format(location)
         transformer.set_filter(target=target, value=(property_name, property_value))
 
+def make_neo4j_transformer(address, username, password):
+    o = urlparse(address)
+
+    if o.password is None and password is None:
+        error('Could not extract the password from the address, please set password argument')
+    elif password is None:
+        password = o.password
+
+    if o.username is None and username is None:
+        error('Could not extract the username from the address, please set username argument')
+    elif username is None:
+        username = o.username
+
+    return kgx.NeoTransformer(
+        host=o.hostname,
+        ports={o.scheme : o.port},
+        username=username,
+        password=password
+    )
+
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--use-unwind', is_flag=True, help='Loads using UNWIND, which is quicker')
-@click.argument('address', type=str)
-@click.argument('username', type=str)
-@click.argument('password', type=str)
+@click.option('-a', '--address', type=str, required=True)
+@click.option('-u', '--username', type=str)
+@click.option('-p', '--password', type=str)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
 def neo4j_upload(config, address, username, password, inputs, input_type, use_unwind):
     t = load_transformer(inputs, input_type)
-    neo_transformer = kgx.NeoTransformer(graph=t.graph, uri=address, username=username, password=password)
+
+    neo_transformer = make_neo4j_transformer(address, username, password)
+    neo_transformer.graph = t.graph
+
     if use_unwind:
         neo_transformer.save_with_unwind()
     else:
@@ -247,7 +263,7 @@ def neo4j_upload(config, address, username, password, inputs, input_type, use_un
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
-@click.option('-i', '--inputs', type=click.Path(exists=True), multiple=True)
+@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
 def dump(config, inputs, output, input_type, output_type, mapping, preserve):
@@ -255,7 +271,7 @@ def dump(config, inputs, output, input_type, output_type, mapping, preserve):
     Transforms a knowledge graph from one representation to another
     """
     if not is_writable(output):
-        raise Exception(f'Cannot write to {output}')
+        error(f'Cannot write to {output}')
 
     t = load_transformer(inputs, input_type)
     if mapping != None:
@@ -351,7 +367,7 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     output_transformer = get_transformer(output_type)
 
     if output_transformer is None:
-        raise Exception('Output does not have a recognized type: ' + str(get_file_types()))
+        error('Output does not have a recognized type: ' + str(get_file_types()))
 
     kwargs = {
         'extention' : output_type
@@ -365,7 +381,7 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
     elif os.path.isfile(output_path):
         click.echo("File created at: " + output_path)
     else:
-        click.echo("Could not create file.")
+        error("Could not create file.")
 
 def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
     """
@@ -376,16 +392,19 @@ def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
         input_types = [get_type(i) for i in input_paths]
         for t in input_types:
             if input_types[0] != t:
-                raise Exception("""Each input file must have the same file type.
-                    Try setting the --input-type parameter to enforce a single
-                    type."""
+                error(
+                """\b
+                Each input file must have the same file type.
+                Try setting the --input-type parameter to enforce a single
+                type.
+                """
                 )
             input_type = input_types[0]
 
     transformer_constructor = get_transformer(input_type)
 
     if transformer_constructor is None:
-        raise Exception('Inputs do not have a recognized type: ' + str(get_file_types()))
+        error('Inputs do not have a recognized type: ' + str(get_file_types()))
 
     t = transformer_constructor()
     for i in input_paths:
