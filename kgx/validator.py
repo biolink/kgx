@@ -14,9 +14,7 @@ class Validator(object):
         self.prefix_manager = PrefixManager()
         self.items = set()
         self.errors = []
-        self.schema = SchemaLoader(
-            'https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml'
-        ).resolve()
+        self.schema = SchemaLoader('https://biolink.github.io/biolink-model/biolink-model.yaml').resolve()
 
     def ok(self):
         return len(self.errors) == 0
