@@ -27,8 +27,8 @@ def test_mapping():
     print("Mapped..")
     
     count = 0
-    for nid in G.nodes_iter():
-        src = G.node[nid]['source_curie']
+    for nid in G.nodes():
+        src = G.nodes[nid]['source_curie']
         assert nid.startswith("Y:")
         assert src.startswith("X:")
         count += 1

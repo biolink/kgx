@@ -30,7 +30,7 @@ def test_load():
 
 def rename_all(G):
     m = {}
-    for nid in G.nodes_iter():
+    for nid in G.nodes():
         tid = nid.replace("X:","FOO:")
         m[nid] = tid
     print("Renaming...")
