@@ -27,7 +27,7 @@ class PandasTransformer(Transformer):
             
     def load_node(self, obj):
         id = obj['id']
-        self.graph.add_node(id, attr_dict=obj)
+        self.graph.add_node(id, **obj)
             
     def load_edges(self, df):
         for _,row in df.iterrows():
@@ -36,5 +36,5 @@ class PandasTransformer(Transformer):
     def load_edge(self, obj):
         s = obj['subject']
         o = obj['object']
-        self.graph.add_node(o, s, attr_dict=obj)
+        self.graph.add_node(o, s, **obj)
             

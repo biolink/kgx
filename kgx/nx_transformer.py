@@ -19,7 +19,7 @@ class GraphMLTransformer(NetworkxTransformer):
         # As a workaround, we converts lists into comma-separated strings.
         # We use deepcopy to avoid modifying original self.graph object.
         dgraph = copy.deepcopy(self.graph)
-        for n, nbrs in dgraph.adjacency_iter():
+        for n, nbrs in dgraph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     for prop_uri, obj_curies in adjitem.items():

@@ -21,13 +21,13 @@ class LogicTermTransformer(Transformer):
     
     def export_nodes(self) -> pd.DataFrame:
         items = []
-        for n,data in self.graph.nodes_iter(data=True):
+        for n,data in self.graph.nodes(data=True):
             for k,v in data.items():
                 self.write_term('node_prop', n, k, v)
 
     def export_edges(self) -> pd.DataFrame:
         items = []
-        for o,s,data in self.graph.edges_iter(data=True):
+        for o,s,data in self.graph.edges(data=True):
             el = data.get('edge_label', None)
             self.write_term('edge', el, o, s)
             for k,v in data.items():

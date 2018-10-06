@@ -165,7 +165,7 @@ class NeoTransformer(Transformer):
 
         node_id = node['id'] if 'id' in node else node.id
 
-        self.graph.add_node(node_id, attr_dict=attributes)
+        self.graph.add_node(node_id, **attributes)
 
     def load_edge(self, edge_record):
         """
@@ -470,7 +470,7 @@ class NeoTransformer(Transformer):
         nodes_by_category = {}
         node_properties = []
         for n in self.graph.nodes():
-            node = self.graph.node[n]
+            node = self.graph.nodes[n]
             if 'id' not in node:
                 continue
 
@@ -484,7 +484,7 @@ class NeoTransformer(Transformer):
 
         edges_by_relationship_type = {}
         edge_properties = []
-        for n, nbrs in self.graph.adjacency_iter():
+        for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     if adjitem['predicate'] not in edges_by_relationship_type:
@@ -506,7 +506,7 @@ class NeoTransformer(Transformer):
 
         labels = {'Node'}
         for n in self.graph.nodes():
-            node = self.graph.node[n]
+            node = self.graph.nodes[n]
             if 'category' in node:
                 if isinstance(node['category'], list):
                     labels.update(node['category'])
@@ -516,11 +516,11 @@ class NeoTransformer(Transformer):
         with self.bolt_driver.session() as session:
             session.write_transaction(self.create_constraints, labels)
             for node_id in self.graph.nodes():
-                node_attributes = self.graph.node[node_id]
+                node_attributes = self.graph.nodes[node_id]
                 if 'id' not in node_attributes:
                     node_attributes['id'] = node_id
                 session.write_transaction(self.save_node, node_attributes)
-            for n, nbrs in self.graph.adjacency_iter():
+            for n, nbrs in self.graph.adjacency():
                 for nbr, eattr in nbrs.items():
                     for entry, adjitem in eattr.items():
                         session.write_transaction(self.save_edge, adjitem)
@@ -670,7 +670,7 @@ class NeoTransformer(Transformer):
         """
         FH = open(filename, "w")
         edges = []
-        for edge in self.graph.edges_iter(data=True, keys=True):
+        for edge in self.graph.edges(data=True, keys=True):
             edges.append(edge[3])
 
         FH.write(json.dumps(edges))

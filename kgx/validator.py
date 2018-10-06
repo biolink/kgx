@@ -25,9 +25,9 @@ class Validator(object):
 
         Test all node and edge properties plus relationship types are declared
         """
-        for nid,ad in G.nodes_iter(data=True):
+        for nid,ad in G.nodes(data=True):
             self.validate_node(nid, ad)
-        for oid,sid,ad in G.edges_iter(data=True):
+        for oid,sid,ad in G.edges(data=True):
             self.validate_edge(G, oid, sid, ad)
 
     def validate_node(self, nid, ad):
@@ -108,8 +108,8 @@ class Validator(object):
         fn = lambda: 'in_subset' in slot and 'translator_minimal' in slot['in_subset']
         self.test(fn, edge_label, 'edge label not in minimal list')
 
-        object_category = G.node[oid]['category']
-        subject_category = G.node[sid]['category']
+        object_category = G.nodes[oid]['category']
+        subject_category = G.nodes[sid]['category']
 
         if slot.domain is not None:
             if slot.domain != subject_category:

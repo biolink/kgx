@@ -70,8 +70,7 @@ class RdfTransformer(Transformer):
 
     def load_nodes(self, rg: rdflib.Graph):
         G = self.graph
-        for nid in G.nodes():
-            n = G.node[nid]
+        for n in G.nodes(data=True):
             if 'iri' not in n:
                 logging.warning("Expected IRI for {}".format(n))
                 continue
@@ -82,7 +81,7 @@ class RdfTransformer(Transformer):
                     if p in rmapping:
                         p = rmapping[p]
                     npmap[p] = str(o)
-            G.add_node(nid, **npmap)
+            G.add_node(n, **npmap)
 
     def load_edges(self, rg: rdflib.Graph):
         pass
@@ -92,7 +91,7 @@ class RdfTransformer(Transformer):
         oid = self.curie(o)
         self.graph.add_node(sid, iri=str(s))
         self.graph.add_node(oid, iri=str(o))
-        self.graph.add_edge(oid, sid, attr_dict=attr_dict)
+        self.graph.add_edge(oid, sid, **attr_dict)
 
 class ObanRdfTransformer(RdfTransformer):
     """
@@ -136,7 +135,7 @@ class ObanRdfTransformer(RdfTransformer):
             obj['provided_by'] = self.graph_metadata['provided_by']
             for each_s in s:
                 for each_o in o:
-                    self.graph.add_edge(each_o, each_s, attr_dict=obj)
+                    self.graph.add_edge(each_o, each_s, **obj)
 
     def curie(self, uri: UriString) -> str:
         curies = contract_uri(str(uri))
@@ -167,7 +166,7 @@ class ObanRdfTransformer(RdfTransformer):
 
         # Using an iterator of (node, adjacency dict) tuples for all nodes,
         # we iterate every edge (only outgoing adjacencies)
-        for n, nbrs in self.graph.adjacency_iter():
+        for n, nbrs in self.graph.adjacency():
             a_object = n
             for nbr, eattr in nbrs.items():
                 a_subject = nbr

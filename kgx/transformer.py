@@ -84,8 +84,8 @@ class Transformer(object):
 
         """
         mapping = {}
-        for node_id in self.graph.nodes_iter():
-            node = self.graph.node[node_id]
+        for node_id in self.graph.nodes():
+            node = self.graph.nodes[node_id]
             if type not in node['category']:
                 continue
             if new_property in node:
@@ -139,8 +139,8 @@ class Transformer(object):
 
         """
         mapping = {}
-        for node_id in self.graph.nodes_iter():
-            node = self.graph.node[node_id]
+        for node_id in self.graph.nodes():
+            node = self.graph.nodes[node_id]
             if type not in node['category']:
                 continue
             if new_property in node:
@@ -166,7 +166,7 @@ class Transformer(object):
 
         """
         mapping = {}
-        for edge in self.graph.edges_iter(data=True, keys=True):
+        for edge in self.graph.edges(data=True, keys=True):
             edge_key = edge[0:3]
             edge_data = edge[3]
             if type not in edge_data['edge_label']:
