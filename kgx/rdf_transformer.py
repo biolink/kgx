@@ -241,7 +241,7 @@ class RdfOwlTransformer(RdfTransformer):
         """
         for s,p,o in rg.triples( (None,RDFS.subClassOf,None) ):
             if isinstance(s, rdflib.term.BNode):
-                next
+                continue
             pred = None
             parent = None
             obj = {}
