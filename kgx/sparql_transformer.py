@@ -10,9 +10,11 @@ class SparqlTransformer(Transformer):
     """
 
     edge_query = """
-    SELECT * WHERE {
-        ?subject ?predicate ?object
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
+    SELECT * WHERE {
         {{#predicate}}
         ?predicate rdfs:subPropertyOf* {{predicate}} .
         {{/predicate}}
@@ -24,6 +26,8 @@ class SparqlTransformer(Transformer):
         {{#object_category}}
         ?object (rdf:type?/rdfs:subClassOf*) {{object_category}} .
         {{/object_category}}
+
+        ?subject ?predicate ?object .
     }
 
     """
@@ -33,14 +37,16 @@ class SparqlTransformer(Transformer):
         Set URL for the SPARQL endpoint
         """
         super().__init__(graph)
+        # TODO: overriding filters to be a dictionary here; this needs to be fixed upstream
+        self.filters = {}
         self.url = url
 
     def load_edges(self):
         """
         Fetch triples from the SPARQL endpoint and load them as edges
         """
-        #filter = self.get_filters()
-        q = render(self.edge_query, None)
+        filters = self.get_filters()
+        q = render(self.edge_query, filters)
         results = self.query(q)
         for r in results:
             self.curiefy(r)
