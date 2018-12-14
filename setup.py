@@ -8,7 +8,6 @@ requires = [
     "pytest>=0.0",
     "mypy>=0.0",
     "pystache>=0.0",
-    "pytest_logging>=0.0",
     "rdflib>=0.0",
     "click>=6.7",
     "neo4j-driver>=1.5.3",
