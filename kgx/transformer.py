@@ -18,15 +18,17 @@ class Transformer(object):
 
     """
 
-    def __init__(self, graph=None):
+    def __init__(self, source=None):
         """
         Create a new Transformer. This should be called directly on a subclass.
 
         Optional arg: a Transformer
         """
 
-        if graph is not None:
-            self.graph = graph
+        if isinstance(source, Transformer):
+            self.graph = source.graph
+        elif isinstance(source, nx.MultiDiGraph):
+            self.graph = source
         else:
             self.graph = nx.MultiDiGraph()
 
@@ -217,4 +219,3 @@ class Transformer(object):
     @staticmethod
     def current_time_in_millis():
             return int(round(time.time() * 1000))
-
