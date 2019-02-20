@@ -16,7 +16,7 @@ t.save('results/mondo.json')
 t = HgncRdfTransformer()
 t.parse('data/hgnc.ttl')
 t = JsonTransformer(t)
-t.save('hgnc.json')
+t.save('results/hgnc.json')
 
 t = ObanRdfTransformer2()
 t.add_ontology('data/mondo.owl')
