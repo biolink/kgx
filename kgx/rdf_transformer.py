@@ -239,19 +239,19 @@ class RdfOwlTransformer(RdfTransformer):
     def load_edges(self, rg: rdflib.Graph):
         """
         """
-        for s,p,o in rg.triples( (None,RDFS.subClassOf,None) ):
+        for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
             if isinstance(s, rdflib.term.BNode):
                 continue
             pred = None
             parent = None
-            obj = {}
+            attr_dict = {}
             if isinstance(o, rdflib.term.BNode):
                 # C SubClassOf R some D
                 prop = None
                 parent = None
-                for x in rg.objects( o, OWL.onProperty ):
+                for x in rg.objects(o, OWL.onProperty):
                     pred = x
-                for x in rg.objects( o, OWL.someValuesFrom ):
+                for x in rg.objects(o, OWL.someValuesFrom):
                     parent = x
                 if pred is None or parent is None:
                     logging.warning("Do not know how to handle: {}".format(o))
@@ -259,6 +259,6 @@ class RdfOwlTransformer(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = 'owl:subClassOf'
                 parent = o
-            obj['predicate'] = pred
-            obj['provided_by'] = self.graph_metadata['provided_by']
-            self.add_edge(parent, s, attr_dict=obj)
+            attr_dict['predicate'] = pred
+            attr_dict['provided_by'] = self.graph_metadata['provided_by']
+            self.add_edge(s, parent, **attr_dict)
