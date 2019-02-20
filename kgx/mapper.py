@@ -134,7 +134,7 @@ def update(d:dict, key, value):
         if isinstance(d, list):
             if value not in d[key]:
                 d[key].append(value)
-        elif d[key] != value
+        elif d[key] != value:
             d[key] = [d[key], value]
     else:
         d[key] = value
