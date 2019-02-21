@@ -87,12 +87,17 @@ class RdfTransformer(Transformer):
     def load_edges(self, rg: rdflib.Graph):
         pass
 
-    def add_edge(self, o:str, s:str, attr_dict={}):
+    def add_edge(self, s:str, o:str, attr_dict:dict=None):
+        if attr_dict is None:
+            attr_dict = {}
+
         sid = self.curie(s)
         oid = self.curie(o)
+        
         self.graph.add_node(sid, iri=str(s))
         self.graph.add_node(oid, iri=str(o))
-        self.graph.add_edge(oid, sid, attr_dict=attr_dict)
+        
+        self.graph.add_edge(sid, oid, **attr_dict)
 
 class ObanRdfTransformer(RdfTransformer):
     """
@@ -261,4 +266,4 @@ class RdfOwlTransformer(RdfTransformer):
                 parent = o
             attr_dict['predicate'] = pred
             attr_dict['provided_by'] = self.graph_metadata['provided_by']
-            self.add_edge(s, parent, **attr_dict)
+            self.add_edge(s, parent, attr_dict)
