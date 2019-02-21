@@ -9,7 +9,6 @@ from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_map
 tk = bmt.Toolkit()
 # import pudb; pu.db
 m = tk.generator.mappings
-from pprint import pprint
 x = set()
 mapping = {}
 for key, value in m.items():
@@ -93,6 +92,7 @@ is_property_multivalued = {
     'name' : False,
     'has_evidence' : False,
     'provided_by' : True,
+    'category' : True,
 }
 
 def reverse_mapping(d:dict):

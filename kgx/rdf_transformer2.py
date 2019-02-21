@@ -37,7 +37,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         ont = rdflib.Graph()
         ont.parse(owlfile, format=rdflib.util.guess_format(owlfile))
         self.ontologies.append(ont)
-        logging.info("Parsed : {}".format(owlfile))
+        logging.info("Parsed  {}".format(owlfile))
 
     def add_node(self, iri:URIRef) -> str:
         """
@@ -149,7 +149,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         if key is None or key not in is_property_multivalued:
             return
 
-        value = make_curie(value)
+        value = make_curie(process_iri(value))
 
         if is_property_multivalued[key]:
             if key not in attr_dict:
