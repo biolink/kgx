@@ -20,7 +20,10 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
     def parse(self, filename:str=None, provided_by:str=None):
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse(filename, format=rdflib.util.guess_format(filename))
+
+        fmt = rdflib.util.guess_format(filename)
+        logging.info("Parsing {} with {} format".format(filename, fmt))
+        rdfgraph.parse(filename, format=fmt)
 
         logging.info("Parsed : {}".format(filename))
 
@@ -259,9 +262,7 @@ class HgncRdfTransformer(RdfTransformer):
                 elif p == self.is_subsequence_of:
                     self.add_edge(s, o, self.is_subsequence_of)
                 elif any(p.lower() == predicate.lower() for predicate in equals_predicates):
-                    self.graph.add_node(s)
-                    self.graph.node[s]['iri'] = s_iri
-
+                    self.add_edge(s, o, p)
 
 class RdfOwlTransformer2(RdfTransformer):
     """
