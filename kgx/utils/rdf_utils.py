@@ -104,7 +104,10 @@ def reverse_mapping(d:dict):
 
 reverse_property_mapping = reverse_mapping(property_mapping)
 
-cmaps = [{'OMIM' : 'https://omim.org/entry/'}] + default_curie_maps
+cmaps = [{
+    'OMIM' : 'https://omim.org/entry/',
+    'HGNC' : 'http://identifiers.org/hgnc/'
+}] + default_curie_maps
 
 def contract(uri:URIRef) -> str:
     """
