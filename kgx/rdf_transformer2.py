@@ -146,6 +146,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         if key is None or key not in is_property_multivalued:
             return
 
+        value = make_curie(value)
+
         if is_property_multivalued[key]:
             if key not in attr_dict:
                 attr_dict[key] = [value]
@@ -241,29 +243,25 @@ class ObanRdfTransformer2(RdfTransformer):
                                     )
 
 class HgncRdfTransformer(RdfTransformer):
+    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
+    has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
+    is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
+
     def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
         triples = list(rdfgraph.triples((None, None, None)))
+
         with click.progressbar(triples, label='loading graph') as bar:
             for s, p, o in bar:
-                s_iri, p, o_iri = str(s), str(p), str(o)
-
-                s = make_curie(s_iri)
-                o = make_curie(o_iri)
-
-                if p == 'http://purl.obolibrary.org/obo/IAO_0000136':
-                    self.add_node_attribute(o, 'publications', s_iri)
-                    nxgraph.node[o]['iri'] = o_iri
-                elif p == 'http://purl.obolibrary.org/obo/RO_0002524':
-                    nxgraph.add_edge(s, o, predicate='has_subsequence', provided_by=provided_by)
-                    nxgraph.node[s]['iri'] = s_iri
-                    nxgraph.node[o]['iri'] = o_iri
-                elif p == 'http://purl.obolibrary.org/obo/RO_0002525':
-                    nxgraph.add_edge(o, s, predicate='has_subsequence', provided_by=provided_by)
-                    nxgraph.node[s]['iri'] = s_iri
-                    nxgraph.node[o]['iri'] = o_iri
+                if p == self..is_about:
+                    self.add_node_attribute(o, s, 'publications')
+                elif p == self.has_subsequence:
+                    self.add_edge(o, s, self.is_subsequence_of)
+                elif p == self.is_subsequence_of:
+                    self.add_edge(s, o, self.is_subsequence_of)
                 elif any(p.lower() == predicate.lower() for predicate in equals_predicates):
                     self.graph.add_node(s)
                     self.graph.node[s]['iri'] = s_iri
+
 
 class RdfOwlTransformer2(RdfTransformer):
     """
