@@ -1,11 +1,13 @@
 import click, rdflib, logging, os
 import networkx as nx
 
+from typing import Tuple
+
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 
 from .transformer import Transformer
-from .utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie
+from .utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 
 from collections import defaultdict
 
@@ -34,23 +36,126 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         self.ontologies.append(ont)
         logging.info("Parsed : {}".format(owlfile))
 
-    def add_node_attribute(self, node:str, key:str, value:str) -> None:
+    def add_node(self, iri:URIRef) -> str:
         """
-        All node attributes except for their iri and id are treated as lists.
-        This is beneficial to the clique merging process, which will merge list
-        attributes of nodes when merging those nodes.
+        This method should be used by all derived classes when adding an edge to
+        the graph. This ensures that the node's identifier is a CURIE, and that
+        its IRI property is set.
+
+        Returns the CURIE identifier for the node in the NetworkX graph.
         """
-        if node in self.graph:
-            attr_dict = self.graph.node[node]
-            if key in attr_dict:
-                attr_dict[key].append(value)
-            else:
-                attr_dict[key] = [value]
+        n = make_curie(iri)
+        if n not in self.graph:
+            self.graph.add_node(n, iri=str(iri))
+        return n
+
+    def add_edge(self, subject_iri:URIRef, object_iri:URIRef, edge_label:URIRef) -> Tuple[str, str, str]:
+        """
+        This method should be used by all derived classes when adding an edge to
+        the graph. This ensures that the nodes identifiers are CURIEs, and that
+        their IRI properties are set.
+
+        Returns the CURIE identifiers used for the subject and object in the
+        NetworkX graph, and the processed edge_label.
+        """
+        s = self.add_node(subject_iri)
+        o = self.add_node(object_iri)
+
+        relation = make_curie(edge_label)
+        edge_label = process_iri(edge_label)
+
+        if not self.graph.has_edge(s, o, key=edge_label):
+            self.graph.add_edge(s, o, key=edge_label, relation=relation, edge_label=edge_label)
+
+        return s, o, edge_label
+
+    def add_node_attribute(self, iri:URIRef, key:str, value:str) -> None:
+        """
+        Adds an attribute to a node, respecting whether or not that property
+        should be multi-valued. Multi-valued properties will not contain
+        duplicates.
+
+        The key may be a URIRef or a URI string that maps onto a property name
+        in `property_mapping`.
+
+        If the node does not exist then it is created.
+
+        Parameters
+        ----------
+        iri : The identifier of a node in the NetworkX graph
+        key : The name of the attribute, may be a URIRef or URI string
+        value : The value of the attribute
+        """
+        if key.lower() in is_property_multivalued:
+            key = key.lower()
         else:
-            if key is not None:
-                self.graph.add_node(node, **{key : [value]})
-            else:
-                self.graph.add_node(node)
+            if not isinstance(key, URIRef):
+                key = URIRef(key)
+            key = property_mapping.get(key)
+
+        if key is not None:
+            n = self.add_node(iri)
+            attr_dict = self.graph.node[n]
+            self.__add_attribute(attr_dict, key, value)
+
+    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, edge_label:URIRef, key:str, value:str) -> None:
+        """
+        Adds an attribute to an edge, respecting whether or not that property
+        should be multi-valued. Multi-valued properties will not contain
+        duplicates.
+
+        The key may be a URIRef or a URI string that maps onto a property name
+        in `property_mapping`.
+
+        If the nodes or their edge does not yet exist then they will be created.
+
+        Parameters
+        ----------
+        iri : The identifier of a node in the NetworkX graph
+        key : The name of the attribute, may be a URIRef or URI string
+        value : The value of the attribute
+        """
+        if key.lower() in is_property_multivalued:
+            key = key.lower()
+        else:
+            if not isinstance(key, URIRef):
+                key = URIRef(key)
+            key = property_mapping.get(key)
+
+        if key is not None:
+            s, o, edge_label = self.add_edge(subject_iri, object_iri, edge_label)
+            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
+            self.__add_attribute(attr_dict, key, value)
+
+    def __add_attribute(self, attr_dict:dict, key:str, value:str):
+        """
+        Adds an attribute to the attribute dictionary, respecting whether or not
+        that attribute should be multi-valued. Multi-valued attributes will not
+        contain duplicates.
+        Some attributes are singular forms of others, e.g. name -> synonym. In
+        such cases overflowing values will be placed into the correlating
+        multi-valued attribute.
+
+        Parameters
+        ----------
+        attr_dict : The dictionary representing the attribute set of a NetworkX
+                    node or edge. It can be aquired with G.node[n] or G.edge[u][v].
+        key : The name of the attribute
+        value : The value of the attribute
+        """
+        if key is None or key not in is_property_multivalued:
+            return
+
+        if is_property_multivalued[key]:
+            if key not in attr_dict:
+                attr_dict[key] = [value]
+            elif value not in attr_dict[key]:
+                attr_dict[key].append(value)
+        else:
+            if key not in attr_dict:
+                attr_dict[key] = value
+            elif key == 'name':
+                self.__add_attribute(attr_dict, 'synonym', value)
 
     @abstractmethod
     def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
@@ -72,35 +177,24 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         have had their IRI saved as an attribute.
         """
         with click.progressbar(self.graph.nodes(), label='loading node attributes') as bar:
-            for node_id in bar:
-                if 'iri' in self.graph.node[node_id]:
-                    iri = self.graph.node[node_id]['iri']
+            for node in bar:
+                if 'iri' in self.graph.node[node]:
+                    iri = self.graph.node[node]['iri']
                 else:
-                    logging.warning("Expected IRI for {} provided by {}".format(node_id, provided_by))
+                    logging.warning("Expected IRI for {} provided by {}".format(node, provided_by))
                     continue
-
-                node_attr = defaultdict(list)
 
                 for s, p, o in rdfgraph.triples((URIRef(iri), None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        p = property_mapping.get(p, make_curie(process_iri(p)))
-                        o = process_iri(str(o))
-                        node_attr[p].append(o)
+                        self.add_node_attribute(node, p, o)
 
                 category = find_category(iri, [rdfgraph] + self.ontologies)
 
                 if category is not None:
-                    node_attr['category'].append(category)
+                    self.add_node_attribute(iri, 'category', category)
 
                 if provided_by is not None:
-                    node_attr['provided_by'].append(provided_by)
-
-                for k, values in node_attr.items():
-                    if isinstance(values, (list, set, tuple)):
-                        node_attr[k] = [make_curie(v) for v in values]
-
-                for key, value in node_attr.items():
-                    self.graph.node[node_id][key] = value
+                    self.add_node_attribute(iri, 'provided_by', provided_by)
 
 class ObanRdfTransformer2(RdfTransformer):
     OBAN = Namespace('http://purl.org/oban/')
@@ -111,40 +205,40 @@ class ObanRdfTransformer2(RdfTransformer):
             for association in bar:
                 edge_attr = defaultdict(list)
 
-                edge_attr['iri'] = str(association)
-                edge_attr['id'] = make_curie(association)
+                subjects = []
+                objects = []
+                edge_labels = []
 
                 for s, p, o in rdfgraph.triples((association, None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        p = property_mapping.get(p, make_curie(process_iri(p)))
-                        o = process_iri(o)
-                        edge_attr[p].append(o)
+                        p = property_mapping.get(p)
+                        if p == 'subject':
+                            subjects.append(o)
+                        elif p == 'object':
+                            objects.append(o)
+                        elif p == 'edge_label':
+                            edge_labels.append(o)
+                        else:
+                            edge_attr[p].append(o)
 
-                if 'predicate' not in edge_attr:
-                    edge_attr['predicate'].append('related to')
+                if len(edge_labels) == 0:
+                    edge_labels.append('related_to')
 
                 if provided_by is not None:
                     edge_attr['provided_by'].append(provided_by)
 
-                subjects = edge_attr['subject']
-                objects = edge_attr['object']
-
-                for k, values in edge_attr.items():
-                    if isinstance(values, (list, set, tuple)):
-                        edge_attr[k] = [make_curie(v) for v in values]
-
                 for subject_iri in subjects:
                     for object_iri in objects:
-                        sid = make_curie(subject_iri)
-                        oid = make_curie(object_iri)
-
-                        nxgraph.add_edge(sid, oid, **edge_attr)
-
-                        nxgraph.node[sid]['iri'] = subject_iri
-                        nxgraph.node[sid]['id'] = sid
-
-                        nxgraph.node[oid]['iri'] = object_iri
-                        nxgraph.node[oid]['id'] = oid
+                        for edge_label in edge_labels:
+                            for key, values in edge_attr.items():
+                                for value in values:
+                                    self.add_edge_attribute(
+                                        subject_iri,
+                                        object_iri,
+                                        edge_label,
+                                        key=key,
+                                        value=value
+                                    )
 
 class HgncRdfTransformer(RdfTransformer):
     def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
@@ -170,3 +264,36 @@ class HgncRdfTransformer(RdfTransformer):
                 elif any(p.lower() == predicate.lower() for predicate in equals_predicates):
                     self.graph.add_node(s)
                     self.graph.node[s]['iri'] = s_iri
+
+class RdfOwlTransformer(RdfTransformer):
+    """
+    Transforms from an OWL ontology in RDF, retaining class-class
+    relationships
+    """
+
+    def load_edges(self, rg: rdflib.Graph):
+        """
+        """
+        for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
+            if isinstance(s, rdflib.term.BNode):
+                continue
+            pred = None
+            parent = None
+            attr_dict = {}
+            if isinstance(o, rdflib.term.BNode):
+                # C SubClassOf R some D
+                prop = None
+                parent = None
+                for x in rg.objects(o, OWL.onProperty):
+                    pred = x
+                for x in rg.objects(o, OWL.someValuesFrom):
+                    parent = x
+                if pred is None or parent is None:
+                    logging.warning("Do not know how to handle: {}".format(o))
+            else:
+                # C SubClassOf D (C and D are named classes)
+                pred = 'owl:subClassOf'
+                parent = o
+            attr_dict['predicate'] = pred
+            attr_dict['provided_by'] = self.graph_metadata['provided_by']
+            self.add_edge(s, parent, attr_dict)

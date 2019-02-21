@@ -7,7 +7,7 @@ from rdflib.namespace import RDF, RDFS, OWL
 from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
 tk = bmt.Toolkit()
-#import pudb; pu.db
+# import pudb; pu.db
 m = tk.generator.mappings
 from pprint import pprint
 x = set()
@@ -22,13 +22,6 @@ for key, value in m.items():
 
 OBAN = Namespace('http://purl.org/oban/')
 
-def reverse_mapping(d:dict):
-    """
-    Returns a dictionary where the keys are the values of the given dictionary,
-    and the values are sets of keys from the given dictionary.
-    """
-    return {value : set(k for k, v in d.items() if v == value) for value in d.items()}
-
 predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002200' : 'has phenotype',
     'http://purl.obolibrary.org/obo/RO_0000091' : 'has disposition',
@@ -40,7 +33,7 @@ predicate_mapping.update(mapping)
 category_mapping = {
     "http://purl.obolibrary.org/obo/SO_0001217" : "gene",
     "http://purl.obolibrary.org/obo/GENO_0000002" : "sequence variant",
-    'http://purl.obolibrary.org/obo/UPHENO_0001002' : 'phenotype',
+    'http://purl.obolibrary.org/obo/UPHENO_0001002' : 'phenotypic feature',
 # Taken from the yaml
     "http://purl.obolibrary.org/obo/CL_0000000" : "cell",
     "http://purl.obolibrary.org/obo/UBERON_0001062" : "anatomical entity",
@@ -64,7 +57,7 @@ category_mapping = {
     "http://purl.obolibrary.org/obo/CHEBI_23367" : "molecular entity",
     "http://purl.obolibrary.org/obo/CHEBI_23888" : "drug",
     "http://purl.obolibrary.org/obo/CHEBI_51086" : "chemical role",
-    "http://purl.obolibrary.org/obo/UPHENO_0001001" : "phenotype",
+    "http://purl.obolibrary.org/obo/UPHENO_0001001" : "phenotypic feature",
     "http://purl.obolibrary.org/obo/GO_0008150" : "biological_process",
     "http://purl.obolibrary.org/obo/GO_0005575" : "cellular component",
     "http://purl.obolibrary.org/obo/SO_0000704" : "gene",
@@ -76,19 +69,38 @@ category_mapping.update(mapping)
 property_mapping = {
     OBAN.association_has_subject : 'subject',
     OBAN.association_has_object : 'object',
-    OBAN.association_has_predicate : 'predicate',
-    RDF.type : 'type',
-    RDFS.comment : 'comment',
+    OBAN.association_has_predicate : 'edge_label',
     RDFS.label : 'name',
+    # Definition being treated as a description
+    URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
     URIRef('http://purl.org/dc/elements/1.1/description') : 'description',
     URIRef('http://purl.obolibrary.org/obo/RO_0002558') : 'has_evidence',
-    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonyms',
-    #URIRef('http://www.w3.org/2004/02/skos/core#exactMatch') : 'same_as',
-    #URIRef('http://www.geneontology.org/formats/oboInOwl#hasDbXref') : 'same_as',
+    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonym',
+    URIRef('http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym') : 'synonym',
     OWL.sameAs : 'same_as',
     OWL.equivalentClass : 'same_as',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'taxon'
+    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
 }
+
+is_property_multivalued = {
+    'subject' : False,
+    'object' : False,
+    'edge_label' : False,
+    'description' : False,
+    'synonym' : True,
+    'in_taxon' : False,
+    'same_as' : True,
+    'name' : False,
+    'has_evidence' : False,
+    'provided_by' : True,
+}
+
+def reverse_mapping(d:dict):
+    """
+    Returns a dictionary where the keys are the values of the given dictionary,
+    and the values are sets of keys from the given dictionary.
+    """
+    return {value : set(k for k, v in d.items() if v == value) for value in d.items()}
 
 reverse_property_mapping = reverse_mapping(property_mapping)
 
