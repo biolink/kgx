@@ -40,7 +40,7 @@ class PandasTransformer(Transformer):
 
     def load_node(self, obj: Dict):
         id = obj['id'] # type: str
-        self.graph.add_node(id, attr_dict=obj)
+        self.graph.add_node(id, **obj)
 
     def load_edges(self, df: pd.DataFrame):
         for obj in df.to_dict('record'):
@@ -49,7 +49,7 @@ class PandasTransformer(Transformer):
     def load_edge(self, obj: Dict):
         s = obj['subject'] # type: str
         o = obj['object'] # type: str
-        self.graph.add_edge(o, s, attr_dict=obj)
+        self.graph.add_edge(o, s, **obj)
 
     def export_nodes(self) -> pd.DataFrame:
         items = []
