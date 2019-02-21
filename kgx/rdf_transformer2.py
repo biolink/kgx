@@ -62,7 +62,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         o = self.add_node(object_iri)
 
         relation = make_curie(edge_label)
-        edge_label = process_iri(edge_label)
+        edge_label = process_iri(edge_label).replace(' ', '_')
 
         if not self.graph.has_edge(s, o, key=edge_label):
             self.graph.add_edge(s, o, key=edge_label, relation=relation, edge_label=edge_label)
