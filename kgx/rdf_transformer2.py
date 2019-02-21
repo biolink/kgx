@@ -265,7 +265,7 @@ class HgncRdfTransformer(RdfTransformer):
                     self.graph.add_node(s)
                     self.graph.node[s]['iri'] = s_iri
 
-class RdfOwlTransformer(RdfTransformer):
+class RdfOwlTransformer2(RdfTransformer):
     """
     Transforms from an OWL ontology in RDF, retaining class-class
     relationships
@@ -282,7 +282,6 @@ class RdfOwlTransformer(RdfTransformer):
             attr_dict = {}
             if isinstance(o, rdflib.term.BNode):
                 # C SubClassOf R some D
-                prop = None
                 parent = None
                 for x in rg.objects(o, OWL.onProperty):
                     pred = x
@@ -292,8 +291,8 @@ class RdfOwlTransformer(RdfTransformer):
                     logging.warning("Do not know how to handle: {}".format(o))
             else:
                 # C SubClassOf D (C and D are named classes)
-                pred = 'owl:subClassOf'
+                pred = p
                 parent = o
             attr_dict['predicate'] = pred
             attr_dict['provided_by'] = self.graph_metadata['provided_by']
-            self.add_edge(s, parent, attr_dict)
+            self.add_edge(s, parent, pred)

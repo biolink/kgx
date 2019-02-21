@@ -7,7 +7,7 @@ from .nx_transformer import GraphMLTransformer
 from .sparql_transformer import SparqlTransformer
 from .rdf_transformer import ObanRdfTransformer
 from .rdf_transformer import ObanRdfTransformer, RdfOwlTransformer
-from .rdf_transformer2 import ObanRdfTransformer2, HgncRdfTransformer
+from .rdf_transformer2 import ObanRdfTransformer2, RdfOwlTransformer2, HgncRdfTransformer
 from .json_transformer import JsonTransformer
 from .neo_transformer import NeoTransformer
 from .logicterm_transformer import LogicTermTransformer
