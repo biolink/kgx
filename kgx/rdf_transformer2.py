@@ -252,7 +252,7 @@ class HgncRdfTransformer(RdfTransformer):
 
         with click.progressbar(triples, label='loading graph') as bar:
             for s, p, o in bar:
-                if p == self..is_about:
+                if p == self.is_about:
                     self.add_node_attribute(o, s, 'publications')
                 elif p == self.has_subsequence:
                     self.add_edge(o, s, self.is_subsequence_of)
