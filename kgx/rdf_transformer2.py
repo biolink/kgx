@@ -290,6 +290,4 @@ class RdfOwlTransformer2(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = p
                 parent = o
-            attr_dict['predicate'] = pred
-            attr_dict['provided_by'] = self.graph_metadata['provided_by']
-            self.add_edge(s, parent, pred)
+            self.add_edge_attribute(s, parent, pred, key='provided_by', value=provided_by)
