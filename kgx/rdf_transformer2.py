@@ -270,10 +270,7 @@ class RdfOwlTransformer2(RdfTransformer):
     Transforms from an OWL ontology in RDF, retaining class-class
     relationships
     """
-
-    def load_edges(self, rg: rdflib.Graph):
-        """
-        """
+    def load_networkx_graph(self, rg:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
         for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
             if isinstance(s, rdflib.term.BNode):
                 continue
