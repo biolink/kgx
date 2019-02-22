@@ -181,7 +181,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
 
     with click.progressbar(graph.edges(data=True), label='building cliques from same_as edges') as bar:
         for u, v, attr_dict in bar:
-            if 'edge_label' in attr_dict and attr_dict['same_as']:
+            if 'edge_label' in attr_dict and attr_dict['edge_label'] == 'same_as':
                 cliqueGraph.add_edge(u, v)
 
     mapping = {}
