@@ -158,7 +158,7 @@ def build_clique_graph(graph:nx.Graph) -> nx.Graph:
 
     return cliqueGraph
 
-def clique_merge(graph:nx.Graph, report=True) -> nx.Graph:
+def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
     """
     Builds up cliques using the `same_as` attribute of each node. Uses those
     cliques to build up a mapping for relabelling nodes. Chooses labels so as
@@ -168,25 +168,21 @@ def clique_merge(graph:nx.Graph, report=True) -> nx.Graph:
     This method will also expand the `same_as` attribute of the nodes to
     include the discovered clique.
     """
-
-    builder = ReportBuilder(graph)
-
     original_size = len(graph)
     print('original graph has {} nodes'.format(original_size))
 
     cliqueGraph = nx.Graph()
 
-    with click.progressbar(graph.nodes(), label='building cliques') as bar:
-        for n in bar:
-            attr_dict = graph.node[n]
+    with click.progressbar(graph.nodes(data=True), label='building cliques from same_as node property') as bar:
+        for n, attr_dict in bar:
             if 'same_as' in attr_dict:
                 for m in attr_dict['same_as']:
                     cliqueGraph.add_edge(n, m)
-                    if report:
-                        builder.add(n, m)
 
-    if report:
-        builder.to_csv('clique-merge-report.csv')
+    with click.progressbar(graph.edges(data=True), label='building cliques from same_as edges') as bar:
+        for u, v, attr_dict in bar:
+            if 'edge_label' in attr_dict and attr_dict['same_as']:
+                cliqueGraph.add_edge(u, v)
 
     mapping = {}
 
