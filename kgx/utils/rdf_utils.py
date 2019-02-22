@@ -26,6 +26,9 @@ predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0000091' : 'has disposition',
     'http://purl.obolibrary.org/obo/RO_0003303' : 'causes condition',
     'http://purl.obolibrary.org/obo/RO_0002525' : 'is subsequence of',
+    OWL.sameAs.lower() : 'same_as',
+    OWL.equivalentClass.lower() : 'same_as',
+    RDFS.subClassOf : 'subclass_of'
 }
 predicate_mapping.update(mapping)
 
@@ -68,7 +71,7 @@ category_mapping.update(mapping)
 property_mapping = {
     OBAN.association_has_subject : 'subject',
     OBAN.association_has_object : 'object',
-    OBAN.association_has_predicate : 'edge_label',
+    OBAN.association_has_predicate : 'predicate',
     RDFS.label : 'name',
     # Definition being treated as a description
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
@@ -76,8 +79,8 @@ property_mapping = {
     URIRef('http://purl.obolibrary.org/obo/RO_0002558') : 'has_evidence',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonym',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym') : 'synonym',
-    OWL.sameAs : 'same_as',
-    OWL.equivalentClass : 'same_as',
+    # OWL.sameAs : 'same_as',
+    # OWL.equivalentClass : 'same_as',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
 }
 
@@ -88,7 +91,7 @@ is_property_multivalued = {
     'description' : False,
     'synonym' : True,
     'in_taxon' : False,
-    'same_as' : True,
+    # 'same_as' : True,
     'name' : False,
     'has_evidence' : False,
     'provided_by' : True,

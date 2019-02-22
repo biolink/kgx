@@ -13,6 +13,8 @@ from collections import defaultdict
 
 from abc import ABCMeta, abstractmethod
 
+OBAN = Namespace('http://purl.org/oban/')
+
 class RdfTransformer(Transformer, metaclass=ABCMeta):
     def __init__(self, t:Transformer=None):
         super().__init__(t)
@@ -52,7 +54,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
             self.graph.add_node(n, iri=str(iri))
         return n
 
-    def add_edge(self, subject_iri:URIRef, object_iri:URIRef, edge_label:URIRef) -> Tuple[str, str, str]:
+    def add_edge(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef) -> Tuple[str, str, str]:
         """
         This method should be used by all derived classes when adding an edge to
         the graph. This ensures that the nodes identifiers are CURIEs, and that
@@ -64,8 +66,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         s = self.add_node(subject_iri)
         o = self.add_node(object_iri)
 
-        relation = make_curie(edge_label)
-        edge_label = process_iri(edge_label).replace(' ', '_')
+        relation = make_curie(predicate_iri)
+        edge_label = process_iri(predicate_iri).replace(' ', '_')
 
         if not self.graph.has_edge(s, o, key=edge_label):
             self.graph.add_edge(s, o, key=edge_label, relation=relation, edge_label=edge_label)
@@ -101,7 +103,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
             attr_dict = self.graph.node[n]
             self.__add_attribute(attr_dict, key, value)
 
-    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, edge_label:URIRef, key:str, value:str) -> None:
+    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, key:str, value:str) -> None:
         """
         Adds an attribute to an edge, respecting whether or not that property
         should be multi-valued. Multi-valued properties will not contain
@@ -126,7 +128,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
             key = property_mapping.get(key)
 
         if key is not None:
-            s, o, edge_label = self.add_edge(subject_iri, object_iri, edge_label)
+            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
             attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
             self.__add_attribute(attr_dict, key, value)
 
@@ -202,10 +204,16 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                     self.add_node_attribute(iri, 'provided_by', provided_by)
 
 class ObanRdfTransformer2(RdfTransformer):
-    OBAN = Namespace('http://purl.org/oban/')
+    ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
     def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
-        associations = list(rdfgraph.subjects(RDF.type, self.OBAN.association))
+        for rel in self.ontological_predicates:
+            triples = list(rdfgraph.triples((None, rel, None)))
+            with click.progressbar(triples, label='loading {}'.format(rel)) as bar:
+                for s, p, o in bar:
+                    self.add_edge(s, o, p)
+
+        associations = list(rdfgraph.subjects(RDF.type, OBAN.association))
         with click.progressbar(associations, label='loading graph') as bar:
             for association in bar:
                 edge_attr = defaultdict(list)
@@ -221,7 +229,7 @@ class ObanRdfTransformer2(RdfTransformer):
                             subjects.append(o)
                         elif p == 'object':
                             objects.append(o)
-                        elif p == 'edge_label':
+                        elif p == 'predicate':
                             edge_labels.append(o)
                         else:
                             edge_attr[p].append(o)
@@ -249,6 +257,7 @@ class HgncRdfTransformer(RdfTransformer):
     is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
     has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
     is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
+    ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
     def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
         triples = list(rdfgraph.triples((None, None, None)))
@@ -261,7 +270,7 @@ class HgncRdfTransformer(RdfTransformer):
                     self.add_edge(o, s, self.is_subsequence_of)
                 elif p == self.is_subsequence_of:
                     self.add_edge(s, o, self.is_subsequence_of)
-                elif any(p.lower() == predicate.lower() for predicate in equals_predicates):
+                elif any(p.lower() == x.lower() for x in self.ontological_predicates):
                     self.add_edge(s, o, p)
 
 class RdfOwlTransformer2(RdfTransformer):
