@@ -91,7 +91,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         return s, o, edge_label
 
-    def add_node_attribute(self, iri:URIRef, key:str, value:str) -> None:
+    def add_node_attribute(self, iri:URIRef, *, key:str, value:str) -> None:
         """
         Adds an attribute to a node, respecting whether or not that property
         should be multi-valued. Multi-valued properties will not contain
@@ -120,7 +120,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
             attr_dict = self.graph.node[n]
             self.__add_attribute(attr_dict, key, value)
 
-    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, key:str, value:str) -> None:
+    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, *, key:str, value:str) -> None:
         """
         Adds an attribute to an edge, respecting whether or not that property
         should be multi-valued. Multi-valued properties will not contain
@@ -209,22 +209,22 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         have had their IRI saved as an attribute.
         """
         with click.progressbar(self.graph.nodes(), label='loading node attributes') as bar:
-            for node in bar:
-                if 'iri' in self.graph.node[node]:
-                    iri = self.graph.node[node]['iri']
+            for n in bar:
+                if 'iri' in self.graph.node[n]:
+                    uriRef = URIRef(self.graph.node[n]['iri'])
                 else:
                     provided_by = self.graph_metadata.get('provided_by')
-                    logging.warning("Expected IRI for {} provided by {}".format(node, provided_by))
+                    logging.warning("Expected IRI for {} provided by {}".format(n, provided_by))
                     continue
 
-                for s, p, o in rdfgraph.triples((URIRef(iri), None, None)):
+                for s, p, o in rdfgraph.triples((uriRef, None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        self.add_node_attribute(node, p, o)
+                        self.add_node_attribute(uriRef, key=p, value=o)
 
-                category = find_category(iri, [rdfgraph] + self.ontologies)
+                category = find_category(uriRef, [rdfgraph] + self.ontologies)
 
                 if category is not None:
-                    self.add_node_attribute(iri, 'category', category)
+                    self.add_node_attribute(uriRef, key='category', value=category)
 
 class ObanRdfTransformer2(RdfTransformer):
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
@@ -285,7 +285,7 @@ class HgncRdfTransformer(RdfTransformer):
         with click.progressbar(triples, label='loading graph') as bar:
             for s, p, o in bar:
                 if p == self.is_about:
-                    self.add_node_attribute(o, s, 'publications')
+                    self.add_node_attribute(o, key=s, value='publications')
                 elif p == self.has_subsequence:
                     self.add_edge(o, s, self.is_subsequence_of)
                 elif p == self.is_subsequence_of:
@@ -318,4 +318,4 @@ class RdfOwlTransformer2(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = p
                 parent = o
-            self.add_edge_attribute(s, parent, pred)
+            self.add_edge(s, parent, pred)
