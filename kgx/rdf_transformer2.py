@@ -224,7 +224,7 @@ class ObanRdfTransformer2(RdfTransformer):
 
                 for s, p, o in rdfgraph.triples((association, None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        p = property_mapping.get(p, default=p)
+                        p = property_mapping.get(p, p)
                         if p == 'subject':
                             subjects.append(o)
                         elif p == 'object':
