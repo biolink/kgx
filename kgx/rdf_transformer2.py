@@ -30,10 +30,10 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         logging.info("Parsed : {}".format(filename))
 
         if provided_by is None:
-            provided_by = os.path.basename(filename)
+            self.graph_metadata['provided_by'] = os.path.basename(filename)
 
-        self.load_networkx_graph(rdfgraph, self.graph, provided_by=provided_by)
-        self.load_node_attributes(rdfgraph, provided_by=provided_by)
+        self.load_networkx_graph(rdfgraph)
+        self.load_node_attributes(rdfgraph)
 
     def add_ontology(self, owlfile:str):
         ont = rdflib.Graph()
@@ -49,9 +49,18 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         Returns the CURIE identifier for the node in the NetworkX graph.
         """
+        kwargs = {
+            'iri' : str(iri)
+        }
+
+        if 'provided_by' in self.graph_metadata:
+            kwargs['provided_by'] = self.graph_metadata['provided_by']
+
         n = make_curie(iri)
+
         if n not in self.graph:
-            self.graph.add_node(n, iri=str(iri))
+            self.graph.add_node(n, **kwargs)
+
         return n
 
     def add_edge(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef) -> Tuple[str, str, str]:
@@ -69,8 +78,16 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         relation = make_curie(predicate_iri)
         edge_label = process_iri(predicate_iri).replace(' ', '_')
 
+        kwargs = {
+            'relation' : relation,
+            'edge_label' : edge_label,
+        }
+
+        if 'provided_by' in self.graph_metadata:
+            kwargs['provided_by'] = self.graph_metadata['provided_by']
+
         if not self.graph.has_edge(s, o, key=edge_label):
-            self.graph.add_edge(s, o, key=edge_label, relation=relation, edge_label=edge_label)
+            self.graph.add_edge(s, o, key=edge_label, **kwargs)
 
         return s, o, edge_label
 
@@ -165,17 +182,25 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                 self.__add_attribute(attr_dict, 'synonym', value)
 
     @abstractmethod
-    def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
         """
         This method should be overridden and implemented by the derived class,
         and should load all desired nodes and edges from rdfgraph into nxgraph.
 
-        Note: All nodes must have their iri property set, otherwise they will be
-        ignored when node attributes are loaded into the NetworkX graph.
+        It's preferred that this method doesn't use the NetworkX graph directly
+        when adding edges or nodes or their attributes. Using the following
+        methods instead will ensure that nodes, edges, and their attributes
+        are added in conformance with the biolink model, and that URIRef's are
+        translated into CURIEs or biolink model elements whenever appropriate:
+
+        add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, key:str, value:str)
+        add_node_attribute(self, iri:URIRef, key:str, value:str)
+        add_edge(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef) -> Tuple[str, str, str]
+        add_node(self, iri:URIRef) -> str
         """
         pass
 
-    def load_node_attributes(self, rdfgraph:rdflib.Graph, provided_by:str=None):
+    def load_node_attributes(self, rdfgraph:rdflib.Graph):
         """
         This method loads the properties of nodes in the NetworkX graph. As there
         can be many values for a single key, all properties are lists by default.
@@ -188,6 +213,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                 if 'iri' in self.graph.node[node]:
                     iri = self.graph.node[node]['iri']
                 else:
+                    provided_by = self.graph_metadata.get('provided_by')
                     logging.warning("Expected IRI for {} provided by {}".format(node, provided_by))
                     continue
 
@@ -200,13 +226,10 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                 if category is not None:
                     self.add_node_attribute(iri, 'category', category)
 
-                if provided_by is not None:
-                    self.add_node_attribute(iri, 'provided_by', provided_by)
-
 class ObanRdfTransformer2(RdfTransformer):
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
-    def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
         for rel in self.ontological_predicates:
             triples = list(rdfgraph.triples((None, rel, None)))
             with click.progressbar(triples, label='loading {}'.format(rel)) as bar:
@@ -237,9 +260,6 @@ class ObanRdfTransformer2(RdfTransformer):
                 if len(edge_labels) == 0:
                     edge_labels.append('related_to')
 
-                if provided_by is not None:
-                    edge_attr['provided_by'].append(provided_by)
-
                 for subject_iri in subjects:
                     for object_iri in objects:
                         for edge_label in edge_labels:
@@ -259,7 +279,7 @@ class HgncRdfTransformer(RdfTransformer):
     is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
-    def load_networkx_graph(self, rdfgraph:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
         triples = list(rdfgraph.triples((None, None, None)))
 
         with click.progressbar(triples, label='loading graph') as bar:
@@ -278,7 +298,7 @@ class RdfOwlTransformer2(RdfTransformer):
     Transforms from an OWL ontology in RDF, retaining class-class
     relationships
     """
-    def load_networkx_graph(self, rg:rdflib.Graph, nxgraph:nx.Graph, provided_by:str=None):
+    def load_networkx_graph(self, rg:rdflib.Graph):
         for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
             if isinstance(s, rdflib.term.BNode):
                 continue
@@ -298,4 +318,4 @@ class RdfOwlTransformer2(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = p
                 parent = o
-            self.add_edge_attribute(s, parent, pred, key='provided_by', value=provided_by)
+            self.add_edge_attribute(s, parent, pred)
