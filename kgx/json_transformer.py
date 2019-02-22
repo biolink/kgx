@@ -35,7 +35,7 @@ class JsonTransformer(PandasTransformer):
             node = data.copy()
             node['id'] = id
             nodes.append(node)
-        for o,s,data in self.graph.edges(data=True):
+        for s, o, data in self.graph.edges(data=True):
             edge = data.copy()
             edge['subject'] = s
             edge['object'] = o
