@@ -79,8 +79,8 @@ property_mapping = {
     URIRef('http://purl.obolibrary.org/obo/RO_0002558') : 'has_evidence',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonym',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym') : 'synonym',
-    # OWL.sameAs : 'same_as',
-    # OWL.equivalentClass : 'same_as',
+    OWL.sameAs : 'same_as',
+    OWL.equivalentClass : 'same_as',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
 }
 
@@ -91,7 +91,7 @@ is_property_multivalued = {
     'description' : False,
     'synonym' : True,
     'in_taxon' : False,
-    # 'same_as' : True,
+    'same_as' : True,
     'name' : False,
     'has_evidence' : False,
     'provided_by' : True,
