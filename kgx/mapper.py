@@ -184,6 +184,18 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             if 'edge_label' in attr_dict and attr_dict['edge_label'] == 'same_as':
                 cliqueGraph.add_edge(u, v)
 
+    with click.progressbar(cliqueGraph.edges(), label='Breaking invalid cliques') as bar:
+        for u, v in bar:
+            u_categories = graph.node[u].get('category', [])
+            v_categories = graph.node[v].get('category', [])
+
+            for a in u_categories:
+                for b in v_categories:
+                    a_ancestors = bmt.get_ancestors(a)
+                    b_ancestors = bmt.get_ancestors(b)
+                    if a not in b_ancestors and b not in a_ancestors:
+                        cliqueGraph.remove_edge(u, v)
+
     mapping = {}
 
     connected_components = list(nx.connected_components(cliqueGraph))
