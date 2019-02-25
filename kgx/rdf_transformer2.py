@@ -34,6 +34,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         self.load_networkx_graph(rdfgraph)
         self.load_node_attributes(rdfgraph)
+        self.report()
+        print('Finished loading {}'.format(filename))
 
     def add_ontology(self, owlfile:str):
         ont = rdflib.Graph()
@@ -243,7 +245,7 @@ class ObanRdfTransformer2(RdfTransformer):
 
                 subjects = []
                 objects = []
-                edge_labels = []
+                predicates = []
 
                 for s, p, o in rdfgraph.triples((association, None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
@@ -253,7 +255,7 @@ class ObanRdfTransformer2(RdfTransformer):
                         elif p == 'object':
                             objects.append(o)
                         elif p == 'predicate':
-                            edge_labels.append(o)
+                            predicates.append(o)
                         else:
                             edge_attr[p].append(o)
 
@@ -262,7 +264,8 @@ class ObanRdfTransformer2(RdfTransformer):
 
                 for subject_iri in subjects:
                     for object_iri in objects:
-                        for edge_label in edge_labels:
+                        for predicate_iri in predicates:
+                            self.add_edge(subject_iri, object_iri, predicate_iri)
                             for key, values in edge_attr.items():
                                 for value in values:
                                     self.add_edge_attribute(
