@@ -14,6 +14,7 @@ from collections import defaultdict
 from abc import ABCMeta, abstractmethod
 
 OBAN = Namespace('http://purl.org/oban/')
+PMID = Namespace('http://www.ncbi.nlm.nih.gov/pubmed/')
 
 class RdfTransformer(Transformer, metaclass=ABCMeta):
     def __init__(self, t:Transformer=None):
@@ -56,7 +57,13 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         }
 
         if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
+            provided_by = self.graph_metadata['provided_by']
+            if isinstance(provided_by, list):
+                kwargs['provided_by'] = provided_by
+            elif isinstance(provided_by, str):
+                kwargs['provided_by'] = [provided_by]
+            else:
+                raise Exception('provided_by must be a string or list, instead it was {}'.format(type(provided_by)))
 
         n = make_curie(iri)
 
@@ -86,7 +93,13 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         }
 
         if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
+            provided_by = self.graph_metadata['provided_by']
+            if isinstance(provided_by, list):
+                kwargs['provided_by'] = provided_by
+            elif isinstance(provided_by, str):
+                kwargs['provided_by'] = [provided_by]
+            else:
+                raise Exception('provided_by must be a string or list, instead it was {}'.format(type(provided_by)))
 
         if not self.graph.has_edge(s, o, key=edge_label):
             self.graph.add_edge(s, o, key=edge_label, **kwargs)
@@ -256,6 +269,8 @@ class ObanRdfTransformer2(RdfTransformer):
                             objects.append(o)
                         elif p == 'predicate':
                             predicates.append(o)
+                        elif o.startswith(PMID):
+                            edge_attr['publications'].append(o)
                         else:
                             edge_attr[p].append(o)
 

@@ -96,6 +96,7 @@ is_property_multivalued = {
     'has_evidence' : False,
     'provided_by' : True,
     'category' : True,
+    'publications' : True,
 }
 
 def reverse_mapping(d:dict):
