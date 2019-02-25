@@ -259,8 +259,8 @@ class ObanRdfTransformer2(RdfTransformer):
                         else:
                             edge_attr[p].append(o)
 
-                if len(edge_labels) == 0:
-                    edge_labels.append('related_to')
+                if len(predicates) == 0:
+                    predicates.append('related_to')
 
                 for subject_iri in subjects:
                     for object_iri in objects:
@@ -271,7 +271,7 @@ class ObanRdfTransformer2(RdfTransformer):
                                     self.add_edge_attribute(
                                         subject_iri,
                                         object_iri,
-                                        edge_label,
+                                        predicate_iri,
                                         key=key,
                                         value=value
                                     )
