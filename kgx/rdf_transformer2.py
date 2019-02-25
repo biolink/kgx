@@ -261,6 +261,8 @@ class ObanRdfTransformer2(RdfTransformer):
                 predicates = []
 
                 for s, p, o in rdfgraph.triples((association, None, None)):
+                    if o.startswith(PMID):
+                        edge_attr['publications'].append(o)
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
                         p = property_mapping.get(p, p)
                         if p == 'subject':
@@ -269,8 +271,6 @@ class ObanRdfTransformer2(RdfTransformer):
                             objects.append(o)
                         elif p == 'predicate':
                             predicates.append(o)
-                        elif o.startswith(PMID):
-                            edge_attr['publications'].append(o)
                         else:
                             edge_attr[p].append(o)
 
