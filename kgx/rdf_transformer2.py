@@ -234,7 +234,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
                 for s, p, o in rdfgraph.triples((uriRef, None, None)):
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        self.add_node_attribute(uriRef, key=p, value=o)
+                        if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
+                            self.add_node_attribute(uriRef, key=p, value=o)
 
                 category = find_category(uriRef, [rdfgraph] + self.ontologies)
 
