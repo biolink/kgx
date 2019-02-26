@@ -249,7 +249,8 @@ class ObanRdfTransformer2(RdfTransformer):
             triples = list(rdfgraph.triples((None, rel, None)))
             with click.progressbar(triples, label='loading {}'.format(rel)) as bar:
                 for s, p, o in bar:
-                    self.add_edge(s, o, p)
+                    if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
+                        self.add_edge(s, o, p)
 
         associations = list(rdfgraph.subjects(RDF.type, OBAN.association))
         with click.progressbar(associations, label='loading graph') as bar:
