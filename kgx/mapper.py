@@ -1,6 +1,7 @@
 import networkx as nx
 import logging, click, bmt, pandas
 
+from prefixcommons.curie_util import expand_uri
 from collections import defaultdict
 from typing import Union, List
 
@@ -184,17 +185,27 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             if 'edge_label' in attr_dict and attr_dict['edge_label'] == 'same_as':
                 cliqueGraph.add_edge(u, v)
 
+    edges = []
     with click.progressbar(cliqueGraph.edges(), label='Breaking invalid cliques') as bar:
         for u, v in bar:
-            u_categories = graph.node[u].get('category', [])
-            v_categories = graph.node[v].get('category', [])
-
+            try:
+                u_categories = graph.node[u].get('category', [])
+                v_categories = graph.node[v].get('category', [])
+            except:
+                continue
+            l = len(edges)
             for a in u_categories:
+                if len(edges) > l:
+                    break
                 for b in v_categories:
-                    a_ancestors = bmt.get_ancestors(a)
-                    b_ancestors = bmt.get_ancestors(b)
+                    a_ancestors = bmt.ancestors(a)
+                    b_ancestors = bmt.ancestors(b)
                     if a not in b_ancestors and b not in a_ancestors:
-                        cliqueGraph.remove_edge(u, v)
+                        edges.append((u, v))
+                        break
+
+    print('breaking {} many edges'.format(len(edges)))
+    cliqueGraph.remove_edges_from(edges)
 
     mapping = {}
 
@@ -235,6 +246,15 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
                     mapping[n] = nodes[0]
 
     g = relabel_nodes(graph, mapping)
+
+    edges = []
+    for u, v, key, data in g.edges(keys=True, data=True):
+        if data['edge_label'] == 'same_as':
+            edges.append((u, v, key))
+    g.remove_edges_from(edges)
+
+    for n, data in g.nodes(data=True):
+        data['iri'] = expand_uri(n)
 
     final_size = len(g)
     print('Resulting graph has {} nodes'.format(final_size))
