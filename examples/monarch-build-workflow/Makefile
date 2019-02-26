@@ -7,8 +7,14 @@ run:
 install:
 	pip install -r requirements.txt
 
+move-results:
+	tar -xvf results/clique_merged.csv.tar -C results/
+	mv results/edges.csv results/clique_merged_edges.csv
+	mv results/nodes.csv results/clique_merged_nodes.csv
+	sudo mv results/clique_merged_nodes.csv neo4j/import/
+	sudo mv results/clique_merged_edges.csv neo4j/import/
+
 download:
-	mkdir data || echo "directory already exists"
 	# Download data files
 	wget https://data.monarchinitiative.org/ttl/clinvar.ttl -O data/clinvar.ttl
 	wget https://data.monarchinitiative.org/ttl/orphanet.ttl -O data/orphanet.ttl
@@ -18,12 +24,10 @@ download:
 	wget http://34.229.55.225/nodes_neo4j.csv -O data/semmeddb_nodes.csv
 	wget http://34.229.55.225/edges_neo4j.csv -O data/semmeddb_edges.csv
 	# Download ontology files
-	wget https://www.ebi.ac.uk/ols/ontologies/ordo/download -O data/ordo.owl
 	wget http://purl.obolibrary.org/obo/mondo.owl -O data/mondo.owl
 	wget https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl -O data/hp.owl
 	wget https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/so.owl -O data/so.owl
 	wget http://purl.obolibrary.org/obo/go.owl -O data/go.owl
-	wget http://data.bioontology.org/ontologies/ORDO/submissions/14/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb -O ordo_orphanet.owl
 
 neo4j-start:
 	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=/neo4j/plugins
