@@ -78,6 +78,10 @@ def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
         for n in bar:
             if n in mapping:
                 graceful_update(g.node[mapping[n]], graph.node[n])
+            elif n in g:
+                graceful_update(g.node[n], graph.node[n])
+            else:
+                pass
 
     return g
 
@@ -265,6 +269,12 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
 
     for n, data in g.nodes(data=True):
         data['iri'] = expand_uri(n)
+        if 'id' in data and data['id'] != n:
+            data['id'] = n
+        if 'same_as' in data and n in data['same_as']:
+            data['same_as'].remove(n)
+            if data['same_as'] == []:
+                del data['same_as']
 
     final_size = len(g)
     print('Resulting graph has {} nodes'.format(final_size))
