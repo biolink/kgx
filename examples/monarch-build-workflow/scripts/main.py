@@ -6,7 +6,7 @@ Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 """
 
 from kgx import ObanRdfTransformer2, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer2
-from kgx import clique_merge
+from kgx import clique_merge, make_valid_types
 
 t = RdfOwlTransformer2()
 t.parse('data/hp.owl')
@@ -60,9 +60,11 @@ t.parse('results/omim.json')
 t.parse('results/hpoa.json')
 t.parse('results/orphanet.json')
 
-#t = PandasTransformer(t.graph)
-#t.parse('data/semmeddb_edges.csv')
-#t.parse('data/semmeddb_nodes.csv')
+t = PandasTransformer(t.graph)
+t.parse('data/semmeddb_edges.csv')
+t.parse('data/semmeddb_nodes.csv')
 
 t.graph = clique_merge(t.graph)
-t.save('results/clique_merged.json')
+t.graph = make_valid_types(t.graph)
+
+t.save('results/clique_merged.csv')
