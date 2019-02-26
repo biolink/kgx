@@ -22,10 +22,34 @@ def map_graph(G, mapping, preserve=True):
                     G[oid][sid][ex].update(source_subject=oid)
     nx.relabel_nodes(G, mapping, copy=False)
 
+def graceful_update(a:dict, b:dict):
+    """
+    Updates list values appropriately. This method will not change the type of
+    a value that already exists in a. If a value in a is a list, it will have
+    the value of b either appened or concatenated depending on whether the value
+    of b is also a list.
+    """
+    for key, value in b.items():
+        if key in a:
+            if isinstance(a[key], list) and isinstance(value, list):
+                for x in value:
+                    if x not in a[key]:
+                        a[key].append(x)
+            elif isinstance(a[key], list) and not isinstance(value, list):
+                if value not in a[key]:
+                    a[key].append(value)
+            elif a[key] is None:
+                a[key] = value
+            else:
+                pass
+        else:
+            a[key] = value
+
+
 def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
     """
-    Performs the relabelling of nodes, and ensures that list attributes are
-    copied over.
+    Performs the relabelling of nodes, and ensures that node attributes are
+    copied over appropriately.
 
     Example:
         graph = nx.Graph()
@@ -33,42 +57,28 @@ def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
         graph.add_edge('a', 'b')
         graph.add_edge('c', 'd')
 
-        graph.node['a']['name'] = ['A']
-        graph.node['b']['name'] = ['B']
-        graph.node['c']['name'] = ['C']
-        graph.node['d']['name'] = ['D']
+        graph.node['a']['synonym'] = ['A']
+        graph.node['b']['synonym'] = ['B']
+        graph.node['c']['synonym'] = ['C']
+        graph.node['d']['synonym'] = ['D']
 
         graph = relabel_nodes(graph, {'c' : 'b'})
 
         for n in graph.nodes():
             print(n, graph.node[n])
     Output:
-        a {'name': ['A']}
-        b {'name': ['B', 'C']}
-        d {'name': ['D']}
+        a {'synonym': ['A']}
+        b {'synonym': ['B', 'C']}
+        d {'synonym': ['D']}
     """
     print('relabelling nodes...')
     g = nx.relabel_nodes(graph, mapping, copy=True)
 
-    with click.progressbar(graph.nodes(), label='concatenating list attributes') as bar:
+    with click.progressbar(graph.nodes(), label='merging node attributes') as bar:
         for n in bar:
-            if n not in mapping or n == mapping[n]:
-                continue
+            if n in mapping:
+                graceful_update(g.node[mapping[n]], graph.node[n])
 
-            new_attr_dict = g.node[mapping[n]]
-            old_attr_dict = graph.node[n]
-
-            for key, value in old_attr_dict.items():
-                if key in new_attr_dict:
-                    is_list = \
-                        isinstance(new_attr_dict[key], (list, set, tuple)) \
-                        and isinstance(old_attr_dict[key], (list, set, tuple))
-                    if is_list:
-                        s = set(new_attr_dict[key])
-                        s.update(old_attr_dict[key])
-                        new_attr_dict[key] = list(s)
-                else:
-                    new_attr_dict[key] = value
     return g
 
 def listify(o:object) -> Union[list, set, tuple]:
