@@ -9,6 +9,11 @@ from kgx import ObanRdfTransformer2, JsonTransformer, HgncRdfTransformer, RdfOwl
 from kgx import clique_merge
 
 t = RdfOwlTransformer2()
+t.parse('data/hp.owl')
+t = JsonTransformer(t)
+t.save('results/hp.json')
+
+t = RdfOwlTransformer2()
 t.parse('data/mondo.owl')
 t = JsonTransformer(t)
 t.save('results/mondo.json')
