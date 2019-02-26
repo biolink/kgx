@@ -1,7 +1,6 @@
 from kgx import JsonTransformer, clique_merge
 
 t = JsonTransformer()
-t.parse('results/hpo.owl')
 t.parse('results/hp.owl')
 t.parse('results/mondo.json')
 t.parse('results/hgnc.json')
