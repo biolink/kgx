@@ -1,6 +1,7 @@
 from kgx import ObanRdfTransformer, PandasTransformer
 import networkx as nx
 import pandas as pd
+import bmt
 
 def load_edges(g:nx.Graph):
     """
@@ -18,15 +19,20 @@ def load_edges(g:nx.Graph):
         p = row['pmids']
         p = ['PMID:' + i for i in p.split(';')] if p is not None else None
 
+        t = row[':TYPE'].replace(' ', '_')
+
+        if bmt.get_predicate(t):
+            edge_label = t
+        else:
+            edge_label = 'related_to'
+
         kwargs = dict(
-                semmedPredicate=row['SEMMED_PRED'],
-                pmids=p,
-                n_pmids=row['n_pmids'],
+                publications=p,
                 negated=row['negated'],
-                predicate=row[':TYPE'],
+                edge_label=edge_label,
                 defined_by=row['is_defined_by'],
-                provided_by=row['provided_by'],
-                relation=row['relation']
+                provided_by=[row['provided_by']],
+                relation=row['relation'],
         )
 
         g.add_edge(row[':START_ID'], row[':END_ID'], **kwargs)
@@ -47,25 +53,21 @@ def load_nodes(g:nx.Graph):
     df = pd.read_csv('data/semmeddb_nodes.csv')
 
     def process_row(row):
-        xrefs = row['xrefs:STRING[]']
-        xrefs = [xref for xref in xrefs.split(';') if 'NOCODE' not in xref]
-
-
+        # We ignore the xrefs because SemMedDb often is incorrect about xrefs.
         kwargs = dict(
                 name=row['name:STRING'],
                 type=row['umls_type:STRING[]'],
-                umls_type=row['umls_type_label:STRING[]'],
-                label=row[':LABEL'],
-                same_as=xrefs,
                 category=row['category:STRING'],
-                id=row['id:STRING']
+                id=row['id:STRING'],
+                provided_by=['semmeddb_sulab']
         )
 
         n = row[':ID']
 
         if n in g:
             for key, value in kwargs.items():
-                g.node[n][key] = value
+                if value is not None and value != '':
+                    g.node[n][key] = value
         else:
             g.add_node(n, **kwargs)
 
@@ -73,7 +75,6 @@ def load_nodes(g:nx.Graph):
 
 
 if __name__ == '__main__':
-    g = nx.Graph()
     t = PandasTransformer()
     load_nodes(t.graph)
     load_edges(t.graph)
