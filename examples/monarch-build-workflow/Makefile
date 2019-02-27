@@ -44,3 +44,9 @@ neo4j-start:
 
 neo4j-stop:
 	docker stop ${NEO4J_CONTAINER_NAME}
+
+neo4j-ssh:
+	docker exec -it ${NEO4J_CONTAINER_NAME} /bin/bash
+
+neo4j-logs:
+	docker logs ${NEO4J_CONTAINER_NAME}
