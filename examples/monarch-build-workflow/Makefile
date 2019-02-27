@@ -7,6 +7,11 @@ run:
 install:
 	pip install -r requirements.txt
 
+unpack-semmeddb:
+	tar -xvf data/transformed_semmeddb.csv.tar -C data/
+	sudo mv data/edges.csv data/semmeddb_edges.csv
+	sudo mv data/nodes.csv data/semmeddb_nodes.csv
+
 move-results:
 	tar -xvf results/clique_merged.csv.tar -C results/
 	mv results/edges.csv results/clique_merged_edges.csv
