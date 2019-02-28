@@ -41,15 +41,28 @@ class PandasTransformer(Transformer):
         super(PandasTransformer, self).__init__(graph)
         self.list_delimiter = list_delimiter
 
-    def parse(self, filename: str, input_format='csv', **args):
+    def parse(self, filename: str, input_format='csv', **kwargs):
         """
         Parse a CSV/TSV
 
         May be either a node file or an edge file
         """
-        args['delimiter'] = self._extention_types[input_format]
-        df = pd.read_csv(filename, comment='#', **args) # type: pd.DataFrame
-        self.load(df)
+        if 'delimiter' not in kwargs:
+            kwargs['delimiter'] = self._extention_types[input_format]
+        if filename.endswith('.tar'):
+            with tarfile.open(filename) as tar:
+                for member in tar.getmembers():
+                    f = tar.extractfile(member)
+                    df = pd.read_csv(f, comment='#', **kwargs) # type: pd.DataFrame
+                    if member.name == 'nodes.csv':
+                        self.load_nodes(df)
+                    elif member.name == 'edges.csv':
+                        self.load_edges(df)
+                    else:
+                        raise Exception('Tar file contains unrecognized member {}'.format(member.name))
+        else:
+            df = pd.read_csv(filename, comment='#', **kwargs) # type: pd.DataFrame
+            self.load(df)
 
 
     def build_kwargs(self, obj:Dict) -> Dict:
