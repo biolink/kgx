@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import logging
 import os
 import tarfile
@@ -7,6 +8,24 @@ from tempfile import TemporaryFile
 from .transformer import Transformer
 
 from typing import Dict, List
+
+import re
+
+header_type_pattern = re.compile('^.*:(STRING|STRING\[.*\])$')
+header_list_pattern = re.compile('^.*:STRING\[.*\]$')
+
+def get_delimiter(header:str) -> bool:
+    """
+    If the header encodes a list then the delimiter will be returned. Otherwise,
+    None is returned. If no delimiter is specified then it will default to a
+    semicolon.
+    """
+    if header_list_pattern.match(header):
+        _, t = header.rsplit(':', 1)
+        delimiter = t[1:-1]
+        return delimiter if delimiter != '' else ';'
+    else:
+        return None
 
 class PandasTransformer(Transformer):
     """
@@ -18,6 +37,10 @@ class PandasTransformer(Transformer):
         'txt' : '|'
     }
 
+    def __init__(self, graph=None, *, list_delimiter=';'):
+        super(PandasTransformer, self).__init__(graph)
+        self.list_delimiter = list_delimiter
+
     def parse(self, filename: str, input_format='csv', **args):
         """
         Parse a CSV/TSV
@@ -28,49 +51,105 @@ class PandasTransformer(Transformer):
         df = pd.read_csv(filename, comment='#', **args) # type: pd.DataFrame
         self.load(df)
 
+
+    def build_kwargs(self, obj:Dict) -> Dict:
+        """
+        Returns a dictionary that represents the same set of attributes but with
+        type encodings stripped from keys and applied to their values. If no
+        type encodings are used then the returned dict will be equal to the
+        original.
+
+        Example
+        -------------
+        >>> build_kwargs({
+                'name:STRING' : 'a',
+                'synonym:STRING[;]' : 'c;d;e',
+                'id' : 'xyz',
+            })
+        {'name' : 'a', 'synonym' : ['c', 'd', 'e'], 'id' : 'xyz'}
+        """
+        kwargs = {}
+        for key, value in obj.items():
+            if value is np.nan:
+                continue
+            if header_type_pattern.match(key):
+                if header_list_pattern.match(key):
+                    delimiter = get_delimiter(key)
+                    key, _ = key.split(':', 1)
+                    kwargs[key] = value.split(delimiter)
+                else:
+                    key, _ = key.split(':', 1)
+                    kwargs[key] = value
+            else:
+                kwargs[key] = value
+        return kwargs
+
     def load(self, df: pd.DataFrame):
-        if 'subject' in df:
+        if 'subject' in df or 'subject:STRING' in df:
             self.load_edges(df)
         else:
             self.load_nodes(df)
 
-    def load_nodes(self, df: pd.DataFrame):
+    def load_nodes(self, df:pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
-    def load_node(self, obj: Dict):
-        id = obj['id'] # type: str
-        self.graph.add_node(id, **obj)
+    def load_node(self, obj:Dict):
+        kwargs = self.build_kwargs(obj)
+        n = kwargs['id']
+        self.graph.add_node(n, **kwargs)
 
     def load_edges(self, df: pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
     def load_edge(self, obj: Dict):
-        s = obj['subject'] # type: str
-        o = obj['object'] # type: str
-        self.graph.add_edge(o, s, **obj)
+        kwargs = self.build_kwargs(obj)
+        s = kwargs['subject']
+        o = kwargs['object']
+        self.graph.add_edge(s, o, **kwargs)
+
+    def build_export_row(self, data:dict, header_mappings:dict) -> dict:
+        row = {}
+        for key, value in data.items():
+            if key not in header_mappings:
+                header_mappings[key] = type(value)
+            p = header_mappings[key] == list
+            q = isinstance(value, list)
+            if p and q:
+                row['{}:STRING[{}]'.format(key, self.list_delimiter)] = self.list_delimiter.join(value)
+            elif p and not q:
+                row['{}:STRING[{}]'.format(key, self.list_delimiter)] = value
+            elif not p and q:
+                row['{}:STRING'.format(key)] = self.list_delimiter.join(value)
+            elif not p and not q:
+                row['{}:STRING'.format(key)] = value
+            else:
+                raise Exception('Values of {} is both {} and {}, must be either list or string'.format(key, type(key), header_mappings[key]))
+        return row
 
     def export_nodes(self) -> pd.DataFrame:
-        items = []
-        for n,data in self.graph.nodes_iter(data=True):
-            item = data.copy()
-            item['id'] = n
-            items.append(item)
-        df = pd.DataFrame.from_dict(items)
+        header_mappings = {}
+        rows = []
+        for n, data in self.graph.nodes(data=True):
+            row = self.build_export_row(data, header_mappings=header_mappings)
+            row['id:STRING'] = n
+            rows.append(row)
+        df = pd.DataFrame.from_dict(rows)
         return df
 
     def export_edges(self) -> pd.DataFrame:
-        items = []
-        for o,s,data in self.graph.edges_iter(data=True):
-            item = data.copy()
-            item['subject'] = s
-            item['object'] = o
-            items.append(item)
-        df = pd.DataFrame.from_dict(items)
-        cols = df.columns.tolist()
-        cols = self.order_cols(cols)
-        df = df[cols]
+        header_mappings = {}
+        rows = []
+        for o,s,data in self.graph.edges(data=True):
+            row = self.build_export_row(data, header_mappings)
+            row['subject:STRING'] = s
+            row['object:STRING'] = o
+            rows.append(row)
+        df = pd.DataFrame.from_dict(rows)
+        # cols = df.columns.tolist()
+        # cols = self.order_cols(cols)
+        # df = df[cols]
         return df
 
     def order_cols(self, cols: List[str]):
