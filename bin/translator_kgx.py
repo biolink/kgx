@@ -305,6 +305,36 @@ def load_mapping(config, name, csv, columns, no_header, show):
         pickle.dump(d, f)
         click.echo('Mapping \'{name}\' saved at {path}'.format(name=name, path=path))
 
+from kgx import clique_merge
+
+@cli.command()
+@click.option('--inputs', '-i', required=True, type=click.Path(exists=True), multiple=True)
+@click.option('--output', '-o', required=True, type=click.Path(exists=False))
+def merge(inputs, output):
+    """
+    Loads a series of knowledge graphs and merges cliques using `same_as` edges
+    as well as `same_as` node properties. The resulting graph will not have any
+    `same_as` edges, and the remaining clique leader nodes will have all
+    equivalent identifiers in their `same_as` property.
+    """
+    transformers = []
+    output_transformer = get_transformer(get_type(output))()
+    graph = None
+    for path in inputs:
+        construct = get_transformer(get_type(path))
+        if construct is None:
+            raise Exception('No transformer for {}'.format(path))
+        transformers.append(construct())
+    for transformer, path in zip(transformers, inputs):
+        if graph is None:
+            graph = transformer.graph
+        else:
+            transformer.graph = graph
+        transformer.parse(path)
+    output_transformer.graph = graph
+    output_transformer.graph = clique_merge(output_transformer.graph)
+    output_transformer.save(output)
+
 @cli.command(name='load-and-merge')
 @click.argument('merge_config', type=str)
 @click.option('--destination-uri', type=str)
