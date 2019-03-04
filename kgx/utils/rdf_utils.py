@@ -20,6 +20,7 @@ for key, value in m.items():
         mapping[k] = v
 
 OBAN = Namespace('http://purl.org/oban/')
+BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
 
 predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002200' : 'has phenotype',
@@ -33,6 +34,17 @@ predicate_mapping = {
 predicate_mapping.update(mapping)
 
 category_mapping = {
+# subclasses mapped onto their superclasses:
+    "http://purl.obolibrary.org/obo/SO_0000405" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000001" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000100" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000336" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000340" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000404" : "transcript",
+    "http://purl.obolibrary.org/obo/SO_0000460" : "sequence feature",
+    "http://purl.obolibrary.org/obo/SO_0000651" : "transcript",
+    "http://purl.obolibrary.org/obo/SO_0000655" : "transcript",
+#?
     "http://purl.obolibrary.org/obo/SO_0001217" : "gene",
     "http://purl.obolibrary.org/obo/GENO_0000002" : "sequence variant",
     'http://purl.obolibrary.org/obo/UPHENO_0001002' : 'phenotypic feature',
@@ -72,15 +84,19 @@ property_mapping = {
     OBAN.association_has_subject : 'subject',
     OBAN.association_has_object : 'object',
     OBAN.association_has_predicate : 'predicate',
+    BIOLINK.name : 'name',
     RDFS.label : 'name',
     # Definition being treated as a description
+    BIOLINK.description : 'description',
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
     URIRef('http://purl.org/dc/elements/1.1/description') : 'description',
+    BIOLINK.has_evidence : 'has_evidence',
     URIRef('http://purl.obolibrary.org/obo/RO_0002558') : 'has_evidence',
+    BIOLINK.synonym : 'synonym',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonym',
-    URIRef('http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym') : 'synonym',
     OWL.sameAs : 'same_as',
     OWL.equivalentClass : 'same_as',
+    BIOLINK.in_taxon : 'in_taxon',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
 }
 
@@ -105,8 +121,6 @@ def reverse_mapping(d:dict):
     and the values are sets of keys from the given dictionary.
     """
     return {value : set(k for k, v in d.items() if v == value) for value in d.items()}
-
-reverse_property_mapping = reverse_mapping(property_mapping)
 
 cmaps = [{
     'OMIM' : 'https://omim.org/entry/',
