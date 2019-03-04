@@ -1,31 +1,25 @@
-from .transformer import Transformer
+import click, rdflib, logging, os, uuid, bmt
+import networkx as nx
 
-import rdflib
-import logging
-import uuid
+from typing import Tuple, Union, List
+
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
-from typing import NewType
 
-from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
+from .transformer import Transformer
+from .utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 
-UriString = NewType("UriString", str)
+from collections import defaultdict
+
+from abc import ABCMeta, abstractmethod
 
 OBAN = Namespace('http://purl.org/oban/')
+PMID = Namespace('http://www.ncbi.nlm.nih.gov/pubmed/')
+BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
 
-# TODO: use JSON-LD context
-mapping = {
-    'subject': OBAN.association_has_subject,
-    'object': OBAN.association_has_object,
-    'predicate': OBAN.association_has_predicate,
-    'type' : RDF.type,
-    'comment': RDFS.comment,
-    'name': RDFS.label
-}
-rmapping = {y: x for x, y in mapping.items()}
+mapping = {value : key for key, value in property_mapping.items()}
 
-
-class RdfTransformer(Transformer):
+class RdfTransformer(Transformer, metaclass=ABCMeta):
     """
     Transforms to and from RDF
 
@@ -37,119 +31,288 @@ class RdfTransformer(Transformer):
     TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
 
-    def parse(self, filename:str=None, input_format:str=None, provided_by:str=None):
+    def __init__(self, t:Transformer=None):
+        super().__init__(t)
+        self.ontologies = []
+
+    def parse(self, filename:str=None, provided_by:str=None):
         """
         Parse a file into an graph, using rdflib
         """
         rdfgraph = rdflib.Graph()
-        if input_format is None:
-            if filename.endswith(".ttl"):
-                input_format = 'turtle'
-            elif filename.endswith(".rdf"):
-                input_format='xml'
-        rdfgraph.parse(filename, format=input_format)
+
+        fmt = rdflib.util.guess_format(filename)
+
+        logging.info("Parsing {} with {} format".format(filename, fmt))
+        rdfgraph.parse(filename, format=fmt)
         logging.info("Parsed : {}".format(filename))
 
         # TODO: use source from RDF
-        if provided_by is not None and isinstance(filename, str):
-            provided_by = filename
-        self.graph_metadata['provided_by'] = provided_by
-        self.load_edges(rdfgraph)
-        self.load_nodes(rdfgraph)
+        if provided_by is None:
+            self.graph_metadata['provided_by'] = os.path.basename(filename)
 
-    def curie(self, uri: UriString) -> str:
+        self.load_networkx_graph(rdfgraph)
+        self.load_node_attributes(rdfgraph)
+        self.report()
+
+    def add_ontology(self, owlfile:str):
+        ont = rdflib.Graph()
+        ont.parse(owlfile, format=rdflib.util.guess_format(owlfile))
+        self.ontologies.append(ont)
+        logging.info("Parsed  {}".format(owlfile))
+
+    def add_node(self, iri:URIRef) -> str:
         """
-        Translate a URI into a CURIE (prefixed identifier)
+        This method should be used by all derived classes when adding an edge to
+        the graph. This ensures that the node's identifier is a CURIE, and that
+        its IRI property is set.
+
+        Returns the CURIE identifier for the node in the NetworkX graph.
         """
-        pm = self.prefix_manager
-        return pm.contract(str(uri))
-        #curies = contract_uri(str(uri))
-        #if len(curies)>0:
-        #    return curies[0]
-        #return str(uri)
+        kwargs = {
+            'iri' : str(iri)
+        }
 
-    def load_nodes(self, rg: rdflib.Graph):
-        G = self.graph
-        for nid in G.nodes():
-            n = G.node[nid]
-            if 'iri' not in n:
-                logging.warning("Expected IRI for {}".format(n))
-                continue
-            iri = URIRef(n['iri'])
-            npmap = {}
-            for s,p,o in rg.triples( (iri, None, None) ):
-                if isinstance(o, rdflib.term.Literal):
-                    if p in rmapping:
-                        p = rmapping[p]
-                    npmap[p] = str(o)
-            G.add_node(nid, **npmap)
+        if 'provided_by' in self.graph_metadata:
+            provided_by = self.graph_metadata['provided_by']
+            if isinstance(provided_by, list):
+                kwargs['provided_by'] = provided_by
+            elif isinstance(provided_by, str):
+                kwargs['provided_by'] = [provided_by]
+            else:
+                raise Exception('provided_by must be a string or list, instead it was {}'.format(type(provided_by)))
 
-    def load_edges(self, rg: rdflib.Graph):
+        n = make_curie(iri)
+
+        if n not in self.graph:
+            self.graph.add_node(n, **kwargs)
+
+        return n
+
+    def add_edge(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef) -> Tuple[str, str, str]:
+        """
+        This method should be used by all derived classes when adding an edge to
+        the graph. This ensures that the nodes identifiers are CURIEs, and that
+        their IRI properties are set.
+
+        Returns the CURIE identifiers used for the subject and object in the
+        NetworkX graph, and the processed edge_label.
+        """
+        s = self.add_node(subject_iri)
+        o = self.add_node(object_iri)
+
+        relation = make_curie(predicate_iri)
+        edge_label = process_iri(predicate_iri).replace(' ', '_')
+
+        kwargs = {
+            'relation' : relation,
+            'edge_label' : edge_label,
+        }
+
+        if 'provided_by' in self.graph_metadata:
+            provided_by = self.graph_metadata['provided_by']
+            if isinstance(provided_by, list):
+                kwargs['provided_by'] = provided_by
+            elif isinstance(provided_by, str):
+                kwargs['provided_by'] = [provided_by]
+            else:
+                raise Exception('provided_by must be a string or list, instead it was {}'.format(type(provided_by)))
+
+        if not self.graph.has_edge(s, o, key=edge_label):
+            self.graph.add_edge(s, o, key=edge_label, **kwargs)
+
+        return s, o, edge_label
+
+    def add_node_attribute(self, iri:URIRef, *, key:str, value:str) -> None:
+        """
+        Adds an attribute to a node, respecting whether or not that property
+        should be multi-valued. Multi-valued properties will not contain
+        duplicates.
+
+        The key may be a URIRef or a URI string that maps onto a property name
+        in `property_mapping`.
+
+        If the node does not exist then it is created.
+
+        Parameters
+        ----------
+        iri : The iri of a node in the RDF graph
+        key : The name of the attribute, may be a URIRef or URI string
+        value : The value of the attribute
+        """
+        if key.lower() in is_property_multivalued:
+            key = key.lower()
+        else:
+            if not isinstance(key, URIRef):
+                key = URIRef(key)
+            key = property_mapping.get(key)
+
+        if key is not None:
+            n = self.add_node(iri)
+            attr_dict = self.graph.node[n]
+            self.__add_attribute(attr_dict, key, value)
+
+    def add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, *, key:str, value:str) -> None:
+        """
+        Adds an attribute to an edge, respecting whether or not that property
+        should be multi-valued. Multi-valued properties will not contain
+        duplicates.
+
+        The key may be a URIRef or a URI string that maps onto a property name
+        in `property_mapping`.
+
+        If the nodes or their edge does not yet exist then they will be created.
+
+        Parameters
+        ----------
+        subject_iri : The iri of the subject node in the RDF graph
+        object_iri : The iri of the object node in the RDF graph
+        predicate_iri : The iri of the predicate in the RDF graph
+        key : The name of the attribute, may be a URIRef or URI string
+        value : The value of the attribute
+        """
+        if key.lower() in is_property_multivalued:
+            key = key.lower()
+        else:
+            if not isinstance(key, URIRef):
+                key = URIRef(key)
+            key = property_mapping.get(key)
+
+        if key is not None:
+            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
+            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
+            self.__add_attribute(attr_dict, key, value)
+
+    def __add_attribute(self, attr_dict:dict, key:str, value:str):
+        """
+        Adds an attribute to the attribute dictionary, respecting whether or not
+        that attribute should be multi-valued. Multi-valued attributes will not
+        contain duplicates.
+        Some attributes are singular forms of others, e.g. name -> synonym. In
+        such cases overflowing values will be placed into the correlating
+        multi-valued attribute.
+
+        Parameters
+        ----------
+        attr_dict : The dictionary representing the attribute set of a NetworkX
+                    node or edge. It can be aquired with G.node[n] or G.edge[u][v].
+        key : The name of the attribute
+        value : The value of the attribute
+        """
+        if key is None or key not in is_property_multivalued:
+            return
+
+        value = make_curie(process_iri(value))
+
+        if is_property_multivalued[key]:
+            if key not in attr_dict:
+                attr_dict[key] = [value]
+            elif value not in attr_dict[key]:
+                attr_dict[key].append(value)
+        else:
+            if key not in attr_dict:
+                attr_dict[key] = value
+            elif key == 'name':
+                self.__add_attribute(attr_dict, 'synonym', value)
+
+    @abstractmethod
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
+        """
+        This method should be overridden and implemented by the derived class,
+        and should load all desired nodes and edges from rdfgraph into nxgraph.
+
+        It's preferred that this method doesn't use the NetworkX graph directly
+        when adding edges or nodes or their attributes. Using the following
+        methods instead will ensure that nodes, edges, and their attributes
+        are added in conformance with the biolink model, and that URIRef's are
+        translated into CURIEs or biolink model elements whenever appropriate:
+
+        add_edge_attribute(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef, key:str, value:str)
+        add_node_attribute(self, iri:URIRef, key:str, value:str)
+        add_edge(self, subject_iri:URIRef, object_iri:URIRef, predicate_iri:URIRef) -> Tuple[str, str, str]
+        add_node(self, iri:URIRef) -> str
+        """
         pass
 
-    def add_edge(self, s:str, o:str, attr_dict:dict=None):
-        if attr_dict is None:
-            attr_dict = {}
+    def load_node_attributes(self, rdfgraph:rdflib.Graph):
+        """
+        This method loads the properties of nodes in the NetworkX graph. As there
+        can be many values for a single key, all properties are lists by default.
 
-        sid = self.curie(s)
-        oid = self.curie(o)
-        
-        self.graph.add_node(sid, iri=str(s))
-        self.graph.add_node(oid, iri=str(o))
-        
-        self.graph.add_edge(sid, oid, **attr_dict)
+        This method assumes that load_edges has been called, and that all nodes
+        have had their IRI saved as an attribute.
+        """
+        with click.progressbar(self.graph.nodes(), label='loading node attributes') as bar:
+            for n in bar:
+                if 'iri' in self.graph.node[n]:
+                    uriRef = URIRef(self.graph.node[n]['iri'])
+                else:
+                    provided_by = self.graph_metadata.get('provided_by')
+                    logging.warning("Expected IRI for {} provided by {}".format(n, provided_by))
+                    continue
+
+                for s, p, o in rdfgraph.triples((uriRef, None, None)):
+                    if p in property_mapping or isinstance(o, rdflib.term.Literal):
+                        if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
+                            self.add_node_attribute(uriRef, key=p, value=o)
+
+                category = find_category(uriRef, [rdfgraph] + self.ontologies)
+
+                if category is not None:
+                    self.add_node_attribute(uriRef, key='category', value=category)
 
 class ObanRdfTransformer(RdfTransformer):
-    """
-    Transforms to and from RDF, assuming OBAN-style modeling
-    """
-    rprop_set = set(('subject', 'predicate', 'object', 'provided_by', 'id', str(RDF.type)))
-    inv_cmap = {}
-    cmap = {}
+    ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
-    def __init__(self, graph=None):
-        super().__init__(graph)
-        # Generate the map and the inverse map from default curie maps, which will be used later.
-        for cmap in default_curie_maps:
-            for k, v in cmap.items():
-                self.inv_cmap[v] = k
-                self.cmap[k] = v
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
+        for rel in self.ontological_predicates:
+            triples = list(rdfgraph.triples((None, rel, None)))
+            with click.progressbar(triples, label='loading {}'.format(rel)) as bar:
+                for s, p, o in bar:
+                    if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
+                        self.add_edge(s, o, p)
 
-    def load_edges(self, rg: rdflib.Graph):
-        pm = self.prefix_manager
-        for a in rg.subjects(RDF.type, OBAN.association):
-            obj = {}
-            # Keep the id of this entity (e.g., <https://monarchinitiative.org/MONARCH_08830...>) as the value of 'id'.
-            #obj['id'] = pm.contract(str(a))
-            obj['id'] = str(a)
+        associations = list(rdfgraph.subjects(RDF.type, OBAN.association))
+        with click.progressbar(associations, label='loading graph') as bar:
+            for association in bar:
+                edge_attr = defaultdict(list)
 
-            for s, p, o in rg.triples((a, None, None)):
-                if p in rmapping:
-                    p = rmapping[p]
-                else:
-                    px = pm.contract(p)
-                    if px is not None:
-                        p = px
-                v = self.curie(o)
-                # Handling multi-value issue, i.e. there can be different v(s) for the same p.
-                if p not in obj:
-                    obj[p] = []
-                obj[p].append(v)
+                subjects = []
+                objects = []
+                predicates = []
 
-            s = obj['subject']
-            o = obj['object']
-            obj['provided_by'] = self.graph_metadata['provided_by']
-            for each_s in s:
-                for each_o in o:
-                    self.graph.add_edge(each_o, each_s, attr_dict=obj)
+                edge_attr['id'].append(str(association))
 
-    def curie(self, uri: UriString) -> str:
-        curies = contract_uri(str(uri))
-        if len(curies) > 0:
-            return curies[0]
-        return str(uri)
+                for s, p, o in rdfgraph.triples((association, None, None)):
+                    if o.startswith(PMID):
+                        edge_attr['publications'].append(o)
+                    if p in property_mapping or isinstance(o, rdflib.term.Literal):
+                        p = property_mapping.get(p, p)
+                        if p == 'subject':
+                            subjects.append(o)
+                        elif p == 'object':
+                            objects.append(o)
+                        elif p == 'predicate':
+                            predicates.append(o)
+                        else:
+                            edge_attr[p].append(o)
 
-    # move to superclass?
+                if len(predicates) == 0:
+                    predicates.append('related_to')
+
+                for subject_iri in subjects:
+                    for object_iri in objects:
+                        for predicate_iri in predicates:
+                            self.add_edge(subject_iri, object_iri, predicate_iri)
+                            for key, values in edge_attr.items():
+                                for value in values:
+                                    self.add_edge_attribute(
+                                        subject_iri,
+                                        object_iri,
+                                        predicate_iri,
+                                        key=key,
+                                        value=value
+                                    )
     def uriref(self, id) -> URIRef:
         if id in mapping:
             uri = mapping[id]
@@ -157,7 +320,27 @@ class ObanRdfTransformer(RdfTransformer):
             uri = self.prefix_manager.expand(id)
         return URIRef(uri)
 
-    def save(self, filename: str = None, output_format: str = None, **kwargs):
+    def save_attribute(self, rdfgraph:rdflib.Graph, obj_iri:URIRef, *, key:str, value:Union[List[str], str]) -> None:
+        """
+        Saves a node or edge attributes from the biolink model in the rdfgraph.
+        Intended to be used within `ObanRdfTransformer.save`.
+        """
+        element = bmt.get_element(key)
+        if element is None:
+            return
+        if element.is_a == 'association slot' or element.is_a == 'node property':
+            if key in mapping:
+                key = mapping[key]
+            else:
+                key = URIRef('{}{}'.format(BIOLINK, element.name.replace(' ', '_')))
+            if not isinstance(value, (list, tuple, set)):
+                value = [value]
+            for value in value:
+                if element.range == 'iri type':
+                    value = URIRef('{}{}'.format(BIOLINK, ''.join(value.title().split(' '))))
+                rdfgraph.add((obj_iri, key, rdflib.term.Literal(value)))
+
+    def save(self, filename:str = None, output_format:str = None, **kwargs):
         """
         Transform the internal graph into the RDF graphs that follow OBAN-style modeling and dump into the file.
         """
@@ -169,81 +352,72 @@ class ObanRdfTransformer(RdfTransformer):
         # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
         # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
         rdfgraph.bind('OBO', 'http://purl.obolibrary.org/obo/')
+        rdfgraph.bind('biolink', 'http://w3id.org/biolink/vocab/')
 
-        # Using an iterator of (node, adjacency dict) tuples for all nodes,
-        # we iterate every edge (only outgoing adjacencies)
-        for n, nbrs in self.graph.adjacency_iter():
-            a_object = n
-            for nbr, eattr in nbrs.items():
-                a_subject = nbr
-                for entry, adjitem in eattr.items():
-                    pred = "relatedTo"
-                    if 'predicate' in adjitem:
-                        pred = adjitem['predicate'][0]
-                    # assoc_id here is used as subject for each entry, e.g.,
-                    # <https://monarchinitiative.org/MONARCH_08830...>
-                    if 'id' in adjitem and adjitem['id'] is not None:
-                        assoc_id = URIRef(adjitem['id'])
-                    else:
-                        assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
-                    self.unpack_adjitem(rdfgraph, assoc_id, adjitem)
+        for n, data in self.graph.nodes(data=True):
+            if 'iri' not in n:
+                uriRef = self.uriref(n)
+            else:
+                uriRef = URIRef(data['iri'])
 
-                    # The remaining ones are then OBAN's properties and corresponding objects. Store them as triples.
-                    rdfgraph.add((assoc_id, mapping['subject'], self.uriref(a_subject)))
-                    rdfgraph.add((assoc_id, mapping['predicate'], self.uriref(pred)))
-                    rdfgraph.add((assoc_id, mapping['object'], self.uriref(a_object)))
+            for key, value in data.items():
+                if key not in ['id', 'iri']:
+                    self.save_attribute(rdfgraph, uriRef, key=key, value=value)
 
-        # For now, assume that the default format is turtle if it is not specified.
+        for u, v, data in self.graph.edges(data=True):
+            if 'relation' not in data:
+                raise Exception('Relation is a required edge property in the biolink model, edge {} --> {}'.format(u, v))
+
+            if 'id' in data and data['id'] is not None:
+                assoc_id = URIRef(adjitem['id'])
+            else:
+                assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+
+            rdfgraph.add((assoc_id, RDF.type, OBAN.association))
+            rdfgraph.add((assoc_id, OBAN.association_has_subject, self.uriref(u)))
+            rdfgraph.add((assoc_id, OBAN.association_has_predicate, self.uriref(data['relation'])))
+            rdfgraph.add((assoc_id, OBAN.association_has_object, self.uriref(v)))
+
+            for key, value in data.items():
+                if key not in ['subject', 'relation', 'object']:
+                    self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
+
         if output_format is None:
             output_format = "turtle"
 
         # Serialize the graph into the file.
         rdfgraph.serialize(destination=filename, format=output_format)
 
-    def unpack_adjitem(self, rdfgraph, assoc_id, adjitem):
-        # Iterate adjacency dict, which contains pairs of properties and objects sharing the same subject.
-        for prop_id, prop_values in adjitem.items():
-            # See whether the current pair's prop/obj is the OBAN's one.
-            if prop_id in self.rprop_set:
-                continue
+class HgncRdfTransformer(RdfTransformer):
+    """
+    Custom transformer for loading:
+    https://data.monarchinitiative.org/ttl/hgnc.ttl
+    """
+    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
+    has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
+    is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
+    ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
-            # If not, see whether its props and objs can be registered as curies in namespaces.
-            # Once they are registered, URI/IRIs can be shorten using the curies registered in namespaces.
-            # e.g., register http://purl.obolibrary.org/obo/ECO_ with ECO.
-            if not isinstance(prop_values,list):
-                prop_values = [prop_values]
-            for prop_value in prop_values:
-                obj_uri = self.uriref(prop_value)
+    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
+        triples = list(rdfgraph.triples((None, None, None)))
 
-                # Store the pair as a triple.
-                rdfgraph.add((assoc_id, self.uriref(prop_id), obj_uri))
-
-    def split_uri(self, prop_uri):
-        """
-        Utility function that splits into URI/IRI into prefix and value, e.g.,
-        http://purl.obolibrary.org/obo/RO_0002558 as http://purl.obolibrary.org/obo/RO_ and 0002558
-        """
-        prop_splits = prop_uri.split('_')
-        if len(prop_splits) > 1:
-            return prop_splits[0] + "_", prop_splits[1]
-        else:
-            prop_splits = prop_uri.split('#')
-            if len(prop_splits) > 1:
-                return prop_splits[0] + "#", prop_splits[1]
-            else:
-                slash_index = prop_uri.rfind("/")
-                return prop_uri[0:slash_index + 1], prop_uri[slash_index + 1:]
-            self.add_edge(o, s, attr_dict=obj)
+        with click.progressbar(triples, label='loading graph') as bar:
+            for s, p, o in bar:
+                if p == self.is_about:
+                    self.add_node_attribute(o, key=s, value='publications')
+                elif p == self.has_subsequence:
+                    self.add_edge(o, s, self.is_subsequence_of)
+                elif p == self.is_subsequence_of:
+                    self.add_edge(s, o, self.is_subsequence_of)
+                elif any(p.lower() == x.lower() for x in self.ontological_predicates):
+                    self.add_edge(s, o, p)
 
 class RdfOwlTransformer(RdfTransformer):
     """
     Transforms from an OWL ontology in RDF, retaining class-class
     relationships
     """
-
-    def load_edges(self, rg: rdflib.Graph):
-        """
-        """
+    def load_networkx_graph(self, rg:rdflib.Graph):
         for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
             if isinstance(s, rdflib.term.BNode):
                 continue
@@ -252,7 +426,6 @@ class RdfOwlTransformer(RdfTransformer):
             attr_dict = {}
             if isinstance(o, rdflib.term.BNode):
                 # C SubClassOf R some D
-                prop = None
                 parent = None
                 for x in rg.objects(o, OWL.onProperty):
                     pred = x
@@ -262,8 +435,6 @@ class RdfOwlTransformer(RdfTransformer):
                     logging.warning("Do not know how to handle: {}".format(o))
             else:
                 # C SubClassOf D (C and D are named classes)
-                pred = 'owl:subClassOf'
+                pred = p
                 parent = o
-            attr_dict['predicate'] = pred
-            attr_dict['provided_by'] = self.graph_metadata['provided_by']
-            self.add_edge(s, parent, attr_dict)
+            self.add_edge(s, parent, pred)
