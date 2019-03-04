@@ -13,12 +13,12 @@ ON CREATE SET
   n.description = row.description,
   n.in_taxon = row.in_taxon,
   n.iri = row.iri,
-  n.category = split(row.category, ';'),
-  n.provided_by = split(row.provided_by, ';'),
-  n.same_as = split(row.same_as, ';'),
-  n.synonym = split(row.synonym, ';')
+  n.category = split(row.category, '|'),
+  n.provided_by = split(row.provided_by, '|'),
+  n.same_as = split(row.same_as, '|'),
+  n.synonym = split(row.synonym, '|')
 WITH *
-CALL apoc.create.addLabels(n, coalesce(split(row.category, ';'), [])) YIELD node
+CALL apoc.create.addLabels(n, coalesce(split(row.category, '|'), [])) YIELD node
 RETURN COUNT(*);
 
 // +----------+
@@ -34,12 +34,13 @@ RETURN COUNT(*);
 
 USING PERIODIC COMMIT 1000
 LOAD CSV WITH HEADERS FROM "file:///clique_merged_edges.csv" AS row
-CALL apoc.map.fromPairs([k IN keys(row) WHERE NOT row[k] IS NULL | (CASE k WHEN 'publications' THEN [k, split(row[k], ';')] WHEN 'provided_by' THEN [k, split(row[k], ';')] ELSE [k, row[k]] END)]) YIELD value
+CALL apoc.map.fromPairs([k IN keys(row) WHERE NOT row[k] IS NULL | (CASE k WHEN 'publications' THEN [k, split(row[k], '|')] WHEN 'provided_by' THEN [k, split(row[k], '|')] ELSE [k, row[k]] END)]) YIELD value
 MATCH (subject:`named thing` {id: row.subject})
 MATCH (object:`named thing` {id: row.object})
 CALL apoc.create.relationship(subject, value.edge_label, value, object) YIELD rel
 RETURN COUNT(*);
 
+// Without SemMedDb:
 // +----------+
 // | COUNT(*) |
 // +----------+
@@ -47,3 +48,12 @@ RETURN COUNT(*);
 // +----------+
 // 1 row
 // 143075 ms
+
+// With SemMedDb:
+// +----------+
+// | COUNT(*) |
+// +----------+
+// | 921075   |
+// +----------+
+// 1 row
+// 163999 ms
