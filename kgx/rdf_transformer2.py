@@ -1,7 +1,7 @@
-import click, rdflib, logging, os
+import click, rdflib, logging, os, uuid, bmt
 import networkx as nx
 
-from typing import Tuple
+from typing import Tuple, Union, List
 
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
@@ -15,28 +15,45 @@ from abc import ABCMeta, abstractmethod
 
 OBAN = Namespace('http://purl.org/oban/')
 PMID = Namespace('http://www.ncbi.nlm.nih.gov/pubmed/')
+BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
+
+mapping = {value : key for key, value in property_mapping.items()}
 
 class RdfTransformer(Transformer, metaclass=ABCMeta):
+    """
+    Transforms to and from RDF
+
+    We support different RDF metamodels, including:
+
+     - OBAN reification (as used in Monarch)
+     - RDF reification
+
+    TODO: we will have some of the same logic if we go from a triplestore. How to share this?
+    """
+
     def __init__(self, t:Transformer=None):
         super().__init__(t)
         self.ontologies = []
 
     def parse(self, filename:str=None, provided_by:str=None):
+        """
+        Parse a file into an graph, using rdflib
+        """
         rdfgraph = rdflib.Graph()
 
         fmt = rdflib.util.guess_format(filename)
+
         logging.info("Parsing {} with {} format".format(filename, fmt))
         rdfgraph.parse(filename, format=fmt)
-
         logging.info("Parsed : {}".format(filename))
 
+        # TODO: use source from RDF
         if provided_by is None:
             self.graph_metadata['provided_by'] = os.path.basename(filename)
 
         self.load_networkx_graph(rdfgraph)
         self.load_node_attributes(rdfgraph)
         self.report()
-        print('Finished loading {}'.format(filename))
 
     def add_ontology(self, owlfile:str):
         ont = rdflib.Graph()
@@ -119,7 +136,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         Parameters
         ----------
-        iri : The identifier of a node in the NetworkX graph
+        iri : The iri of a node in the RDF graph
         key : The name of the attribute, may be a URIRef or URI string
         value : The value of the attribute
         """
@@ -148,7 +165,9 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         Parameters
         ----------
-        iri : The identifier of a node in the NetworkX graph
+        subject_iri : The iri of the subject node in the RDF graph
+        object_iri : The iri of the object node in the RDF graph
+        predicate_iri : The iri of the predicate in the RDF graph
         key : The name of the attribute, may be a URIRef or URI string
         value : The value of the attribute
         """
@@ -262,6 +281,8 @@ class ObanRdfTransformer2(RdfTransformer):
                 objects = []
                 predicates = []
 
+                edge_attr['id'].append(str(association))
+
                 for s, p, o in rdfgraph.triples((association, None, None)):
                     if o.startswith(PMID):
                         edge_attr['publications'].append(o)
@@ -292,6 +313,80 @@ class ObanRdfTransformer2(RdfTransformer):
                                         key=key,
                                         value=value
                                     )
+    def uriref(self, id) -> URIRef:
+        if id in mapping:
+            uri = mapping[id]
+        else:
+            uri = self.prefix_manager.expand(id)
+        return URIRef(uri)
+
+    def save_attribute(self, rdfgraph:rdflib.Graph, obj_iri:URIRef, *, key:str, value:Union[List[str], str]) -> None:
+        """
+        Saves a node or edge attributes from the biolink model in the rdfgraph.
+        Intended to be used within `ObanRdfTransformer.save`.
+        """
+        element = bmt.get_element(key)
+        if element is None:
+            return
+        if element.is_a == 'association slot' or element.is_a == 'node property':
+            if key in mapping:
+                key = mapping[key]
+            else:
+                key = URIRef('{}{}'.format(BIOLINK, element.name.replace(' ', '_')))
+            if not isinstance(value, (list, tuple, set)):
+                value = [value]
+            for value in value:
+                if element.range == 'iri type':
+                    value = URIRef('{}{}'.format(BIOLINK, ''.join(value.title().split(' '))))
+                rdfgraph.add((obj_iri, key, rdflib.term.Literal(value)))
+
+    def save(self, filename:str = None, output_format:str = None, **kwargs):
+        """
+        Transform the internal graph into the RDF graphs that follow OBAN-style modeling and dump into the file.
+        """
+        # Make a new rdflib.Graph() instance to generate RDF triples
+        rdfgraph = rdflib.Graph()
+        # Register OBAN's url prefix (http://purl.org/oban/) as `OBAN` in the namespace.
+        rdfgraph.bind('OBAN', str(OBAN))
+
+        # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
+        # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
+        rdfgraph.bind('OBO', 'http://purl.obolibrary.org/obo/')
+        rdfgraph.bind('biolink', 'http://w3id.org/biolink/vocab/')
+
+        for n, data in self.graph.nodes(data=True):
+            if 'iri' not in n:
+                uriRef = self.uriref(n)
+            else:
+                uriRef = URIRef(data['iri'])
+
+            for key, value in data.items():
+                if key not in ['id', 'iri']:
+                    self.save_attribute(rdfgraph, uriRef, key=key, value=value)
+
+        for u, v, data in self.graph.edges(data=True):
+            if 'relation' not in data:
+                raise Exception('Relation is a required edge property in the biolink model, edge {} --> {}'.format(u, v))
+
+            if 'id' in data and data['id'] is not None:
+                assoc_id = URIRef(adjitem['id'])
+            else:
+                assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+
+            rdfgraph.add((assoc_id, RDF.type, OBAN.association))
+            rdfgraph.add((assoc_id, OBAN.association_has_subject, self.uriref(u)))
+            rdfgraph.add((assoc_id, OBAN.association_has_predicate, self.uriref(data['relation'])))
+            rdfgraph.add((assoc_id, OBAN.association_has_object, self.uriref(v)))
+
+            for key, value in data.items():
+                if key not in ['subject', 'relation', 'object']:
+                    self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
+
+        if output_format is None:
+            output_format = "turtle"
+
+        # Serialize the graph into the file.
+        rdfgraph.serialize(destination=filename, format=output_format)
 
 class HgncRdfTransformer(RdfTransformer):
     is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
