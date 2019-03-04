@@ -5,8 +5,17 @@ With the scripts in this directory we will build a Neo4j instance from clinvar, 
 Our Neo4j queries use apoc procedures, and the required apoc jar will be downloaded and placed in the `neo4j/plugins` directory with the `make neo4j-start` command, which will then start a Docker container. By default the Neo4j instance will be configured to not use authentication, and you may wish to change this. To stop the neo4j docker container use `make neo4j-stop`.
 
 ### Building the graph
+All the following commands can be executed together with `make build-graph`.
 
-Use the `make download` to get all the data files. Then, execute:
+First we will download all the needed files:
+```
+make download
+```
+Next transform the SemMedDb files so that they fit the biolink model, this takes about 30 min for me:
+```
+python scripts/transform_semmeddb.py
+```
+Finally, we will build the knowledge graph:
 ```
 nohup python scripts/main.py &
 ```
