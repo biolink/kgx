@@ -1,7 +1,7 @@
 from networkx import MultiDiGraph
 from kgx.utils.rdf_utils import make_curie
-from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 from collections import defaultdict
+from typing import List, Tuple
 
 import bmt
 
@@ -86,7 +86,7 @@ def find_categories(node, graph:MultiDiGraph) -> List[str]:
     biolink model. If no such categories are found then takes the name or id of
     a highest superclass.
     """
-    def super_class_generator(n) -> URIRef:
+    def super_class_generator(n) -> Tuple[str, int]:
         for _, m, data in graph.out_edges(n, data=True):
             edge_label = data.get('edge_label')
             if edge_label is None:
