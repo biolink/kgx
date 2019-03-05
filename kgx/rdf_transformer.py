@@ -8,6 +8,7 @@ from rdflib.namespace import RDF, RDFS, OWL
 
 from .transformer import Transformer
 from .utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+from .utils.category_utils import find_categories
 
 from collections import defaultdict
 
@@ -30,10 +31,6 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
     TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
-
-    def __init__(self, source:Union[Transformer, nx.MultiDiGraph]=None):
-        super().__init__(source)
-        self.ontologies = []
 
     def parse(self, filename:str=None, provided_by:str=None, *, input_format=None):
         """
@@ -60,11 +57,15 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         self.load_node_attributes(rdfgraph)
         self.report()
 
-    def add_ontology(self, owlfile:str):
-        ont = rdflib.Graph()
-        ont.parse(owlfile, format=rdflib.util.guess_format(owlfile))
-        self.ontologies.append(ont)
-        logging.info("Parsed  {}".format(owlfile))
+    def categorize(self):
+        """
+        Runs through the NetworkX graph and attempts to fill out all node
+        categories by finding roots of subgraphs induced by `subclass_of` and
+        `same_as` edges.
+        """
+        for n, data in self.graph.nodes(data=True):
+            if 'category' not in data or data['category'] == []:
+                data['category'] = find_categories(n)
 
     def add_node(self, iri:URIRef) -> str:
         """
@@ -261,10 +262,7 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                         if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
                             self.add_node_attribute(uriRef, key=p, value=o)
 
-                category = find_category(uriRef, [rdfgraph] + self.ontologies)
-
-                if category is not None:
-                    self.add_node_attribute(uriRef, key='category', value=category)
+                self.add_node_attribute(uriRef, key='category', value=['named thing'])
 
 class ObanRdfTransformer(RdfTransformer):
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
@@ -398,7 +396,6 @@ class HgncRdfTransformer(RdfTransformer):
     Custom transformer for loading:
     https://data.monarchinitiative.org/ttl/hgnc.ttl
     """
-    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
     has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
     is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
@@ -408,9 +405,7 @@ class HgncRdfTransformer(RdfTransformer):
 
         with click.progressbar(triples, label='loading graph') as bar:
             for s, p, o in bar:
-                if p == self.is_about:
-                    self.add_node_attribute(o, key=s, value='publications')
-                elif p == self.has_subsequence:
+                if p == self.has_subsequence:
                     self.add_edge(o, s, self.is_subsequence_of)
                 elif p == self.is_subsequence_of:
                     self.add_edge(s, o, self.is_subsequence_of)
