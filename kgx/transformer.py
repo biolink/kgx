@@ -42,6 +42,21 @@ class Transformer(object):
         print('|Nodes|={}'.format(len(g.nodes())))
         print('|Edges|={}'.format(len(g.edges())))
 
+    def categorize(self):
+        """
+        Runs through the NetworkX graph and attempts to fill out all node
+        categories by finding roots of subgraphs induced by `subclass_of` and
+        `same_as` edges.
+        """
+        for n, data in self.graph.nodes(data=True):
+            category = data.get('category')
+            if category is None:
+                data['category'] = find_categories(n)
+            elif isinstance(category, str):
+                data['category'] = [category]
+            elif not isinstance(category, (list, tuple, set)) or len(category) == 0:
+                data['category'] = find_categories(n)
+
     def is_empty(self) -> bool:
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 

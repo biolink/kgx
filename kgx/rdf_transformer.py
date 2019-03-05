@@ -57,16 +57,6 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         self.load_node_attributes(rdfgraph)
         self.report()
 
-    def categorize(self):
-        """
-        Runs through the NetworkX graph and attempts to fill out all node
-        categories by finding roots of subgraphs induced by `subclass_of` and
-        `same_as` edges.
-        """
-        for n, data in self.graph.nodes(data=True):
-            if 'category' not in data or data['category'] == []:
-                data['category'] = find_categories(n)
-
     def add_node(self, iri:URIRef) -> str:
         """
         This method should be used by all derived classes when adding an edge to
