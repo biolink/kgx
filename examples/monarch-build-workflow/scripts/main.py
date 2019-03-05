@@ -5,7 +5,7 @@ nodes.csv files, into a single NetworkX graph, and performs `clique_merge` on it
 Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 """
 
-from kgx import ObanRdfTransformer2, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer2
+from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
 from kgx import clique_merge, make_valid_types
 
 t = RdfOwlTransformer2()
@@ -52,7 +52,7 @@ t = JsonTransformer(t)
 t.save('results/clinvar.json')
 
 t = JsonTransformer()
-t.parse('results/hp.owl')
+t.parse('results/hp.json')
 t.parse('results/mondo.json')
 t.parse('results/hgnc.json')
 t.parse('results/clinvar.json')
@@ -65,6 +65,6 @@ t.parse('data/semmeddb_edges.csv')
 t.parse('data/semmeddb_nodes.csv')
 
 t.graph = clique_merge(t.graph)
-t.graph = make_valid_types(t.graph)
+make_valid_types(t.graph)
 
 t.save('results/clique_merged.csv')
