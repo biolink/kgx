@@ -8,61 +8,32 @@ Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
 from kgx import clique_merge, make_valid_types
 
-t = RdfOwlTransformer2()
-t.parse('data/hp.owl')
-t = JsonTransformer(t)
-t.save('results/hp.json')
+owl = ['hp', 'mondo', 'go', 'so']
+ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
 
-t = RdfOwlTransformer2()
-t.parse('data/mondo.owl')
-t = JsonTransformer(t)
-t.save('results/mondo.json')
+for filename in owl:
+    t = RdfOwlTransformer()
+    t.parse('data/{}.owl'.format(filename))
+    t = PandasTransformer(t)
+    t.save('results/{}.csv'.format(filename))
 
-t = HgncRdfTransformer()
-t.parse('data/hgnc.ttl')
-t = JsonTransformer(t)
-t.save('results/hgnc.json')
+for filename in ttl:
+    t = RdfOwlTransformer()
+    t.parse('data/{}.ttl'.format(filename))
+    t = PandasTransformer(t)
+    t.save('results/{}.csv'.format(filename))
 
-t = ObanRdfTransformer2()
-t.add_ontology('data/mondo.owl')
-t.add_ontology('data/hp.owl')
-t.parse('data/orphanet.ttl')
-t = JsonTransformer(t)
-t.save('results/orphanet.json')
+t = PandasTransformer()
+t.parse('results/hp.csv.tar')
+t.parse('results/mondo.csv.tar')
+t.parse('results/hgnc.csv.tar')
+t.parse('results/clinvar.csv.tar')
+t.parse('results/omim.csv.tar')
+t.parse('results/hpoa.csv.tar')
+t.parse('results/orphanet.csv.tar')
 
-t = ObanRdfTransformer2()
-t.add_ontology('data/mondo.owl')
-t.add_ontology('data/hp.owl')
-t.parse('data/hpoa.ttl')
-t = JsonTransformer(t)
-t.save('results/hpoa.json')
-
-t = ObanRdfTransformer2()
-t.add_ontology('data/mondo.owl')
-t.parse('data/omim.ttl')
-t = JsonTransformer(t)
-t.save('results/omim.json')
-
-t = ObanRdfTransformer2()
-t.add_ontology('data/mondo.owl')
-t.add_ontology('data/go.owl')
-t.add_ontology('data/so.owl')
-t.parse('data/clinvar.ttl')
-t = JsonTransformer(t)
-t.save('results/clinvar.json')
-
-t = JsonTransformer()
-t.parse('results/hp.json')
-t.parse('results/mondo.json')
-t.parse('results/hgnc.json')
-t.parse('results/clinvar.json')
-t.parse('results/omim.json')
-t.parse('results/hpoa.json')
-t.parse('results/orphanet.json')
-
-t = PandasTransformer(t.graph)
-t.parse('data/semmeddb_edges.csv')
-t.parse('data/semmeddb_nodes.csv')
+# Uncomment to add in SemMedDb. Produce the file with scripts/transformed_semmeddb.py
+# t.parse('results/transformed_semmeddb.csv.tar')
 
 t.graph = clique_merge(t.graph)
 make_valid_types(t.graph)
