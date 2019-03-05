@@ -15,15 +15,17 @@ def get_ontology(curie:str):
     return ontology_factory.create(prefix)
 
 @lru_cache()
-def get_term(curie:str) -> str:
+def get_term(curie:str, biolink_model_only=False) -> str:
     ontology = get_ontology(curie)
-    terms = [ontology.label(curie)] + ontology.ancestors(curie)
-    # ont.label('GENO:0000845')
-    # ont.ancestors('GENO:0000845')
+    terms = [ontology.label(c) for c in ontology.ancestors(curie, reflexive=True)]
     for term in terms:
-        if bmt.get_element(term) is not None:
+        if term is not None and bmt.get_element(term) is not None:
             return term
-    return terms[-1]
+    terms.sort(key=lambda s: len(s) if isinstance(s, str) else float('inf'))
+    if biolink_model_only:
+        return curie
+    else:
+        return terms[0]
 
 @lru_cache()
 def make_curie(s:str) -> str:
@@ -43,20 +45,24 @@ def main(input_path, output_path, biolink_model_only):
     input_transformer.parse(input_path)
     G = input_transformer.graph
 
-    for n, data in G.nodes(data=True):
-        if 'category' in data and ':' in data['category']:
-            c = make_curie(data['category'])
-            data['category'] = [get_term(c)]
+    import pudb; pu.db
 
-        elif 'category' not in data:
-            data['category'] = ['named thing']
+    with click.progressbar(G.nodes(data=True)) as bar:
+        for n, data in bar:
+            if 'category' in data and isinstance(data['category'], (list, set, tuple)):
+                l = [get_term(make_curie(c), biolink_model_only) for c in data['category'] if ':' in c]
+                l += [c for c in data['category'] if ':' not in c]
+                data['category'] = l
+            elif 'category' not in data:
+                data['category'] = ['named thing']
 
-    for u, v, data in G.edges(data=True):
-        if 'edge_label' in data and ':' in data['edge_label']:
-            c = make_curie(data['edge_label'])
-            data['edge_label'] = get_term(c)
-        elif 'edge_label' not in data:
-            data['edge_label'] = 'related_to'
+    with click.progressbar(G.edges(data=True)) as bar:
+        for u, v, data in bar:
+            if 'edge_label' in data and ':' in data['edge_label']:
+                c = make_curie(data['edge_label'])
+                data['edge_label'] = get_term(c, biolink_model_only)
+            elif 'edge_label' not in data:
+                data['edge_label'] = 'related_to'
 
     output_transformer.graph = G
     output_transformer.save(output_path)
