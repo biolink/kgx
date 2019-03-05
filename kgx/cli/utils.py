@@ -1,6 +1,7 @@
 import kgx, os, pathlib
 
 _transformers = {
+    'tar' : kgx.PandasTransformer,
     'txt' : kgx.PandasTransformer,
     'csv' : kgx.PandasTransformer,
     'tsv' : kgx.PandasTransformer,

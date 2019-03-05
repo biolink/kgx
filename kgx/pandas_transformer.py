@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import logging
 import os
 import tarfile
@@ -6,7 +7,19 @@ from tempfile import TemporaryFile
 
 from .transformer import Transformer
 
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+LIST_DELIMITER = '|'
+
+_column_types = {
+    'publications' : list,
+    'qualifiers' : list,
+    'category' : list,
+    'synonym' : list,
+    'provided_by' : list,
+    'same_as' : list,
+    'negated' : bool,
+}
 
 class PandasTransformer(Transformer):
     """
@@ -18,15 +31,28 @@ class PandasTransformer(Transformer):
         'txt' : '|'
     }
 
-    def parse(self, filename: str, input_format='csv', **args):
+    def parse(self, filename: str, input_format='csv', **kwargs):
         """
         Parse a CSV/TSV
 
         May be either a node file or an edge file
         """
-        args['delimiter'] = self._extention_types[input_format]
-        df = pd.read_csv(filename, comment='#', **args) # type: pd.DataFrame
-        self.load(df)
+        if 'delimiter' not in kwargs:
+            kwargs['delimiter'] = self._extention_types[input_format]
+        if filename.endswith('.tar'):
+            with tarfile.open(filename) as tar:
+                for member in tar.getmembers():
+                    f = tar.extractfile(member)
+                    df = pd.read_csv(f, comment='#', **kwargs) # type: pd.DataFrame
+                    if member.name == 'nodes.csv':
+                        self.load_nodes(df)
+                    elif member.name == 'edges.csv':
+                        self.load_edges(df)
+                    else:
+                        raise Exception('Tar file contains unrecognized member {}'.format(member.name))
+        else:
+            df = pd.read_csv(filename, comment='#', **kwargs) # type: pd.DataFrame
+            self.load(df)
 
     def load(self, df: pd.DataFrame):
         if 'subject' in df:
@@ -34,40 +60,85 @@ class PandasTransformer(Transformer):
         else:
             self.load_nodes(df)
 
-    def load_nodes(self, df: pd.DataFrame):
+    def build_kwargs(self, data:dict) -> dict:
+        data = {k : v for k, v in data.items() if v is not np.nan}
+        for key, value in data.items():
+            if key in _column_types:
+                if _column_types[key] == list:
+                    if isinstance(value, (list, set, tuple)):
+                        data[key] = list(value)
+                    elif isinstance(value, str):
+                        data[key] = value.split(LIST_DELIMITER)
+                    else:
+                        data[key] = [str(value)]
+                elif _column_types[key] == bool:
+                    try:
+                        data[key] = bool(value)
+                    except:
+                        data[key] = False
+                else:
+                    data[key] = str(value)
+        return data
+
+    def load_nodes(self, df:pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
-    def load_node(self, obj: Dict):
-        id = obj['id'] # type: str
-        self.graph.add_node(id, attr_dict=obj)
+    def load_node(self, obj:Dict):
+        kwargs = self.build_kwargs(obj.copy())
+        n = kwargs['id']
+        self.graph.add_node(n, **kwargs)
 
     def load_edges(self, df: pd.DataFrame):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
     def load_edge(self, obj: Dict):
-        s = obj['subject'] # type: str
-        o = obj['object'] # type: str
-        self.graph.add_edge(o, s, attr_dict=obj)
+        kwargs = self.build_kwargs(obj.copy())
+        s = kwargs['subject']
+        o = kwargs['object']
+        self.graph.add_edge(s, o, **kwargs)
 
-    def export_nodes(self) -> pd.DataFrame:
-        items = []
-        for n,data in self.graph.nodes_iter(data=True):
-            item = data.copy()
-            item['id'] = n
-            items.append(item)
-        df = pd.DataFrame.from_dict(items)
+    def build_export_row(self, data:dict) -> dict:
+        """
+        Casts all values to primitive types like str or bool according to the
+        specified type in `_column_types`. Lists become pipe delimited strings.
+        """
+        data = {k : v for k, v in data.items() if v is not np.nan}
+        for key, value in data.items():
+            if key in _column_types:
+                if _column_types[key] == list:
+                    if isinstance(value, (list, set, tuple)):
+                        data[key] = LIST_DELIMITER.join(value)
+                    else:
+                        data[key] = str(value)
+                elif _column_types[key] == bool:
+                    try:
+                        data[key] = bool(value)
+                    except:
+                        data[key] = False
+                else:
+                    data[key] = str(value)
+        return data
+
+
+    def export_nodes(self, encode_header_types=False) -> pd.DataFrame:
+        rows = []
+        for n, data in self.graph.nodes(data=True):
+            row = self.build_export_row(data.copy())
+            row['id'] = n
+            rows.append(row)
+        df = pd.DataFrame.from_dict(rows)
         return df
 
-    def export_edges(self) -> pd.DataFrame:
-        items = []
-        for o,s,data in self.graph.edges_iter(data=True):
-            item = data.copy()
-            item['subject'] = s
-            item['object'] = o
-            items.append(item)
-        df = pd.DataFrame.from_dict(items)
+    def export_edges(self, encode_header_types=False) -> pd.DataFrame:
+        rows = []
+        for s, o, data in self.graph.edges(data=True):
+            row = self.build_export_row(data.copy())
+            row['subject'] = s
+            row['object'] = o
+            rows.append(row)
+        df = pd.DataFrame.from_dict(rows)
         cols = df.columns.tolist()
         cols = self.order_cols(cols)
         df = df[cols]
@@ -126,5 +197,4 @@ class PandasTransformer(Transformer):
             df = self.export_nodes()
         else:
             df = self.export_edges()
-        # TODO: order
         df.to_csv(filename, index=False)

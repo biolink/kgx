@@ -31,11 +31,11 @@ class JsonTransformer(PandasTransformer):
     def export(self):
         nodes=[]
         edges=[]
-        for id,data in self.graph.nodes_iter(data=True):
+        for id,data in self.graph.nodes(data=True):
             node = data.copy()
             node['id'] = id
             nodes.append(node)
-        for o,s,data in self.graph.edges_iter(data=True):
+        for s, o, data in self.graph.edges(data=True):
             edge = data.copy()
             edge['subject'] = s
             edge['object'] = o
