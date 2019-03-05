@@ -35,7 +35,7 @@ download:
 	wget http://purl.obolibrary.org/obo/go.owl -O data/go.owl
 
 neo4j-start:
-	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=/neo4j/plugins
+	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=neo4j/plugins
 	echo `pwd`
 	docker run \
 		-d \
