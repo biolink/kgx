@@ -31,8 +31,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
     TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
 
-    def __init__(self, t:Transformer=None):
-        super().__init__(t)
+    def __init__(self, source:Union[Transformer, nx.MultiDiGraph]=None):
+        super().__init__(source)
         self.ontologies = []
 
     def parse(self, filename:str=None, provided_by:str=None, *, input_format=None):
