@@ -2,7 +2,7 @@ from setuptools import setup
 
 requires = [
     "prefixcommons>=0.1.4",
-    "networkx>=1.11",
+    "networkx>=2.2",
     "SPARQLWrapper>=1.8.0",
     "pandas<0.21",
     "pytest>=0.0",
