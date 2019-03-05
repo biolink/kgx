@@ -10,18 +10,34 @@ from kgx.utils.rdf_utils import make_curie as _make_curie
 ontology_factory = OntologyFactory()
 
 @lru_cache()
-def get_ontology(curie:str):
-    prefix, _ = curie.lower().rsplit(':', 1)
-    return ontology_factory.create(prefix)
+def get_ontology(prefix:str):
+    if ':' in prefix:
+        prefix, _ = prefix.lower().split(':', 1)
+        return get_ontology(prefix)
+    else:
+        # Ignore ncbitaxon, it's huge!
+        if prefix == 'ncbitaxon':
+            return None
+        else:
+            return ontology_factory.create(prefix)
 
 @lru_cache()
 def get_term(curie:str, biolink_model_only=False) -> str:
+    if curie.lower() == 'ncbitaxon:9606':
+        return 'human'
+
     ontology = get_ontology(curie)
+    
+    if ontology is None:
+        return curie
     terms = [ontology.label(c) for c in ontology.ancestors(curie, reflexive=True)]
+    
     for term in terms:
         if term is not None and bmt.get_element(term) is not None:
             return term
+    
     terms.sort(key=lambda s: len(s) if isinstance(s, str) else float('inf'))
+    
     if biolink_model_only:
         return curie
     else:
@@ -54,6 +70,7 @@ def main(input_path, output_path, biolink_model_only):
                     curie = make_curie(category)
                     prefix, _ = curie.lower().rsplit(':', 1)
                     ontologies[prefix] = None
+
     for u, v, data in G.edges(data=True):
         if 'edge_label' in data and ':' in data['edge_label']:
             curie = make_curie(data['edge_label'])
@@ -66,13 +83,12 @@ def main(input_path, output_path, biolink_model_only):
         print(key)
         ontologies[key] = get_ontology(key)
 
-    import pudb; pu.db
-
     with click.progressbar(G.nodes(data=True)) as bar:
         for n, data in bar:
             if 'category' in data and isinstance(data['category'], (list, set, tuple)):
                 l = [get_term(make_curie(c), biolink_model_only) for c in data['category'] if ':' in c]
                 l += [c for c in data['category'] if ':' not in c]
+                l = [x.replace('_', ' ') for x in l if x is not None]
                 data['category'] = l
             elif 'category' not in data:
                 data['category'] = ['named thing']
@@ -82,10 +98,13 @@ def main(input_path, output_path, biolink_model_only):
             if 'edge_label' in data and ':' in data['edge_label']:
                 c = make_curie(data['edge_label'])
                 data['edge_label'] = get_term(c, biolink_model_only)
-            elif 'edge_label' not in data:
+                data['valid_edge_label'] = bmt.get_predicate(data['edge_label']) is not None
+            if 'edge_label' not in data or data['edge_label'] is None:
                 data['edge_label'] = 'related_to'
+            data['edge_label'] = data['edge_label'].replace(' ', '_')
 
     output_transformer.graph = G
+    print('Saving to {}'.format(output_path))
     output_transformer.save(output_path)
 
 if __name__ == '__main__':
