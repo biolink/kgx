@@ -31,6 +31,8 @@ def get_term(curie:str, biolink_model_only=False) -> str:
 def make_curie(s:str) -> str:
     return _make_curie(s)
 
+ontologies = {}
+
 @click.command()
 @click.argument('input_path', type=click.Path(exists=True))
 @click.option('-o', '--output_path', required=True, type=click.Path(exists=False))
@@ -44,6 +46,25 @@ def main(input_path, output_path, biolink_model_only):
     output_transformer = get_transformer(get_type(output_path))()
     input_transformer.parse(input_path)
     G = input_transformer.graph
+
+    for n, data in G.nodes(data=True):
+        if 'category' in data and isinstance(data['category'], (tuple, list, set)):
+            for category in data['category']:
+                if ':' in category:
+                    curie = make_curie(category)
+                    prefix, _ = curie.lower().rsplit(':', 1)
+                    ontologies[prefix] = None
+    for u, v, data in G.edges(data=True):
+        if 'edge_label' in data and ':' in data['edge_label']:
+            curie = make_curie(data['edge_label'])
+            prefix, _ = curie.lower().rsplit(':', 1)
+            ontologies[prefix] = None
+
+    print(ontologies)
+
+    for key in ontologies.keys():
+        print(key)
+        ontologies[key] = get_ontology(key)
 
     import pudb; pu.db
 
