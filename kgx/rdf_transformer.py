@@ -35,21 +35,26 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
         super().__init__(t)
         self.ontologies = []
 
-    def parse(self, filename:str=None, provided_by:str=None):
+    def parse(self, filename:str=None, provided_by:str=None, *, input_format=None):
         """
         Parse a file into an graph, using rdflib
         """
         rdfgraph = rdflib.Graph()
 
-        fmt = rdflib.util.guess_format(filename)
+        if input_format is None:
+            input_format = rdflib.util.guess_format(filename)
 
-        logging.info("Parsing {} with {} format".format(filename, fmt))
-        rdfgraph.parse(filename, format=fmt)
+        logging.info("Parsing {} with {} format".format(filename, input_format))
+        rdfgraph.parse(filename, format=input_format)
         logging.info("Parsed : {}".format(filename))
 
         # TODO: use source from RDF
         if provided_by is None:
-            self.graph_metadata['provided_by'] = os.path.basename(filename)
+            if isinstance(filename, str):
+                self.graph_metadata['provided_by'] = os.path.basename(filename)
+            elif hasattr(filename, 'name'):
+                self.graph_metadata['provided_by'] = filename.name
+
 
         self.load_networkx_graph(rdfgraph)
         self.load_node_attributes(rdfgraph)

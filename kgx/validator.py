@@ -25,9 +25,9 @@ class Validator(object):
 
         Test all node and edge properties plus relationship types are declared
         """
-        for nid,ad in G.nodes_iter(data=True):
+        for nid,ad in G.nodes(data=True):
             self.validate_node(nid, ad)
-        for oid,sid,ad in G.edges_iter(data=True):
+        for oid,sid,ad in G.edges(data=True):
             self.validate_edge(G, oid, sid, ad)
 
     def validate_node(self, nid, ad):

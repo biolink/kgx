@@ -9,11 +9,11 @@ bmt.load('https://biolink.github.io/biolink-model/biolink-model.yaml')
 
 def map_graph(G, mapping, preserve=True):
     if preserve:
-        for nid in G.nodes_iter():
+        for nid in G.nodes():
             if nid in mapping:
                 # add_node will append attributes
                 G.add_node(nid, source_curie=nid)
-        for oid,sid in G.edges_iter():
+        for oid,sid in G.edges():
             if oid in mapping:
                 for ex in G[oid][sid]:
                     G[oid][sid][ex].update(source_object=oid)

@@ -10,7 +10,7 @@ def test_mapping():
     create a random graph and save it in different formats
     """
     G = nx.MultiDiGraph()
-    
+
     N = 100
     E = N * 3
     mapping = {}
@@ -25,23 +25,23 @@ def test_mapping():
     print('Nodes={}'.format(len(G.nodes())))
     mapper.map_graph(G, mapping)
     print("Mapped..")
-    
+
     count = 0
-    for nid in G.nodes_iter():
+    for nid in G.nodes():
         src = G.node[nid]['source_curie']
         assert nid.startswith("Y:")
         assert src.startswith("X:")
         count += 1
         if count > 5:
             break
-        
+
     print("Saving tsv")
-    w = PandasTransformer(graph=G)
+    w = PandasTransformer(G)
     w.save("target/maptest.tar")
-    w = ObanRdfTransformer(graph=G)
+    w = ObanRdfTransformer(G)
     w.save("target/maptest.ttl")
-    
-    
+
+
 def random_curie(N):
     return curie(int(random()*N))
 
