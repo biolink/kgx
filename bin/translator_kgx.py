@@ -213,6 +213,9 @@ def validate(config, path, input_type, output_dir, record_size):
     else:
         click.echo('{} types of errors found, recorded in {}'.format(len(v.error_dict), os.path.abspath(output_dir)))
 
+from neo4jrestclient.client import GraphDatabase as http_gdb
+import networkx as nx
+
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
@@ -227,15 +230,51 @@ def validate(config, path, input_type, output_dir, record_size):
 @pass_config
 def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed, start, end):
     if not is_writable(output):
-        error(f'Cannot write to {output}')
+        try:
+            with open(output, 'w+') as f:
+                pass
+        except:
+            error(f'Cannot write to {output}')
 
-    t = make_neo4j_transformer(address, username, password)
+    output_transformer = get_transformer(get_type(output))()
+    G = output_transformer.graph
 
-    set_transformer_filters(transformer=t, labels=labels, properties=properties)
+    driver = http_gdb(address, username=username, password=password)
+    results = driver.query('match (n)-[e]->(m) return count(*)')
 
-    t.load(is_directed=directed, start=start, end=end)
-    t.report()
-    transform_and_save(t, output, output_type)
+    for a, in results:
+        size = a
+        break
+
+    page_size = 1000
+
+    with click.progressbar(list(range(0, size, page_size)), label='Downloading {} many edges'.format(size)) as bar:
+        for i in bar:
+            q = 'match (n)-[e]->(m) return n, e, m skip {} limit {}'.format(i, page_size)
+            results = driver.query(q)
+
+            for n, e, m in results:
+                subject_attr = n['data']
+                object_attr = m['data']
+                edge_attr = e['data']
+
+                s = subject_attr['id']
+                o = object_attr['id']
+                edge_label = edge_attr['edge_label']
+
+                if s not in G:
+                    G.add_node(s, **subject_attr)
+                if o not in G:
+                    G.add_node(o, **object_attr)
+                G.add_edge(s, o, key=edge_label, **edge_attr)
+
+    output_transformer.save(output)
+
+
+
+    # t.load(is_directed=directed, start=start, end=end)
+    # t.report()
+    # transform_and_save(t, output, output_type)
 
 def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
     for location, label in labels:
