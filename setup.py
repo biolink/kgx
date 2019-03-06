@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 requires = [
     "prefixcommons>=0.1.4",
@@ -21,7 +21,7 @@ requires = [
 setup(
     name='Knowledge Graph Exchange',
     version='0.0.1',
-    packages=['kgx', 'kgx.cli'],
+    packages=find_packages(),
     install_requires=requires,
     scripts=['bin/translator_kgx.py'],
     entry_points="""
