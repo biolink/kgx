@@ -20,6 +20,8 @@ source env/bin/activate
 pip install .
 ```
 
+**Note:** Be sure to set `PYTHONPATH`
+
 The above script can be found in [`environment.sh`](environment.sh)
 
 ## Command Line Usage
