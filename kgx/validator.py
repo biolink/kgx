@@ -1,7 +1,10 @@
 import networkx as nx
+import bmt
 from typing import Union, List, Dict
 from .prefix_manager import PrefixManager
 import logging
+
+from collections import defaultdict
 
 from metamodel.utils.schemaloader import SchemaLoader
 
@@ -10,11 +13,13 @@ class Validator(object):
     Object for validating a property graph
     """
 
-    def __init__(self):
+    def __init__(self, record_size=None):
         self.prefix_manager = PrefixManager()
         self.items = set()
         self.errors = []
         self.schema = SchemaLoader('https://biolink.github.io/biolink-model/biolink-model.yaml').resolve()
+        self.record_size = record_size
+        self.error_dict = defaultdict(set)
 
     def ok(self):
         return len(self.errors) == 0
@@ -25,10 +30,11 @@ class Validator(object):
 
         Test all node and edge properties plus relationship types are declared
         """
-        for nid,ad in G.nodes(data=True):
-            self.validate_node(nid, ad)
-        for oid,sid,ad in G.edges(data=True):
-            self.validate_edge(G, oid, sid, ad)
+        self.validate_categories(G)
+        # for nid,ad in G.nodes(data=True):
+        #     self.validate_node(nid, ad)
+        # for oid,sid,ad in G.edges(data=True):
+        #     self.validate_edge(G, oid, sid, ad)
 
     def validate_node(self, nid, ad):
         self.validate_id(nid)
@@ -129,6 +135,29 @@ class Validator(object):
             return False
         else:
             return True
+
+    def validate_categories(self, G):
+        for n, data in G.nodes(data=True):
+            categories = data.get('category')
+            if categories is None:
+                self.log_node_error(n, 'absent category')
+            elif not isinstance(categories, list):
+                self.log_node_error(n, 'invalid category type', message='category type is {} when it should be {}'.format(type(categories), list))
+            else:
+                for category in categories:
+                    c = bmt.get_class(category)
+                    if c is None:
+                        self.log_node_error(n, 'invalid category', message='{} not in biolink model'.format(category))
+                    elif category != c.name and category in c.aliases:
+                        self.log_node_error(n, 'alias category', message='should not use alias {} for {}'.format(category, c.name))
+
+    def log_edge_error(self, u, v, error_type, *, message=None):
+        if self.record_size is None or len(self.error_dict[error_type]) < self.record_size:
+            self.error_dict[error_type].add((u, v, message))
+
+    def log_node_error(self, n, error_type, *, message=None):
+        if self.record_size is None or len(self.error_dict[error_type]) < self.record_size:
+            self.error_dict[error_type].add((n, message))
 
     def report(self, item, info=""):
         if item in self.items:

@@ -172,15 +172,46 @@ def edge_summary(config, address, username, password, output=None):
         df.to_csv(output, sep='|', header=True)
         click.echo('Saved report to {}'.format(output))
 
+from datetime import datetime
+
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
+@click.argument('path', type=click.Path(exists=True))
+@click.option('--output_dir', '-o', type=click.Path(exists=False), required=True, help='A directory to dump the error log files into')
+@click.option('--record-size', '-r', type=int, default=None, help='The number of failures to record for each failure type. Defaults to no limit.')
 @pass_config
-def validate(config, inputs, input_type):
-    v = Validator()
-    t = load_transformer(inputs, input_type)
-    result = v.validate(t.graph)
-    click.echo(result)
+def validate(config, path, input_type, output_dir, record_size):
+    os.makedirs(output_dir, exist_ok=True)
+
+    v = Validator(record_size)
+
+    t = get_transformer(get_type(path))()
+    t.parse(path)
+    # t = load_transformer(path, input_type)
+    v.validate(t.graph)
+
+    for error_type, failures in v.error_dict.items():
+        error_type = error_type.replace(' ', '_')
+        with click.open_file(os.path.join(output_dir, error_type), 'a+') as f:
+            f.write('--- {} ---\n'.format(datetime.now()))
+            for t in failures:
+                if len(t) == 2:
+                    n, message = t
+                    if message is not None:
+                        f.write('node: {}\t{}\n'.format(n, message))
+                    else:
+                        f.write('node: {}\n'.format(n))
+                elif len(t) == 3:
+                    u, v, message = t
+                    if message is not None:
+                        f.write('edge: {}\t{}\t{}\n'.format(u, v, message))
+                    else:
+                        f.write('edge: {}\t{}\n'.format(u, v))
+
+    if v.error_dict == {}:
+        click.echo('No errors found')
+    else:
+        click.echo('{} types of errors found, recorded in {}'.format(len(v.error_dict), os.path.abspath(output_dir)))
 
 @cli.command(name='neo4j-download')
 @click.option('--output-type', type=click.Choice(get_file_types()))
