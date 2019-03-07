@@ -32,7 +32,20 @@ pip install .
 
 **Note:** Be sure to set `PYTHONPATH`
 
-The above script (properly setting the PYTHONPATH) can be found in [`environment.sh`](environment.sh)
+The above script (properly setting the PYTHONPATH) can be found in [`environment.sh`](environment.sh). 
+
+Either make the script executable (for future convenience in execution):
+
+```
+chmod u+x environment.sh
+./environment.sh
+```
+
+or source the file:
+
+```
+source environment.sh
+```
 
 ## Command Line Usage
 Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
