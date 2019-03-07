@@ -12,7 +12,17 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 ## Installation
 The installation requires Python 3.
 
-For convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
+Go to where you wish to host your local project repository and git clone the project, namely:
+
+```
+cd /path/to/your/git/repo
+git clone https://github.com/NCATS-Tangerine/kgx.git .
+
+# ... then  enter  into your cloned project repository
+cd kgx
+```
+
+Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
 ```
 python3 -m venv env
 source env/bin/activate
