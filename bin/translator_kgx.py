@@ -224,11 +224,14 @@ import networkx as nx
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str)
 @click.option('-p', '--password', type=str)
+@click.option('--subject-category', type=str)
+@click.option('--object-category', type=str)
+@click.option('--edge-label', type=str)
 @click.option('--start', type=int, default=0)
 @click.option('--end', type=int)
 @click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @pass_config
-def neo4j_download(config, address, username, password, output, output_type, labels, properties, directed, start, end):
+def neo4j_download(config, subject_category, object_category, edge_label, address, username, password, output, output_type, labels, properties, directed, start, end):
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
@@ -240,17 +243,32 @@ def neo4j_download(config, address, username, password, output, output_type, lab
     G = output_transformer.graph
 
     driver = http_gdb(address, username=username, password=password)
-    results = driver.query('match (n)-[e]->(m) return count(*)')
+
+    subject_category = ':{}'.format(subject_category) if isinstance(subject_category, str) else ''
+    object_category = ':{}'.format(object_category) if isinstance(object_category, str) else ''
+    edge_label = ':{}'.format(edge_label) if isinstance(edge_label, str) else ''
+
+    match = 'match (n{})-[e{}]->(m{})'.format(subject_category, edge_label, object_category)
+
+    results = driver.query('{} return count(*)'.format(match))
+
+    click.echo('Using cyper query: {} return n, e, m'.format(match))
 
     for a, in results:
         size = a
         break
 
-    page_size = 1000
+    if size == 0:
+        click.echo('No data available')
+        quit()
+
+    page_size = 1_000
+
+    skip_flag = False
 
     with click.progressbar(list(range(0, size, page_size)), label='Downloading {} many edges'.format(size)) as bar:
         for i in bar:
-            q = 'match (n)-[e]->(m) return n, e, m skip {} limit {}'.format(i, page_size)
+            q = '{} return n, e, m skip {} limit {}'.format(match, i, page_size)
             results = driver.query(q)
 
             for n, e, m in results:
@@ -258,16 +276,29 @@ def neo4j_download(config, address, username, password, output, output_type, lab
                 object_attr = m['data']
                 edge_attr = e['data']
 
+                if 'id' not in subject_attr or 'id' not in object_attr:
+                    if not skip_flag:
+                        click.echo('Skipping records that have no id attribute')
+                        skip_flag = True
+                    continue
+
                 s = subject_attr['id']
                 o = object_attr['id']
 
                 if 'edge_label' not in edge_attr:
-                    edge_attr['edge_label'] = 'related_to'
+                    edge_attr['edge_label'] = e['metadata']['type']
+
+                if 'category' not in subject_attr:
+                    subject_attr['category'] = n['metadata']['labels']
+
+                if 'category' not in object_attr:
+                    object_attr['category'] = m['metadata']['labels']
 
                 if s not in G:
                     G.add_node(s, **subject_attr)
                 if o not in G:
                     G.add_node(o, **object_attr)
+
                 G.add_edge(s, o, key=edge_attr['edge_label'], **edge_attr)
 
     output_transformer.save(output)
