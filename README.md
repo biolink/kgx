@@ -24,7 +24,7 @@ cd kgx
 
 Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
 ```
-python3 -m venv env
+python3 -m venv venv
 source env/bin/activate
 
 pip install .
@@ -32,7 +32,7 @@ pip install .
 
 **Note:** Be sure to set `PYTHONPATH`
 
-The above script can be found in [`environment.sh`](environment.sh)
+The above script (properly setting the PYTHONPATH) can be found in [`environment.sh`](environment.sh)
 
 ## Command Line Usage
 Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
