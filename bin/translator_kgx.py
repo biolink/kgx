@@ -244,9 +244,9 @@ def neo4j_download(config, subject_category, object_category, edge_label, addres
 
     driver = http_gdb(address, username=username, password=password)
 
-    subject_category = ':{}'.format(subject_category) if isinstance(subject_category, str) else ''
-    object_category = ':{}'.format(object_category) if isinstance(object_category, str) else ''
-    edge_label = ':{}'.format(edge_label) if isinstance(edge_label, str) else ''
+    subject_category = ':`{}`'.format(subject_category) if isinstance(subject_category, str) else ''
+    object_category = ':`{}`'.format(object_category) if isinstance(object_category, str) else ''
+    edge_label = ':`{}`'.format(edge_label) if isinstance(edge_label, str) else ''
 
     match = 'match (n{})-[e{}]->(m{})'.format(subject_category, edge_label, object_category)
 
