@@ -237,6 +237,23 @@ For more examples and ideas, visit:
  https://docs.docker.com/engine/userguide/
 ```
 
-# Testing kgx in Docker
+# Initializing and Testing the Docker neo4j Container
 
+This may be done with the command:
 
+```
+make neo_tests
+
+```
+
+which should initialize and test the docker container, then turn it off. After running this, you may restart the container  with the command:
+
+```
+make start_docker
+```
+
+and stop it with:
+
+```
+make stop_docker
+```
