@@ -9,7 +9,8 @@ NEO4J_PASSWORD=password
 test:
 	pytest tests/*py
 
-example:
+.PHONY: examples
+examples:
 	@echo "1. Validate"
 	kgx validate tests/resources/semmed/cell.json tests/resources/semmed/gene.json tests/resources/semmed/protein.json
 

@@ -12,19 +12,47 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 ## Installation
 The installation requires Python 3.
 
-For convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
-```
-python3 -m venv env
-source env/bin/activate
+Go to where you wish to host your local project repository and git clone the project, namely:
 
-pip install .
+```
+cd /path/to/your/git/repo
+git clone https://github.com/NCATS-Tangerine/kgx.git .
+
+# ... then  enter  into your cloned project repository
+cd kgx
+```
+
+Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
+```
+python3 -m venv venv
+source env/bin/activate
 ```
 
 **Note:** Be sure to set `PYTHONPATH`
 
-The above script can be found in [`environment.sh`](environment.sh)
+The above script (properly setting the PYTHONPATH) can be found in [`environment.sh`](environment.sh). 
+
+Either make the script executable (for future convenience in execution):
+
+```
+chmod u+x environment.sh
+./environment.sh
+```
+
+or source the file:
+
+```
+source environment.sh
+```
+
+Finally, the Python dependencies of the application need to be installed into the local environment using the following command:
+
+```
+pip install .
+```
 
 ## Command Line Usage
+
 Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
 
 ```

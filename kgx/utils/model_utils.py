@@ -5,6 +5,7 @@ multiplicity, and that all identifiers are CURIE's.
 """
 
 import networkx as nx
+import bmt
 
 def make_valid_types(G:nx.MultiDiGraph) -> None:
     """
