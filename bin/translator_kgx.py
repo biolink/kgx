@@ -260,13 +260,15 @@ def neo4j_download(config, address, username, password, output, output_type, lab
 
                 s = subject_attr['id']
                 o = object_attr['id']
-                edge_label = edge_attr['edge_label']
+
+                if 'edge_label' not in edge_attr:
+                    edge_attr['edge_label'] = 'related_to'
 
                 if s not in G:
                     G.add_node(s, **subject_attr)
                 if o not in G:
                     G.add_node(o, **object_attr)
-                G.add_edge(s, o, key=edge_label, **edge_attr)
+                G.add_edge(s, o, key=edge_attr['edge_label'], **edge_attr)
 
     output_transformer.save(output)
 
