@@ -26,8 +26,6 @@ Then, for convenience, make use of the `venv` module in Python 3 to create a lig
 ```
 python3 -m venv venv
 source env/bin/activate
-
-pip install .
 ```
 
 **Note:** Be sure to set `PYTHONPATH`
@@ -47,7 +45,14 @@ or source the file:
 source environment.sh
 ```
 
+Finally, the Python dependencies of the application need to be installed into the local environment using the following command:
+
+```
+pip install .
+```
+
 ## Command Line Usage
+
 Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
 
 ```
