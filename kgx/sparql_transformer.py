@@ -6,10 +6,21 @@ from requests import HTTPError
 from .transformer import Transformer
 from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
-from prefixcommons import contract_uri
+# from prefixcommons import contract_uri
+from kgx.utils.rdf_utils import make_curie
 from itertools import zip_longest
+from .rdf_transformer import RdfTransformer
 
-class SparqlTransformer(Transformer):
+import re
+
+def uncamel_case(s):
+    """
+    https://stackoverflow.com/a/1176023/4750502
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', s)
+    return re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1).lower()
+
+class SparqlTransformer(RdfTransformer):
     """
     Transformer for SPARQL endpoints
     """
@@ -54,13 +65,23 @@ class SparqlTransformer(Transformer):
         q = render(self.edge_query, filters)
         results = self.query(q)
         for r in results:
-            self.curiefy_result(r)
+            # make_curie_result(r)
             if r['object']['type'] == 'literal':
-                self.graph.add_node(r['subject']['value'], attr_dict={r['predicate']['value']: r['object']['value']})
+                self.add_node_attribute(
+                    r['subject']['value'],
+                    key=r['predicate']['value'],
+                    value=r['object']['value'],
+                )
+                # self.graph.add_node(r['subject']['value'], **{r['predicate']['value']: r['object']['value']})
             else:
-                self.graph.add_node(r['subject']['value'])
-                self.graph.add_node(r['object']['value'])
-                self.graph.add_edge(r['subject']['value'], r['object']['value'], attr_dict={'relation': r['predicate']['value']})
+                self.add_edge(
+                    r['subject']['value'],
+                    r['object']['value'],
+                    r['predicate']['value'],
+                )
+                # self.graph.add_node(r['subject']['value'])
+                # self.graph.add_node(r['object']['value'])
+                # self.graph.add_edge(r['subject']['value'], r['object']['value'], **{'relation': r['predicate']['value']})
 
     def query(self, q):
         """
@@ -75,41 +96,32 @@ class SparqlTransformer(Transformer):
         logging.info("Rows fetched: {}".format(len(bindings)))
         return bindings
 
-    def curiefy(self, uri):
-        curie = contract_uri(uri)
-        if len(curie) == 0:
-            logging.info("Cannot CURIEfy {}. Returning the uri instead".format(uri))
-            curie = uri
-        elif len(curie) == 1:
-            curie = curie[0]
-        else:
-            logging.info("More than one CURIE {} for URI {}. Selecting the first occurrence".format(curie, uri))
-            curie = curie[0]
-        return curie
-
     def curiefy_result(self, result):
         """
         Convert subject, predicate and object IRIs to their respective CURIEs, where applicable
         """
         if result['subject']['type'] == 'uri':
-            subject_curie = contract_uri(result['subject']['value'])
-            if len(subject_curie) != 0:
-                result['subject']['value'] = subject_curie[0]
+            subject_curie = make_curie(result['subject']['value'])
+            if subject_curie != result['subject']['value']:
+                result['subject']['value'] = subject_curie
                 result['subject']['type'] = 'curie'
             else:
                 logging.warning("Could not CURIEfy {}".format(result['subject']['value']))
 
         if result['object']['type'] == 'curie':
-            object_curie = contract_uri(result['object']['value'])
-            if len(object_curie) != 0:
-                result['object']['value'] = object_curie[0]
+            object_curie = make_curie(result['object']['value'])
+            if object_curie != result['object']['value']:
+                result['object']['value'] = object_curie
                 result['object']['type'] = 'curie'
             else:
                 logging.warning("Could not CURIEfy {}".format(result['object']['value']))
 
-        predicate_curie = contract_uri(result['predicate']['value'])
-        result['predicate']['value'] = predicate_curie[0]
-        result['predicate']['type'] = 'curie'
+        predicate_curie = make_curie(result['predicate']['value'])
+        if predicate_curie != result['predicate']['value']:
+            result['predicate']['value'] = predicate_curie
+            result['predicate']['type'] = 'curie'
+        else:
+            result['predicate']['type'] = 'uri'
 
         return result
 
@@ -122,7 +134,7 @@ class SparqlTransformer(Transformer):
             # TODO: use biolink map here
             d[k] = v
         return d
-    
+
 class MonarchSparqlTransformer(SparqlTransformer):
     """
     see neo_transformer for discussion
@@ -159,7 +171,7 @@ class RedSparqlTransformer(SparqlTransformer):
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX bioentity: <http://bioentity.io/vocab/>
+    PREFIX bl: <http://w3id.org/biolink/vocab/>
 
     SELECT (COUNT(*) AS ?triples)
     WHERE {
@@ -177,9 +189,9 @@ class RedSparqlTransformer(SparqlTransformer):
         {{/object_category}}
 
         ?a rdf:type {{association}} ;
-           bioentity:subject ?subject ;
-           bioentity:relation ?predicate ;
-           bioentity:object ?object ;
+           bl:subject ?subject ;
+           bl:relation ?predicate ;
+           bl:object ?object ;
            ?edge_property_key ?edge_property_value .
     }
     """
@@ -188,7 +200,7 @@ class RedSparqlTransformer(SparqlTransformer):
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX bioentity: <http://bioentity.io/vocab/>
+    PREFIX bl: <http://w3id.org/biolink/vocab/>
 
     SELECT ?subject ?predicate ?object ?edge_property_key ?edge_property_value
     WHERE {
@@ -206,9 +218,9 @@ class RedSparqlTransformer(SparqlTransformer):
         {{/object_category}}
 
         ?a rdf:type {{association}} ;
-           bioentity:subject ?subject ;
-           bioentity:relation ?predicate ;
-           bioentity:object ?object ;
+           bl:subject ?subject ;
+           bl:relation ?predicate ;
+           bl:object ?object ;
            ?edge_property_key ?edge_property_value .
     }
     ORDER BY ?subject ?predicate ?object
@@ -217,7 +229,7 @@ class RedSparqlTransformer(SparqlTransformer):
     """
 
     get_node_properties_query = """
-    PREFIX bioentity: <http://bioentity.io/vocab/>
+    PREFIX bl: <http://w3id.org/biolink/vocab/>
 
     SELECT ?subject ?predicate ?object
     WHERE
@@ -233,12 +245,20 @@ class RedSparqlTransformer(SparqlTransformer):
 
     IS_DEFINED_BY = "Team Red"
 
-    def __init__(self, graph, url):
+    def __init__(self, graph=None, url='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
         super().__init__(graph, url)
         self.rdf_graph = Graph()
 
+    def load_networkx_graph():
+        """
+        Must implement this method to extend abstract RdfTransformer. We don't
+        want to actually do anything here.
+        TODO: refactor the desired methods out of RdfTransformer so that this
+        is not needed.
+        """
+        pass
 
-    def load_edges(self, association = 'bioentity:ChemicalToGeneAssociation'):
+    def load_edges(self, association = 'bl:ChemicalToGeneAssociation', limit=None):
         sparql = SPARQLWrapper(self.url)
         query = render(self.count_query, {'association': association})
         logging.debug(query)
@@ -247,7 +267,7 @@ class RedSparqlTransformer(SparqlTransformer):
         results = sparql.query().convert()
         count = int(results['results']['bindings'][0]['triples']['value'])
         logging.info("Expected triples for query: {}".format(count))
-        step = 100000
+        step = 1000
         start = 0
         for i in range(step, count + step, step):
             end = i
@@ -263,30 +283,36 @@ class RedSparqlTransformer(SparqlTransformer):
             logging.info("Fetching edges...")
             map = {}
             for r in results['results']['bindings']:
-                self.curiefy_result(r)
+                s = r['subject']['value']
+                p = r['predicate']['value']
+                o = r['object']['value']
+                self.add_edge(s, o, p)
+                continue
+
+                # make_curie_result(r)
                 key = ((r['subject']['value'], r['object']['value']), r['predicate']['value'])
                 if key in map:
                     # seen this triple before. look at properties
                     edge_property_key = r['edge_property_key']
-                    edge_property_key_curie = self.curiefy(edge_property_key['value'])
-                    if edge_property_key_curie.startswith('bioentity:'):
+                    edge_property_key_curie = make_curie(edge_property_key['value'])
+                    if edge_property_key_curie.startswith('bl:'):
                         edge_property_key_curie = edge_property_key_curie.split(':')[1]
                     edge_property_value = r['edge_property_value']
                     if edge_property_value['type'] == 'uri':
-                        edge_property_value_curie = self.curiefy(edge_property_value['value'])
+                        edge_property_value_curie = make_curie(edge_property_value['value'])
                     else:
                         edge_property_value_curie = edge_property_value['value']
                     map[key][edge_property_key_curie] = edge_property_value_curie
                 else:
                     map[key] = {}
                     edge_property_key = r['edge_property_key']
-                    edge_property_key_curie = self.curiefy(edge_property_key['value'])
-                    if edge_property_key_curie.startswith('bioentity:'):
+                    edge_property_key_curie = make_curie(edge_property_key['value'])
+                    if edge_property_key_curie.startswith('bl:'):
                         edge_property_key_curie = edge_property_key_curie.split(':')[1]
 
                     edge_property_value = r['edge_property_value']
                     if edge_property_value['type'] == 'uri':
-                        edge_property_value_curie = self.curiefy(edge_property_value['value'])
+                        edge_property_value_curie = make_curie(edge_property_value['value'])
                     else:
                         edge_property_value_curie = edge_property_value['value']
                     map[key][edge_property_key_curie] = edge_property_value_curie
@@ -297,15 +323,25 @@ class RedSparqlTransformer(SparqlTransformer):
                 self.graph.add_node(key[0][1])
                 if 'is_defined_by' not in properties and self.IS_DEFINED_BY:
                     properties['is_defined_by'] = self.IS_DEFINED_BY
-                if key[1].startswith('bioentity:'):
+                if key[1].startswith('bl:'):
                     relation = key[1].split(':')[1]
                 else:
                     relation = key[1]
                 properties['edge_label'] = relation
                 if 'relation' not in properties:
                     properties['relation'] = relation
-                self.graph.add_edge(key[0][0], key[0][1], attr_dict=properties)
+                self.graph.add_edge(key[0][0], key[0][1], **properties)
             map.clear()
+
+            if limit is not None and i > limit:
+                break
+
+        self.set_categories()
+
+    def set_categories(self):
+        for n, data in self.graph.nodes(data=True):
+            if 'category' not in data and 'type' in data:
+                data['category'] = uncamel_case(data['type'].replace('biolink:', ''))
 
     def load_nodes(self, node_list):
         logging.info("Loading nodes...")
@@ -324,18 +360,20 @@ class RedSparqlTransformer(SparqlTransformer):
             d = {}
             for r in node_results['results']['bindings']:
                 if r['object']['type'] != 'bnode':
-                    self.curiefy_result(r)
+                    # make_curie_result(r)
                     subject = r['subject']['value']
                     object = r['object']['value']
                     predicate = r['predicate']['value']
-                    if predicate.startswith('bioentity:'):
+                    if predicate.startswith('bl:'):
                         predicate = predicate.split(':')[1]
                     if subject not in d:
                         d[subject] = {}
                     d[subject][predicate] = object
 
-            for k, v in d.items():
-                self.graph.add_node(k, attr_dict=v)
+            for node, attr_dict in d.items():
+                for key, value in attr_dict.items():
+                    self.add_node_attribute(node, key=key, value=value)
+                # self.graph.add_node(k, **v)
             d.clear()
             nodes = next(node_generator, None)
 

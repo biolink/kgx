@@ -4,7 +4,7 @@ __version__ = '0.0.1'
 
 from .pandas_transformer import PandasTransformer
 from .nx_transformer import GraphMLTransformer
-from .sparql_transformer import SparqlTransformer
+from .sparql_transformer import SparqlTransformer, RedSparqlTransformer
 from .rdf_transformer import ObanRdfTransformer, RdfOwlTransformer, HgncRdfTransformer
 from .json_transformer import JsonTransformer
 from .neo_transformer import NeoTransformer
