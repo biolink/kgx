@@ -108,6 +108,8 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         relation = make_curie(predicate_iri)
         edge_label = process_iri(predicate_iri).replace(' ', '_')
+        if edge_label.startswith(BIOLINK):
+            edge_label = edge_label.replace(BIOLINK, '')
 
         kwargs = {
             'relation' : relation,

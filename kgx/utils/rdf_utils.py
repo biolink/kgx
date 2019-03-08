@@ -86,6 +86,8 @@ property_mapping = {
     OBAN.association_has_predicate : 'predicate',
     BIOLINK.name : 'name',
     RDFS.label : 'name',
+    RDF.type : 'type',
+    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') : 'type',
     # Definition being treated as a description
     BIOLINK.description : 'description',
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
@@ -113,6 +115,7 @@ is_property_multivalued = {
     'provided_by' : True,
     'category' : True,
     'publications' : True,
+    'type' : False,
 }
 
 def reverse_mapping(d:dict):
@@ -124,8 +127,12 @@ def reverse_mapping(d:dict):
 
 cmaps = [{
     'OMIM' : 'https://omim.org/entry/',
-    'HGNC' : 'http://identifiers.org/hgnc/'
-}] + default_curie_maps
+    'HGNC' : 'http://identifiers.org/hgnc/',
+    'DRUGBANK' : 'http://identifiers.org/drugbank:',
+    'biolink' : 'http://w3id.org/biolink/vocab/',
+}, {'DRUGBANK' : 'http://w3id.org/data2services/data/drugbank/'}] + default_curie_maps
+
+# {c for c in tk.generator.__dict__['schema']['classes'].keys()}
 
 def contract(uri:URIRef) -> str:
     """
