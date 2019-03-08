@@ -264,14 +264,24 @@ make neo_tests
 
 ```
 
-which should initialize and test the docker container, then turn it off. After running this, you may restart the container  with the command:
+which should initialize and test the docker container, then turn it off. 
+
+After running this, you may restart the local test neo4j container with the command:
 
 ```
 make start_docker
 ```
 
-and stop it with:
+It will be running as the docker container named "kgx_neo_test" and visible on http://localhost:7474 (queries also going to bolt://localhost:7687).
+Note that you may override the container name by settng the make command line parameter **CONTAINER_NAME**.
+
+The container may be stopped with:
 
 ```
 make stop_docker
 ```
+
+Or directly with with the _docker stop_ command (if you provided the **CONTAINER_NAME** when starting, then you need to 
+supply it again).
+
+Note that either way, the container is deleted (due ot the use of the docker ```--rm``` flag during start up).
