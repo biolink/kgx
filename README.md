@@ -53,7 +53,7 @@ make tests
 To test the use of the Neo4j database (using a Docker container), run  the following:
 
 ``` 
-make neo_tests
+make neo4j_tests
 ```
 
 To clean up the environment:
@@ -253,7 +253,7 @@ For more examples and ideas, visit:
 This may be done with the command:
 
 ```
-make neo_tests
+make neo4j_tests
 
 ```
 
@@ -320,7 +320,7 @@ make tests
 To test the use of the Neo4j database (using a Docker container), run  the following:
 
 ``` 
-make neo_tests
+make neo4j_tests
 ```
 
 To clean the environment:
@@ -520,7 +520,7 @@ For more examples and ideas, visit:
 This may be done with the command:
 
 ```
-make neo_tests
+make neo4j_tests
 
 ```
 
