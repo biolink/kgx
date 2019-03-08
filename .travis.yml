@@ -16,7 +16,7 @@ addons:
  
 # command to run tests
 script: 
-  - PYTHONPATH=. make test
+  - PYTHONPATH=. make tests
 
 #after_success:
 #  coveralls
