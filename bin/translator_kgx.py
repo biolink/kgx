@@ -9,9 +9,13 @@ from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
 
 from kgx.cli.utils import Config
+from kgx.utils import file_write
 
 from neo4j.v1 import GraphDatabase
 from neo4j.v1.types import Node, Record
+
+from collections import Counter, defaultdict, OrderedDict
+from terminaltables import AsciiTable
 
 import pandas as pd
 
@@ -33,13 +37,145 @@ def cli(config, debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
-@cli.command(name='node-summary')
+def get_prefix(curie:str) -> str:
+    if ':' in curie:
+        prefix, _ = curie.split(':', 1)
+        return prefix
+    else:
+        return None
+
+@cli.command('node-summary')
+@click.argument('filepath', type=click.Path(exists=True), required=True)
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.option('--max-rows', '-m', type=int, help='The maximum number of rows to return')
+@click.option('--output', '-o', type=click.Path(exists=False))
+def node_summary(filepath, input_type, max_rows, output):
+    """
+    Loads and summarizes a knowledge graph node set
+    """
+    t = build_transformer(filepath, input_type)
+    t.parse(filepath)
+
+    g = t.graph
+
+    tuples = []
+    xrefs = set()
+    with click.progressbar(g.nodes(data=True), label='Reading knowledge graph') as bar:
+        for n, data in bar:
+            if 'same_as' in data:
+                for xref in data['same_as']:
+                    xrefs.add(get_prefix(xref))
+
+            category = data.get('category')
+            prefix = get_prefix(n)
+
+            if category is not None and len(category) > 1 and 'named thing' in category:
+                category.remove('named thing')
+
+            if isinstance(category, (list, set)):
+                category = ", ".join("'{}'".format(c) for c in category)
+
+            if prefix is not None:
+                prefix = "'{}'".format(prefix)
+
+            tuples.append((prefix, category))
+
+    xrefs = [x for x in xrefs if x is not None]
+    if len(xrefs) != 0:
+        line = 'xref prefixes: {}'.format(', '.join(xrefs))
+        if output is not None:
+            file_write(output, line)
+        else:
+            click.echo(line)
+
+    tuple_count = OrderedDict(Counter(tuples).most_common(max_rows))
+
+    headers = [['Prefix', 'Category', 'Frequency']]
+    rows = [[*k, v] for k, v in tuple_count.items()]
+    if output is not None:
+        file_write(output, AsciiTable(headers + rows).table, mode='a')
+    else:
+        click.echo(AsciiTable(headers + rows).table)
+
+    category_count = defaultdict(lambda: 0)
+    prefix_count = defaultdict(lambda: 0)
+
+    for (prefix, category), frequency in tuple_count.items():
+        category_count[category] += frequency
+        prefix_count[prefix] += frequency
+
+    headers = [['Category', 'Frequency']]
+    rows = [[k, v] for k, v in category_count.items()]
+    if output is not None:
+        file_write(output, AsciiTable(headers + rows).table, mode='a')
+    else:
+        click.echo(AsciiTable(headers + rows).table)
+
+    headers = [['Prefixes', 'Frequency']]
+    rows = [[k, v] for k, v in prefix_count.items()]
+
+    if output is not None:
+        file_write(output, AsciiTable(headers + rows).table, mode='a')
+    else:
+        click.echo(AsciiTable(headers + rows).table)
+
+def stringify(s):
+    if isinstance(s, list):
+        if s is not None and len(s) > 1 and 'named thing' in s:
+            s.remove('named thing')
+        return ", ".join("'{}'".format(c) for c in s)
+    elif isinstance(s, str):
+        return "'{}'".format(s)
+    else:
+        return str(s)
+
+@cli.command('edge-summary')
+@click.argument('filepath', type=click.Path(exists=True), required=True)
+@click.option('--input-type', type=click.Choice(get_file_types()))
+@click.option('--max_rows', '-m', type=int, help='The maximum number of rows to return')
+@click.option('--output', '-o', type=click.Path(exists=False))
+def edge_summary(filepath, input_type, max_rows, output):
+    """
+    Loads and summarizes a knowledge graph edge set
+    """
+    t = build_transformer(filepath, input_type)
+    t.parse(filepath)
+
+    g = t.graph
+
+    tuples = []
+    with click.progressbar(g.edges(data=True), label='Reading knowledge graph') as bar:
+        for s, o, edge_attr in bar:
+            subject_attr = g.node[s]
+            object_attr = g.node[o]
+
+            subject_prefix = stringify(get_prefix(s))
+            object_prefix = stringify(get_prefix(o))
+
+            subject_category = stringify(subject_attr.get('category'))
+            object_category = stringify(object_attr.get('category'))
+            edge_label = stringify(edge_attr.get('edge_label'))
+            relation = stringify(edge_attr.get('relation'))
+
+            tuples.append((subject_prefix, subject_category, edge_label, relation, object_prefix, object_category))
+
+    tuple_count = OrderedDict(Counter(tuples).most_common(max_rows))
+
+    headers = [['Subject Prefix', 'Subject Category', 'Edge Label', 'Relation', 'Object Prefix', 'Object Category', 'Frequency']]
+    rows = [[*k, v] for k, v in tuple_count.items()]
+
+    if output is not None:
+        file_write(output, AsciiTable(headers + rows).table)
+    else:
+        click.echo(AsciiTable(headers + rows).table)
+
+@cli.command(name='neo4j-node-summary')
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str, required=True)
 @click.option('-p', '--password', type=str, required=True)
 @click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def node_summary(config, address, username, password, output=None):
+def neo4j_node_summary(config, address, username, password, output=None):
     if output is not None and not is_writable(output):
         error(f'Cannot write to {output}')
 
@@ -96,13 +232,13 @@ def node_summary(config, address, username, password, output=None):
         df.to_csv(output, sep='|', header=True)
         click.echo('Saved report to {}'.format(output))
 
-@cli.command(name='edge-summary')
+@cli.command(name='neo4j-edge-summary')
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str, required=True)
 @click.option('-p', '--password', type=str, required=True)
 @click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def edge_summary(config, address, username, password, output=None):
+def neo4j_edge_summary(config, address, username, password, output=None):
     if output is not None and not is_writable(output):
         error(f'Cannot write to {output}')
 
@@ -191,22 +327,22 @@ def validate(config, path, input_type, output_dir, record_size):
     validator.validate(t.graph)
 
     for error_type, failures in validator.error_dict.items():
-        error_type = error_type.replace(' ', '_')
-        with click.open_file(os.path.join(output_dir, error_type), 'a+') as f:
+        filename = error_type.replace(' ', '_') + '.log'
+        with click.open_file(os.path.join(output_dir, filename), 'a+') as f:
             f.write('--- {} ---\n'.format(datetime.now()))
             for t in failures:
                 if len(t) == 2:
                     n, message = t
                     if message is not None:
-                        f.write('node: {}\t{}\n'.format(n, message))
+                        f.write('node({}):\t{}\n'.format(n, message))
                     else:
-                        f.write('node: {}\n'.format(n))
+                        f.write('node({})\n'.format(n))
                 elif len(t) == 3:
                     u, v, message = t
                     if message is not None:
-                        f.write('edge: {}\t{}\t{}\n'.format(u, v, message))
+                        f.write('edge({}, {}):\t{}\n'.format(u, v, message))
                     else:
-                        f.write('edge: {}\t{}\n'.format(u, v))
+                        f.write('edge({}, {})\n'.format(u, v))
 
     if validator.error_dict == {}:
         click.echo('No errors found')
@@ -520,6 +656,14 @@ def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
         click.echo("File created at: " + output_path)
     else:
         error("Could not create file.")
+
+def build_transformer(path:str, input_type:str=None) -> Transformer:
+    if input_type is None:
+        input_type = get_type(path)
+    constructor = get_transformer(input_type)
+    if constructor is None:
+        error('File does not have a recognized type: ' + str(get_file_types()))
+    return constructor()
 
 def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
     """
