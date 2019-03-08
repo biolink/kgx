@@ -5,6 +5,8 @@ import os
 import tarfile
 from tempfile import TemporaryFile
 
+from kgx.utils import make_path
+
 from .transformer import Transformer
 
 from typing import Dict, List, Optional
@@ -181,6 +183,7 @@ class PandasTransformer(Transformer):
                 info.size = len(content)
                 tar.addfile(tarinfo=info, fileobj=tmp)
 
+        make_path(filename)
         with tarfile.open(name=filename, mode=zipmode) as tar:
             add_to_tar(tar, nodes_file_name, nodes_content)
             add_to_tar(tar, edges_file_name, edges_content)

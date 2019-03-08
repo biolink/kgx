@@ -21,6 +21,7 @@ requires = [
     "BiolinkMG>=0.0",
     "prologterms>=0.0.5",
     "bmt",
+    'terminaltables',
     "shexjsg>=0.6.5",
 ]
 
