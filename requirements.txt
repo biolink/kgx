@@ -1,13 +1,13 @@
 prefixcommons>=0.1.4
 pip>=9.0.1
-networkx==2.2
-SPARQLWrapper>1.8.0
+networkx>=2.2
+SPARQLWrapper>=1.8.0
 pandas>0.21
 pytest>=0.0
 mypy>=0.0
 pystache>=0.0
 rdflib>=0.0
-click==7.0
+click>=7.0
 #
 # Official Neo4j driver seems to be from the 'neo4j' package?
 #
