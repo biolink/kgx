@@ -6,8 +6,7 @@ NEO4J_USER=neo4j
 NEO4J_PASSWORD=password
 
 clean:
-	@-cd tests/logs
-	@-rm -f *.json *.log
+	@-cd tests/logs; rm -f *.json *.log
 	@echo "Environment cleaned."
 
 tests:
@@ -35,7 +34,7 @@ neo_tests: start_docker run_neo_tests stop_docker
 
 start_docker:
 	@echo "Starting a Neo4j docker container with name: ${CONTAINER_NAME}"
-	docker run --name $(CONTAINER_NAME) --detach --env NEO4J_AUTH=neo4j/demo --publish=7474:7474 --publish=7687:7687 --volume=`pwd`/docker_test_data:/data --volume=`pwd`/docker_test_logs:/logs neo4j
+	docker run --rm --name $(CONTAINER_NAME) --detach --env NEO4J_AUTH=neo4j/demo --publish=7474:7474 --publish=7687:7687 --volume=`pwd`/docker_test_data:/data --volume=`pwd`/docker_test_logs:/logs neo4j
 	@sleep 5
 
 run_neo_tests:
@@ -56,8 +55,11 @@ run_neo_tests:
 	@echo "\nneo-5. Downloading another subset, this time filtering on the edge label"
 	kgx --debug neo4j-download --labels edge predisposes $(NEO4J_ADDRESS) $(NEO4J_USER) $(NEO4J_PASSWORD) target/predisposes.json
 
-
-stop_docker:
+docker_on:
     @echo "Stopping a Neo4j docker container with name: ${CONTAINER_NAME}"
+
+stop_docker: docker_on
 	docker stop kgx_neo_test
-	rm -rf docker_test_data docker_test_logs
+	@-rm -rf docker_test_data docker_test_logs
+	@sleep 3
+    @echo "Neo4j docker container with name: ${CONTAINER_NAME} stopped"
