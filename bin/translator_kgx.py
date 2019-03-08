@@ -183,14 +183,14 @@ from datetime import datetime
 def validate(config, path, input_type, output_dir, record_size):
     os.makedirs(output_dir, exist_ok=True)
 
-    v = Validator(record_size)
+    validator = Validator(record_size)
 
     t = get_transformer(get_type(path))()
     t.parse(path)
     # t = load_transformer(path, input_type)
-    v.validate(t.graph)
+    validator.validate(t.graph)
 
-    for error_type, failures in v.error_dict.items():
+    for error_type, failures in validator.error_dict.items():
         error_type = error_type.replace(' ', '_')
         with click.open_file(os.path.join(output_dir, error_type), 'a+') as f:
             f.write('--- {} ---\n'.format(datetime.now()))
@@ -208,30 +208,32 @@ def validate(config, path, input_type, output_dir, record_size):
                     else:
                         f.write('edge: {}\t{}\n'.format(u, v))
 
-    if v.error_dict == {}:
+    if validator.error_dict == {}:
         click.echo('No errors found')
     else:
-        click.echo('{} types of errors found, recorded in {}'.format(len(v.error_dict), os.path.abspath(output_dir)))
+        for key, value in validator.error_dict.items():
+            click.echo('{} - {}'.format(key, len(value)))
 
 from neo4jrestclient.client import GraphDatabase as http_gdb
 import networkx as nx
 
 @cli.command(name='neo4j-download')
-@click.option('--output-type', type=click.Choice(get_file_types()))
-@click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
-@click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
-@click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
+# @click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
+# @click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
+# @click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str)
 @click.option('-p', '--password', type=str)
-@click.option('--subject-category', type=str)
-@click.option('--object-category', type=str)
-@click.option('--edge-label', type=str)
-@click.option('--start', type=int, default=0)
-@click.option('--end', type=int)
+@click.option('--subject-label', type=str,)
+@click.option('--object-label', type=str)
+@click.option('--edge-type', type=str)
+@click.option('--stop-after', type=int, help='Once this many edges are downloaded the application will finish')
+# @click.option('--start', type=int, default=0)
+# @click.option('--end', type=int)
 @click.option('-o', '--output', type=click.Path(exists=False), required=True)
+@click.option('--output-type', type=click.Choice(get_file_types()))
 @pass_config
-def neo4j_download(config, subject_category, object_category, edge_label, address, username, password, output, output_type, labels, properties, directed, start, end):
+def neo4j_download(config, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
@@ -244,11 +246,11 @@ def neo4j_download(config, subject_category, object_category, edge_label, addres
 
     driver = http_gdb(address, username=username, password=password)
 
-    subject_category = ':`{}`'.format(subject_category) if isinstance(subject_category, str) else ''
-    object_category = ':`{}`'.format(object_category) if isinstance(object_category, str) else ''
-    edge_label = ':`{}`'.format(edge_label) if isinstance(edge_label, str) else ''
+    subject_label = ':`{}`'.format(subject_label) if isinstance(subject_label, str) else ''
+    object_label = ':`{}`'.format(object_label) if isinstance(object_label, str) else ''
+    edge_type = ':`{}`'.format(edge_type) if isinstance(edge_type, str) else ''
 
-    match = 'match (n{})-[e{}]->(m{})'.format(subject_category, edge_label, object_category)
+    match = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_type, object_label)
 
     results = driver.query('{} return count(*)'.format(match))
 
@@ -300,6 +302,9 @@ def neo4j_download(config, subject_category, object_category, edge_label, addres
                     G.add_node(o, **object_attr)
 
                 G.add_edge(s, o, key=edge_attr['edge_label'], **edge_attr)
+
+            if stop_after is not None and G.number_of_edges() > stop_after:
+                break
 
     output_transformer.save(output)
 
@@ -367,7 +372,7 @@ def neo4j_upload(config, address, username, password, inputs, input_type, use_un
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
-@click.option('-o', '--output', type=click.Path(exists=False))
+@click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @pass_config
 def dump(config, inputs, output, input_type, output_type, mapping, preserve):
     """\b
