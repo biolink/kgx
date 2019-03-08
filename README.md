@@ -118,7 +118,7 @@ The `--input-type` option can be used to specify the format of these files: csv,
 The `dump` command takes any number of input file paths (all with the same file format), and outputs a file in the desired format.
 
 ```
-Usage: kgx dump [OPTIONS] INPUTS... OUTPUT
+Usage: kgx dump --output OUTPUT_PATH [OPTIONS] INPUTS... OUTPUT
 ```
 The format will be inferred from the file extention. But if  this cannot be done then the `--input-type` and `--output-type` flags are useful to enforce a particular format. The following formats are supported: csv, tsv, txt (pipe delimited text), json, rq, graphml, ttl.
 > *Note:* CSV/TSV representation require two files, one that represents the vertex set and one for the edge set. JSON, TTL, and GRAPHML files represent a whole graph in a single file. For this reason when creating CSV/TSV representation we will zip the resulting files in a .tar file.
