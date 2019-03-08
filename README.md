@@ -80,14 +80,14 @@ make examples
 ### Neo4j Upload
 The `neo4j-upload` command takes any number of input files, builds a [networkx](https://networkx.github.io/) graph from them, and uploads that graph to a [neo4j](https://neo4j.com/) database. To do this it of course needs the database address, username, and password. This will only work through [bolt](https://neo4j.com/docs/operations-manual/current/configuration/connectors/). By default you can access a local neo4j instance at the address `bolt://localhost:7687`.
 ```
-Usage: kgx neo4j-upload [OPTIONS] ADDRESS USERNAME PASSWORD INPUTS...
+Usage: kgx neo4j-upload (-a|--address) ADDRESS [(-u|--username) USERNAME] [(-p|--password) PASSWORD] [OPTIONS] INPUTS...
 ```
 The `--input-type` option can be used to specify the format of these files: csv, ttl, json, txt, graphml, rq, tsv.
 
 ### Neo4j Download
 The `neo4j-download` command downloads a neo4j instance, builds a networkx graph from it, and saves it to the specified file. Like the upload command, this will only work through bolt.
 ```
-Usage: kgx neo4j-download [OPTIONS] ADDRESS USERNAME PASSWORD OUTPUT
+Usage: kgx neo4j-download (-a|--address) ADDRESS [(-u|--username) USERNAME] [(-p|--password) PASSWORD] [OPTIONS] OUTPUT
 ```
 The `--output-type` option can be used to specify the format of these files: csv, ttl, json, txt, graphml, rq, tsv. The `--labels` and `--properties` options allow for filtering on node and edge labels and properties.
 
@@ -110,7 +110,7 @@ The batch options allow you to download into multiple files. The `--batch-size` 
 ### Validate
 The `validate` command loads any number of files into a graph and checks that they adhere to the [TKG](https://github.com/NCATS-Tangerine/translator-knowledge-graph) standard.
 ```
-Usage: kgx validate [OPTIONS] INPUTS...
+Usage: kgx validate  --output_dir DIRECTORY [OPTIONS] INPUTS...
 ```
 The `--input-type` option can be used to specify the format of these files: csv, ttl, json, txt, graphml, rq, tsv.
 
