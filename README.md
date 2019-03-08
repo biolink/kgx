@@ -23,29 +23,22 @@ cd kgx
 ```
 
 Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
+
 ```
 python3 -m venv venv
-source env/bin/activate
+source venv/bin/activate
 ```
 
-**Note:** Be sure to set `PYTHONPATH`
+To exit the environment, type:
 
-The above script (properly setting the PYTHONPATH) can be found in [`environment.sh`](environment.sh). 
-
-Either make the script executable (for future convenience in execution):
-
-```
-chmod u+x environment.sh
-./environment.sh
+```  
+deactivate
 ```
 
-or source the file:
+To reenter, source the _activate_ command again.
 
-```
-source environment.sh
-```
-
-Finally, the Python dependencies of the application need to be installed into the local environment using the following command:
+Finally, the Python dependencies of the application need to be installed into the local environment 
+(once, after creating  the 'venv') using the following command:
 
 ```
 pip install .
@@ -63,7 +56,7 @@ To test the use of the Neo4j database (using a Docker container), run  the follo
 make neo_tests
 ```
 
-To clean the environment:
+To clean up the environment:
 
 ``` 
 make clean
