@@ -51,6 +51,24 @@ Finally, the Python dependencies of the application need to be installed into th
 pip install .
 ```
 
+To test the basic _kgx_ application, run the following:
+
+```
+make tests
+```
+
+To test the use of the Neo4j database (using a Docker container), run  the following:
+
+``` 
+make neo_tests
+```
+
+To clean the environment:
+
+``` 
+make clean
+```
+
 ## Command Line Usage
 
 Use the `--help` flag with any command to view documentation. See the [makefile](/Makefile) for examples, and run them with:
