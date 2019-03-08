@@ -15,4 +15,4 @@ neo4jrestclient>=0.0
 BiolinkMG>=0.0
 prologterms==0.0.5
 bmt
-shexjsg==0.5.6
+shexjsg>=0.6.5
