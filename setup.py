@@ -10,13 +10,19 @@ requires = [
     "pystache>=0.0",
     "rdflib>=0.0",
     "click>=7.0",
-    "neo4j-driver>=1.5.3",
+    #
+    # Official Neo4j driver seems to be from the 'neo4j' package?
+    #
+    # "neo4j-driver>=1.5.3",
+    "neo4j",
     "pyyaml>=0.0",
+    "jupyter>=0",
     "neo4jrestclient",
-    "prologterms",
-    "BiolinkMG",
+    "BiolinkMG>=0.0",
+    "prologterms>=0.0.5",
     "bmt",
     'terminaltables',
+    "shexjsg>=0.6.5",
 ]
 
 setup(

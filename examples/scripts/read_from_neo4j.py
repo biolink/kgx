@@ -1,6 +1,5 @@
 import os, re, sys, logging, argparse
 from kgx import NeoTransformer, PandasTransformer
-from neo4j.util import watch
 
 """
 A script that demonstrates how to read edges and nodes from Neo4j
@@ -20,8 +19,6 @@ parser.add_argument('--bolt_port', help='Bolt port to connect with Neo4j', defau
 parser.add_argument('--username', help='username (default: neo4j)', default='neo4j')
 parser.add_argument('--password', help='password (default: demo)', default='demo')
 args = parser.parse_args()
-
-#watch("neo4j.bolt", logging.INFO, sys.stdout)
 
 # Initialize NeoTransformer
 n = NeoTransformer(None, args.host, {'bolt': args.bolt_port}, args.username, args.password)

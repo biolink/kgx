@@ -1,6 +1,5 @@
 import os, re, sys, logging, argparse
 from kgx import NeoTransformer, PandasTransformer
-from neo4j.util import watch
 
 """
 A loader script that demonstrates how to load edges and nodes into Neo4j
@@ -23,8 +22,6 @@ args = parser.parse_args()
 if args.nodes is None or args.edges is None:
     usage()
     exit()
-
-#watch("neo4j.bolt", logging.INFO, sys.stdout)
 
 print(args)
 # Initialize PandasTransformer
