@@ -32,13 +32,13 @@ typecheck:
 
 neo_tests: start_docker run_neo_tests stop_docker
 
-start_docker:
-	@echo "Starting a Neo4j docker container with name: ${CONTAINER_NAME}"
+start_neo4j:
+	@echo "Starting a Neo4j Docker container with name: ${CONTAINER_NAME}"
 	docker run --rm --name $(CONTAINER_NAME) --detach --env NEO4J_AUTH=neo4j/demo --publish=7474:7474 --publish=7687:7687 --volume=`pwd`/docker_test_data:/data --volume=`pwd`/docker_test_logs:/logs neo4j
 	@sleep 5
 
 run_neo_tests:
-	@echo "Running neo tests"
+	@echo "Running Neo4j tests"
 
 	@echo "\nneo-1. Uploading xln.csv and xle.csv to a local neo4j instance"
 	python examples/scripts/load_csv_to_neo4j.py tests/resources/x1n.csv tests/resources/x1e.csv
@@ -56,10 +56,10 @@ run_neo_tests:
 	kgx --debug neo4j-download  --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) --labels edge predisposes target/predisposes.json
 
 docker_on:
-    @echo "Stopping a Neo4j docker container with name: ${CONTAINER_NAME}"
+    @echo "Stopping a Neo4j Docker container with name: ${CONTAINER_NAME}"
 
-stop_docker: docker_on
+stop_neo4j: docker_on
 	docker stop $(CONTAINER_NAME)
 	@-rm -rf docker_test_data docker_test_logs
 	@sleep 3
-    @echo "Neo4j docker container with name: ${CONTAINER_NAME} stopped"
+    @echo "Neo4j Docker container with name: ${CONTAINER_NAME} is stopped"
