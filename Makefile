@@ -30,7 +30,7 @@ examples:
 typecheck:
 	mypy kgx --ignore-missing-imports
 
-neo_tests: start_docker run_neo_tests stop_docker
+neo_tests: start_neo4j run_neo_tests stop_neo4j
 
 start_neo4j:
 	@echo "Starting a Neo4j Docker container with name: ${CONTAINER_NAME}"
