@@ -41,19 +41,19 @@ run_neo_tests:
 	@echo "Running Neo4j tests"
 
 	@echo "\nneo-1. Uploading xln.csv and xle.csv to a local neo4j instance"
-	python examples/scripts/load_csv_to_neo4j.py tests/resources/x1n.csv tests/resources/x1e.csv
+	-python examples/scripts/load_csv_to_neo4j.py tests/resources/x1n.csv tests/resources/x1e.csv
 
 	@echo "\nneo-2. Reading csv data back from the local neo4j instance"
-	python examples/scripts/read_from_neo4j.py
+	-python examples/scripts/read_from_neo4j.py
 
 	@echo "\nneo-3. Uploading combined.json to a local neo4j instance"
-	kgx neo4j-upload --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) target/combined.json
+	-kgx neo4j-upload --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) target/combined.json
 
 	@echo "\nneo-4. Downloading a subset of what we had uploaded. Running in debug mode so we can see the cypher queries"
-	kgx --debug neo4j-download  --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) --properties object id UMLS:C1290952 --labels subject disease_or_phenotypic_feature target/neo4j-download.json
+	-kgx --debug neo4j-download  --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) --properties object id UMLS:C1290952 --labels subject disease_or_phenotypic_feature target/neo4j-download.json
 
 	@echo "\nneo-5. Downloading another subset, this time filtering on the edge label"
-	kgx --debug neo4j-download  --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) --labels edge predisposes target/predisposes.json
+	-kgx --debug neo4j-download  --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) --labels edge predisposes target/predisposes.json
 
 docker_on:
     @echo "Stopping a Neo4j Docker container with name: ${CONTAINER_NAME}"
