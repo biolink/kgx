@@ -59,7 +59,7 @@ docker_on:
     @echo "Stopping a Neo4j docker container with name: ${CONTAINER_NAME}"
 
 stop_docker: docker_on
-	docker stop kgx_neo_test
+	docker stop $(CONTAINER_NAME)
 	@-rm -rf docker_test_data docker_test_logs
 	@sleep 3
     @echo "Neo4j docker container with name: ${CONTAINER_NAME} stopped"

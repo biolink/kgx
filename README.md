@@ -273,7 +273,12 @@ make start_docker
 ```
 
 It will be running as the docker container named "kgx_neo_test" and visible on http://localhost:7474 (queries also going to bolt://localhost:7687).
-Note that you may override the container name by settng the make command line parameter **CONTAINER_NAME**.
+Note that you may override the container name by settng the make command line parameter **CONTAINER_NAME**, for example:
+
+```
+make start_docker CONTAINER_NAME="MyNeo4jContainer"
+
+```
 
 The container may be stopped with:
 
