@@ -14,7 +14,7 @@ class NeoSource(Source):
         if uri is username is None:
             with open("config.yml", 'r') as ymlfile:
                 cfg = yaml.load(ymlfile)
-                uri = "{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['port'])
+                uri = cfg['neo4j']['host']
                 username = cfg['neo4j']['username']
                 password = cfg['neo4j']['password']
         self.driver = http_gdb(uri, username=username, password=password)
