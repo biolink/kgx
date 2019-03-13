@@ -8,7 +8,7 @@ Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
 from kgx import clique_merge, make_valid_types
 
-owl = ['hp', 'mondo', 'go', 'so']
+owl = ['hp', 'mondo', 'go', 'so', 'ro']
 ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
 
 for filename in owl:
