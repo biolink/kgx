@@ -4,6 +4,7 @@ json. Then loads all these json files, along with the semmeddb edges.csv and
 nodes.csv files, into a single NetworkX graph, and performs `clique_merge` on it.
 Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 """
+import os
 
 from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
 from kgx import clique_merge, make_valid_types
@@ -12,30 +13,48 @@ owl = ['hp', 'mondo', 'go', 'so', 'ro']
 ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
 
 for filename in owl:
+    i, o = 'data/{}.owl'.format(filename), 'results/{}.csv.tar'.format(filename)
+    if os.path.isfile(o):
+        continue
     t = RdfOwlTransformer()
-    t.parse('data/{}.owl'.format(filename))
+    t.parse(i)
     t = PandasTransformer(t)
-    t.save('results/{}.csv'.format(filename))
+    t.save(o)
 
 for filename in ttl:
-    t = RdfOwlTransformer()
-    t.parse('data/{}.ttl'.format(filename))
+    i, o = 'data/{}.ttl'.format(filename), 'results/{}.csv.tar'.format(filename)
+    if os.path.isfile(o):
+        continue
+    t = ObanRdfTransformer()
+    t.parse(i)
     t = PandasTransformer(t)
-    t.save('results/{}.csv'.format(filename))
+    t.save(o)
 
 t = PandasTransformer()
-t.parse('results/hp.csv.tar')
-t.parse('results/mondo.csv.tar')
-t.parse('results/hgnc.csv.tar')
-t.parse('results/clinvar.csv.tar')
-t.parse('results/omim.csv.tar')
-t.parse('results/hpoa.csv.tar')
-t.parse('results/orphanet.csv.tar')
+for filename in ttl + owl:
+    t.parse('results/{}.csv.tar')
 
-# Uncomment to add in SemMedDb. Produce the file with scripts/transformed_semmeddb.py
-# t.parse('results/transformed_semmeddb.csv.tar')
-
-t.graph = clique_merge(t.graph)
+t.merge_cliques()
+t.categorize()
 make_valid_types(t.graph)
 
 t.save('results/clique_merged.csv')
+
+quit()
+
+# t = PandasTransformer()
+# t.parse('results/hp.csv.tar')
+# t.parse('results/mondo.csv.tar')
+# t.parse('results/hgnc.csv.tar')
+# t.parse('results/clinvar.csv.tar')
+# t.parse('results/omim.csv.tar')
+# t.parse('results/hpoa.csv.tar')
+# t.parse('results/orphanet.csv.tar')
+#
+# # Uncomment to add in SemMedDb. Produce the file with scripts/transformed_semmeddb.py
+# # t.parse('results/transformed_semmeddb.csv.tar')
+#
+# t.graph = clique_merge(t.graph)
+# make_valid_types(t.graph)
+#
+# t.save('results/clique_merged.csv')
