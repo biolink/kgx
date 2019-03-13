@@ -108,8 +108,12 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
 
         relation = make_curie(predicate_iri)
         edge_label = process_iri(predicate_iri).replace(' ', '_')
+
         if edge_label.startswith(BIOLINK):
             edge_label = edge_label.replace(BIOLINK, '')
+
+        if ':' in edge_label:
+            edge_label = 'related_to'
 
         kwargs = {
             'relation' : relation,
@@ -425,23 +429,36 @@ class RdfOwlTransformer(RdfTransformer):
     relationships
     """
     def load_networkx_graph(self, rg:rdflib.Graph):
-        for s, p, o in rg.triples((None,RDFS.subClassOf,None)):
-            if isinstance(s, rdflib.term.BNode):
-                continue
-            pred = None
-            parent = None
-            attr_dict = {}
-            if isinstance(o, rdflib.term.BNode):
-                # C SubClassOf R some D
+        triples = list(rg.triples((None,RDFS.subClassOf,None)))
+        with click.progressbar(triples) as bar:
+            for s, p, o in bar:
+                if isinstance(s, rdflib.term.BNode):
+                    continue
+                pred = None
                 parent = None
-                for x in rg.objects(o, OWL.onProperty):
-                    pred = x
-                for x in rg.objects(o, OWL.someValuesFrom):
-                    parent = x
-                if pred is None or parent is None:
-                    logging.warning("Do not know how to handle: {}".format(o))
-            else:
-                # C SubClassOf D (C and D are named classes)
-                pred = p
-                parent = o
-            self.add_edge(s, parent, pred)
+                attr_dict = {}
+                if isinstance(o, rdflib.term.BNode):
+                    # C SubClassOf R some D
+                    parent = None
+                    for x in rg.objects(o, OWL.onProperty):
+                        pred = x
+                    for x in rg.objects(o, OWL.someValuesFrom):
+                        parent = x
+                    if pred is None or parent is None:
+                        logging.warning("Do not know how to handle BNode: {}".format(o))
+                        continue
+                else:
+                    # C SubClassOf D (C and D are named classes)
+                    pred = p
+                    parent = o
+                self.add_edge(s, parent, pred)
+
+        relations = list(rg.subjects(RDF.type, OWL.ObjectProperty))
+        with click.progressbar(relations) as bar:
+            for relation in bar:
+                for _, p, o in rg.triples((relation, None, None)):
+                    if o.startswith('http://purl.obolibrary.org/obo/RO_'):
+                        self.add_edge(relation, o, p)
+                    else:
+                        self.add_node_attribute(relation, key=p, value=o)
+                self.add_node_attribute(relation, key='category', value='relation')

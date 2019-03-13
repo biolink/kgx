@@ -29,8 +29,18 @@ predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002525' : 'is subsequence of',
     OWL.sameAs.lower() : 'same_as',
     OWL.equivalentClass.lower() : 'same_as',
-    RDFS.subClassOf : 'subclass_of'
+    RDFS.subClassOf.lower() : 'subclass_of',
+    'http://www.w3.org/2000/01/rdf-schema#subPropertyOf' : 'subclass_of',
 }
+
+predicate_mapping.update(
+    {
+        '{}{}'.format(BIOLINK, n) : n
+            for n in
+        [x.replace(',', '').replace(' ', '_') for x in bmt.descendents('related to')]
+    }
+)
+
 predicate_mapping.update(mapping)
 
 category_mapping = {
@@ -78,7 +88,16 @@ category_mapping = {
     "http://purl.obolibrary.org/obo/SO_0000110" : "sequence feature",
     "http://purl.obolibrary.org/obo/GENO_0000536" : "genotype",
 }
+
 category_mapping.update(mapping)
+
+category_mapping.update(
+    {
+        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')) : n
+            for n in
+        bmt.descendents('named thing')
+    }
+)
 
 property_mapping = {
     OBAN.association_has_subject : 'subject',
@@ -99,7 +118,7 @@ property_mapping = {
     OWL.sameAs : 'same_as',
     OWL.equivalentClass : 'same_as',
     BIOLINK.in_taxon : 'in_taxon',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
+    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon',
 }
 
 is_property_multivalued = {

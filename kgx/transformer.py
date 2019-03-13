@@ -7,6 +7,11 @@ from networkx.readwrite import json_graph
 from .prefix_manager import PrefixManager
 from .filter import Filter
 
+import click
+
+from kgx.utils.ontology import find_superclass
+from kgx.mapper import clique_merge
+
 SimpleValue = Union[List[str], str]
 
 class Transformer(object):
@@ -51,7 +56,35 @@ class Transformer(object):
     def set_filter(self, target: str, value: SimpleValue) -> None:
         self.filters.append(Filter(target, value))
 
-    def merge(self, graphs):
+    def categorize(self):
+        memo = {}
+        with click.progressbar(self.graph.nodes(data=True)) as bar:
+            for n, data in bar:
+                if n == 'Orphanet:98818':
+                    import pudb; pu.db
+                if 'category' not in data or data['category'] == ['named thing']:
+                    superclass = find_superclass(n, self.graph)
+                    if superclass is not None:
+                        data['category'] = [superclass]
+        with click.progressbar(self.graph.edges(data=True)) as bar:
+            for u, v, data in bar:
+                if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
+                    relation = data.get('relation')
+
+                    if relation not in memo:
+                        memo[relation] = find_superclass(relation, self.graph)
+
+                    if memo[relation] is not None:
+                        data['edge_label'] = memo[relation]
+
+    def merge_cliques(self):
+        """
+        Merges all nodes that are connected by `same_as` edges, or are marked
+        as equivalent by a nodes `same_as` property.
+        """
+        self.graph = clique_merge(self.graph)
+
+    def merge_graphs(self, graphs):
         """
         Merge all graphs with self.graph
 
@@ -64,6 +97,7 @@ class Transformer(object):
         values for a property, then the value is overwritten from left to right
 
         """
+
 
         graphs.insert(0, self.graph)
         self.graph = nx.compose_all(graphs, "mergedMultiDiGraph")
