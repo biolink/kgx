@@ -9,30 +9,36 @@ import os
 from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
 from kgx import clique_merge, make_valid_types
 
-owl = ['hp', 'mondo', 'go', 'so', 'ro']
-ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
+data = {
+    'data/hp.owl' : RdfOwlTransformer,
+    'data/mondo.owl' : RdfOwlTransformer,
+    'data/go.owl' : RdfOwlTransformer,
+    'data/so.owl' : RdfOwlTransformer,
+    'data/ro.owl' : RdfOwlTransformer,
 
-for filename in owl:
-    i, o = 'data/{}.owl'.format(filename), 'results/{}.csv.tar'.format(filename)
-    if os.path.isfile(o):
-        continue
-    t = RdfOwlTransformer()
-    t.parse(i)
-    t = PandasTransformer(t)
-    t.save(o)
+    'data/hgnc.ttl' : HgncRdfTransformer,
 
-for filename in ttl:
-    i, o = 'data/{}.ttl'.format(filename), 'results/{}.csv.tar'.format(filename)
-    if os.path.isfile(o):
-        continue
-    t = ObanRdfTransformer()
-    t.parse(i)
-    t = PandasTransformer(t)
-    t.save(o)
+    'data/orphanet.ttl' : ObanRdfTransformer,
+    'data/hpoa.ttl' : ObanRdfTransformer,
+    'data/omim.ttl' : ObanRdfTransformer,
+    'data/clinvar.ttl' : ObanRdfTransformer,
+}
+
+def change_extention(filename, extention):
+    while extention.startswith('.'):
+        extention = extention[1:]
+    return '{}.{}'.format(filename.split('.', 1)[0], extention)
+
+for filename, constructor in data.items():
+    t = constructor()
+    t.parse(filename)
+    t.save(change_extention(filename, 'csv'))
 
 t = PandasTransformer()
-for filename in ttl + owl:
-    t.parse('results/{}.csv.tar')
+
+for filename in data.keys():
+    filename = change_extention(filename, 'csv.tar')
+    t.parse(filename)
 
 t.merge_cliques()
 t.categorize()
@@ -41,6 +47,40 @@ make_valid_types(t.graph)
 t.save('results/clique_merged.csv')
 
 quit()
+
+
+# owl = ['hp', 'mondo', 'go', 'so', 'ro']
+# ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
+# 
+# for filename in owl:
+#     i, o = 'data/{}.owl'.format(filename), 'results/{}.csv.tar'.format(filename)
+#     if os.path.isfile(o):
+#         continue
+#     t = RdfOwlTransformer()
+#     t.parse(i)
+#     t = PandasTransformer(t)
+#     t.save(o)
+#
+# for filename in ttl:
+#     i, o = 'data/{}.ttl'.format(filename), 'results/{}.csv.tar'.format(filename)
+#     if os.path.isfile(o):
+#         continue
+#     t = ObanRdfTransformer()
+#     t.parse(i)
+#     t = PandasTransformer(t)
+#     t.save(o)
+#
+# t = PandasTransformer()
+# for filename in ttl + owl:
+#     t.parse('results/{}.csv.tar')
+#
+# t.merge_cliques()
+# t.categorize()
+# make_valid_types(t.graph)
+#
+# t.save('results/clique_merged.csv')
+#
+# quit()
 
 # t = PandasTransformer()
 # t.parse('results/hp.csv.tar')
