@@ -30,9 +30,12 @@ def change_extention(filename, extention):
     return '{}.{}'.format(filename.split('.', 1)[0], extention)
 
 for filename, constructor in data.items():
+    out = change_extention(filename, 'csv')
+    if os.path.isfile(out):
+        continue
     t = constructor()
     t.parse(filename)
-    t.save(change_extention(filename, 'csv'))
+    t.save(out)
 
 t = PandasTransformer()
 
@@ -51,7 +54,7 @@ quit()
 
 # owl = ['hp', 'mondo', 'go', 'so', 'ro']
 # ttl = ['hgnc', 'orphanet', 'hpoa', 'omim', 'clinvar']
-# 
+#
 # for filename in owl:
 #     i, o = 'data/{}.owl'.format(filename), 'results/{}.csv.tar'.format(filename)
 #     if os.path.isfile(o):
