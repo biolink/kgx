@@ -29,8 +29,18 @@ predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002525' : 'is subsequence of',
     OWL.sameAs.lower() : 'same_as',
     OWL.equivalentClass.lower() : 'same_as',
-    RDFS.subClassOf : 'subclass_of'
+    RDFS.subClassOf.lower() : 'subclass_of',
+    'http://www.w3.org/2000/01/rdf-schema#subPropertyOf' : 'subclass_of',
 }
+
+predicate_mapping.update(
+    {
+        '{}{}'.format(BIOLINK, n) : n
+            for n in
+        [x.replace(',', '').replace(' ', '_') for x in bmt.descendents('related to')]
+    }
+)
+
 predicate_mapping.update(mapping)
 
 category_mapping = {
@@ -78,7 +88,16 @@ category_mapping = {
     "http://purl.obolibrary.org/obo/SO_0000110" : "sequence feature",
     "http://purl.obolibrary.org/obo/GENO_0000536" : "genotype",
 }
+
 category_mapping.update(mapping)
+
+category_mapping.update(
+    {
+        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')) : n
+            for n in
+        bmt.descendents('named thing')
+    }
+)
 
 property_mapping = {
     OBAN.association_has_subject : 'subject',
@@ -86,6 +105,8 @@ property_mapping = {
     OBAN.association_has_predicate : 'predicate',
     BIOLINK.name : 'name',
     RDFS.label : 'name',
+    RDF.type : 'type',
+    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') : 'type',
     # Definition being treated as a description
     BIOLINK.description : 'description',
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
@@ -97,7 +118,7 @@ property_mapping = {
     OWL.sameAs : 'same_as',
     OWL.equivalentClass : 'same_as',
     BIOLINK.in_taxon : 'in_taxon',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon'
+    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon',
 }
 
 is_property_multivalued = {
@@ -113,6 +134,7 @@ is_property_multivalued = {
     'provided_by' : True,
     'category' : True,
     'publications' : True,
+    'type' : False,
 }
 
 def reverse_mapping(d:dict):
@@ -124,8 +146,12 @@ def reverse_mapping(d:dict):
 
 cmaps = [{
     'OMIM' : 'https://omim.org/entry/',
-    'HGNC' : 'http://identifiers.org/hgnc/'
-}] + default_curie_maps
+    'HGNC' : 'http://identifiers.org/hgnc/',
+    'DRUGBANK' : 'http://identifiers.org/drugbank:',
+    'biolink' : 'http://w3id.org/biolink/vocab/',
+}, {'DRUGBANK' : 'http://w3id.org/data2services/data/drugbank/'}] + default_curie_maps
+
+# {c for c in tk.generator.__dict__['schema']['classes'].keys()}
 
 def contract(uri:URIRef) -> str:
     """
