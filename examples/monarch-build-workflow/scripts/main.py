@@ -35,6 +35,7 @@ for filename, constructor in data.items():
         continue
     t = constructor()
     t.parse(filename)
+    t = PandasTransformer(t)
     t.save(out)
 
 t = PandasTransformer()
