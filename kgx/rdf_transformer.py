@@ -258,8 +258,6 @@ class RdfTransformer(Transformer, metaclass=ABCMeta):
                         if not isinstance(s, rdflib.term.BNode) and not isinstance(o, rdflib.term.BNode):
                             self.add_node_attribute(uriRef, key=p, value=o)
 
-                self.add_node_attribute(uriRef, key='category', value=['named thing'])
-
 class ObanRdfTransformer(RdfTransformer):
     ontological_predicates = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
