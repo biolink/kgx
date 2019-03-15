@@ -72,16 +72,17 @@ class Transformer(object):
         self.filters.append(Filter(target, value))
 
     def categorize(self):
-        memo = {}
-        with click.progressbar(self.graph.nodes(data=True)) as bar:
+        # Starts with each uncategorized node and finds a superclass
+        with click.progressbar(self.graph.nodes(data=True), help='categorizing nodes') as bar:
             for n, data in bar:
-                if n == 'Orphanet:98818':
-                    import pudb; pu.db
                 if 'category' not in data or data['category'] == ['named thing']:
                     superclass = find_superclass(n, self.graph)
                     if superclass is not None:
                         data['category'] = [superclass]
-        with click.progressbar(self.graph.edges(data=True)) as bar:
+
+        memo = {}
+        # Starts with each uncategorized ge and finds a superclass
+        with click.progressbar(self.graph.edges(data=True), help='categorizing edges') as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
                     relation = data.get('relation')
@@ -91,6 +92,22 @@ class Transformer(object):
 
                     if memo[relation] is not None:
                         data['edge_label'] = memo[relation]
+
+        # Starts with each biolink model compliant superclass and finds all subclasses
+        with click.progressbar(self.graph.nodes(data='name'), help='expanding node categories') as bar:
+            for n, name in bar:
+                c = bmt.get_class(name)
+                if c is not None:
+                    for subclass in subclasses(n, self.graph):
+                        category = self.graph.node[subclass].get('category')
+                        if isinstance(category, list):
+                            if c.name not in category:
+                                category.append(c.name)
+                        else:
+                            self.graph.node[subclass]['category'] = [c.name]
+
+
+
 
     def merge_cliques(self):
         """

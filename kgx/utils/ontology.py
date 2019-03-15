@@ -6,6 +6,28 @@ import bmt
 
 ignore = ['All', 'entity']
 
+def subclasses(n, graph:MultiDiGraph):
+    nodes = [n]
+    while nodes != []:
+        m = nodes.pop()
+        for subclass, edgelabel, _ in graph.in_edges(m, data='edge_label'):
+            if edgelabel == 'subclass_of':
+                nodes.append(subclass)
+                yield subclass
+
+def fill_categories(graph:MultiDiGraph) -> None:
+    for n, name in G.nodes(data='name'):
+        if name is not None:
+            c = bmt.get_element(name)
+            if c is not None:
+                for subclass in subclasses(n):
+                    if not isinstance(G.node[subclass].get('category'), list):
+                        G.node[subclass]['category'] = [name]
+                    else:
+                        category = G.node[subclass]['category']
+                        if name not in category:
+                            category.append(name)
+
 def walk(node, next_node_generator):
     to_visit = {node : 0} # Dict[str, Integer]
     visited = {} # Dict[str, Integer]
@@ -54,7 +76,7 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
             continue
 
         name = graph.node[n].get('name')
-        
+
         if name is not None and name not in ignore:
             c = bmt.get_element(name)
             if c is not None and c.name is not None:
