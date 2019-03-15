@@ -1,5 +1,5 @@
 import networkx as nx
-import json, time
+import json, time, bmt
 
 from typing import Union, List, Dict
 from networkx.readwrite import json_graph
@@ -9,7 +9,7 @@ from .filter import Filter
 
 import click
 
-from kgx.utils.ontology import find_superclass
+from kgx.utils.ontology import find_superclass, subclasses
 from kgx.mapper import clique_merge
 
 SimpleValue = Union[List[str], str]
@@ -73,7 +73,7 @@ class Transformer(object):
 
     def categorize(self):
         # Starts with each uncategorized node and finds a superclass
-        with click.progressbar(self.graph.nodes(data=True), help='categorizing nodes') as bar:
+        with click.progressbar(self.graph.nodes(data=True), label='categorizing nodes') as bar:
             for n, data in bar:
                 if 'category' not in data or data['category'] == ['named thing']:
                     superclass = find_superclass(n, self.graph)
@@ -82,7 +82,7 @@ class Transformer(object):
 
         memo = {}
         # Starts with each uncategorized ge and finds a superclass
-        with click.progressbar(self.graph.edges(data=True), help='categorizing edges') as bar:
+        with click.progressbar(self.graph.edges(data=True), label='categorizing edges') as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
                     relation = data.get('relation')
@@ -94,7 +94,7 @@ class Transformer(object):
                         data['edge_label'] = memo[relation]
 
         # Starts with each biolink model compliant superclass and finds all subclasses
-        with click.progressbar(self.graph.nodes(data='name'), help='expanding node categories') as bar:
+        with click.progressbar(self.graph.nodes(data='name'), label='expanding node categories') as bar:
             for n, name in bar:
                 c = bmt.get_class(name)
                 if c is not None:
@@ -106,8 +106,10 @@ class Transformer(object):
                         else:
                             self.graph.node[subclass]['category'] = [c.name]
 
-
-
+        # Finally, set all invalid categories to the default value
+        for n, category in self.graph.nodes(data='category'):
+            if not isinstance(category, list):
+                self.graph.node[n]['category'] = ['named thing']
 
     def merge_cliques(self):
         """
