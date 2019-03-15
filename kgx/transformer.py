@@ -10,7 +10,7 @@ from .filter import Filter
 import click
 
 from kgx.utils.ontology import find_superclass, subclasses
-from ktx.utils.str_utils import fmt_edgelabel, fmt_category
+from kgx.utils.str_utils import fmt_edgelabel, fmt_category
 
 from kgx.mapper import clique_merge
 
