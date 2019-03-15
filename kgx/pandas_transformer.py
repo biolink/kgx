@@ -39,13 +39,14 @@ class PandasTransformer(Transformer):
 
         May be either a node file or an edge file
         """
+        self.filename = filename
         if 'delimiter' not in kwargs:
             kwargs['delimiter'] = self._extention_types[input_format]
         if filename.endswith('.tar'):
             with tarfile.open(filename) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    df = pd.read_csv(f, comment='#', **kwargs) # type: pd.DataFrame
+                    df = pd.read_csv(f, comment='#', dtype=str, **kwargs) # type: pd.DataFrame
                     if member.name == 'nodes.csv':
                         self.load_nodes(df)
                     elif member.name == 'edges.csv':
@@ -53,7 +54,7 @@ class PandasTransformer(Transformer):
                     else:
                         raise Exception('Tar file contains unrecognized member {}'.format(member.name))
         else:
-            df = pd.read_csv(filename, comment='#', **kwargs) # type: pd.DataFrame
+            df = pd.read_csv(filename, comment='#', dtype=str, **kwargs) # type: pd.DataFrame
             self.load(df)
 
     def load(self, df: pd.DataFrame):
@@ -88,6 +89,11 @@ class PandasTransformer(Transformer):
 
     def load_node(self, obj:Dict):
         kwargs = self.build_kwargs(obj.copy())
+        
+        if 'id' not in kwargs:
+            print('node in {} with missing id: {}'.format(self.filename, obj))
+            return
+        
         n = kwargs['id']
         self.graph.add_node(n, **kwargs)
 
@@ -97,6 +103,12 @@ class PandasTransformer(Transformer):
 
     def load_edge(self, obj: Dict):
         kwargs = self.build_kwargs(obj.copy())
+        if 'subject' not in kwargs:
+            print('node in {} with missing subject: {}'.format(self.filename, obj))
+            return
+        if 'object' not in kwargs:
+            print('node in {} with missing object: {}'.format(self.filename, obj))
+            return
         s = kwargs['subject']
         o = kwargs['object']
         self.graph.add_edge(s, o, **kwargs)

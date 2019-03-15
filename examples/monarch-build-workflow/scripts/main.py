@@ -6,7 +6,7 @@ Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 """
 import os
 
-from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer
+from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer, PandasTransformer
 from kgx import clique_merge, make_valid_types
 
 data = {
@@ -15,6 +15,7 @@ data = {
     'data/go.owl' : RdfOwlTransformer,
     'data/so.owl' : RdfOwlTransformer,
     'data/ro.owl' : RdfOwlTransformer,
+    'data/geno.owl' : RdfOwlTransformer,
 
     'data/hgnc.ttl' : HgncRdfTransformer,
 
@@ -30,7 +31,7 @@ def change_extention(filename, extention):
     return '{}.{}'.format(filename.split('.', 1)[0], extention)
 
 for filename, constructor in data.items():
-    out = change_extention(filename, 'csv')
+    out = change_extention(filename, 'csv.tar')
     if os.path.isfile(out):
         continue
     t = constructor()
@@ -46,7 +47,7 @@ for filename in data.keys():
 
 t.merge_cliques()
 t.categorize()
-make_valid_types(t.graph)
+#make_valid_types(t.graph)
 
 t.save('results/clique_merged.csv')
 

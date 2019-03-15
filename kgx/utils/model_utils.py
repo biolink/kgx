@@ -32,7 +32,7 @@ def make_valid_types(G:nx.MultiDiGraph) -> None:
     G.remove_nodes_from(nodes)
 
     for u, v, data in G.edges(data=True):
-        if bmt.get_predicate(data['edge_label']) is None:
+        if bmt.get_predicate(data.get('edge_label')) is None:
             data['edge_label'] = 'related_to'
         elif ' ' in data['edge_label']:
             data['edge_label'] = data['edge_label'].replace(' ', '_')

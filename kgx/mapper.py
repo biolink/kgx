@@ -263,7 +263,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
 
     edges = []
     for u, v, key, data in g.edges(keys=True, data=True):
-        if data['edge_label'] == 'same_as':
+        if data.get('edge_label') == 'same_as':
             edges.append((u, v, key))
     g.remove_edges_from(edges)
 
