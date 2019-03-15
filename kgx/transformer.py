@@ -10,6 +10,8 @@ from .filter import Filter
 import click
 
 from kgx.utils.ontology import find_superclass, subclasses
+from ktx.utils.str_utils import fmt_edgelabel, fmt_category
+
 from kgx.mapper import clique_merge
 
 SimpleValue = Union[List[str], str]
@@ -47,21 +49,6 @@ class Transformer(object):
         print('|Nodes|={}'.format(len(g.nodes())))
         print('|Edges|={}'.format(len(g.edges())))
 
-    def categorize(self):
-        """
-        Runs through the NetworkX graph and attempts to fill out all node
-        categories by finding roots of subgraphs induced by `subclass_of` and
-        `same_as` edges.
-        """
-        for n, data in self.graph.nodes(data=True):
-            category = data.get('category')
-            if category is None:
-                data['category'] = find_categories(n)
-            elif isinstance(category, str):
-                data['category'] = [category]
-            elif not isinstance(category, (list, tuple, set)) or len(category) == 0:
-                data['category'] = find_categories(n)
-
     def is_empty(self) -> bool:
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
@@ -78,7 +65,7 @@ class Transformer(object):
                 if 'category' not in data or data['category'] == ['named thing']:
                     superclass = find_superclass(n, self.graph)
                     if superclass is not None:
-                        data['category'] = [superclass]
+                        data['category'] = [fmt_category(superclass)]
 
         memo = {}
         # Starts with each uncategorized ge and finds a superclass
@@ -88,7 +75,8 @@ class Transformer(object):
                     relation = data.get('relation')
 
                     if relation not in memo:
-                        memo[relation] = find_superclass(relation, self.graph)
+                        superclass = find_superclass(relation, self.graph)
+                        memo[relation] = fmt_edgelabel(superclass)
 
                     if memo[relation] is not None:
                         data['edge_label'] = memo[relation]
@@ -98,17 +86,18 @@ class Transformer(object):
             for n, name in bar:
                 c = bmt.get_class(name)
                 if c is not None:
+                    category_name = fmt_category(c.name)
                     for subclass in subclasses(n, self.graph):
                         category = self.graph.node[subclass].get('category')
                         if isinstance(category, list):
-                            if c.name not in category:
-                                category.append(c.name)
+                            if category_name not in category:
+                                category.append(category_name)
                         else:
-                            self.graph.node[subclass]['category'] = [c.name]
+                            self.graph.node[subclass]['category'] = [category_name]
 
-        # Finally, set all invalid categories to the default value
+        # Finally, set all null categories to the default value
         for n, category in self.graph.nodes(data='category'):
-            if not isinstance(category, list):
+            if category is None:
                 self.graph.node[n]['category'] = ['named thing']
 
     def merge_cliques(self):
