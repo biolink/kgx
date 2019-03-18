@@ -71,7 +71,7 @@ class Transformer(object):
         # Starts with each uncategorized ge and finds a superclass
         with click.progressbar(self.graph.edges(data=True), label='categorizing edges') as bar:
             for u, v, data in bar:
-                if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
+                if data.get('edge_label') is None or data['edge_label'] == 'related_to':
                     relation = data.get('relation')
 
                     if relation not in memo:
@@ -95,10 +95,19 @@ class Transformer(object):
                         else:
                             self.graph.node[subclass]['category'] = [category_name]
 
-        # Finally, set all null categories to the default value
+        # Set all null categories to the default value, and format all others
         for n, category in self.graph.nodes(data='category'):
-            if category is None:
+            if not isinstance(category, list) or category == []:
                 self.graph.node[n]['category'] = ['named thing']
+            else:
+                category = [fmt_category(c) for c in category]
+
+        # Set all null edgelabels to the default value, and format all others
+        for u, v, data in self.graph.edges(data=True):
+            if 'edge_label' not in data or data['edge_label'] is None:
+                data['edge_label'] = 'related_to'
+            else:
+                data['edge_label'] = fmt_edgelabel(data['edge_label'])
 
     def merge_cliques(self):
         """
