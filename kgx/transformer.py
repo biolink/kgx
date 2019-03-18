@@ -16,6 +16,8 @@ from kgx.mapper import clique_merge
 
 SimpleValue = Union[List[str], str]
 
+IGNORE_CLASSSES = ['All', 'entity']
+
 class Transformer(object):
     """
     Base class for performing a Transformation, this can be
@@ -58,14 +60,46 @@ class Transformer(object):
     def set_filter(self, target: str, value: SimpleValue) -> None:
         self.filters.append(Filter(target, value))
 
-    def categorize(self):
-        # Starts with each uncategorized node and finds a superclass
-        with click.progressbar(self.graph.nodes(data=True), label='categorizing nodes') as bar:
-            for n, data in bar:
-                if 'category' not in data or data['category'] == ['named thing']:
-                    superclass = find_superclass(n, self.graph)
-                    if superclass is not None:
-                        data['category'] = [fmt_category(superclass)]
+    def categorize(self, ignore:List[str]=None):
+        """
+        Attempts to find node categories and edge labels by following
+        subclass_of paths within the graph.
+
+        Parameters
+        ----------
+        ignore: List[str]
+            the names of categories to ignore, by default "All" and "entity" are
+            ignored.
+        """
+        if ignore is None:
+            ignore = IGNORE_CLASSSES
+
+        superclasses = []
+        with click.progressbar(self.graph.nodes(data='name'), label='Finding superclasses') as bar:
+            for n, name in bar:
+                if name is None:
+                    continue
+                c = bmt.get_class(name)
+                if c is not None:
+                    superclasses.append(n)
+                else:
+                    in_degree = sum(1 for _, _, edge_label in self.graph.in_edges(n, data='edge_label') if edge_label == 'subclass_of')
+                    out_degree = sum(1 for _, _, edge_label in self.graph.out_edges(n, data='edge_label') if edge_label == 'subclass_of')
+                    if out_degree == 0 and in_degree > 0:
+                        superclasses.append(n)
+
+        with click.progressbar(superclasses, label='Categorizing subclasses') as bar:
+            for superclass in bar:
+                name = self.graph.node[superclass].get('name')
+                if name is None or name in ignore:
+                    continue
+                for subclass in subclasses(superclass, self.graph):
+                    category = self.graph.node[subclass].get('category')
+                    if not isinstance(category, list) or category == [] or category == ['named thing']:
+                        self.graph.node[subclass] = [name]
+                    else:
+                        if name not in category:
+                            category.append(name)
 
         memo = {}
         # Starts with each uncategorized ge and finds a superclass
@@ -81,39 +115,32 @@ class Transformer(object):
                     if memo[relation] is not None:
                         data['edge_label'] = memo[relation]
 
-        # Starts with each biolink model compliant superclass and finds all subclasses
-        with click.progressbar(self.graph.nodes(data='name'), label='expanding node categories') as bar:
-            for n, name in bar:
-                c = bmt.get_class(name)
-                if c is not None:
-                    category_name = fmt_category(c.name)
-                    for subclass in subclasses(n, self.graph):
-                        category = self.graph.node[subclass].get('category')
-                        if isinstance(category, list):
-                            if category_name not in category:
-                                category.append(category_name)
-                        else:
-                            self.graph.node[subclass]['category'] = [category_name]
-
         # Set all null categories to the default value, and format all others
-        for n, category in self.graph.nodes(data='category'):
-            if not isinstance(category, list) or category == []:
-                self.graph.node[n]['category'] = ['named thing']
-            else:
-                category = [fmt_category(c) for c in category]
+        with click.progressbar(self.graph.nodes(data='category'), label='Ensuring valid categories') as bar:
+            for n, category in bar:
+                if not isinstance(category, list) or category == []:
+                    self.graph.node[n]['category'] = ['named thing']
+                else:
+                    category = [fmt_category(c) for c in category]
 
         # Set all null edgelabels to the default value, and format all others
-        for u, v, data in self.graph.edges(data=True):
-            if 'edge_label' not in data or data['edge_label'] is None:
-                data['edge_label'] = 'related_to'
-            else:
-                data['edge_label'] = fmt_edgelabel(data['edge_label'])
+        with click.progressbar(self.graph.edges(data=True), label='Ensuring valid edge labels') as bar:
+            for u, v, data in bar:
+                if 'edge_label' not in data or data['edge_label'] is None:
+                    data['edge_label'] = 'related_to'
+                else:
+                    data['edge_label'] = fmt_edgelabel(data['edge_label'])
 
-    def merge_cliques(self):
+    def merge_cliques(self, categorize_first=True):
         """
         Merges all nodes that are connected by `same_as` edges, or are marked
         as equivalent by a nodes `same_as` property.
+
+        The clique leader chosen depends on the categories within that clique.
+        For this reason it's usually useful to run the `categorize` method first.
         """
+        if categorize_first:
+            self.categorize()
         self.graph = clique_merge(self.graph)
 
     def merge_graphs(self, graphs):
