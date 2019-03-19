@@ -87,7 +87,7 @@ class Transformer(object):
                 in_degree = sum(1 for _, _, edge_label in self.graph.in_edges(n, data='edge_label') if edge_label == 'subclass_of')
                 out_degree = sum(1 for _, _, edge_label in self.graph.out_edges(n, data='edge_label') if edge_label == 'subclass_of')
                 if out_degree == 0 and in_degree > 0:
-                    superclasses.append(n)
+                    superclasses.add(n)
 
                 c = bmt.get_class(name)
                 if c is not None:
@@ -107,7 +107,7 @@ class Transformer(object):
                 name = self.graph.node[superclass].get('name')
                 is_invalid = name is None or name in ignore
                 if is_invalid:
-                    for subclass, edge_label in self.graph.in_nodes(data='edge_label'):
+                    for subclass, _, edge_label in self.graph.in_edges(superclass, data='edge_label'):
                         if edge_label == 'subclass_of':
                             result.update(get_valid_superclasses([subclass]))
                 else:
@@ -118,13 +118,13 @@ class Transformer(object):
 
         with click.progressbar(superclasses, label='Categorizing nodes') as bar:
             for superclass in bar:
-                name = self.graph.node[superclass].get('name')
+                name = fmt_category(self.graph.node[superclass].get('name'))
                 if name is None or name in ignore:
                     continue
                 for subclass in subclasses(superclass, self.graph):
                     category = self.graph.node[subclass].get('category')
                     if not isinstance(category, list) or category == [] or category == ['named thing']:
-                        self.graph.node[subclass] = [name]
+                        self.graph.node[subclass]['category'] = [name]
                     else:
                         if name not in category:
                             category.append(name)
