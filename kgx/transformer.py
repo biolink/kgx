@@ -1,7 +1,7 @@
 import networkx as nx
 import json, time, bmt
 
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
 from .prefix_manager import PrefixManager
@@ -17,6 +17,24 @@ from kgx.mapper import clique_merge
 SimpleValue = Union[List[str], str]
 
 IGNORE_CLASSSES = ['All', 'entity']
+
+def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
+    """
+    A convenient method for getting a list of edges that match the given fitlers
+    """
+    if mode == 'all':
+        method = graph.edges
+    elif mode == 'in':
+        method = graph.in_edges
+    elif mode == 'out':
+        method = graph.out_edges:
+    else:
+        raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
+    edges = []
+    for u, v, d in method(nbunch=node, data=True):
+        if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
+            edges.add((u, v))
+    return edges
 
 class Transformer(object):
     """
@@ -68,6 +86,12 @@ class Transformer(object):
         being ignored. You can use the ignore feature in this way to get more
         refined categories.
 
+        First builds the `ontology_graph`, which contains all the subclass_of
+        relations in the given graph, including implicit ones that can be
+        extracted from the `type` node property, and from equivalent nodes.
+        Then crawls down from superclasses in the `ontology_graph` to find all
+        related nodes that should be categorized under them in the given graph.
+
         Parameters
         ----------
         ignore: List[str]
@@ -76,6 +100,24 @@ class Transformer(object):
         """
         if ignore is None:
             ignore = IGNORE_CLASSSES
+
+        ontology_graph = nx.DiGraph()
+
+        with click.progressbar(edges(self.graph, edge_label='subclass_of'), label='Building ontology graph 1/3') as bar:
+            for u, v in bar:
+                ontology_graph.add_edge(u, v)
+
+        with click.progressbar(edges(self.graph, edge_label='same_as'), label='Building ontology graph 2/3') as bar:
+            for u, v, in bar:
+                for _, superclass in edges(self.graph, node=u, mode='out', edge_label='subclass_of'):
+                    ontology_graph.add_edge(u, superclass)
+                for _, superclass in edges(self.graph, node=v, mode='out', edge_label='subclass_of'):
+                    ontology_graph.add_edge(v, superclass)
+
+        with click.progressbar(self.graph.nodes(data='type'), label='Building ontology graph 3/3'):
+            for n, node_type in bar:
+                if node_type in self.graph:
+                    ontology_graph.add_edge(n, node_type)
 
         superclasses = set()
 
@@ -107,7 +149,7 @@ class Transformer(object):
                 name = self.graph.node[superclass].get('name')
                 is_invalid = name is None or name in ignore
                 if is_invalid:
-                    for subclass, edge_label in self.graph.in_nodes(data='edge_label'):
+                    for subclass, edge_label in self.graph.in_edges(data='edge_label'):
                         if edge_label == 'subclass_of':
                             result.update(get_valid_superclasses([subclass]))
                 else:
@@ -121,13 +163,14 @@ class Transformer(object):
                 name = self.graph.node[superclass].get('name')
                 if name is None or name in ignore:
                     continue
-                for subclass in subclasses(superclass, self.graph):
-                    category = self.graph.node[subclass].get('category')
-                    if not isinstance(category, list) or category == [] or category == ['named thing']:
-                        self.graph.node[subclass] = [name]
-                    else:
-                        if name not in category:
-                            category.append(name)
+                for subclass in subclasses(superclass, ontology_graph):
+                    if subclass in self.graph:
+                        category = self.graph.node[subclass].get('category')
+                        if not isinstance(category, list) or category == [] or category == ['named thing']:
+                            self.graph.node[subclass] = [name]
+                        else:
+                            if name not in category:
+                                category.append(name)
 
         memo = {}
         # Starts with each uncategorized ge and finds a superclass
