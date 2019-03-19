@@ -63,7 +63,10 @@ class Transformer(object):
     def categorize(self, ignore:List[str]=None):
         """
         Attempts to find node categories and edge labels by following
-        subclass_of paths within the graph.
+        subclass_of paths within the graph. If a superclass is being ignored
+        then all of its children subclasses will be used unless they are also
+        being ignored. You can use the ignore feature in this way to get more
+        refined categories.
 
         Parameters
         ----------
@@ -74,21 +77,46 @@ class Transformer(object):
         if ignore is None:
             ignore = IGNORE_CLASSSES
 
-        superclasses = []
+        superclasses = set()
+
         with click.progressbar(self.graph.nodes(data='name'), label='Finding superclasses') as bar:
             for n, name in bar:
                 if name is None:
                     continue
+
+                in_degree = sum(1 for _, _, edge_label in self.graph.in_edges(n, data='edge_label') if edge_label == 'subclass_of')
+                out_degree = sum(1 for _, _, edge_label in self.graph.out_edges(n, data='edge_label') if edge_label == 'subclass_of')
+                if out_degree == 0 and in_degree > 0:
+                    superclasses.append(n)
+
                 c = bmt.get_class(name)
                 if c is not None:
-                    superclasses.append(n)
-                else:
-                    in_degree = sum(1 for _, _, edge_label in self.graph.in_edges(n, data='edge_label') if edge_label == 'subclass_of')
-                    out_degree = sum(1 for _, _, edge_label in self.graph.out_edges(n, data='edge_label') if edge_label == 'subclass_of')
-                    if out_degree == 0 and in_degree > 0:
-                        superclasses.append(n)
+                    superclasses.add(n)
 
-        with click.progressbar(superclasses, label='Categorizing subclasses') as bar:
+                c = bmt.get_by_mapping(n)
+                if c is not None:
+                    superclasses.add(n)
+
+        def get_valid_superclasses(superclasses):
+            """
+            Returns a list of the most immediate valid subclasses of the given
+            superclasses (which will be a given superclass if it is valid).
+            """
+            result = set()
+            for superclass in superclasses:
+                name = self.graph.node[superclass].get('name')
+                is_invalid = name is None or name in ignore
+                if is_invalid:
+                    for subclass, edge_label in self.graph.in_nodes(data='edge_label'):
+                        if edge_label == 'subclass_of':
+                            result.update(get_valid_superclasses([subclass]))
+                else:
+                    result.add(superclass)
+            return result
+
+        superclasses = get_valid_superclasses(superclasses)
+
+        with click.progressbar(superclasses, label='Categorizing nodes') as bar:
             for superclass in bar:
                 name = self.graph.node[superclass].get('name')
                 if name is None or name in ignore:
@@ -103,7 +131,7 @@ class Transformer(object):
 
         memo = {}
         # Starts with each uncategorized ge and finds a superclass
-        with click.progressbar(self.graph.edges(data=True), label='categorizing edges') as bar:
+        with click.progressbar(self.graph.edges(data=True), label='Categorizing edges') as bar:
             for u, v, data in bar:
                 if data.get('edge_label') is None or data['edge_label'] == 'related_to':
                     relation = data.get('relation')
