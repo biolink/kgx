@@ -10,8 +10,8 @@ def subclasses(n, graph:MultiDiGraph):
     nodes = [n]
     while nodes != []:
         m = nodes.pop()
-        for subclass, edgelabel, _ in graph.in_edges(m, data='edge_label'):
-            if edgelabel == 'subclass_of':
+        for subclass, _, edge_label in graph.in_edges(m, data='edge_label'):
+            if edge_label == 'subclass_of':
                 nodes.append(subclass)
                 yield subclass
 

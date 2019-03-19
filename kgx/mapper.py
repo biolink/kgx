@@ -211,10 +211,16 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             for a in u_categories:
                 if len(edges) > l:
                     break
+                if bmt.get_element(a) is None:
+                    continue
                 for b in v_categories:
+                    if bmt.get_element(b) is None:
+                        continue
                     a_ancestors = bmt.ancestors(a)
                     b_ancestors = bmt.ancestors(b)
-                    if a not in b_ancestors and b not in a_ancestors:
+                    if a_ancestors == b_ancestors == []:
+                        continue
+                    elif a not in b_ancestors and b not in a_ancestors:
                         edges.append((u, v))
                         break
 
