@@ -46,9 +46,7 @@ for filename in data.keys():
     t.parse(filename)
 
 t.merge_cliques()
-t.categorize()
-#make_valid_types(t.graph)
-
+t.clean_categories()
 t.save('results/clique_merged.csv')
 
 quit()

@@ -3,6 +3,7 @@ import json, time, bmt
 
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
+from collections import defaultdict
 
 from .prefix_manager import PrefixManager
 from .filter import Filter
@@ -27,13 +28,13 @@ def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
     elif mode == 'in':
         method = graph.in_edges
     elif mode == 'out':
-        method = graph.out_edges:
+        method = graph.out_edges
     else:
         raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
     edges = []
     for u, v, d in method(nbunch=node, data=True):
         if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
-            edges.add((u, v))
+            edges.append((u, v))
     return edges
 
 class Transformer(object):
@@ -105,19 +106,19 @@ class Transformer(object):
 
         with click.progressbar(edges(self.graph, edge_label='subclass_of'), label='Building ontology graph 1/3') as bar:
             for u, v in bar:
-                ontology_graph.add_edge(u, v)
+                ontology_graph.add_edge(u, v, edge_label='subclass_of')
 
         with click.progressbar(edges(self.graph, edge_label='same_as'), label='Building ontology graph 2/3') as bar:
             for u, v, in bar:
                 for _, superclass in edges(self.graph, node=u, mode='out', edge_label='subclass_of'):
-                    ontology_graph.add_edge(u, superclass)
+                    ontology_graph.add_edge(u, superclass, edge_label='subclass_of')
                 for _, superclass in edges(self.graph, node=v, mode='out', edge_label='subclass_of'):
-                    ontology_graph.add_edge(v, superclass)
+                    ontology_graph.add_edge(v, superclass, edge_label='subclass_of')
 
-        with click.progressbar(self.graph.nodes(data='type'), label='Building ontology graph 3/3'):
+        with click.progressbar(self.graph.nodes(data='type'), label='Building ontology graph 3/3') as bar:
             for n, node_type in bar:
                 if node_type in self.graph:
-                    ontology_graph.add_edge(n, node_type)
+                    ontology_graph.add_edge(n, node_type, edge_label='subclass_of')
 
         superclasses = set()
 
@@ -161,8 +162,18 @@ class Transformer(object):
         with click.progressbar(superclasses, label='Categorizing nodes') as bar:
             for superclass in bar:
                 name = fmt_category(self.graph.node[superclass].get('name'))
+
+                c = bmt.get_by_mapping(superclass)
+                if c is not None:
+                    name = c
+
+                c = bmt.get_class(name)
+                if c is not None:
+                    name = c.name
+
                 if name is None or name in ignore:
                     continue
+
                 for subclass in subclasses(superclass, ontology_graph):
                     if subclass in self.graph:
                         category = self.graph.node[subclass].get('category')
@@ -201,6 +212,32 @@ class Transformer(object):
                     data['edge_label'] = 'related_to'
                 else:
                     data['edge_label'] = fmt_edgelabel(data['edge_label'])
+
+    def clean_categories(self, threashold=100):
+        """
+        Removes categories from nodes that are instantiated fewer times
+        than the given threashold that are not recognized by the biolink
+        model, assuming such categories can be removed without emptying
+        the list.
+        """
+        counter = defaultdict(lambda: 0)
+        with click.progressbar(self.graph.nodes(data='category'), label='counting categories') as bar:
+            for n, category in bar:
+                if not isinstance(category, list):
+                    continue
+                for c in category:
+                    counter[c] += 1
+
+        with click.progressbar(self.graph.nodes(data='category')) as bar:
+            for n, category in bar:
+                if not isinstance(category, list):
+                    continue
+                if len(category) > 1 and 'named thing' in category:
+                    category.remove('named thing')
+                if len(category) > 1:
+                    l = [c for c in category if bmt.get_class(c) is not None and counter[c] >= threashold]
+                    if len(l) > 0:
+                        self.graph.node[n]['category'] = l
 
     def merge_cliques(self, categorize_first=True):
         """
