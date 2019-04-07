@@ -328,7 +328,9 @@ def validate(config, path, input_type, output_dir, record_size):
 
     for error_type, failures in validator.error_dict.items():
         filename = error_type.replace(' ', '_') + '.log'
-        with click.open_file(os.path.join(output_dir, filename), 'a+') as f:
+        path = os.path.join(output_dir, filename)
+        click.echo('Logging {} many errors to {}'.format(len(failures), path))
+        with click.open_file(path, 'a+') as f:
             f.write('--- {} ---\n'.format(datetime.now()))
             for t in failures:
                 if len(t) == 2:
@@ -346,9 +348,6 @@ def validate(config, path, input_type, output_dir, record_size):
 
     if validator.error_dict == {}:
         click.echo('No errors found')
-    else:
-        for key, value in validator.error_dict.items():
-            click.echo('{} - {}'.format(key, len(value)))
 
 from neo4jrestclient.client import GraphDatabase as http_gdb
 import networkx as nx

@@ -1,5 +1,7 @@
 import networkx as nx
 import bmt
+import requests
+import json
 from typing import Union, List, Dict
 from .prefix_manager import PrefixManager
 import logging
@@ -22,6 +24,11 @@ class Validator(object):
         self.schema = SchemaLoader('https://biolink.github.io/biolink-model/biolink-model.yaml').resolve()
         self.record_size = record_size
         self.error_dict = defaultdict(set)
+        try:
+            response = requests.get('https://biolink.github.io/biolink-model/context.jsonld')
+            self.jsonld = response.json()
+        except:
+            raise Exception('Unable to download jsonld file from https://biolink.github.io/biolink-model/context.jsonld')
 
     def ok(self):
         return len(self.errors) == 0
@@ -35,6 +42,7 @@ class Validator(object):
         self.validate_categories(G)
         self.validate_edge_labels(G)
         self.validate_node_properties(G)
+        self.validate_node_prefixes(G)
         # for nid,ad in G.nodes(data=True):
         #     self.validate_node(nid, ad)
         # for oid,sid,ad in G.edges(data=True):
@@ -185,6 +193,17 @@ class Validator(object):
                             self.log_node_error(n, 'invalid property type', message='{} type should be {} but its {}'.format(key, str, type(value)))
                 if not re.match(r'^[^ :]+:[^ :]+$', n):
                     self.log_node_error(n, 'invalid property value', message='id is not a curie')
+
+    def validate_node_prefixes(self, G):
+        prefixes = set(prefix for prefix, iri in self.jsonld['@context'].items() if isinstance(iri, str))
+        with click.progressbar(G.nodes(data=True)) as bar:
+            for n, data in bar:
+                if ':' not in n:
+                    self.log_node_error(n, 'invalid identifier', message='identifier "{}" does not have curie syntax'.format(n))
+                else:
+                    prefix, _ = n.split(':')
+                    if prefix not in prefixes:
+                        self.log_node_error(n, 'invalid curie prefix', message='prefix "{}" is not in jsonld: https://biolink.github.io/biolink-model/context.jsonld'.format(prefix))
 
     def log_edge_error(self, u, v, error_type, *, message=None):
         if self.record_size is None or len(self.error_dict[error_type]) < self.record_size:
