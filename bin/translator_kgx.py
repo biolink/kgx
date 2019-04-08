@@ -363,12 +363,13 @@ import networkx as nx
 @click.option('--object-label', type=str)
 @click.option('--edge-type', type=str)
 @click.option('--stop-after', type=int, help='Once this many edges are downloaded the application will finish')
+@click.option('--page-size', type=int, default=10_000, help='The size of pages to download for each batch')
 # @click.option('--start', type=int, default=0)
 # @click.option('--end', type=int)
 @click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @pass_config
-def neo4j_download(config, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
+def neo4j_download(config, page_size, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
