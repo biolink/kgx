@@ -22,3 +22,4 @@ prologterms==0.0.5
 bmt
 shexjsg>=0.6.5
 terminaltables
+stringcase
