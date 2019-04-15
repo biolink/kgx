@@ -1,19 +1,14 @@
 import click, rdflib, logging, os, uuid, bmt
 import networkx as nx
-
-from typing import Tuple, Union, List, Dict
-
+from typing import Tuple, Union, Set, List, Dict
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
+from collections import defaultdict
+from prefixcommons.curie_util import read_remote_jsonld_context
 
 from kgx.transformer import Transformer
+from kgx.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
-
-from collections import defaultdict
-
-from abc import ABCMeta, abstractmethod
-
-from prefixcommons.curie_util import read_remote_jsonld_context
 
 biolink_prefix_map = read_remote_jsonld_context('https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld')
 
@@ -23,16 +18,20 @@ OBAN = Namespace(biolink_prefix_map['OBAN'])
 PMID = Namespace(biolink_prefix_map['PMID'])
 BIOLINK = Namespace(biolink_prefix_map['biolink'])
 DEFAULT_EDGE_LABEL = 'related_to'
-OWL_PREDICATES = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
 
-class RdfTransformer(Transformer):
+
+class RdfTransformer(RdfGraphMixin, Transformer):
     """
     Transformer that parses RDF and loads triples, as nodes and edges, into a networkx.MultiDiGraph
 
     This is the base class which is used to implement other RDF-based transformers.
-
-    TODO: we will have some of the same logic if we go from a triplestore. How to share this?
     """
+
+    OWL_PREDICATES = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
+
+    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
+    has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
+    is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
@@ -87,234 +86,54 @@ class RdfTransformer(Transformer):
         self.ontologies.append(ont)
         logging.info("{} parsed with {} triples".format(file, len(ont)))
 
-    def add_node(self, iri: URIRef) -> str:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
-        This method should be used by all derived classes when adding a node to
-        the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
-        and that it's 'iri' property is set.
+        Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
 
-        Returns the CURIE identifier for the node in the networkx.MultiDiGraph
+        By default this method loads the following predicates,
+            - RDFS.subClassOf
+            - OWL.sameAs
+            - OWL.equivalentClass
+            - is_about (IAO:0000136)
+            - has_subsequence (RO:0002524)
+            - is_subsequence_of (RO:0002525)
 
-        Parameters
-        ----------
-        iri : rdflib.URIRef
-            IRI of a node
-
-        Returns
-        -------
-        str
-            The CURIE identifier of a node
-
-        """
-        kwargs = {
-            'iri': str(iri),
-        }
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-
-        n = make_curie(iri)
-
-        if n not in self.graph:
-            self.graph.add_node(n, **kwargs)
-
-        return n
-
-    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef) -> Tuple[str, str, str]:
-        """
-        This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
-        This ensures that the subject and object identifiers are CURIEs, and that edge_label is in the correct form.
-
-        Returns the CURIE identifiers used for the subject and object in the
-        networkx.MultiDiGraph, and the processed edge_label.
-
-        Parameters
-        ----------
-        subject_iri: rdflib.URIRef
-            Subject IRI for the subject in a triple
-        object_iri: rdflib.URIRef
-            Object IRI for the object in a triple
-        predicate_iri: rdflib.URIRef
-            Predicate IRI for the predicate in a triple
-
-        Returns
-        -------
-        Tuple[str, str, str]
-            A 3-nary tuple (of the form subject, object, predicate) that represents the edge
-
-        """
-        s = self.add_node(subject_iri)
-        o = self.add_node(object_iri)
-
-        relation = make_curie(predicate_iri)
-        edge_label = process_iri(predicate_iri)
-        if ' ' in edge_label:
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
-        # TODO: shouldn't this move to the utilities function process_uri()
-        if edge_label.startswith(BIOLINK):
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label,BIOLINK))
-            edge_label = edge_label.replace(BIOLINK, '')
-
-        # TODO: is there no way to get label of a CURIE?
-        # TODO: this should also move to the utilities function
-        # Any service? or preload required ontologies by prefix?
-        if ':' in edge_label:
-            logging.debug("edge label '{}' is a CURIE; defaulting back to 'related_to'".format(edge_label))
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, DEFAULT_EDGE_LABEL))
-            edge_label = DEFAULT_EDGE_LABEL
-
-        kwargs = {
-            'relation': relation,
-            'edge_label': edge_label
-        }
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-
-        if self.graph.has_edge(s, o, key=edge_label):
-            logging.debug("{} -- {} --> {} edge already exists".format(s, edge_label, o))
-        else:
-            self.graph.add_edge(s, o, key=edge_label, **kwargs)
-
-        return s, o, edge_label
-
-    def add_node_attribute(self, iri: URIRef, key: str, value: str) -> None:
-        """
-        Add an attribute to a node, while taking into account whether the attribute
-        should be multi-valued.
-        Multi-valued properties will not contain duplicates.
-
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
-
-        If the node does not exist then it is created using the given iri.
-
-        Parameters
-        ----------
-        iri: rdflib.URIRef
-            The IRI of a node in the rdflib.Graph
-        key: str
-            The name of the attribute. Can be a rdflib.URIRef or URI string
-        value: str
-            The value of the attribute
-
-        """
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
-
-        if key is not None:
-            n = self.add_node(iri)
-            attr_dict = self.graph.node[n]
-            self.__add_attribute(attr_dict, key, value)
-
-    def add_edge_attribute(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
-        """
-        Adds an attribute to an edge, while taking into account whether the attribute
-        should be multi-valued.
-        Multi-valued properties will not contain duplicates.
-
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
-
-        If the nodes in the edge does not exist then they will be created
-        using subject_iri and object_iri.
-
-        If the edge itself does not exist then it will be created using
-        subject_iri, object_iri and predicate_iri.
-
-        Parameters
-        ----------
-        subject_iri: rdflib.URIRef
-            The IRI of the subject node of an edge in rdflib.Graph
-        object_iri: rdflib.URIRef
-            The IRI of the object node of an edge in rdflib.Graph
-        predicate_iri: rdflib.URIRef
-            The IRI of the predicate representing an edge in rdflib.Graph
-        key: str
-            The name of the attribute. Can be a rdflib.URIRef or URI string
-        value: str
-            The value of the attribute
-
-        """
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
-
-        if key is not None:
-            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
-            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
-            self.__add_attribute(attr_dict, key, value)
-
-    def __add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:
-        """
-        Adds an attribute to the attribute dictionary, respecting whether or not
-        that attribute should be multi-valued.
-        Multi-valued attributes will not contain duplicates.
-
-        Some attributes are singular form of others. In such cases overflowing values
-        will be placed into the correlating multi-valued attribute.
-        For example, 'name' attribute will hold only one value while any additional
-        value will be stored as 'synonym' attribute.
-
-        Parameters
-        ----------
-        attr_dict: dict
-            Dictionary representing the attribute set of a node or an edge in a networkx graph
-        key: str
-            The name of the attribute
-        value: str
-            The value of the attribute
-
-        """
-        if key is None or key not in is_property_multivalued:
-            logging.warning("Discarding key {} as it is not a valid property.".format(key))
-            return
-
-        value = make_curie(process_iri(value))
-
-        if is_property_multivalued[key]:
-            if key not in attr_dict:
-                attr_dict[key] = [value]
-            elif value not in attr_dict[key]:
-                attr_dict[key].append(value)
-        else:
-            if key not in attr_dict:
-                attr_dict[key] = value
-            elif key == 'name':
-                self.__add_attribute(attr_dict, 'synonym', value)
-
-    @abstractmethod
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph) -> None:
-        """
-        This method should be overridden and implemented by the derived class,
-        and should load all desired nodes and edges from rdflib.Graph into networkx.MultiDiGraph
-
-        Its preferred that this method does not use the networkx API directly
-        when adding nodes, edges, and their attributes.
-
-        Instead, Using the following methods,
-
-        - RdfTransformer.add_node()
-        - RdfTransformer.add_edge()
-        - RdfTransformer.add_node_attribute()
-        - RdfTransformer.add_edge_attribute()
-
-        to ensure that nodes, edges, and their attributes
-        are added in conformance with the biolink model, and that URIRef's are
-        translated into CURIEs or biolink model elements whenever appropriate.
+        This behavior can be overridden by providing a list of rdflib.URIRef that ought to be loaded
+        via the 'predicates' parameter.
 
         Parameters
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
+        predicates: list
+            A list of rdflib.URIRef representing predicates to be loaded
+        kwargs: dict
+            Any additional arguments
 
         """
-        pass
+        if predicates is None:
+            predicates = set()
+            predicates = predicates.union(self.OWL_PREDICATES, [self.is_about, self.is_subsequence_of, self.has_subsequence])
+
+        triples = rdfgraph.triples((None, None, None))
+        logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
+        with click.progressbar(list(triples), label='Progress') as bar:
+            for s, p, o in bar:
+                if (p == self.is_about) and (p in predicates):
+                    logging.info("Loading is_about predicate")
+                    # if predicate is 'is_about' then treat object as publication
+                    self.add_node_attribute(o, key=s, value='publications')
+                elif (p == self.is_subsequence_of) and (p in predicates):
+                    logging.info("Loading is_subsequence_of predicate")
+                    # if predicate is 'is_subsequence_of'
+                    self.add_edge(s, o, self.is_subsequence_of)
+                elif (p == self.has_subsequence) and (p in predicates):
+                    logging.info("Loading has_subsequence predicate")
+                    # if predicate is 'has_subsequence', interpret the inverse relation 'is_subsequence_of'
+                    self.add_edge(o, s, self.is_subsequence_of)
+                elif any(p.lower() == x.lower() for x in predicates):
+                    logging.info("Loading {} predicate, additional predicate".format(p))
+                    self.add_edge(s, o, p)
 
     def load_node_attributes(self, rdfgraph: rdflib.Graph) -> None:
         """
@@ -356,6 +175,7 @@ class RdfTransformer(Transformer):
                 if category is not None:
                     self.add_node_attribute(uriref, key='category', value=category)
 
+
 class ObanRdfTransformer(RdfTransformer):
     """
     Transformer that parses a 'turtle' file and loads triples, as nodes and edges, into a networkx.MultiDiGraph
@@ -366,7 +186,7 @@ class ObanRdfTransformer(RdfTransformer):
 
     """
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
         Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
 
@@ -374,9 +194,17 @@ class ObanRdfTransformer(RdfTransformer):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
+        predicates: list
+            A list of rdflib.URIRef representing predicates to be loaded
+        kwargs: dict
+            Any additional arguments
 
         """
-        for rel in OWL_PREDICATES:
+        if not predicates:
+            predicates = set()
+            predicates = predicates.union(self.OWL_PREDICATES)
+
+        for rel in predicates:
             triples = rdfgraph.triples((None, rel, None))
             with click.progressbar(list(triples), label="Loading relation '{}'".format(rel)) as bar:
                 for s, p, o in bar:
@@ -412,7 +240,7 @@ class ObanRdfTransformer(RdfTransformer):
                             edge_attr[p].append(o)
 
                 if predicate is None:
-                    logging.warning("No 'predicate' for OBAN.association {}; defaulting to '{}'".format(association, DEFAULT_EDGE_LABEL))
+                    logging.warning("No 'predicate' for OBAN.association {}; defaulting to '{}'".format(association, self.DEFAULT_EDGE_LABEL))
                     predicate = DEFAULT_EDGE_LABEL
 
                 if subject and object:
@@ -535,48 +363,13 @@ class ObanRdfTransformer(RdfTransformer):
         # Serialize the graph into the file.
         rdfgraph.serialize(destination=filename, format=output_format)
 
-class HgncRdfTransformer(RdfTransformer):
-    """
-    Custom transformer for loading: https://data.monarchinitiative.org/ttl/hgnc.ttl
-    TODO: merge with base RdfTransformer class
-    """
-    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
-    has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
-    is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
-
-    def load_networkx_graph(self, rdfgraph:rdflib.Graph):
-        """
-        Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
-
-        Parameters
-        ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
-
-        """
-        triples = rdfgraph.triples((None, None, None))
-        logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
-        with click.progressbar(list(triples), label='Progress') as bar:
-            for s, p, o in bar:
-                if p == self.is_about:
-                    # if predicate is 'is_about' then treat object as a publication
-                    self.add_node_attribute(o, key=s, value='publications')
-                elif p == self.is_subsequence_of:
-                    # if predicate is 'is_subsequence_of'
-                    self.add_edge(s, o, self.is_subsequence_of)
-                elif p == self.has_subsequence:
-                    # if predicate is 'has_subsequence', interpret the inverse relation 'is_subsequence_of'
-                    self.add_edge(o, s, self.is_subsequence_of)
-                elif any(p.lower() == x.lower() for x in OWL_PREDICATES):
-                    # if predicate is one of the OWL predicates
-                    self.add_edge(s, o, p)
 
 class RdfOwlTransformer(RdfTransformer):
     """
     Transformer that parses an OWL ontology in RDF, while retaining class-class relationships.
     """
 
-    def load_networkx_graph(self, rg: rdflib.Graph) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
         Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
 
@@ -584,9 +377,12 @@ class RdfOwlTransformer(RdfTransformer):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-
+        predicates: list
+            A list of rdflib.URIRef representing predicates to be loaded
+        kwargs: dict
+            Any additional arguments
         """
-        triples = rg.triples((None, RDFS.subClassOf, None))
+        triples = rdfgraph.triples((None, RDFS.subClassOf, None))
         logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
@@ -598,9 +394,9 @@ class RdfOwlTransformer(RdfTransformer):
                 # TODO: does this block load all relevant bits from an OWL?
                 if isinstance(o, rdflib.term.BNode):
                     # C SubClassOf R some D
-                    for x in rg.objects(o, OWL.onProperty):
+                    for x in rdfgraph.objects(o, OWL.onProperty):
                         pred = x
-                    for x in rg.objects(o, OWL.someValuesFrom):
+                    for x in rdfgraph.objects(o, OWL.someValuesFrom):
                         parent = x
                     if pred is None or parent is None:
                         logging.warning("Do not know how to handle BNode: {}".format(o))
@@ -611,11 +407,11 @@ class RdfOwlTransformer(RdfTransformer):
                     parent = o
                 self.add_edge(s, parent, pred)
 
-        relations = rg.subjects(RDF.type, OWL.ObjectProperty)
+        relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         logging.info("Loading relations")
         with click.progressbar(relations, label='Progress') as bar:
             for relation in bar:
-                for _, p, o in rg.triples((relation, None, None)):
+                for _, p, o in rdfgraph.triples((relation, None, None)):
                     if o.startswith('http://purl.obolibrary.org/obo/RO_'):
                         self.add_edge(relation, o, p)
                     else:
