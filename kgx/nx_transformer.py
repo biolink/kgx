@@ -5,13 +5,21 @@ from .transformer import Transformer
 class NetworkxTransformer(Transformer):
     """
     Base class for networkx transforms
+    TODO: use case for this class
     """
-    pass
+    def __init__(self, source_graph: nx.MultiDiGraph = None):
+        super().__init__(source_graph)
+        raise NotImplementedError('NetworkxTransformer not yet implemented.')
+
 
 class GraphMLTransformer(NetworkxTransformer):
     """
     I/O for graphml
+    TODO: do we need to support GraphML
     """
+    def __init__(self, source_graph: nx.MultiDiGraph = None):
+        super().__init__(source_graph)
+        raise NotImplementedError('GraphMLTransformer not yet implemented.')
 
     def save(self, path, **kwargs):
         # self.graph contains python lists in its meta obj, but write_graphml function does not know
