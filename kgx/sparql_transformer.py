@@ -1,30 +1,26 @@
 import logging
 
-from rdflib import Graph
+import rdflib
+from rdflib import URIRef
 from requests import HTTPError
+import networkx as nx
+from typing import Set, List, Dict, Generator
 
-from .transformer import Transformer
 from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
-# from prefixcommons import contract_uri
-from kgx.utils.rdf_utils import make_curie
 from itertools import zip_longest
-from .rdf_transformer import RdfTransformer
+from kgx.transformer import Transformer
+from kgx.utils.kgx_utils import un_camel_case
+from kgx.rdf_graph_mixin import RdfGraphMixin
 
-import re
 
-def uncamel_case(s):
+class SparqlTransformer(RdfGraphMixin, Transformer):
     """
-    https://stackoverflow.com/a/1176023/4750502
-    """
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', s)
-    return re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1).lower()
+    Transformer for communicating with a SPARQL endpoint.
 
-class SparqlTransformer(RdfTransformer):
-    """
-    Transformer for SPARQL endpoints
     """
 
+    # TODO: fix query
     edge_query = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -32,15 +28,15 @@ class SparqlTransformer(RdfTransformer):
 
     SELECT * WHERE {
         {{#predicate}}
-        ?predicate rdfs:subPropertyOf* {{predicate}} .
+        ?predicate rdfs:subPropertyOf* {{{predicate}}} .
         {{/predicate}}
 
         {{#subject_category}}
-        ?subject (rdf:type?/rdfs:subClassOf*) {{subject_category}} .
+        ?subject (rdf:type?/rdfs:subClassOf*) {{{subject_category}}} .
         {{/subject_category}}
 
         {{#object_category}}
-        ?object (rdf:type?/rdfs:subClassOf*) {{object_category}} .
+        ?object (rdf:type?/rdfs:subClassOf*) {{{object_category}}} .
         {{/object_category}}
 
         ?subject ?predicate ?object .
@@ -48,44 +44,52 @@ class SparqlTransformer(RdfTransformer):
 
     """
 
-    def __init__(self, graph, url):
-        """
-        Set URL for the SPARQL endpoint
-        """
-        super().__init__(graph)
-        # TODO: overriding filters to be a dictionary here; this needs to be fixed upstream
-        self.filters = {}
+    def __init__(self, source_graph: nx.MultiDiGraph = None, url: str = None):
+        super().__init__(source_graph)
+        # set the URL for SPARQL endpoint
         self.url = url
 
-    def load_edges(self):
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
-        Fetch triples from the SPARQL endpoint and load them as edges
-        """
-        filters = self.get_filters()
-        q = render(self.edge_query, filters)
-        results = self.query(q)
-        for r in results:
-            # make_curie_result(r)
-            if r['object']['type'] == 'literal':
-                self.add_node_attribute(
-                    r['subject']['value'],
-                    key=r['predicate']['value'],
-                    value=r['object']['value'],
-                )
-                # self.graph.add_node(r['subject']['value'], **{r['predicate']['value']: r['object']['value']})
-            else:
-                self.add_edge(
-                    r['subject']['value'],
-                    r['object']['value'],
-                    r['predicate']['value'],
-                )
-                # self.graph.add_node(r['subject']['value'])
-                # self.graph.add_node(r['object']['value'])
-                # self.graph.add_edge(r['subject']['value'], r['object']['value'], **{'relation': r['predicate']['value']})
+        Fetch triples from the SPARQL endpoint and load them as edges.
 
-    def query(self, q):
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            A rdflib Graph (unused)
+        predicates: set
+            A set containing predicates in rdflib.URIRef form
+        kwargs: dict
+            Any additional arguments.
+
         """
-        Query a SPARQL endpoint
+        for predicate in predicates:
+            predicate = '<{}>'.format(predicate)
+            q = render(self.edge_query, {'predicate': predicate})
+            results = self.query(q)
+            for r in results:
+                s = r['subject']['value']
+                p = r['predicate']['value']
+                o = r['object']['value']
+                if r['object']['type'] == 'literal':
+                    self.add_node_attribute(s, key=p, value=o)
+                else:
+                    self.add_edge(s, o, p)
+
+    def query(self, q: str) -> Dict:
+        """
+        Query a SPARQL endpoint.
+
+        Parameters
+        ----------
+        q: str
+            The query string
+
+        Returns
+        -------
+        dict
+            A dictionary containing results from the query
+
         """
         sparql = SPARQLWrapper(self.url)
         sparql.setQuery(q)
@@ -96,41 +100,17 @@ class SparqlTransformer(RdfTransformer):
         logging.info("Rows fetched: {}".format(len(bindings)))
         return bindings
 
-    def curiefy_result(self, result):
+    def get_filters(self) -> Dict:
         """
-        Convert subject, predicate and object IRIs to their respective CURIEs, where applicable
-        """
-        if result['subject']['type'] == 'uri':
-            subject_curie = make_curie(result['subject']['value'])
-            if subject_curie != result['subject']['value']:
-                result['subject']['value'] = subject_curie
-                result['subject']['type'] = 'curie'
-            else:
-                logging.warning("Could not CURIEfy {}".format(result['subject']['value']))
+        Gets the current filter map, transforming if necessary.
 
-        if result['object']['type'] == 'curie':
-            object_curie = make_curie(result['object']['value'])
-            if object_curie != result['object']['value']:
-                result['object']['value'] = object_curie
-                result['object']['type'] = 'curie'
-            else:
-                logging.warning("Could not CURIEfy {}".format(result['object']['value']))
-
-        predicate_curie = make_curie(result['predicate']['value'])
-        if predicate_curie != result['predicate']['value']:
-            result['predicate']['value'] = predicate_curie
-            result['predicate']['type'] = 'curie'
-        else:
-            result['predicate']['type'] = 'uri'
-
-        return result
-
-    def get_filters(self):
-        """
-        gets the current filter map, transforming if necessary
+        Returns
+        -------
+        dict
+            Returns a dictionary with all filters
         """
         d = {}
-        for k,v in self.filters.items():
+        for k, v in self.filters.items():
             # TODO: use biolink map here
             d[k] = v
         return d
@@ -139,7 +119,8 @@ class MonarchSparqlTransformer(SparqlTransformer):
     """
     see neo_transformer for discussion
     """
-    # OBAN-specific
+
+    # OBAN-specific query
     edge_query = """
     SELECT ?subject ?predicate ?object ?prop ?val WHERE {
         ?a a Association: ;
@@ -149,22 +130,26 @@ class MonarchSparqlTransformer(SparqlTransformer):
            ?prop ?val .
 
         {{#predicate}}
-        ?predicate rdfs:subPropertyOf* {{predicate}} .
+        ?predicate rdfs:subPropertyOf* {{{predicate}}} .
         {{/predicate}}
 
         {{#subject_category}}
-        ?subject (rdf:type?/rdfs:subClassOf*) {{subject_category}} .
+        ?subject (rdf:type?/rdfs:subClassOf*) {{{subject_category}}} .
         {{/subject_category}}
 
         {{#object_category}}
-        ?object (rdf:type?/rdfs:subClassOf*) {{object_category}} .
+        ?object (rdf:type?/rdfs:subClassOf*) {{{object_category}}} .
         {{/object_category}}
     }
     """
 
+    def __init__(self, source_graph: nx.MultiDiGraph = None):
+        super().__init__(source_graph)
+        raise NotImplementedError("This class has not yet been implemented.")
+
 class RedSparqlTransformer(SparqlTransformer):
     """
-
+    Transformer for communicating with Data2Services Knowledge Graph, a.k.a. Translator Red KG.
     """
 
     count_query = """
@@ -177,18 +162,18 @@ class RedSparqlTransformer(SparqlTransformer):
     WHERE {
 
         {{#predicate}}
-        ?predicate rdfs:subPropertyOf* {{predicate}} .
+        ?predicate rdfs:subPropertyOf* {{{predicate}}} .
         {{/predicate}}
 
         {{#subject_category}}
-        ?subject (rdf:type?/rdfs:subClassOf*) {{subject_category}} .
+        ?subject (rdf:type?/rdfs:subClassOf*) {{{subject_category}}} .
         {{/subject_category}}
 
         {{#object_category}}
-        ?object (rdf:type?/rdfs:subClassOf*) {{object_category}} .
+        ?object (rdf:type?/rdfs:subClassOf*) {{{object_category}}} .
         {{/object_category}}
 
-        ?a rdf:type {{association}} ;
+        ?a rdf:type {{{association}}} ;
            bl:subject ?subject ;
            bl:relation ?predicate ;
            bl:object ?object ;
@@ -206,18 +191,18 @@ class RedSparqlTransformer(SparqlTransformer):
     WHERE {
 
         {{#predicate}}
-        ?predicate rdfs:subPropertyOf* {{predicate}} .
+        ?predicate rdfs:subPropertyOf* {{{predicate}}} .
         {{/predicate}}
 
         {{#subject_category}}
-        ?subject (rdf:type?/rdfs:subClassOf*) {{subject_category}} .
+        ?subject (rdf:type?/rdfs:subClassOf*) {{{subject_category}}} .
         {{/subject_category}}
 
         {{#object_category}}
-        ?object (rdf:type?/rdfs:subClassOf*) {{object_category}} .
+        ?object (rdf:type?/rdfs:subClassOf*) {{{object_category}}} .
         {{/object_category}}
 
-        ?a rdf:type {{association}} ;
+        ?a rdf:type {{{association}}} ;
            bl:subject ?subject ;
            bl:relation ?predicate ;
            bl:object ?object ;
@@ -242,113 +227,91 @@ class RedSparqlTransformer(SparqlTransformer):
 
     """
 
-
     IS_DEFINED_BY = "Team Red"
 
-    def __init__(self, graph=None, url='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
-        super().__init__(graph, url)
-        self.rdf_graph = Graph()
+    def __init__(self, source_graph: nx.MultiDiGraph = None, url: str ='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
+        super().__init__(source_graph, url)
+        self.rdfgraph = rdflib.Graph()
 
-    def load_networkx_graph():
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs: Dict) -> None:
         """
-        Must implement this method to extend abstract RdfTransformer. We don't
-        want to actually do anything here.
-        TODO: refactor the desired methods out of RdfTransformer so that this
-        is not needed.
-        """
-        pass
+        Fetch all triples using the specified predicates and add them to networkx.MultiDiGraph.
 
-    def load_edges(self, association = 'bl:ChemicalToGeneAssociation', limit=None):
-        sparql = SPARQLWrapper(self.url)
-        query = render(self.count_query, {'association': association})
-        logging.debug(query)
-        sparql.setQuery(query)
-        sparql.setReturnFormat(JSON)
-        results = sparql.query().convert()
-        count = int(results['results']['bindings'][0]['triples']['value'])
-        logging.info("Expected triples for query: {}".format(count))
-        step = 1000
-        start = 0
-        for i in range(step, count + step, step):
-            end = i
-            query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            A rdflib Graph (unused)
+        predicates: set
+            A set containing predicates in rdflib.URIRef form
+        kwargs: dict
+            Any additional arguments.
+            Ex: specifying 'limit' argument will limit the number of triples fetched.
+
+        """
+        for predicate in predicates:
+            sparql = SPARQLWrapper(self.url)
+            association = '<{}>'.format(predicate)
+            query = render(self.count_query, {'association': association})
+            logging.debug(query)
             sparql.setQuery(query)
+            sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
-            node_list = set()
-            for r in results['results']['bindings']:
-                node_list.add("<{}>".format(r['subject']['value']))
-                node_list.add("<{}>".format(r['object']['value']))
-            start = end
-            self.load_nodes(node_list)
-            logging.info("Fetching edges...")
-            map = {}
-            for r in results['results']['bindings']:
-                s = r['subject']['value']
-                p = r['predicate']['value']
-                o = r['object']['value']
-                self.add_edge(s, o, p)
-                continue
+            count = int(results['results']['bindings'][0]['triples']['value'])
+            logging.info("Expected triples for query: {}".format(count))
+            step = 1000
+            start = 0
+            for i in range(step, count + step, step):
+                end = i
+                query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
+                sparql.setQuery(query)
+                logging.info("Fetching triples with predicate {}".format(predicate))
+                results = sparql.query().convert()
+                node_list = set()
+                for r in results['results']['bindings']:
+                    node_list.add("<{}>".format(r['subject']['value']))
+                    node_list.add("<{}>".format(r['object']['value']))
+                start = end
+                self.load_nodes(node_list)
+                for r in results['results']['bindings']:
+                    s = r['subject']['value']
+                    p = r['predicate']['value']
+                    o = r['object']['value']
+                    self.add_edge(s, o, p)
+                    # TODO: preserve edge properties
 
-                # make_curie_result(r)
-                key = ((r['subject']['value'], r['object']['value']), r['predicate']['value'])
-                if key in map:
-                    # seen this triple before. look at properties
-                    edge_property_key = r['edge_property_key']
-                    edge_property_key_curie = make_curie(edge_property_key['value'])
-                    if edge_property_key_curie.startswith('bl:'):
-                        edge_property_key_curie = edge_property_key_curie.split(':')[1]
-                    edge_property_value = r['edge_property_value']
-                    if edge_property_value['type'] == 'uri':
-                        edge_property_value_curie = make_curie(edge_property_value['value'])
-                    else:
-                        edge_property_value_curie = edge_property_value['value']
-                    map[key][edge_property_key_curie] = edge_property_value_curie
-                else:
-                    map[key] = {}
-                    edge_property_key = r['edge_property_key']
-                    edge_property_key_curie = make_curie(edge_property_key['value'])
-                    if edge_property_key_curie.startswith('bl:'):
-                        edge_property_key_curie = edge_property_key_curie.split(':')[1]
+                if 'limit' in kwargs and i > kwargs['limit']:
+                    break
 
-                    edge_property_value = r['edge_property_value']
-                    if edge_property_value['type'] == 'uri':
-                        edge_property_value_curie = make_curie(edge_property_value['value'])
-                    else:
-                        edge_property_value_curie = edge_property_value['value']
-                    map[key][edge_property_key_curie] = edge_property_value_curie
+        self.categorize()
 
-            logging.info("Loading edges...")
-            for key, properties in map.items():
-                self.graph.add_node(key[0][0])
-                self.graph.add_node(key[0][1])
-                if 'is_defined_by' not in properties and self.IS_DEFINED_BY:
-                    properties['is_defined_by'] = self.IS_DEFINED_BY
-                if key[1].startswith('bl:'):
-                    relation = key[1].split(':')[1]
-                else:
-                    relation = key[1]
-                properties['edge_label'] = relation
-                if 'relation' not in properties:
-                    properties['relation'] = relation
-                self.graph.add_edge(key[0][0], key[0][1], **properties)
-            map.clear()
-
-            if limit is not None and i > limit:
-                break
-
-        self.set_categories()
-
-    def set_categories(self):
+    def categorize(self) -> None:
+        """
+        Checks for a node's category property and assigns a category from BioLink Model.
+        TODO: categorize for edges?
+        """
         for n, data in self.graph.nodes(data=True):
             if 'category' not in data and 'type' in data:
-                data['category'] = uncamel_case(data['type'].replace('biolink:', ''))
+                data['category'] = un_camel_case(data['type'].replace('biolink:', ''))
 
-    def load_nodes(self, node_list):
-        logging.info("Loading nodes...")
-        node_generator = grouper(node_list, 10000)
+    def load_nodes(self, node_set: Set) -> None:
+        """
+        Load nodes into networkx.MultiDiGraph.
+
+        This method queries the SPARQL endpoint for all triples where nodes in the
+        node_set is a subject.
+
+        Parameters
+        ----------
+        node_set: list
+            A list of node CURIEs
+
+        """
+        node_generator = self._grouper(node_set, 10000)
         nodes = next(node_generator, None)
         while nodes is not None:
+            logging.info("Fetching properties for {} nodes".format(len(nodes)))
             nodes = filter(None, nodes)
+            # TODO: is there a better way to fetch node properties?
             query = self.get_node_properties_query.format(curie_list=' '.join(nodes))
             logging.info(query)
             sparql = SPARQLWrapper(self.url)
@@ -360,7 +323,6 @@ class RedSparqlTransformer(SparqlTransformer):
             d = {}
             for r in node_results['results']['bindings']:
                 if r['object']['type'] != 'bnode':
-                    # make_curie_result(r)
                     subject = r['subject']['value']
                     object = r['object']['value']
                     predicate = r['predicate']['value']
@@ -373,12 +335,22 @@ class RedSparqlTransformer(SparqlTransformer):
             for node, attr_dict in d.items():
                 for key, value in attr_dict.items():
                     self.add_node_attribute(node, key=key, value=value)
-                # self.graph.add_node(k, **v)
             d.clear()
             nodes = next(node_generator, None)
 
-def grouper(iterable, n, fillvalue=None):
-    """
-    Collect data into fixed-length chunks"
-    """
-    yield from zip_longest(*[iter(iterable)] * n, fillvalue=fillvalue)
+    @staticmethod
+    def _grouper(iterable: Set, n, fillvalue: str = None) -> Generator:
+        """
+        Collect data into fixed-length chunks.
+
+        Parameters
+        ----------
+        iterable: set
+            A set to group
+        n: int
+            Size of a chunk
+        fillvalue: str
+            When chunking, if the last chunk contains less than n then what
+            value to use to fill the missing values
+        """
+        yield from zip_longest(*[iter(iterable)] * n, fillvalue=fillvalue)
