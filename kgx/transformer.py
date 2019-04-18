@@ -3,7 +3,6 @@ import json, time, click, logging
 from typing import Union, List, Dict
 from networkx.readwrite import json_graph
 
-from kgx.prefix_manager import PrefixManager
 from kgx.filter import Filter
 
 from kgx.utils.ontology import find_superclass
@@ -28,7 +27,6 @@ class Transformer(object):
 
         self.filters = {}
         self.graph_metadata = {}
-        self.prefix_manager = PrefixManager()
 
     def report(self) -> None:
         """

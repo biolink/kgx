@@ -6,6 +6,7 @@ from rdflib.namespace import RDF, RDFS, OWL
 from collections import defaultdict
 from prefixcommons.curie_util import read_remote_jsonld_context
 
+from kgx.prefix_manager import PrefixManager
 from kgx.transformer import Transformer
 from kgx.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
@@ -36,6 +37,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
         self.ontologies = []
+        self.prefix_manager = PrefixManager()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None) -> None:
         """
