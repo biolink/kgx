@@ -21,7 +21,7 @@ def test_mapping():
     for i in range(1,E):
         s = random_curie(N)
         o = random_curie(N)
-        G.add_edge(o,s,predicate='related_to')
+        G.add_edge(o,s,predicate='related_to',relation='related_to')
     print('Nodes={}'.format(len(G.nodes())))
     mapper.map_graph(G, mapping)
     print("Mapped..")
@@ -37,7 +37,7 @@ def test_mapping():
 
     print("Saving tsv")
     w = PandasTransformer(G)
-    w.save("target/maptest.tar")
+    w.save("target/maptest")
     w = ObanRdfTransformer(G)
     w.save("target/maptest.ttl")
 

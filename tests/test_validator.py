@@ -24,7 +24,7 @@ def test_validator_rdf():
     validator = Validator()
     validator.validate(t.graph)
     write_errors(validator)
-    #assert validator.ok()
+    assert validator.ok()
 
 def test_validator_bad():
     """
@@ -37,6 +37,7 @@ def test_validator_bad():
     validator = Validator()
     validator.validate(G)
     write_errors(validator)
+    # TODO: status is True when it should be False
     assert not validator.ok()
 
 def test_validator_good():
@@ -51,4 +52,4 @@ def test_validator_good():
     #print("PM={}".format(validator.prefix_manager.prefixmap))
     validator.validate(G)
     write_errors(validator)
-    assert validator.ok() == 0
+    assert validator.ok()
