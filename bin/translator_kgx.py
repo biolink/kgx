@@ -311,43 +311,44 @@ def neo4j_edge_summary(config, address, username, password, output=None):
 from datetime import datetime
 
 @cli.command()
-@click.option('--input-type', type=click.Choice(get_file_types()))
+# @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--output_dir', '-o', type=click.Path(exists=False), required=True, help='A directory to dump the error log files into')
-@click.option('--record-size', '-r', type=int, default=None, help='The number of failures to record for each failure type. Defaults to no limit.')
+@click.option('--output', '-o', type=click.Path(exists=False), required=True, help='The path to a text file to append the output to.')
+# @click.option('--no-repeat', is_flag=True, help='Whether or not to repeat instances of errors that produce the same message.')
 @pass_config
-def validate(config, path, input_type, output_dir, record_size):
-    os.makedirs(output_dir, exist_ok=True)
-
-    validator = Validator(record_size)
-
+def validate(config, path, output):
     t = get_transformer(get_type(path))()
     t.parse(path)
-    # t = load_transformer(path, input_type)
+
+    validator = Validator()
     validator.validate(t.graph)
 
-    for error_type, failures in validator.error_dict.items():
-        filename = error_type.replace(' ', '_') + '.log'
-        path = os.path.join(output_dir, filename)
-        click.echo('Logging {} many errors to {}'.format(len(failures), path))
-        with click.open_file(path, 'a+') as f:
-            f.write('--- {} ---\n'.format(datetime.now()))
-            for t in failures:
-                if len(t) == 2:
-                    n, message = t
-                    if message is not None:
-                        f.write('node({}):\t{}\n'.format(n, message))
-                    else:
-                        f.write('node({})\n'.format(n))
-                elif len(t) == 3:
-                    u, v, message = t
-                    if message is not None:
-                        f.write('edge({}, {}):\t{}\n'.format(u, v, message))
-                    else:
-                        f.write('edge({}, {})\n'.format(u, v))
+    errors = []
+    for error_type, e in validator.error_dict.items():
+        for t in e:
+            if t[-1] is not None:
+                errors.append(t)
+            else:
+                t = t[:-1] + (error_type,)
+                errors.append(t)
 
-    if validator.error_dict == {}:
-        click.echo('No errors found')
+    with click.open_file(output, 'a+') as f:
+        f.write('--- {} ---\n'.format(datetime.now()))
+
+        for error in errors:
+            if len(error) == 2:
+                n, message = error
+                f.write('node({})\t{}\n'.format(n, message))
+            elif len(error) == 3:
+                u, v, message = error
+                f.write('edge({}, {})\t{}\n'.format(u, v, message))
+            else:
+                raise Exception('Tuple {} is the wrong size'.format(error))
+
+        if len(errors) == 0:
+            click.echo('No errors found')
+        else:
+            click.echo('Logged {} many errors to {}'.format(len(errors), output))
 
 from neo4jrestclient.client import GraphDatabase as http_gdb
 import networkx as nx
