@@ -66,7 +66,14 @@ class NeoTransformer(Transformer):
         """
         Read a neo4j database and create a nx graph
         """
-        PAGE_SIZE = 10_000
+
+        # underscore in numerical notation defined PEP515
+        # PAGE_SIZE = 10_000
+
+        # TODO: Remove this value after testing --> Test PAGE_SIZE=1, PAGE_SIZE=2
+        # TODO: Parameterize this for loading?
+        PAGE_SIZE=1
+
         if end is None:
             count = self.count(is_directed=is_directed)
         else:
@@ -74,6 +81,7 @@ class NeoTransformer(Transformer):
         with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
             time_start = self.current_time_in_millis()
             for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+                print("Page: " + str(page))
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
             bar.update(count)
@@ -102,28 +110,47 @@ class NeoTransformer(Transformer):
             **self.build_query_kwargs()
         )
 
-        with self.bolt_driver.session() as session:
-            for result in session.run(query):
-                return result['count']
+        query_result = self.http_driver.query(query)
+        for result in query_result:
+            return result[0]
 
+    # TODO
+    # TODO: Refactor into a GENERATOR -> Traversal
     def get_pages(self, method, start=0, end=None, page_size=10_000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
-        with self.bolt_driver.session() as session:
-            for i in itertools.count(0):
-                skip = start + (page_size * i)
-                limit = page_size if end == None or skip + page_size <= end else end - skip
 
-                if limit <= 0:
-                    return
+        # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
+        # it's distinguished from applying a while loop via providing an index which is formative with the for statement
+        for i in itertools.count(0):
 
-                records = session.read_transaction(method, skip=skip, limit=limit, **kwargs)
+            # First halt condition: page pointer exceeds the number of values allowed to be returned in total
+            # skip is the left-boundary
+            skip = start + (page_size * i)
+            # limit is number of results upto return (which implicitly determines right-boundary)
+            limit = page_size if end is None or skip + page_size <= end else end - skip
+            # less than nothing is nothing
+            if limit <= 0:
+                return
 
-                if records.peek() is not None:
-                    yield records
-                else:
-                    return
+            # Second halt condition: no more data available
+            # TODO generalize get-pages as a generic method wrapper for transaction outputs?
+            # Probably easier to duplicate implementation
+            # records = self.http_driver.read_transaction(method, skip=skip, limit=limit, **kwargs)
+
+            records = iter(method(skip=skip, limit=limit, **kwargs))
+            # TODO Equivalent of the peek method in the http_driver?
+                # PO: QuerySequence --> Iterator --> Generator
+            # If there is a next value, yield the value
+            record = next(records)
+            if record is not None:
+                yield record
+                print("Record: " + str(record))
+            # Else if there are no values, there is nothing to yield; return
+            else:
+                # This return statement ends the infinite loop, via ending the function
+                return
 
     def load_edges(self, edges):
         start = self.current_time_in_millis()
@@ -271,7 +298,8 @@ class NeoTransformer(Transformer):
 
         return kwargs
 
-    def get_nodes(self, tx, skip=0, limit=0):
+    # TODO
+    def get_nodes(self, skip=0, limit=0, tx=None):
         """
         Get a page of nodes from the database
         """
@@ -299,9 +327,11 @@ class NeoTransformer(Transformer):
         query = self.clean_whitespace(query)
 
         logging.debug(query)
-        return tx.run(query)
+        nodes = self.http_driver.query(query)
+        return nodes
 
-    def get_edges(self, tx, skip=0, limit=0, is_directed=False):
+    # TODO
+    def get_edges(self, skip=0, limit=0, is_directed=False, tx=None):
         """
         Get a page of edges from the database
         """
@@ -332,9 +362,11 @@ class NeoTransformer(Transformer):
         query = self.clean_whitespace(query)
 
         logging.debug(query)
-        return tx.run(query)
+        edges = self.http_driver.query(query)
+        return edges
 
-    def save_node(self, tx, obj):
+    # TODO
+    def save_node(self, obj):
         """
         Load a node into neo4j
         """
@@ -352,8 +384,10 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
         query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
-        tx.run(query, **obj)
+        # TODO: **obj ?
+        self.http_driver.query(query, params=obj)
 
+    # TODO
     def save_node_unwind(self, nodes_by_category, property_names):
         """
         Save all nodes into neo4j using the UNWIND cypher clause
@@ -362,9 +396,10 @@ class NeoTransformer(Transformer):
         for category in nodes_by_category.keys():
             self.populate_missing_properties(nodes_by_category[category], property_names)
             query = self.generate_unwind_node_query(category, property_names)
-            with self.bolt_driver.session() as session:
-                session.run(query, nodes=nodes_by_category[category])
 
+            self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
+
+    # TODO
     def save_edge_unwind(self, edges_by_relationship_type, property_names):
         """
         Save all edges into neo4j using the UNWIND cypher clause
@@ -379,15 +414,20 @@ class NeoTransformer(Transformer):
                 subset = edges[i:end]
                 logging.info("edges subset: {}-{}".format(i, end))
                 time_start = self.current_time_in_millis()
-                with self.bolt_driver.session() as session:
-                    session.run(query, relationship=predicate, edges=subset)
+
+                self.http_driver.query(query, params={"relationship": predicate, "edges": subset})
                 time_end = self.current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
+    # TODO
+    # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
     def generate_unwind_node_query(self, label, property_names):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
+
+        # TODO: Is this correct? value was not here before - Ken
+        ignore_list = ['subject', 'predicate', 'object']
 
         properties_dict = {p : p for p in property_names if p not in ignore_list}
 
@@ -405,7 +445,8 @@ class NeoTransformer(Transformer):
 
         return query
 
-
+    # TODO
+    # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
     def generate_unwind_edge_query(self, relationship, property_names):
         """
         Generate UNWIND cypher clause for a given relationship
@@ -428,7 +469,8 @@ class NeoTransformer(Transformer):
 
         return query
 
-    def save_edge(self, tx, obj):
+    # TODO
+    def save_edge(self, obj):
         """
         Load an edge into neo4j
         """
@@ -446,8 +488,10 @@ class NeoTransformer(Transformer):
 
         q = self.clean_whitespace(q)
 
-        tx.run(q, subject_id=subject_id, object_id=object_id, **obj)
+        # TODO Is there a reason to pass hydration into the driver?
+        self.http_driver.query(q, params={"subject_id": subject_id, "object_id": object_id}, **obj)
 
+    # TODO
     def save_from_csv(self, nodes_filename, edges_filename):
         """
         Load from a CSV to neo4j
@@ -455,13 +499,14 @@ class NeoTransformer(Transformer):
         nodes_df = pd.read_csv(nodes_filename)
         edges_df = pd.read_csv(edges_filename)
 
-        with self.bolt_driver.session() as session:
-            for index, row in nodes_df.iterrows():
-                session.write_transaction(self.save_node, row.to_dict())
-            for index, row in edges_df.iterrows():
-                session.write_transaction(self.save_edge, row.to_dict())
+        for index, row in nodes_df.iterrows():
+            # we can eliminate the need to pass into transactions as 'query' in http_driver uses transactions by default
+            self.save_node(row.to_dict())
+        for index, row in edges_df.iterrows():
+            self.save_edge(row.to_dict())
         self.neo4j_report()
 
+    # TODO
     def save_with_unwind(self):
         """
         Load from a nx graph to neo4j using the UNWIND cypher clause
@@ -484,7 +529,7 @@ class NeoTransformer(Transformer):
 
         edges_by_relationship_type = {}
         edge_properties = []
-        for n, nbrs in self.graph.adjacency_iter():
+        for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     if adjitem['predicate'] not in edges_by_relationship_type:
@@ -493,12 +538,12 @@ class NeoTransformer(Transformer):
                         edges_by_relationship_type[adjitem['predicate']].append(adjitem)
                     edge_properties += [x for x in adjitem.keys() if x not in edge_properties]
 
-        with self.bolt_driver.session() as session:
-            session.write_transaction(self.create_constraints, nodes_by_category.keys())
+        self.create_constraints(nodes_by_category.keys())
 
         self.save_node_unwind(nodes_by_category, node_properties)
         self.save_edge_unwind(edges_by_relationship_type, edge_properties)
 
+    # TODO
     def save(self):
         """
         Load from a nx graph to neo4j
@@ -513,17 +558,17 @@ class NeoTransformer(Transformer):
                 else:
                     labels.add(node['category'])
 
-        with self.bolt_driver.session() as session:
-            session.write_transaction(self.create_constraints, labels)
-            for node_id in self.graph.nodes():
-                node_attributes = self.graph.node[node_id]
-                if 'id' not in node_attributes:
-                    node_attributes['id'] = node_id
-                session.write_transaction(self.save_node, node_attributes)
-            for n, nbrs in self.graph.adjacency_iter():
-                for nbr, eattr in nbrs.items():
-                    for entry, adjitem in eattr.items():
-                        session.write_transaction(self.save_edge, adjitem)
+
+        self.create_constraints(labels)
+        for node_id in self.graph.nodes():
+            node_attributes = self.graph.node[node_id]
+            if 'id' not in node_attributes:
+                node_attributes['id'] = node_id
+            self.save_node(node_attributes)
+        for n, nbrs in self.graph.adjacency_iter():
+            for nbr, eattr in nbrs.items():
+                for entry, adjitem in eattr.items():
+                    self.save_edge(adjitem)
         self.neo4j_report()
 
     def save_via_apoc(self, nodes_filename=None, edges_filename=None):
@@ -558,6 +603,7 @@ class NeoTransformer(Transformer):
         )
         """
 
+        # TODO: Parameterize use of bolt driver vs https for queries?
         self.http_driver.query(query)
         end = self.current_time_in_millis()
         logging.debug("time taken for APOC procedure: {} ms".format(end - start))
@@ -582,10 +628,12 @@ class NeoTransformer(Transformer):
         );
         """
 
+        # TODO: Parameterize use of bolt driver vs https for queries?
         self.http_driver.query(query)
         end = self.current_time_in_millis()
         logging.debug("time taken for APOC procedure: {} ms".format(end - start))
 
+    # TODO
     def update_node_labels(self):
         """
         Update node labels
@@ -608,8 +656,7 @@ class NeoTransformer(Transformer):
 
         for category in nodes_by_category:
             query = query_string.format(node_labels=category)
-            with self.bolt_driver.session() as session:
-                session.run(query, nodes=nodes_by_category[category])
+            self.http_driver.query(query, params={"nodes": nodes_by_category[category]})
         end = self.current_time_in_millis()
         logging.debug("time taken to update node labels: {} ms".format(end - start))
 
@@ -621,13 +668,13 @@ class NeoTransformer(Transformer):
         """
         Give a summary on the number of nodes and edges in neo4j database
         """
-        with self.bolt_driver.session() as session:
-            for r in session.run("MATCH (n) RETURN COUNT(*)"):
-                logging.info("Number of Nodes: {}".format(r.values()[0]))
-            for r in session.run("MATCH (s)-->(o) RETURN COUNT(*)"):
-                logging.info("Number of Edges: {}".format(r.values()[0]))
+        for r in self.http_driver.query("MATCH (n) RETURN COUNT(*)"):
+            logging.info("Number of Nodes: {}".format(r[0]))
+        for r in self.http_driver.query("MATCH (s)-->(o) RETURN COUNT(*)"):
+            logging.info("Number of Edges: {}".format(r[0]))
 
-    def create_constraints(self, tx, labels):
+    # TODO
+    def create_constraints(self, labels):
         """
         Create a unique constraint on node 'id' for all labels
         """
@@ -643,7 +690,7 @@ class NeoTransformer(Transformer):
                 label_set.add(label)
 
         for label in label_set:
-            tx.run(query.format(label))
+            self.http_driver.query(query.format(label))
 
     def _save_as_json(self, node_filename, edge_filename):
         """
