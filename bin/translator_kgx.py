@@ -3,7 +3,9 @@ import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
 from urllib.parse import urlparse
-from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
+from kgx import Transformer, map_graph, Filter, FilterLocation
+from kgx.validator import Validator
+from kgx.cli.error_logging import append_errors_to_file, append_errors_to_files
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
@@ -18,6 +20,8 @@ from collections import Counter, defaultdict, OrderedDict
 from terminaltables import AsciiTable
 
 import pandas as pd
+
+from datetime import datetime
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
@@ -308,47 +312,27 @@ def neo4j_edge_summary(config, address, username, password, output=None):
         df.to_csv(output, sep='|', header=True)
         click.echo('Saved report to {}'.format(output))
 
-from datetime import datetime
-
 @cli.command()
-# @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--output', '-o', type=click.Path(exists=False), required=True, help='The path to a text file to append the output to.')
-# @click.option('--no-repeat', is_flag=True, help='Whether or not to repeat instances of errors that produce the same message.')
+@click.option('--output-dir', '-d', type=click.Path(exists=False), help='The path to a directory to save a series of text files to.')
 @pass_config
-def validate(config, path, output):
+def validate(config, path, output, output_dir):
     t = get_transformer(get_type(path))()
     t.parse(path)
 
     validator = Validator()
     validator.validate(t.graph)
 
-    errors = []
-    for error_type, e in validator.error_dict.items():
-        for t in e:
-            if t[-1] is not None:
-                errors.append(t)
-            else:
-                t = t[:-1] + (error_type,)
-                errors.append(t)
+    time = datetime.now()
 
-    with click.open_file(output, 'a+') as f:
-        f.write('--- {} ---\n'.format(datetime.now()))
+    if len(validator.errors) == 0:
+        click.echo('No errors found')
 
-        for error in errors:
-            if len(error) == 2:
-                n, message = error
-                f.write('node({})\t{}\n'.format(n, message))
-            elif len(error) == 3:
-                u, v, message = error
-                f.write('edge({}, {})\t{}\n'.format(u, v, message))
-            else:
-                raise Exception('Tuple {} is the wrong size'.format(error))
-
-        if len(errors) == 0:
-            click.echo('No errors found')
-        else:
-            click.echo('Logged {} many errors to {}'.format(len(errors), output))
+    else:
+        append_errors_to_file(output, validator.errors, time)
+        if output_dir is not None:
+            append_errors_to_files(output_dir, validator.errors, time)
 
 from neo4jrestclient.client import GraphDatabase as http_gdb
 import networkx as nx
