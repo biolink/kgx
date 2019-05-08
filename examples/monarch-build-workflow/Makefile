@@ -20,7 +20,7 @@ download:
 	wget --no-clobber http://34.229.55.225/nodes_neo4j.csv -O data/semmeddb_nodes.csv || true
 	wget --no-clobber http://34.229.55.225/edges_neo4j.csv -O data/semmeddb_edges.csv || true
 	# Download ontology files
-	wget --no-clobber http://purl.obolibrary.org/obo/mondo.owl -O data/mondo.owl
+	wget --no-clobber http://purl.obolibrary.org/obo/mondo.owl -O data/mondo.owl || true
 	wget --no-clobber https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl -O data/hp.owl || true
 	wget --no-clobber https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/so.owl -O data/so.owl || true
 	wget --no-clobber http://purl.obolibrary.org/obo/go.owl -O data/go.owl || true
