@@ -77,11 +77,11 @@ def load_nodes(g:nx.Graph):
 
     df.apply(process_row, axis=1)
 
-OUTPUT = 'data/semmeddb.csv'
+OUTPUT = 'data/semmeddb.csv.tar'
 
 if __name__ == '__main__':
     if os.path.exists(OUTPUT):
-        quit('data/semmeddb.csv' + ' already exists, exiting.')
+        quit(OUTPUT + ' already exists, exiting.')
     t = PandasTransformer()
     load_nodes(t.graph)
     load_edges(t.graph)
