@@ -32,13 +32,13 @@ neo4j-start:
 		-d \
 		--rm \
 		--env NEO4J_dbms_memory_heap_maxSize=5120 \
+		--env NEO4J_AUTH=none \
 		--name ${NEO4J_CONTAINER_NAME} \
-		-p 8086:7474 \
-		-p 8088:7473 \
-		-p 8087:7687 \
+		-p 7474:7474 \
+		-p 7473:7473 \
+		-p 7472:7687 \
 		-v `pwd`/neo4j/plugins:/plugins \
 		-v `pwd`/neo4j/data:/data \
-		-v `pwd`/neo4j/conf:/var/lib/neo4j/conf \
 		-v `pwd`/neo4j/import:/var/lib/neo4j/import \
 		neo4j:3.0
 
