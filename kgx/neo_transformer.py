@@ -11,7 +11,8 @@ from collections import defaultdict
 from neo4j.v1 import GraphDatabase as bolt_gdb
 from neo4j.v1.types import Node, Record
 
-from neo4jrestclient.client import GraphDatabase as http_gdb
+# TODO Refactor out HTTPNode and HTTPRelationship, as Node and Relationship, after eliminating Bolt imports
+from neo4jrestclient.client import GraphDatabase as http_gdb, Node as HTTPNode, Relationship as HTTPRelationship
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
@@ -71,31 +72,40 @@ class NeoTransformer(Transformer):
         # PAGE_SIZE = 10_000
 
         # TODO: Remove this value after testing --> Test PAGE_SIZE=1, PAGE_SIZE=2
-        # TODO: Parameterize this for loading?
+        # TODO: Parameterize this into args of load()?
         PAGE_SIZE=1
 
         if end is None:
             count = self.count(is_directed=is_directed)
         else:
             count = end - start
+
+        # TODO UI Code is wrapping the data call
+        """
         with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
             time_start = self.current_time_in_millis()
-            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
-                print("Page: " + str(page))
+            for page in self._get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
             bar.update(count)
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
+        """
+        for page in self._get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+             print(page)
+             self.load_edges(page)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
-            for page in self.get_pages(self.get_nodes, start, end):
+            for page in self._get_pages(self.get_nodes, start, end):
                 time_start = self.current_time_in_millis()
+                print(page)
                 self.load_nodes(page)
                 time_end = self.current_time_in_millis()
-                logging.debug("time taken to load nodes: {} ms".format(time_end - time_start))
+
+                # TODO setup conditional for logs/logging
+                # logging.debug("time taken to load nodes: {} ms".format(time_end - time_start))
 
     def count(self, is_directed=False):
         """
@@ -115,8 +125,8 @@ class NeoTransformer(Transformer):
             return result[0]
 
     # TODO
-    # TODO: Refactor into a GENERATOR -> Traversal
-    def get_pages(self, method, start=0, end=None, page_size=10_000, **kwargs):
+    # TODO: Refactor! This function is very coupled with its use-case in load() and looks like this b/c of bolt_driver
+    def _get_pages(self, method, start=0, end=None, page_size=10_000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
@@ -135,26 +145,31 @@ class NeoTransformer(Transformer):
                 return
 
             # Second halt condition: no more data available
-            # TODO generalize get-pages as a generic method wrapper for transaction outputs?
-            # Probably easier to duplicate implementation
-            # records = self.http_driver.read_transaction(method, skip=skip, limit=limit, **kwargs)
-
-            records = iter(method(skip=skip, limit=limit, **kwargs))
-            # TODO Equivalent of the peek method in the http_driver?
-                # PO: QuerySequence --> Iterator --> Generator
+            """
+            # records = self.bolt_driver.read_transaction(method, skip=skip, limit=limit, **kwargs)
             # If there is a next value, yield the value
-            record = next(records)
-            if record is not None:
-                yield record
-                print("Record: " + str(record))
+            if records.peek() is not None:
+                yield records
             # Else if there are no values, there is nothing to yield; return
             else:
                 # This return statement ends the infinite loop, via ending the function
                 return
+            """
+            records = method(skip=skip, limit=limit, **kwargs)[0]
+            # TODO: This needs to be yield.
+            """
+            Why?
+            * Yield halts execution until next call
+            * Thus, the function continues execution upon next call
+            * Therefore, a new page is calculated before record is instantiated again
+            """
+            # TODO: under this current implementation, what's the failure case?
+            yield records
 
     def load_edges(self, edges):
         start = self.current_time_in_millis()
         for edge in edges:
+            print(edge)
             self.load_edge(edge)
         end = self.current_time_in_millis()
         logging.debug("time taken to load edges: {} ms".format(end - start))
@@ -162,6 +177,7 @@ class NeoTransformer(Transformer):
     def load_nodes(self, nodes):
         start = self.current_time_in_millis()
         for node in nodes:
+            print(node)
             self.load_node(node)
         end = self.current_time_in_millis()
         logging.debug("time taken to load nodes: {} ms".format(end - start))
@@ -198,6 +214,7 @@ class NeoTransformer(Transformer):
         """
         Load an edge from a neo4j record
         """
+
         edge_key = str(uuid.uuid4())
         edge_subject = edge_record[0]
         edge_predicate = edge_record[1]
@@ -288,7 +305,7 @@ class NeoTransformer(Transformer):
             else:
                 assert False
 
-        kwargs = {k : '' for k in Filter.targets()}
+        kwargs = {k: '' for k in Filter.targets()}
 
         for arg, value in properties.items():
             kwargs[arg] = self.build_properties(value)
@@ -327,7 +344,13 @@ class NeoTransformer(Transformer):
         query = self.clean_whitespace(query)
 
         logging.debug(query)
-        nodes = self.http_driver.query(query)
+
+        # TODO: What am I doing with these nodes?
+            # Just node data => set data_contents=True
+            # Node objects => returns=(client.Node)
+
+        #nodes = self.http_driver.nodes()
+        nodes = self.http_driver.query(query, returns=(HTTPNode))[skip:limit]
         return nodes
 
     # TODO
@@ -362,7 +385,14 @@ class NeoTransformer(Transformer):
         query = self.clean_whitespace(query)
 
         logging.debug(query)
-        edges = self.http_driver.query(query)
+
+        # TODO: What am I doing with these edges?
+            # Just edge data => set data_contents=True
+            # Edge objects => returns=(client.Edge)
+        edges = self.http_driver.query(query, returns=(HTTPRelationship), data_contents=True)[skip:limit]
+
+        #edges = self.http_driver.relationships()[skip:limit]
+
         return edges
 
     # TODO
