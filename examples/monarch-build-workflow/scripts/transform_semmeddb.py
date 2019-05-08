@@ -78,4 +78,4 @@ if __name__ == '__main__':
     t = PandasTransformer()
     load_nodes(t.graph)
     load_edges(t.graph)
-    t.save('semmeddb.csv')
+    t.save('data/semmeddb.csv')

@@ -1,11 +1,11 @@
-import networkx as nx
-import logging, click, bmt, pandas
+toolkit()import networkx as nx
+import logging, click, pandas
 
 from prefixcommons.curie_util import expand_uri
 from collections import defaultdict
 from typing import Union, List
 
-bmt.load('https://biolink.github.io/biolink-model/biolink-model.yaml')
+from .utils.biolinkmodel_toolkit import toolkit
 
 def map_graph(G, mapping, preserve=True):
     if preserve:
@@ -211,13 +211,13 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             for a in u_categories:
                 if len(edges) > l:
                     break
-                if bmt.get_element(a) is None:
+                if toolkit().get_element(a) is None:
                     continue
                 for b in v_categories:
-                    if bmt.get_element(b) is None:
+                    if toolkit().get_element(b) is None:
                         continue
-                    a_ancestors = bmt.ancestors(a)
-                    b_ancestors = bmt.ancestors(b)
+                    a_ancestors = toolkit().ancestors(a)
+                    b_ancestors = toolkit().ancestors(b)
                     if a_ancestors == b_ancestors == []:
                         continue
                     elif a not in b_ancestors and b not in a_ancestors:
@@ -254,7 +254,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             list_of_prefixes = []
             for category in categories:
                 try:
-                    list_of_prefixes.append(bmt.get_element(category).id_prefixes)
+                    list_of_prefixes.append(toolkit().get_element(category).id_prefixes)
                 except:
                     pass
 

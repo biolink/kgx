@@ -1,4 +1,4 @@
-import click, rdflib, logging, os, uuid, bmt
+import click, rdflib, logging, os, uuid
 import networkx as nx
 
 from typing import Tuple, Union, List
@@ -9,6 +9,7 @@ from rdflib.namespace import RDF, RDFS, OWL
 from .transformer import Transformer
 from .utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 from .utils.category_utils import find_categories
+from .utils.biolinkmodel_toolkit import toolkit
 
 from collections import defaultdict
 
@@ -322,7 +323,7 @@ class ObanRdfTransformer(RdfTransformer):
         Saves a node or edge attributes from the biolink model in the rdfgraph.
         Intended to be used within `ObanRdfTransformer.save`.
         """
-        element = bmt.get_element(key)
+        element = toolkit().get_element(key)
         if element is None:
             return
         if element.is_a == 'association slot' or element.is_a == 'node property':

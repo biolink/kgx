@@ -1,8 +1,9 @@
 import networkx as nx
-import json, time, bmt
+import json, time
 
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
+from collections import defaultdict
 
 from .prefix_manager import PrefixManager
 from .filter import Filter
@@ -11,6 +12,8 @@ import click
 
 from kgx.utils.ontology import find_superclass, subclasses
 from kgx.utils.str_utils import fmt_edgelabel, fmt_category
+from kgx.utils.biolinkmodel_toolkit import toolkit
+
 
 from kgx.mapper import clique_merge
 
@@ -27,13 +30,13 @@ def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
     elif mode == 'in':
         method = graph.in_edges
     elif mode == 'out':
-        method = graph.out_edges:
+        method = graph.out_edges
     else:
         raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
     edges = []
     for u, v, d in method(nbunch=node, data=True):
         if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
-            edges.add((u, v))
+            edges.append((u, v))
     return edges
 
 class Transformer(object):
@@ -100,24 +103,26 @@ class Transformer(object):
         """
         if ignore is None:
             ignore = IGNORE_CLASSSES
+        else:
+            ignore += IGNORE_CLASSSES
 
         ontology_graph = nx.DiGraph()
 
         with click.progressbar(edges(self.graph, edge_label='subclass_of'), label='Building ontology graph 1/3') as bar:
             for u, v in bar:
-                ontology_graph.add_edge(u, v)
+                ontology_graph.add_edge(u, v, edge_label='subclass_of')
 
         with click.progressbar(edges(self.graph, edge_label='same_as'), label='Building ontology graph 2/3') as bar:
             for u, v, in bar:
                 for _, superclass in edges(self.graph, node=u, mode='out', edge_label='subclass_of'):
-                    ontology_graph.add_edge(u, superclass)
+                    ontology_graph.add_edge(u, superclass, edge_label='subclass_of')
                 for _, superclass in edges(self.graph, node=v, mode='out', edge_label='subclass_of'):
-                    ontology_graph.add_edge(v, superclass)
+                    ontology_graph.add_edge(v, superclass, edge_label='subclass_of')
 
-        with click.progressbar(self.graph.nodes(data='type'), label='Building ontology graph 3/3'):
+        with click.progressbar(self.graph.nodes(data='type'), label='Building ontology graph 3/3') as bar:
             for n, node_type in bar:
                 if node_type in self.graph:
-                    ontology_graph.add_edge(n, node_type)
+                    ontology_graph.add_edge(n, node_type, edge_label='subclass_of')
 
         superclasses = set()
 
@@ -131,11 +136,11 @@ class Transformer(object):
                 if out_degree == 0 and in_degree > 0:
                     superclasses.add(n)
 
-                c = bmt.get_class(name)
+                c = toolkit().get_element(name)
                 if c is not None:
                     superclasses.add(n)
 
-                c = bmt.get_by_mapping(n)
+                c = toolkit().get_by_mapping(n)
                 if c is not None:
                     superclasses.add(n)
 
@@ -161,8 +166,18 @@ class Transformer(object):
         with click.progressbar(superclasses, label='Categorizing nodes') as bar:
             for superclass in bar:
                 name = fmt_category(self.graph.node[superclass].get('name'))
+
+                c = toolkit().get_by_mapping(superclass)
+                if c is not None:
+                    name = c
+
+                c = toolkit().get_element(name)
+                if c is not None:
+                    name = c.name
+
                 if name is None or name in ignore:
                     continue
+
                 for subclass in subclasses(superclass, ontology_graph):
                     if subclass in self.graph:
                         category = self.graph.node[subclass].get('category')
@@ -202,13 +217,31 @@ class Transformer(object):
                 else:
                     data['edge_label'] = fmt_edgelabel(data['edge_label'])
 
+    def clean_categories(self, threashold=100):
+        """
+        Removes categories and edges labels that are not from the biolink model.
+        Adds alt_edge_label and alt_category property to hold these invalid
+        edge labels and categories, so that the information is not lost.
+        """
+        with click.progressbar(self.graph.nodes(data='category')) as bar:
+            for n, category in bar:
+                if not toolkit().is_category(category):
+                    self.graph.node[n]['category'] = 'named thing'
+                    self.graph.node[n]['alt_category'] = category
+
+        with click.progressbar(self.graph.edges(data='edge_label')) as bar:
+            for s, o, edgelabel in bar:
+                if not toolkit().is_edgelabel(edgelabel):
+                    self.graph.node[n]['edge_label'] = 'related_to'
+                    self.graph.node[n]['alt_edge_label'] = edgelabel
+
     def merge_cliques(self, categorize_first=True):
         """
         Merges all nodes that are connected by `same_as` edges, or are marked
         as equivalent by a nodes `same_as` property.
 
         The clique leader chosen depends on the categories within that clique.
-        For this reason it's usually useful to run the `categorize` method first.
+        For this reason it's useful to run the `categorize` method first.
         """
         if categorize_first:
             self.categorize()
