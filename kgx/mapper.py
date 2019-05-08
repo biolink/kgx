@@ -1,4 +1,4 @@
-toolkit()import networkx as nx
+import networkx as nx
 import logging, click, pandas
 
 from prefixcommons.curie_util import expand_uri
