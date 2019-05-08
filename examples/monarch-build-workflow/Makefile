@@ -3,7 +3,7 @@ NEO4J_CONTAINER_NAME=ncats-monarch-graph-2019-02-20
 run:
 	make install
 	make download
-	python scripts/transformed_semmeddb.py
+	python scripts/transform_semmeddb.py
 	python scripts/main.py -f
 
 install:
