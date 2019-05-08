@@ -23,6 +23,7 @@ requires = [
     "bmt",
     'terminaltables',
     "shexjsg>=0.6.5",
+    "validators",
 ]
 
 setup(
