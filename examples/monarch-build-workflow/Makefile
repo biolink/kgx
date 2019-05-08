@@ -11,22 +11,22 @@ install:
 
 download:
 	# Download data files
-	wget --no-clobber http://purl.obolibrary.org/obo/ro.owl -O data/ro.owl
-	wget --no-clobber https://data.monarchinitiative.org/ttl/clinvar.ttl -O data/clinvar.ttl
-	wget --no-clobber https://data.monarchinitiative.org/ttl/orphanet.ttl -O data/orphanet.ttl
-	wget --no-clobber https://data.monarchinitiative.org/ttl/omim.ttl -O data/omim.ttl
-	wget --no-clobber https://archive.monarchinitiative.org/latest/ttl/hpoa.ttl -O data/hpoa.ttl
-	wget --no-clobber https://data.monarchinitiative.org/ttl/hgnc.ttl -O data/hgnc.ttl
-	wget --no-clobber http://34.229.55.225/nodes_neo4j.csv -O data/semmeddb_nodes.csv
-	wget --no-clobber http://34.229.55.225/edges_neo4j.csv -O data/semmeddb_edges.csv
+	wget --no-clobber http://purl.obolibrary.org/obo/ro.owl -O data/ro.owl || true
+	wget --no-clobber https://data.monarchinitiative.org/ttl/clinvar.ttl -O data/clinvar.ttl || true
+	wget --no-clobber https://data.monarchinitiative.org/ttl/orphanet.ttl -O data/orphanet.ttl || true
+	wget --no-clobber https://data.monarchinitiative.org/ttl/omim.ttl -O data/omim.ttl || true
+	wget --no-clobber https://archive.monarchinitiative.org/latest/ttl/hpoa.ttl -O data/hpoa.ttl || true
+	wget --no-clobber https://data.monarchinitiative.org/ttl/hgnc.ttl -O data/hgnc.ttl || true
+	wget --no-clobber http://34.229.55.225/nodes_neo4j.csv -O data/semmeddb_nodes.csv || true
+	wget --no-clobber http://34.229.55.225/edges_neo4j.csv -O data/semmeddb_edges.csv || true
 	# Download ontology files
 	wget --no-clobber http://purl.obolibrary.org/obo/mondo.owl -O data/mondo.owl
-	wget --no-clobber https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl -O data/hp.owl
-	wget --no-clobber https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/so.owl -O data/so.owl
-	wget --no-clobber http://purl.obolibrary.org/obo/go.owl -O data/go.owl
+	wget --no-clobber https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl -O data/hp.owl || true
+	wget --no-clobber https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/so.owl -O data/so.owl || true
+	wget --no-clobber http://purl.obolibrary.org/obo/go.owl -O data/go.owl || true
 
 neo4j-start:
-	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=neo4j/plugins
+	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=neo4j/plugins || true
 	echo `pwd`
 	docker run \
 		-d \
