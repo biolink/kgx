@@ -3,21 +3,11 @@ NEO4J_CONTAINER_NAME=ncats-monarch-graph-2019-02-20
 run:
 	make install
 	make download
+	python scripts/transformed_semmeddb.py
+	python scripts/main.py -f
 
 install:
 	pip install -r requirements.txt
-
-unpack-semmeddb:
-	tar -xvf data/transformed_semmeddb.csv.tar -C data/
-	sudo mv data/edges.csv data/semmeddb_edges.csv
-	sudo mv data/nodes.csv data/semmeddb_nodes.csv
-
-move-results:
-	tar -xvf results/clique_merged.csv.tar -C results/
-	mv results/edges.csv results/clique_merged_edges.csv
-	mv results/nodes.csv results/clique_merged_nodes.csv
-	sudo mv results/clique_merged_nodes.csv neo4j/import/
-	sudo mv results/clique_merged_edges.csv neo4j/import/
 
 download:
 	# Download data files
@@ -60,3 +50,15 @@ neo4j-ssh:
 
 neo4j-logs:
 	docker logs ${NEO4J_CONTAINER_NAME}
+
+unpack-semmeddb:
+	tar -xvf data/transformed_semmeddb.csv.tar -C data/
+	sudo mv data/edges.csv data/semmeddb_edges.csv
+	sudo mv data/nodes.csv data/semmeddb_nodes.csv
+
+move-results:
+	tar -xvf results/clique_merged.csv.tar -C results/
+	mv results/edges.csv results/clique_merged_edges.csv
+	mv results/nodes.csv results/clique_merged_nodes.csv
+	sudo mv results/clique_merged_nodes.csv neo4j/import/
+	sudo mv results/clique_merged_edges.csv neo4j/import/

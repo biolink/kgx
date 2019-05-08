@@ -1,5 +1,5 @@
 import networkx as nx
-import json, time, bmt
+import json, time
 
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
@@ -12,6 +12,8 @@ import click
 
 from kgx.utils.ontology import find_superclass, subclasses
 from kgx.utils.str_utils import fmt_edgelabel, fmt_category
+from kgx.utils.biolinkmodel_toolkit import toolkit
+
 
 from kgx.mapper import clique_merge
 
@@ -101,6 +103,8 @@ class Transformer(object):
         """
         if ignore is None:
             ignore = IGNORE_CLASSSES
+        else:
+            ignore += IGNORE_CLASSSES
 
         ontology_graph = nx.DiGraph()
 
@@ -132,11 +136,11 @@ class Transformer(object):
                 if out_degree == 0 and in_degree > 0:
                     superclasses.add(n)
 
-                c = bmt.get_class(name)
+                c = toolkit().get_element(name)
                 if c is not None:
                     superclasses.add(n)
 
-                c = bmt.get_by_mapping(n)
+                c = toolkit().get_by_mapping(n)
                 if c is not None:
                     superclasses.add(n)
 
@@ -163,11 +167,11 @@ class Transformer(object):
             for superclass in bar:
                 name = fmt_category(self.graph.node[superclass].get('name'))
 
-                c = bmt.get_by_mapping(superclass)
+                c = toolkit().get_by_mapping(superclass)
                 if c is not None:
                     name = c
 
-                c = bmt.get_class(name)
+                c = toolkit().get_element(name)
                 if c is not None:
                     name = c.name
 
@@ -215,29 +219,21 @@ class Transformer(object):
 
     def clean_categories(self, threashold=100):
         """
-        Removes categories from nodes that are instantiated fewer times
-        than the given threashold that are not recognized by the biolink
-        model, assuming such categories can be removed without emptying
-        the list.
+        Removes categories and edges labels that are not from the biolink model.
+        Adds alt_edge_label and alt_category property to hold these invalid
+        edge labels and categories, so that the information is not lost.
         """
-        counter = defaultdict(lambda: 0)
-        with click.progressbar(self.graph.nodes(data='category'), label='counting categories') as bar:
-            for n, category in bar:
-                if not isinstance(category, list):
-                    continue
-                for c in category:
-                    counter[c] += 1
-
         with click.progressbar(self.graph.nodes(data='category')) as bar:
             for n, category in bar:
-                if not isinstance(category, list):
-                    continue
-                if len(category) > 1 and 'named thing' in category:
-                    category.remove('named thing')
-                if len(category) > 1:
-                    l = [c for c in category if bmt.get_class(c) is not None and counter[c] >= threashold]
-                    if len(l) > 0:
-                        self.graph.node[n]['category'] = l
+                if not toolkit().is_category(category):
+                    self.graph.node[n]['category'] = 'named thing'
+                    self.graph.node[n]['alt_category'] = category
+
+        with click.progressbar(self.graph.edges(data='edge_label')) as bar:
+            for s, o, edgelabel in bar:
+                if not toolkit().is_edgelabel(edgelabel):
+                    self.graph.node[n]['edge_label'] = 'related_to'
+                    self.graph.node[n]['alt_edge_label'] = edgelabel
 
     def merge_cliques(self, categorize_first=True):
         """
@@ -245,7 +241,7 @@ class Transformer(object):
         as equivalent by a nodes `same_as` property.
 
         The clique leader chosen depends on the categories within that clique.
-        For this reason it's usually useful to run the `categorize` method first.
+        For this reason it's useful to run the `categorize` method first.
         """
         if categorize_first:
             self.categorize()

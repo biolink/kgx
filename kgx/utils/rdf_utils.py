@@ -1,12 +1,13 @@
 from typing import List, Union
-from bmt import Toolkit
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 
 from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
-tk = Toolkit()
+from .biolinkmodel_toolkit import toolkit
+
+tk = toolkit()
 m = tk.generator.mappings
 x = set()
 mapping = {}
