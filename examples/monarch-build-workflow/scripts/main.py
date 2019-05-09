@@ -35,7 +35,7 @@ def change_extention(filename, extention):
 
 
 @click.command()
-@click.option('--force-transform', '-f', isFlag=True, help='Whether or not to regenerate the CSV file if it already exists')
+@click.option('--force-transform', '-f', is_flag=True, help='Whether or not to regenerate the CSV file if it already exists')
 def main(force_transform):
     """
     Goes through a series of data files, transforms them to CSV format and saves
