@@ -81,8 +81,9 @@ OUTPUT = 'data/semmeddb.csv.tar'
 
 if __name__ == '__main__':
     if os.path.exists(OUTPUT):
-        quit(OUTPUT + ' already exists, exiting.')
-    t = PandasTransformer()
-    load_nodes(t.graph)
-    load_edges(t.graph)
-    t.save(OUTPUT)
+        print(OUTPUT + ' already exists, exiting.')
+    else:
+        t = PandasTransformer()
+        load_nodes(t.graph)
+        load_edges(t.graph)
+        t.save(OUTPUT)
