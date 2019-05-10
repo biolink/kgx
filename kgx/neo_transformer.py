@@ -31,7 +31,6 @@ class NeoTransformer(Transformer):
     def __init__(self, graph=None, host=None, ports=None, username=None, password=None, **args):
         super(NeoTransformer, self).__init__(graph)
 
-        self.bolt_driver = None
         self.http_driver = None
 
         if ports is None:
@@ -53,15 +52,9 @@ class NeoTransformer(Transformer):
                     logging.debug("Initializing https driver with URI: {}".format(https_uri))
                     self.http_driver = http_gdb(https_uri, username=username, password=password)
         else:
-            if 'bolt' in ports:
-                bolt_uri = "bolt://{}:{}".format(host, ports['bolt'])
-                self.bolt_driver = bolt_gdb.driver(bolt_uri, auth=(username, password), **args)
             if 'http' in ports:
                 http_uri = "http://{}:{}".format(host, ports['http'])
                 self.http_driver = http_gdb(http_uri, username=username, password=password)
-            if 'https' in ports:
-                https_uri = "https://{}:{}".format(host, ports['https'])
-                self.http_driver = http_gdb(https_uri, username=username, password=password)
 
     def load(self, start=0, end=None, is_directed=False):
         """
@@ -87,6 +80,7 @@ class NeoTransformer(Transformer):
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
         """
+
         for page in self._get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
              self.load_edges(page)
 
@@ -122,7 +116,7 @@ class NeoTransformer(Transformer):
 
     # TODO
     # TODO: Refactor! This function is very coupled with its use-case in load() and looks like this b/c of bolt_driver
-    def _get_pages(self, method, start=0, end=None, page_size=10_000, **kwargs):
+    def _get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
@@ -132,16 +126,14 @@ class NeoTransformer(Transformer):
         for i in itertools.count(0):
 
             # First halt condition: page pointer exceeds the number of values allowed to be returned in total
-            # skip is the left-boundary
             skip = start + (page_size * i)
-            # limit is number of results upto return (which implicitly determines right-boundary)
             limit = page_size if end is None or skip + page_size <= end else end - skip
-            # less than nothing is nothing
             if limit <= 0:
                 return
 
+            # run a query
+            records = elements(skip=skip, limit=limit, **kwargs)
 
-            records = method(skip=skip, limit=limit, **kwargs)
             # Second halt condition: no more data available
             if records:
                 """
@@ -329,6 +321,7 @@ class NeoTransformer(Transformer):
             )
 
         query = self.clean_whitespace(query)
+        print(query)
 
         logging.debug(query)
 
@@ -372,6 +365,7 @@ class NeoTransformer(Transformer):
             )
 
         query = self.clean_whitespace(query)
+        print(query)
 
         logging.debug(query)
 
