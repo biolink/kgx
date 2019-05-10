@@ -8,11 +8,8 @@ from .filter import Filter, FilterLocation, FilterType
 from typing import Union, Dict, List
 from collections import defaultdict
 
-from neo4j.v1 import GraphDatabase as bolt_gdb
-from neo4j.v1.types import Node, Record
-
 # TODO Refactor out HTTPNode and HTTPRelationship, as Node and Relationship, after eliminating Bolt imports
-from neo4jrestclient.client import GraphDatabase as http_gdb, Node as HTTPNode, Relationship as HTTPRelationship
+from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
@@ -37,20 +34,10 @@ class NeoTransformer(Transformer):
             # read from config
             with open('config.yml', 'r') as ymlfile:
                 cfg = yaml.load(ymlfile)
-                bolt_uri = "bolt://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['bolt_port'])
-                username = cfg['neo4j']['username']
-                password = cfg['neo4j']['password']
-                logging.debug("Initializing bolt driver with URI: {}".format(bolt_uri))
-                self.bolt_driver = bolt_gdb.driver(bolt_uri, auth=(username, password), **args)
-
                 if 'http_port' in cfg['neo4j']:
                     http_uri = "http://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['http_port'])
                     logging.debug("Initializing http driver with URI: {}".format(http_uri))
                     self.http_driver = http_gdb(http_uri, username=username, password=password)
-                if 'https_port' in cfg['neo4j']:
-                    https_uri = "https://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['https_port'])
-                    logging.debug("Initializing https driver with URI: {}".format(https_uri))
-                    self.http_driver = http_gdb(https_uri, username=username, password=password)
         else:
             if 'http' in ports:
                 http_uri = "http://{}:{}".format(host, ports['http'])
@@ -60,7 +47,6 @@ class NeoTransformer(Transformer):
         """
         Read a neo4j database and create a nx graph
         """
-
         # underscore in numerical notation defined PEP515
         PAGE_SIZE = 10_000
 
@@ -69,33 +55,18 @@ class NeoTransformer(Transformer):
         else:
             count = end - start
 
-        # TODO UI Code is wrapping the data call
-        """
-        with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
-            time_start = self.current_time_in_millis()
-            for page in self._get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
-                self.load_edges(page)
-                bar.update(PAGE_SIZE)
-            bar.update(count)
-            time_end = self.current_time_in_millis()
-            logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
-        """
-
-        for page in self._get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+        for page in self._get_pages(self._get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
              self.load_edges(page)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
-            for page in self._get_pages(self.get_nodes, start, end):
+            for page in self._get_pages(self._get_nodes, start, end):
                 time_start = self.current_time_in_millis()
                 print("Page")
                 print(page)
                 self.load_nodes(page)
                 time_end = self.current_time_in_millis()
-
-                # TODO setup conditional for logs/logging
-                # logging.debug("time taken to load nodes: {} ms".format(time_end - time_start))
 
     def count(self, is_directed=False):
         """
@@ -114,37 +85,6 @@ class NeoTransformer(Transformer):
         for result in query_result:
             return result[0]
 
-    # TODO
-    # TODO: Refactor! This function is very coupled with its use-case in load() and looks like this b/c of bolt_driver
-    def _get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
-        """
-        Gets (end - start) many pages of size page_size.
-        """
-
-        # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
-        # it's distinguished from applying a while loop via providing an index which is formative with the for statement
-        for i in itertools.count(0):
-
-            # First halt condition: page pointer exceeds the number of values allowed to be returned in total
-            skip = start + (page_size * i)
-            limit = page_size if end is None or skip + page_size <= end else end - skip
-            if limit <= 0:
-                return
-
-            # run a query
-            records = elements(skip=skip, limit=limit, **kwargs)
-
-            # Second halt condition: no more data available
-            if records:
-                """
-                * Yield halts execution until next call
-                * Thus, the function continues execution upon next call
-                * Therefore, a new page is calculated before record is instantiated again
-                """
-                yield records
-            else:
-                return
-
     def load_edges(self, edges):
         start = self.current_time_in_millis()
         for edge in edges:
@@ -161,16 +101,10 @@ class NeoTransformer(Transformer):
         end = self.current_time_in_millis()
         logging.debug("time taken to load nodes: {} ms".format(end - start))
 
-    def load_node(self, node_record: Union[Node, Record]):
+    def load_node(self, node: Node):
         """
         Load node from a neo4j record
         """
-
-        node = None
-        if isinstance(node_record, HTTPNode):
-            node = node_record
-        elif isinstance(node_record, Record):
-            node = node_record[0]
 
         attributes = {}
 
@@ -191,10 +125,11 @@ class NeoTransformer(Transformer):
 
         self.graph.add_node(node_id, attr_dict=attributes)
 
-    def load_edge(self, edge: HTTPRelationship):
+    def load_edge(self, edge: Relationship):
         """
         Load an edge from a neo4j record
         """
+
         edge_key = str(uuid.uuid4())
         edge_subject = edge.start
         edge_predicate = edge.properties
@@ -294,8 +229,40 @@ class NeoTransformer(Transformer):
 
         return kwargs
 
+        # TODO
+        # TODO: Refactor! This function is very coupled with its use-case in load() and looks like this b/c of bolt_driver
+
+    def _get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
+        """
+        Gets (end - start) many pages of size page_size.
+        """
+
+        # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
+        # it's distinguished from applying a while loop via providing an index which is formative with the for statement
+        for i in itertools.count(0):
+
+            # First halt condition: page pointer exceeds the number of values allowed to be returned in total
+            skip = start + (page_size * i)
+            limit = page_size if end is None or skip + page_size <= end else end - skip
+            if limit <= 0:
+                return
+
+            # run a query
+            records = elements(skip=skip, limit=limit, **kwargs)
+
+            # Second halt condition: no more data available
+            if records:
+                """
+                * Yield halts execution until next call
+                * Thus, the function continues execution upon next call
+                * Therefore, a new page is calculated before record is instantiated again
+                """
+                yield records
+            else:
+                return
+
     # TODO
-    def get_nodes(self, skip=0, limit=0, tx=None):
+    def _get_nodes(self, skip=0, limit=0, tx=None, **kwargs):
         """
         Get a page of nodes from the database
         """
@@ -322,61 +289,55 @@ class NeoTransformer(Transformer):
 
         query = self.clean_whitespace(query)
         print(query)
-
         logging.debug(query)
 
-        # TODO: What am I doing with these nodes?
-            # Just node data => set data_contents=True
-            # Node objects => returns=(client.Node)
-        #nodes = self.http_driver.query(query, returns=(HTTPNode))[skip:limit]
+        # Filter out all the associated metadata to ensure the results are clean
+        nodeResults = self.http_driver.query(query, returns=(Node))
 
-        # TODO: Implement FILTERS!
-        nodes = self.http_driver.nodes.all()[skip:limit]
-
-        return nodes
+        return nodeResults
 
     # TODO
-    def get_edges(self, skip=0, limit=0, is_directed=False, tx=None):
+    def _get_edges(self, skip=0, limit=0, is_directed=False, tx=None, **kwargs):
         """
         Get a page of edges from the database
         """
-        direction = '->' if is_directed else '-'
+        if skip < limit:
+            direction = '->' if is_directed else '-'
 
-        if limit == 0 or limit is None:
-            query = """
-            MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
-            RETURN s,p,o
-            SKIP {skip};
-            """.format(
-                skip=skip,
-                direction=direction,
-                **self.build_query_kwargs()
-            )
-        else:
-            query = """
-            MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
-            RETURN s,p,o
-            SKIP {skip} LIMIT {limit};
-            """.format(
-                skip=skip,
-                limit=limit,
-                direction=direction,
-                **self.build_query_kwargs()
-            )
+            if limit == 0 or limit is None:
+                query = """
+                MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+                RETURN s,p,o
+                SKIP {skip};
+                """.format(
+                    skip=skip,
+                    direction=direction,
+                    **self.build_query_kwargs()
+                )
+            else:
+                query = """
+                MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+                RETURN s,p,o
+                SKIP {skip} LIMIT {limit};
+                """.format(
+                    skip=skip,
+                    limit=limit,
+                    direction=direction,
+                    **self.build_query_kwargs()
+                )
 
-        query = self.clean_whitespace(query)
-        print(query)
+            query = self.clean_whitespace(query)
+            print(query)
 
-        logging.debug(query)
+            logging.debug(query)
 
-        # TODO: What am I doing with these edges?
-            # Just edge data => set data_contents=True
-            # Edge objects => returns=(client.Edge)
-       # edges = self.http_driver.query(query, returns=(HTTPRelationship), data_contents=True)[skip:limit]
+            # Filter out all the associated metadata to ensure the results are clean
 
-        # TODO: Implement FILTERS!
-        edges = self.http_driver.relationships.all()[skip:limit]
-        return edges
+            edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))[0]
+            edges = [edge for edge in edgeResults if isinstance(edge, Relationship)]
+            return edges
+
+        return []
 
     # TODO
     def save_node(self, obj):
