@@ -288,22 +288,23 @@ class NeoTransformer(Transformer):
             )
 
         query = self.clean_whitespace(query)
-        print(query)
         logging.debug(query)
 
         # Filter out all the associated metadata to ensure the results are clean
         nodeResults = self.http_driver.query(query, returns=(Node))
-
-        return nodeResults
+        nodes = [node for node in nodeResults]
+        return nodes
 
     # TODO
     def _get_edges(self, skip=0, limit=0, is_directed=False, tx=None, **kwargs):
         """
         Get a page of edges from the database
         """
+
         if skip < limit:
             direction = '->' if is_directed else '-'
 
+            # TODO: would it be faster to return only p?
             if limit == 0 or limit is None:
                 query = """
                 MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
@@ -327,14 +328,10 @@ class NeoTransformer(Transformer):
                 )
 
             query = self.clean_whitespace(query)
-            print(query)
-
             logging.debug(query)
 
-            # Filter out all the associated metadata to ensure the results are clean
-
-            edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))[0]
-            edges = [edge for edge in edgeResults if isinstance(edge, Relationship)]
+            edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))
+            edges = [edge for edgeResult in edgeResults for edge in edgeResult if isinstance(edge, Relationship)]
             return edges
 
         return []
