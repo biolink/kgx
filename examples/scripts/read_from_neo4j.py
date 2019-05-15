@@ -31,6 +31,5 @@ if args.filter is not None:
             n.set_filter(k, v)
 
 # Read from Neo4j with the given filter constraints (if any)
-# TODO the test data from \nneo-1 is not that great for testing pagination; the dataset is very small!
 n.load()
 n.report()

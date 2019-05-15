@@ -7,13 +7,12 @@ from .filter import Filter, FilterLocation, FilterType
 
 from typing import Union, Dict, List
 from collections import defaultdict
-
-# TODO Refactor out HTTPNode and HTTPRelationship, as Node and Relationship, after eliminating Bolt imports
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
 
+# TODO: This class does some duplicate work in get_pages. It also exports twice as many edges as it loads, find out why.
 class NeoTransformer(Transformer):
     """
 
@@ -43,7 +42,7 @@ class NeoTransformer(Transformer):
                 http_uri = "http://{}:{}".format(host, ports['http'])
                 self.http_driver = http_gdb(http_uri, username=username, password=password)
 
-    def load(self, start=0, end=None, is_directed=False):
+    def load(self, start=0, end=None, is_directed=True):
         """
         Read a neo4j database and create a nx graph
         """
@@ -56,19 +55,17 @@ class NeoTransformer(Transformer):
             count = end - start
 
         for page in self._get_pages(self._get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
-             self.load_edges(page)
+            self.load_edges(page)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
             for page in self._get_pages(self._get_nodes, start, end):
                 time_start = self.current_time_in_millis()
-                print("Page")
-                print(page)
                 self.load_nodes(page)
                 time_end = self.current_time_in_millis()
 
-    def count(self, is_directed=False):
+    def count(self, is_directed=True):
         """
         Get a page of edges from the database
         """
@@ -109,7 +106,6 @@ class NeoTransformer(Transformer):
         attributes = {}
 
         for key, value in node.properties.items():
-            print(node)
             attributes[key] = value
 
         if 'category' not in attributes:
@@ -296,7 +292,7 @@ class NeoTransformer(Transformer):
         return nodes
 
     # TODO
-    def _get_edges(self, skip=0, limit=0, is_directed=False, tx=None, **kwargs):
+    def _get_edges(self, skip=0, limit=0, is_directed=True, tx=None, **kwargs):
         """
         Get a page of edges from the database
         """
@@ -329,6 +325,7 @@ class NeoTransformer(Transformer):
 
             query = self.clean_whitespace(query)
             logging.debug(query)
+            print(query)
 
             edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))
             edges = [edge for edgeResult in edgeResults for edge in edgeResult if isinstance(edge, Relationship)]
@@ -634,6 +631,8 @@ class NeoTransformer(Transformer):
     def report(self):
         logging.info("Total number of nodes: {}".format(len(self.graph.nodes())))
         logging.info("Total number of edges: {}".format(len(self.graph.edges())))
+        for i in self.graph.nodes:
+            print(i, self.graph.edges(i))
 
     def neo4j_report(self):
         """

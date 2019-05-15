@@ -370,6 +370,7 @@ import networkx as nx
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @pass_config
 def neo4j_download(config, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
+
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
@@ -387,12 +388,10 @@ def neo4j_download(config, stop_after, subject_label, object_label, edge_type, a
     edge_type = ':`{}`'.format(edge_type) if isinstance(edge_type, str) else ''
 
     match = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_type, object_label)
-
-    results = driver.query('{} return count(*)'.format(match))
-
+    count = driver.query('{} return count(*)'.format(match))
     click.echo('Using cyper query: {} return n, e, m'.format(match))
 
-    for a, in results:
+    for a, in count:
         size = a
         break
 

@@ -52,9 +52,6 @@ run_neo_tests: target/combined.json
 	-python examples/scripts/read_from_neo4j.py --host $(NEO4J_HOST)
 
 	@echo "\nneo-3. Uploading combined.json to a local neo4j instance"
-
-	# TODO: Getting a runtime error of using this test, where current version of neo_transformer.py always requires a bolt port, but no bolt port given if NEO4J_ADDRESS is not a bolt address
-	# So this test will only run successfully iff it's testing bolt. Option: have the neo_transformer defensively use whatever protocol is defined, not just bolt?
 	-kgx neo4j-upload --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) target/combined.json
 
 	@echo "\nneo-4. Downloading a subset of what we had uploaded. Running in debug mode so we can see the cypher queries"
