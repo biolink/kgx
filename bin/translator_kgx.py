@@ -3,7 +3,9 @@ import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
 from urllib.parse import urlparse
-from kgx import Transformer, Validator, map_graph, Filter, FilterLocation
+from kgx import Transformer, map_graph, Filter, FilterLocation
+from kgx.validator import Validator
+from kgx.cli.error_logging import append_errors_to_file, append_errors_to_files
 
 from kgx.cli.decorators import handle_exception
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
@@ -18,6 +20,8 @@ from collections import Counter, defaultdict, OrderedDict
 from terminaltables import AsciiTable
 
 import pandas as pd
+
+from datetime import datetime
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
@@ -308,47 +312,27 @@ def neo4j_edge_summary(config, address, username, password, output=None):
         df.to_csv(output, sep='|', header=True)
         click.echo('Saved report to {}'.format(output))
 
-from datetime import datetime
-
 @cli.command()
-@click.option('--input-type', type=click.Choice(get_file_types()))
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--output_dir', '-o', type=click.Path(exists=False), required=True, help='A directory to dump the error log files into')
-@click.option('--record-size', '-r', type=int, default=None, help='The number of failures to record for each failure type. Defaults to no limit.')
+@click.option('--output', '-o', type=click.Path(exists=False), required=True, help='The path to a text file to append the output to.')
+@click.option('--output-dir', '-d', type=click.Path(exists=False), help='The path to a directory to save a series of text files to.')
 @pass_config
-def validate(config, path, input_type, output_dir, record_size):
-    os.makedirs(output_dir, exist_ok=True)
-
-    validator = Validator(record_size)
-
+def validate(config, path, output, output_dir):
     t = get_transformer(get_type(path))()
     t.parse(path)
-    # t = load_transformer(path, input_type)
+
+    validator = Validator()
     validator.validate(t.graph)
 
-    for error_type, failures in validator.error_dict.items():
-        filename = error_type.replace(' ', '_') + '.log'
-        with click.open_file(os.path.join(output_dir, filename), 'a+') as f:
-            f.write('--- {} ---\n'.format(datetime.now()))
-            for t in failures:
-                if len(t) == 2:
-                    n, message = t
-                    if message is not None:
-                        f.write('node({}):\t{}\n'.format(n, message))
-                    else:
-                        f.write('node({})\n'.format(n))
-                elif len(t) == 3:
-                    u, v, message = t
-                    if message is not None:
-                        f.write('edge({}, {}):\t{}\n'.format(u, v, message))
-                    else:
-                        f.write('edge({}, {})\n'.format(u, v))
+    time = datetime.now()
 
-    if validator.error_dict == {}:
+    if len(validator.errors) == 0:
         click.echo('No errors found')
+
     else:
-        for key, value in validator.error_dict.items():
-            click.echo('{} - {}'.format(key, len(value)))
+        append_errors_to_file(output, validator.errors, time)
+        if output_dir is not None:
+            append_errors_to_files(output_dir, validator.errors, time)
 
 from neo4jrestclient.client import GraphDatabase as http_gdb
 import networkx as nx
@@ -364,13 +348,13 @@ import networkx as nx
 @click.option('--object-label', type=str)
 @click.option('--edge-type', type=str)
 @click.option('--stop-after', type=int, help='Once this many edges are downloaded the application will finish')
+@click.option('--page-size', type=int, default=10_000, help='The size of pages to download for each batch')
 # @click.option('--start', type=int, default=0)
 # @click.option('--end', type=int)
 @click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @click.option('--output-type', type=click.Choice(get_file_types()))
 @pass_config
-def neo4j_download(config, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
-
+def neo4j_download(config, page_size, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
