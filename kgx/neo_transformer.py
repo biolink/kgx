@@ -53,8 +53,14 @@ class NeoTransformer(Transformer):
         else:
             count = end - start
 
-        for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
-            self.load_edges(page)
+        with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
+            time_start = self.current_time_in_millis()
+            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+                self.load_edges(page)
+                bar.update(PAGE_SIZE)
+            bar.update(count)
+            time_end = self.current_time_in_millis()
+            logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
