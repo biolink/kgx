@@ -12,7 +12,6 @@ from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
 
-# TODO: This class does some duplicate work in get_pages. It also exports twice as many edges as it loads, find out why.
 class NeoTransformer(Transformer):
     """
 
@@ -54,13 +53,13 @@ class NeoTransformer(Transformer):
         else:
             count = end - start
 
-        for page in self._get_pages(self._get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+        for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
             self.load_edges(page)
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
         if active_node_filters:
-            for page in self._get_pages(self._get_nodes, start, end):
+            for page in self.get_pages(self.get_nodes, start, end):
                 time_start = self.current_time_in_millis()
                 self.load_nodes(page)
                 time_end = self.current_time_in_millis()
@@ -225,10 +224,7 @@ class NeoTransformer(Transformer):
 
         return kwargs
 
-        # TODO
-        # TODO: Refactor! This function is very coupled with its use-case in load() and looks like this b/c of bolt_driver
-
-    def _get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
+    def get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
         """
         Gets (end - start) many pages of size page_size.
         """
@@ -257,8 +253,7 @@ class NeoTransformer(Transformer):
             else:
                 return
 
-    # TODO
-    def _get_nodes(self, skip=0, limit=0, tx=None, **kwargs):
+    def get_nodes(self, skip=0, limit=0, tx=None, **kwargs):
         """
         Get a page of nodes from the database
         """
@@ -291,8 +286,7 @@ class NeoTransformer(Transformer):
         nodes = [node for node in nodeResults]
         return nodes
 
-    # TODO
-    def _get_edges(self, skip=0, limit=0, is_directed=True, tx=None, **kwargs):
+    def get_edges(self, skip=0, limit=0, is_directed=True, tx=None, **kwargs):
         """
         Get a page of edges from the database
         """
@@ -333,7 +327,6 @@ class NeoTransformer(Transformer):
 
         return []
 
-    # TODO
     def save_node(self, obj):
         """
         Load a node into neo4j
@@ -352,10 +345,8 @@ class NeoTransformer(Transformer):
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
         query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
-        # TODO: **obj ?
         self.http_driver.query(query, params=obj)
 
-    # TODO
     def save_node_unwind(self, nodes_by_category, property_names):
         """
         Save all nodes into neo4j using the UNWIND cypher clause
@@ -367,7 +358,6 @@ class NeoTransformer(Transformer):
 
             self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
 
-    # TODO
     def save_edge_unwind(self, edges_by_relationship_type, property_names):
         """
         Save all edges into neo4j using the UNWIND cypher clause
@@ -387,14 +377,11 @@ class NeoTransformer(Transformer):
                 time_end = self.current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-    # TODO
     # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
     def generate_unwind_node_query(self, label, property_names):
         """
         Generate UNWIND cypher clause for a given label and property names (optional)
         """
-
-        # TODO: Is this correct? value was not here before - Ken
         ignore_list = ['subject', 'predicate', 'object']
 
         properties_dict = {p : p for p in property_names if p not in ignore_list}
@@ -413,7 +400,6 @@ class NeoTransformer(Transformer):
 
         return query
 
-    # TODO
     # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
     def generate_unwind_edge_query(self, relationship, property_names):
         """
@@ -437,7 +423,6 @@ class NeoTransformer(Transformer):
 
         return query
 
-    # TODO
     def save_edge(self, obj):
         """
         Load an edge into neo4j
@@ -459,7 +444,6 @@ class NeoTransformer(Transformer):
         # TODO Is there a reason to pass hydration into the driver?
         self.http_driver.query(q, params={"subject_id": subject_id, "object_id": object_id}, **obj)
 
-    # TODO
     def save_from_csv(self, nodes_filename, edges_filename):
         """
         Load from a CSV to neo4j
@@ -474,7 +458,6 @@ class NeoTransformer(Transformer):
             self.save_edge(row.to_dict())
         self.neo4j_report()
 
-    # TODO
     def save_with_unwind(self):
         """
         Load from a nx graph to neo4j using the UNWIND cypher clause
