@@ -330,6 +330,7 @@ class NeoTransformer(Transformer):
 
         return []
 
+    # TODO: /nneo-5 test from Makefile fails here
     def save_node(self, obj):
         """
         Load a node into neo4j
@@ -344,7 +345,7 @@ class NeoTransformer(Transformer):
             logging.warning("node does not have 'category' property. Using 'Node' as default")
             label = 'Node'
         else:
-            label = obj.pop('category')
+            label = obj.pop('category')[0]
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
         query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
@@ -445,7 +446,8 @@ class NeoTransformer(Transformer):
         q = self.clean_whitespace(q)
 
         # TODO Is there a reason to pass hydration into the driver?
-        self.http_driver.query(q, params={"subject_id": subject_id, "object_id": object_id}, **obj)
+        params = dict(list(obj.items()) + [("subject_id", subject_id), ("object_id", object_id)])
+        self.http_driver.query(q, params=params)
 
     def save_from_csv(self, nodes_filename, edges_filename):
         """
@@ -519,7 +521,7 @@ class NeoTransformer(Transformer):
             if 'id' not in node_attributes:
                 node_attributes['id'] = node_id
             self.save_node(node_attributes)
-        for n, nbrs in self.graph.adjacency_iter():
+        for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     self.save_edge(adjitem)
