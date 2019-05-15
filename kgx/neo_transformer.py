@@ -90,8 +90,6 @@ class NeoTransformer(Transformer):
     def load_edges(self, edges):
         start = self.current_time_in_millis()
         for edge in edges:
-            print("Edge")
-            print(edge)
             self.load_edge(edge)
         end = self.current_time_in_millis()
         logging.debug("time taken to load edges: {} ms".format(end - start))
@@ -325,7 +323,6 @@ class NeoTransformer(Transformer):
 
             query = self.clean_whitespace(query)
             logging.debug(query)
-            print(query)
 
             edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))
             edges = [edge for edgeResult in edgeResults for edge in edgeResult if isinstance(edge, Relationship)]
@@ -620,8 +617,6 @@ class NeoTransformer(Transformer):
     def report(self):
         logging.info("Total number of nodes: {}".format(len(self.graph.nodes())))
         logging.info("Total number of edges: {}".format(len(self.graph.edges())))
-        for i in self.graph.nodes:
-            print(i, self.graph.edges(i))
 
     def neo4j_report(self):
         """
