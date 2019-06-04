@@ -37,8 +37,7 @@ class Transformer(object):
         else:
             self.graph = nx.MultiDiGraph()
 
-
-        self.filters = [] # Type: List[Filter]
+        self.filters = []  # Type: List[Filter]
         self.graph_metadata = {}
         self.prefix_manager = PrefixManager()
 
@@ -50,7 +49,7 @@ class Transformer(object):
     def is_empty(self) -> bool:
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
-    def add_filter(self, f:Filter) -> None:
+    def add_filter(self, f: Filter) -> None:
         self.filters.append(f)
 
     def set_filter(self, target: str, value: SimpleValue) -> None:
@@ -61,11 +60,10 @@ class Transformer(object):
         with click.progressbar(self.graph.nodes(data=True)) as bar:
             for n, data in bar:
                 if n == 'Orphanet:98818':
-                    import pudb; pu.db
-                if 'category' not in data or data['category'] == ['named thing']:
-                    superclass = find_superclass(n, self.graph)
-                    if superclass is not None:
-                        data['category'] = [superclass]
+                    if 'category' not in data or data['category'] == ['named thing']:
+                        superclass = find_superclass(n, self.graph)
+                        if superclass is not None:
+                            data['category'] = [superclass]
         with click.progressbar(self.graph.edges(data=True)) as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
@@ -98,7 +96,6 @@ class Transformer(object):
 
         """
 
-
         graphs.insert(0, self.graph)
         self.graph = nx.compose_all(graphs, "mergedMultiDiGraph")
 
@@ -119,6 +116,7 @@ class Transformer(object):
             to pick from the list
 
         """
+
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
@@ -143,20 +141,20 @@ class Transformer(object):
                 # node does not contain new_property key; fall back to original node 'id'
                 mapping[node_id] = node_id
 
-        nx.set_node_attributes(self.graph, values = mapping, name = 'id')
+        nx.set_node_attributes(self.graph, values=mapping, name='id')
         nx.relabel_nodes(self.graph, mapping, copy=False)
 
         # update 'subject' of all outgoing edges
         updated_subject_values = {}
         for edge in self.graph.out_edges(keys=True):
             updated_subject_values[edge] = edge[0]
-        nx.set_edge_attributes(self.graph, values = updated_subject_values, name = 'subject')
+        nx.set_edge_attributes(self.graph, values=updated_subject_values, name='subject')
 
         # update 'object' of all incoming edges
         updated_object_values = {}
         for edge in self.graph.in_edges(keys=True):
             updated_object_values[edge] = edge[1]
-        nx.set_edge_attributes(self.graph, values = updated_object_values, name = 'object')
+        nx.set_edge_attributes(self.graph, values=updated_object_values, name='object')
 
     def remap_node_property(self, type, old_property, new_property):
         """
@@ -174,6 +172,7 @@ class Transformer(object):
             new property name from which the value is pulled from
 
         """
+
         mapping = {}
         for node_id in self.graph.nodes_iter():
             node = self.graph.node[node_id]
@@ -201,6 +200,7 @@ class Transformer(object):
             new property name from which the value is pulled from
 
         """
+
         mapping = {}
         for edge in self.graph.edges_iter(data=True, keys=True):
             edge_key = edge[0:3]
@@ -211,25 +211,25 @@ class Transformer(object):
                 mapping[edge_key] = edge_data[new_property]
             else:
                 mapping[edge_key] = edge_data[old_property]
-        nx.set_edge_attributes(self.graph, values = mapping, name = old_property)
+        nx.set_edge_attributes(self.graph, values=mapping, name = old_property)
 
     @staticmethod
-    def dump(G):
+    def dump(g):
         """
         Convert nx graph G as a JSON dump
         """
-        data = json_graph.node_link_data(G)
+        data = json_graph.node_link_data(g)
         return data
 
     @staticmethod
-    def dump_to_file(G, filename):
+    def dump_to_file(g, filename):
         """
         Convert nx graph G as a JSON dump and write to file
         """
-        FH = open(filename, "w")
-        json_data = Transformer.dump(G)
-        FH.write(json.dumps(json_data))
-        FH.close()
+        fh = open(filename, "w")
+        json_data = Transformer.dump(g)
+        fh.write(json.dumps(json_data))
+        fh.close()
         return json_data
 
     @staticmethod
@@ -237,19 +237,19 @@ class Transformer(object):
         """
         Create a nx graph with the given JSON data
         """
-        G = json_graph.node_link_graph(json_data)
-        return G
+        g = json_graph.node_link_graph(json_data)
+        return g
 
     @staticmethod
     def restore_from_file(filename):
         """
         Create a nx graph with the given JSON data and write to file
         """
-        FH = open(filename, "r")
-        data = FH.read()
-        G = Transformer.restore(json.loads(data))
-        return G
+        fh = open(filename, "r")
+        data = fh.read()
+        g = Transformer.restore(json.loads(data))
+        return g
 
     @staticmethod
     def current_time_in_millis():
-            return int(round(time.time() * 1000))
+        return int(round(time.time() * 1000))
