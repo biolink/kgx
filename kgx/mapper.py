@@ -1,10 +1,22 @@
 import networkx as nx
-import logging, click, bmt, pandas
+import logging, click, pandas
 
 from prefixcommons.curie_util import expand_uri
 from typing import Union, List, Dict
 
-bmt.load('https://biolink.github.io/biolink-model/biolink-model.yaml')
+toolkit = None
+
+def get_toolkit():
+    """
+    This method allows us to load the biolink model toolkit when it's needed,
+    and not whenever this file is imported.
+    """
+    global toolkit
+
+    if toolkit is None:
+        toolkit = Toolkit()
+
+    return toolkit
 
 
 def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> nx.MultiDiGraph:
@@ -295,8 +307,8 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
                 if len(edges) > l:
                     break
                 for b in v_categories:
-                    a_ancestors = bmt.ancestors(a)
-                    b_ancestors = bmt.ancestors(b)
+                    a_ancestors = get_toolkit().ancestors(a)
+                    b_ancestors = get_toolkit().ancestors(b)
                     if a not in b_ancestors and b not in a_ancestors:
                         edges.append((u, v))
                         break
@@ -331,7 +343,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             list_of_prefixes = []
             for category in categories:
                 try:
-                    list_of_prefixes.append(bmt.get_element(category).id_prefixes)
+                    list_of_prefixes.append(get_toolkit().get_element(category).id_prefixes)
                 except:
                     pass
 
