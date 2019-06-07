@@ -1,13 +1,9 @@
 import networkx as nx
-import json, time
-
+import json, time, click, logging
 from typing import Union, List, Dict
 from networkx.readwrite import json_graph
 
-from .prefix_manager import PrefixManager
-from .filter import Filter
-
-import click
+from kgx.filter import Filter
 
 from kgx.utils.ontology import find_superclass
 from kgx.mapper import clique_merge
@@ -16,75 +12,94 @@ SimpleValue = Union[List[str], str]
 
 class Transformer(object):
     """
-    Base class for performing a Transformation, this can be
+    Base class for performing a transformation.
 
-     - from a source to an in-memory property graph (networkx)
-     - from an in-memory property graph to a target format or database
-
+    This can be,
+     - from a source to an in-memory property graph (networkx.MultiDiGraph)
+     - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
     """
 
-    def __init__(self, source=None):
-        """
-        Create a new Transformer. This should be called directly on a subclass.
-
-        Optional arg: a Transformer
-        """
-
-        if isinstance(source, Transformer):
-            self.graph = source.graph
-        elif isinstance(source, nx.MultiDiGraph):
-            self.graph = source
+    def __init__(self, source_graph: nx.MultiDiGraph = None):
+        if source_graph:
+            self.graph = source_graph
         else:
             self.graph = nx.MultiDiGraph()
 
-
-        self.filters = [] # Type: List[Filter]
+        self.filters = {}
         self.graph_metadata = {}
-        self.prefix_manager = PrefixManager()
 
     def report(self) -> None:
-        g = self.graph
-        print('|Nodes|={}'.format(len(g.nodes())))
-        print('|Edges|={}'.format(len(g.edges())))
+        """
+        Print a summary report about self.graph
+        """
+        logging.info('Total nodes in {}: {}'.format(self.graph.name or 'graph', len(self.graph.nodes())))
+        logging.info('Total edges in {}: {}'.format(self.graph.name or 'graph', len(self.graph.edges())))
 
     def is_empty(self) -> bool:
+        """
+        Check whether self.graph is empty.
+
+        Returns
+        -------
+        bool
+            A boolean value asserting whether the graph is empty or not
+        """
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
-    def add_filter(self, f:Filter) -> None:
-        self.filters.append(f)
+    def set_filter(self, key: str, value: SimpleValue) -> None:
+        """
+        Set a filter, defined by a key and value pair.
+        These filters are used to reduce the search space.
 
-    def set_filter(self, target: str, value: SimpleValue) -> None:
-        self.filters.append(Filter(target, value))
+        Parameters
+        ----------
+        key: str
+            The key for a filter
+        value: Union[List[str], str]
+            The value for a filter. Can be either a string or a list
 
-    def categorize(self):
+        """
+        # TODO: Not using Filter class here. This has side effect for NeoTransformer
+        self.filters[key] = value
+
+    def categorize(self) -> None:
+        """
+        Checks for a node's category property and assigns a category from BioLink Model.
+        Checks for an edge's edge_label property and assigns a label from BioLink Model.
+        """
         memo = {}
         with click.progressbar(self.graph.nodes(data=True)) as bar:
             for n, data in bar:
-                if n == 'Orphanet:98818':
-                    import pudb; pu.db
                 if 'category' not in data or data['category'] == ['named thing']:
+                    # if there is no category property for a node
+                    # or category is simply 'named thing'
+                    # then find a BioLink Model relevant category
                     superclass = find_superclass(n, self.graph)
                     if superclass is not None:
                         data['category'] = [superclass]
+
         with click.progressbar(self.graph.edges(data=True)) as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
+                    # if there is no edge_label property for an edge
+                    # or if edge_label property is None
+                    # or if edge_label is simply 'related_to'
+                    # then find a BioLink Model relevant edge_label
                     relation = data.get('relation')
-
                     if relation not in memo:
                         memo[relation] = find_superclass(relation, self.graph)
 
                     if memo[relation] is not None:
                         data['edge_label'] = memo[relation]
 
-    def merge_cliques(self):
+    def merge_cliques(self) -> None:
         """
-        Merges all nodes that are connected by `same_as` edges, or are marked
-        as equivalent by a nodes `same_as` property.
+        Merges all nodes that are connected by `same_as` edges
+        or are marked as equivalent by a node's `same_as` property.
         """
         self.graph = clique_merge(self.graph)
 
-    def merge_graphs(self, graphs):
+    def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:
         """
         Merge all graphs with self.graph
 
@@ -96,71 +111,77 @@ class Transformer(object):
         - If two edges with the same 'key' exists in two graphs and they both have one or more conflicting
         values for a property, then the value is overwritten from left to right
 
+        Parameters
+        ----------
+        graphs: List[networkx.MultiDiGraph]
+            List of graphs that are to be merged with self.graph
         """
-
+        # TODO: Check behavior and consistency
 
         graphs.insert(0, self.graph)
-        self.graph = nx.compose_all(graphs, "mergedMultiDiGraph")
+        self.graph = nx.compose_all(graphs)
 
-    def remap_node_identifier(self, type, new_property, prefix=None):
+    def remap_node_identifier(self, type: str, new_property: str, prefix=None) -> None:
         """
-        Remap node `id` attribute with value from node `new_property` attribute
+        Remap a node's 'id' attribute with value from a node's 'new_property' attribute.
 
         Parameters
         ----------
         type: string
-            label referring to nodes whose id needs to be remapped
+            label referring to nodes whose 'id' needs to be remapped
 
         new_property: string
             property name from which the new value is pulled from
 
         prefix: string
-            signifies that the value for `new_property` is a list and the `prefix` indicates which value
+            signifies that the value for 'new_property' is a list and the 'prefix' indicates which value
             to pick from the list
 
         """
+        #TODO: test functionality and extend further
         mapping = {}
-        for node_id in self.graph.nodes_iter():
-            node = self.graph.node[node_id]
-            if type not in node['category']:
+        for nid, data in self.graph.nodes(data=True):
+            node_data = data.copy()
+            if type not in node_data['category']:
                 continue
-            if new_property in node:
+            if new_property in node_data:
                 if prefix:
-                    # node[new_property] contains a list of values
-                    new_property_values = node[new_property]
+                    # data[new_property] contains a list of values
+                    new_property_values = node_data[new_property]
                     for v in new_property_values:
                         if prefix in v:
                             # take the first occurring value that contains the given prefix
                             if 'HGNC:HGNC:' in v:
                                 # TODO: this is a temporary fix and must be removed later
                                 v = ':'.join(v.split(':')[1:])
-                            mapping[node_id] = v
+                            mapping[nid] = v
                             break
                 else:
-                    # node[new_property] contains a string value
-                    mapping[node_id] = node[new_property]
+                    # node_data[new_property] contains a string value
+                    mapping[nid] = node_data[new_property]
             else:
                 # node does not contain new_property key; fall back to original node 'id'
-                mapping[node_id] = node_id
+                mapping[nid] = nid
 
-        nx.set_node_attributes(self.graph, values = mapping, name = 'id')
+        # TODO: is there a better way to do this in networkx 2.x?
+        nx.set_node_attributes(self.graph, values=mapping, name='id')
         nx.relabel_nodes(self.graph, mapping, copy=False)
 
         # update 'subject' of all outgoing edges
         updated_subject_values = {}
         for edge in self.graph.out_edges(keys=True):
             updated_subject_values[edge] = edge[0]
-        nx.set_edge_attributes(self.graph, values = updated_subject_values, name = 'subject')
+        nx.set_edge_attributes(self.graph, values=updated_subject_values, name='subject')
 
         # update 'object' of all incoming edges
         updated_object_values = {}
         for edge in self.graph.in_edges(keys=True):
             updated_object_values[edge] = edge[1]
-        nx.set_edge_attributes(self.graph, values = updated_object_values, name = 'object')
+        nx.set_edge_attributes(self.graph, values=updated_object_values, name='object')
 
-    def remap_node_property(self, type, old_property, new_property):
+    def remap_node_property(self, type: str, old_property: str, new_property: str) -> None:
         """
-        Remap the value in node `old_property` attribute with value from node `new_property` attribute
+        Remap the value in node 'old_property' attribute with value from node 'new_property' attribute.
 
         Parameters
         ----------
@@ -174,20 +195,21 @@ class Transformer(object):
             new property name from which the value is pulled from
 
         """
+        # TODO: is there a better way to do this in networkx 2.x?
         mapping = {}
-        for node_id in self.graph.nodes_iter():
-            node = self.graph.node[node_id]
-            if type not in node['category']:
+        for nid, data in self.graph.nodes(data=True):
+            node_data = data.copy()
+            if type not in node_data['category']:
                 continue
-            if new_property in node:
-                mapping[node_id] = node[new_property]
-            elif old_property in node:
-                mapping[node_id] = node[old_property]
-        nx.set_node_attributes(self.graph, values = mapping, name = old_property)
+            if new_property in node_data:
+                mapping[nid] = node_data[new_property]
+            elif old_property in node_data:
+                mapping[nid] = node_data[old_property]
+        nx.set_node_attributes(self.graph, values=mapping, name=old_property)
 
-    def remap_edge_property(self, type, old_property, new_property):
+    def remap_edge_property(self, type: str, old_property: str, new_property: str) -> None:
         """
-        Remap the value in edge `old_property` attribute with value from edge `new_property` attribute
+        Remap the value in edge 'old_property' attribute with value from edge 'new_property' attribute.
 
         Parameters
         ----------
@@ -201,55 +223,96 @@ class Transformer(object):
             new property name from which the value is pulled from
 
         """
+        # TODO: is there a better way to do this in networkx 2.x?
         mapping = {}
-        for edge in self.graph.edges_iter(data=True, keys=True):
+        for edge, data in self.graph.edges(data=True, keys=True):
             edge_key = edge[0:3]
-            edge_data = edge[3]
+            edge_data = data.copy()
             if type not in edge_data['edge_label']:
                 continue
             if new_property in edge_data:
                 mapping[edge_key] = edge_data[new_property]
             else:
                 mapping[edge_key] = edge_data[old_property]
-        nx.set_edge_attributes(self.graph, values = mapping, name = old_property)
+        nx.set_edge_attributes(self.graph, values=mapping, name=old_property)
 
     @staticmethod
-    def dump(G):
+    def dump(g: nx.MultiDiGraph) -> Dict:
         """
-        Convert nx graph G as a JSON dump
+        Convert networkx.MultiDiGraph as a dictionary.
+
+        Parameters
+        ----------
+        g: networkx.MultiDiGraph
+            Graph to convert as a dictionary
+
+        Returns
+        -------
+        dict
+            A dictionary
         """
-        data = json_graph.node_link_data(G)
+        data = json_graph.node_link_data(g)
         return data
 
     @staticmethod
-    def dump_to_file(G, filename):
+    def dump_to_file(g: nx.MultiDiGraph, filename: str) -> None:
         """
-        Convert nx graph G as a JSON dump and write to file
+        Serialize networkx.MultiDiGraph as JSON and write to file.
+
+        Parameters
+        ----------
+        g: networkx.MultiDiGraph
+            Graph to convert as a dictionary
+        filename: str
+            File to write the JSON
+
         """
         FH = open(filename, "w")
-        json_data = Transformer.dump(G)
+        json_data = Transformer.dump(g)
         FH.write(json.dumps(json_data))
         FH.close()
-        return json_data
 
     @staticmethod
-    def restore(json_data):
+    def restore(data: Dict) -> nx.MultiDiGraph:
         """
-        Create a nx graph with the given JSON data
+        Deserialize a networkx.MultiDiGraph from a dictionary.
+
+        Parameters
+        ----------
+        data: dict
+            Dictionary containing nodes and edges
+
+        Returns
+        -------
+        networkx.MultiDiGraph
+            A networkx.MultiDiGraph representation
+
         """
-        G = json_graph.node_link_graph(json_data)
-        return G
+        g = json_graph.node_link_graph(data)
+        return g
 
     @staticmethod
-    def restore_from_file(filename):
+    def restore_from_file(filename) -> nx.MultiDiGraph:
         """
-        Create a nx graph with the given JSON data and write to file
+        Deserialize a networkx.MultiDiGraph from a JSON file.
+
+        Parameters
+        ----------
+        filename: str
+            File to read from
+
+        Returns
+        -------
+        networkx.MultiDiGraph
+            A networkx.MultiDiGraph representation
+
         """
         FH = open(filename, "r")
         data = FH.read()
-        G = Transformer.restore(json.loads(data))
-        return G
+        g = Transformer.restore(json.loads(data))
+        return g
 
     @staticmethod
     def current_time_in_millis():
+        # TODO: move to Utils (and others)
             return int(round(time.time() * 1000))
