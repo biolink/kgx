@@ -1,8 +1,10 @@
 export PYTHONPATH=.
 CONTAINER_NAME=kgx_neo_test
 
-#NEO4J_ADDRESS=bolt://localhost:7687
-NEO4J_ADDRESS=http://localhost:7474
+NEO4J_HOST=192.168.99.100
+#NEO4J_HOST=localhost
+#NEO4J_ADDRESS=bolt://$(NEO4J_HOST):7687
+NEO4J_ADDRESS=http://$(NEO4J_HOST):7474
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=demo
 
@@ -44,10 +46,10 @@ run_neo_tests: target/combined.json
 	@echo "Running Neo4j tests"
 
 	@echo "\nneo-1. Uploading xln.csv and xle.csv to a local neo4j instance"
-	-python examples/scripts/load_csv_to_neo4j.py tests/resources/x1n.csv tests/resources/x1e.csv
+	-python examples/scripts/load_csv_to_neo4j.py tests/resources/x1n.csv tests/resources/x1e.csv --host $(NEO4J_HOST)
 
 	@echo "\nneo-2. Reading csv data back from the local neo4j instance"
-	-python examples/scripts/read_from_neo4j.py
+	-python examples/scripts/read_from_neo4j.py --host $(NEO4J_HOST)
 
 	@echo "\nneo-3. Uploading combined.json to a local neo4j instance"
 	-kgx neo4j-upload --address $(NEO4J_ADDRESS) --username $(NEO4J_USER) --password $(NEO4J_PASSWORD) target/combined.json

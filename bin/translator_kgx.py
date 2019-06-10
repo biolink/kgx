@@ -372,12 +372,10 @@ def neo4j_download(config, page_size, stop_after, subject_label, object_label, e
     edge_type = ':`{}`'.format(edge_type) if isinstance(edge_type, str) else ''
 
     match = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_type, object_label)
-
-    results = driver.query('{} return count(*)'.format(match))
-
+    count = driver.query('{} return count(*)'.format(match))
     click.echo('Using cyper query: {} return n, e, m'.format(match))
 
-    for a, in results:
+    for a, in count:
         size = a
         break
 
