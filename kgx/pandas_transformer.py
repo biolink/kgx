@@ -1,70 +1,265 @@
 import pandas as pd
 import numpy as np
-import logging
-import os
-import tarfile
+import logging, tarfile
 from tempfile import TemporaryFile
-
 from kgx.utils import make_path
+from kgx.transformer import Transformer
 
-from .transformer import Transformer
-
-from typing import Dict, List, Optional
+from typing import List, Dict
 
 LIST_DELIMITER = '|'
 
 _column_types = {
-    'publications' : list,
-    'qualifiers' : list,
-    'category' : list,
-    'synonym' : list,
-    'provided_by' : list,
-    'same_as' : list,
-    'negated' : bool,
+    'publications': list,
+    'qualifiers': list,
+    'category': list,
+    'synonym': list,
+    'provided_by': list,
+    'same_as': list,
+    'negated': bool,
 }
+
+_extension_types = {
+    'csv': ',',
+    'tsv': '\t',
+    'txt': '|'
+}
+
+_archive_mode = {
+    'tar': 'r',
+    'tar.gz': 'r:gz',
+    'tar.bz2': 'r:bz2'
+}
+
+_archive_format = {
+    'w': 'tar',
+    'w:gz': 'tar.gz',
+    'w:bz2': 'tar.bz2'
+}
+
 
 class PandasTransformer(Transformer):
     """
-    Implements Transformation from a Pandas DataFrame to a NetworkX graph
+    Transformer that parses a pandas.DataFrame, and loads nodes and edges into a networkx.MultiDiGraph
     """
-    _extention_types = {
-        'csv' : ',',
-        'tsv' : '\t',
-        'txt' : '|'
-    }
 
-    def parse(self, filename: str, input_format='csv', **kwargs):
+    # TODO: Support parsing and export of neo4j-import tool compatible CSVs with appropriate headers
+
+    def parse(self, filename: str, input_format: str = 'csv', **kwargs) -> None:
         """
-        Parse a CSV/TSV
+        Parse a CSV/TSV (or plain text) file.
 
-        May be either a node file or an edge file
+        The file can represent either nodes (nodes.csv) or edges (edges.csv) or both (data.tar),
+        where the tar archive contains nodes.csv and edges.csv
+
+        The file can also be data.tar.gz or data.tar.bz2
+
+        Parameters
+        ----------
+        filename: str
+            File to read from
+        input_format: str
+            The input file format ('csv', by default)
+        kwargs: Dict
+            Any additional arguments
+
         """
         if 'delimiter' not in kwargs:
-            kwargs['delimiter'] = self._extention_types[input_format]
+            # infer delimiter from file format
+            kwargs['delimiter'] = _extension_types[input_format]
+
         if filename.endswith('.tar'):
-            with tarfile.open(filename) as tar:
+            mode = _archive_mode['tar']
+        elif filename.endswith('.tar.gz'):
+            mode = _archive_mode['tar.gz']
+        elif filename.endswith('.tar.bz2'):
+            mode = _archive_mode['tar.bz2']
+        else:
+            # file is not an archive
+            mode = None
+
+        if mode:
+            with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
                     df = pd.read_csv(f, comment='#', **kwargs) # type: pd.DataFrame
-                    if member.name == 'nodes.csv':
+                    if member.name == "nodes.{}".format(input_format):
                         self.load_nodes(df)
-                    elif member.name == 'edges.csv':
+                    elif member.name == "edges.{}".format(input_format):
                         self.load_edges(df)
                     else:
-                        raise Exception('Tar file contains unrecognized member {}'.format(member.name))
+                        raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
             df = pd.read_csv(filename, comment='#', **kwargs) # type: pd.DataFrame
             self.load(df)
 
-    def load(self, df: pd.DataFrame):
+    def load(self, df: pd.DataFrame) -> None:
+        """
+        Load a panda.DataFrame, containing either nodes or edges, into a networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Dataframe containing records that represent nodes or edges
+
+        """
         if 'subject' in df:
             self.load_edges(df)
         else:
             self.load_nodes(df)
 
-    def build_kwargs(self, data:dict) -> dict:
+    def load_nodes(self, df: pd.DataFrame) -> None:
+        """
+        Load nodes from pandas.DataFrame into a networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Dataframe containing records that represent nodes
+
+        """
+        for obj in df.to_dict('record'):
+            self.load_node(obj)
+
+    def load_node(self, node: Dict) -> None:
+        """
+        Load a node into a networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        node : dict
+            A node
+
+        """
+        kwargs = PandasTransformer._build_kwargs(node.copy())
+        n = kwargs['id']
+        self.graph.add_node(n, **kwargs)
+
+    def load_edges(self, df: pd.DataFrame) -> None:
+        """
+        Load edges from pandas.DataFrame into a networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Dataframe containing records that represent edges
+
+        """
+        for obj in df.to_dict('record'):
+            self.load_edge(obj)
+
+    def load_edge(self, edge: Dict) -> None:
+        """
+        Load an edge into a networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        edge : dict
+            An edge
+
+        """
+        kwargs = PandasTransformer._build_kwargs(edge.copy())
+        s = kwargs['subject']
+        o = kwargs['object']
+        self.graph.add_edge(s, o, **kwargs)
+
+    def export_nodes(self) -> pd.DataFrame:
+        """
+        Export nodes from networkx.MultiDiGraph as a pandas.DataFrame
+
+        Returns
+        -------
+        pandas.DataFrame
+            A Dataframe where each record corresponds to a node from the networkx.MultiDiGraph
+
+        """
+        rows = []
+        for n, data in self.graph.nodes(data=True):
+            row = PandasTransformer._build_export_row(data.copy())
+            row['id'] = n
+            rows.append(row)
+        df = pd.DataFrame.from_records(rows)
+        return df
+
+    def export_edges(self) -> pd.DataFrame:
+        """
+        Export edges from networkx.MultiDiGraph as a pandas.DataFrame
+
+        Returns
+        -------
+        pandas.DataFrame
+            A Dataframe where each record corresponds to an edge from the networkx.MultiDiGraph
+
+        """
+        rows = []
+        for s, o, data in self.graph.edges(data=True):
+            row = PandasTransformer._build_export_row(data.copy())
+            row['subject'] = s
+            row['object'] = o
+            rows.append(row)
+        df = pd.DataFrame.from_records(rows)
+        cols = df.columns.tolist()
+        cols = PandasTransformer._order_cols(cols)
+        df = df[cols]
+        return df
+
+    def save(self, filename: str, extension: str = 'csv', mode: str = 'w', **kwargs) -> str:
+        """
+        Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
+        and add them to a .tar archive.
+
+        Parameters
+        ----------
+        filename: str
+            Name of tar archive file to create
+        extension: str
+            The output file format (csv, by default)
+        mode: str
+            Form of compression to use ('w', by default, signifies no compression)
+        kwargs: dict
+            Any additional arguments
+
+        """
+        if extension not in _extension_types:
+            raise Exception('Unsupported extension: ' + extension)
+
+        archive_name = "{}.{}".format(filename, _archive_format[mode])
+        delimiter = _extension_types[extension]
+
+        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False)
+        edges_content = self.export_edges().to_csv(sep=delimiter, index=False)
+
+        nodes_file_name = 'nodes.' + extension
+        edges_file_name = 'edges.' + extension
+
+        make_path(archive_name)
+        with tarfile.open(name=archive_name, mode=mode) as tar:
+            PandasTransformer._add_to_tar(tar, nodes_file_name, nodes_content)
+            PandasTransformer._add_to_tar(tar, edges_file_name, edges_content)
+
+        return filename
+
+    @staticmethod
+    def _build_kwargs(data: Dict) -> Dict:
+        """
+        Sanitize key-value pairs in dictionary.
+
+        Parameters
+        ----------
+        data: dict
+            A dictionary containing key-value pairs
+
+        Returns
+        -------
+        dict
+            A dictionary containing processed key-value pairs
+
+        """
+        # remove numpy.nan
         data = {k : v for k, v in data.items() if v is not np.nan}
+
         for key, value in data.items():
+            # process value as a list if key is a multi-valued property
             if key in _column_types:
                 if _column_types[key] == list:
                     if isinstance(value, (list, set, tuple)):
@@ -82,29 +277,22 @@ class PandasTransformer(Transformer):
                     data[key] = str(value)
         return data
 
-    def load_nodes(self, df:pd.DataFrame):
-        for obj in df.to_dict('record'):
-            self.load_node(obj)
-
-    def load_node(self, obj:Dict):
-        kwargs = self.build_kwargs(obj.copy())
-        n = kwargs['id']
-        self.graph.add_node(n, **kwargs)
-
-    def load_edges(self, df: pd.DataFrame):
-        for obj in df.to_dict('record'):
-            self.load_edge(obj)
-
-    def load_edge(self, obj: Dict):
-        kwargs = self.build_kwargs(obj.copy())
-        s = kwargs['subject']
-        o = kwargs['object']
-        self.graph.add_edge(s, o, **kwargs)
-
-    def build_export_row(self, data:dict) -> dict:
+    @staticmethod
+    def _build_export_row(data: Dict) -> Dict:
         """
         Casts all values to primitive types like str or bool according to the
         specified type in `_column_types`. Lists become pipe delimited strings.
+
+        Parameters
+        ----------
+        data: dict
+            A dictionary containing key-value pairs
+
+        Returns
+        -------
+        dict
+            A dictionary containing processed key-value pairs
+
         """
         data = {k : v for k, v in data.items() if v is not np.nan}
         for key, value in data.items():
@@ -123,30 +311,22 @@ class PandasTransformer(Transformer):
                     data[key] = str(value)
         return data
 
+    @staticmethod
+    def _order_cols(cols: List[str]) -> List[str]:
+        """
+        Arrange columns in a defined order.
 
-    def export_nodes(self, encode_header_types=False) -> pd.DataFrame:
-        rows = []
-        for n, data in self.graph.nodes(data=True):
-            row = self.build_export_row(data.copy())
-            row['id'] = n
-            rows.append(row)
-        df = pd.DataFrame.from_dict(rows)
-        return df
+        Parameters
+        ----------
+        cols: list
+            A list with elements in any order
 
-    def export_edges(self, encode_header_types=False) -> pd.DataFrame:
-        rows = []
-        for s, o, data in self.graph.edges(data=True):
-            row = self.build_export_row(data.copy())
-            row['subject'] = s
-            row['object'] = o
-            rows.append(row)
-        df = pd.DataFrame.from_dict(rows)
-        cols = df.columns.tolist()
-        cols = self.order_cols(cols)
-        df = df[cols]
-        return df
+        Returns
+        -------
+        list
+            A list with elements in a particular order
 
-    def order_cols(self, cols: List[str]):
+        """
         ORDER = ['id', 'subject', 'predicate', 'object', 'relation']
         cols2 = []
         for c in ORDER:
@@ -155,49 +335,26 @@ class PandasTransformer(Transformer):
                 cols.remove(c)
         return cols2 + cols
 
-    def save(self, filename: str, extention='csv', zipmode='w', **kwargs):
+    @staticmethod
+    def _add_to_tar(tar: tarfile.TarFile, filename: str, filecontent: pd.DataFrame) -> None:
         """
-        Write two CSV/TSV files representing the node set and edge set of a
-        graph, and zip them in a .tar file.
+        Write file contents to a given filename and add the file
+        to a specified tar archive.
+
+        Parameters
+        ----------
+        tar: tarfile.TarFile
+            Tar archive handle
+        filename: str
+            Name of file to add to the archive
+        filecontent: pandas.DataFrame
+            DataFrame containing data to write to filename
+
         """
-        if extention not in self._extention_types:
-            raise Exception('Unsupported extention: ' + extention)
-
-        if not filename.endswith('.tar'):
-            filename += '.tar'
-
-        delimiter = self._extention_types[extention]
-
-        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False)
-        edges_content = self.export_edges().to_csv(sep=delimiter, index=False)
-
-        nodes_file_name = 'nodes.' + extention
-        edges_file_name = 'edges.' + extention
-
-        def add_to_tar(tar, filename, filecontent):
-            content = filecontent.encode()
-            with TemporaryFile() as tmp:
-                tmp.write(content)
-                tmp.seek(0)
-                info = tarfile.TarInfo(name=filename)
-                info.size = len(content)
-                tar.addfile(tarinfo=info, fileobj=tmp)
-
-        make_path(filename)
-        with tarfile.open(name=filename, mode=zipmode) as tar:
-            add_to_tar(tar, nodes_file_name, nodes_content)
-            add_to_tar(tar, edges_file_name, edges_content)
-
-        return filename
-
-    def save_csv(self, filename: str, type='n', **args):
-        """
-        Write a CSV/TSV
-
-        May be either a node file or an edge file
-        """
-        if type == 'n':
-            df = self.export_nodes()
-        else:
-            df = self.export_edges()
-        df.to_csv(filename, index=False)
+        content = filecontent.encode()
+        with TemporaryFile() as tmp:
+            tmp.write(content)
+            tmp.seek(0)
+            info = tarfile.TarInfo(name=filename)
+            info.size = len(content)
+            tar.addfile(tarinfo=info, fileobj=tmp)

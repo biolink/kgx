@@ -1,0 +1,10 @@
+predicate,pmids,negated,type,subject,object,n_pmids,is_defined_by,relation,provided_by
+INTERACTS_WITH,11278902,False,interacts_with,UMLS:C0061133,UMLS:C0733413,1,semmeddb,semmeddb:interacts_with,semmeddb_sulab
+AFFECTS,28678789,False,affects,UMLS:C1414313,UMLS:C1523610,1,semmeddb,semmeddb:affects,semmeddb_sulab
+COEXISTS_WITH,23490383,False,coexists_with,UMLS:C0001899,UMLS:C0312636,1,semmeddb,semmeddb:coexists_with,semmeddb_sulab
+PREDISPOSES,8550986,False,predisposes,UMLS:C0312636,UMLS:C0042769,1,semmeddb,semmeddb:predisposes,semmeddb_sulab
+COEXISTS_WITH,9151986,False,coexists_with,UMLS:C0018966,UMLS:C0539817,1,semmeddb,semmeddb:coexists_with,semmeddb_sulab
+PART_OF,9151986;9151986,False,part_of,UMLS:C0018966,UMLS:C0539817,2,semmeddb,semmeddb:part_of,semmeddb_sulab
+CAUSES,26523351,False,causes,UMLS:C0349506,UMLS:C0406240,1,semmeddb,semmeddb:causes,semmeddb_sulab
+ISA,26523351,False,subclass_of,UMLS:C0406240,UMLS:C0011615,1,semmeddb,semmeddb:subclass_of,semmeddb_sulab
+ASSOCIATED_WITH,26634009,False,gene_associated_with_condition,UMLS:C1424750,UMLS:C0006826,1,semmeddb,semmeddb:gene_associated_with_condition,semmeddb_sulab

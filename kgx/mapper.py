@@ -2,9 +2,7 @@ import networkx as nx
 import logging, click, pandas
 
 from prefixcommons.curie_util import expand_uri
-from collections import defaultdict
-from typing import Union, List
-from bmt import Toolkit
+from typing import Union, List, Dict
 
 toolkit = None
 
@@ -20,27 +18,67 @@ def get_toolkit():
 
     return toolkit
 
-def map_graph(G, mapping, preserve=True):
+
+def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> nx.MultiDiGraph:
+    """
+    Remap node identifiers in a networkx.MultiDiGraph based on a provided mapping.
+
+    For nodes, the old identifier is saved as `source_curie` attribute.
+    In case of edges,
+    - if the node is the `subject` then the old identifier is saved as `source_subject`
+    - if the node is the `object` then the old identifier is saved as `source_object`
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        A graph
+    mapping: dict
+        Dictionary containing node identifier mappings
+    preserve: bool
+        Preserve the old identifier before remapping.
+
+    Returns
+    -------
+    networkx.MultiDiGraph
+        The graph with its nodes remapped
+
+    """
     if preserve:
-        for nid in G.nodes():
+        for nid in graph.nodes():
             if nid in mapping:
                 # add_node will append attributes
-                G.add_node(nid, source_curie=nid)
-        for oid,sid in G.edges():
+                graph.add_node(nid, source_curie=nid)
+        for oid, sid in graph.edges():
             if oid in mapping:
-                for ex in G[oid][sid]:
-                    G[oid][sid][ex].update(source_object=oid)
+                for ex in graph[oid][sid]:
+                    graph[oid][sid][ex].update(source_object=oid)
             if sid in mapping:
-                for ex in G[oid][sid]:
-                    G[oid][sid][ex].update(source_subject=oid)
-    nx.relabel_nodes(G, mapping, copy=False)
+                for ex in graph[oid][sid]:
+                    graph[oid][sid][ex].update(source_subject=oid)
+    nx.relabel_nodes(graph, mapping, copy=False)
+    return graph
 
-def graceful_update(a:dict, b:dict):
+
+def graceful_update(a: Dict, b: Dict) -> Dict:
     """
-    Updates list values appropriately. This method will not change the type of
-    a value that already exists in a. If a value in a is a list, it will have
-    the value of b either appened or concatenated depending on whether the value
-    of b is also a list.
+    Update keys in dictionary `a` with new values from dictionary `b`.
+
+    This method will not change the `type` of a value that already exists
+    in dictionary `a`. If a value in dictionary `a` is a list, then the
+    new values from dictionary `b` will be appended to the existing list.
+
+    Parameters
+    ----------
+    a: dict
+        Dictionary to update
+    b: dict
+        Dictionary with keys to update along with new values
+
+    Returns
+    -------
+    dict
+        The updated dictionary
+
     """
     for key, value in b.items():
         if key in a:
@@ -57,9 +95,10 @@ def graceful_update(a:dict, b:dict):
                 pass
         else:
             a[key] = value
+    return a
 
 
-def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
+def relabel_nodes(graph: nx.MultiDiGraph, mapping: Dict) -> nx.MultiDiGraph:
     """
     Performs the relabelling of nodes, and ensures that node attributes are
     copied over appropriately.
@@ -83,11 +122,12 @@ def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
         a {'synonym': ['A']}
         b {'synonym': ['B', 'C']}
         d {'synonym': ['D']}
-    """
-    print('relabelling nodes...')
-    g = nx.relabel_nodes(graph, mapping, copy=True)
 
-    with click.progressbar(graph.nodes(), label='merging node attributes') as bar:
+    """
+    logging.info("Relabeling {} nodes".format(len(mapping)))
+    g = nx.relabel_nodes(graph, mapping, copy=True)
+    logging.info("Merging node attributes")
+    with click.progressbar(graph.nodes(), label='Progress') as bar:
         for n in bar:
             if n in mapping:
                 graceful_update(g.node[mapping[n]], graph.node[n])
@@ -95,26 +135,68 @@ def relabel_nodes(graph:nx.Graph, mapping:dict) -> nx.Graph:
                 graceful_update(g.node[n], graph.node[n])
             else:
                 pass
-
     return g
 
-def listify(o:object) -> Union[list, set, tuple]:
+
+def listify(o: object) -> Union[list, set, tuple]:
+    """
+    Enclose a given object in a list.
+    If the object itself is a list, set or tuple then it returns the
+    object unchanged.
+
+    Parameters
+    ----------
+    o: object
+        Any valid object
+
+    Returns
+    -------
+    Union[list, set, tuple]
+        A list or set or tuple
+
+    """
     if isinstance(o, (list, set, tuple)):
         return o
     else:
         return [o]
 
-def get_prefix(curie:str, default=None) -> str:
+
+def get_prefix(curie: str, default: str = None) -> str:
+    """
+    Get prefix for a given CURIE.
+    Returns `default` if no prefix is found.
+
+    Parameters
+    ----------
+    curie: str
+        A CURIE
+    default: str
+        Default value to return, if no prefix found
+
+    Returns
+    -------
+    str
+        The prefix of a given CURIE
+
+    """
+    prefix = None
     if ':' in curie:
         prefix, _ = curie.rsplit(':', 1)
-        return prefix
     else:
-        return default
+        prefix = default
+    return prefix
 
-def build_sort_key(list_of_prefixes:List[List[str]]):
+
+def build_sort_key(list_of_prefixes: List[List[str]]):
     """
     For a list of lists of prefixes, gets the lowest
     index of a matching prefix.
+
+    Parameters
+    ----------
+    list_of_prefixes: list
+        A list of lists of prefixes
+
     """
     def key(n):
         k = len(list_of_prefixes) + 1
