@@ -24,6 +24,7 @@ class RdfGraphMixin(object):
     OBO = Namespace('http://purl.obolibrary.org/obo/')
     OBAN = Namespace(biolink_prefix_map['OBAN'])
     PMID = Namespace(biolink_prefix_map['PMID'])
+    # TODO: double check: is this the correct prefix change? (biolink --> biolinkml)
     BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
     DEFAULT_EDGE_LABEL = 'related_to'
 
