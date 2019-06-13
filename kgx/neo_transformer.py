@@ -208,9 +208,7 @@ class NeoTransformer(Transformer):
         return s.strip()
 
     def build_query_kwargs(self):
-        properties = defaultdict(dict)
         labels = defaultdict(list)
-
         for f in self.filters:
             filter_type = f.filter_type
             if filter_type is FilterType.LABEL:
@@ -221,7 +219,6 @@ class NeoTransformer(Transformer):
                 assert False
 
         kwargs = {k: '' for k in Filter.targets()}
-
         for arg, value in labels.items():
             kwargs[arg] = self.build_label(value)
 
@@ -284,7 +281,7 @@ class NeoTransformer(Transformer):
         query = self.clean_whitespace(query)
         logging.debug(query)
 
-        # Filter out all the associated metadata to ensure the results are clean
+        # Filter out all the associated metadata from the HTTP Driver to ensure the results are clean
         nodeResults = self.http_driver.query(query, returns=(Node))
         nodes = [node for node in nodeResults]
         return nodes

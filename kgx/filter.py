@@ -18,8 +18,9 @@ class FilterLocation(Enum):
 
 class FilterType(Enum):
     LABEL='label'
-    CATEGORY='category'
-    PROPERTY='property'
+    # These are DEPRECATED for issue #111 in NCATS-Tangerine/kgx
+    # CATEGORY='category'
+    # PROPERTY='property'
 
     @staticmethod
     def values():
@@ -37,8 +38,9 @@ class Filter(object):
         self.filter_type = FilterType(filter_type)
         self.value = value
 
-        if self.filter_type is FilterType.PROPERTY:
-            assert isinstance(value, tuple) and len(value) == 2, 'Property filter values must be a tuple of length 2'
+        # DEPRECATED: issue-111-filters
+        # if self.filter_type is FilterType.PROPERTY:
+        #    assert isinstance(value, tuple) and len(value) == 2, 'Property filter values must be a tuple of length 2'
 
     def __str__(self):
         """
@@ -65,7 +67,8 @@ class Filter(object):
         combined with the "category" location.
         """
         assert not (filter_type is FilterType.LABEL and filter_local is not FilterLocation.EDGE)
-        assert not (filter_local is FilterLocation.EDGE and filter_type is FilterType.CATEGORY)
+        # DEPRECATED: issue-111-filters
+        # assert not (filter_local is FilterLocation.EDGE and filter_type is FilterType.CATEGORY)
 
         return Filter('{}_{}'.format(filter_local.value, filter_type.value), value)
 
@@ -84,5 +87,6 @@ class Filter(object):
 
 if __name__ == '__main__':
     print(Filter('subject_label', 'gene'))
-    print(Filter.build(FilterLocation.EDGE, FilterType.PROPERTY, ('property_name', 'property_value')))
+    # DEPRECATED: issue-111-filters
+    # print(Filter.build(FilterLocation.EDGE, FilterType.PROPERTY, ('property_name', 'property_value')))
     print(Filter.targets())
