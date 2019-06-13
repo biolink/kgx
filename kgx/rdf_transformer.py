@@ -17,7 +17,7 @@ biolink_prefix_map = read_remote_jsonld_context('https://raw.githubusercontent.c
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 OBAN = Namespace(biolink_prefix_map['OBAN'])
 PMID = Namespace(biolink_prefix_map['PMID'])
-BIOLINK = Namespace(biolink_prefix_map['biolink'])
+BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
 DEFAULT_EDGE_LABEL = 'related_to'
 
 
