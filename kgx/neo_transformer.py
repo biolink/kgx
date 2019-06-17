@@ -1,7 +1,13 @@
 import pandas as pd
-import networkx as nx
-import logging, yaml, json
-import itertools, uuid, click
+
+import logging
+import yaml
+import json
+
+import itertools
+import uuid
+import click
+
 from .transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
 
@@ -11,6 +17,7 @@ from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 
 neo4j_log = logging.getLogger("neo4j.bolt")
 neo4j_log.setLevel(logging.WARNING)
+
 
 class NeoTransformer(Transformer):
     """
@@ -64,6 +71,7 @@ class NeoTransformer(Transformer):
 
         active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
         # load_nodes already loads the nodes that belong to the given edges
+        # TODO: are these edges being filtered? are their nodes being filtered?
         if active_node_filters:
             for page in self.get_pages(self.get_nodes, start, end):
                 time_start = self.current_time_in_millis()
@@ -189,8 +197,8 @@ class NeoTransformer(Transformer):
 
     def clean_whitespace(self, s:str) -> str:
         replace = {
-            '  ' : ' ',
-            '\n' : ''
+            '  ': ' ',
+            '\n': ''
         }
 
         while any(k in s for k in replace.keys()):
@@ -205,23 +213,14 @@ class NeoTransformer(Transformer):
 
         for f in self.filters:
             filter_type = f.filter_type
-
-            if filter_type is FilterType.PROPERTY:
-                arg = f.target
-                property_name, property_value = f.value
-                properties[arg][property_name] = property_value
-
-            elif filter_type is FilterType.LABEL or filter_type is FilterType.CATEGORY:
+            if filter_type is FilterType.LABEL:
                 arg = f.target
                 labels[arg].append(f.value)
-
             else:
+                # TODO: Is this error too harsh?
                 assert False
 
         kwargs = {k: '' for k in Filter.targets()}
-
-        for arg, value in properties.items():
-            kwargs[arg] = self.build_properties(value)
 
         for arg, value in labels.items():
             kwargs[arg] = self.build_label(value)
@@ -330,6 +329,7 @@ class NeoTransformer(Transformer):
 
         return []
 
+    # TODO: /nneo-5 test from Makefile fails here
     def save_node(self, obj):
         """
         Load a node into neo4j
@@ -344,7 +344,7 @@ class NeoTransformer(Transformer):
             logging.warning("node does not have 'category' property. Using 'Node' as default")
             label = 'Node'
         else:
-            label = obj.pop('category')
+            label = obj.pop('category')[0]
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
         query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
@@ -445,7 +445,8 @@ class NeoTransformer(Transformer):
         q = self.clean_whitespace(q)
 
         # TODO Is there a reason to pass hydration into the driver?
-        self.http_driver.query(q, params={"subject_id": subject_id, "object_id": object_id}, **obj)
+        params = dict(list(obj.items()) + [("subject_id", subject_id), ("object_id", object_id)])
+        self.http_driver.query(q, params=params)
 
     def save_from_csv(self, nodes_filename, edges_filename):
         """
@@ -519,7 +520,7 @@ class NeoTransformer(Transformer):
             if 'id' not in node_attributes:
                 node_attributes['id'] = node_id
             self.save_node(node_attributes)
-        for n, nbrs in self.graph.adjacency_iter():
+        for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
                     self.save_edge(adjitem)
@@ -669,17 +670,17 @@ class NeoTransformer(Transformer):
         """
         Write edges as JSON (used internally)
         """
-        FH = open(filename, "w")
+        fh = open(filename, "w")
         edges = []
         for edge in self.graph.edges_iter(data=True, keys=True):
             edges.append(edge[3])
 
-        FH.write(json.dumps(edges))
-        FH.close()
+        fh.write(json.dumps(edges))
+        fh.close()
 
     @staticmethod
     def parse_properties(properties, delim = '|'):
-        propertyList = []
+        property_list = []
         for key in properties:
             if key in ['subject', 'predicate', 'object']:
                 continue
@@ -689,8 +690,8 @@ class NeoTransformer(Transformer):
                 pair = "{}: \"{}\"".format(key, str(values))
             else:
                 pair = "{}: {}".format(key, str(values))
-            propertyList.append(pair)
-        return ','.join(propertyList)
+            property_list.append(pair)
+        return ','.join(property_list)
 
     @staticmethod
     def populate_missing_properties(objs, properties):
@@ -698,6 +699,7 @@ class NeoTransformer(Transformer):
             missing_properties = set(properties) - set(obj.keys())
             for property in missing_properties:
                 obj[property] = ''
+
 
 class MonarchNeoTransformer(NeoTransformer):
     """
@@ -712,3 +714,5 @@ class MonarchNeoTransformer(NeoTransformer):
      - rdf:label to name
      - neo4j label to category
     """
+    pass
+

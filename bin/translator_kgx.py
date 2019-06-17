@@ -372,10 +372,12 @@ def neo4j_download(config, page_size, stop_after, subject_label, object_label, e
     edge_type = ':`{}`'.format(edge_type) if isinstance(edge_type, str) else ''
 
     match = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_type, object_label)
-    count = driver.query('{} return count(*)'.format(match))
+
+    results = driver.query('{} return count(*)'.format(match))
+
     click.echo('Using cyper query: {} return n, e, m'.format(match))
 
-    for a, in count:
+    for a, in results:
         size = a
         break
 
@@ -658,7 +660,7 @@ def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
         for t in input_types:
             if input_types[0] != t:
                 error(
-                """\b
+                """
                 Each input file must have the same file type.
                 Try setting the --input-type parameter to enforce a single
                 type.

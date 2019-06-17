@@ -11,13 +11,14 @@ from kgx.transformer import Transformer
 from kgx.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 
-biolink_prefix_map = read_remote_jsonld_context('https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld')
+biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
 # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 OBAN = Namespace(biolink_prefix_map['OBAN'])
 PMID = Namespace(biolink_prefix_map['PMID'])
-BIOLINK = Namespace(biolink_prefix_map['biolink'])
+# TODO: double check: is this the correct prefix change? (biolink --> biolinkml)
+BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
 DEFAULT_EDGE_LABEL = 'related_to'
 
 

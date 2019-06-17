@@ -6,7 +6,7 @@ from rdflib import URIRef, Namespace, RDF, RDFS, OWL
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 from prefixcommons.curie_util import read_remote_jsonld_context
 
-biolink_prefix_map = read_remote_jsonld_context('https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld')
+biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
 
 class RdfGraphMixin(object):
@@ -24,7 +24,8 @@ class RdfGraphMixin(object):
     OBO = Namespace('http://purl.obolibrary.org/obo/')
     OBAN = Namespace(biolink_prefix_map['OBAN'])
     PMID = Namespace(biolink_prefix_map['PMID'])
-    BIOLINK = Namespace(biolink_prefix_map['biolink'])
+    # TODO: double check: is this the correct prefix change? (biolink --> biolinkml)
+    BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
     DEFAULT_EDGE_LABEL = 'related_to'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):

@@ -1,7 +1,7 @@
 prefixcommons>=0.1.4
 pip>=9.0.1
 networkx>=2.2
-SPARQLWrapper>=1.8.0
+SPARQLWrapper==1.8.2
 pandas>0.21
 pytest>=0.0
 mypy>=0.0
@@ -17,7 +17,6 @@ neo4j
 pyyaml>=0.0
 jupyter>=0.0
 neo4jrestclient>=0.0
-BiolinkMG>=0.0
 biolinkml>=0.0
 prologterms==0.0.5
 bmt
