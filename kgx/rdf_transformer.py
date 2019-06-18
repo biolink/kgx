@@ -21,6 +21,7 @@ PMID = Namespace(biolink_prefix_map['PMID'])
 BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
 DEFAULT_EDGE_LABEL = 'related_to'
 
+toolkit = bmt.Toolkit()
 
 class RdfTransformer(RdfGraphMixin, Transformer):
     """
@@ -291,7 +292,7 @@ class ObanRdfTransformer(RdfTransformer):
             The value of the attribute; Can be either a List or just a string
 
         """
-        element = bmt.get_element(key)
+        element = toolkit.get_element(key)
         if element is None:
             return
         if element.is_a == 'association slot' or element.is_a == 'node property':
