@@ -1,28 +1,27 @@
 from setuptools import setup, find_packages
 
 requires = [
-    "prefixcommons>=0.1.4",
-    "networkx>=2.2",
-    "SPARQLWrapper>=1.8.0",
-    "pandas>0.21",
-    "pytest>=0.0",
-    "mypy>=0.0",
-    "pystache>=0.0",
-    "rdflib>=0.0",
-    "click>=7.0",
-    #
-    # Official Neo4j driver seems to be from the 'neo4j' package?
-    #
-    # "neo4j-driver>=1.5.3",
-    "neo4j",
-    "pyyaml>=0.0",
-    "jupyter>=0",
-    "neo4jrestclient",
-    "BiolinkMG>=0.0",
-    "prologterms>=0.0.5",
-    "bmt",
-    'terminaltables',
-    "shexjsg>=0.6.5",
+    "prefixcommons>=0.1.4"
+    "pip>=9.0.1"
+    "networkx>=2.2"
+    "SPARQLWrapper>=1.8.2"
+    "pandas>=0.24.2"
+    "pytest>=0.0"
+    "mypy>=0.0"
+    "pystache>=0.0"
+    "rdflib>=0.0"
+    "Click>=7.0"
+    "neo4j>=1.7.4"
+    "neo4jrestclient>=0.0"
+    "pyyaml>=0.0"
+    "BiolinkMG>=0.0"
+    "biolinkml>=0.0"
+    "bmt>=0.1.0"
+    "prologterms==0.0.5"
+    "shexjsg>=0.6.5"
+    "terminaltables>=3.1.0"
+    "stringcase>=1.2.0"
+    "validators>=0.13.0"
 ]
 
 setup(
