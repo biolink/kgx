@@ -1,6 +1,7 @@
 import networkx as nx
 import logging, click, pandas
 
+from bmt import Toolkit
 from prefixcommons.curie_util import expand_uri
 from typing import Union, List, Dict
 

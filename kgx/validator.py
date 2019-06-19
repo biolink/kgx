@@ -179,7 +179,7 @@ class Validator(object):
                 elif not isinstance(edge_label, str):
                     self.log_edge_error(u, v, TYPE, message='edge label type is {} when it should be {}'.format(type(edge_label), str))
                 else:
-                    p = self.toolkit.get_predicate(edge_label)
+                    p = self.toolkit.get_element(edge_label)
                     if p is None:
                         self.log_edge_error(u, v, TYPE, message='{} not in biolink model'.format(edge_label))
                     elif edge_label != p.name and edge_label in p.aliases:

@@ -21,7 +21,6 @@ PMID = Namespace(biolink_prefix_map['PMID'])
 BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
 DEFAULT_EDGE_LABEL = 'related_to'
 
-
 class RdfTransformer(RdfGraphMixin, Transformer):
     """
     Transformer that parses RDF and loads triples, as nodes and edges, into a networkx.MultiDiGraph
@@ -39,6 +38,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         super().__init__(source_graph)
         self.ontologies = []
         self.prefix_manager = PrefixManager()
+        self.toolkit = bmt.Toolkit()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None) -> None:
         """
@@ -291,7 +291,7 @@ class ObanRdfTransformer(RdfTransformer):
             The value of the attribute; Can be either a List or just a string
 
         """
-        element = bmt.get_element(key)
+        element = self.toolkit.get_element(key)
         if element is None:
             return
         if element.is_a == 'association slot' or element.is_a == 'node property':
