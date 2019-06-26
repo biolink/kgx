@@ -11,7 +11,7 @@ import validators
 
 from collections import defaultdict
 
-from metamodel.utils.schemaloader import SchemaLoader
+from biolinkml.utils.schemaloader import SchemaLoader
 
 BIOLINK_MODEL_PATCH='https://raw.githubusercontent.com/biolink/biolink-model/8830aeb1beeb457ff7202e05d1a95cb649cc98c7/biolink-model.yaml'
 CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'
@@ -41,7 +41,7 @@ class Validator(object):
     """
 
     def __init__(self):
-        self.toolkit = Toolkit(BIOLINK_MODEL_PATCH)
+        self.toolkit = Toolkit()
         self.prefix_manager = PrefixManager()
         self.errors = []
 
@@ -179,7 +179,7 @@ class Validator(object):
                 elif not isinstance(edge_label, str):
                     self.log_edge_error(u, v, TYPE, message='edge label type is {} when it should be {}'.format(type(edge_label), str))
                 else:
-                    p = self.toolkit.get_predicate(edge_label)
+                    p = self.toolkit.get_element(edge_label)
                     if p is None:
                         self.log_edge_error(u, v, TYPE, message='{} not in biolink model'.format(edge_label))
                     elif edge_label != p.name and edge_label in p.aliases:

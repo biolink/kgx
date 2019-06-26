@@ -667,7 +667,7 @@ def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
         for t in input_types:
             if input_types[0] != t:
                 error(
-                """\b
+                """
                 Each input file must have the same file type.
                 Try setting the --input-type parameter to enforce a single
                 type.

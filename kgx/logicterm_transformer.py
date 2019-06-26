@@ -1,14 +1,14 @@
-import logging, os, tarfile
+import logging
 import pandas as pd
 import networkx as nx
 from prologterms import Term, SExpressionRenderer, PrologRenderer
-
-from .transformer import Transformer
+from kgx.transformer import Transformer
 
 from typing import Dict, List, Union
 
 class LogicTermTransformer(Transformer):
     """
+    TODO: Motivation for LogicTermTransformer?
     """
 
     def __init__(self, source:Union[Transformer, nx.MultiDiGraph]=None, output_format=None, **args):

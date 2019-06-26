@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Load edges and nodes into Neo4j')
 parser.add_argument('nodes', help='file with nodes in CSV format')
 parser.add_argument('edges', help='file with edges in CSV format')
 parser.add_argument('--host', help='host to connect with Neo4j', default='localhost')
-parser.add_argument('--bolt_port', help='Bolt port to connect with Neo4j', default='7687')
+parser.add_argument('--http_port', help='HTTP port to connect with Neo4j', default='7474')
 parser.add_argument('--username', help='username (default: neo4j)', default='neo4j')
 parser.add_argument('--password', help='password (default: demo)', default='demo')
 args = parser.parse_args()
@@ -32,7 +32,8 @@ t.parse(args.nodes, error_bad_lines=False)
 t.parse(args.edges, error_bad_lines=False)
 
 # Initialize NeoTransformer
-n = NeoTransformer(t.graph, args.host, {'bolt': args.bolt_port}, args.username, args.password)
+# TODO: eliminate bolt
+n = NeoTransformer(t.graph, args.host, {'http': args.http_port}, args.username, args.password)
 
 # Save graph into Neo4j
 n.save_with_unwind()

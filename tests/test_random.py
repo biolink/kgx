@@ -18,14 +18,14 @@ def test_load():
     for i in range(1,E):
         s = random_curie(N)
         o = random_curie(N)
-        G.add_edge(o,s)
+        G.add_edge(o,s, predicate='related_to', relation='related_to')
     print('Nodes={}'.format(len(G.nodes())))
     rename_all(G)
-    print("Saving tsv")
-    w = PandasTransformer(source=G)
-    w.save("target/random.tar")
-    print("Saving ttl")
-    w = ObanRdfTransformer(source=G)
+
+    w = PandasTransformer(G)
+    w.save("target/random")
+
+    w = ObanRdfTransformer(G)
     w.save("target/random.ttl")
 
 def rename_all(G):

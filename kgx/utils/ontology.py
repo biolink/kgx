@@ -1,7 +1,6 @@
 from networkx import MultiDiGraph
 from collections import defaultdict
 from typing import List, Tuple, Optional
-
 import bmt
 
 toolkit = bmt.Toolkit()
