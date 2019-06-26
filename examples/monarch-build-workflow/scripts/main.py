@@ -25,7 +25,7 @@ data = {
     'data/omim.ttl' : ObanRdfTransformer,
     'data/clinvar.ttl' : ObanRdfTransformer,
 
-    'data/semmedb.csv.tar' : PandasTransformer,
+    'data/semmeddb.csv.tar' : PandasTransformer,
 }
 
 def change_extention(filename, extention):

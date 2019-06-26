@@ -225,9 +225,18 @@ class Transformer(object):
         """
         with click.progressbar(self.graph.nodes(data='category')) as bar:
             for n, category in bar:
-                if not toolkit().is_category(category):
+                if isinstance(category, list):
+                    # category is a list
+                    for c in category:
+                        if not toolkit().is_category(c):
+                            self.graph.node[n]['category'] = c
                     self.graph.node[n]['category'] = 'named thing'
-                    self.graph.node[n]['alt_category'] = category
+                else:
+                    # category is string
+                    # TODO: This behavior needs to be consolidated, post merge
+                    if not toolkit().is_category(category):
+                        self.graph.node[n]['category'] = 'named thing'
+                        self.graph.node[n]['alt_category'] = category
 
         with click.progressbar(self.graph.edges(data='edge_label')) as bar:
             for s, o, edgelabel in bar:

@@ -4,6 +4,8 @@ from typing import List, Tuple, Optional
 
 import bmt
 
+toolkit = bmt.Toolkit()
+
 ignore = ['All', 'entity']
 
 def subclasses(n, graph:MultiDiGraph):
@@ -78,7 +80,7 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
         name = graph.node[n].get('name')
 
         if name is not None and name not in ignore:
-            c = bmt.get_element(name)
+            c = toolkit.get_element(name)
             if c is not None and c.name is not None:
                 return c.name
 
