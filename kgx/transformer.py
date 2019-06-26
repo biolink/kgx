@@ -1,6 +1,6 @@
 import networkx as nx
 import json, time, click, logging
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
 from kgx.filter import Filter

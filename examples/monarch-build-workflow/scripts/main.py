@@ -7,7 +7,7 @@ Finally, saves the resulting NetworkX graph as `clique_merged.csv`
 import os
 import click
 
-from kgx import ObanRdfTransformer, JsonTransformer, HgncRdfTransformer, RdfOwlTransformer, PandasTransformer
+from kgx import ObanRdfTransformer, JsonTransformer, RdfTransformer, RdfOwlTransformer, PandasTransformer
 from kgx import clique_merge, make_valid_types
 
 data = {
@@ -18,7 +18,7 @@ data = {
     'data/ro.owl' : RdfOwlTransformer,
     'data/geno.owl' : RdfOwlTransformer,
 
-    'data/hgnc.ttl' : HgncRdfTransformer,
+    'data/hgnc.ttl' : RdfTransformer,
 
     'data/orphanet.ttl' : ObanRdfTransformer,
     'data/hpoa.ttl' : ObanRdfTransformer,
