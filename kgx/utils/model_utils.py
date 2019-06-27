@@ -5,7 +5,10 @@ multiplicity, and that all identifiers are CURIE's.
 """
 
 import networkx as nx
-import bmt
+
+from kgx.utils.kgx_utils import get_toolkit
+
+toolkit = get_toolkit()
 
 def make_valid_types(G:nx.MultiDiGraph) -> None:
     """
@@ -22,7 +25,7 @@ def make_valid_types(G:nx.MultiDiGraph) -> None:
     nodes = []
 
     for n, data in G.nodes(data=True):
-        data['category'] = [c for c in data.get('category', []) if bmt.get_class(c) is not None]
+        data['category'] = [c for c in data.get('category', []) if toolkit.get_element(c) is not None]
         if data['category'] == []:
             if 'name' in data:
                 data['category'] = ['named thing']
@@ -32,7 +35,7 @@ def make_valid_types(G:nx.MultiDiGraph) -> None:
     G.remove_nodes_from(nodes)
 
     for u, v, data in G.edges(data=True):
-        if bmt.get_predicate(data.get('edge_label')) is None:
+        if toolkit.get_element(data.get('edge_label')) is None:
             data['edge_label'] = 'related_to'
         elif ' ' in data['edge_label']:
             data['edge_label'] = data['edge_label'].replace(' ', '_')

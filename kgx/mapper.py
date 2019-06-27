@@ -1,23 +1,9 @@
 import networkx as nx
 import logging, click, pandas
 
-from bmt import Toolkit
+from kgx.utils.kgx_utils import get_toolkit
 from prefixcommons.curie_util import expand_uri
 from typing import Union, List, Dict
-
-toolkit = None
-
-def get_toolkit():
-    """
-    This method allows us to load the biolink model toolkit when it's needed,
-    and not whenever this file is imported.
-    """
-    global toolkit
-
-    if toolkit is None:
-        toolkit = Toolkit()
-
-    return toolkit
 
 
 def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> nx.MultiDiGraph:

@@ -3,18 +3,16 @@ import json, time, click, logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
-from kgx.filter import Filter
-
 from kgx.utils.ontology import find_superclass, subclasses
 from kgx.utils.str_utils import fmt_edgelabel, fmt_category
-from kgx.utils.biolinkmodel_toolkit import toolkit
-
+from kgx.utils.kgx_utils import get_toolkit
 
 from kgx.mapper import clique_merge
 
 SimpleValue = Union[List[str], str]
 
-IGNORE_CLASSSES = ['All', 'entity']
+IGNORE_CLASSES = ['All', 'entity']
+
 
 def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
     """
@@ -92,7 +90,7 @@ class Transformer(object):
         Checks for an edge's edge_label property and assigns a label from BioLink Model.
         """
         memo = {}
-        with click.progressbar(self.graph.nodes(data=True)) as bar:
+        with click.progressbar(self.graph.nodes(data=True), label='Finding superclass category for nodes') as bar:
             for n, data in bar:
                 if 'category' not in data or data['category'] == ['named thing']:
                     # if there is no category property for a node
@@ -102,7 +100,7 @@ class Transformer(object):
                     if superclass is not None:
                         data['category'] = [superclass]
 
-        with click.progressbar(self.graph.edges(data=True)) as bar:
+        with click.progressbar(self.graph.edges(data=True), label='Finding superclass category for edges') as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
                     # if there is no edge_label property for an edge
@@ -139,24 +137,24 @@ class Transformer(object):
         Adds alt_edge_label and alt_category property to hold these invalid
         edge labels and categories, so that the information is not lost.
         """
-        with click.progressbar(self.graph.nodes(data='category')) as bar:
+        with click.progressbar(self.graph.nodes(data='category'), label='cleaning up category for nodes') as bar:
             for n, category in bar:
                 if isinstance(category, list):
                     # category is a list
                     for c in category:
-                        if not toolkit().is_category(c):
+                        if not get_toolkit().is_category(c):
                             self.graph.node[n]['category'] = c
                     self.graph.node[n]['category'] = 'named thing'
                 else:
                     # category is string
                     # TODO: This behavior needs to be consolidated, post merge
-                    if not toolkit().is_category(category):
+                    if not get_toolkit().is_category(category):
                         self.graph.node[n]['category'] = 'named thing'
                         self.graph.node[n]['alt_category'] = category
 
-        with click.progressbar(self.graph.edges(data='edge_label')) as bar:
+        with click.progressbar(self.graph.edges(data='edge_label'), label='cleaning up edge_label for edges') as bar:
             for s, o, edgelabel in bar:
-                if not toolkit().is_edgelabel(edgelabel):
+                if not get_toolkit().is_edgelabel(edgelabel):
                     self.graph.node[n]['edge_label'] = 'related_to'
                     self.graph.node[n]['alt_edge_label'] = edgelabel
 

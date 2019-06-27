@@ -1,9 +1,10 @@
 from networkx import MultiDiGraph
 from collections import defaultdict
 from typing import List, Tuple, Optional
-import bmt
 
-toolkit = bmt.Toolkit()
+from kgx.utils.kgx_utils import get_toolkit
+
+toolkit = get_toolkit()
 
 ignore = ['All', 'entity']
 
@@ -17,9 +18,9 @@ def subclasses(n, graph:MultiDiGraph):
                 yield subclass
 
 def fill_categories(graph:MultiDiGraph) -> None:
-    for n, name in G.nodes(data='name'):
+    for n, name in graph.nodes(data='name'):
         if name is not None:
-            c = bmt.get_element(name)
+            c = toolkit.get_element(name)
             if c is not None:
                 for subclass in subclasses(n):
                     if not isinstance(G.node[subclass].get('category'), list):

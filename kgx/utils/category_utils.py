@@ -3,9 +3,9 @@ from kgx.utils.rdf_utils import make_curie
 from collections import defaultdict
 from typing import List, Tuple
 
-import bmt
+from kgx.utils.kgx_utils import get_toolkit
 
-tk = bmt.Toolkit()
+toolkit = get_toolkit()
 
 iri_mapping = {
 # subclasses mapped onto their superclasses:
@@ -58,7 +58,7 @@ mapping = defaultdict(set)
 for key, value in iri_mapping.items():
     mapping[make_curie(key)].add(value)
 
-for key, value in tk.generator.mappings.items():
+for key, value in toolkit.generator.mappings.items():
     mapping[key].update(value)
 
 def walk(node, next_node_generator):
@@ -106,7 +106,7 @@ def find_categories(node, graph:MultiDiGraph) -> List[str]:
     best_node, best_score = None, 0
     for node, score in walk(iri, super_class_generator):
         name = graph.node[node].get('name')
-        c = bmt.get_class(name)
+        c = toolkit.get_element(name)
         if c is not None:
             return [c.name]
         elif node in mapping and score > 0:

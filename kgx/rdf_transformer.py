@@ -1,4 +1,4 @@
-import click, rdflib, logging, os, uuid, bmt
+import click, rdflib, logging, os, uuid
 import networkx as nx
 from typing import Tuple, Union, Set, List, Dict
 from rdflib import Namespace, URIRef
@@ -10,6 +10,7 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformer import Transformer
 from kgx.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.utils.kgx_utils import get_toolkit
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -37,7 +38,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         super().__init__(source_graph)
         self.ontologies = []
         self.prefix_manager = PrefixManager()
-        self.toolkit = bmt.Toolkit()
+        self.toolkit = get_toolkit()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None) -> None:
         """
