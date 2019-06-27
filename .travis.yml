@@ -1,18 +1,13 @@
-dist: trusty
-sudo: false
+dist: xenial
 
 language: python
 python:
-  - "3.6"
+  - "3.7"
 
 # command to install dependencies
 install:
   - pip install --upgrade pip setuptools wheel
   - pip install -r requirements.txt
-
-addons:
-  apt_packages:
-    - pandoc
  
 # command to run tests
 script: 
