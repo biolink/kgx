@@ -90,7 +90,7 @@ class PandasTransformer(Transformer):
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            df = pd.read_csv(filename, comment='#', **kwargs) # type: pd.DataFrame
+            df = pd.read_csv(filename, comment='#', dtype=str, **kwargs) # type: pd.DataFrame
             self.load(df)
 
     def load(self, df: pd.DataFrame) -> None:
@@ -132,8 +132,11 @@ class PandasTransformer(Transformer):
 
         """
         kwargs = PandasTransformer._build_kwargs(node.copy())
-        n = kwargs['id']
-        self.graph.add_node(n, **kwargs)
+        if 'id' in kwargs:
+            n = kwargs['id']
+            self.graph.add_node(n, **kwargs)
+        else:
+            logging.info("Ignoring node with no 'id': {}".format(node))
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
@@ -159,9 +162,12 @@ class PandasTransformer(Transformer):
 
         """
         kwargs = PandasTransformer._build_kwargs(edge.copy())
-        s = kwargs['subject']
-        o = kwargs['object']
-        self.graph.add_edge(s, o, **kwargs)
+        if 'subject' in kwargs and 'object' in kwargs:
+            s = kwargs['subject']
+            o = kwargs['object']
+            self.graph.add_edge(s, o, **kwargs)
+        else:
+            logging.info("Ignoring node with either a missing 'subject' or 'object': {}".format(kwargs))
 
     def export_nodes(self) -> pd.DataFrame:
         """
@@ -226,8 +232,8 @@ class PandasTransformer(Transformer):
         archive_name = "{}.{}".format(filename, _archive_format[mode])
         delimiter = _extension_types[extension]
 
-        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False)
-        edges_content = self.export_edges().to_csv(sep=delimiter, index=False)
+        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
+        edges_content = self.export_edges().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
 
         nodes_file_name = 'nodes.' + extension
         edges_file_name = 'edges.' + extension

@@ -1,7 +1,34 @@
 from networkx import MultiDiGraph
 from collections import defaultdict
 from typing import List, Tuple, Optional
-import bmt
+
+from kgx.utils.kgx_utils import get_toolkit
+
+toolkit = get_toolkit()
+
+ignore = ['All', 'entity']
+
+def subclasses(n, graph:MultiDiGraph):
+    nodes = [n]
+    while nodes != []:
+        m = nodes.pop()
+        for subclass, _, edge_label in graph.in_edges(m, data='edge_label'):
+            if edge_label == 'subclass_of':
+                nodes.append(subclass)
+                yield subclass
+
+def fill_categories(graph:MultiDiGraph) -> None:
+    for n, name in graph.nodes(data='name'):
+        if name is not None:
+            c = toolkit.get_element(name)
+            if c is not None:
+                for subclass in subclasses(n):
+                    if not isinstance(G.node[subclass].get('category'), list):
+                        G.node[subclass]['category'] = [name]
+                    else:
+                        category = G.node[subclass]['category']
+                        if name not in category:
+                            category.append(name)
 
 def walk(node, next_node_generator):
     to_visit = {node : 0} # Dict[str, Integer]
@@ -25,6 +52,9 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
     superclasses that are in the biolink model whenever able.
     """
     def super_class_generator(n) -> Tuple[str, int]:
+        if n in graph and 'type' in graph.node[n]:
+            yield graph.node[n]['type']
+
         for _, m, data in graph.out_edges(n, data=True):
             edge_label = data.get('edge_label')
             if edge_label is None:
@@ -44,12 +74,18 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
     best_node, best_score = None, 0
 
     for n, score in walk(node, super_class_generator):
-        if 'name' in graph.node[n]:
-            c = bmt.get_element(graph.node[n]['name'])
+        if n not in graph:
+            continue
+
+        name = graph.node[n].get('name')
+
+        if name is not None and name not in ignore:
+            c = toolkit.get_element(name)
             if c is not None and c.name is not None:
                 return c.name
-        elif score > best_score and node.name is not None:
-            best_node, best_score = node, score
+
+            if score > best_score:
+                best_node, best_score = n, score
 
     if best_node is not None:
-        return graph.node[best_node].get('name')
+        return graph.node[best_node]['name']

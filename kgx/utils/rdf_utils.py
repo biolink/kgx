@@ -1,18 +1,18 @@
 from typing import List, Union
-from bmt import Toolkit
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
-
 from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
-tk = Toolkit()
-m = tk.generator.mappings
+from kgx.utils.kgx_utils import get_toolkit
+
+toolkit = get_toolkit()
+m = toolkit.generator.mappings
 x = set()
 mapping = {}
 for key, value in m.items():
     k = expand_uri(key)
-    v = tk.get_by_mapping(key)
+    v = toolkit.get_by_mapping(key)
     if k == key:
         x.add(key)
     else:
@@ -36,7 +36,7 @@ predicate_mapping.update(
     {
         '{}{}'.format(BIOLINK, n) : n
             for n in
-        [x.replace(',', '').replace(' ', '_') for x in tk.descendents('related to')]
+        [x.replace(',', '').replace(' ', '_') for x in toolkit.descendents('related to')]
     }
 )
 
@@ -94,7 +94,7 @@ category_mapping.update(
     {
         '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')) : n
             for n in
-        tk.descendents('named thing')
+        toolkit.descendents('named thing')
     }
 )
 
@@ -150,7 +150,6 @@ cmaps = [{
     'biolink' : 'http://w3id.org/biolink/vocab/',
 }, {'DRUGBANK' : 'http://w3id.org/data2services/data/drugbank/'}] + default_curie_maps
 
-# {c for c in tk.generator.__dict__['schema']['classes'].keys()}
 
 def contract(uri:URIRef) -> str:
     """

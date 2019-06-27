@@ -1,23 +1,9 @@
 import networkx as nx
 import logging, click, pandas
 
-from bmt import Toolkit
+from kgx.utils.kgx_utils import get_toolkit
 from prefixcommons.curie_util import expand_uri
 from typing import Union, List, Dict
-
-toolkit = None
-
-def get_toolkit():
-    """
-    This method allows us to load the biolink model toolkit when it's needed,
-    and not whenever this file is imported.
-    """
-    global toolkit
-
-    if toolkit is None:
-        toolkit = Toolkit()
-
-    return toolkit
 
 
 def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> nx.MultiDiGraph:
@@ -307,10 +293,16 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
             for a in u_categories:
                 if len(edges) > l:
                     break
+                if get_toolkit().get_element(a) is None:
+                    continue
                 for b in v_categories:
+                    if get_toolkit().get_element(b) is None:
+                        continue
                     a_ancestors = get_toolkit().ancestors(a)
                     b_ancestors = get_toolkit().ancestors(b)
-                    if a not in b_ancestors and b not in a_ancestors:
+                    if a_ancestors == b_ancestors == []:
+                        continue
+                    elif a not in b_ancestors and b not in a_ancestors:
                         edges.append((u, v))
                         break
 
@@ -359,7 +351,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
 
     edges = []
     for u, v, key, data in g.edges(keys=True, data=True):
-        if data['edge_label'] == 'same_as':
+        if data.get('edge_label') == 'same_as':
             edges.append((u, v, key))
     g.remove_edges_from(edges)
 

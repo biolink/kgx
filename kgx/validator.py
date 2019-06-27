@@ -1,5 +1,4 @@
 import networkx as nx
-from bmt import Toolkit
 import requests
 import json
 from typing import Union, List, Dict
@@ -9,12 +8,11 @@ import click
 import re
 import validators
 
-from collections import defaultdict
+from kgx.utils.kgx_utils import get_toolkit
 
-from biolinkml.utils.schemaloader import SchemaLoader
-
-BIOLINK_MODEL_PATCH='https://raw.githubusercontent.com/biolink/biolink-model/8830aeb1beeb457ff7202e05d1a95cb649cc98c7/biolink-model.yaml'
+BIOLINK_MODEL = 'https://biolink.github.io/biolink-model/biolink-model.yaml'
 CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'
+
 
 class Error(object):
     def __init__(self, error_type, message=None):
@@ -41,7 +39,7 @@ class Validator(object):
     """
 
     def __init__(self):
-        self.toolkit = Toolkit()
+        self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
         self.errors = []
 
@@ -153,7 +151,7 @@ class Validator(object):
             self.validate_id(p)
 
     def validate_categories(self, G):
-        with click.progressbar(G.nodes(data=True)) as bar:
+        with click.progressbar(G.nodes(data=True), label='validating category for nodes') as bar:
             for n, data in bar:
                 categories = data.get('category')
                 if categories is None:
@@ -171,7 +169,7 @@ class Validator(object):
 
     def validate_edge_labels(self, G):
         TYPE = 'invalid edge label'
-        with click.progressbar(G.edges(data=True)) as bar:
+        with click.progressbar(G.edges(data=True), label='validating edge_label for edges') as bar:
             for u, v, data in bar:
                 edge_label = data.get('edge_label')
                 if edge_label is None:

@@ -1,14 +1,36 @@
 import networkx as nx
 import json, time, click, logging
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
-from kgx.filter import Filter
+from kgx.utils.ontology import find_superclass, subclasses
+from kgx.utils.str_utils import fmt_edgelabel, fmt_category
+from kgx.utils.kgx_utils import get_toolkit
 
-from kgx.utils.ontology import find_superclass
 from kgx.mapper import clique_merge
 
 SimpleValue = Union[List[str], str]
+
+IGNORE_CLASSES = ['All', 'entity']
+
+
+def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
+    """
+    A convenient method for getting a list of edges that match the given fitlers
+    """
+    if mode == 'all':
+        method = graph.edges
+    elif mode == 'in':
+        method = graph.in_edges
+    elif mode == 'out':
+        method = graph.out_edges
+    else:
+        raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
+    edges = []
+    for u, v, d in method(nbunch=node, data=True):
+        if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
+            edges.append((u, v))
+    return edges
 
 class Transformer(object):
     """
@@ -68,7 +90,7 @@ class Transformer(object):
         Checks for an edge's edge_label property and assigns a label from BioLink Model.
         """
         memo = {}
-        with click.progressbar(self.graph.nodes(data=True)) as bar:
+        with click.progressbar(self.graph.nodes(data=True), label='Finding superclass category for nodes') as bar:
             for n, data in bar:
                 if 'category' not in data or data['category'] == ['named thing']:
                     # if there is no category property for a node
@@ -78,7 +100,7 @@ class Transformer(object):
                     if superclass is not None:
                         data['category'] = [superclass]
 
-        with click.progressbar(self.graph.edges(data=True)) as bar:
+        with click.progressbar(self.graph.edges(data=True), label='Finding superclass category for edges') as bar:
             for u, v, data in bar:
                 if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
                     # if there is no edge_label property for an edge
@@ -87,16 +109,65 @@ class Transformer(object):
                     # then find a BioLink Model relevant edge_label
                     relation = data.get('relation')
                     if relation not in memo:
-                        memo[relation] = find_superclass(relation, self.graph)
+                        superclass = find_superclass(relation, self.graph)
+                        memo[relation] = fmt_edgelabel(superclass)
 
                     if memo[relation] is not None:
                         data['edge_label'] = memo[relation]
 
-    def merge_cliques(self) -> None:
+        # Set all null categories to the default value, and format all others
+        with click.progressbar(self.graph.nodes(data='category'), label='Ensuring valid categories') as bar:
+            for n, category in bar:
+                if not isinstance(category, list) or category == []:
+                    self.graph.node[n]['category'] = ['named thing']
+                else:
+                    category = [fmt_category(c) for c in category]
+
+        # Set all null edgelabels to the default value, and format all others
+        with click.progressbar(self.graph.edges(data=True), label='Ensuring valid edge labels') as bar:
+            for u, v, data in bar:
+                if 'edge_label' not in data or data['edge_label'] is None:
+                    data['edge_label'] = 'related_to'
+                else:
+                    data['edge_label'] = fmt_edgelabel(data['edge_label'])
+
+    def clean_categories(self, threashold=100):
         """
-        Merges all nodes that are connected by `same_as` edges
-        or are marked as equivalent by a node's `same_as` property.
+        Removes categories and edges labels that are not from the biolink model.
+        Adds alt_edge_label and alt_category property to hold these invalid
+        edge labels and categories, so that the information is not lost.
         """
+        with click.progressbar(self.graph.nodes(data='category'), label='cleaning up category for nodes') as bar:
+            for n, category in bar:
+                if isinstance(category, list):
+                    # category is a list
+                    for c in category:
+                        if not get_toolkit().is_category(c):
+                            self.graph.node[n]['category'] = c
+                    self.graph.node[n]['category'] = 'named thing'
+                else:
+                    # category is string
+                    # TODO: This behavior needs to be consolidated, post merge
+                    if not get_toolkit().is_category(category):
+                        self.graph.node[n]['category'] = 'named thing'
+                        self.graph.node[n]['alt_category'] = category
+
+        with click.progressbar(self.graph.edges(data='edge_label'), label='cleaning up edge_label for edges') as bar:
+            for s, o, edgelabel in bar:
+                if not get_toolkit().is_edgelabel(edgelabel):
+                    self.graph.node[n]['edge_label'] = 'related_to'
+                    self.graph.node[n]['alt_edge_label'] = edgelabel
+
+    def merge_cliques(self, categorize_first=True):
+        """
+        Merges all nodes that are connected by `same_as` edges, or are marked
+        as equivalent by a nodes `same_as` property.
+
+        The clique leader chosen depends on the categories within that clique.
+        For this reason it's useful to run the `categorize` method first.
+        """
+        if categorize_first:
+            self.categorize()
         self.graph = clique_merge(self.graph)
 
     def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:

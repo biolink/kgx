@@ -84,12 +84,19 @@ def node_summary(filepath, input_type, max_rows, output):
 
             tuples.append((prefix, category))
 
+    click.echo('|nodes|: {}'.format(len(g.nodes())))
+    click.echo('|edges|: {}'.format(len(g.edges())))
+
     xrefs = [x for x in xrefs if x is not None]
     if len(xrefs) != 0:
         line = 'xref prefixes: {}'.format(', '.join(xrefs))
         if output is not None:
+            file_write(output, '|nodes|: {}'.format(len(g.nodes())))
+            file_write(output, '|edges|: {}'.format(len(g.edges())))
             file_write(output, line)
         else:
+            click.echo('|nodes|: {}'.format(len(g.nodes())))
+            click.echo('|edges|: {}'.format(len(g.edges())))
             click.echo(line)
 
     tuple_count = OrderedDict(Counter(tuples).most_common(max_rows))

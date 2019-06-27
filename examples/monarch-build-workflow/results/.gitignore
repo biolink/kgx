@@ -1,2 +1,4 @@
+*.ttl
+*.tar
 *.json
 *.csv

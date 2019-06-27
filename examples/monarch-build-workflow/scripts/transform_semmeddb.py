@@ -1,7 +1,9 @@
 from kgx import ObanRdfTransformer, PandasTransformer
 import networkx as nx
 import pandas as pd
-import bmt
+import os
+
+from bmt import Toolkit
 
 def load_edges(g:nx.Graph):
     """
@@ -15,13 +17,15 @@ def load_edges(g:nx.Graph):
 
     df = pd.read_csv('data/semmeddb_edges.csv')
 
+    toolkit = Toolkit()
+
     def process_row(row):
         p = row['pmids']
         p = ['PMID:' + i for i in p.split(';')] if p is not None else None
 
         t = row[':TYPE'].replace(' ', '_')
 
-        if bmt.get_predicate(t):
+        if toolkit.is_edgelabel(t):
             edge_label = t
         else:
             edge_label = 'related_to'
@@ -73,9 +77,13 @@ def load_nodes(g:nx.Graph):
 
     df.apply(process_row, axis=1)
 
+OUTPUT = 'data/semmeddb.csv.tar'
 
 if __name__ == '__main__':
-    t = PandasTransformer()
-    load_nodes(t.graph)
-    load_edges(t.graph)
-    t.save('semmeddb.csv')
+    if os.path.exists(OUTPUT):
+        print(OUTPUT + ' already exists, exiting.')
+    else:
+        t = PandasTransformer()
+        load_nodes(t.graph)
+        load_edges(t.graph)
+        t.save(OUTPUT)
