@@ -232,8 +232,8 @@ class PandasTransformer(Transformer):
         archive_name = "{}.{}".format(filename, _archive_format[mode])
         delimiter = _extension_types[extension]
 
-        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False)
-        edges_content = self.export_edges().to_csv(sep=delimiter, index=False)
+        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
+        edges_content = self.export_edges().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
 
         nodes_file_name = 'nodes.' + extension
         edges_file_name = 'edges.' + extension
