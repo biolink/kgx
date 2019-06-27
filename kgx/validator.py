@@ -10,9 +10,9 @@ import validators
 
 from kgx.utils.kgx_utils import get_toolkit
 
-# TODO: update URL after merging https://github.com/biolink/biolink-model/pull/213
-BIOLINK_MODEL_PATCH='https://raw.githubusercontent.com/biolink/biolink-model/8830aeb1beeb457ff7202e05d1a95cb649cc98c7/biolink-model.yaml'
+BIOLINK_MODEL = 'https://biolink.github.io/biolink-model/biolink-model.yaml'
 CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'
+
 
 class Error(object):
     def __init__(self, error_type, message=None):
