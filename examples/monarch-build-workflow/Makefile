@@ -24,6 +24,7 @@ download:
 	wget --no-clobber https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.owl -O data/hp.owl || true
 	wget --no-clobber https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/so.owl -O data/so.owl || true
 	wget --no-clobber http://purl.obolibrary.org/obo/go.owl -O data/go.owl || true
+	wget --no-clobber http://purl.obolibrary.org/obo/geno.owl -O data/geno.owl || true
 
 neo4j-start:
 	wget --no-clobber https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.0.8.6/apoc-3.0.8.6-all.jar --directory-prefix=neo4j/plugins || true
@@ -60,5 +61,5 @@ move-results:
 	tar -xvf results/clique_merged.csv.tar -C results/
 	mv results/edges.csv results/clique_merged_edges.csv
 	mv results/nodes.csv results/clique_merged_nodes.csv
-	sudo mv results/clique_merged_nodes.csv neo4j/import/
-	sudo mv results/clique_merged_edges.csv neo4j/import/
+	mv results/clique_merged_nodes.csv neo4j/import/
+	mv results/clique_merged_edges.csv neo4j/import/
