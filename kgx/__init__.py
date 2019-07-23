@@ -19,6 +19,7 @@ from .csv_sink import CsvSink
 
 from .source import Source
 from .neo_source import NeoSource
+from .sparql_source import SparqlSource
 
 from .validator import Validator
 from .prefix_manager import PrefixManager

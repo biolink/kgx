@@ -134,7 +134,7 @@ is_property_multivalued = {
     'provided_by' : True,
     'category' : True,
     'publications' : True,
-    'type' : False,
+    'type' : True,
 }
 
 def reverse_mapping(d:dict):
