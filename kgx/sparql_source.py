@@ -16,6 +16,13 @@ from typing import Set, List, Dict, Generator
 BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
 DEFAULT_EDGE_LABEL = 'related_to'
 
+def query_robust(sparql):
+    while True:
+        try:
+            return sparql.query().convert()
+        except Exception as e:
+            logging.warn("Retrying after query exception: {}".format(repr(e)))
+
 
 def un_camel_case(s):
     """
@@ -121,6 +128,7 @@ class SparqlSource(Source):
             #predicates = predicates.union(self.OWL_PREDICATES, [self.is_about, self.is_subsequence_of, self.has_subsequence])
         for predicate in predicates:
             sparql = SPARQLWrapper(self.url)
+            sparql.setTimeout(600)
             association = predicate
             #association = '<{}>'.format(predicate)
             # association = 'bl:ChemicalToGeneAssociation'  # Old way, but why no <>?
@@ -128,7 +136,7 @@ class SparqlSource(Source):
             logging.debug(query)
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
-            results = sparql.query().convert()
+            results = query_robust(sparql)
             count = int(results['results']['bindings'][0]['triples']['value'])
             logging.info("Expected triples for query: {}".format(count))
             step = 50000
@@ -140,7 +148,7 @@ class SparqlSource(Source):
                 start = i
                 sparql.setQuery(query)
                 logging.info("Fetching triples with predicate {}".format(predicate))
-                results = sparql.query().convert()
+                results = query_robust(sparql)
                 logging.info("Triples fetched")
                 for r in results['results']['bindings']:
                     s = r['subject']['value']
@@ -176,11 +184,12 @@ class SparqlSource(Source):
             query = self.get_node_properties_query.format(curie_list=' '.join(nodes))
             logging.info(query)
             sparql = SPARQLWrapper(self.url)
+            sparql.setTimeout(600)
             sparql.setRequestMethod(POSTDIRECTLY)
             sparql.setMethod("POST")
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
-            node_results = sparql.query().convert()
+            node_results = query_robust(sparql)
             current = None
             attrs = None
             for r in node_results['results']['bindings']:
