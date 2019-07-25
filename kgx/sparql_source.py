@@ -131,7 +131,7 @@ class SparqlSource(Source):
             results = sparql.query().convert()
             count = int(results['results']['bindings'][0]['triples']['value'])
             logging.info("Expected triples for query: {}".format(count))
-            step = 1000
+            step = 50000
             start = 0
             current = (None, None, None)
             attrs = None
