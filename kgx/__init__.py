@@ -30,7 +30,7 @@ import logging
 
 logger = logging.getLogger()
 handler = logging.StreamHandler()
-formatter = logging.Formatter("[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s")
+formatter = logging.Formatter("[%(asctime)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
