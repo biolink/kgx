@@ -128,7 +128,6 @@ class SparqlSource(Source):
             #predicates = predicates.union(self.OWL_PREDICATES, [self.is_about, self.is_subsequence_of, self.has_subsequence])
         for predicate in predicates:
             sparql = SPARQLWrapper(self.url)
-            sparql.setTimeout(600)
             association = predicate
             #association = '<{}>'.format(predicate)
             # association = 'bl:ChemicalToGeneAssociation'  # Old way, but why no <>?
@@ -139,17 +138,25 @@ class SparqlSource(Source):
             results = query_robust(sparql)
             count = int(results['results']['bindings'][0]['triples']['value'])
             logging.info("Expected triples for query: {}".format(count))
-            step = 50000
-            start = 0
             current = (None, None, None)
             attrs = None
-            for i in range(step, count + step, step):
-                query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
-                start = i
-                sparql.setQuery(query)
-                logging.info("Fetching triples with predicate {}".format(predicate))
-                results = query_robust(sparql)
-                logging.info("Triples fetched")
+            initial_step = (2 << 17)
+            step = initial_step
+            i = 0
+            while i < count:
+                step = min(initial_step, step << 1)
+                while True:
+                    try:
+                        query = render(self.edge_query, {'association': association, 'offset': i, 'limit':step})
+                        sparql.setQuery(query)
+                        logging.info("Fetching {} triples with predicate {}".format(step, predicate))
+                        results = sparql.query().convert()
+                        logging.info("Triples fetched so far: {}".format(i+step))
+                        break
+                    except Exception as e:
+                        logging.warn("Retrying after query exception: {}".format(repr(e)))
+                        step = max(1, step >> 1)
+                i += step
                 for r in results['results']['bindings']:
                     s = r['subject']['value']
                     o = r['object']['value']
@@ -184,7 +191,6 @@ class SparqlSource(Source):
             query = self.get_node_properties_query.format(curie_list=' '.join(nodes))
             logging.info(query)
             sparql = SPARQLWrapper(self.url)
-            sparql.setTimeout(600)
             sparql.setRequestMethod(POSTDIRECTLY)
             sparql.setMethod("POST")
             sparql.setQuery(query)
