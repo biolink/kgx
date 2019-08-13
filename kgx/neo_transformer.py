@@ -1,66 +1,49 @@
-import pandas as pd
-
 import logging
-import yaml
-import json
-
 import itertools
 import uuid
 import click
 
 from .transformer import Transformer
-from .filter import Filter, FilterLocation, FilterType
+from typing import Tuple, List, Dict
 
-from typing import Union, Dict, List
-from collections import defaultdict
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
-
-neo4j_log = logging.getLogger("neo4j.bolt")
-neo4j_log.setLevel(logging.WARNING)
+from neo4jrestclient.query import CypherException
 
 
 class NeoTransformer(Transformer):
     """
-
-    We expect a Translator canonical style http://bit.ly/tr-kg-standard
-    E.g. predicates are names with underscores, not IDs.
-
-    Does not load from config file if uri and username are provided.
-
-    TODO: also support mapping from Monarch neo4j
+    Transformer for reading from and writing to a Neo4j database.
     """
 
-    def __init__(self, graph=None, host=None, ports=None, username=None, password=None, **args):
+    def __init__(self, graph=None, host=None, port=None, username=None, password=None):
         super(NeoTransformer, self).__init__(graph)
-
         self.http_driver = None
+        http_uri = "{}:{}".format(host, port)
+        self.http_driver = http_gdb(http_uri, username=username, password=password)
 
-        if ports is None:
-            # read from config
-            with open('config.yml', 'r') as ymlfile:
-                cfg = yaml.load(ymlfile)
-                if 'http_port' in cfg['neo4j']:
-                    http_uri = "http://{}:{}".format(cfg['neo4j']['host'], cfg['neo4j']['http_port'])
-                    logging.debug("Initializing http driver with URI: {}".format(http_uri))
-                    self.http_driver = http_gdb(http_uri, username=username, password=password)
-        else:
-            if 'http' in ports:
-                http_uri = "http://{}:{}".format(host, ports['http'])
-                self.http_driver = http_gdb(http_uri, username=username, password=password)
+    def load(self, start=0, end=None, is_directed=True) -> None:
+        """
+        Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
-    def load(self, start=0, end=None, is_directed=True):
+        Parameters
+        ----------
+        start: int
+            Start for pagination
+        end: int
+            End for pagination
+        is_directed: bool
+            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+
         """
-        Read a neo4j database and create a nx graph
-        """
-        # underscore in numerical notation defined PEP515
         PAGE_SIZE = 10_000
 
         if end is None:
+            # get total number of records to be fetched from Neo4j
             count = self.count(is_directed=is_directed)
         else:
             count = end - start
 
-        with click.progressbar(length=count, label='Getting {:,} rows'.format(count)) as bar:
+        with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = self.current_time_in_millis()
             for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
                 self.load_edges(page)
@@ -69,74 +52,112 @@ class NeoTransformer(Transformer):
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-        active_node_filters = any(f.filter_local is FilterLocation.NODE for f in self.filters)
-        # load_nodes already loads the nodes that belong to the given edges
-        # TODO: are these edges being filtered? are their nodes being filtered?
-        if active_node_filters:
-            for page in self.get_pages(self.get_nodes, start, end):
-                time_start = self.current_time_in_millis()
-                self.load_nodes(page)
-                time_end = self.current_time_in_millis()
-
-    def count(self, is_directed=True):
+    def count(self, is_directed=True) -> int:
         """
-        Get a page of edges from the database
+        Get the total count of records to be fetched from the Neo4j database.
+
+        Parameters
+        ----------
+        is_directed: bool
+            Are edges directed or undirected ('True', by default, since edges in most cases are directed)
+
+        Returns
+        -------
+        int
+            The total count of records
         """
         direction = '->' if is_directed else '-'
-        query = """
-        MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
+        query = f"""
+        MATCH (s{self.get_filter('subject_category')})-[p{self.get_filter('edge_label')}]{direction}(o{self.get_filter('object_category')})
         RETURN COUNT(*) AS count;
-        """.format(
-            direction=direction,
-            **self.build_query_kwargs()
-        )
+        """
 
-        query_result = self.http_driver.query(query)
+        logging.info("Query: {}".format(query))
+        try:
+            query_result = self.http_driver.query(query)
+        except CypherException as ce:
+            logging.error(ce)
+
         for result in query_result:
             return result[0]
 
-    def load_edges(self, edges):
-        start = self.current_time_in_millis()
-        for edge in edges:
-            self.load_edge(edge)
-        end = self.current_time_in_millis()
-        logging.debug("time taken to load edges: {} ms".format(end - start))
+    def load_nodes(self, nodes: List[Node]) -> None:
+        """
+        Load nodes into networkx.MultiDiGraph
 
-    def load_nodes(self, nodes):
+        Parameters
+        ----------
+        nodes: List[neo4jrestclient.client.Node]
+            A list of node records
+
+        """
         start = self.current_time_in_millis()
         for node in nodes:
             self.load_node(node)
         end = self.current_time_in_millis()
         logging.debug("time taken to load nodes: {} ms".format(end - start))
 
-    def load_node(self, node: Node):
+    def load_node(self, node: Node) -> None:
         """
-        Load node from a neo4j record
+        Load node from neo4jrestclient.client.Node into networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        node: neo4jrestclient.client.Node
+            A node
+
         """
 
         attributes = {}
-
         for key, value in node.properties.items():
             attributes[key] = value
 
+        node_labels = [x._label for x in node.labels]
+
         if 'category' not in attributes:
-            attributes['category'] = list(node.labels)
+            attributes['category'] = node_labels
         else:
             if isinstance(attributes['category'], str):
                 attributes['category'] = [attributes['category']]
 
-        if 'Node' not in attributes['category']:
-            attributes['category'].append('Node')
+        for l in node_labels:
+            if l not in attributes['category']:
+                attributes['category'].append(l)
+
+        if Transformer.DEFAULT_NODE_LABEL not in attributes['category']:
+            attributes['category'].append(Transformer.DEFAULT_NODE_LABEL)
 
         node_id = node['id'] if 'id' in node else node.id
 
-        self.graph.add_node(node_id, attr_dict=attributes)
+        self.graph.add_node(node_id, **attributes)
 
-    def load_edge(self, edge: Relationship):
+    def load_edges(self, edges: List) -> None:
         """
-        Load an edge from a neo4j record
-        """
+        Load edges into networkx.MultiDiGraph
 
+        Parameters
+        ----------
+        edges: List
+            A list of edge records
+
+        """
+        start = self.current_time_in_millis()
+        for record in edges:
+            edge = record[1]
+            self.load_edge(edge)
+        end = self.current_time_in_millis()
+        logging.debug("time taken to load edges: {} ms".format(end - start))
+
+    def load_edge(self, edge: Relationship) -> None:
+        """
+        Load an edge from neo4jrestclient.client.Relationship into networkx.MultiDiGraph
+
+        Parameters
+        ----------
+        edge: neo4jrestclient.client.Relationship
+            An edge
+
+        """
         edge_key = str(uuid.uuid4())
         edge_subject = edge.start
         edge_predicate = edge.properties
@@ -155,10 +176,8 @@ class NeoTransformer(Transformer):
             attributes['subject'] = subject_id
         if 'object' not in attributes:
             attributes['object'] = object_id
-        if 'type' not in attributes:
-            attributes['type'] = edge.type
-        if 'predicate' not in attributes:
-            attributes['predicate'] = attributes['type'] if 'type' in attributes else edge.type
+        if 'edge_label' not in attributes:
+            attributes['edge_label'] = edge.type
 
         if not self.graph.has_node(subject_id):
             self.load_node(edge_subject)
@@ -166,84 +185,43 @@ class NeoTransformer(Transformer):
         if not self.graph.has_node(object_id):
             self.load_node(edge_object)
 
-        self.graph.add_edge(
-            subject_id,
-            object_id,
-            edge_key,
-            attr_dict=attributes
-        )
+        self.graph.add_edge(subject_id, object_id, edge_key, **attributes)
 
-    def build_label(self, label:Union[List[str], str, None]) -> str:
+    def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
         """
-        Takes a potential label and turns it into the string representation
-        needed to fill a cypher query.
-        """
-        if label is None:
-            return ''
-        elif isinstance(label, str):
-            if ' ' in label:
-                return f':`{label}`'
-            else:
-                return f':{label}'
-        elif isinstance(label, (list, set, tuple)):
-            label = ''.join([self.build_label(l) for l in label])
-            return f'{label}'
+        Get pages of size `page_size` from Neo4j.
+        Returns an iterator of pages where number of pages is (`end` - `start`)/`page_size`
 
-    def build_properties(self, properties:Dict[str, str]) -> str:
-        if properties == {}:
-            return ''
-        else:
-            return ' {{ {properties} }}'.format(properties=self.parse_properties(properties))
+        Parameters
+        ----------
+        query_function: func
+            The function to use to fetch records. Usually this is `self.get_nodes` or `self.get_edges`
+        start: int
+            Start for pagination
+        end: int
+            End for pagination
+        page_size: int
+            Size of each page (`10000`, by default)
+        **kwargs: dict
+            Any additional arguments that might be relevant for `query_function`
 
-    def clean_whitespace(self, s:str) -> str:
-        replace = {
-            '  ': ' ',
-            '\n': ''
-        }
+        Returns
+        -------
+        list
+            An iterator for a list of records from Neo4j. The size of the list is `page_size`
 
-        while any(k in s for k in replace.keys()):
-            for old_value, new_value in replace.items():
-                s = s.replace(old_value, new_value)
-
-        return s.strip()
-
-    def build_query_kwargs(self):
-        properties = defaultdict(dict)
-        labels = defaultdict(list)
-
-        for f in self.filters:
-            filter_type = f.filter_type
-            if filter_type is FilterType.LABEL:
-                arg = f.target
-                labels[arg].append(f.value)
-            else:
-                # TODO: Is this error too harsh?
-                assert False
-
-        kwargs = {k: '' for k in Filter.targets()}
-
-        for arg, value in labels.items():
-            kwargs[arg] = self.build_label(value)
-
-        return kwargs
-
-    def get_pages(self, elements, start=0, end=None, page_size=10_000, **kwargs):
-        """
-        Gets (end - start) many pages of size page_size.
         """
 
         # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
         # it's distinguished from applying a while loop via providing an index which is formative with the for statement
         for i in itertools.count(0):
-
             # First halt condition: page pointer exceeds the number of values allowed to be returned in total
             skip = start + (page_size * i)
             limit = page_size if end is None or skip + page_size <= end else end - skip
             if limit <= 0:
                 return
-
-            # run a query
-            records = elements(skip=skip, limit=limit, **kwargs)
+            # execute query_function to get records
+            records = query_function(skip=skip, limit=limit, **kwargs)
 
             # Second halt condition: no more data available
             if records:
@@ -256,265 +234,289 @@ class NeoTransformer(Transformer):
             else:
                 return
 
-    def get_nodes(self, skip=0, limit=0, tx=None, **kwargs):
+    def get_nodes(self, skip: int = 0, limit: int = 0) -> List[Node]:
         """
-        Get a page of nodes from the database
+        Get a page of nodes from the Neo4j database.
+
+        Parameters
+        ----------
+        skip: int
+            Records to skip
+        limit: int
+            Total number of records to query for
+
+        Returns
+        -------
+        list
+            A list of neo4jrestclient.client.Node records
+
         """
 
         if limit == 0 or limit is None:
-            query = """
-            MATCH (n{node_category}{node_property})
+            query = f"""
+            MATCH (n)
+            WHERE n{self.get_filter('subject_category')} OR n{self.get_filter('object_category')}
             RETURN n
-            SKIP {skip};
-            """.format(
-                skip=skip,
-                **self.build_query_kwargs()
-            )
+            SKIP {skip}
+            """
         else:
-            query = """
-            MATCH (n{node_category}{node_property})
-            RETURN n
-            SKIP {skip} LIMIT {limit};
-            """.format(
-                skip=skip,
-                limit=limit,
-                **self.build_query_kwargs()
-            )
+            query = f"""
+             MATCH (n)
+             WHERE n{self.get_filter('subject_category')} OR n{self.get_filter('object_category')}
+             RETURN n
+             SKIP {skip} LIMIT {limit}
+             """
 
-        query = self.clean_whitespace(query)
         logging.debug(query)
 
         # Filter out all the associated metadata to ensure the results are clean
-        nodeResults = self.http_driver.query(query, returns=(Node))
-        nodes = [node for node in nodeResults]
+        try:
+            results = self.http_driver.query(query, returns=Node)
+        except CypherException as ce:
+            logging.error(ce)
+        logging.debug("Results: {}".format(results))
+        nodes = [node for node in results]
+        logging.debug("Tidied results: {}".format(nodes))
         return nodes
 
-    def get_edges(self, skip=0, limit=0, is_directed=True, tx=None, **kwargs):
+    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True) -> List[Tuple[Node, Relationship, Node]]:
         """
-        Get a page of edges from the database
+        Get a page of edges from the Neo4j database.
+
+        Parameters
+        ----------
+        skip: int
+            Records to skip
+        limit: int
+            Total number of records to query for
+        is_directed: bool
+            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+
+        Returns
+        -------
+        list
+            A list of 3-tuples of the form (neo4jrestclient.client.Node, neo4jrestclient.client.Relationship, neo4jrestclient.client.Node)
+
         """
+
+        direction = '->' if is_directed else '-'
+        query = f"""
+        MATCH (s{self.get_filter('subject_category')})-[p{self.get_filter('edge_label')}]{direction}(o{self.get_filter('object_category')})
+        RETURN s, p, o
+        SKIP {skip}
+        """
+
+        if limit:
+            query += f" LIMIT {limit}"
 
         if skip < limit:
-            direction = '->' if is_directed else '-'
-
-            # TODO: would it be faster to return only p?
-            if limit == 0 or limit is None:
-                query = """
-                MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
-                RETURN s,p,o
-                SKIP {skip};
-                """.format(
-                    skip=skip,
-                    direction=direction,
-                    **self.build_query_kwargs()
-                )
-            else:
-                query = """
-                MATCH (s{subject_category}{subject_property})-[p{edge_label}{edge_property}]{direction}(o{object_category}{object_property})
-                RETURN s,p,o
-                SKIP {skip} LIMIT {limit};
-                """.format(
-                    skip=skip,
-                    limit=limit,
-                    direction=direction,
-                    **self.build_query_kwargs()
-                )
-
-            query = self.clean_whitespace(query)
             logging.debug(query)
-
-            edgeResults = self.http_driver.query(query, returns=(Node, Relationship, Node))
-            edges = [edge for edgeResult in edgeResults for edge in edgeResult if isinstance(edge, Relationship)]
-            return edges
-
+            try:
+                results = self.http_driver.query(query, returns=(Node, Relationship, Node))
+            except CypherException as ce:
+                logging.error(ce)
+            edge_triples = [x for x in results]
+            return edge_triples
         return []
 
-    # TODO: /nneo-5 test from Makefile fails here
-    def save_node(self, obj):
+    def save_node(self, obj: dict) -> None:
         """
-        Load a node into neo4j
+        Load a node into Neo4j.
+
+        Parameters
+        ----------
+        obj: dict
+            A dictionary that represents a node and its properties.
+            The node must have 'id' property. For all other necessary properties, refer to the BioLink Model.
+
         """
-
-        if 'id' not in obj:
-            raise KeyError("node does not have 'id' property")
-        if 'name' not in obj:
-            logging.warning("node does not have 'name' property")
-
-        if 'category' not in obj:
-            logging.warning("node does not have 'category' property. Using 'Node' as default")
-            label = 'Node'
-        else:
-            label = obj.pop('category')[0]
+        obj = self.validate_node(obj)
+        category = obj.pop('category')[0]
 
         properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
-        query = "MERGE (n:{label} {{id: $id}}) SET {properties}".format(label=label, properties=properties)
-        self.http_driver.query(query, params=obj)
+        query = f"MERGE (n:`{category}` {{id: $id}}) SET {properties}"
+        logging.debug(query)
+        try:
+            self.http_driver.query(query, params=obj)
+        except CypherException as ce:
+            logging.error(ce)
 
-    def save_node_unwind(self, nodes_by_category, property_names):
+    def save_node_unwind(self, nodes_by_category: Dict[str, list]) -> None:
         """
-        Save all nodes into neo4j using the UNWIND cypher clause
-        """
+        Save all nodes into Neo4j using the UNWIND cypher clause.
 
+        Parameters
+        ----------
+        nodes_by_category: Dict[str, list]
+            A dictionary where node category is the key and the value is a list of nodes of that category
+
+        """
         for category in nodes_by_category.keys():
-            self.populate_missing_properties(nodes_by_category[category], property_names)
-            query = self.generate_unwind_node_query(category, property_names)
+            logging.info("Generating UNWIND for category: {}".format(category))
+            query = self.generate_unwind_node_query(category)
+            logging.info(query)
+            try:
+                self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
+            except CypherException as ce:
+                logging.error(ce)
 
-            self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
-
-    def save_edge_unwind(self, edges_by_relationship_type, property_names):
+    def generate_unwind_node_query(self, category: str) -> str:
         """
-        Save all edges into neo4j using the UNWIND cypher clause
+        Generate UNWIND cypher query for saving nodes into Neo4j.
+
+        There should be a CONSTRAINT in Neo4j for `self.DEFAULT_NODE_LABEL`.
+        The query uses `self.DEFAULT_NODE_LABEL` as the node label to increase speed for adding nodes.
+        The query also sets label to `self.DEFAULT_NODE_LABEL` for any node to make sure that the CONSTRAINT applies.
+
+        Parameters
+        ----------
+        category: str
+            Node category
+
+        Returns
+        -------
+        str
+            The UNWIND cypher query
+
+        """
+        query = f"""
+        UNWIND $nodes AS node
+        MERGE (n:`{self.DEFAULT_NODE_LABEL}` {{id: node.id}})
+        ON CREATE SET n += node, n:`{category}`
         """
 
-        for predicate in edges_by_relationship_type:
-            self.populate_missing_properties(edges_by_relationship_type[predicate], property_names)
-            query = self.generate_unwind_edge_query(predicate, property_names)
-            edges = edges_by_relationship_type[predicate]
+        return query
+
+    def save_edge_unwind(self, edges_by_edge_label: Dict[str, list]) -> None:
+        """
+        Save all edges into Neo4j using the UNWIND cypher clause.
+
+        Parameters
+        ----------
+        edges_by_edge_label: dict
+            A dictionary where edge label is the key and the value is a list of edges with that edge label
+
+        """
+        for predicate in edges_by_edge_label:
+            query = self.generate_unwind_edge_query(predicate)
+            logging.info(query)
+            edges = edges_by_edge_label[predicate]
             for i in range(0, len(edges), 1000):
                 end = i + 1000
                 subset = edges[i:end]
-                logging.info("edges subset: {}-{}".format(i, end))
+                logging.info("edges subset: {}-{} for predicate {}".format(i, end, predicate))
                 time_start = self.current_time_in_millis()
-
-                self.http_driver.query(query, params={"relationship": predicate, "edges": subset})
+                try:
+                    self.http_driver.query(query, params={"relationship": predicate, "edges": subset})
+                except CypherException as ce:
+                    logging.error(ce)
                 time_end = self.current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-    # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
-    def generate_unwind_node_query(self, label, property_names):
+    def generate_unwind_edge_query(self, edge_label: str) -> str:
         """
-        Generate UNWIND cypher clause for a given label and property names (optional)
+        Generate UNWIND cypher query for saving edges into Neo4j.
+
+        Query uses `self.DEFAULT_NODE_LABEL` to quickly lookup the required subject and object node.
+
+        Parameters
+        ----------
+        edge_label: str
+            Edge label as string
+
+        Returns
+        -------
+        str
+            The UNWIND cypher query
+
         """
-        ignore_list = ['subject', 'predicate', 'object']
 
-        properties_dict = {p : p for p in property_names if p not in ignore_list}
-
-        properties = ', '.join('n.{0}=node.{0}'.format(k) for k in properties_dict.keys() if k != 'id')
-
-        query = """
-        UNWIND $nodes AS node
-        MERGE (n:Node {{id: node.id}})
-        SET n:{label}, {properties}
-        """.format(label=label, properties=properties)
-
-        query = self.clean_whitespace(query)
-
-        logging.debug(query)
-
-        return query
-
-    # expand to include arg for the args that are currently used by formatters/hydrators in bolt_driver?
-    def generate_unwind_edge_query(self, relationship, property_names):
-        """
-        Generate UNWIND cypher clause for a given relationship
-        """
-        ignore_list = ['subject', 'predicate', 'object']
-        properties_dict = {p : "edge.{}".format(p) for p in property_names if p not in ignore_list}
-
-        properties = ', '.join('r.{0}=edge.{0}'.format(k) for k in properties_dict.keys())
-
-        query="""
+        query = f"""
         UNWIND $edges AS edge
-        MATCH (s:Node {{id: edge.subject}}), (o:Node {{id: edge.object}})
-        MERGE (s)-[r:{edge_label}]->(o)
-        SET {properties}
-        """.format(properties=properties, edge_label=relationship)
-
-        query = self.clean_whitespace(query)
-
-        logging.debug(query)
-
+        MATCH (s:`{self.DEFAULT_NODE_LABEL}` {{id: edge.subject}}), (o:`{self.DEFAULT_NODE_LABEL}` {{id: edge.object}})
+        MERGE (s)-[r:`{edge_label}`]->(o)
+        SET r += edge
+        """
         return query
 
-    def save_edge(self, obj):
+    def save_edge(self, obj: dict) -> None:
         """
-        Load an edge into neo4j
+        Load an edge into Neo4j.
+
+        Parameters
+        ----------
+        obj: dict
+            A dictionary that represents an edge and its properties.
+            The edge must have 'subject', 'edge_label' and 'object' properties. For all other necessary properties, refer to the BioLink Model.
+
         """
-        label = obj.pop('predicate')
-        subject_id = obj.pop('subject')
-        object_id = obj.pop('object')
+        obj = self.validate_edge(obj)
+        edge_label = obj.pop('edge_label')
 
         properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
 
-        q="""
-        MATCH (s:Node {{id: $subject_id}}), (o:Node {{id: $object_id}})
-        MERGE (s)-[r:{label}]->(o)
+        q = f"""
+        MATCH (s {{id: $subject}}), (o {{id: $object}})
+        MERGE (s)-[r:{edge_label}]->(o)
         SET {properties}
-        """.format(properties=properties, label=label)
-
-        q = self.clean_whitespace(q)
-
-        # TODO Is there a reason to pass hydration into the driver?
-        params = dict(list(obj.items()) + [("subject_id", subject_id), ("object_id", object_id)])
-        self.http_driver.query(q, params=params)
-
-    def save_from_csv(self, nodes_filename, edges_filename):
-        """
-        Load from a CSV to neo4j
-        """
-        nodes_df = pd.read_csv(nodes_filename)
-        edges_df = pd.read_csv(edges_filename)
-
-        for index, row in nodes_df.iterrows():
-            # we can eliminate the need to pass into transactions as 'query' in http_driver uses transactions by default
-            self.save_node(row.to_dict())
-        for index, row in edges_df.iterrows():
-            self.save_edge(row.to_dict())
-        self.neo4j_report()
-
-    def save_with_unwind(self):
-        """
-        Load from a nx graph to neo4j using the UNWIND cypher clause
         """
 
+        try:
+            self.http_driver.query(q, params=obj)
+        except CypherException as ce:
+            logging.error(ce)
+
+    def save_with_unwind(self) -> None:
+        """
+        Save all nodes and edges from networkx.MultiDiGraph into Neo4j using the UNWIND cypher clause.
+
+        """
         nodes_by_category = {}
-        node_properties = []
+
         for n in self.graph.nodes():
             node = self.graph.node[n]
             if 'id' not in node:
+                logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node))
                 continue
-
+            node = self.validate_node(node)
             category = ':'.join(node['category'])
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node]
             else:
                 nodes_by_category[category].append(node)
 
-            node_properties += [x for x in node if x not in node_properties]
-
-        edges_by_relationship_type = {}
-        edge_properties = []
+        edges_by_edge_label = {}
         for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
-                    if adjitem['predicate'] not in edges_by_relationship_type:
-                        edges_by_relationship_type[adjitem['predicate']] = [adjitem]
+                    edge = self.validate_edge(adjitem)
+                    if adjitem['edge_label'] not in edges_by_edge_label:
+                        edges_by_edge_label[edge['edge_label']] = [edge]
                     else:
-                        edges_by_relationship_type[adjitem['predicate']].append(adjitem)
-                    edge_properties += [x for x in adjitem.keys() if x not in edge_properties]
+                        edges_by_edge_label[edge['edge_label']].append(edge)
 
-        self.create_constraints(nodes_by_category.keys())
+        # create indexes
+        self.create_constraints(set(nodes_by_category.keys()))
+        # save all nodes
+        self.save_node_unwind(nodes_by_category)
+        # save all edges
+        self.save_edge_unwind(edges_by_edge_label)
 
-        self.save_node_unwind(nodes_by_category, node_properties)
-        self.save_edge_unwind(edges_by_relationship_type, edge_properties)
-
-    # TODO
-    def save(self):
+    def save(self) -> str:
         """
-        Load from a nx graph to neo4j
-        """
+        Save all nodes and edges from networkx.MultiDiGraph into Neo4j.
 
-        labels = {'Node'}
+        """
+        categories = {self.DEFAULT_NODE_LABEL}
         for n in self.graph.nodes():
             node = self.graph.node[n]
             if 'category' in node:
                 if isinstance(node['category'], list):
-                    labels.update(node['category'])
+                    categories.update(node['category'])
                 else:
-                    labels.add(node['category'])
+                    categories.add(node['category'])
 
-
-        self.create_constraints(labels)
+        self.create_constraints(categories)
         for node_id in self.graph.nodes():
             node_attributes = self.graph.node[node_id]
             if 'id' not in node_attributes:
@@ -526,117 +528,41 @@ class NeoTransformer(Transformer):
                     self.save_edge(adjitem)
         self.neo4j_report()
 
-    def save_via_apoc(self, nodes_filename=None, edges_filename=None):
+    def neo4j_report(self) -> None:
         """
-        Load from a nx graph to neo4j, via APOC procedure
-        """
+        Give a summary on the number of nodes and edges in the Neo4j database.
 
-        if nodes_filename is None or edges_filename is None:
-            prefix = uuid.uuid4()
-            nodes_filename = "/tmp/{}_nodes.json".format(prefix)
-            edges_filename = "/tmp/{}_edges.json".format(prefix)
+        """
+        try:
+            node_results = self.http_driver.query("MATCH (n) RETURN COUNT(*)")
+        except CypherException as ce:
+            logging.error(ce)
 
-        self._save_as_json(nodes_filename, edges_filename)
-        self.save_nodes_via_apoc(nodes_filename)
-        self.save_edges_via_apoc(edges_filename)
-        self.update_node_labels()
-
-    def save_nodes_via_apoc(self, filename):
-        """
-        Load nodes from a nx graph to neo4j, via APOC procedure
-        """
-        logging.info("reading nodes from {} and saving to Neo4j via APOC procedure".format(filename))
-        start = self.current_time_in_millis()
-        query = """
-        CALL apoc.periodic.iterate(
-            "CALL apoc.load.json('file://""" + filename + """') YIELD value AS jsonValue RETURN jsonValue",
-            "MERGE (n:Node {id:jsonValue.id}) set n+=jsonValue",
-            {
-                batchSize: 10000,
-                iterateList: true
-            }
-        )
-        """
-
-        # TODO: Parameterize use of bolt driver vs https for queries?
-        self.http_driver.query(query)
-        end = self.current_time_in_millis()
-        logging.debug("time taken for APOC procedure: {} ms".format(end - start))
-
-    def save_edges_via_apoc(self, filename):
-        """
-        Load edges from a nx graph to neo4j, via APOC procedure
-        """
-        logging.info("reading edges from {} and saving to Neo4j via APOC procedure".format(filename))
-        start = self.current_time_in_millis()
-        query = """
-        CALL apoc.periodic.iterate(
-            "CALL apoc.load.json('file://""" + filename + """') YIELD value AS jsonValue return jsonValue",
-            "MATCH (a:Node {id:jsonValue.subject})
-            MATCH (b:Node {id:jsonValue.object})
-            CALL apoc.merge.relationship(a,jsonValue.predicate,{id:jsonValue.id},jsonValue,b) YIELD rel
-            RETURN count(*) as relationships",
-            {
-                batchSize: 10000,
-                iterateList: true
-            }
-        );
-        """
-
-        # TODO: Parameterize use of bolt driver vs https for queries?
-        self.http_driver.query(query)
-        end = self.current_time_in_millis()
-        logging.debug("time taken for APOC procedure: {} ms".format(end - start))
-
-    # TODO
-    def update_node_labels(self):
-        """
-        Update node labels
-        """
-        logging.info("updating node labels")
-        start = self.current_time_in_millis()
-        query_string = """
-        UNWIND $nodes as node
-        MATCH (n:Node {{id: node.id}}) SET n:{node_labels}
-        """
-
-        nodes_by_category = {}
-        for node in self.graph.nodes(data=True):
-            node_data = node[1]
-            key = ':'.join(node_data['category'])
-            if key in nodes_by_category:
-                nodes_by_category[key].append(node_data)
-            else:
-                nodes_by_category[key] = [node_data]
-
-        for category in nodes_by_category:
-            query = query_string.format(node_labels=category)
-            self.http_driver.query(query, params={"nodes": nodes_by_category[category]})
-        end = self.current_time_in_millis()
-        logging.debug("time taken to update node labels: {} ms".format(end - start))
-
-    def report(self):
-        logging.info("Total number of nodes: {}".format(len(self.graph.nodes())))
-        logging.info("Total number of edges: {}".format(len(self.graph.edges())))
-
-    def neo4j_report(self):
-        """
-        Give a summary on the number of nodes and edges in neo4j database
-        """
-        for r in self.http_driver.query("MATCH (n) RETURN COUNT(*)"):
+        for r in node_results:
             logging.info("Number of Nodes: {}".format(r[0]))
-        for r in self.http_driver.query("MATCH (s)-->(o) RETURN COUNT(*)"):
+
+        try:
+            edge_results = self.http_driver.query("MATCH (s)-->(o) RETURN COUNT(*)")
+        except CypherException as ce:
+            logging.error(ce)
+
+        for r in edge_results:
             logging.info("Number of Edges: {}".format(r[0]))
 
-    # TODO
-    def create_constraints(self, labels):
+    def create_constraints(self, categories: set) -> None:
         """
-        Create a unique constraint on node 'id' for all labels
-        """
-        query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
-        label_set = set()
+        Create a unique constraint on node 'id' for all `categories` in Neo4j.
 
-        for label in labels:
+        Parameters
+        ----------
+        categories: set
+            Set of categories
+
+        """
+        query = "CREATE CONSTRAINT ON (n:`{}`) ASSERT n.id IS UNIQUE"
+        label_set = {Transformer.DEFAULT_NODE_LABEL}
+
+        for label in categories:
             if ':' in label:
                 sub_labels = label.split(':')
                 for sublabel in sub_labels:
@@ -645,74 +571,27 @@ class NeoTransformer(Transformer):
                 label_set.add(label)
 
         for label in label_set:
-            self.http_driver.query(query.format(label))
+            try:
+                self.http_driver.query(query.format(label))
+            except CypherException as ce:
+                logging.error(ce)
 
-    def _save_as_json(self, node_filename, edge_filename):
+    def get_filter(self, key: str) -> str:
         """
-        Write a graph as JSON (used internally)
+        Get the value for filter as defined by `key`.
+        This is used as a convenience method for generating cypher queries.
+
+        Parameters
+        ----------
+        key: str
+            Name of the filter
+
+        Returns
+        -------
+        str
+            Value corresponding to the given filter `key`, formatted for CQL
         """
-        nodes = self._save_nodes_as_json(node_filename)
-        edges = self._save_edges_as_json(edge_filename)
-
-    def _save_nodes_as_json(self, filename):
-        """
-        Write nodes as JSON (used internally)
-        """
-        FH = open(filename, "w")
-        nodes = []
-        for node in self.graph.nodes(data=True):
-            nodes.append(node[1])
-
-        FH.write(json.dumps(nodes))
-        FH.close()
-
-    def _save_edges_as_json(self, filename):
-        """
-        Write edges as JSON (used internally)
-        """
-        fh = open(filename, "w")
-        edges = []
-        for edge in self.graph.edges_iter(data=True, keys=True):
-            edges.append(edge[3])
-
-        fh.write(json.dumps(edges))
-        fh.close()
-
-    @staticmethod
-    def parse_properties(properties, delim = '|'):
-        property_list = []
-        for key in properties:
-            if key in ['subject', 'predicate', 'object']:
-                continue
-
-            values = properties[key]
-            if type(values) == type(""):
-                pair = "{}: \"{}\"".format(key, str(values))
-            else:
-                pair = "{}: {}".format(key, str(values))
-            property_list.append(pair)
-        return ','.join(property_list)
-
-    @staticmethod
-    def populate_missing_properties(objs, properties):
-        for obj in objs:
-            missing_properties = set(properties) - set(obj.keys())
-            for property in missing_properties:
-                obj[property] = ''
-
-
-class MonarchNeoTransformer(NeoTransformer):
-    """
-    TODO: do we need a subclass, or just make parent configurable?
-
-    In contrast to a generic import/export, the Monarch neo4j graph
-    uses reification (same as Richard's semmeddb implementation in neo4j).
-    This transform should de-reify.
-
-    Also:
-
-     - rdf:label to name
-     - neo4j label to category
-    """
-    pass
-
+        value = ''
+        if key in self.filters and len(self.filters[key]) != 0:
+            value = f":`{self.filters[key]}`"
+        return value
