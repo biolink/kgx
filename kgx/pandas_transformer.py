@@ -167,7 +167,7 @@ class PandasTransformer(Transformer):
             o = kwargs['object']
             self.graph.add_edge(s, o, **kwargs)
         else:
-            logging.info("Ignoring node with either a missing 'subject' or 'object': {}".format(kwargs))
+            logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
 
     def export_nodes(self) -> pd.DataFrame:
         """
