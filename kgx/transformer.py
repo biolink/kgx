@@ -83,7 +83,6 @@ class Transformer(object):
             The value for a filter. Can be either a string or a list
 
         """
-        # TODO: Not using Filter class here. This has side effect for NeoTransformer
         self.filters[key] = value
 
     def categorize(self) -> None:
