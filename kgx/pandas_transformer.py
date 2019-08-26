@@ -131,6 +131,7 @@ class PandasTransformer(Transformer):
             A node
 
         """
+        node = Transformer.validate_node(node)
         kwargs = PandasTransformer._build_kwargs(node.copy())
         if 'id' in kwargs:
             n = kwargs['id']
@@ -161,13 +162,14 @@ class PandasTransformer(Transformer):
             An edge
 
         """
+        edge = Transformer.validate_edge(edge)
         kwargs = PandasTransformer._build_kwargs(edge.copy())
         if 'subject' in kwargs and 'object' in kwargs:
             s = kwargs['subject']
             o = kwargs['object']
             self.graph.add_edge(s, o, **kwargs)
         else:
-            logging.info("Ignoring node with either a missing 'subject' or 'object': {}".format(kwargs))
+            logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
 
     def export_nodes(self) -> pd.DataFrame:
         """
@@ -181,6 +183,7 @@ class PandasTransformer(Transformer):
         """
         rows = []
         for n, data in self.graph.nodes(data=True):
+            data = self.validate_node(data)
             row = PandasTransformer._build_export_row(data.copy())
             row['id'] = n
             rows.append(row)
@@ -199,6 +202,7 @@ class PandasTransformer(Transformer):
         """
         rows = []
         for s, o, data in self.graph.edges(data=True):
+            data = self.validate_edge(data)
             row = PandasTransformer._build_export_row(data.copy())
             row['subject'] = s
             row['object'] = o

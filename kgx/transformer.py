@@ -41,6 +41,8 @@ class Transformer(object):
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
     """
 
+    DEFAULT_NODE_LABEL = 'named_thing'
+
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         if source_graph:
             self.graph = source_graph
@@ -81,7 +83,6 @@ class Transformer(object):
             The value for a filter. Can be either a string or a list
 
         """
-        # TODO: Not using Filter class here. This has side effect for NeoTransformer
         self.filters[key] = value
 
     def categorize(self) -> None:
@@ -387,3 +388,57 @@ class Transformer(object):
     def current_time_in_millis():
         # TODO: move to Utils (and others)
             return int(round(time.time() * 1000))
+
+    @staticmethod
+    def validate_node(node: dict) -> dict:
+        """
+        Given a node as a dictionary, check for required properties.
+        This method will return the node dictionary with default assumptions applied, if any.
+
+        Parameters
+        ----------
+        node: dict
+            A node represented as a dict
+
+        Returns
+        -------
+        dict
+            A node represented as a dict, with default assumptions applied.
+
+        """
+
+        if 'id' not in node:
+            raise KeyError("node does not have 'id' property: {}".format(node))
+        if 'name' not in node:
+            logging.warning("node does not have 'name' property: {}".format(node))
+        if 'category' not in node:
+            logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_LABEL))
+            node['category'] = [Transformer.DEFAULT_NODE_LABEL]
+
+        return node
+
+    @staticmethod
+    def validate_edge(edge: dict) -> dict:
+        """
+        Given an edge as a dictionary, check for required properties.
+        This method will return the edge dictionary with default assumptions applied, if any.
+
+        Parameters
+        ----------
+        edge: dict
+            An edge represented as a dict
+
+        Returns
+        -------
+        dict
+            An edge represented as a dict, with default assumptions applied.
+        """
+
+        if 'subject' not in edge:
+            raise KeyError("edge does not have 'subject' property: {}".format(edge))
+        if 'edge_label' not in edge:
+            raise KeyError("edge does not have 'edge_label' property: {}".format(edge))
+        if 'object' not in edge:
+            raise KeyError("edge does not have 'object' property: {}".format(edge))
+
+        return edge

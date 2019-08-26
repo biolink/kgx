@@ -4,22 +4,16 @@ language: python
 python:
   - "3.7"
 
-# command to install dependencies
+services:
+  - docker
+
+before_install:
+  - docker pull neo4j:latest
+  - docker run -d -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:latest
+
 install:
   - pip install --upgrade pip setuptools wheel
   - pip install -r requirements.txt
- 
-# command to run tests
+
 script: 
   - PYTHONPATH=. make tests
-
-#after_success:
-#  coveralls
-
-# whitelist
-#branches:
-#  only:
-#    - master
-#branches:
-#  except:
-#  - notravis
