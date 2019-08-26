@@ -4,6 +4,8 @@ import uuid
 import click
 
 from .transformer import Transformer
+from kgx.utils.kgx_utils import generate_edge_key
+
 from typing import Tuple, List, Dict
 
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
@@ -158,7 +160,6 @@ class NeoTransformer(Transformer):
             An edge
 
         """
-        edge_key = str(uuid.uuid4())
         edge_subject = edge.start
         edge_predicate = edge.properties
         edge_object = edge.end
@@ -185,7 +186,8 @@ class NeoTransformer(Transformer):
         if not self.graph.has_node(object_id):
             self.load_node(edge_object)
 
-        self.graph.add_edge(subject_id, object_id, edge_key, **attributes)
+        key = generate_edge_key(subject_id, attributes['edge_label'], object_id)
+        self.graph.add_edge(subject_id, object_id, key, attributes)
 
     def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
         """

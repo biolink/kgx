@@ -22,14 +22,14 @@ OBAN = Namespace('http://purl.org/oban/')
 BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
 
 predicate_mapping = {
-    'http://purl.obolibrary.org/obo/RO_0002200' : 'has phenotype',
-    'http://purl.obolibrary.org/obo/RO_0000091' : 'has disposition',
-    'http://purl.obolibrary.org/obo/RO_0003303' : 'causes condition',
-    'http://purl.obolibrary.org/obo/RO_0002525' : 'is subsequence of',
-    OWL.sameAs.lower() : 'same_as',
-    OWL.equivalentClass.lower() : 'same_as',
-    RDFS.subClassOf.lower() : 'subclass_of',
-    'http://www.w3.org/2000/01/rdf-schema#subPropertyOf' : 'subclass_of',
+    'http://purl.obolibrary.org/obo/RO_0002200': 'has_phenotype',
+    'http://purl.obolibrary.org/obo/RO_0000091': 'has_disposition',
+    'http://purl.obolibrary.org/obo/RO_0003303': 'causes_condition',
+    'http://purl.obolibrary.org/obo/RO_0002525': 'is_subsequence_of',
+    OWL.sameAs.lower(): 'same_as',
+    OWL.equivalentClass.lower(): 'same_as',
+    RDFS.subClassOf.lower(): 'subclass_of',
+    RDFS.subPropertyOf: 'subclass_of'
 }
 
 predicate_mapping.update(

@@ -4,6 +4,7 @@ from typing import List, Set, Dict, Tuple
 import rdflib
 from rdflib import URIRef, Namespace, RDF, RDFS, OWL
 from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.utils.kgx_utils import generate_edge_key
 from prefixcommons.curie_util import read_remote_jsonld_context
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
@@ -141,16 +142,20 @@ class RdfGraphMixin(object):
             edge_label = self.DEFAULT_EDGE_LABEL
 
         kwargs = {
+            'subject': subject_iri,
+            'predicate': predicate_iri,
+            'object': object_iri,
             'relation': relation,
             'edge_label': edge_label
         }
         if 'provided_by' in self.graph_metadata:
             kwargs['provided_by'] = self.graph_metadata['provided_by']
 
-        if self.graph.has_edge(s, o, key=edge_label):
+        key = generate_edge_key(s, edge_label, o)
+        if self.graph.has_edge(s, o, key=key):
             logging.debug("{} -- {} --> {} edge already exists".format(s, edge_label, o))
         else:
-            self.graph.add_edge(s, o, key=edge_label, **kwargs)
+            self.graph.add_edge(s, o, key=key, **kwargs)
 
         return s, o, edge_label
 
@@ -226,7 +231,8 @@ class RdfGraphMixin(object):
 
         if key is not None:
             s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
-            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
+            edge_key = generate_edge_key(s, edge_label, o)
+            attr_dict = self.graph.get_edge_data(s, o, key=edge_key)
             self._add_attribute(attr_dict, key, value)
 
     def _add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:

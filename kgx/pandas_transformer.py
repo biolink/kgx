@@ -3,6 +3,7 @@ import numpy as np
 import logging, tarfile
 from tempfile import TemporaryFile
 from kgx.utils import make_path
+from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformer import Transformer
 
 from typing import List, Dict
@@ -82,7 +83,7 @@ class PandasTransformer(Transformer):
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    df = pd.read_csv(f, comment='#', **kwargs) # type: pd.DataFrame
+                    df = pd.read_csv(f, **kwargs) # type: pd.DataFrame
                     if member.name == "nodes.{}".format(input_format):
                         self.load_nodes(df)
                     elif member.name == "edges.{}".format(input_format):
@@ -90,7 +91,7 @@ class PandasTransformer(Transformer):
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            df = pd.read_csv(filename, comment='#', dtype=str, **kwargs) # type: pd.DataFrame
+            df = pd.read_csv(filename, dtype=str, **kwargs) # type: pd.DataFrame
             self.load(df)
 
     def load(self, df: pd.DataFrame) -> None:
@@ -167,7 +168,8 @@ class PandasTransformer(Transformer):
         if 'subject' in kwargs and 'object' in kwargs:
             s = kwargs['subject']
             o = kwargs['object']
-            self.graph.add_edge(s, o, **kwargs)
+            key = generate_edge_key(s, kwargs['edge_label'], o)
+            self.graph.add_edge(s, o, key, **kwargs)
         else:
             logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
 
@@ -304,7 +306,7 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        data = {k : v for k, v in data.items() if v is not np.nan}
+        data = {k: v for k, v in data.items() if v is not np.nan}
         for key, value in data.items():
             if key in _column_types:
                 if _column_types[key] == list:
@@ -318,6 +320,9 @@ class PandasTransformer(Transformer):
                     except:
                         data[key] = False
                 else:
+                    # some OWL files provide values that span multiple lines, which
+                    # is parsed as-is by Rdflib. Escaping all new line characters.
+                    value = value.replace('\n', '\\n')
                     data[key] = str(value)
         return data
 

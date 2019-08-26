@@ -155,6 +155,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         logging.info("Loading node attributes from rdflib.Graph into networkx.MultiDiGraph")
         with click.progressbar(self.graph.nodes(data=True), label='Progress') as bar:
             for n, data in bar:
+                if 'id' not in data:
+                    data['id'] = n
                 if 'iri' in data:
                     uriref = URIRef(data['iri'])
                 else:
