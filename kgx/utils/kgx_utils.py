@@ -38,7 +38,7 @@ def get_toolkit() -> Toolkit:
 
     return toolkit
 
-def generate_edge_key(s: str, p: str, o: str) -> str:
+def generate_edge_key(s: str, edge_label: str, o: str) -> str:
     """
     Generates an edge key based on a given subject, edge_label and object.
 
