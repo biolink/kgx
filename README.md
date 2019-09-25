@@ -1,15 +1,23 @@
 # knowledge graph exchange
 [![Build Status](https://travis-ci.org/NCATS-Tangerine/kgx.svg?branch=master)](https://travis-ci.org/NCATS-Tangerine/kgx)
 
-A utility library and set of command line tools for exchanging data in knowledge graphs.
+KGX (Knowledge Graph Exchange) is a Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](https://biolink.github.io/biolink-model/).
 
-The tooling here is partly generic but intended primarily for building
-the
-[translator-knowledge-graph](https://github.com/NCATS-Tangerine/translator-knowledge-graph).
+The core datamodel is a [Property Graph](https://neo4j.com/developer/graph-database/) (PG), represented internally in Python using a [networkx MultiDiGraph model](https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.MultiDiGraph.edges.html).
+
+KGX allows conversion to and from:
+
+ * RDF serializations (read/write) and SPARQL endpoints (read)
+ * Neo4J endpoints (read) or Neo4J dumps (write)
+ * CSV/TSV
+ * Any format supported by networkx
+ 
+KGX will also provide validation, to ensure the KGs are conformant to the Biolink model: making sure nodes are categorized using biolink classes, edges are labeled using valid biolink relationship types, and valid properties are used.
 
 For additional background see the [Translator Knowledge Graph Drive](http://bit.ly/tr-kg)
 
 ## Installation
+
 The installation requires Python 3.
 
 Go to where you wish to host your local project repository and git clone the project, namely:
