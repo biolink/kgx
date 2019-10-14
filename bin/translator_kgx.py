@@ -470,7 +470,7 @@ def make_neo4j_transformer(address, username, password):
 
     return kgx.NeoTransformer(
         host=o.hostname,
-        ports={o.scheme : o.port},
+        port=o.port,
         username=username,
         password=password
     )
