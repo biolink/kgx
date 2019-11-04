@@ -45,6 +45,15 @@ deactivate
 
 To reenter, source the _activate_ command again.
 
+Alternately, you can also use use **conda env** to manage packages and the development environment:
+
+```
+conda create -n translator-modules python=3.7
+conda activate translator-modules
+```
+
+Some IDE's (e.g. PyCharm) may also have provisions for directly creating such a **virtualenv**. This should work fine.
+
 Finally, the Python dependencies of the application need to be installed into the local environment 
 (once, after creating  the 'venv') using the following command:
 
