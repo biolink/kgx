@@ -52,7 +52,7 @@ conda create -n translator-modules python=3.7
 conda activate translator-modules
 ```
 
-Some IDE's (e.g. PyCharm) may also have provisions for directly creating such a **virtualenv**. This should work fine.
+Some IDE's (e.g. PyCharm) may also have provisions for directly creating a virtual environment. This should work fine.
 
 Finally, the Python dependencies of the application need to be installed into the local environment 
 (once, after creating  the 'venv') using the following command:
@@ -60,7 +60,12 @@ Finally, the Python dependencies of the application need to be installed into th
 ```
 pip install .
 ```
-
+or
+```
+# sometimes better to use the 'python -m pip' version of pip rather than just 'pip'
+# to ensure that the proper Python3.7 version of pip is used (i.e. better check 'which pip'?)
+python -m pip install .
+```
 To test the basic _kgx_ application, run the following:
 
 ```
