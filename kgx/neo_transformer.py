@@ -384,7 +384,7 @@ class NeoTransformer(Transformer):
         query = f"""
         UNWIND $nodes AS node
         MERGE (n:`{self.DEFAULT_NODE_LABEL}` {{id: node.id}})
-        ON CREATE SET n += node, n:`{category}`
+        ON CREATE SET n += node, n:{category}
         """
 
         return query
