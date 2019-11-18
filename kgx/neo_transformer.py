@@ -1,13 +1,13 @@
-import logging
 import itertools
+import logging
 import uuid
-import click
-
-from .transformer import Transformer
 from typing import Tuple, List, Dict
 
+import click
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
+
+from .transformer import Transformer
 
 
 class NeoTransformer(Transformer):

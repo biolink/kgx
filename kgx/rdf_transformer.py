@@ -1,16 +1,21 @@
-import click, rdflib, logging, os, uuid
+from collections import defaultdict
+from typing import Union, Set, List
+
+import click
+import logging
 import networkx as nx
-from typing import Tuple, Union, Set, List, Dict
+import os
+import rdflib
+import uuid
+from prefixcommons.curie_util import read_remote_jsonld_context
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
-from collections import defaultdict
-from prefixcommons.curie_util import read_remote_jsonld_context
 
 from kgx.prefix_manager import PrefixManager
-from kgx.transformer import Transformer
 from kgx.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.transformer import Transformer
 from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.rdf_utils import find_category, property_mapping
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 

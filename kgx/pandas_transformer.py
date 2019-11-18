@@ -1,11 +1,13 @@
-import pandas as pd
-import numpy as np
-import logging, tarfile
+import logging
+import tarfile
 from tempfile import TemporaryFile
-from kgx.utils import make_path
-from kgx.transformer import Transformer
-
 from typing import List, Dict
+
+import numpy as np
+import pandas as pd
+
+from kgx.transformer import Transformer
+from kgx.utils import make_path
 
 LIST_DELIMITER = '|'
 

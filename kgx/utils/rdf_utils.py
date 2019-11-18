@@ -1,8 +1,9 @@
 from typing import List, Union
+
 import rdflib
+from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
-from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
 from kgx.utils.kgx_utils import get_toolkit
 

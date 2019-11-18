@@ -1,6 +1,6 @@
+from typing import Tuple, Optional
+
 from networkx import MultiDiGraph
-from collections import defaultdict
-from typing import List, Tuple, Optional
 
 from kgx.utils.kgx_utils import get_toolkit
 
