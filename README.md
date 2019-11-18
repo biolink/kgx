@@ -18,7 +18,10 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 
 ## Installation
 
-The installation requires Python 3.
+_Note that the installation of KGX requires Python 3.7 or better._  You should first confirm what version of Python 
+you have running and upgrade to 3.7 if necessary, verifying that your `python3` command is (sym)linked to your 
+new 3.7 version. (Note that on some *nix systems, you may need to use `sudo` to run core operating system package 
+installation commands).
 
 Go to where you wish to host your local project repository and git clone the project, namely:
 
@@ -30,7 +33,14 @@ git clone https://github.com/NCATS-Tangerine/kgx.git .
 cd kgx
 ```
 
-Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment:
+Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment. Note that 
+you may also have to install the appropriate `venv` package for Python 3.7. For example, under Ubuntu Linux, you might 
+
+```
+apt-get install python3.7-venv
+```
+
+Once `venv` is available, type:
 
 ```
 python3 -m venv venv
@@ -54,18 +64,31 @@ conda activate translator-modules
 
 Some IDE's (e.g. PyCharm) may also have provisions for directly creating a virtual environment. This should work fine.
 
-Finally, the Python dependencies of the application need to be installed into the local environment 
-(once, after creating  the 'venv') using the following command:
+Finally, the Python dependencies of the application need to be installed into the local environment using a version of 
+`pip` matched to your Python 3.7 installation. If you don't yet have pip installed, then the following:
+
+```bash
+curl https://bootstrap.pypa.io/get-pip.py | python
+pip install --upgrade setuptools
+```
+
+will reliably install it.
 
 ```
 pip install .
 ```
-or
+
+It is *sometimes* better to use the 'python -m pip' version of pip rather than just 'pip'
+to ensure that the proper version of pip - i.e. for the python3 in your virtual environment - is used 
+(i.e. better check 'which pip'? On some systems, it may run the operating system's version, 
+which may not be compatible with your venv installed Python 3.7)
+
 ```
-# sometimes better to use the 'python -m pip' version of pip rather than just 'pip'
-# to ensure that the proper Python3.7 version of pip is used (i.e. better check 'which pip'?)
 python -m pip install .
 ```
+
+## Testing the Installation
+
 To test the basic _kgx_ application, run the following:
 
 ```
