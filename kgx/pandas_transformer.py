@@ -241,8 +241,8 @@ class PandasTransformer(Transformer):
         nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
         edges_content = self.export_edges().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
 
-        nodes_file_name = 'nodes.' + extension
-        edges_file_name = 'edges.' + extension
+        nodes_file_name = "{}_nodes.{}".format(filename, extension)
+        edges_file_name = "{}_edges.{}".format(filename, extension)
 
         make_path(archive_name)
         with tarfile.open(name=archive_name, mode=mode) as tar:
@@ -322,6 +322,17 @@ class PandasTransformer(Transformer):
                 else:
                     # some OWL files provide values that span multiple lines, which
                     # is parsed as-is by Rdflib. Escaping all new line characters.
+                    value = value.replace('\n', '\\n')
+                    data[key] = str(value)
+            else:
+                if type(data[key]) == list:
+                    data[key] = LIST_DELIMITER.join(value)
+                elif type(data[key]) == bool:
+                    try:
+                        data[key] = bool(value)
+                    except:
+                        data[key] = False
+                else:
                     value = value.replace('\n', '\\n')
                     data[key] = str(value)
         return data
