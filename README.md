@@ -108,6 +108,11 @@ which may not be compatible with your `venv` installed Python 3.7)
 python -m pip install .
 ```
 
+## Docker Dependencies
+
+Some components of KGX leverage the use of Docker. If not installed in your Operating system environment, the following
+[instructions to install Docker](DOCKER_README.md) may be followed to install it.
+
 ## Testing the Installation
 
 To test the basic _kgx_ application, run the following:
