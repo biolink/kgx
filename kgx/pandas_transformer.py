@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import numpy as np
 import logging, tarfile
@@ -84,9 +85,9 @@ class PandasTransformer(Transformer):
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
                     df = pd.read_csv(f, **kwargs) # type: pd.DataFrame
-                    if member.name == "nodes.{}".format(input_format):
+                    if re.search('nodes.{}'.format(input_format), member.name):
                         self.load_nodes(df)
-                    elif member.name == "edges.{}".format(input_format):
+                    elif re.search('edges.{}'.format(input_format), member.name):
                         self.load_edges(df)
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))

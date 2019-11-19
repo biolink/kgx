@@ -187,7 +187,7 @@ class NeoTransformer(Transformer):
             self.load_node(edge_object)
 
         key = generate_edge_key(subject_id, attributes['edge_label'], object_id)
-        self.graph.add_edge(subject_id, object_id, key, attributes)
+        self.graph.add_edge(subject_id, object_id, key, **attributes)
 
     def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
         """
