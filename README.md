@@ -115,6 +115,8 @@ Some components of KGX leverage the use of Docker. If not installed in your Oper
 
 ## Testing the Installation
 
+Ensure that your `venv` environment is (still) activated (won't be after machine or terminal reboots!).
+ 
 To test the basic _kgx_ application, run the following:
 
 ```
