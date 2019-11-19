@@ -475,17 +475,16 @@ class NeoTransformer(Transformer):
         """
         nodes_by_category = {}
 
-        for n in self.graph.nodes():
-            node = self.graph.node[n]
-            if 'id' not in node:
-                logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node))
+        for n, node_data in self.graph.nodes(data=True):
+            if 'id' not in node_data:
+                logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node_data))
                 continue
-            node = self.validate_node(node)
-            category = ':'.join(node['category'])
+            node_data = self.validate_node(node_data)
+            category = ':'.join(node_data['category'])
             if category not in nodes_by_category:
-                nodes_by_category[category] = [node]
+                nodes_by_category[category] = [node_data]
             else:
-                nodes_by_category[category].append(node)
+                nodes_by_category[category].append(node_data)
 
         edges_by_edge_label = {}
         for n, nbrs in self.graph.adjacency():
@@ -510,20 +509,18 @@ class NeoTransformer(Transformer):
 
         """
         categories = {self.DEFAULT_NODE_LABEL}
-        for n in self.graph.nodes():
-            node = self.graph.node[n]
-            if 'category' in node:
-                if isinstance(node['category'], list):
-                    categories.update(node['category'])
+        for n, node_data in self.graph.nodes(data=True):
+            if 'category' in node_data:
+                if isinstance(node_data['category'], list):
+                    categories.update(node_data['category'])
                 else:
-                    categories.add(node['category'])
+                    categories.add(node_data['category'])
 
         self.create_constraints(categories)
-        for node_id in self.graph.nodes():
-            node_attributes = self.graph.node[node_id]
-            if 'id' not in node_attributes:
-                node_attributes['id'] = node_id
-            self.save_node(node_attributes)
+        for n, node_data in self.graph.nodes(data=True):
+            if 'id' not in node_data:
+                node_data['id'] = n
+            self.save_node(node_data)
         for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
