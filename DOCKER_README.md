@@ -1,24 +1,28 @@
-# 
+# Installation of Docker
 
-## Installation of Docker
-
-To run Docker, you'll obviously need to [install Docker first](https://docs.docker.com/engine/installation/) in your target Linux operating environment (bare metal server or virtual machine running Linux).
-
-For our installations, we typically use Ubuntu Linux, for which there is an [Ubuntu-specific docker installation using the repository](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository).
 Note that you should have 'curl' installed first before installing Docker:
 
 ```
 sudo apt install curl
 ```
 
-For other installations, please find instructions specific to your choice of Linux variant, on the Docker site.
+To run Docker, you'll obviously need to [install Docker first](https://docs.docker.com/engine/installation/) 
+in your target operating environment (bare metal server or virtual machine running the OS). Follow the specific 
+instructions for your operating system. Here, we test an Ubuntu Linux installation (below).
+
+For our installations, we typically use Ubuntu Linux, for which there is an 
+[Ubuntu-specific docker installation using the repository](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository).
+Note that there are [post installation steps](https://docs.docker.com/install/linux/linux-postinstall/) to be 
+followed for Linux to facilite use (without sudo).
+
+For other installations, please find instructions specific to your choice of Docker variant, on the Docker site.
 
 ## Testing Docker
 
 In order to ensure that Docker is working correctly, run the following command:
 
 ```
-sudo docker run hello-world
+docker run hello-world
 ```
 
 This should result in something akin to the following output:
