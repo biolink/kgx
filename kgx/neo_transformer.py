@@ -74,7 +74,7 @@ class NeoTransformer(Transformer):
         RETURN COUNT(*) AS count;
         """
 
-        logging.info("Query: {}".format(query))
+        logging.debug("Query: {}".format(query))
         try:
             query_result = self.http_driver.query(query)
         except CypherException as ce:
@@ -354,7 +354,7 @@ class NeoTransformer(Transformer):
 
         """
         for category in nodes_by_category.keys():
-            logging.info("Generating UNWIND for category: {}".format(category))
+            logging.debug("Generating UNWIND for category: {}".format(category))
             query = self.generate_unwind_node_query(category)
             logging.info(query)
             try:

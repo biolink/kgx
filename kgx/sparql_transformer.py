@@ -264,7 +264,7 @@ class RedSparqlTransformer(SparqlTransformer):
                 end = i
                 query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
                 sparql.setQuery(query)
-                logging.info("Fetching triples with predicate {}".format(predicate))
+                logging.debug("Fetching triples with predicate {}".format(predicate))
                 results = sparql.query().convert()
                 node_list = set()
                 for r in results['results']['bindings']:
