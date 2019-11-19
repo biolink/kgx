@@ -18,26 +18,34 @@ For additional background see the [Translator Knowledge Graph Drive](http://bit.
 
 ## Installation
 
+### Python 3.7 Version and Core Tool Dependencies
+
 _Note that the installation of KGX requires Python 3.7 or better._  You should first confirm what version of Python 
-you have running and upgrade to 3.7 if necessary, verifying that your `python3` command is (sym)linked to your 
-new 3.7 version. (Note that on some *nix systems, you may need to use `sudo` to run core operating system package 
-installation commands).
+you have running and upgrade to 3.7 as necessary, following best practices in your operating system. It is also 
+assumed that the common development tools are installed as below: git, pip, etc. Again, install as needed following 
+the instructions for your operating system. 
+
+### Getting the Project Code
 
 Go to where you wish to host your local project repository and git clone the project, namely:
 
 ```
-cd /path/to/your/git/repo
-git clone https://github.com/NCATS-Tangerine/kgx.git .
+cd /path/to/your/local/git/project/folder
+git clone https://github.com/NCATS-Tangerine/kgx.git
 
-# ... then  enter  into your cloned project repository
+# ... then  enter  into the cloned project repository
 cd kgx
 ```
 
+### Configuring a Safe Virtual Environment for KGX
+
 Then, for convenience, make use of the `venv` module in Python 3 to create a lightweight virtual environment. Note that 
-you may also have to install the appropriate `venv` package for Python 3.7. For example, under Ubuntu Linux, you might 
+you may also have to install the appropriate `venv` package for Python 3.7. 
+
+For example, under Ubuntu Linux, you might 
 
 ```
-apt-get install python3.7-venv
+sudo apt install python3.7-venv  
 ```
 
 Once `venv` is available, type:
@@ -64,24 +72,37 @@ conda activate translator-modules
 
 Some IDE's (e.g. PyCharm) may also have provisions for directly creating a virtual environment. This should work fine.
 
+### Installing Python Dependencies 
+
 Finally, the Python dependencies of the application need to be installed into the local environment using a version of 
-`pip` matched to your Python 3.7 installation. If you don't yet have pip installed, then the following:
+`pip` matched to your Python 3.7 installation (assumed here to be called `pip3`). Again, follow the specific directives 
+of your operating system for the installation. 
 
-```bash
-curl https://bootstrap.pypa.io/get-pip.py | python
-pip install --upgrade setuptools
-```
-
-will reliably install it.
+For example, under Ubuntu Linux, to install the Python 3.7 matched version of pip, type the following:
 
 ```
-pip install .
+sudo apt install python3-pip
+```
+
+which will install the `pip3` command.  
+
+At this point, it is advisable to separately install the `wheel` package dependency before proceeding further 
+(Note: it is  assumed here that your `venv` is activated)
+
+```
+pip3 install wheel
+```
+ 
+After installation of the `wheel` package, we install the remaining KGX Python package dependencies without error:
+
+```
+pip3 install .
 ```
 
 It is *sometimes* better to use the 'python -m pip' version of pip rather than just 'pip'
 to ensure that the proper version of pip - i.e. for the python3 in your virtual environment - is used 
-(i.e. better check 'which pip'? On some systems, it may run the operating system's version, 
-which may not be compatible with your venv installed Python 3.7)
+(i.e. once again, better check your pip version.  On some systems, it may run the operating system's version, 
+which may not be compatible with your `venv` installed Python 3.7)
 
 ```
 python -m pip install .

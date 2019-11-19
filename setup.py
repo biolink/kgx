@@ -11,7 +11,6 @@ VERSION = '0.0.1'
 LICENSE = 'BSD'
 
 REQUIRED = [
-    "wheel",
     "prefixcommons>=0.1.4",
     "pip>=9.0.1",
     "networkx>=2.2",
