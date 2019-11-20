@@ -40,7 +40,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.prefix_manager = PrefixManager()
         self.toolkit = get_toolkit()
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -74,7 +74,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             elif hasattr(filename, 'name'):
                 self.graph_metadata['provided_by'] = [filename.name]
 
-        self.load_networkx_graph(rdfgraph)
+        self.load_networkx_graph(rdfgraph, predicates)
         self.load_node_attributes(rdfgraph)
         self.report()
 
@@ -179,7 +179,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 logging.debug("Inferred '{}' as category for node '{}'".format(category, uriref))
                 if category is not None:
                     self.add_node_attribute(uriref, key='category', value=category)
-
 
 class ObanRdfTransformer(RdfTransformer):
     """
