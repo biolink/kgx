@@ -382,7 +382,7 @@ class NeoTransformer(Transformer):
         query = f"""
         UNWIND $nodes AS node
         MERGE (n:`{self.DEFAULT_NODE_LABEL}` {{id: node.id}})
-        ON CREATE SET n += node, n:`{category}`
+        ON CREATE SET n += node, n:{category}
         """
 
         return query
@@ -474,7 +474,7 @@ class NeoTransformer(Transformer):
         nodes_by_category = {}
 
         for n in self.graph.nodes():
-            node = self.graph.node[n]
+            node = self.graph.nodes[n]
             if 'id' not in node:
                 logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node))
                 continue
@@ -509,7 +509,7 @@ class NeoTransformer(Transformer):
         """
         categories = {self.DEFAULT_NODE_LABEL}
         for n in self.graph.nodes():
-            node = self.graph.node[n]
+            node = self.graph.nodes[n]
             if 'category' in node:
                 if isinstance(node['category'], list):
                     categories.update(node['category'])
