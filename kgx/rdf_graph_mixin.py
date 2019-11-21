@@ -1,10 +1,12 @@
 import logging
+from typing import Set, Dict, Tuple
+
 import networkx as nx
-from typing import List, Set, Dict, Tuple
 import rdflib
-from rdflib import URIRef, Namespace, RDF, RDFS, OWL
-from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
 from prefixcommons.curie_util import read_remote_jsonld_context
+from rdflib import URIRef, Namespace
+
+from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 

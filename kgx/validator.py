@@ -1,14 +1,11 @@
-import networkx as nx
-import requests
-import json
-from typing import Union, List, Dict
-from .prefix_manager import PrefixManager
-import logging
-import click
 import re
+
+import click
+import requests
 import validators
 
 from kgx.utils.kgx_utils import get_toolkit
+from .prefix_manager import PrefixManager
 
 BIOLINK_MODEL = 'https://biolink.github.io/biolink-model/biolink-model.yaml'
 CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'

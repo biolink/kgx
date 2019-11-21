@@ -1,6 +1,9 @@
-import networkx as nx
 import copy
+
+import networkx as nx
+
 from .transformer import Transformer
+
 
 class NetworkxTransformer(Transformer):
     """

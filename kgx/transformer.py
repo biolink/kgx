@@ -1,13 +1,16 @@
-import networkx as nx
-import json, time, click, logging
+import click
+import json
+import logging
+import time
 from typing import Union, List, Dict, Tuple
+
+import networkx as nx
 from networkx.readwrite import json_graph
 
-from kgx.utils.ontology import find_superclass, subclasses
-from kgx.utils.str_utils import fmt_edgelabel, fmt_category
-from kgx.utils.kgx_utils import get_toolkit
-
 from kgx.mapper import clique_merge
+from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.ontology import find_superclass
+from kgx.utils.str_utils import fmt_edgelabel, fmt_category
 
 SimpleValue = Union[List[str], str]
 

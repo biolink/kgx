@@ -1,9 +1,10 @@
-from networkx import MultiDiGraph
-from kgx.utils.rdf_utils import make_curie
 from collections import defaultdict
 from typing import List, Tuple
 
+from networkx import MultiDiGraph
+
 from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.rdf_utils import make_curie
 
 toolkit = get_toolkit()
 

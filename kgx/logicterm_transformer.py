@@ -1,10 +1,12 @@
-import logging
 import pandas as pd
+from typing import Union
+
 import networkx as nx
+import pandas as pd
 from prologterms import Term, SExpressionRenderer, PrologRenderer
+
 from kgx.transformer import Transformer
 
-from typing import Dict, List, Union
 
 class LogicTermTransformer(Transformer):
     """

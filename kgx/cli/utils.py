@@ -1,4 +1,6 @@
-import kgx, os, pathlib
+import kgx
+import os
+import pathlib
 
 _transformers = {
     'tar' : kgx.PandasTransformer,
