@@ -12,7 +12,7 @@ def test_csv_to_neo_load():
     pt = PandasTransformer()
     pt.parse("resources/nodes.csv")
     pt.parse("resources/edges.csv")
-    nt = NeoTransformer(pt.graph, host='phil-centos.edc.renci.org', port='7474', username='neo4j', password='ncatsgamma')
+    nt = NeoTransformer(pt.graph, host='localhost', port='7474', username='', password='')
     nt.save_with_unwind()
     nt.neo4j_report()
 
@@ -22,7 +22,7 @@ def test_neo_to_graph_transform():
     """
     return
 
-    nt = NeoTransformer(host='phil-centos.edc.renci.org', port='7474', username='neo4j', password='ncatsgamma')
+    nt = NeoTransformer(host='localhost', port='7474', username='', password='')
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
@@ -36,7 +36,7 @@ def test_neo_to_graph_upload():
     jt = JsonTransformer()
     jt.parse('resources/robodb2.json')
 
-    nt = NeoTransformer(jt.graph, host='phil-centos.edc.renci.org', port='7474', username='neo4j', password='ncatsgamma')
+    nt = NeoTransformer(jt.graph, host='localhost', port='7474', username='', password='')
     nt.save_with_unwind()
     nt.neo4j_report()
 
@@ -53,7 +53,7 @@ def test_neo_to_graph_download():
     output_transformer =  JsonTransformer()
     G = output_transformer.graph
 
-    driver = http_gdb('http://robokopdb2.renci.org:7474', username='neo4j', password='ncatsgamma')
+    driver = http_gdb('http://localhost:7474', username='', password='')
 
     subject_label = ':`{}`'.format(subject_label) if isinstance(subject_label, str) else ''
     object_label = ':`{}`'.format(object_label) if isinstance(object_label, str) else ''
