@@ -169,11 +169,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         # predicate corresponds to a property on subject
                         if not (isinstance(s, rdflib.term.BNode) and isinstance(o, rdflib.term.BNode)):
                             # neither subject nor object is a BNode
+                            if isinstance(o, rdflib.term.Literal):
+                                o = o.value
                             self.add_node_attribute(uriref, key=p, value=o)
                     elif isinstance(o, rdflib.term.Literal):
                         # object is a Literal
                         # i.e. predicate corresponds to a property on subject
-                        self.add_node_attribute(uriref, key=p, value=o)
+                        self.add_node_attribute(uriref, key=p, value=o.value)
 
                 category = find_category(uriref, [rdfgraph] + self.ontologies)
                 logging.debug("Inferred '{}' as category for node '{}'".format(category, uriref))
