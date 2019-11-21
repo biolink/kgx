@@ -47,7 +47,7 @@ class PandasTransformer(Transformer):
 
     # TODO: Support parsing and export of neo4j-import tool compatible CSVs with appropriate headers
 
-    def parse(self, filename: str, input_format: str = 'csv', **kwargs) -> None:
+    def parse(self, filename: str, input_format: str = 'csv', provided_by: str = None, **kwargs) -> None:
         """
         Parse a CSV/TSV (or plain text) file.
 
@@ -62,6 +62,8 @@ class PandasTransformer(Transformer):
             File to read from
         input_format: str
             The input file format ('csv', by default)
+        provided_by: str
+            Define the source providing the input file
         kwargs: Dict
             Any additional arguments
 
@@ -79,6 +81,9 @@ class PandasTransformer(Transformer):
         else:
             # file is not an archive
             mode = None
+
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
 
         if mode:
             with tarfile.open(filename, mode=mode) as tar:

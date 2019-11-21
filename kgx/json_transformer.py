@@ -7,7 +7,7 @@ class JsonTransformer(PandasTransformer):
     Transformer that parses a JSON, and loads nodes and edges into a networkx.MultiDiGraph
     """
 
-    def parse(self, filename: str, input_format: str = 'json', **kwargs) -> None:
+    def parse(self, filename: str, input_format: str = 'json', provided_by: str = None, **kwargs) -> None:
         """
         Parse a JSON file of the format,
 
@@ -18,15 +18,19 @@ class JsonTransformer(PandasTransformer):
 
         Parameters
         ----------
-        filename : str
+        filename: str
             JSON file to read from
-        input_format : str
+        input_format: str
             The input file format ('json', by default)
+        provided_by: str
+            Define the source providing the input file
         kwargs: dict
             Any additional arguments
 
         """
         logging.info("Parsing {}".format(filename))
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
         with open(filename, 'r') as FH:
             obj = json.load(FH)
             self.load(obj)
