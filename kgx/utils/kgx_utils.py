@@ -4,9 +4,9 @@ from bmt import Toolkit
 
 toolkit = None
 
-def un_camel_case(s: str) -> str:
+def camelcase_to_sentencecase(s: str) -> str:
     """
-    Convert CamelCase to normal string.
+    Convert CamelCase to sentence case.
 
     Parameters
     ----------
@@ -20,6 +20,40 @@ def un_camel_case(s: str) -> str:
 
     """
     return stringcase.sentencecase(s).lower()
+
+def snakecase_to_sentencecase(s: str) -> str:
+    """
+    Convert snake_case to sentence case.
+
+    Parameters
+    ----------
+    s: str
+        Input string in snake_case
+
+    Returns
+    -------
+    str
+        a normal string
+
+    """
+    return stringcase.sentencecase(s).lower()
+
+def sentencecase_to_snakecase(s: str) -> str:
+    """
+    Convert sentence case to snake_case.
+
+    Parameters
+    ----------
+    s: str
+        Input string in sentence case
+
+    Returns
+    -------
+    str
+        a normal string
+
+    """
+    return stringcase.snakecase(s).lower()
 
 def get_toolkit() -> Toolkit:
     """

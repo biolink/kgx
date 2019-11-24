@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 import networkx as nx
 import stringcase
 
-from kgx.utils.kgx_utils import generate_edge_key, get_toolkit
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase
 
 SAME_AS = 'same_as'
 LEADER_ANNOTATION = 'clique_leader'
@@ -68,26 +68,45 @@ class CliqueMerge(object):
         updated_node_categories = {}
         for node in clique:
             data = self.clique_graph.node[node]
-            categories = data['category']
+            print(data)
+            if 'category' in data:
+                categories = data['category']
+            else:
+                # get category from equivalence
+                categories = self.get_category_from_equivalence(node, data)
+
             extended_categories = set()
+            invalid_categories = []
             for category in categories:
                 # TODO: this sentence case conversion needs to be handled properly
-                category = stringcase.sentencecase(category).lower()
+                category = snakecase_to_sentencecase(category).lower()
                 logging.debug("Looking at category: {}".format(category))
-                ancestors = self.toolkit.ancestors(category)
-                if len(ancestors) > len(extended_categories):
-                    # the category with the longest list of ancestors will be the most specific category
-                    logging.debug("Ancestors for {} is larger than previous one".format(category))
-                    extended_categories = ancestors
+                element = self.toolkit.get_element(category)
+                if element:
+                    # category exists in BioLink Model as a class or as an alias to a class
+                    mapped_category = element['name']
+                    ancestors = self.toolkit.ancestors(mapped_category)
+                    if len(ancestors) > len(extended_categories):
+                        # the category with the longest list of ancestors will be the most specific category
+                        logging.debug("Ancestors for {} is larger than previous one".format(mapped_category))
+                        extended_categories = ancestors
+                else:
+                    logging.warning("[1] category '{}' not in BioLink Model".format(category))
+                    invalid_categories.append(category)
+            logging.debug("Invalid categories: {}".format(invalid_categories))
             extended_categories = [stringcase.snakecase(x).lower() for x in extended_categories]
-            # at this point all categories for this node should be part of the sorted_categories since
-            # the idea is that the labels are just members of the ancestors
-            invalid_categories = []
+
             for x in categories:
-                if x not in extended_categories:
-                    logging.warning("category '{}' not in ancestor closure: {}".format(x, extended_categories))
+                element = self.toolkit.get_element(x)
+                if element is None:
+                    logging.warning("[2] category '{}' is not in BioLink Model".format(x))
+                    continue
+                mapped_category = element['name']
+                if stringcase.snakecase(mapped_category).lower() not in extended_categories:
+                    logging.warning("category '{}' not in ancestor closure: {}".format(stringcase.snakecase(mapped_category).lower(), extended_categories))
                     mapped = MAPPING[x] if x in MAPPING.keys() else x
                     if mapped not in extended_categories:
+                        logging.warning("category '{}' is not even in any custom defined mapping. ".format(mapped_category))
                         invalid_categories.append(x)
 
             update_dict = {'category': extended_categories}
@@ -117,6 +136,7 @@ class CliqueMerge(object):
         invalid_nodes = []
         all_categories = []
         for node in clique:
+            logging.info(node)
             all_categories.append(self.clique_graph.node[node]['category'][0])
 
         (clique_category, clique_category_ancestors) = self.get_the_most_specific_category(all_categories)
@@ -125,12 +145,14 @@ class CliqueMerge(object):
         for node in clique:
             data = self.clique_graph.node[node]
             node_category = data['category'][0]
+            logging.debug("node_category: {}".format(node_category))
             # TODO: this sentencecase to snakecase transition needs to be handled properly
-            clique_category_ancestors_snakecase = [stringcase.snakecase(x).lower() for x in clique_category_ancestors]
-            if node_category not in clique_category_ancestors_snakecase:
+            ancestors = [sentencecase_to_snakecase(x) for x in clique_category_ancestors]
+            logging.debug("clique ancestors: {}".format(ancestors))
+            if node_category not in ancestors:
                 invalid_nodes.append(node)
                 logging.info("clique category '{}' does not match node: {}".format(clique_category, data))
-
+            # TODO: check if node category is a subclass of any of the ancestors via other ontologies
         logging.info("Invalid Nodes: {}".format(invalid_nodes))
         return clique_category, invalid_nodes
 
@@ -150,14 +172,23 @@ class CliqueMerge(object):
             A tuple of the most specific category and a list of ancestors of that category
 
         """
+        # TODO: could be integrated into update_categories method
         most_specific_category = None
         most_specific_category_ancestors = []
         for category in categories:
-            ancestors = self.toolkit.ancestors(category)
-            if len(ancestors) > len(most_specific_category_ancestors):
-                # the category with the longest list of ancestors will be the most specific category
-                most_specific_category = category
-                most_specific_category_ancestors = ancestors
+            logging.debug("category: {}".format(category))
+            formatted_category = snakecase_to_sentencecase(category)
+            logging.debug("formatted_category: {}".format(formatted_category))
+            element = self.toolkit.get_element(category)
+            if element:
+                # category exists in BioLink Model as a class or as an alias to a class
+                mapped_category = element['name']
+                ancestors = self.toolkit.ancestors(mapped_category)
+                logging.debug("ancestors: {}".format(ancestors))
+                if len(ancestors) > len(most_specific_category_ancestors):
+                    # the category with the longest list of ancestors will be the most specific category
+                    most_specific_category = category
+                    most_specific_category_ancestors = ancestors
         return most_specific_category, most_specific_category_ancestors
 
     def elect_leader(self):
@@ -353,3 +384,34 @@ class CliqueMerge(object):
                 self.target_graph.remove_nodes_from(aliases)
 
         return self.target_graph
+
+    def get_category_from_equivalence(self, node: str, attributes: dict) -> str:
+        """
+        Get category for a node based on its equivalent nodes in a graph.
+
+        Parameters
+        ----------
+        node: str
+            Node identifier
+        attributes: dict
+            Node's attributes
+
+        Returns
+        -------
+        str
+            Category for the node
+
+        """
+        category = []
+        for u, v, data in self.clique_graph.edges(node, data=True):
+            if data['edge_label'] == 'same_as':
+                if u == node:
+                    category = self.clique_graph.nodes[v]['category']
+                    break
+                elif v == node:
+                    category = self.clique_graph.nodes[u]['category']
+                    break
+                update = {node: {'category': category}}
+                nx.set_node_attributes(self.clique_graph, update)
+
+        return category
