@@ -16,10 +16,12 @@ class Error(object):
         self.error_type = error_type
         self.message = message if message is not None else error_type
 
+
 class NodeError(Error):
     def __init__(self, node, error_type, message=None):
         super().__init__(error_type, message)
         self.node = node
+
 
 class EdgeError(Error):
     def __init__(self, subject, object, error_type, message=None):
@@ -27,8 +29,10 @@ class EdgeError(Error):
         self.subject = subject
         self.object = object
 
+
 def is_curie(s:str) -> bool:
     return re.match(r'^[^ :]+:[^ :]+$', s)
+
 
 class Validator(object):
     """
