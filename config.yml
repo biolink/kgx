@@ -1,7 +1,5 @@
 neo4j:
+  outputname: yourdatasourcename
   username: neo4j
-  password: neo4j
-  host: localhost
-  ports:
-     bolt: 7687
-     http: 7474
+  password: thisisasecret
+  host: http://localhost:7474
