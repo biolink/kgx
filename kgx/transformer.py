@@ -3,9 +3,10 @@ import json, time, click, logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
+from kgx.utils.graph_utils import get_category_via_superclass
 from kgx.utils.ontology import find_superclass, subclasses
 from kgx.utils.str_utils import fmt_edgelabel, fmt_category
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, get_biolink_mapping, sentencecase_to_snakecase
 
 from kgx.mapper import clique_merge
 
@@ -85,52 +86,47 @@ class Transformer(object):
         """
         self.filters[key] = value
 
-    def categorize(self) -> None:
+    def categorize(self):
         """
-        Checks for a node's category property and assigns a category from BioLink Model.
-        Checks for an edge's edge_label property and assigns a label from BioLink Model.
+
         """
-        memo = {}
-        with click.progressbar(self.graph.nodes(data=True), label='Finding superclass category for nodes') as bar:
-            for n, data in bar:
-                if 'category' not in data or data['category'] == ['named thing']:
-                    # if there is no category property for a node
-                    # or category is simply 'named thing'
-                    # then find a BioLink Model relevant category
-                    superclass = find_superclass(n, self.graph)
-                    if superclass is not None:
-                        data['category'] = [superclass]
-
-        with click.progressbar(self.graph.edges(data=True), label='Finding superclass category for edges') as bar:
-            for u, v, data in bar:
-                if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
-                    # if there is no edge_label property for an edge
-                    # or if edge_label property is None
-                    # or if edge_label is simply 'related_to'
-                    # then find a BioLink Model relevant edge_label
-                    relation = data.get('relation')
-                    if relation not in memo:
-                        superclass = find_superclass(relation, self.graph)
-                        memo[relation] = fmt_edgelabel(superclass)
-
-                    if memo[relation] is not None:
-                        data['edge_label'] = memo[relation]
-
-        # Set all null categories to the default value, and format all others
-        with click.progressbar(self.graph.nodes(data='category'), label='Ensuring valid categories') as bar:
-            for n, category in bar:
-                if not isinstance(category, list) or category == []:
-                    self.graph.node[n]['category'] = ['named thing']
-                else:
-                    category = [fmt_category(c) for c in category]
-
-        # Set all null edgelabels to the default value, and format all others
-        with click.progressbar(self.graph.edges(data=True), label='Ensuring valid edge labels') as bar:
-            for u, v, data in bar:
-                if 'edge_label' not in data or data['edge_label'] is None:
-                    data['edge_label'] = 'related_to'
-                else:
-                    data['edge_label'] = fmt_edgelabel(data['edge_label'])
+        node_to_categories = {}
+        preserve = {}
+        for n, data in self.graph.nodes(data=True):
+            logging.info("Processing node {}".format(n))
+            new_categories = set()
+            if 'category' in data:
+                categories = data['category']
+                preserve[n] = data['category']
+                for category in categories:
+                    logging.debug("Category: {}".format(category))
+                    element = get_biolink_mapping(category)
+                    if element is not None:
+                        # there is a direct mapping to a BioLink Model class
+                        mapped_category = element['name']
+                        logging.debug("Category: {} has a direct mapping to BioLink Model class {}".format(category, mapped_category))
+                        new_categories.update([mapped_category])
+                    else:
+                        # subClassOf traversal required
+                        # assuming that the graph contains subClassOf edges
+                        # and the node subClassOf x
+                        new_categories.update(get_category_via_superclass(self.graph, category))
+            else:
+                # try via subClassOf
+                # subClassOf traversal required
+                # assuming that the graph contains subClassOf edges
+                # and the node subClassOf x
+                logging.info("node doesn't have a category field; trying to infer category via subclass_of axiom")
+                for u, v, edge_data in self.graph.edges(n, data=True):
+                    logging.info("u: {} v: {} data: {}".format(u, v, edge_data))
+                    if edge_data['edge_label'] == 'subclass_of':
+                        curie = v
+                        new_categories.update(get_category_via_superclass(self.graph, curie))
+            new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
+            logging.debug("Output categories: {}".format(new_categories))
+            node_to_categories[n] = new_categories
+        nx.set_node_attributes(self.graph, node_to_categories, 'category')
+        nx.set_node_attributes(self.graph, preserve, '_old_category')
 
     def clean_categories(self, threashold=100):
         """
@@ -406,6 +402,9 @@ class Transformer(object):
             A node represented as a dict, with default assumptions applied.
 
         """
+        if len(node) == 0:
+            logging.warning("Empty node encountered: {}".format(node))
+            return node
 
         if 'id' not in node:
             raise KeyError("node does not have 'id' property: {}".format(node))

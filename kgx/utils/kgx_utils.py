@@ -92,3 +92,10 @@ def generate_edge_key(s: str, edge_label: str, o: str) -> str:
 
     """
     return '{}-{}-{}'.format(s, edge_label, o)
+
+def get_biolink_mapping(category):
+    global toolkit
+    element = toolkit.get_element(category)
+    if element is None:
+        element = toolkit.get_element(snakecase_to_sentencecase(category))
+    return element

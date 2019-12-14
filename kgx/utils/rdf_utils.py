@@ -1,9 +1,11 @@
+import logging
 from typing import List, Union
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
+from kgx.mapper import get_prefix
 from kgx.utils.kgx_utils import get_toolkit
 
 toolkit = get_toolkit()
@@ -99,25 +101,24 @@ category_mapping.update(
 )
 
 property_mapping = {
-    OBAN.association_has_subject : 'subject',
-    OBAN.association_has_object : 'object',
-    OBAN.association_has_predicate : 'predicate',
-    BIOLINK.name : 'name',
-    RDFS.label : 'name',
-    RDF.type : 'type',
-    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') : 'type',
-    # Definition being treated as a description
-    BIOLINK.description : 'description',
-    URIRef('http://purl.obolibrary.org/obo/IAO_0000115') : 'description',
-    URIRef('http://purl.org/dc/elements/1.1/description') : 'description',
-    BIOLINK.has_evidence : 'has_evidence',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002558') : 'has_evidence',
-    BIOLINK.synonym : 'synonym',
-    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym') : 'synonym',
-    OWL.sameAs : 'same_as',
-    OWL.equivalentClass : 'same_as',
-    BIOLINK.in_taxon : 'in_taxon',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162') : 'in_taxon',
+    OBAN.association_has_subject: 'subject',
+    OBAN.association_has_object: 'object',
+    OBAN.association_has_predicate: 'predicate',
+    BIOLINK.name: 'name',
+    RDFS.label: 'name',
+    RDF.type: 'type',
+    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): 'type',
+    BIOLINK.description: 'description',
+    URIRef('http://purl.obolibrary.org/obo/IAO_0000115'): 'description',
+    URIRef('http://purl.org/dc/elements/1.1/description'): 'description',
+    BIOLINK.has_evidence: 'has_evidence',
+    URIRef('http://purl.obolibrary.org/obo/RO_0002558'): 'has_evidence',
+    BIOLINK.synonym: 'synonym',
+    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym'): 'synonym',
+    OWL.sameAs: 'same_as',
+    OWL.equivalentClass: 'same_as',
+    BIOLINK.in_taxon: 'in_taxon',
+    URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
 }
 
 is_property_multivalued = {
@@ -286,3 +287,75 @@ def find_category(iri:URIRef, rdfgraphs:List[rdflib.Graph]) -> str:
             best_iri, best_score = str(uri_ref), score
 
     return best_iri
+
+OBO = Namespace('http://purl.obolibrary.org/obo/')
+
+top_level_terms = {
+    OBO.term('CL_0000000'): 'cell',
+    OBO.term('UBERON_0001062'): 'anatomical_entity',
+    OBO.term('PATO_0000001'): 'quality',
+    OBO.term('NCBITaxon_131567'): 'organism',
+    OBO.term('CLO_0000031'): 'cell_line',
+    OBO.term('MONDO_0000001'): 'disease',
+    OBO.term('CHEBI_23367'): 'molecular_entity',
+    OBO.term('CHEBI_23888'): 'drug',
+    OBO.term('UPHENO_0001001'): 'phenotypic_feature',
+    OBO.term('GO_0008150'): 'biological_process',
+    OBO.term('GO_0009987'): 'cellular_process',
+    OBO.term('GO_0005575'): 'cellular_component',
+    OBO.term('GO_0003674'): 'molecular_function',
+    OBO.term('SO_0000704'): 'gene',
+    OBO.term('GENO_0000002'): 'variant_locus',
+    OBO.term('GENO_0000536'): 'genotype',
+    OBO.term('SO_0000110'): 'sequence_feature',
+    OBO.term('ECO_0000000'): 'evidence',
+    OBO.term('PW_0000001'): 'pathway',
+    OBO.term('IAO_0000310'): 'publication',
+    OBO.term('SO_0001483'): 'snv',
+    OBO.term('GENO_0000871'): 'haplotype',
+    OBO.term('SO_0001024'): 'haplotype',
+    OBO.term('SO_0000340'): 'chromosome',
+    OBO.term('SO_0000104'): 'protein',
+    OBO.term('SO_0001500'): 'phenotypic_marker',
+    OBO.term('SO_0000001'): 'region',
+}
+
+owl_file_map = {
+    'GO': 'data/go.owl',
+    'SO': 'data/so.owl',
+    'HP': 'data/hp.owl'
+}
+
+ontologies = {}
+
+def infer_category(iri: URIRef, rdfgraph:rdflib.Graph):
+    category = None
+    subj = None
+    closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
+    category = [top_level_terms[x] for x in closure if x in top_level_terms.keys()]
+    if category:
+        logging.debug("Inferred category as {} based on transitive closure over 'subClassOf' relation".format(category))
+    else:
+        subj = closure[-1]
+        if subj == iri:
+            return category
+        logging.debug("Picking {} as its the last in closure, for recursion".format(subj))
+        subject_curie = make_curie(subj)
+        subj_prefix = None
+        if '_' in subject_curie:
+            # of the form OBO:SO_0000104
+            print("SUB CURIE: {}".format(subject_curie))
+            subj_prefix = subject_curie.split(':', 1)[1].split('_', 1)[0]
+        else:
+            subj_prefix = get_prefix(subject_curie)
+        if subj_prefix not in ontologies:
+            if subj_prefix in owl_file_map:
+                ont_graph = rdflib.Graph()
+                owl_file = owl_file_map[subj_prefix]
+                ont_graph.parse(owl_file, format=rdflib.util.guess_format(owl_file))
+                ontologies[subj_prefix] = ont_graph
+            else:
+                logging.warning("No ontology OWL available for {}".format(subj_prefix))
+        if subj_prefix in ontologies:
+            category = infer_category(subj, ontologies[subj_prefix])
+    return category
