@@ -9,7 +9,7 @@ from prefixcommons.curie_util import read_remote_jsonld_context
 from kgx.prefix_manager import PrefixManager
 from kgx.transformer import Transformer
 from kgx.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category
 from kgx.utils.kgx_utils import get_toolkit
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
@@ -177,9 +177,10 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         # i.e. predicate corresponds to a property on subject
                         self.add_node_attribute(uriref, key=p, value=o.value)
 
-                category = find_category(uriref, [rdfgraph] + self.ontologies)
-                logging.debug("Inferred '{}' as category for node '{}'".format(category, uriref))
-                if category is not None:
+                categories = infer_category(uriref, rdfgraph)
+                # TODO: improve the infering of category
+                logging.debug("Inferred '{}' as category for node '{}'".format(categories, uriref))
+                for category in categories:
                     self.add_node_attribute(uriref, key='category', value=category)
 
 class ObanRdfTransformer(RdfTransformer):
@@ -250,10 +251,13 @@ class ObanRdfTransformer(RdfTransformer):
                     predicate = DEFAULT_EDGE_LABEL
 
                 if subject and object:
-                    self.add_edge(subject, object, predicate)
+                    subject_curie = make_curie(subject)
+                    object_curie = make_curie(object)
+                    predicate_curie = make_curie(predicate)
+                    self.add_edge(subject_curie, object_curie, predicate_curie)
                     for key, values in edge_attr.items():
                         for value in values:
-                            self.add_edge_attribute(subject, object, predicate, key=key, value=value)
+                            self.add_edge_attribute(subject_curie, object_curie, predicate_curie, key=key, value=value)
 
     def uriref(self, identifier: str) -> URIRef:
         """
@@ -411,7 +415,10 @@ class RdfOwlTransformer(RdfTransformer):
                     # C SubClassOf D (C and D are named classes)
                     pred = p
                     parent = o
-                self.add_edge(s, parent, pred)
+                subject_curie = make_curie(s)
+                object_curie = make_curie(parent)
+                pred_curie = make_curie(pred)
+                self.add_edge(subject_curie, object_curie, pred_curie)
 
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         logging.debug("Loading relations")
