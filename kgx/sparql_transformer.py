@@ -10,7 +10,6 @@ from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
 from itertools import zip_longest
 from kgx.transformer import Transformer
-from kgx.utils.kgx_utils import un_camel_case
 from kgx.rdf_graph_mixin import RdfGraphMixin
 
 
@@ -291,7 +290,7 @@ class RedSparqlTransformer(SparqlTransformer):
         """
         for n, data in self.graph.nodes(data=True):
             if 'category' not in data and 'type' in data:
-                data['category'] = un_camel_case(data['type'].replace('biolink:', ''))
+                data['category'] = data['type'].replace('biolink:', '')
 
     def load_nodes(self, node_set: Set) -> None:
         """

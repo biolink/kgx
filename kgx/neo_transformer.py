@@ -477,10 +477,10 @@ class NeoTransformer(Transformer):
 
         for n, node_data in self.graph.nodes(data=True):
             if 'id' not in node_data:
-                logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node_data))
-                continue
+                node_data['id'] = n
             node_data = self.validate_node(node_data)
             category = ':'.join(node_data['category'])
+            logging.info("Category: {}".format(category))
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node_data]
             else:
@@ -497,6 +497,7 @@ class NeoTransformer(Transformer):
                         edges_by_edge_label[edge['edge_label']].append(edge)
 
         # create indexes
+        print(set(nodes_by_category.keys()))
         self.create_constraints(set(nodes_by_category.keys()))
         # save all nodes
         self.save_node_unwind(nodes_by_category)

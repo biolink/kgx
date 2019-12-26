@@ -3,9 +3,15 @@ import networkx as nx
 from typing import List, Set, Dict, Tuple
 import rdflib
 from rdflib import URIRef, Namespace, RDF, RDFS, OWL
-from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, process_iri, make_curie, is_property_multivalued
+
+from kgx.mapper import get_prefix
+from kgx.utils.graph_utils import load_ontology_graph, curie_lookup
+from kgx.utils.rdf_utils import find_category, category_mapping, equals_predicates, property_mapping, predicate_mapping, \
+    process_iri, make_curie, is_property_multivalued, edge_label_map
 from kgx.utils.kgx_utils import generate_edge_key
 from prefixcommons.curie_util import read_remote_jsonld_context
+
+from kgx.validator import is_curie
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -92,6 +98,7 @@ class RdfGraphMixin(object):
             kwargs['provided_by'] = self.graph_metadata['provided_by']
 
         n = make_curie(iri)
+        print("node IRI: {} has CURIE: {}".format(iri, n))
 
         if n not in self.graph:
             self.graph.add_node(n, **kwargs)
@@ -123,7 +130,7 @@ class RdfGraphMixin(object):
         """
         s = self.add_node(subject_iri)
         o = self.add_node(object_iri)
-
+        print("S {} P {} O {}".format(subject_iri, predicate_iri, object_iri))
         relation = make_curie(predicate_iri)
         edge_label = process_iri(predicate_iri)
         if ' ' in edge_label:
@@ -136,10 +143,16 @@ class RdfGraphMixin(object):
         # TODO: is there no way to get label of a CURIE?
         # TODO: this should also move to the utilities function
         # Any service? or preload required ontologies by prefix?
-        if ':' in edge_label:
-            logging.debug("edge label '{}' is a CURIE; defaulting back to 'related_to'".format(edge_label))
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
-            edge_label = self.DEFAULT_EDGE_LABEL
+        print("predicate IRI: {}; edge_label: {}".format(predicate_iri, edge_label))
+        if is_curie(edge_label):
+            #logging.debug("edge label '{}' is a CURIE; defaulting back to 'related_to'".format(edge_label))
+            name = curie_lookup(edge_label)
+            if name:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
+                edge_label = name
+            else:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
+                edge_label = self.DEFAULT_EDGE_LABEL
 
         kwargs = {
             'subject': subject_iri,

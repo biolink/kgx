@@ -11,7 +11,8 @@ LEADER_ANNOTATION = 'clique_leader'
 
 # TODO: Get the prefix priority order from BioLink Model
 PREFIX_PRIORITIZATION_MAP = {
-    'gene': ['HGNC', 'NCBIGene', 'Ensembl']
+    'gene': ['HGNC', 'NCBIGene', 'Ensembl'],
+    'genomic_entity': ['HGNC', 'NCBIGene', 'Ensembl'],
 }
 
 MAPPING = {}
@@ -137,8 +138,11 @@ class CliqueMerge(object):
         all_categories = []
         for node in clique:
             logging.info(node)
-            all_categories.append(self.clique_graph.node[node]['category'][0])
-
+            node_data = self.clique_graph.nodes[node]
+            if 'category' in node_data and len(node_data['category']) > 0:
+                all_categories.append(node_data['category'][0])
+        if len(all_categories) == 0:
+            return None, None
         (clique_category, clique_category_ancestors) = self.get_the_most_specific_category(all_categories)
         logging.debug("Most specific category: {}".format(clique_category))
         logging.debug("Most specific category ancestors: {}".format(clique_category_ancestors))
@@ -213,29 +217,30 @@ class CliqueMerge(object):
                     self.clique_graph.remove_node(n)
                     # TODO: what about the original equivalentClass edge that made this incorrect assertion?
 
-            leader = None
-            # First check for LEADER_ANNOTATION property
-            (leader, election_strategy) = self.get_leader_by_annotation(clique)
+            if clique_category:
+                leader = None
+                # First check for LEADER_ANNOTATION property
+                (leader, election_strategy) = self.get_leader_by_annotation(clique)
 
-            if leader is None:
-                # If leader is None, then use prefix prioritization
-                logging.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
-                # assuming that all nodes in a clique belong to the same category
-                if clique_category in PREFIX_PRIORITIZATION_MAP.keys():
-                    (leader, election_strategy) = self.get_leader_by_prefix_priority(clique, PREFIX_PRIORITIZATION_MAP[clique_category])
-                else:
-                    logging.debug("No prefix order found for category '{}' in PREFIX_PRIORITIZATION_MAP".format(clique_category))
+                if leader is None:
+                    # If leader is None, then use prefix prioritization
+                    logging.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
+                    # assuming that all nodes in a clique belong to the same category
+                    if clique_category in PREFIX_PRIORITIZATION_MAP.keys():
+                        (leader, election_strategy) = self.get_leader_by_prefix_priority(clique, PREFIX_PRIORITIZATION_MAP[clique_category])
+                    else:
+                        logging.debug("No prefix order found for category '{}' in PREFIX_PRIORITIZATION_MAP".format(clique_category))
 
-            if leader is None:
-                # If leader is still None then fall back to alphabetical sort on prefixes
-                logging.info("Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes")
-                (leader, election_strategy) = self.get_leader_by_sort(clique)
+                if leader is None:
+                    # If leader is still None then fall back to alphabetical sort on prefixes
+                    logging.info("Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes")
+                    (leader, election_strategy) = self.get_leader_by_sort(clique)
 
-            logging.debug("Elected {} as leader via {} for clique {}".format(leader, election_strategy, clique))
-            self.clique_graph.node[leader][LEADER_ANNOTATION] = True
-            self.target_graph.node[leader][LEADER_ANNOTATION] = True
-            self.clique_graph.node[leader]['election_strategy'] = election_strategy
-            self.target_graph.node[leader]['election_strategy'] = election_strategy
+                logging.debug("Elected {} as leader via {} for clique {}".format(leader, election_strategy, clique))
+                self.clique_graph.node[leader][LEADER_ANNOTATION] = True
+                self.target_graph.node[leader][LEADER_ANNOTATION] = True
+                self.clique_graph.node[leader]['election_strategy'] = election_strategy
+                self.target_graph.node[leader]['election_strategy'] = election_strategy
 
     def get_leader_by_annotation(self, clique: list) -> Tuple[Optional[str], Optional[str]]:
         """
@@ -307,8 +312,9 @@ class CliqueMerge(object):
         prefixes = [x.split(':', 1)[0] for x in clique]
         prefixes.sort()
         leader_prefix = prefixes[0]
-        [leader] = [x for x in clique if leader_prefix in x]
-        return leader, election_strategy
+        print("clique: {} leader_prefix: {}".format(clique, leader_prefix))
+        leader = [x for x in clique if leader_prefix in x]
+        return leader[0], election_strategy
 
     def consolidate_edges(self) -> nx.MultiDiGraph:
         """
@@ -335,6 +341,7 @@ class CliqueMerge(object):
                     continue
                 in_edges = self.target_graph.in_edges(node, True)
                 filtered_in_edges = [x for x in in_edges if x[2]['edge_label'] != SAME_AS]
+                print("IN EDGES: {}".format(filtered_in_edges))
                 equiv_in_edges = [x for x in in_edges if x[2]['edge_label'] == SAME_AS]
                 logging.debug("Moving {} in-edges from {} to {}".format(len(in_edges), node, leader))
                 for u, v, edge_data in filtered_in_edges:
@@ -343,7 +350,7 @@ class CliqueMerge(object):
                     edge_data['_original_subject'] = edge_data['subject']
                     edge_data['_original_object'] = edge_data['object']
                     edge_data['object'] = leader
-                    key = generate_edge_key(u, edge_data['edge_label'], v)
+                    key = generate_edge_key(u, edge_data['edge_label'], leader)
                     self.target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
                 out_edges = self.target_graph.out_edges(node, True)
@@ -356,7 +363,7 @@ class CliqueMerge(object):
                     edge_data['_original_subject'] = edge_data['subject']
                     edge_data['_original_object'] = edge_data['object']
                     edge_data['subject'] = leader
-                    key = generate_edge_key(u, edge_data['edge_label'], v)
+                    key = generate_edge_key(leader, edge_data['edge_label'], v)
                     self.target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
                 aliases = self.target_graph.node[leader].get('aliases') if 'aliases' in self.target_graph.node[leader] else []

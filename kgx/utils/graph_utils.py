@@ -1,9 +1,11 @@
 import logging
 import networkx as nx
 import rdflib
+import stringcase
 
 from kgx.mapper import get_prefix
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_map
+
 from kgx.validator import is_curie
 
 ONTOLOGY_PREFIX_MAP = {}
@@ -34,6 +36,7 @@ def get_parents(graph, node, relations=None):
 
     if node in graph:
         out_edges = [x for x in graph.out_edges(node, data=True)]
+        print("$$$ out_edges: {}".format(out_edges))
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
@@ -92,6 +95,8 @@ def get_category_via_superclass(graph, curie, load_ontology=True):
         A set containing one (or more) category for the given curie
 
     """
+    from kgx.utils.kgx_utils import get_curie_lookup_service
+    cls = get_curie_lookup_service()
     logging.debug("curie: {}".format(curie))
     new_categories = []
     toolkit = get_toolkit()
@@ -100,7 +105,8 @@ def get_category_via_superclass(graph, curie, load_ontology=True):
         if len(ancestors) == 0 and load_ontology:
             # load ontology
             prefix = get_prefix(curie)
-            ontology_graph = load_ontology_graph(prefix, prefix_map={'SO': 'data/so.owl'})
+            #ontology_graph = load_ontology_graph(prefix, prefix_map={'SO': 'data/so.owl'})
+            ontology_graph = cls.ontology_graph
             new_categories += [x for x in get_category_via_superclass(ontology_graph, curie, False)]
         logging.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
         seen = []
@@ -145,3 +151,19 @@ def load_ontology_graph(prefix, prefix_map=None):
         ONTOLOGY_GRAPH_CACHE[prefix] = graph = ont.graph
     return graph
 
+def curie_lookup(curie, graph=None):
+    from kgx.utils.kgx_utils import get_curie_lookup_service
+    cls = get_curie_lookup_service()
+    name = None
+    prefix = get_prefix(curie)
+    curie_map = get_curie_lookup_map()
+    if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
+        name = stringcase.snakecase(curie.split(':', 1)[1])
+        return name
+    if curie in curie_map:
+        name = curie_map[curie]
+        return name
+    if curie in cls.ontology_graph:
+        name = g.nodes[curie]['name']
+
+    return name

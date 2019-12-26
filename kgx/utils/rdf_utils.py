@@ -6,7 +6,8 @@ from rdflib.namespace import RDF, RDFS, OWL
 from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
 
 from kgx.mapper import get_prefix
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.graph_utils import get_category_via_superclass
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service
 
 toolkit = get_toolkit()
 m = toolkit.generator.mappings
@@ -28,10 +29,12 @@ predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0000091': 'has_disposition',
     'http://purl.obolibrary.org/obo/RO_0003303': 'causes_condition',
     'http://purl.obolibrary.org/obo/RO_0002525': 'is_subsequence_of',
+    'http://purl.obolibrary.org/obo/RO_0002524': 'has_subsequence',
     OWL.sameAs.lower(): 'same_as',
     OWL.equivalentClass.lower(): 'same_as',
+    OWL.inverseOf.lower(): 'inverse_of',
     RDFS.subClassOf.lower(): 'subclass_of',
-    RDFS.subPropertyOf: 'subclass_of'
+    RDFS.subPropertyOf.lower(): 'subproperty_of',
 }
 
 predicate_mapping.update(
@@ -200,7 +203,7 @@ def process_iri(iri:Union[str, URIRef]) -> str:
             if iri.lower() == key.lower():
                 return value
 
-    return iri
+    return make_curie(iri)
 
 reverse_category_mapping = reverse_mapping(category_mapping)
 
@@ -318,6 +321,31 @@ top_level_terms = {
     OBO.term('SO_0000104'): 'protein',
     OBO.term('SO_0001500'): 'phenotypic_marker',
     OBO.term('SO_0000001'): 'region',
+    OBO.term('HP_0032223'): 'blood_group',
+    OBO.term('HP_0031797'): 'clinical_course',
+    OBO.term('HP_0040279'): 'frequency',
+    OBO.term('HP_0000118'): 'phenotypic_abnormality',
+    OBO.term('HP_0032443'): 'past_medical_history',
+    OBO.term('HP_0000005'): 'mode_of_inheritance',
+    OBO.term('HP_0012823'): 'clinical_modifier'
+
+
+}
+
+# TODO: the RO classes shouldn't even be loaded; why are they even needed for lookup
+edge_label_map = {
+    'rdfs:subClassOf': 'subclass_of',
+    'RO:0001900': 'temporal_interpretation',
+    'RO:0002423': 'logical macro assertion on an annotation property',
+    'RO:0002560': 'is_asymmetric_relational_form_of_process_class',
+    'RO:0002561': 'is_symmetric_relational_form_of_process_class',
+    'RO:0002575': 'is_direct_form_of',
+    'RO_0002579': 'is_indirect_form_of',
+    'RO_0002581': 'is_a_defining_property_chain_axiom',
+    'RO_0002582': 'is_a_defining_property_chain_axiom_where_second_argument_is_reflexive',
+    'RO_0004049': 'is_positive_form_of',
+    'RO_0004050': 'is_negative_form_of',
+    'RO_0040042': 'blank'
 }
 
 owl_file_map = {
@@ -341,21 +369,29 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph):
             return category
         logging.debug("Picking {} as its the last in closure, for recursion".format(subj))
         subject_curie = make_curie(subj)
-        subj_prefix = None
         if '_' in subject_curie:
-            # of the form OBO:SO_0000104
-            print("SUB CURIE: {}".format(subject_curie))
-            subj_prefix = subject_curie.split(':', 1)[1].split('_', 1)[0]
-        else:
-            subj_prefix = get_prefix(subject_curie)
-        if subj_prefix not in ontologies:
-            if subj_prefix in owl_file_map:
-                ont_graph = rdflib.Graph()
-                owl_file = owl_file_map[subj_prefix]
-                ont_graph.parse(owl_file, format=rdflib.util.guess_format(owl_file))
-                ontologies[subj_prefix] = ont_graph
-            else:
-                logging.warning("No ontology OWL available for {}".format(subj_prefix))
-        if subj_prefix in ontologies:
-            category = infer_category(subj, ontologies[subj_prefix])
+            fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
+            logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
+            subject_curie = fixed_curie
+
+        #subj_prefix = None
+        # if '_' in subject_curie:
+        #     # of the form OBO:SO_0000104
+        #     print("SUB CURIE: {}".format(subject_curie))
+        #     subj_prefix = subject_curie.split(':', 1)[1].split('_', 1)[0]
+        # else:
+        #     subj_prefix = get_prefix(subject_curie)
+        cls = get_curie_lookup_service()
+        category = get_category_via_superclass(cls.ontology_graph, subject_curie)
+        logging.debug("I got {} as category via cls for {}".format(category, subject_curie))
+    #     if subj_prefix not in ontologies:
+    #         if subj_prefix in owl_file_map:
+    #             ont_graph = rdflib.Graph()
+    #             owl_file = owl_file_map[subj_prefix]
+    #             ont_graph.parse(owl_file, format=rdflib.util.guess_format(owl_file))
+    #             ontologies[subj_prefix] = ont_graph
+    #         else:
+    #             logging.warning("No ontology OWL available for {}".format(subj_prefix))
+    #     if subj_prefix in ontologies:
+    #         category = infer_category(subj, ontologies[subj_prefix])
     return category

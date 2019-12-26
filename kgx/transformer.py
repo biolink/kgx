@@ -3,7 +3,7 @@ import json, time, click, logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
-from kgx.utils.graph_utils import get_category_via_superclass
+from kgx.utils.graph_utils import get_category_via_superclass, curie_lookup
 from kgx.utils.ontology import find_superclass, subclasses
 from kgx.utils.str_utils import fmt_edgelabel, fmt_category
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_mapping, sentencecase_to_snakecase
@@ -14,6 +14,15 @@ SimpleValue = Union[List[str], str]
 
 IGNORE_CLASSES = ['All', 'entity']
 
+ADDITIONAL_LABELS = {
+    'phenotypic_abnormality': 'phenotypic_feature',
+    'clinical_course': 'phenotypic_feature',
+    'blood_group': 'phenotypic_feature',
+    'clinical_modifier': 'phenotypic_feature',
+    'frequency': 'phenotypic_feature',
+    'mode_of_inheritance': 'phenotypic_feature',
+    'past_medical_history': 'phenotypic_feature'
+}
 
 def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
     """
@@ -107,22 +116,43 @@ class Transformer(object):
                         logging.debug("Category: {} has a direct mapping to BioLink Model class {}".format(category, mapped_category))
                         new_categories.update([mapped_category])
                     else:
-                        # subClassOf traversal required
-                        # assuming that the graph contains subClassOf edges
-                        # and the node subClassOf x
-                        new_categories.update(get_category_via_superclass(self.graph, category))
+                        if category in ADDITIONAL_LABELS:
+                            element = get_biolink_mapping(ADDITIONAL_LABELS[category])
+                            if element is not None:
+                                # take a look at an additional list of mappings
+                                mapped_category = element['name']
+                                logging.debug("Category: {} mapped over to {} has a direct mapping to BioLink Model class {}".format(category, ADDITIONAL_LABELS[category], mapped_category))
+                                new_categories.update([mapped_category])
+                        else:
+                            # subClassOf traversal required
+                            # assuming that the graph contains subClassOf edges
+                            # and the node subClassOf x
+                            new_categories.update(get_category_via_superclass(self.graph, category))
             else:
                 # try via subClassOf
                 # subClassOf traversal required
                 # assuming that the graph contains subClassOf edges
                 # and the node subClassOf x
+
                 logging.info("node doesn't have a category field; trying to infer category via subclass_of axiom")
                 for u, v, edge_data in self.graph.edges(n, data=True):
                     logging.info("u: {} v: {} data: {}".format(u, v, edge_data))
                     if edge_data['edge_label'] == 'subclass_of':
                         curie = v
                         new_categories.update(get_category_via_superclass(self.graph, curie))
+                        print("New categories (before sentencecase munging): {}".format(new_categories))
+
             new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
+            # if len(new_categories) == 0:
+            #     # Falling back to simple curie lookup
+            #     name = curie_lookup(n)
+            #     if name:
+            #         new_categories.append(name)
+            #     else:
+            #         # Defaulting to the most generic category: named_thing
+            #         new_categories.append('named_thing')
+            if len(new_categories) == 0:
+                new_categories.append('named_thing')
             logging.debug("Output categories: {}".format(new_categories))
             node_to_categories[n] = new_categories
         nx.set_node_attributes(self.graph, node_to_categories, 'category')

@@ -404,6 +404,7 @@ class RdfOwlTransformer(RdfTransformer):
                 # TODO: does this block load all relevant bits from an OWL?
                 if isinstance(o, rdflib.term.BNode):
                     # C SubClassOf R some D
+                    print("dealing with BNode")
                     for x in rdfgraph.objects(o, OWL.onProperty):
                         pred = x
                     for x in rdfgraph.objects(o, OWL.someValuesFrom):
@@ -411,14 +412,12 @@ class RdfOwlTransformer(RdfTransformer):
                     if pred is None or parent is None:
                         logging.warning("Do not know how to handle BNode: {}".format(o))
                         continue
+                    print("where p: {} and o: {}".format(pred, parent))
                 else:
                     # C SubClassOf D (C and D are named classes)
                     pred = p
                     parent = o
-                subject_curie = make_curie(s)
-                object_curie = make_curie(parent)
-                pred_curie = make_curie(pred)
-                self.add_edge(subject_curie, object_curie, pred_curie)
+                self.add_edge(s, parent, pred)
 
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         logging.debug("Loading relations")

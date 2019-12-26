@@ -2,7 +2,10 @@ import re
 import stringcase
 from bmt import Toolkit
 
+from kgx.curie_lookup_service import CurieLookupService
+
 toolkit = None
+curie_lookup_service = None
 
 def camelcase_to_sentencecase(s: str) -> str:
     """
@@ -99,3 +102,17 @@ def get_biolink_mapping(category):
     if element is None:
         element = toolkit.get_element(snakecase_to_sentencecase(category))
     return element
+
+def get_curie_lookup_service():
+    global curie_lookup_service
+    if curie_lookup_service is None:
+        curie_lookup_service = CurieLookupService()
+    return curie_lookup_service
+
+# TODO: To be removed
+def get_curie_lookup_map():
+    global curie_lookup_service
+    from kgx.curie_lookup_service import CurieLookupService
+    if curie_lookup_service is None:
+        curie_lookup_service = CurieLookupService()
+    return curie_lookup_service.curie_map
