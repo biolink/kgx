@@ -243,9 +243,11 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None:
-            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
-            edge_key = generate_edge_key(s, edge_label, o)
-            attr_dict = self.graph.get_edge_data(s, o, key=edge_key)
+            subject_curie = make_curie(subject_iri)
+            object_curie = make_curie(object_iri)
+            edge_label = process_iri(predicate_iri)
+            edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
+            attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
             self._add_attribute(attr_dict, key, value)
 
     def _add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:

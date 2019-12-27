@@ -116,7 +116,7 @@ def get_category_via_superclass(graph, curie, load_ontology=True):
             if mapping:
                 # there is direct mapping to BioLink Model
                 logging.debug("Ancestor {} mapped to {}".format(anc, mapping))
-                seen_labels = [graph.nodes[x]['name'] for x in seen]
+                seen_labels = [graph.nodes[x]['name'] for x in seen if 'name' in graph.nodes[x]]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
                 break

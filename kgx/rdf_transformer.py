@@ -251,13 +251,10 @@ class ObanRdfTransformer(RdfTransformer):
                     predicate = DEFAULT_EDGE_LABEL
 
                 if subject and object:
-                    subject_curie = make_curie(subject)
-                    object_curie = make_curie(object)
-                    predicate_curie = make_curie(predicate)
-                    self.add_edge(subject_curie, object_curie, predicate_curie)
+                    self.add_edge(subject, object, predicate)
                     for key, values in edge_attr.items():
                         for value in values:
-                            self.add_edge_attribute(subject_curie, object_curie, predicate_curie, key=key, value=value)
+                            self.add_edge_attribute(subject, object, predicate, key=key, value=value)
 
     def uriref(self, identifier: str) -> URIRef:
         """
