@@ -49,8 +49,8 @@ class CliqueMerge(object):
         for u, v, data in target_graph.edges(data=True):
             if 'edge_label' in data and data['edge_label'] == SAME_AS:
                 # load all same_as edges to self.clique_graph
-                self.clique_graph.add_node(u, **target_graph.node[u])
-                self.clique_graph.add_node(v, **target_graph.node[v])
+                self.clique_graph.add_node(u, **target_graph.nodes[u])
+                self.clique_graph.add_node(v, **target_graph.nodes[v])
                 self.clique_graph.add_edge(u, v, **data)
 
     def update_categories(self, clique: list):
@@ -68,7 +68,7 @@ class CliqueMerge(object):
         """
         updated_node_categories = {}
         for node in clique:
-            data = self.clique_graph.node[node]
+            data = self.clique_graph.nodes[node]
             print(data)
             if 'category' in data:
                 categories = data['category']
@@ -147,7 +147,7 @@ class CliqueMerge(object):
         logging.debug("Most specific category: {}".format(clique_category))
         logging.debug("Most specific category ancestors: {}".format(clique_category_ancestors))
         for node in clique:
-            data = self.clique_graph.node[node]
+            data = self.clique_graph.nodes[node]
             node_category = data['category'][0]
             logging.debug("node_category: {}".format(node_category))
             # TODO: this sentencecase to snakecase transition needs to be handled properly
@@ -237,10 +237,10 @@ class CliqueMerge(object):
                     (leader, election_strategy) = self.get_leader_by_sort(clique)
 
                 logging.debug("Elected {} as leader via {} for clique {}".format(leader, election_strategy, clique))
-                self.clique_graph.node[leader][LEADER_ANNOTATION] = True
-                self.target_graph.node[leader][LEADER_ANNOTATION] = True
-                self.clique_graph.node[leader]['election_strategy'] = election_strategy
-                self.target_graph.node[leader]['election_strategy'] = election_strategy
+                self.clique_graph.nodes[leader][LEADER_ANNOTATION] = True
+                self.target_graph.nodes[leader][LEADER_ANNOTATION] = True
+                self.clique_graph.nodes[leader]['election_strategy'] = election_strategy
+                self.target_graph.nodes[leader]['election_strategy'] = election_strategy
 
     def get_leader_by_annotation(self, clique: list) -> Tuple[Optional[str], Optional[str]]:
         """
@@ -260,7 +260,7 @@ class CliqueMerge(object):
         leader = None
         election_strategy = None
         for node in clique:
-            attributes = self.clique_graph.node[node]
+            attributes = self.clique_graph.nodes[node]
             if LEADER_ANNOTATION in attributes and eval(attributes[LEADER_ANNOTATION]):
                 logging.debug("Node {} in clique has LEADER_ANNOTATION property; electing it as clique leader".format(node))
                 election_strategy = 'LEADER_ANNOTATION'
@@ -329,13 +329,13 @@ class CliqueMerge(object):
         cliques = list(nx.connected_components(self.clique_graph))
         for clique in cliques:
             logging.info("processing clique: {}".format(clique))
-            leader = [x for x in clique if LEADER_ANNOTATION in self.clique_graph.node[x] and self.clique_graph.node[x][LEADER_ANNOTATION]]
+            leader = [x for x in clique if LEADER_ANNOTATION in self.clique_graph.nodes[x] and self.clique_graph.nodes[x][LEADER_ANNOTATION]]
             if len(leader) == 0:
                 logging.debug("No leader for clique {}; skipping".format(clique))
                 continue
             else:
                 leader = leader[0]
-            nx.set_node_attributes(self.target_graph, {leader: {LEADER_ANNOTATION: self.clique_graph.node[leader].get(LEADER_ANNOTATION), 'election_strategy': self.clique_graph.node[leader].get('election_strategy')}})
+            nx.set_node_attributes(self.target_graph, {leader: {LEADER_ANNOTATION: self.clique_graph.nodes[leader].get(LEADER_ANNOTATION), 'election_strategy': self.clique_graph.nodes[leader].get('election_strategy')}})
             for node in clique:
                 if node == leader:
                     continue
@@ -366,7 +366,7 @@ class CliqueMerge(object):
                     key = generate_edge_key(leader, edge_data['edge_label'], v)
                     self.target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
-                aliases = self.target_graph.node[leader].get('aliases') if 'aliases' in self.target_graph.node[leader] else []
+                aliases = self.target_graph.nodes[leader].get('aliases') if 'aliases' in self.target_graph.nodes[leader] else []
 
                 for u, v, edge_data in equiv_in_edges:
                     if u != leader:

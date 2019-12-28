@@ -170,20 +170,20 @@ class Transformer(object):
                     # category is a list
                     for c in category:
                         if not get_toolkit().is_category(c):
-                            self.graph.node[n]['category'] = c
-                    self.graph.node[n]['category'] = 'named thing'
+                            self.graph.nodes[n]['category'] = c
+                    self.graph.nodes[n]['category'] = 'named thing'
                 else:
                     # category is string
                     # TODO: This behavior needs to be consolidated, post merge
                     if not get_toolkit().is_category(category):
-                        self.graph.node[n]['category'] = 'named thing'
-                        self.graph.node[n]['alt_category'] = category
+                        self.graph.nodes[n]['category'] = 'named thing'
+                        self.graph.nodes[n]['alt_category'] = category
 
         with click.progressbar(self.graph.edges(data='edge_label'), label='cleaning up edge_label for edges') as bar:
             for s, o, edgelabel in bar:
                 if not get_toolkit().is_edgelabel(edgelabel):
-                    self.graph.node[n]['edge_label'] = 'related_to'
-                    self.graph.node[n]['alt_edge_label'] = edgelabel
+                    self.graph.nodes[n]['edge_label'] = 'related_to'
+                    self.graph.nodes[n]['alt_edge_label'] = edgelabel
 
     def merge_cliques(self, categorize_first=True):
         """

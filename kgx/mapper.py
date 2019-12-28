@@ -96,10 +96,10 @@ def relabel_nodes(graph: nx.MultiDiGraph, mapping: Dict) -> nx.MultiDiGraph:
         graph.add_edge('a', 'b')
         graph.add_edge('c', 'd')
 
-        graph.node['a']['synonym'] = ['A']
-        graph.node['b']['synonym'] = ['B']
-        graph.node['c']['synonym'] = ['C']
-        graph.node['d']['synonym'] = ['D']
+        graph.nodes['a']['synonym'] = ['A']
+        graph.nodes['b']['synonym'] = ['B']
+        graph.nodes['c']['synonym'] = ['C']
+        graph.nodes['d']['synonym'] = ['D']
 
         graph = relabel_nodes(graph, {'c' : 'b'})
 
@@ -117,9 +117,9 @@ def relabel_nodes(graph: nx.MultiDiGraph, mapping: Dict) -> nx.MultiDiGraph:
     with click.progressbar(graph.nodes(), label='Progress') as bar:
         for n in bar:
             if n in mapping:
-                graceful_update(g.node[mapping[n]], graph.node[n])
+                graceful_update(g.nodes[mapping[n]], graph.nodes[n])
             elif n in g:
-                graceful_update(g.node[n], graph.node[n])
+                graceful_update(g.nodes[n], graph.nodes[n])
             else:
                 pass
     return g
@@ -201,7 +201,7 @@ class ReportBuilder(object):
         self.graph = graph
         self.records = []
     def add(self, node, xref):
-        provided_by = self.graph.node[node].get('provided_by')
+        provided_by = self.graph.nodes[node].get('provided_by')
         if provided_by is not None:
             provided_by = '; '.join(provided_by)
         self.records.append({
@@ -245,13 +245,13 @@ def build_clique_graph(graph:nx.Graph) -> nx.Graph:
 
     with click.progressbar(graph.nodes(), label='building cliques') as bar:
         for n in bar:
-            attr_dict = graph.node[n]
+            attr_dict = graph.nodes[n]
             if 'same_as' in attr_dict:
                 for m in attr_dict['same_as']:
                     cliqueGraph.add_edge(n, m, provided_by=attr_dict['provided_by'])
-                    for key, value in graph.node[n].items():
-                        update(cliqueGraph.node[n], key, value)
-                    update(cliqueGraph.node[n], 'is_node', True)
+                    for key, value in graph.nodes[n].items():
+                        update(cliqueGraph.nodes[n], key, value)
+                    update(cliqueGraph.nodes[n], 'is_node', True)
 
     return cliqueGraph
 
@@ -285,8 +285,8 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
     with click.progressbar(cliqueGraph.edges(), label='Breaking invalid cliques') as bar:
         for u, v in bar:
             try:
-                u_categories = graph.node[u].get('category', [])
-                v_categories = graph.node[v].get('category', [])
+                u_categories = graph.nodes[u].get('category', [])
+                v_categories = graph.nodes[v].get('category', [])
             except:
                 continue
             l = len(edges)
@@ -323,7 +323,7 @@ def clique_merge(graph:nx.Graph, report=False) -> nx.Graph:
                 if not graph.has_node(n):
                     continue
 
-                attr_dict = graph.node[n]
+                attr_dict = graph.nodes[n]
 
                 attr_dict['same_as'] = nodes
 

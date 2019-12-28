@@ -23,10 +23,10 @@ def fill_categories(graph:MultiDiGraph) -> None:
             c = toolkit.get_element(name)
             if c is not None:
                 for subclass in subclasses(n):
-                    if not isinstance(G.node[subclass].get('category'), list):
-                        G.node[subclass]['category'] = [name]
+                    if not isinstance(graph.nodes[subclass].get('category'), list):
+                        graph.nodes[subclass]['category'] = [name]
                     else:
-                        category = G.node[subclass]['category']
+                        category = graph.nodes[subclass]['category']
                         if name not in category:
                             category.append(name)
 
@@ -52,8 +52,8 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
     superclasses that are in the biolink model whenever able.
     """
     def super_class_generator(n) -> Tuple[str, int]:
-        if n in graph and 'type' in graph.node[n]:
-            yield graph.node[n]['type']
+        if n in graph and 'type' in graph.nodes[n]:
+            yield graph.nodes[n]['type']
 
         for _, m, data in graph.out_edges(n, data=True):
             edge_label = data.get('edge_label')
@@ -77,7 +77,7 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
         if n not in graph:
             continue
 
-        name = graph.node[n].get('name')
+        name = graph.nodes[n].get('name')
 
         if name is not None and name not in ignore:
             c = toolkit.get_element(name)
@@ -88,4 +88,4 @@ def find_superclass(node, graph:MultiDiGraph) -> Optional[str]:
                 best_node, best_score = n, score
 
     if best_node is not None:
-        return graph.node[best_node]['name']
+        return graph.nodes[best_node]['name']

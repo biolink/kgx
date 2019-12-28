@@ -155,9 +155,9 @@ class RdfGraphMixin(object):
                 edge_label = self.DEFAULT_EDGE_LABEL
 
         kwargs = {
-            'subject': subject_iri,
+            'subject': s,
             'predicate': predicate_iri,
-            'object': object_iri,
+            'object': o,
             'relation': relation,
             'edge_label': edge_label
         }
@@ -202,7 +202,7 @@ class RdfGraphMixin(object):
 
         if key is not None:
             n = self.add_node(iri)
-            attr_dict = self.graph.node[n]
+            attr_dict = self.graph.nodes[n]
             self._add_attribute(attr_dict, key, value)
 
 
@@ -246,6 +246,8 @@ class RdfGraphMixin(object):
             subject_curie = make_curie(subject_iri)
             object_curie = make_curie(object_iri)
             edge_label = process_iri(predicate_iri)
+            if is_curie(edge_label):
+                edge_label = curie_lookup(edge_label)
             edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
             attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
             self._add_attribute(attr_dict, key, value)

@@ -105,7 +105,7 @@ def find_categories(node, graph:MultiDiGraph) -> List[str]:
 
     best_node, best_score = None, 0
     for node, score in walk(iri, super_class_generator):
-        name = graph.node[node].get('name')
+        name = graph.nodes[node].get('name')
         c = toolkit.get_element(name)
         if c is not None:
             return [c.name]
@@ -114,7 +114,7 @@ def find_categories(node, graph:MultiDiGraph) -> List[str]:
         elif score > best_score:
             best_node, best_score = node, score
 
-    name = graph.node[best_node].get('name')
+    name = graph.nodes[best_node].get('name')
 
     if name is not None:
         return [name]
