@@ -1,10 +1,7 @@
 import networkx as nx
 import rdflib
 
-#from kgx.utils.rdf_utils import make_curie
-from prefixcommons import contract_uri
-from prefixcommons.curie_util import default_curie_maps
-from rdflib import URIRef
+from kgx.utils.kgx_utils import make_curie
 
 CURIE_MAP = {
     'BFO:0000054': 'realized_in',
@@ -21,7 +18,8 @@ class CurieLookupService(object):
         'RO': 'data/ro.owl',
         'BFO': 'data/bfo.owl',
         'HP': 'data/hp.owl',
-        'GO': 'data/go.owl'
+        'GO': 'data/go.owl',
+        'SO': 'data/so.owl'
     }
     ontology_graph = None
 
@@ -54,47 +52,3 @@ class CurieLookupService(object):
                 value = value.replace(' ', '_')
                 self.curie_map[key] = value
                 self.ontology_graph.add_node(key, name=value)
-
-cmaps = [
-            {
-                'OMIM': 'https://omim.org/entry/',
-                'HGNC': 'http://identifiers.org/hgnc/',
-                'DRUGBANK': 'http://identifiers.org/drugbank:',
-                'biolink': 'http://w3id.org/biolink/vocab/'
-            },
-            {
-                'DRUGBANK': 'http://w3id.org/data2services/data/drugbank/'
-            }
-        ] + default_curie_maps
-
-
-def contract(uri) -> str:
-    """
-    We sort the curies to ensure that we take the same item every time
-    """
-    curies = contract_uri(str(uri), cmaps=cmaps)
-    if len(curies) > 0:
-        curies.sort()
-        return curies[0]
-    return None
-
-def make_curie(uri) -> str:
-    HTTP = 'http'
-    HTTPS = 'https'
-
-    curie = contract(uri)
-
-    if curie is not None:
-        return curie
-
-    if uri.startswith(HTTPS):
-        uri = HTTP + uri[len(HTTPS):]
-    elif uri.startswith(HTTP):
-        uri = HTTPS + uri[len(HTTP):]
-
-    curie = contract(uri)
-
-    if curie is None:
-        return uri
-    else:
-        return curie

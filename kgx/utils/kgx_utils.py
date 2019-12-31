@@ -1,11 +1,27 @@
 import re
 import stringcase
 from bmt import Toolkit
-
-from kgx.curie_lookup_service import CurieLookupService
+from cachetools import LRUCache
+from prefixcommons import contract_uri
+from prefixcommons.curie_util import default_curie_maps
 
 toolkit = None
 curie_lookup_service = None
+cache = None
+
+
+cmaps = [
+            {
+                'OMIM': 'https://omim.org/entry/',
+                'HGNC': 'http://identifiers.org/hgnc/',
+                'DRUGBANK': 'http://identifiers.org/drugbank:',
+                'biolink': 'http://w3id.org/biolink/vocab/'
+            },
+            {
+                'DRUGBANK': 'http://w3id.org/data2services/data/drugbank/'
+            }
+        ] + default_curie_maps
+
 
 def camelcase_to_sentencecase(s: str) -> str:
     """
@@ -58,6 +74,38 @@ def sentencecase_to_snakecase(s: str) -> str:
     """
     return stringcase.snakecase(s).lower()
 
+
+def contract(uri) -> str:
+    """
+    We sort the curies to ensure that we take the same item every time
+    """
+    curies = contract_uri(str(uri), cmaps=cmaps)
+    if len(curies) > 0:
+        curies.sort()
+        return curies[0]
+    return None
+
+def make_curie(uri) -> str:
+    HTTP = 'http'
+    HTTPS = 'https'
+
+    curie = contract(uri)
+
+    if curie is not None:
+        return curie
+
+    if uri.startswith(HTTPS):
+        uri = HTTP + uri[len(HTTPS):]
+    elif uri.startswith(HTTP):
+        uri = HTTPS + uri[len(HTTP):]
+
+    curie = contract(uri)
+
+    if curie is None:
+        return uri
+    else:
+        return curie
+
 def get_toolkit() -> Toolkit:
     """
     Get an instance of bmt.Toolkit
@@ -106,6 +154,7 @@ def get_biolink_mapping(category):
 def get_curie_lookup_service():
     global curie_lookup_service
     if curie_lookup_service is None:
+        from kgx.curie_lookup_service import CurieLookupService
         curie_lookup_service = CurieLookupService()
     return curie_lookup_service
 
@@ -116,3 +165,9 @@ def get_curie_lookup_map():
     if curie_lookup_service is None:
         curie_lookup_service = CurieLookupService()
     return curie_lookup_service.curie_map
+
+def get_cache(maxsize=10000):
+    global cache
+    if cache is None:
+        cache = LRUCache(maxsize)
+    return cache
