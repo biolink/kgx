@@ -2,9 +2,10 @@ import logging
 import networkx as nx
 import rdflib
 import stringcase
+from cachetools import cached
 
 from kgx.mapper import get_prefix
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_map
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_map, get_cache
 
 from kgx.validator import is_curie
 
@@ -74,6 +75,7 @@ def get_ancestors(graph, node, relations=None):
     seen.remove(node)
     return seen
 
+@cached(get_cache())
 def get_category_via_superclass(graph, curie, load_ontology=True):
     """
     Get category for a given CURIE by tracing its superclass, via subclass_of hierarchy,
