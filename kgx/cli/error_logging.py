@@ -1,8 +1,11 @@
 import os
-import click
 from collections import defaultdict
 from typing import List
+
+import click
+
 from kgx.validator import Error, NodeError, EdgeError
+
 
 def append_errors_to_file(filename:str, errors:List[Error], time) -> None:
     """

@@ -1,4 +1,5 @@
 from typing import Dict
+
 import prefixcommons.curie_util as cu
 
 

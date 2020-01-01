@@ -1,4 +1,3 @@
-import re
 import stringcase
 from bmt import Toolkit
 from cachetools import LRUCache

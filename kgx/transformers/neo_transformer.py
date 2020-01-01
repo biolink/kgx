@@ -19,7 +19,7 @@ class NeoTransformer(Transformer):
     def __init__(self, graph: nx.MultiDiGraph = None, host: str = None, port: str = None, username: str = None, password: str = None):
         super(NeoTransformer, self).__init__(graph)
         self.http_driver = None
-        http_uri = "{}:{}".format(host, port)
+        http_uri = f'http://{host}:{port}'
         self.http_driver = http_gdb(http_uri, username=username, password=password)
 
     def load(self, start: int = 0, end: int = None, is_directed: bool = True) -> None:

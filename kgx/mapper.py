@@ -1,9 +1,12 @@
+import click
+import logging
+import pandas
+from typing import Union, List, Dict
+
 import networkx as nx
-import logging, click, pandas
+from prefixcommons.curie_util import expand_uri
 
 from kgx.utils.kgx_utils import get_toolkit
-from prefixcommons.curie_util import expand_uri
-from typing import Union, List, Dict
 
 
 def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> nx.MultiDiGraph:
