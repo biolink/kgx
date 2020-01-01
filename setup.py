@@ -31,7 +31,8 @@ REQUIRED = [
     "shexjsg>=0.6.5",
     "terminaltables>=3.1.0",
     "stringcase>=1.2.0",
-    "validators>=0.13.0"
+    "validators>=0.13.0",
+    "cachetools>-4.0.0"
 ]
 
 EXTRAS = {}
