@@ -1,6 +1,6 @@
 import networkx as nx
 import rdflib
-
+from kgx import get_config
 from kgx.utils.kgx_utils import make_curie, generate_edge_key
 
 CURIE_MAP = {
@@ -13,14 +13,8 @@ class CurieLookupService(object):
     """
     A service to lookup label for a given CURIE.
     """
-
-    ontologies = {
-        'RO': 'data/ro.owl',
-        'BFO': 'data/bfo.owl',
-        'HP': 'data/hp.owl',
-        'GO': 'data/go.owl',
-        'SO': 'data/so.owl'
-    }
+    config = get_config()
+    ontologies = config['ontologies']
     ontology_graph = None
 
     def __init__(self, curie_map: dict = None):

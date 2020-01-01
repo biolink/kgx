@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import yaml
+
 __version__ = '0.0.1'
 
 from kgx.transformers.pandas_transformer import PandasTransformer
@@ -19,9 +21,35 @@ from .utils.model_utils import make_valid_types
 
 import logging
 
+CONFIG_FILENAME = "config.yml"
+config = None
+
+def get_config(filename: str = CONFIG_FILENAME) -> dict:
+    """
+    Get config as a dictionary
+
+    Parameters
+    ----------
+    filename: str
+        The filename with all the configuration
+
+    Returns
+    -------
+    dict
+        A dictionary containing all the entries from the config YAML
+
+    """
+    global config
+    if config is None:
+        config = yaml.load(open(filename), Loader=yaml.FullLoader)
+        print(config)
+    return config
+
+
+config = get_config()
 logger = logging.getLogger()
 handler = logging.StreamHandler()
-formatter = logging.Formatter("[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s")
+formatter = logging.Formatter(config['logging']['format'])
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(config['logging']['level'])
