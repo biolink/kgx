@@ -3,14 +3,14 @@ import os
 import pathlib
 
 _transformers = {
-    'tar' : kgx.PandasTransformer,
-    'txt' : kgx.PandasTransformer,
-    'csv' : kgx.PandasTransformer,
-    'tsv' : kgx.PandasTransformer,
-    'graphml' : kgx.GraphMLTransformer,
-    'ttl' : kgx.ObanRdfTransformer,
-    'json' : kgx.JsonTransformer,
-    'rq' : kgx.SparqlTransformer
+    'tar': kgx.PandasTransformer,
+    'txt': kgx.PandasTransformer,
+    'csv': kgx.PandasTransformer,
+    'tsv': kgx.PandasTransformer,
+    'graphml': kgx.GraphMLTransformer,
+    'ttl': kgx.ObanRdfTransformer,
+    'json': kgx.JsonTransformer,
+    'rq': kgx.SparqlTransformer
 }
 
 def is_writable(filepath):

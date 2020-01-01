@@ -1,16 +1,16 @@
 import logging
-from itertools import zip_longest
-from typing import Set, Dict, Generator
 
-import networkx as nx
 import rdflib
-from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
-from pystache import render
 from rdflib import URIRef
+from requests import HTTPError
+import networkx as nx
+from typing import Set, List, Dict, Generator
 
-from kgx.rdf_graph_mixin import RdfGraphMixin
-from kgx.transformer import Transformer
-from kgx.utils.kgx_utils import un_camel_case
+from pystache import render
+from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
+from itertools import zip_longest
+from kgx.transformers.transformer import Transformer
+from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 
 
 class SparqlTransformer(RdfGraphMixin, Transformer):
@@ -263,7 +263,7 @@ class RedSparqlTransformer(SparqlTransformer):
                 end = i
                 query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
                 sparql.setQuery(query)
-                logging.info("Fetching triples with predicate {}".format(predicate))
+                logging.debug("Fetching triples with predicate {}".format(predicate))
                 results = sparql.query().convert()
                 node_list = set()
                 for r in results['results']['bindings']:
@@ -290,7 +290,7 @@ class RedSparqlTransformer(SparqlTransformer):
         """
         for n, data in self.graph.nodes(data=True):
             if 'category' not in data and 'type' in data:
-                data['category'] = un_camel_case(data['type'].replace('biolink:', ''))
+                data['category'] = data['type'].replace('biolink:', '')
 
     def load_nodes(self, node_set: Set) -> None:
         """

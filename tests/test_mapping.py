@@ -14,21 +14,21 @@ def test_mapping():
     N = 100
     E = N * 3
     mapping = {}
-    for i in range(0,N+1):
+    for i in range(0, N+1):
         nid = curie(i)
         mapping[nid] = mapped_curie(i)
-        G.add_node(nid, label="node {}".format(i))
-    for i in range(1,E):
+        G.add_node(nid, label="node {}".format(i), id=nid)
+    for i in range(1, E):
         s = random_curie(N)
         o = random_curie(N)
-        G.add_edge(o,s,predicate='related_to',relation='related_to')
+        G.add_edge(o, s, subject=s, object=o, predicate='related_to', relation='related_to', edge_label='related_to')
     print('Nodes={}'.format(len(G.nodes())))
     mapper.map_graph(G, mapping)
     print("Mapped..")
 
     count = 0
     for nid in G.nodes():
-        src = G.node[nid]['source_curie']
+        src = G.nodes[nid]['source_curie']
         assert nid.startswith("Y:")
         assert src.startswith("X:")
         count += 1
@@ -38,8 +38,6 @@ def test_mapping():
     print("Saving tsv")
     w = PandasTransformer(G)
     w.save("target/maptest")
-    w = ObanRdfTransformer(G)
-    w.save("target/maptest.ttl")
 
 
 def random_curie(N):

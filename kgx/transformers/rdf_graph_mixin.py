@@ -1,12 +1,14 @@
 import logging
-from typing import Set, Dict, Tuple
-
 import networkx as nx
+from typing import List, Set, Dict, Tuple, Union
 import rdflib
-from prefixcommons.curie_util import read_remote_jsonld_context
 from rdflib import URIRef, Namespace
 
+from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.utils.kgx_utils import generate_edge_key
+from prefixcommons.curie_util import read_remote_jsonld_context
+from kgx.validator import is_curie
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -26,8 +28,7 @@ class RdfGraphMixin(object):
     OBO = Namespace('http://purl.obolibrary.org/obo/')
     OBAN = Namespace(biolink_prefix_map['OBAN'])
     PMID = Namespace(biolink_prefix_map['PMID'])
-    # TODO: double check: is this the correct prefix change? (biolink --> biolinkml)
-    BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
+    BIOLINK = Namespace('https://w3id.org/biolink/')
     DEFAULT_EDGE_LABEL = 'related_to'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
@@ -64,6 +65,7 @@ class RdfGraphMixin(object):
             A list of rdflib.URIRef representing predicates to be loaded
         kwargs: dict
             Any additional arguments
+
         """
         raise NotImplementedError("Method not implemented.")
 
@@ -124,39 +126,40 @@ class RdfGraphMixin(object):
         """
         s = self.add_node(subject_iri)
         o = self.add_node(object_iri)
-
         relation = make_curie(predicate_iri)
         edge_label = process_iri(predicate_iri)
         if ' ' in edge_label:
             logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
-        # TODO: shouldn't this move to the utilities function process_uri()
         if edge_label.startswith(self.BIOLINK):
             logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label, self.BIOLINK))
             edge_label = edge_label.replace(self.BIOLINK, '')
 
-        # TODO: is there no way to get label of a CURIE?
-        # TODO: this should also move to the utilities function
-        # Any service? or preload required ontologies by prefix?
-        if ':' in edge_label:
-            logging.debug("edge label '{}' is a CURIE; defaulting back to 'related_to'".format(edge_label))
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
-            edge_label = self.DEFAULT_EDGE_LABEL
+        if is_curie(edge_label):
+            name = curie_lookup(edge_label)
+            if name:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
+                edge_label = name
+            else:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
+                edge_label = self.DEFAULT_EDGE_LABEL
 
         kwargs = {
+            'subject': s,
+            'predicate': predicate_iri,
+            'object': o,
             'relation': relation,
             'edge_label': edge_label
         }
         if 'provided_by' in self.graph_metadata:
             kwargs['provided_by'] = self.graph_metadata['provided_by']
 
-        if self.graph.has_edge(s, o, key=edge_label):
-            logging.debug("{} -- {} --> {} edge already exists".format(s, edge_label, o))
-        else:
-            self.graph.add_edge(s, o, key=edge_label, **kwargs)
+        key = generate_edge_key(s, edge_label, o)
+        if not self.graph.has_edge(s, o, key=key):
+            self.graph.add_edge(s, o, key=key, **kwargs)
 
         return s, o, edge_label
 
-    def add_node_attribute(self, iri: URIRef, key: str, value: str) -> None:
+    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> None:
         """
         Add an attribute to a node, while taking into account whether the attribute
         should be multi-valued.
@@ -169,7 +172,7 @@ class RdfGraphMixin(object):
 
         Parameters
         ----------
-        iri: rdflib.URIRef
+        iri: Union[rdflib.URIRef, str]
             The IRI of a node in the rdflib.Graph
         key: str
             The name of the attribute. Can be a rdflib.URIRef or URI string
@@ -186,11 +189,11 @@ class RdfGraphMixin(object):
 
         if key is not None:
             n = self.add_node(iri)
-            attr_dict = self.graph.node[n]
+            attr_dict = self.graph.nodes[n]
             self._add_attribute(attr_dict, key, value)
 
 
-    def add_edge_attribute(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
+    def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
         """
         Adds an attribute to an edge, while taking into account whether the attribute
         should be multi-valued.
@@ -207,7 +210,7 @@ class RdfGraphMixin(object):
 
         Parameters
         ----------
-        subject_iri: rdflib.URIRef
+        subject_iri: [rdflib.URIRef, str]
             The IRI of the subject node of an edge in rdflib.Graph
         object_iri: rdflib.URIRef
             The IRI of the object node of an edge in rdflib.Graph
@@ -227,8 +230,13 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None:
-            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
-            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
+            subject_curie = make_curie(subject_iri)
+            object_curie = make_curie(object_iri)
+            edge_label = process_iri(predicate_iri)
+            if is_curie(edge_label):
+                edge_label = curie_lookup(edge_label)
+            edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
+            attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
             self._add_attribute(attr_dict, key, value)
 
     def _add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:

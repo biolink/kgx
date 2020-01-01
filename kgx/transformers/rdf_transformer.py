@@ -1,21 +1,16 @@
-from collections import defaultdict
-from typing import Union, Set, List
-
-import click
-import logging
+import click, rdflib, logging, os, uuid
 import networkx as nx
-import os
-import rdflib
-import uuid
-from prefixcommons.curie_util import read_remote_jsonld_context
+from typing import Tuple, Union, Set, List, Dict
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
+from collections import defaultdict
+from prefixcommons.curie_util import read_remote_jsonld_context
 
 from kgx.prefix_manager import PrefixManager
-from kgx.rdf_graph_mixin import RdfGraphMixin
-from kgx.transformer import Transformer
+from kgx.transformers.transformer import Transformer
+from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
+from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category
 from kgx.utils.kgx_utils import get_toolkit
-from kgx.utils.rdf_utils import find_category, property_mapping
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -45,7 +40,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.prefix_manager = PrefixManager()
         self.toolkit = get_toolkit()
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -79,7 +74,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             elif hasattr(filename, 'name'):
                 self.graph_metadata['provided_by'] = [filename.name]
 
-        self.load_networkx_graph(rdfgraph)
+        self.load_networkx_graph(rdfgraph, predicates)
         self.load_node_attributes(rdfgraph)
         self.report()
 
@@ -128,19 +123,19 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 if (p == self.is_about) and (p in predicates):
-                    logging.info("Loading is_about predicate")
+                    logging.debug("Loading is_about predicate")
                     # if predicate is 'is_about' then treat object as publication
                     self.add_node_attribute(o, key=s, value='publications')
                 elif (p == self.is_subsequence_of) and (p in predicates):
-                    logging.info("Loading is_subsequence_of predicate")
+                    logging.debug("Loading is_subsequence_of predicate")
                     # if predicate is 'is_subsequence_of'
                     self.add_edge(s, o, self.is_subsequence_of)
                 elif (p == self.has_subsequence) and (p in predicates):
-                    logging.info("Loading has_subsequence predicate")
+                    logging.debug("Loading has_subsequence predicate")
                     # if predicate is 'has_subsequence', interpret the inverse relation 'is_subsequence_of'
                     self.add_edge(o, s, self.is_subsequence_of)
                 elif any(p.lower() == x.lower() for x in predicates):
-                    logging.info("Loading {} predicate, additional predicate".format(p))
+                    logging.debug("Loading {} predicate".format(p))
                     self.add_edge(s, o, p)
 
     def load_node_attributes(self, rdfgraph: rdflib.Graph) -> None:
@@ -160,6 +155,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         logging.info("Loading node attributes from rdflib.Graph into networkx.MultiDiGraph")
         with click.progressbar(self.graph.nodes(data=True), label='Progress') as bar:
             for n, data in bar:
+                if 'id' not in data:
+                    data['id'] = n
                 if 'iri' in data:
                     uriref = URIRef(data['iri'])
                 else:
@@ -172,17 +169,18 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         # predicate corresponds to a property on subject
                         if not (isinstance(s, rdflib.term.BNode) and isinstance(o, rdflib.term.BNode)):
                             # neither subject nor object is a BNode
+                            if isinstance(o, rdflib.term.Literal):
+                                o = o.value
                             self.add_node_attribute(uriref, key=p, value=o)
                     elif isinstance(o, rdflib.term.Literal):
                         # object is a Literal
                         # i.e. predicate corresponds to a property on subject
-                        self.add_node_attribute(uriref, key=p, value=o)
+                        self.add_node_attribute(uriref, key=p, value=o.value)
 
-                category = find_category(uriref, [rdfgraph] + self.ontologies)
-                logging.debug("Inferred '{}' as category for node '{}'".format(category, uriref))
-                if category is not None:
+                categories = infer_category(uriref, rdfgraph)
+                logging.debug("Inferred '{}' as category for node '{}'".format(categories, uriref))
+                for category in categories:
                     self.add_node_attribute(uriref, key='category', value=category)
-
 
 class ObanRdfTransformer(RdfTransformer):
     """
@@ -416,7 +414,7 @@ class RdfOwlTransformer(RdfTransformer):
                 self.add_edge(s, parent, pred)
 
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
-        logging.info("Loading relations")
+        logging.debug("Loading relations")
         with click.progressbar(relations, label='Progress') as bar:
             for relation in bar:
                 for _, p, o in rdfgraph.triples((relation, None, None)):

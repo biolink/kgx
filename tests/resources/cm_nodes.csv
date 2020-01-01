@@ -1,0 +1,12 @@
+id,name,category
+HGNC:7670,,gene|Node|named_thing
+OMIM:601937,,gene
+ENSEMBL:ENSG00000124151,,disease
+NCBIGene:8202,,gene
+HGNC:35302,,gene
+ENSEMBL:ENSG00000284458,,named_thing
+NCBIGene:100302240,,gene
+SO:0001217,,named_thing
+SO:0001265,,named_thing
+NCBIGene:100302240,,gene
+HGNC:3121,,gene

@@ -1,39 +1,27 @@
-import click
-import json
-import logging
-import time
-from typing import Union, List, Dict, Tuple
-
 import networkx as nx
+import json, time, click, logging
+from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
+from kgx.utils.graph_utils import get_category_via_superclass
+from kgx.utils.kgx_utils import get_toolkit, get_biolink_mapping, sentencecase_to_snakecase
+
 from kgx.mapper import clique_merge
-from kgx.utils.kgx_utils import get_toolkit
-from kgx.utils.ontology import find_superclass
-from kgx.utils.str_utils import fmt_edgelabel, fmt_category
 
 SimpleValue = Union[List[str], str]
 
 IGNORE_CLASSES = ['All', 'entity']
 
+ADDITIONAL_LABELS = {
+    'phenotypic_abnormality': 'phenotypic_feature',
+    'clinical_course': 'phenotypic_feature',
+    'blood_group': 'phenotypic_feature',
+    'clinical_modifier': 'phenotypic_feature',
+    'frequency': 'phenotypic_feature',
+    'mode_of_inheritance': 'phenotypic_feature',
+    'past_medical_history': 'phenotypic_feature'
+}
 
-def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
-    """
-    A convenient method for getting a list of edges that match the given fitlers
-    """
-    if mode == 'all':
-        method = graph.edges
-    elif mode == 'in':
-        method = graph.in_edges
-    elif mode == 'out':
-        method = graph.out_edges
-    else:
-        raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
-    edges = []
-    for u, v, d in method(nbunch=node, data=True):
-        if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
-            edges.append((u, v))
-    return edges
 
 class Transformer(object):
     """
@@ -70,6 +58,7 @@ class Transformer(object):
         -------
         bool
             A boolean value asserting whether the graph is empty or not
+
         """
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
@@ -88,91 +77,57 @@ class Transformer(object):
         """
         self.filters[key] = value
 
-    def categorize(self) -> None:
+    def categorize(self):
         """
-        Checks for a node's category property and assigns a category from BioLink Model.
-        Checks for an edge's edge_label property and assigns a label from BioLink Model.
+        Find and validate category for every node in self.graph
         """
-        memo = {}
-        with click.progressbar(self.graph.nodes(data=True), label='Finding superclass category for nodes') as bar:
-            for n, data in bar:
-                if 'category' not in data or data['category'] == ['named thing']:
-                    # if there is no category property for a node
-                    # or category is simply 'named thing'
-                    # then find a BioLink Model relevant category
-                    superclass = find_superclass(n, self.graph)
-                    if superclass is not None:
-                        data['category'] = [superclass]
+        node_to_categories = {}
+        preserve = {}
+        for n, data in self.graph.nodes(data=True):
+            logging.info("Processing node {}".format(n))
+            new_categories = set()
+            if 'category' in data:
+                categories = data['category']
+                preserve[n] = data['category']
+                for category in categories:
+                    element = get_biolink_mapping(category)
+                    if element is not None:
+                        # there is a direct mapping to a BioLink Model class
+                        mapped_category = element['name']
+                        logging.debug("Category: {} has a direct mapping to BioLink Model class {}".format(category, mapped_category))
+                        new_categories.update([mapped_category])
+                    else:
+                        if category in ADDITIONAL_LABELS:
+                            element = get_biolink_mapping(ADDITIONAL_LABELS[category])
+                            if element is not None:
+                                # take a look at an additional list of mappings
+                                mapped_category = element['name']
+                                logging.debug("Category: {} mapped over to {} has a direct mapping to BioLink Model class {}".format(category, ADDITIONAL_LABELS[category], mapped_category))
+                                new_categories.update([mapped_category])
+                        else:
+                            # subClassOf traversal required
+                            # assuming that the graph contains subClassOf edges
+                            # and the node subClassOf x
+                            new_categories.update(get_category_via_superclass(self.graph, category))
+            else:
+                # try via subClassOf
+                # subClassOf traversal required
+                # assuming that the graph contains subClassOf edges
+                # and the node subClassOf x
+                logging.info("node doesn't have a category field; trying to infer category via subclass_of axiom")
+                for u, v, edge_data in self.graph.edges(n, data=True):
+                    logging.info("u: {} v: {} data: {}".format(u, v, edge_data))
+                    if edge_data['edge_label'] == 'subclass_of':
+                        curie = v
+                        new_categories.update(get_category_via_superclass(self.graph, curie))
 
-        with click.progressbar(self.graph.edges(data=True), label='Finding superclass category for edges') as bar:
-            for u, v, data in bar:
-                if 'edge_label' not in data or data['edge_label'] is None or data['edge_label'] == 'related_to':
-                    # if there is no edge_label property for an edge
-                    # or if edge_label property is None
-                    # or if edge_label is simply 'related_to'
-                    # then find a BioLink Model relevant edge_label
-                    relation = data.get('relation')
-                    if relation not in memo:
-                        superclass = find_superclass(relation, self.graph)
-                        memo[relation] = fmt_edgelabel(superclass)
-
-                    if memo[relation] is not None:
-                        data['edge_label'] = memo[relation]
-
-        # Set all null categories to the default value, and format all others
-        with click.progressbar(self.graph.nodes(data='category'), label='Ensuring valid categories') as bar:
-            for n, category in bar:
-                if not isinstance(category, list) or category == []:
-                    self.graph.node[n]['category'] = ['named thing']
-                else:
-                    category = [fmt_category(c) for c in category]
-
-        # Set all null edgelabels to the default value, and format all others
-        with click.progressbar(self.graph.edges(data=True), label='Ensuring valid edge labels') as bar:
-            for u, v, data in bar:
-                if 'edge_label' not in data or data['edge_label'] is None:
-                    data['edge_label'] = 'related_to'
-                else:
-                    data['edge_label'] = fmt_edgelabel(data['edge_label'])
-
-    def clean_categories(self, threashold=100):
-        """
-        Removes categories and edges labels that are not from the biolink model.
-        Adds alt_edge_label and alt_category property to hold these invalid
-        edge labels and categories, so that the information is not lost.
-        """
-        with click.progressbar(self.graph.nodes(data='category'), label='cleaning up category for nodes') as bar:
-            for n, category in bar:
-                if isinstance(category, list):
-                    # category is a list
-                    for c in category:
-                        if not get_toolkit().is_category(c):
-                            self.graph.node[n]['category'] = c
-                    self.graph.node[n]['category'] = 'named thing'
-                else:
-                    # category is string
-                    # TODO: This behavior needs to be consolidated, post merge
-                    if not get_toolkit().is_category(category):
-                        self.graph.node[n]['category'] = 'named thing'
-                        self.graph.node[n]['alt_category'] = category
-
-        with click.progressbar(self.graph.edges(data='edge_label'), label='cleaning up edge_label for edges') as bar:
-            for s, o, edgelabel in bar:
-                if not get_toolkit().is_edgelabel(edgelabel):
-                    self.graph.node[n]['edge_label'] = 'related_to'
-                    self.graph.node[n]['alt_edge_label'] = edgelabel
-
-    def merge_cliques(self, categorize_first=True):
-        """
-        Merges all nodes that are connected by `same_as` edges, or are marked
-        as equivalent by a nodes `same_as` property.
-
-        The clique leader chosen depends on the categories within that clique.
-        For this reason it's useful to run the `categorize` method first.
-        """
-        if categorize_first:
-            self.categorize()
-        self.graph = clique_merge(self.graph)
+            new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
+            if len(new_categories) == 0:
+                new_categories.append('named_thing')
+            logging.debug("Output categories: {}".format(new_categories))
+            node_to_categories[n] = new_categories
+        nx.set_node_attributes(self.graph, node_to_categories, 'category')
+        nx.set_node_attributes(self.graph, preserve, '_old_category')
 
     def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:
         """
@@ -190,6 +145,7 @@ class Transformer(object):
         ----------
         graphs: List[networkx.MultiDiGraph]
             List of graphs that are to be merged with self.graph
+
         """
         # TODO: Check behavior and consistency
 
@@ -325,6 +281,7 @@ class Transformer(object):
         -------
         dict
             A dictionary
+
         """
         data = json_graph.node_link_data(g)
         return data
@@ -409,6 +366,9 @@ class Transformer(object):
             A node represented as a dict, with default assumptions applied.
 
         """
+        if len(node) == 0:
+            logging.warning("Empty node encountered: {}".format(node))
+            return node
 
         if 'id' not in node:
             raise KeyError("node does not have 'id' property: {}".format(node))
