@@ -5,7 +5,7 @@ import logging, tarfile
 from tempfile import TemporaryFile
 from kgx.utils import make_path
 from kgx.utils.kgx_utils import generate_edge_key
-from kgx.transformer import Transformer
+from kgx.transformers.transformer import Transformer
 
 from typing import List, Dict
 

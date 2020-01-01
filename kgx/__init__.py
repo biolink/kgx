@@ -2,14 +2,14 @@ from __future__ import absolute_import
 
 __version__ = '0.0.1'
 
-from .pandas_transformer import PandasTransformer
-from .nx_transformer import GraphMLTransformer
-from .rdf_transformer import RdfTransformer, ObanRdfTransformer, RdfOwlTransformer
-from .sparql_transformer import SparqlTransformer, RedSparqlTransformer
-from .json_transformer import JsonTransformer
-from .neo_transformer import NeoTransformer
-from .logicterm_transformer import LogicTermTransformer
-from .transformer import Transformer
+from kgx.transformers.pandas_transformer import PandasTransformer
+from kgx.transformers.nx_transformer import GraphMLTransformer
+from kgx.transformers.rdf_transformer import RdfTransformer, ObanRdfTransformer, RdfOwlTransformer
+from kgx.transformers.sparql_transformer import SparqlTransformer, RedSparqlTransformer
+from kgx.transformers.json_transformer import JsonTransformer
+from kgx.transformers.neo_transformer import NeoTransformer
+from kgx.transformers.logicterm_transformer import LogicTermTransformer
+from kgx.transformers.transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
 
 from .validator import Validator

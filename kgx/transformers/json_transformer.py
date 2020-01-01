@@ -1,5 +1,5 @@
 import json, logging
-from kgx.pandas_transformer import PandasTransformer
+from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict
 
 class JsonTransformer(PandasTransformer):

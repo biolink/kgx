@@ -9,8 +9,8 @@ from typing import Set, List, Dict, Generator
 from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
 from itertools import zip_longest
-from kgx.transformer import Transformer
-from kgx.rdf_graph_mixin import RdfGraphMixin
+from kgx.transformers.transformer import Transformer
+from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 
 
 class SparqlTransformer(RdfGraphMixin, Transformer):

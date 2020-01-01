@@ -1,6 +1,6 @@
 import networkx as nx
 import copy
-from .transformer import Transformer
+from kgx.transformers.transformer import Transformer
 
 class NetworkxTransformer(Transformer):
     """

@@ -5,7 +5,7 @@ import click
 import networkx as nx
 from typing import Tuple, List, Dict
 
-from kgx.transformer import Transformer
+from kgx.transformers.transformer import Transformer
 from kgx.utils.kgx_utils import generate_edge_key
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
