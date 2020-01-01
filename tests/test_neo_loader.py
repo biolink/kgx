@@ -1,18 +1,25 @@
+import os
+
+import pytest
+
 from kgx import NeoTransformer, PandasTransformer, JsonTransformer
 
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
+
+cwd = os.path.abspath(os.path.dirname(__file__))
+resource_dir = os.path.join(cwd, 'resources')
+target_dir = os.path.join(cwd, 'target')
+
 def test_csv_to_neo_load():
     """
     load csv to neo4j test
     """
-    return
-
     pt = PandasTransformer()
-    pt.parse("resources/nodes.csv")
-    pt.parse("resources/edges.csv")
-    nt = NeoTransformer(pt.graph, host='localhost', port='7474', username='', password='')
+    pt.parse(os.path.join(resource_dir, "cm_nodes.csv"))
+    pt.parse(os.path.join(resource_dir, "cm_edges.csv"))
+    nt = NeoTransformer(pt.graph, host='localhost', port='7474', username='neo4j', password='test')
     nt.save_with_unwind()
     nt.neo4j_report()
 
@@ -20,31 +27,26 @@ def test_neo_to_graph_transform():
     """
     load from neo4j and transform to nx graph
     """
-    return
-
-    nt = NeoTransformer(host='localhost', port='7474', username='', password='')
+    nt = NeoTransformer(host='localhost', port='7474', username='neo4j', password='test')
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
-    t.save("target/neo_graph.csv")
+    t.save(os.path.join(target_dir, "neo_graph.csv"))
 
+@pytest.mark.skip(reason="Missing resource robodb2.json")
 def test_neo_to_graph_upload():
     """ loads a neo4j graph from a json file
     """
-    #return
-
     jt = JsonTransformer()
     jt.parse('resources/robodb2.json')
 
-    nt = NeoTransformer(jt.graph, host='localhost', port='7474', username='', password='')
+    nt = NeoTransformer(jt.graph, host='localhost', port='7474', username='neo4j', password='test')
     nt.save_with_unwind()
     nt.neo4j_report()
 
 def test_neo_to_graph_download():
     """ downloads a neo4j graph
     """
-    return
-
     subject_label = 'gene'
     object_label = None
     edge_type = None
@@ -53,7 +55,7 @@ def test_neo_to_graph_download():
     output_transformer =  JsonTransformer()
     G = output_transformer.graph
 
-    driver = http_gdb('http://localhost:7474', username='', password='')
+    driver = http_gdb('http://localhost:7474', username='neo4j', password='test')
 
     subject_label = ':`{}`'.format(subject_label) if isinstance(subject_label, str) else ''
     object_label = ':`{}`'.format(object_label) if isinstance(object_label, str) else ''
