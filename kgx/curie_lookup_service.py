@@ -1,7 +1,7 @@
 import networkx as nx
 import rdflib
 
-from kgx.utils.kgx_utils import make_curie
+from kgx.utils.kgx_utils import make_curie, generate_edge_key
 
 CURIE_MAP = {
     'BFO:0000054': 'realized_in',
@@ -11,7 +11,7 @@ CURIE_MAP = {
 
 class CurieLookupService(object):
     """
-
+    A service to lookup label for a given CURIE.
     """
 
     ontologies = {
@@ -23,15 +23,19 @@ class CurieLookupService(object):
     }
     ontology_graph = None
 
-    def __init__(self, curie_map=None):
+    def __init__(self, curie_map: dict = None):
         if curie_map:
-            self.curie_map = curie_map
+            self.curie_map = CURIE_MAP
+            self.curie_map.update(curie_map)
         else:
             self.curie_map = CURIE_MAP
         self.ontology_graph = nx.MultiDiGraph()
         self.load_ontologies()
 
     def load_ontologies(self):
+        """
+        Load all required ontologies.
+        """
         for ontology in self.ontologies.values():
             rdfgraph = rdflib.Graph()
             input_format = rdflib.util.guess_format(ontology)
@@ -42,11 +46,11 @@ class CurieLookupService(object):
                 object_curie = make_curie(o)
                 self.ontology_graph.add_node(subject_curie)
                 self.ontology_graph.add_node(object_curie)
-                key = '{}-{}-{}'.format(subject_curie, 'subclass_of', object_curie)
+                key = generate_edge_key(subject_curie, 'subclass_of', object_curie)
                 self.ontology_graph.add_edge(subject_curie, object_curie, key, **{'edge_label': 'subclass_of', 'relation': 'rdfs:subClassOf'})
 
             triples = rdfgraph.triples((None, rdflib.RDFS.label, None))
-            for s,p,o in triples:
+            for s, p, o in triples:
                 key = make_curie(s)
                 value = o.value
                 value = value.replace(' ', '_')

@@ -106,5 +106,4 @@ class PrefixManager(object):
                     curie = curie_list[0]
             else:
                 curie = curie_list[0]
-        print("IRI {} to CURIE {}".format(uri, curie))
         return curie

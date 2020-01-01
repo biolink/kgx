@@ -3,9 +3,7 @@ import json, time, click, logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
-from kgx.utils.graph_utils import get_category_via_superclass, curie_lookup
-from kgx.utils.ontology import find_superclass, subclasses
-from kgx.utils.str_utils import fmt_edgelabel, fmt_category
+from kgx.utils.graph_utils import get_category_via_superclass
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_mapping, sentencecase_to_snakecase
 
 from kgx.mapper import clique_merge
@@ -24,23 +22,6 @@ ADDITIONAL_LABELS = {
     'past_medical_history': 'phenotypic_feature'
 }
 
-def edges(graph, node=None, mode='all', **attributes) -> List[Tuple[str, str]]:
-    """
-    A convenient method for getting a list of edges that match the given fitlers
-    """
-    if mode == 'all':
-        method = graph.edges
-    elif mode == 'in':
-        method = graph.in_edges
-    elif mode == 'out':
-        method = graph.out_edges
-    else:
-        raise Exception('Invalid mode: expected "all", "in", "out", got "{}"'.format(mode))
-    edges = []
-    for u, v, d in method(nbunch=node, data=True):
-        if all(attributes.get(k) == d.get(k) for k in attributes.keys()):
-            edges.append((u, v))
-    return edges
 
 class Transformer(object):
     """
@@ -77,6 +58,7 @@ class Transformer(object):
         -------
         bool
             A boolean value asserting whether the graph is empty or not
+
         """
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
@@ -97,7 +79,7 @@ class Transformer(object):
 
     def categorize(self):
         """
-
+        Find and validate category for every node in self.graph
         """
         node_to_categories = {}
         preserve = {}
@@ -108,7 +90,6 @@ class Transformer(object):
                 categories = data['category']
                 preserve[n] = data['category']
                 for category in categories:
-                    logging.debug("Category: {}".format(category))
                     element = get_biolink_mapping(category)
                     if element is not None:
                         # there is a direct mapping to a BioLink Model class
@@ -133,69 +114,20 @@ class Transformer(object):
                 # subClassOf traversal required
                 # assuming that the graph contains subClassOf edges
                 # and the node subClassOf x
-
                 logging.info("node doesn't have a category field; trying to infer category via subclass_of axiom")
                 for u, v, edge_data in self.graph.edges(n, data=True):
                     logging.info("u: {} v: {} data: {}".format(u, v, edge_data))
                     if edge_data['edge_label'] == 'subclass_of':
                         curie = v
                         new_categories.update(get_category_via_superclass(self.graph, curie))
-                        print("New categories (before sentencecase munging): {}".format(new_categories))
 
             new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
-            # if len(new_categories) == 0:
-            #     # Falling back to simple curie lookup
-            #     name = curie_lookup(n)
-            #     if name:
-            #         new_categories.append(name)
-            #     else:
-            #         # Defaulting to the most generic category: named_thing
-            #         new_categories.append('named_thing')
             if len(new_categories) == 0:
                 new_categories.append('named_thing')
             logging.debug("Output categories: {}".format(new_categories))
             node_to_categories[n] = new_categories
         nx.set_node_attributes(self.graph, node_to_categories, 'category')
         nx.set_node_attributes(self.graph, preserve, '_old_category')
-
-    def clean_categories(self, threashold=100):
-        """
-        Removes categories and edges labels that are not from the biolink model.
-        Adds alt_edge_label and alt_category property to hold these invalid
-        edge labels and categories, so that the information is not lost.
-        """
-        with click.progressbar(self.graph.nodes(data='category'), label='cleaning up category for nodes') as bar:
-            for n, category in bar:
-                if isinstance(category, list):
-                    # category is a list
-                    for c in category:
-                        if not get_toolkit().is_category(c):
-                            self.graph.nodes[n]['category'] = c
-                    self.graph.nodes[n]['category'] = 'named thing'
-                else:
-                    # category is string
-                    # TODO: This behavior needs to be consolidated, post merge
-                    if not get_toolkit().is_category(category):
-                        self.graph.nodes[n]['category'] = 'named thing'
-                        self.graph.nodes[n]['alt_category'] = category
-
-        with click.progressbar(self.graph.edges(data='edge_label'), label='cleaning up edge_label for edges') as bar:
-            for s, o, edgelabel in bar:
-                if not get_toolkit().is_edgelabel(edgelabel):
-                    self.graph.nodes[n]['edge_label'] = 'related_to'
-                    self.graph.nodes[n]['alt_edge_label'] = edgelabel
-
-    def merge_cliques(self, categorize_first=True):
-        """
-        Merges all nodes that are connected by `same_as` edges, or are marked
-        as equivalent by a nodes `same_as` property.
-
-        The clique leader chosen depends on the categories within that clique.
-        For this reason it's useful to run the `categorize` method first.
-        """
-        if categorize_first:
-            self.categorize()
-        self.graph = clique_merge(self.graph)
 
     def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:
         """
@@ -213,6 +145,7 @@ class Transformer(object):
         ----------
         graphs: List[networkx.MultiDiGraph]
             List of graphs that are to be merged with self.graph
+
         """
         # TODO: Check behavior and consistency
 
@@ -348,6 +281,7 @@ class Transformer(object):
         -------
         dict
             A dictionary
+
         """
         data = json_graph.node_link_data(g)
         return data

@@ -2,12 +2,11 @@ import logging
 import itertools
 import uuid
 import click
-
-from .transformer import Transformer
-from kgx.utils.kgx_utils import generate_edge_key
-
+import networkx as nx
 from typing import Tuple, List, Dict
 
+from kgx.transformer import Transformer
+from kgx.utils.kgx_utils import generate_edge_key
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
@@ -17,13 +16,13 @@ class NeoTransformer(Transformer):
     Transformer for reading from and writing to a Neo4j database.
     """
 
-    def __init__(self, graph=None, host=None, port=None, username=None, password=None):
+    def __init__(self, graph: nx.MultiDiGraph = None, host: str = None, port: str = None, username: str = None, password: str = None):
         super(NeoTransformer, self).__init__(graph)
         self.http_driver = None
         http_uri = "{}:{}".format(host, port)
         self.http_driver = http_gdb(http_uri, username=username, password=password)
 
-    def load(self, start=0, end=None, is_directed=True) -> None:
+    def load(self, start: int = 0, end: int = None, is_directed: bool = True) -> None:
         """
         Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
@@ -47,14 +46,14 @@ class NeoTransformer(Transformer):
 
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = self.current_time_in_millis()
-            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, **{'is_directed': is_directed}):
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
             bar.update(count)
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-    def count(self, is_directed=True) -> int:
+    def count(self, is_directed: bool = True) -> int:
         """
         Get the total count of records to be fetched from the Neo4j database.
 
@@ -67,6 +66,7 @@ class NeoTransformer(Transformer):
         -------
         int
             The total count of records
+
         """
         direction = '->' if is_directed else '-'
         query = f"""
@@ -130,7 +130,6 @@ class NeoTransformer(Transformer):
             attributes['category'].append(Transformer.DEFAULT_NODE_LABEL)
 
         node_id = node['id'] if 'id' in node else node.id
-
         self.graph.add_node(node_id, **attributes)
 
     def load_edges(self, edges: List) -> None:
@@ -172,7 +171,6 @@ class NeoTransformer(Transformer):
         for key, value in edge_predicate.items():
             attributes[key] = value
 
-        # TODO: Is this code residual from attempting to adapt to several drivers?
         if 'subject' not in attributes:
             attributes['subject'] = subject_id
         if 'object' not in attributes:
@@ -325,6 +323,8 @@ class NeoTransformer(Transformer):
         """
         Load a node into Neo4j.
 
+        TODO: To be deprecated.
+
         Parameters
         ----------
         obj: dict
@@ -445,6 +445,8 @@ class NeoTransformer(Transformer):
         """
         Load an edge into Neo4j.
 
+        TODO: To be deprecated.
+
         Parameters
         ----------
         obj: dict
@@ -504,9 +506,11 @@ class NeoTransformer(Transformer):
         # save all edges
         self.save_edge_unwind(edges_by_edge_label)
 
-    def save(self) -> str:
+    def save(self) -> None:
         """
         Save all nodes and edges from networkx.MultiDiGraph into Neo4j.
+
+        TODO: To be deprecated.
 
         """
         categories = {self.DEFAULT_NODE_LABEL}

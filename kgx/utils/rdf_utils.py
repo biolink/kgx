@@ -3,11 +3,9 @@ from typing import List, Union
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
-from prefixcommons.curie_util import contract_uri, expand_uri, default_curie_maps
-
-from kgx.mapper import get_prefix
+from prefixcommons.curie_util import expand_uri
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, make_curie
 
 toolkit = get_toolkit()
 m = toolkit.generator.mappings
@@ -47,59 +45,55 @@ predicate_mapping.update(
 
 predicate_mapping.update(mapping)
 
+# TODO: consolidate
 category_mapping = {
 # subclasses mapped onto their superclasses:
-    "http://purl.obolibrary.org/obo/SO_0000405" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000001" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000100" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000336" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000340" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000404" : "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000460" : "sequence feature",
-    "http://purl.obolibrary.org/obo/SO_0000651" : "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000655" : "transcript",
-#?
-    "http://purl.obolibrary.org/obo/SO_0001217" : "gene",
-    "http://purl.obolibrary.org/obo/GENO_0000002" : "sequence variant",
-    'http://purl.obolibrary.org/obo/UPHENO_0001002' : 'phenotypic feature',
-# Taken from the yaml
-    "http://purl.obolibrary.org/obo/CL_0000000" : "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0001062" : "anatomical entity",
-    "http://purl.obolibrary.org/obo/ZFA_0009000" : "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0004529" : "anatomical projection",
-    "http://purl.obolibrary.org/obo/UBERON_0000468" : "multi-cellular organism",
-    "http://purl.obolibrary.org/obo/UBERON_0000955" : "brain",
-    "http://purl.obolibrary.org/obo/PATO_0000001" : "quality",
-    "http://purl.obolibrary.org/obo/GO_0005623" : "cell",
-    "http://purl.obolibrary.org/obo/WBbt_0007833" : "organism",
-    "http://purl.obolibrary.org/obo/WBbt_0004017" : "cell",
-    "http://purl.obolibrary.org/obo/MONDO_0000001" : "disease",
-    "http://purl.obolibrary.org/obo/PATO_0000003" : "assay",
-    "http://purl.obolibrary.org/obo/PATO_0000006" : "process",
-    "http://purl.obolibrary.org/obo/PATO_0000011" : "age",
-    "http://purl.obolibrary.org/obo/ZFA_0000008" : "brain",
-    "http://purl.obolibrary.org/obo/ZFA_0001637" : "bony projection",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000061" : "extended life span",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000039" : "life span variant",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0001171" : "shortened life span",
-    "http://purl.obolibrary.org/obo/CHEBI_23367" : "molecular entity",
-    "http://purl.obolibrary.org/obo/CHEBI_23888" : "drug",
-    "http://purl.obolibrary.org/obo/CHEBI_51086" : "chemical role",
-    "http://purl.obolibrary.org/obo/UPHENO_0001001" : "phenotypic feature",
-    "http://purl.obolibrary.org/obo/GO_0008150" : "biological_process",
-    "http://purl.obolibrary.org/obo/GO_0005575" : "cellular component",
-    "http://purl.obolibrary.org/obo/SO_0000704" : "gene",
-    "http://purl.obolibrary.org/obo/SO_0000110" : "sequence feature",
-    "http://purl.obolibrary.org/obo/GENO_0000536" : "genotype",
+    "http://purl.obolibrary.org/obo/SO_0000405": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000001": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000100": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000336": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000340": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000404": "transcript",
+    "http://purl.obolibrary.org/obo/SO_0000460": "sequence_feature",
+    "http://purl.obolibrary.org/obo/SO_0000651": "transcript",
+    "http://purl.obolibrary.org/obo/SO_0000655": "transcript",
+    "http://purl.obolibrary.org/obo/SO_0001217": "gene",
+    "http://purl.obolibrary.org/obo/GENO_0000002": "sequence_variant",
+    'http://purl.obolibrary.org/obo/UPHENO_0001002': 'phenotypic_feature',
+    "http://purl.obolibrary.org/obo/CL_0000000": "cell",
+    "http://purl.obolibrary.org/obo/UBERON_0001062": "anatomical_entity",
+    "http://purl.obolibrary.org/obo/ZFA_0009000": "cell",
+    "http://purl.obolibrary.org/obo/UBERON_0004529": "anatomical_projection",
+    "http://purl.obolibrary.org/obo/UBERON_0000468": "multi_cellular_organism",
+    "http://purl.obolibrary.org/obo/UBERON_0000955": "brain",
+    "http://purl.obolibrary.org/obo/PATO_0000001": "quality",
+    "http://purl.obolibrary.org/obo/GO_0005623": "cell",
+    "http://purl.obolibrary.org/obo/WBbt_0007833": "organism",
+    "http://purl.obolibrary.org/obo/WBbt_0004017": "cell",
+    "http://purl.obolibrary.org/obo/MONDO_0000001": "disease",
+    "http://purl.obolibrary.org/obo/PATO_0000003": "assay",
+    "http://purl.obolibrary.org/obo/PATO_0000006": "process",
+    "http://purl.obolibrary.org/obo/PATO_0000011": "age",
+    "http://purl.obolibrary.org/obo/ZFA_0000008": "brain",
+    "http://purl.obolibrary.org/obo/ZFA_0001637": "bony_projection",
+    "http://purl.obolibrary.org/obo/WBPhenotype_0000061": "extended_life_span",
+    "http://purl.obolibrary.org/obo/WBPhenotype_0000039": "life_span_variant",
+    "http://purl.obolibrary.org/obo/WBPhenotype_0001171": "shortened_life_span",
+    "http://purl.obolibrary.org/obo/CHEBI_23367": "molecular_entity",
+    "http://purl.obolibrary.org/obo/CHEBI_23888": "drug",
+    "http://purl.obolibrary.org/obo/CHEBI_51086": "chemical_role",
+    "http://purl.obolibrary.org/obo/UPHENO_0001001": "phenotypic_feature",
+    "http://purl.obolibrary.org/obo/GO_0008150": "biological_process",
+    "http://purl.obolibrary.org/obo/GO_0005575": "cellular_component",
+    "http://purl.obolibrary.org/obo/SO_0000704": "gene",
+    "http://purl.obolibrary.org/obo/SO_0000110": "sequence_feature",
+    "http://purl.obolibrary.org/obo/GENO_0000536": "genotype",
 }
 
 category_mapping.update(mapping)
-
 category_mapping.update(
     {
-        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')) : n
-            for n in
-        toolkit.descendents('named thing')
+        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')): n for n in toolkit.descendents('named thing')
     }
 )
 
@@ -125,72 +119,37 @@ property_mapping = {
 }
 
 is_property_multivalued = {
-    'subject' : False,
-    'object' : False,
-    'edge_label' : False,
-    'description' : False,
-    'synonym' : True,
-    'in_taxon' : False,
-    'same_as' : True,
-    'name' : False,
-    'has_evidence' : False,
-    'provided_by' : True,
-    'category' : True,
-    'publications' : True,
-    'type' : False,
+    'subject': False,
+    'object': False,
+    'edge_label': False,
+    'description': False,
+    'synonym': True,
+    'in_taxon': False,
+    'same_as': True,
+    'name': False,
+    'has_evidence': False,
+    'provided_by': True,
+    'category': True,
+    'publications': True,
+    'type': False,
 }
-
-def reverse_mapping(d:dict):
-    """
-    Returns a dictionary where the keys are the values of the given dictionary,
-    and the values are sets of keys from the given dictionary.
-    """
-    return {value : set(k for k, v in d.items() if v == value) for value in d.items()}
-
-cmaps = [{
-    'OMIM' : 'https://omim.org/entry/',
-    'HGNC' : 'http://identifiers.org/hgnc/',
-    'DRUGBANK' : 'http://identifiers.org/drugbank:',
-    'biolink' : 'http://w3id.org/biolink/vocab/',
-}, {'DRUGBANK' : 'http://w3id.org/data2services/data/drugbank/'}] + default_curie_maps
-
-
-def contract(uri:URIRef) -> str:
-    """
-    We sort the curies to ensure that we take the same item every time
-    """
-    curies = contract_uri(str(uri), cmaps=cmaps)
-    if len(curies) > 0:
-        curies.sort()
-        return curies[0]
-    return None
-
-def make_curie(uri:URIRef) -> str:
-    HTTP = 'http'
-    HTTPS = 'https'
-
-    curie = contract(uri)
-
-    if curie is not None:
-        return curie
-
-    if uri.startswith(HTTPS):
-        uri = HTTP + uri[len(HTTPS):]
-    elif uri.startswith(HTTP):
-        uri = HTTPS + uri[len(HTTP):]
-
-    curie = contract(uri)
-
-    if curie is None:
-        return uri
-    else:
-        return curie
 
 def process_iri(iri:Union[str, URIRef]) -> str:
     """
     Casts iri to a string, and then checks whether it maps to any pre-defined
     values. If so returns that value, otherwise converts that iri to a curie
     and returns.
+
+    Parameters
+    ----------
+    iri: Union[str, URIRef]
+        IRI to process; can be a string or a rdflib.term.URIRef
+
+    Returns
+    -------
+    str
+        A string corresponding to the IRI
+
     """
     mappings = [
         predicate_mapping,
@@ -204,92 +163,6 @@ def process_iri(iri:Union[str, URIRef]) -> str:
                 return value
 
     return make_curie(iri)
-
-reverse_category_mapping = reverse_mapping(category_mapping)
-
-def walk(node_iri:URIRef, next_node_generator):
-    """
-    next_node_generator is a function that takes an iri and returns a generator for iris.
-    next_node_generator might return Tuple[iri, int], in which case int is taken to be
-    the score of the edge. If no score is returned, then the score will be
-    taken to be zero.
-    """
-    if not isinstance(node_iri, URIRef):
-        node_iri = URIRef(node_iri)
-
-    to_visit = {node_iri : 0} # Dict[URIRef, Integer]
-    visited = {} # Dict[URIRef, Integer]
-
-    while to_visit != {}:
-        iri, score = to_visit.popitem()
-        visited[iri] = score
-        for t in next_node_generator(iri):
-            if isinstance(t, tuple) and len(t) > 1:
-                n, s = t
-            else:
-                n, s = t, 0
-            if n not in visited:
-                to_visit[n] = score + s
-                yield n, to_visit[n]
-
-equals_predicates = [k for k, v in property_mapping.items() if v == 'same_as']
-isa_predicates = [RDFS.subClassOf, RDF.type]
-
-def find_category(iri:URIRef, rdfgraphs:List[rdflib.Graph]) -> str:
-    """
-    Finds a category for the given iri, by walking up edges with isa predicates
-    and across edges with identity predicates.
-
-    Tries to get a category in category_mapping. If none are found then takes
-    the highest superclass it can find.
-    """
-    if not isinstance(rdfgraphs, (list, tuple, set)):
-        rdfgraphs = [rdfgraphs]
-
-    if not isinstance(iri, URIRef):
-        iri = URIRef(iri)
-
-    def super_class_generator(iri:URIRef) -> URIRef:
-        """
-        Generates nodes and scores for walking a path from the given iri to its
-        superclasses. Equivalence edges are weighted zero, since they don't count
-        as moving further up the ontological hierarchy.
-
-        Note: Not every node generated is gaurenteed to be a superclass
-        """
-        ignore = [
-            'http://www.w3.org/2002/07/owl#Class',
-            'http://purl.obolibrary.org/obo/HP_0000001'
-        ]
-
-        for rdfgraph in rdfgraphs:
-            for predicate in equals_predicates:
-                if not isinstance(predicate, URIRef):
-                    predicate = URIRef(predicate)
-
-                for equivalent_iri in rdfgraph.subjects(predicate=predicate, object=iri):
-                    if str(equivalent_iri) not in ignore:
-                        yield equivalent_iri, 0
-                for equivalent_iri in rdfgraph.objects(subject=iri, predicate=predicate):
-                    if str(equivalent_iri) not in ignore:
-                        yield equivalent_iri, 0
-
-            for predicate in isa_predicates:
-                if not isinstance(predicate, URIRef):
-                    predicate = URIRef(predicate)
-
-                for superclass_iri in rdfgraph.objects(subject=iri, predicate=predicate):
-                    if str(superclass_iri) not in ignore:
-                        yield superclass_iri, 1
-
-    best_iri, best_score = None, 0
-    for uri_ref, score in walk(iri, super_class_generator):
-        if str(uri_ref) in category_mapping and score > 0:
-            return category_mapping[str(uri_ref)]
-        elif score > best_score:
-            best_iri, best_score = str(uri_ref), score
-
-    return best_iri
 
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
@@ -332,31 +205,24 @@ top_level_terms = {
 
 }
 
-# TODO: the RO classes shouldn't even be loaded; why are they even needed for lookup
-edge_label_map = {
-    'rdfs:subClassOf': 'subclass_of',
-    'RO:0001900': 'temporal_interpretation',
-    'RO:0002423': 'logical macro assertion on an annotation property',
-    'RO:0002560': 'is_asymmetric_relational_form_of_process_class',
-    'RO:0002561': 'is_symmetric_relational_form_of_process_class',
-    'RO:0002575': 'is_direct_form_of',
-    'RO_0002579': 'is_indirect_form_of',
-    'RO_0002581': 'is_a_defining_property_chain_axiom',
-    'RO_0002582': 'is_a_defining_property_chain_axiom_where_second_argument_is_reflexive',
-    'RO_0004049': 'is_positive_form_of',
-    'RO_0004050': 'is_negative_form_of',
-    'RO_0040042': 'blank'
-}
 
-owl_file_map = {
-    'GO': 'data/go.owl',
-    'SO': 'data/so.owl',
-    'HP': 'data/hp.owl'
-}
+def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
+    """
+    Infer category for a given iri by traversing rdfgraph.
 
-ontologies = {}
+    Parameters
+    ----------
+    iri: rdflib.term.URIRef
+        IRI
+    rdfgraph: rdflib.Graph
+        A graph to traverse
 
-def infer_category(iri: URIRef, rdfgraph:rdflib.Graph):
+    Returns
+    -------
+    List[str]
+        A list of category corresponding to the given IRI
+
+    """
     category = None
     subj = None
     closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
@@ -367,31 +233,11 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph):
         subj = closure[-1]
         if subj == iri:
             return category
-        logging.debug("Picking {} as its the last in closure, for recursion".format(subj))
         subject_curie = make_curie(subj)
         if '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
             logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
             subject_curie = fixed_curie
-
-        #subj_prefix = None
-        # if '_' in subject_curie:
-        #     # of the form OBO:SO_0000104
-        #     print("SUB CURIE: {}".format(subject_curie))
-        #     subj_prefix = subject_curie.split(':', 1)[1].split('_', 1)[0]
-        # else:
-        #     subj_prefix = get_prefix(subject_curie)
         cls = get_curie_lookup_service()
         category = get_category_via_superclass(cls.ontology_graph, subject_curie)
-        logging.debug("I got {} as category via cls for {}".format(category, subject_curie))
-    #     if subj_prefix not in ontologies:
-    #         if subj_prefix in owl_file_map:
-    #             ont_graph = rdflib.Graph()
-    #             owl_file = owl_file_map[subj_prefix]
-    #             ont_graph.parse(owl_file, format=rdflib.util.guess_format(owl_file))
-    #             ontologies[subj_prefix] = ont_graph
-    #         else:
-    #             logging.warning("No ontology OWL available for {}".format(subj_prefix))
-    #     if subj_prefix in ontologies:
-    #         category = infer_category(subj, ontologies[subj_prefix])
     return category

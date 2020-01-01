@@ -1,21 +1,20 @@
 import logging
+from typing import List, Set
 import networkx as nx
-import rdflib
 import stringcase
 from cachetools import cached
 
 from kgx.mapper import get_prefix
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_map, get_cache
-
+from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service
 from kgx.validator import is_curie
 
 ONTOLOGY_PREFIX_MAP = {}
 ONTOLOGY_GRAPH_CACHE = {}
 
 
-def get_parents(graph, node, relations=None):
+def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
     """
-    Return all direct 'parents' of specified node, filtered by relations.
+    Return all direct 'parents' of a specified node, filtered by relations.
 
     Parameters
     ----------
@@ -23,21 +22,18 @@ def get_parents(graph, node, relations=None):
         Graph to traverse
     node: str
         node identifier
-    relations: list[str]
+    relations: List[str]
        list of relations
 
     Returns
     -------
-    list[str]
+    List[str]
         A list of parent node(s)
 
     """
     parents = []
-    logging.info("get parents for node: {}".format(node))
-
     if node in graph:
         out_edges = [x for x in graph.out_edges(node, data=True)]
-        print("$$$ out_edges: {}".format(out_edges))
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
@@ -45,7 +41,7 @@ def get_parents(graph, node, relations=None):
     return parents
 
 
-def get_ancestors(graph, node, relations=None):
+def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
     """
     Return all ancestors of specified node, filtered by relations.
 
@@ -55,16 +51,15 @@ def get_ancestors(graph, node, relations=None):
         Graph to traverse
     node: str
         node identifier
-    relations: list[str]
+    relations: List[str]
        list of relations
 
     Returns
     -------
-    list[str]
+    List[str]
         A list of ancestor nodes
 
     """
-    logging.info("get ancestors for node: {}".format(node))
     seen = []
     nextnodes = [node]
     while len(nextnodes) > 0:
@@ -76,7 +71,7 @@ def get_ancestors(graph, node, relations=None):
     return seen
 
 @cached(get_cache())
-def get_category_via_superclass(graph, curie, load_ontology=True):
+def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontology: bool = True) -> Set[str]:
     """
     Get category for a given CURIE by tracing its superclass, via subclass_of hierarchy,
     and getting the most appropriate category based on the superclass.
@@ -89,25 +84,21 @@ def get_category_via_superclass(graph, curie, load_ontology=True):
         Input CURIE
     load_ontology: bool
         Determines whether to load ontology, based on CURIE prefix, or to simply
-        rely on subclass_of hierarchy from the graph
+        rely on subclass_of hierarchy from graph
 
     Returns
     -------
-    set
-        A set containing one (or more) category for the given curie
+    Set[str]
+        A set containing one (or more) category for the given CURIE
 
     """
-    from kgx.utils.kgx_utils import get_curie_lookup_service
-    cls = get_curie_lookup_service()
     logging.debug("curie: {}".format(curie))
     new_categories = []
     toolkit = get_toolkit()
     if is_curie(curie):
         ancestors = get_ancestors(graph, curie, relations=['subclass_of'])
         if len(ancestors) == 0 and load_ontology:
-            # load ontology
-            prefix = get_prefix(curie)
-            #ontology_graph = load_ontology_graph(prefix, prefix_map={'SO': 'data/so.owl'})
+            cls = get_curie_lookup_service()
             ontology_graph = cls.ontology_graph
             new_categories += [x for x in get_category_via_superclass(ontology_graph, curie, False)]
         logging.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
@@ -124,48 +115,32 @@ def get_category_via_superclass(graph, curie, load_ontology=True):
                 break
     return set(new_categories)
 
-def load_ontology_graph(prefix, prefix_map=None):
+def curie_lookup(curie: str) -> str:
     """
-    Load an ontology into a networkx.MultiDiGraph representation.
+    Given a CURIE, find its label.
+
+    This method first does a lookup in predefined maps. If none found,
+    it makes use of CurieLookupService to look for the CURIE in a set
+    of preloaded ontologies.
 
     Parameters
     ----------
-    prefix: str
-        Ontology prefix
-    prefix_map: dict
-        Dictionary containing prefix to ontology OWL mapping
+    curie: str
+        A CURIE
 
     Returns
     -------
-    networkx.MultiDiGraph
-        The ontology graph
+    str
+        The label corresponding to the given CURIE
 
     """
-    global ONTOLOGY_GRAPH_CACHE, ONTOLOGY_PREFIX_MAP
-    if prefix_map is None:
-        prefix_map = ONTOLOGY_PREFIX_MAP
-    from kgx import RdfOwlTransformer
-    ont = RdfOwlTransformer()
-    if prefix in ONTOLOGY_GRAPH_CACHE:
-        graph = ONTOLOGY_GRAPH_CACHE[prefix]
-    else:
-        ont.parse(prefix_map[prefix])
-        ONTOLOGY_GRAPH_CACHE[prefix] = graph = ont.graph
-    return graph
-
-def curie_lookup(curie, graph=None):
-    from kgx.utils.kgx_utils import get_curie_lookup_service
     cls = get_curie_lookup_service()
     name = None
     prefix = get_prefix(curie)
-    curie_map = get_curie_lookup_map()
     if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
         name = stringcase.snakecase(curie.split(':', 1)[1])
-        return name
-    if curie in curie_map:
-        name = curie_map[curie]
-        return name
-    if curie in cls.ontology_graph:
+    elif curie in cls.curie_map:
+        name = cls.curie_map[curie]
+    elif curie in cls.ontology_graph:
         name = g.nodes[curie]['name']
-
     return name

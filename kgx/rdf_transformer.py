@@ -178,7 +178,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         self.add_node_attribute(uriref, key=p, value=o.value)
 
                 categories = infer_category(uriref, rdfgraph)
-                # TODO: improve the infering of category
                 logging.debug("Inferred '{}' as category for node '{}'".format(categories, uriref))
                 for category in categories:
                     self.add_node_attribute(uriref, key='category', value=category)
@@ -401,7 +400,6 @@ class RdfOwlTransformer(RdfTransformer):
                 # TODO: does this block load all relevant bits from an OWL?
                 if isinstance(o, rdflib.term.BNode):
                     # C SubClassOf R some D
-                    print("dealing with BNode")
                     for x in rdfgraph.objects(o, OWL.onProperty):
                         pred = x
                     for x in rdfgraph.objects(o, OWL.someValuesFrom):
@@ -409,7 +407,6 @@ class RdfOwlTransformer(RdfTransformer):
                     if pred is None or parent is None:
                         logging.warning("Do not know how to handle BNode: {}".format(o))
                         continue
-                    print("where p: {} and o: {}".format(pred, parent))
                 else:
                     # C SubClassOf D (C and D are named classes)
                     pred = p

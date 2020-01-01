@@ -158,14 +158,6 @@ def get_curie_lookup_service():
         curie_lookup_service = CurieLookupService()
     return curie_lookup_service
 
-# TODO: To be removed
-def get_curie_lookup_map():
-    global curie_lookup_service
-    from kgx.curie_lookup_service import CurieLookupService
-    if curie_lookup_service is None:
-        curie_lookup_service = CurieLookupService()
-    return curie_lookup_service.curie_map
-
 def get_cache(maxsize=10000):
     global cache
     if cache is None:
