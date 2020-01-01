@@ -38,11 +38,11 @@ def test_clique_merge():
     leader_list = list(leaders.keys())
     leader_list.sort()
     assert len(leader_list) == 2
-    n1 = updated_graph.node[leader_list[0]]
+    n1 = updated_graph.nodes[leader_list[0]]
     assert n1['election_strategy'] == 'PREFIX_PRIORITIZATION'
     assert 'NCBIGene:100302240' in n1['aliases']
     assert 'ENSEMBL:ENSG00000284458' in n1['aliases']
-    n2 = updated_graph.node[leader_list[1]]
+    n2 = updated_graph.nodes[leader_list[1]]
     assert n2['election_strategy'] == 'PREFIX_PRIORITIZATION'
     assert 'NCBIGene:8202' in n2['aliases']
     assert 'OMIM:601937' in n2['aliases']
