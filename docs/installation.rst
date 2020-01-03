@@ -8,7 +8,7 @@ Installation for users
 
 First clone the GitHub repository and then install,
 
-.. code-block::
+.. code-block:: bash
 
     git clone https://github.com/NCATS-Tangerine/kgx
     cd kgx
@@ -21,7 +21,7 @@ Installation for developers
 
 To build directly from source, first clone the GitHub repository,
 
-.. code-block::
+.. code-block:: bash
 
     git clone https://github.com/NCATS-Tangerine/kgx
     cd kgx
@@ -29,7 +29,7 @@ To build directly from source, first clone the GitHub repository,
 
 Then install the necessary dependencies listed in ``requirements.txt``.
 
-.. code-block::
+.. code-block:: bash
 
     pip3 install -r requirements.txt
 
@@ -37,7 +37,7 @@ Then install the necessary dependencies listed in ``requirements.txt``.
 
 For convenience, make use of the ``venv`` module in Python 3 to create a lightweight virtual environment:
 
-.. code-block::
+.. code-block:: bash
 
    python3 -m venv env
    source env/bin/activate
