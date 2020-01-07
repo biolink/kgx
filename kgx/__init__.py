@@ -44,7 +44,7 @@ def get_config(filename: str = CONFIG_FILENAME) -> dict:
         try:
             config = yaml.load(open(filename), Loader=yaml.FullLoader)
             print(config)
-        except IOError:
+        except FileNotFoundError:
             config = {
                 'logging': {
                     'format':  '%(levelname)s: %(message)s',
