@@ -4,14 +4,14 @@ import yaml
 
 __version__ = '0.0.1'
 
-from kgx.transformers.pandas_transformer import PandasTransformer
-from kgx.transformers.nx_transformer import GraphMLTransformer
-from kgx.transformers.rdf_transformer import RdfTransformer, ObanRdfTransformer, RdfOwlTransformer
-from kgx.transformers.sparql_transformer import SparqlTransformer, RedSparqlTransformer
-from kgx.transformers.json_transformer import JsonTransformer
-from kgx.transformers.neo_transformer import NeoTransformer
-from kgx.transformers.logicterm_transformer import LogicTermTransformer
-from kgx.transformers.transformer import Transformer
+from .transformers.pandas_transformer import PandasTransformer
+from .transformers.nx_transformer import GraphMLTransformer
+from .transformers.rdf_transformer import RdfTransformer, ObanRdfTransformer, RdfOwlTransformer
+from .transformers.sparql_transformer import SparqlTransformer, RedSparqlTransformer
+from .transformers.json_transformer import JsonTransformer
+from .transformers.neo_transformer import NeoTransformer
+from .transformers.logicterm_transformer import LogicTermTransformer
+from .transformers.transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
 
 from .validator import Validator
@@ -41,8 +41,17 @@ def get_config(filename: str = CONFIG_FILENAME) -> dict:
     """
     global config
     if config is None:
-        config = yaml.load(open(filename), Loader=yaml.FullLoader)
-        print(config)
+        try:
+            config = yaml.load(open(filename), Loader=yaml.FullLoader)
+            print(config)
+        except FileNotFoundError:
+            config = {
+                'logging': {
+                    'format':  '%(levelname)s: %(message)s',
+                    'level': 'INFO'
+                }
+            }
+
     return config
 
 
