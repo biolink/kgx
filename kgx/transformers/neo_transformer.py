@@ -16,11 +16,13 @@ class NeoTransformer(Transformer):
     Transformer for reading from and writing to a Neo4j database.
     """
 
-    def __init__(self, graph: nx.MultiDiGraph = None, host: str = None, port: str = None, username: str = None, password: str = None):
+    def __init__(self, graph: nx.MultiDiGraph = None, uri: str = None, username: str = None, password: str = None):
+        """
+        Initialize an instance of NeoTransformer.
+        """
         super(NeoTransformer, self).__init__(graph)
         self.http_driver = None
-        http_uri = f'http://{host}:{port}'
-        self.http_driver = http_gdb(http_uri, username=username, password=password)
+        self.http_driver = http_gdb(uri, username=username, password=password)
 
     def load(self, start: int = 0, end: int = None, is_directed: bool = True) -> None:
         """
@@ -36,6 +38,8 @@ class NeoTransformer(Transformer):
             Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
 
         """
+        # TODO: make PAGE_SIZE configurable
+
         PAGE_SIZE = 10_000
 
         if end is None:

@@ -19,7 +19,7 @@ def test_csv_to_neo_load():
     pt = PandasTransformer()
     pt.parse(os.path.join(resource_dir, "cm_nodes.csv"))
     pt.parse(os.path.join(resource_dir, "cm_edges.csv"))
-    nt = NeoTransformer(pt.graph, host='localhost', port='7474', username='neo4j', password='test')
+    nt = NeoTransformer(pt.graph, uri='http://localhost:7474', username='neo4j', password='test')
     nt.save_with_unwind()
     nt.neo4j_report()
 
@@ -27,7 +27,7 @@ def test_neo_to_graph_transform():
     """
     load from neo4j and transform to nx graph
     """
-    nt = NeoTransformer(host='localhost', port='7474', username='neo4j', password='test')
+    nt = NeoTransformer(uri='http://localhost:7474', username='neo4j', password='test')
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
@@ -40,7 +40,7 @@ def test_neo_to_graph_upload():
     jt = JsonTransformer()
     jt.parse('resources/robodb2.json')
 
-    nt = NeoTransformer(jt.graph, host='localhost', port='7474', username='neo4j', password='test')
+    nt = NeoTransformer(jt.graph, uri='http://localhost:7474', username='neo4j', password='test')
     nt.save_with_unwind()
     nt.neo4j_report()
 
