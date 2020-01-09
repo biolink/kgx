@@ -1,6 +1,7 @@
 # Knowledge Graph Exchange
 
 [![Build Status](https://travis-ci.org/NCATS-Tangerine/kgx.svg?branch=master)](https://travis-ci.org/NCATS-Tangerine/kgx)
+[![Documentation Status](https://readthedocs.org/projects/kgx/badge/?version=latest)](https://kgx.readthedocs.io/en/latest/?badge=latest)
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)]()
 
 KGX (Knowledge Graph Exchange) is a Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](https://biolink.github.io/biolink-model/).
@@ -16,6 +17,24 @@ KGX allows conversion to and from:
 
 
 KGX will also provide validation, to ensure the KGs are conformant to the Biolink model: making sure nodes are categorized using biolink classes, edges are labeled using valid biolink relationship types, and valid properties are used.
+
+
+## Internal Representation
+
+Internal representation is networkx MultiDiGraph which is a property graph.
+
+The structure of this graph is expected to conform to the BioLink Model standard, briefly summarized here:
+
+ * [Nodes](https://biolink.github.io/biolink-model/docs/NamedThing.html)
+    * id : required
+    * name : string
+    * category : string. broad high level type. Corresponds to label in neo4j
+    * extensible other properties,  depending on the node
+ * [Edges](https://biolink.github.io/biolink-model/docs/Association.html)
+    * subject : required
+    * edge_label : required
+    * object : required
+    * extensible other properties, depending on the edge
 
 
 ## Installation
@@ -120,23 +139,4 @@ python -m pip install .
 
 Some components of KGX leverage the use of Docker. If not installed in your Operating system environment, the following
 [instructions to install Docker](DOCKER_README.md) may be followed to install it.
-
-
-## Internal Representation
-
-Internal representation is networkx MultiDiGraph which is a property graph.
-
-The structure of this graph is expected to conform to the BioLink Model standard, briefly summarized here:
-
- * [Nodes](https://biolink.github.io/biolink-model/docs/NamedThing.html)
-    * id : required
-    * name : string
-    * category : string. broad high level type. Corresponds to label in neo4j
-    * extensible other properties,  depending on the node
- * [Edges](https://biolink.github.io/biolink-model/docs/Association.html)
-    * subject : required
-    * edge_label : required
-    * object : required
-    * extensible other properties, depending on the edge
-
 
