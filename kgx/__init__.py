@@ -22,7 +22,7 @@ from .utils.model_utils import make_valid_types
 
 import logging
 
-CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), '../config.yml')
+CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
 config = None
 
 def get_config(filename: str = CONFIG_FILENAME) -> dict:
