@@ -48,14 +48,14 @@ class RdfGraphMixin(object):
         when adding nodes, edges, and their attributes.
 
         Instead, Using the following methods,
-            - add_node()
-            - add_node_attribute()
-            - add_edge()
-            - add_edge_attribute()
+            - ``add_node()``
+            - ``add_node_attribute()``
+            - ``add_edge()``
+            - ``add_edge_attribute()``
 
         to ensure that nodes, edges, and their attributes
-        are added in conformance with the biolink model, and that URIRef's are
-        translated into CURIEs or biolink model elements whenever appropriate.
+        are added in conformance with the BioLink Model, and that URIRef's are
+        translated into CURIEs or BioLink Model elements whenever appropriate.
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class RdfGraphMixin(object):
         """
         This method should be used by all derived classes when adding a node to
         the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
-        and that it's 'iri' property is set.
+        and that it's `iri` property is set.
 
         Returns the CURIE identifier for the node in the networkx.MultiDiGraph
 
@@ -104,10 +104,10 @@ class RdfGraphMixin(object):
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef) -> Tuple[str, str, str]:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
-        This ensures that the subject and object identifiers are CURIEs, and that edge_label is in the correct form.
+        This ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label` is in the correct form.
 
-        Returns the CURIE identifiers used for the subject and object in the
-        networkx.MultiDiGraph, and the processed edge_label.
+        Returns the CURIE identifiers used for the `subject` and `object` in the
+        networkx.MultiDiGraph, and the processed `edge_label`.
 
         Parameters
         ----------
@@ -165,10 +165,10 @@ class RdfGraphMixin(object):
         should be multi-valued.
         Multi-valued properties will not contain duplicates.
 
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
+        The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
+        as defined in ``rdf_utils.property_mapping``.
 
-        If the node does not exist then it is created using the given iri.
+        If the node does not exist then it is created using the given ``iri``.
 
         Parameters
         ----------
@@ -199,14 +199,14 @@ class RdfGraphMixin(object):
         should be multi-valued.
         Multi-valued properties will not contain duplicates.
 
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
+        The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
+        as defined in ``rdf_utils.property_mapping``.
 
         If the nodes in the edge does not exist then they will be created
-        using subject_iri and object_iri.
+        using ``subject_iri`` and ``object_iri``.
 
         If the edge itself does not exist then it will be created using
-        subject_iri, object_iri and predicate_iri.
+        ``subject_iri``, ``object_iri`` and ``predicate_iri``.
 
         Parameters
         ----------
@@ -247,8 +247,8 @@ class RdfGraphMixin(object):
 
         Some attributes are singular form of others. In such cases overflowing values
         will be placed into the correlating multi-valued attribute.
-        For example, 'name' attribute will hold only one value while any additional
-        value will be stored as 'synonym' attribute.
+        For example, `name` attribute will hold only one value while any additional
+        value will be stored as `synonym` attribute.
 
         Parameters
         ----------

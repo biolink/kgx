@@ -14,7 +14,7 @@ ONTOLOGY_GRAPH_CACHE = {}
 
 def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
     """
-    Return all direct 'parents' of a specified node, filtered by relations.
+    Return all direct `parents` of a specified node, filtered by ``relations``.
 
     Parameters
     ----------
@@ -43,7 +43,7 @@ def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) 
 
 def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
     """
-    Return all ancestors of specified node, filtered by relations.
+    Return all `ancestors` of specified node, filtered by ``relations``.
 
     Parameters
     ----------
@@ -73,7 +73,7 @@ def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None
 @cached(get_cache())
 def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontology: bool = True) -> Set[str]:
     """
-    Get category for a given CURIE by tracing its superclass, via subclass_of hierarchy,
+    Get category for a given CURIE by tracing its superclass, via ``subclass_of`` hierarchy,
     and getting the most appropriate category based on the superclass.
 
     Parameters
@@ -84,7 +84,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
         Input CURIE
     load_ontology: bool
         Determines whether to load ontology, based on CURIE prefix, or to simply
-        rely on subclass_of hierarchy from graph
+        rely on ``subclass_of`` hierarchy from graph
 
     Returns
     -------

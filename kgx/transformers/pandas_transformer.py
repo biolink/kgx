@@ -61,7 +61,7 @@ class PandasTransformer(Transformer):
         filename: str
             File to read from
         input_format: str
-            The input file format ('csv', by default)
+            The input file format (``csv``, by default)
         provided_by: str
             Define the source providing the input file
         kwargs: Dict
@@ -224,16 +224,16 @@ class PandasTransformer(Transformer):
     def save(self, filename: str, extension: str = 'csv', mode: str = 'w', **kwargs) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
-        and add them to a .tar archive.
+        and add them to a `.tar` archive.
 
         Parameters
         ----------
         filename: str
             Name of tar archive file to create
         extension: str
-            The output file format (csv, by default)
+            The output file format (``csv``, by default)
         mode: str
-            Form of compression to use ('w', by default, signifies no compression)
+            Form of compression to use (``w``, by default, signifies no compression)
         kwargs: dict
             Any additional arguments
 
@@ -299,7 +299,7 @@ class PandasTransformer(Transformer):
     def _build_export_row(data: Dict) -> Dict:
         """
         Casts all values to primitive types like str or bool according to the
-        specified type in `_column_types`. Lists become pipe delimited strings.
+        specified type in ``_column_types``. Lists become pipe delimited strings.
 
         Parameters
         ----------

@@ -35,7 +35,7 @@ class NeoTransformer(Transformer):
         end: int
             End for pagination
         is_directed: bool
-            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         """
         # TODO: make PAGE_SIZE configurable
@@ -64,7 +64,7 @@ class NeoTransformer(Transformer):
         Parameters
         ----------
         is_directed: bool
-            Are edges directed or undirected ('True', by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         Returns
         -------
@@ -193,26 +193,26 @@ class NeoTransformer(Transformer):
 
     def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
         """
-        Get pages of size `page_size` from Neo4j.
-        Returns an iterator of pages where number of pages is (`end` - `start`)/`page_size`
+        Get pages of size ``page_size`` from Neo4j.
+        Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
 
         Parameters
         ----------
         query_function: func
-            The function to use to fetch records. Usually this is `self.get_nodes` or `self.get_edges`
+            The function to use to fetch records. Usually this is ``self.get_nodes`` or ``self.get_edges``
         start: int
             Start for pagination
         end: int
             End for pagination
         page_size: int
-            Size of each page (`10000`, by default)
+            Size of each page (``10000``, by default)
         **kwargs: dict
-            Any additional arguments that might be relevant for `query_function`
+            Any additional arguments that might be relevant for ``query_function``
 
         Returns
         -------
         list
-            An iterator for a list of records from Neo4j. The size of the list is `page_size`
+            An iterator for a list of records from Neo4j. The size of the list is ``page_size``
 
         """
 
@@ -294,7 +294,7 @@ class NeoTransformer(Transformer):
         limit: int
             Total number of records to query for
         is_directed: bool
-            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         Returns
         -------
@@ -370,9 +370,9 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving nodes into Neo4j.
 
-        There should be a CONSTRAINT in Neo4j for `self.DEFAULT_NODE_LABEL`.
-        The query uses `self.DEFAULT_NODE_LABEL` as the node label to increase speed for adding nodes.
-        The query also sets label to `self.DEFAULT_NODE_LABEL` for any node to make sure that the CONSTRAINT applies.
+        There should be a CONSTRAINT in Neo4j for ``self.DEFAULT_NODE_LABEL``.
+        The query uses ``self.DEFAULT_NODE_LABEL`` as the node label to increase speed for adding nodes.
+        The query also sets label to ``self.DEFAULT_NODE_LABEL`` for any node to make sure that the CONSTRAINT applies.
 
         Parameters
         ----------
@@ -423,7 +423,7 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
 
-        Query uses `self.DEFAULT_NODE_LABEL` to quickly lookup the required subject and object node.
+        Query uses ``self.DEFAULT_NODE_LABEL`` to quickly lookup the required subject and object node.
 
         Parameters
         ----------
@@ -455,7 +455,8 @@ class NeoTransformer(Transformer):
         ----------
         obj: dict
             A dictionary that represents an edge and its properties.
-            The edge must have 'subject', 'edge_label' and 'object' properties. For all other necessary properties, refer to the BioLink Model.
+            The edge must have 'subject', 'edge_label' and 'object' properties.
+            For all other necessary properties, refer to the BioLink Model.
 
         """
         obj = self.validate_edge(obj)
@@ -559,7 +560,7 @@ class NeoTransformer(Transformer):
 
     def create_constraints(self, categories: set) -> None:
         """
-        Create a unique constraint on node 'id' for all `categories` in Neo4j.
+        Create a unique constraint on node 'id' for all ``categories`` in Neo4j.
 
         Parameters
         ----------
@@ -586,7 +587,7 @@ class NeoTransformer(Transformer):
 
     def get_filter(self, key: str) -> str:
         """
-        Get the value for filter as defined by `key`.
+        Get the value for filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
 
         Parameters

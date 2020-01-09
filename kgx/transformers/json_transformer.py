@@ -21,7 +21,7 @@ class JsonTransformer(PandasTransformer):
         filename: str
             JSON file to read from
         input_format: str
-            The input file format ('json', by default)
+            The input file format (``json``, by default)
         provided_by: str
             Define the source providing the input file
         kwargs: dict

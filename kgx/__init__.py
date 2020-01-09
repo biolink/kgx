@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import yaml
+from os import path
 
 __version__ = '0.0.1'
 
@@ -21,7 +22,7 @@ from .utils.model_utils import make_valid_types
 
 import logging
 
-CONFIG_FILENAME = "config.yml"
+CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
 config = None
 
 def get_config(filename: str = CONFIG_FILENAME) -> dict:

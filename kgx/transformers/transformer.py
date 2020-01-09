@@ -131,15 +131,15 @@ class Transformer(object):
 
     def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:
         """
-        Merge all graphs with self.graph
+        Merge all graphs with ``self.graph``
 
         - If two nodes with same 'id' exist in two graphs, the nodes will be merged based on the 'id'
         - If two nodes with the same 'id' exists in two graphs and they both have conflicting values
-        for a property, then the value is overwritten from left to right
+          for a property, then the value is overwritten from left to right
         - If two edges with the same 'key' exists in two graphs, the edge will be merged based on the
-        'key' property
+          'key' property
         - If two edges with the same 'key' exists in two graphs and they both have one or more conflicting
-        values for a property, then the value is overwritten from left to right
+          values for a property, then the value is overwritten from left to right
 
         Parameters
         ----------
@@ -154,7 +154,7 @@ class Transformer(object):
 
     def remap_node_identifier(self, type: str, new_property: str, prefix=None) -> None:
         """
-        Remap a node's 'id' attribute with value from a node's 'new_property' attribute.
+        Remap a node's 'id' attribute with value from a node's ``new_property`` attribute.
 
         Parameters
         ----------
@@ -165,7 +165,7 @@ class Transformer(object):
             property name from which the new value is pulled from
 
         prefix: string
-            signifies that the value for 'new_property' is a list and the 'prefix' indicates which value
+            signifies that the value for ``new_property`` is a list and the ``prefix`` indicates which value
             to pick from the list
 
         """
@@ -212,7 +212,7 @@ class Transformer(object):
 
     def remap_node_property(self, type: str, old_property: str, new_property: str) -> None:
         """
-        Remap the value in node 'old_property' attribute with value from node 'new_property' attribute.
+        Remap the value in node ``old_property`` attribute with value from node ``new_property`` attribute.
 
         Parameters
         ----------
@@ -240,7 +240,7 @@ class Transformer(object):
 
     def remap_edge_property(self, type: str, old_property: str, new_property: str) -> None:
         """
-        Remap the value in edge 'old_property' attribute with value from edge 'new_property' attribute.
+        Remap the value in edge ``old_property`` attribute with value from edge ``new_property`` attribute.
 
         Parameters
         ----------
