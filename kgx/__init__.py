@@ -43,7 +43,6 @@ def get_config(filename: str = CONFIG_FILENAME) -> dict:
     global config
     if config is None:
         config = yaml.load(open(filename), Loader=yaml.FullLoader)
-        print(config)
     return config
 
 

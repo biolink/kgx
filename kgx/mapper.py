@@ -18,6 +18,8 @@ def map_graph(graph: nx.MultiDiGraph, mapping: Dict, preserve: bool = True) -> n
     - if the node is the `subject` then the old identifier is saved as `source_subject`
     - if the node is the `object` then the old identifier is saved as `source_object`
 
+    TODO: preserve doesn't work
+
     Parameters
     ----------
     graph: networkx.MultiDiGraph
