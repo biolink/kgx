@@ -22,3 +22,4 @@ stringcase>=1.2.0
 validators>=0.13.0
 cachetools==4.0.0
 sphinx-rtd-theme==0.4.3
+sphinx-click==2.3.1
