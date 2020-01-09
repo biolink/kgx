@@ -52,6 +52,7 @@ def cli(config: dict, debug: bool = False):
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--max-rows', '-m', type=int, help='The maximum number of rows to return')
 @click.option('--output', '-o', type=click.Path(exists=False))
+@pass_config
 def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, output: str):
     """
     Loads and summarizes a knowledge graph node set, where the input is a file.
@@ -150,6 +151,7 @@ def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--max_rows', '-m', type=int, help='The maximum number of rows to return')
 @click.option('--output', '-o', type=click.Path(exists=False))
+@pass_config
 def edge_summary(config: dict, filepath: str, input_type: str, max_rows: int, output: str):
     """
     Loads and summarizes a knowledge graph edge set, where the input is a file.
@@ -648,17 +650,16 @@ def transform(config: dict, inputs: List[str], input_type: str, output: str, out
 #     output_transformer.save(output)
 
 @cli.command(name='load-and-merge')
-@click.argument('load_config', type=str, help='a YAML configuration that lists the files or KGs to load from')
-@click.option('--output-type', type=str)
-@click.option('--destination-uri', type=str)
-@click.option('--destination-username', type=str)
-@click.option('--destination-password', type=str)
-def load_and_merge(config: dict, load_config, destination_uri, destination_username, destination_password):
+@click.argument('load_config', type=str)
+@pass_config
+def load_and_merge(config: dict, load_config):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
     The merge happens in-memory. This merged graph can then be written to a local/remote Neo4j instance
     OR be serialized into a file.
     \f
+
+    .. note:: Everything here is driven by the ``load_config`` YAML.
 
     Parameters
     ----------
@@ -669,36 +670,30 @@ def load_and_merge(config: dict, load_config, destination_uri, destination_usern
 
     transformers = []
     for key in cfg['target']:
-        logging.info("Connecting to {}".format(cfg['target'][key]))
-        uri = "{}:{}".format(cfg['target'][key]['neo4j']['host'], cfg['target'][key]['neo4j']['port'])
-        n = kgx.NeoTransformer(None, uri, cfg['target'][key]['neo4j']['username'],
-                               cfg['target'][key]['neo4j']['password'])
-        transformers.append(n)
-
-        if 'target_filter' in cfg['target'][key]:
-            for target_filter in cfg['target'][key]['target_filter']:
-                # Set filters
-                n.set_filter(target_filter, cfg['target'][key]['target_filter'][target_filter])
-
-        start = 0
-        end = None
-        if 'query_limits' in cfg['target'][key]:
-            if 'start' in cfg['target'][key]['query_limits']:
-                start = cfg['target'][key]['query_limits']['start']
-            if 'end' in cfg['target'][key]['query_limits']:
-                end = cfg['target'][key]['query_limits']['end']
-
-        n.load(start=start, end=end)
+        target = cfg['target'][key]
+        logging.info("Loading {}".format(key))
+        if target['type'] in get_file_types():
+            # loading from a file
+            transformer = get_transformer(target['type'])()
+            transformer.parse(target['filename'])
+            transformers.append(transformer)
+        elif target['type'] == 'neo4j':
+            transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
+            # TODO: support filters
+            transformer.load()
+            transformers.append(transformer)
+        else:
+            logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
     merged_transformer = Transformer()
     merged_transformer.merge_graphs([x.graph for x in transformers])
 
-    # TODO: change host, port parameters to uri
-    # There are scenarios where the URL will not always have port. It becomes more difficult
-    # with instances that have a proxy.
-    # Since all communications are now via HTTP, a simple uri is sufficient
-    if destination_uri and destination_username and destination_password:
-        destination = kgx.NeoTransformer(merged_transformer.graph, uri=destination_uri, username=destination_username, password=destination_password)
-        destination.save_with_unwind()
-
-
+    destination = cfg['destination']
+    if destination['type'] in ['csv', 'tsv', 'ttl', 'json', 'tar']:
+        destination_transformer = get_transformer(destination['type'])()
+        destination_transformer.save(destination['filename'])
+    elif destination['type'] == 'neo4j':
+        destination_transformer = kgx.NeoTransformer(merged_transformer.graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
+        destination_transformer.save_with_unwind()
+    else:
+        logging.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))

@@ -38,6 +38,8 @@ class NeoTransformer(Transformer):
             Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
 
         """
+        # TODO: make PAGE_SIZE configurable
+
         PAGE_SIZE = 10_000
 
         if end is None:
