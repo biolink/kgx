@@ -659,7 +659,8 @@ def load_and_merge(config: dict, load_config):
     OR be serialized into a file.
     \f
 
-    .. note:: Everything here is driven by the ``load_config`` YAML.
+    .. note::
+        Everything here is driven by the ``load_config`` YAML.
 
     Parameters
     ----------

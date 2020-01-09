@@ -32,7 +32,7 @@ class CliqueMerge(object):
 
     def build_cliques(self, target_graph: nx.MultiDiGraph):
         """
-        Builds a clique graph from `same_as` edges in `target_graph`.
+        Builds a clique graph from ``same_as`` edges in ``target_graph``.
 
         Parameters
         ----------
@@ -42,7 +42,7 @@ class CliqueMerge(object):
         Returns
         -------
         networkx.Graph
-            The clique graph with only `same_as` edges
+            The clique graph with only ``same_as`` edges
 
         """
         self.target_graph = target_graph

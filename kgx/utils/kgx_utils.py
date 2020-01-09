@@ -76,7 +76,19 @@ def sentencecase_to_snakecase(s: str) -> str:
 
 def contract(uri) -> str:
     """
-    We sort the curies to ensure that we take the same item every time
+    Contract a URI a CURIE.
+    We sort the curies to ensure that we take the same item every time.
+
+    Parameters
+    ----------
+    uri: Union[rdflib.term.URIRef, str]
+        A URI
+
+    Returns
+    -------
+    str
+        The CURIE
+
     """
     curies = contract_uri(str(uri), cmaps=cmaps)
     if len(curies) > 0:
@@ -85,6 +97,15 @@ def contract(uri) -> str:
     return None
 
 def make_curie(uri) -> str:
+    """
+    Convert a given URI into a CURIE.
+    This method tries to handle the ``http`` and ``https``
+    ambiguity in URI contraction.
+
+    .. warning::
+        This is a temporary solution and will be deprecated in the near future.
+
+    """
     HTTP = 'http'
     HTTPS = 'https'
 
@@ -144,6 +165,20 @@ def generate_edge_key(s: str, edge_label: str, o: str) -> str:
     return '{}-{}-{}'.format(s, edge_label, o)
 
 def get_biolink_mapping(category):
+    """
+    Get a BioLink Model mapping for a given ``category``.
+
+    Parameters
+    ----------
+    category: str
+        A category for which there is a mapping in BioLink Model
+
+    Returns
+    -------
+    str
+        A BioLink Model class corresponding to ``category``
+
+    """
     global toolkit
     element = toolkit.get_element(category)
     if element is None:
@@ -151,6 +186,15 @@ def get_biolink_mapping(category):
     return element
 
 def get_curie_lookup_service():
+    """
+    Get an instance of kgx.curie_lookup_service.CurieLookupService
+
+    Returns
+    -------
+    kgx.curie_lookup_service.CurieLookupService
+        An instance of ``CurieLookupService``
+
+    """
     global curie_lookup_service
     if curie_lookup_service is None:
         from kgx.curie_lookup_service import CurieLookupService
@@ -158,6 +202,20 @@ def get_curie_lookup_service():
     return curie_lookup_service
 
 def get_cache(maxsize=10000):
+    """
+    Get an instance of cachetools.cache
+
+    Parameters
+    ----------
+    maxsize: int
+        The max size for the cache (``10000``, by default)
+
+    Returns
+    -------
+    cachetools.cache
+        An instance of cachetools.cache
+
+    """
     global cache
     if cache is None:
         cache = LRUCache(maxsize)

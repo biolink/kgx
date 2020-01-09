@@ -51,7 +51,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         filename : str
             File to read from.
         input_format : str
-            The input file format. If None is provided then the format is guessed using rdflib.util.guess_format()
+            The input file format.
+            If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
         provided_by : str
             Define the source providing the input file.
 
@@ -94,15 +95,15 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
 
         By default this method loads the following predicates,
-            - RDFS.subClassOf
-            - OWL.sameAs
-            - OWL.equivalentClass
-            - is_about (IAO:0000136)
-            - has_subsequence (RO:0002524)
-            - is_subsequence_of (RO:0002525)
+            - ``RDFS.subClassOf``
+            - ``OWL.sameAs``
+            - ``OWL.equivalentClass``
+            - ``is_about`` (IAO:0000136)
+            - ``has_subsequence`` (RO:0002524)
+            - ``is_subsequence_of`` (RO:0002525)
 
         This behavior can be overridden by providing a list of rdflib.URIRef that ought to be loaded
-        via the 'predicates' parameter.
+        via the ``predicates`` parameter.
 
         Parameters
         ----------
@@ -143,7 +144,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         This method loads the properties of nodes into networkx.MultiDiGraph
         As there can be many values for a single key, all properties are lists by default.
 
-        This method assumes that RdfTransformer.load_edges() has been called, and that all nodes
+        This method assumes that ``RdfTransformer.load_edges()`` has been called, and that all nodes
         have had their IRI as an attribute.
 
         Parameters
@@ -267,7 +268,7 @@ class ObanRdfTransformer(RdfTransformer):
         Returns
         -------
         rdflib.URIRef
-            URIRef form of the input `identifier`
+            URIRef form of the input ``identifier``
 
         """
         if identifier in property_mapping:
@@ -312,14 +313,14 @@ class ObanRdfTransformer(RdfTransformer):
     def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
         """
         Transform networkx.MultiDiGraph into rdflib.Graph that follow OBAN-style reification and export
-        this graph as a file (TTL, by default).
+        this graph as a file (``turtle``, by default).
 
         Parameters
         ----------
         filename: str
             Filename to write to
         output_format: str
-            The output format; default: 'turtle'
+            The output format; default: ``turtle``
         kwargs: dict
             Any additional arguments
 

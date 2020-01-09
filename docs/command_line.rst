@@ -1,7 +1,4 @@
-KGX CLI
-=======
 
-.. automodule:: bin.translator_kgx
-   :members:
-   :inherited-members:
-   :show-inheritance:
+.. click:: bin.translator_kgx:cli
+   :prog: KGX CLI
+   :show-nested:
