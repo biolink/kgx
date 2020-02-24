@@ -1,15 +1,6 @@
+import json
 from csv import DictWriter
 from .sink import Sink
-
-def string_repr(v):
-    if type(v) != str:
-        return repr(v)
-    return '"' + v.replace('"', '\\"') + '"'
-
-def maybe_list(v):
-    if type(v) == list:
-        return '(' + ' '.join(string_repr(x) for x in v) + ')'
-    else: return v
 
 class CsvSink(Sink):
     def __init__(self, file_name_prefix, extension='csv'):
@@ -26,7 +17,7 @@ class CsvSink(Sink):
         self.node_writer.writerow(node)
         # TODO: process attributes as nodeprops?
         for k,v in attributes.items():
-            prop = {':ID': node_id, 'propname': k, 'value': maybe_list(v)}
+            prop = {':ID': node_id, 'propname': k, 'value': json.dumps(v)}
             self.nodeprop_writer.writerow(prop)
 
     def add_edge(self, subject_id, object_id, attributes):
@@ -40,7 +31,7 @@ class CsvSink(Sink):
         self.edge_writer.writerow(edge)
         # TODO: process attributes as edgeprops?
         for k,v in attributes.items():
-            prop = {':ID': eid, 'propname': k, 'value': maybe_list(v)}
+            prop = {':ID': eid, 'propname': k, 'value': json.dumps(v)}
             self.edgeprop_writer.writerow(prop)
         self.edge_count += 1
 
