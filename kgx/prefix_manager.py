@@ -150,3 +150,24 @@ class PrefixManager(object):
         if PrefixManager.is_curie(curie):
             prefix = curie.split(':', 1)[0]
         return prefix
+
+    @staticmethod
+    def get_reference(curie: str) -> str:
+        """
+        Get the reference of a given CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            The CURIE
+
+        Returns
+        -------
+        str
+            The reference of a CURIE
+
+        """
+        reference = None
+        if PrefixManager.is_curie(curie):
+            reference = curie.split(':', 1)[1]
+        return reference

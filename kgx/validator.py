@@ -536,6 +536,8 @@ class Validator(object):
             #logging.error("{} {}".format(error_type, message))
         else:
             for category in categories:
+                if PrefixManager.is_curie(category):
+                    category = PrefixManager.get_reference(category)
                 m = re.match(r"^([A-Z][a-z\d]+)+$", category)
                 if not m:
                     # category is not CamelCase
@@ -590,6 +592,8 @@ class Validator(object):
             errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
             #logging.error("{}  {}".format(error_type, message))
         else:
+            if PrefixManager.is_curie(edge_label):
+                edge_label = PrefixManager.get_reference(edge_label)
             m = re.match(r"^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$", edge_label)
             if m:
                 p = self.toolkit.get_element(snakecase_to_sentencecase(edge_label))
