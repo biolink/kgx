@@ -1,15 +1,15 @@
 import logging
 import re
 from enum import Enum
-from io import TextIOWrapper
-from typing import Tuple, List
+from typing import Tuple, List, TextIO
 
 import click
 import requests
 import validators
 import networkx as nx
 
-from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase
+from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
+    camelcase_to_sentencecase
 from kgx.prefix_manager import PrefixManager
 
 
@@ -102,7 +102,9 @@ class Validator(object):
             for p in node_properties:
                 element = self.toolkit.get_element(p)
                 if hasattr(element, 'required') and element.required:
-                    required_properties.append(element.name)
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
             self.required_node_properties = required_properties
         return self.required_node_properties
 
@@ -122,7 +124,9 @@ class Validator(object):
             for p in edge_properties:
                 element = self.toolkit.get_element(p)
                 if hasattr(element, 'required') and element.required:
-                    required_properties.append(element.name)
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
             self.required_edge_properties = required_properties
         return self.required_edge_properties
 
@@ -230,7 +234,7 @@ class Validator(object):
                 verbose_message = None
                 if self.verbose:
                     verbose_message = f"for node {node} {data}"
-                errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                 #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -262,7 +266,7 @@ class Validator(object):
                 verbose_message = None
                 if self.verbose:
                     verbose_message = f"for edge {subject} {object} {data}"
-                errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                 #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -301,21 +305,21 @@ class Validator(object):
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but is actually of type '{type(value)}'"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 elif element.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
                     message = f"Node property '{key}' expected to be of type {element.typeof}"
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but has value '{value}' which not a valid URI"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 elif element.typeof == 'double' and not isinstance(value, (int, float)):
                     message = f"Node property '{key}' expected to be of type '{element.typeof}'"
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but is actually of type '{type(value)}'"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 else:
                     logging.warning("Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
@@ -326,7 +330,7 @@ class Validator(object):
                         verbose_message = None
                         if self.verbose:
                             verbose_message = f"but is actually of type '{type(value)}'"
-                        errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                        errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                         #logging.error("{} {}".format(error_type, message))
                 else:
                     if isinstance(value, (list, set, tuple)):
@@ -334,7 +338,7 @@ class Validator(object):
                         verbose_message = None
                         if self.verbose:
                             verbose_message = f"but is actually of type {type(value)}"
-                        errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                        errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
                         #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -365,14 +369,14 @@ class Validator(object):
             if self.verbose:
                 verbose_message = f"but is actually of type {type(subject)}"
 
-            errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
             #logging.error("{} {}").format(error_type, message)
         if not isinstance(object, str):
             message = "'object' of an edge expected to be of type 'string'"
             verbose_message = None
             if self.verbose:
                 verbose_message = f"but is actually of type {type(object)}"
-            errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
             #logging.error("{} {}").format(error_type, message)
 
         for key, value in data.items():
@@ -383,21 +387,21 @@ class Validator(object):
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but is actually of type {type(value)}"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 elif element.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
                     message = f"Edge property '{key}' expected to be of type '{element.typeof}'"
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but has value '{value}' which is not a valid URI"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 elif element.typeof == 'double' and not isinstance(value, (int, float)):
                     message = f"Edge property '{key}' expected to be of type '{element.typeof}'"
                     verbose_message = None
                     if self.verbose:
                         verbose_message = f"but is actually of type '{type(value)}'"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                    errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                     #logging.error("{} {}".format(error_type, message))
                 else:
                     logging.warning("Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
@@ -408,7 +412,7 @@ class Validator(object):
                         verbose_message = None
                         if self.verbose:
                             verbose_message = f"but is actually of type '{type(value)}'"
-                        errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                        errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                         #logging.error("{} {}".format(error_type, message))
                 else:
                     if isinstance(value, (list, set, tuple)):
@@ -416,7 +420,7 @@ class Validator(object):
                         verbose_message = None
                         if self.verbose:
                             verbose_message = f"but is actually of type {type(value)}"
-                        errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+                        errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
                         #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -444,13 +448,13 @@ class Validator(object):
             verbose_message = None
             if self.verbose:
                 verbose_message = f"but has value '{node}' which is not a proper CURIE"
-            errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+            errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
             #logging.error("{} {}".format(error_type, message))
         else:
             prefix = PrefixManager.get_prefix(node)
             if prefix and prefix not in self.get_all_prefixes():
                 message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}' is not represented in Biolink Model JSON-LD context"
-                errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                errors.append((MessageLevel.ERROR.name, error_type, node, message, None))
                 #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -480,22 +484,22 @@ class Validator(object):
             prefix = PrefixManager.get_prefix(subject)
             if prefix and prefix not in self.get_all_prefixes():
                 message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
-                errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
                 #logging.error("{} {}".format(error_type, message))
         else:
             message = f"Edge property 'subject' has a value '{subject}' which is not a proper CURIE"
-            errors.append((MessageLevel.ERROR.name, error_type, message, None))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
             #logging.error("{} {}".format(error_type, message))
 
         if PrefixManager.is_curie(object):
             prefix = PrefixManager.get_prefix(object)
             if prefix not in self.prefixes:
                 message = f"Edge property 'object' has a value '{object}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
-                errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
                 #logging.error("{} {}".format(error_type, message))
         else:
             message = f"Edge property 'object' has a value '{object}' which is not a proper CURIE"
-            errors.append((MessageLevel.ERROR.name, error_type, message, None))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
             #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -521,14 +525,14 @@ class Validator(object):
         categories = data.get('category')
         if categories is None:
             message = "Node does not have a 'category' property"
-            errors.append((MessageLevel.ERROR.name, error_type, message, None))
+            errors.append((MessageLevel.ERROR.name, error_type, node, message, None))
             #logging.error("{} {}".format(error_type, message))
         elif not isinstance(categories, list):
             message = f"Node property 'category' expected to be of type {list}"
             verbose_message = None
             if self.verbose:
                 verbose_message = f"but is actually of type {type(categories)}"
-            errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+            errors.append((MessageLevel.ERROR.name, error_type, node, message, verbose_message))
             #logging.error("{} {}".format(error_type, message))
         else:
             for category in categories:
@@ -537,17 +541,18 @@ class Validator(object):
                     # category is not CamelCase
                     error_type = ErrorType.INVALID_CATEGORY.name
                     message = f"Category '{category}' is not in CamelCase form"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                    errors.append((MessageLevel.ERROR.name, error_type, node, message, None))
                     #logging.error("{} {}".format(error_type, message))
-                if not self.toolkit.is_category(category.lower()):
+                formatted_category = camelcase_to_sentencecase(category)
+                if not self.toolkit.is_category(formatted_category):
                     message = f"Category '{category}' not in Biolink Model"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, None))
-                    logging.error("{} {}".format(error_type, message))
+                    errors.append((MessageLevel.ERROR.name, error_type, node, message, None))
+                    #logging.error("{} {}".format(error_type, message))
                 else:
-                    c = self.toolkit.get_element(category.lower())
+                    c = self.toolkit.get_element(formatted_category.lower())
                     if category != c.name and category in c.aliases:
                         message = f"Category {category} is actually an alias for {c.name}; Should replace '{category}' with '{c.name}'"
-                        errors.append((MessageLevel.WARNING.name, error_type, message, None))
+                        errors.append((MessageLevel.WARNING.name, error_type, node, message, None))
                         #logging.error("{} {}".format(error_type, message))
         return errors
 
@@ -575,14 +580,14 @@ class Validator(object):
         edge_label = data.get('edge_label')
         if edge_label is None:
             message = "Edge does not have an 'edge_label' property"
-            errors.append((MessageLevel.ERROR.name, error_type, message, None))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
             #logging.error("{}  {}".format(error_type, message))
         elif not isinstance(edge_label, str):
             message = f"Edge property 'edge_label' expected to be of type 'string'"
             verbose_message = None
             if self.verbose:
                 verbose_message = f"but is actually of type '{type(edge_label)}'"
-            errors.append((MessageLevel.ERROR.name, error_type, message, verbose_message))
+            errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, verbose_message))
             #logging.error("{}  {}".format(error_type, message))
         else:
             m = re.match(r"^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$", edge_label)
@@ -590,19 +595,19 @@ class Validator(object):
                 p = self.toolkit.get_element(snakecase_to_sentencecase(edge_label))
                 if p is None:
                     message = f"Edge label '{edge_label}' not in Biolink Model"
-                    errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                    errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
                     #logging.error(error_type, message)
                 elif edge_label != p.name and edge_label in p.aliases:
                     message = f"Edge label '{edge_label}' is actually an alias for {p.name}; Should replace {edge_label} with {p.name}"
-                    errors.append((MessageLevel.WARNING.name, error_type, message, None))
+                    errors.append((MessageLevel.WARNING.name, error_type, f"{subject}-{object}", message, None))
                     #logging.error(error_type, message)
             else:
                 message = f"Edge label '{edge_label}' is not in snake_case form"
-                errors.append((MessageLevel.ERROR.name, error_type, message, None))
+                errors.append((MessageLevel.ERROR.name, error_type, f"{subject}-{object}", message, None))
                 #logging.error("{}  {}".format(error_type, message))
         return errors
 
-    def report(self, errors: List[Tuple], stream: TextIOWrapper) -> None:
+    def report(self, errors: List[Tuple], stream: TextIO) -> None:
         """
         Write all errors to a stream.
 
@@ -615,5 +620,5 @@ class Validator(object):
 
         """
         for e in errors:
-            line = f"[{e[0]}][{e[1]}] {e[2]} {e[3] if e[3] is not None else ''}\n"
+            line = f"[{e[0]}][{e[1]}] {e[2]} - {e[3]} {e[4] if e[4] is not None else ''}\n"
             stream.write(line)

@@ -14,22 +14,6 @@ def write_errors(validator):
     for e in validator.errors:
         print("E={}".format(e))
 
-@pytest.mark.skip(reason="Dependent on fixing kgx.validator")
-def test_validator_rdf():
-    """
-    use test files
-    """
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    resdir = os.path.join(cwd, 'resources')
-    src_path = os.path.join(resdir, 'monarch', 'biogrid_test.ttl')
-    t = ObanRdfTransformer()
-    t.parse(src_path, input_format="turtle")
-    validator = Validator()
-    validator.validate(t.graph)
-    write_errors(validator)
-    assert validator.ok()
-
-@pytest.mark.skip(reason="Dependent on fixing kgx.validator")
 def test_validator_bad():
     """
     fake test
@@ -38,23 +22,27 @@ def test_validator_bad():
     G.add_node('x', foo=3)
     G.add_node('ZZZ:3', nosuch=1)
     G.add_edge('x', 'y', baz=6)
-    validator = Validator()
+    validator = Validator(verbose=True)
     validator.validate(G)
-    write_errors(validator)
-    # TODO: status is True when it should be False
-    assert not validator.ok()
+    e = validator.validate(G)
+    for x in e:
+        print(x)
+    assert len(e) > 0
 
-@pytest.mark.skip(reason="Dependent on fixing kgx.validator")
+
 def test_validator_good():
     """
     fake test
     """
     print("Creating fake test graph...")
     G = nx.MultiDiGraph()
-    G.add_node('UniProtKB:P123456', name='fake')
-    G.add_edge('UBERON:0000001', 'UBERON:0000002', relation='RO:1', edge_label='part_of')
-    validator = Validator()
+    G.add_node('UniProtKB:P123456', id='UniProtKB:P123456', name='fake', category=['Protein'])
+    G.add_node('UBERON:0000001', id='UBERON:0000001', name='fake', category=['NamedThing'])
+    G.add_node('UBERON:0000002', id='UBERON:0000002', name='fake', category=['NamedThing'])
+    G.add_edge('UBERON:0000001', 'UBERON:0000002', association_id='UBERON:0000001-part_of-UBERON:0000002', relation='RO:1', edge_label='part_of', subject='UBERON:0000001', object='UBERON:0000002')
+    validator = Validator(verbose=True)
     #print("PM={}".format(validator.prefix_manager.prefixmap))
-    validator.validate(G)
-    write_errors(validator)
-    assert validator.ok()
+    e = validator.validate(G)
+    for x in e:
+        print(x)
+    assert len(e) == 0
