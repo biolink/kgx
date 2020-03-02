@@ -393,19 +393,9 @@ def validate(config: dict, path: str, output: str, output_dir: str):
     """
     t = get_transformer(get_type(path))()
     t.parse(path)
-
     validator = Validator()
-    validator.validate(t.graph)
-
-    time = datetime.now()
-
-    if len(validator.errors) == 0:
-        click.echo('No errors found')
-
-    else:
-        append_errors_to_file(output, validator.errors, time)
-        if output_dir is not None:
-            append_errors_to_files(output_dir, validator.errors, time)
+    errors = validator.validate(t.graph)
+    validator.report(errors, open(output, 'w'))
 
 
 @cli.command(name='neo4j-download')
