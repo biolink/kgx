@@ -11,7 +11,6 @@ from datetime import datetime
 
 from kgx import Transformer, map_graph
 from kgx.validator import Validator
-from kgx.cli.error_logging import append_errors_to_file, append_errors_to_files
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable, build_transformer, get_prefix, \
     stringify, load_transformer, make_neo4j_transformer
 from kgx.cli.utils import Config

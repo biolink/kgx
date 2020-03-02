@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Dict
 
@@ -147,6 +148,5 @@ class PrefixManager(object):
         """
         prefix = None
         if PrefixManager.is_curie(curie):
-            m = re.match(r"^[^ :]+:[^/ :]+$", curie)
-            prefix = m.group()
+            prefix = curie.split(':', 1)[0]
         return prefix
