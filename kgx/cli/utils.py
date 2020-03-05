@@ -17,7 +17,8 @@ _transformers = {
     'ttl': kgx.ObanRdfTransformer,
     'json': kgx.JsonTransformer,
     'rq': kgx.SparqlTransformer,
-    'owl': kgx.RdfOwlTransformer
+    'owl': kgx.RdfOwlTransformer,
+    'rsa': kgx.RsaTransformer
 }
 
 def is_writable(filepath):

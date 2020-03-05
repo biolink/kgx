@@ -1,3 +1,5 @@
+import logging
+import re
 from typing import Dict
 
 import prefixcommons.curie_util as cu
@@ -108,3 +110,64 @@ class PrefixManager(object):
             else:
                 curie = curie_list[0]
         return curie
+
+    @staticmethod
+    def is_curie(s: str) -> bool:
+        """
+        Check if a given string is a CURIE.
+
+        Parameters
+        ----------
+        s: str
+            A string
+
+        Returns
+        -------
+        bool
+            Whether or not the given string is a CURIE
+
+        """
+        m = re.match(r"^[^ :]+:[^/ :]+$", s)
+        return bool(m)
+
+    @staticmethod
+    def get_prefix(curie: str) -> str:
+        """
+        Get the prefix from a given CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            The CURIE
+
+        Returns
+        -------
+        str
+            The CURIE prefix
+
+        """
+        prefix = None
+        if PrefixManager.is_curie(curie):
+            prefix = curie.split(':', 1)[0]
+        return prefix
+
+    @staticmethod
+    def get_reference(curie: str) -> str:
+        """
+        Get the reference of a given CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            The CURIE
+
+        Returns
+        -------
+        str
+            The reference of a CURIE
+
+        """
+        reference = None
+        if PrefixManager.is_curie(curie):
+            reference = curie.split(':', 1)[1]
+        return reference

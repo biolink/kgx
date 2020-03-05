@@ -6,7 +6,7 @@ from cachetools import cached
 
 from kgx.mapper import get_prefix
 from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service
-from kgx.validator import is_curie
+from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP = {}
 ONTOLOGY_GRAPH_CACHE = {}
@@ -95,7 +95,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
     logging.debug("curie: {}".format(curie))
     new_categories = []
     toolkit = get_toolkit()
-    if is_curie(curie):
+    if PrefixManager.is_curie(curie):
         ancestors = get_ancestors(graph, curie, relations=['subclass_of'])
         if len(ancestors) == 0 and load_ontology:
             cls = get_curie_lookup_service()

@@ -1,0 +1,146 @@
+{
+  "nodes": [
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "category": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0005002",
+      "name": "chronic obstructive pulmonary disease",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0005002",
+      "name": "chronic obstructive pulmonary disease",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "category": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0013238",
+      "name": "chromosome 17q23.1-q23.2 deletion syndrome",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0013238",
+      "name": "chromosome 17q23.1-q23.2 deletion syndrome",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "category": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0013329",
+      "name": "familial clubfoot due to 17q23.1q23.2 microduplication",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0013329",
+      "name": "familial clubfoot due to 17q23.1q23.2 microduplication",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "category": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0017148",
+      "name": "heritable pulmonary arterial hypertension",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0017148",
+      "name": "heritable pulmonary arterial hypertension",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "category": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0007841",
+      "name": "coxopodopatellar syndrome",
+      "category": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0007841",
+      "name": "coxopodopatellar syndrome",
+      "category": [
+        "biolink:Disease"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
+      "subject": "HGNC:11603",
+      "object": "MONDO:0005002",
+      "edge_label": "biolink:related_to",
+      "relation": "RO:0003304"
+    },
+    {
+      "id": "2d38345a-e9bf-4943-accb-dccba351dd04",
+      "subject": "HGNC:11603",
+      "object": "MONDO:0013238",
+      "edge_label": "biolink:related_to",
+      "relation": "RO:0003304"
+    },
+    {
+      "id": "d7edcb4b-af58-468a-8f86-ed737859693a",
+      "subject": "HGNC:11603",
+      "object": "MONDO:0013329",
+      "edge_label": "biolink:related_to",
+      "relation": "RO:0003304"
+    },
+    {
+      "id": "044a7916-fba9-4b4f-ae48-f0815b0b222d",
+      "subject": "HGNC:11603",
+      "object": "MONDO:0017148",
+      "edge_label": "biolink:related_to",
+      "relation": "RO:0004013"
+    },
+    {
+      "id": "1a7f02a7-24ab-4480-809d-f61e80876b70",
+      "subject": "HGNC:11603",
+      "object": "MONDO:0007841",
+      "edge_label": "biolink:related_to",
+      "relation": "RO:0004013"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
 from kgx.utils.kgx_utils import generate_edge_key
 from prefixcommons.curie_util import read_remote_jsonld_context
-from kgx.validator import is_curie
+from kgx.prefix_manager import PrefixManager
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -134,7 +134,7 @@ class RdfGraphMixin(object):
             logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label, self.BIOLINK))
             edge_label = edge_label.replace(self.BIOLINK, '')
 
-        if is_curie(edge_label):
+        if PrefixManager.is_curie(edge_label):
             name = curie_lookup(edge_label)
             if name:
                 logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
@@ -233,7 +233,7 @@ class RdfGraphMixin(object):
             subject_curie = make_curie(subject_iri)
             object_curie = make_curie(object_iri)
             edge_label = process_iri(predicate_iri)
-            if is_curie(edge_label):
+            if PrefixManager.is_curie(edge_label):
                 edge_label = curie_lookup(edge_label)
             edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
             attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
