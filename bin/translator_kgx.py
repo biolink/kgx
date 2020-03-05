@@ -372,8 +372,9 @@ def neo4j_edge_summary(config: dict, address: str, username: str, password: str,
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--output', '-o', type=click.Path(exists=False), required=True, help='The path to a text file to append the output to.')
 @click.option('--output-dir', '-d', type=click.Path(exists=False), help='The path to a directory to save a series of text files to.')
+@click.option('--format', '-f', required=False, help='The input format type')
 @pass_config
-def validate(config: dict, path: str, output: str, output_dir: str):
+def validate(config: dict, path: str, output: str, output_dir: str, format: str):
     """
     Run KGX validation on an input file to check for BioLink Model compliance.
     \f
@@ -388,9 +389,15 @@ def validate(config: dict, path: str, output: str, output_dir: str):
         Path to output file
     output_dir:
         Path to a directory
+    format:
+        The input format
 
     """
-    t = get_transformer(get_type(path))()
+    t = None
+    if format:
+        t = get_transformer(format)()
+    else:
+        t = get_transformer(get_type(path))()
     t.parse(path)
     validator = Validator()
     errors = validator.validate(t.graph)
