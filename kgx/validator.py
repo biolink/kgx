@@ -378,24 +378,24 @@ class Validator(object):
             element = self.toolkit.get_element(key)
             if hasattr(element, 'typeof'):
                 if element.typeof == 'string' and not isinstance(value, str):
-                    message = f"Edge property '{key}' expected to be of type '{element.typeof}'"
+                    message = f"Edge property '{key}' expected to be of type 'string'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 elif element.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
-                    message = f"Edge property '{key}' expected to be of type '{element.typeof}'"
+                    message = f"Edge property '{key}' expected to be of type 'uri'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 elif element.typeof == 'double' and not isinstance(value, (int, float)):
-                    message = f"Edge property '{key}' expected to be of type '{element.typeof}'"
+                    message = f"Edge property '{key}' expected to be of type 'double'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 else:
                     logging.warning("Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
             if hasattr(element, 'multivalued'):
                 if element.multivalued:
                     if not isinstance(value, list):
-                        message = f"Multi-valued edge property '{key}' expected to be of type '{list}'"
+                        message = f"Multi-valued edge property '{key}' expected to be of type 'list'"
                         errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 else:
                     if isinstance(value, (list, set, tuple)):
-                        message = f"Single-valued edge property '{key}' expected to be of type '{str}'"
+                        message = f"Single-valued edge property '{key}' expected to be of type 'str'"
                         errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         return errors
 
