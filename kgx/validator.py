@@ -70,6 +70,13 @@ class ValidationError(object):
     def __str__(self):
         return f"[{self.message_level.name}][{self.error_type.name}] {self.entity} - {self.message}"
 
+    def as_dict(self):
+        return {
+            'entity': self.entity,
+            'error_type': self.error_type,
+            'message': self.message,
+            'message_level': self.message_level
+        }
 
 class Validator(object):
     """
