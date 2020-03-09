@@ -17,7 +17,6 @@ def test_validator_bad():
     G.add_node('ZZZ:3', nosuch=1)
     G.add_edge('x', 'y', baz=6)
     validator = Validator(verbose=True)
-    validator.validate(G)
     e = validator.validate(G)
     assert len(e) > 0
 
@@ -43,4 +42,4 @@ def test_validate_json():
     jt.parse(json_file)
     validator = Validator()
     e = validator.validate(jt.graph)
-    assert e == 0
+    assert len(e) == 0
