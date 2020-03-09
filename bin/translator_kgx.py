@@ -401,7 +401,7 @@ def validate(config: dict, path: str, output: str, output_dir: str, format: str)
     t.parse(path)
     validator = Validator()
     errors = validator.validate(t.graph)
-    validator.report(errors, open(output, 'w'))
+    validator.write_report(errors, open(output, 'w'))
 
 
 @cli.command(name='neo4j-download')
