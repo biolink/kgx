@@ -73,9 +73,9 @@ class ValidationError(object):
     def as_dict(self):
         return {
             'entity': self.entity,
-            'error_type': self.error_type,
+            'error_type': self.error_type.name,
             'message': self.message,
-            'message_level': self.message_level
+            'message_level': self.message_level.name
         }
 
 class Validator(object):
