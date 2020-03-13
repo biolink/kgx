@@ -16,14 +16,14 @@ KGX allows conversion to and from:
  * Any format supported by networkx
 
 
-KGX will also provide validation, to ensure the KGs are conformant to the Biolink model: making sure nodes are categorized using biolink classes, edges are labeled using valid biolink relationship types, and valid properties are used.
+KGX will also provide validation, to ensure the KGs are conformant to the Biolink model: making sure nodes are categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
 
 
 ## Internal Representation
 
 Internal representation is networkx MultiDiGraph which is a property graph.
 
-The structure of this graph is expected to conform to the BioLink Model standard, briefly summarized here:
+The structure of this graph is expected to conform to the Biolink Model standard, briefly summarized here:
 
  * [Nodes](https://biolink.github.io/biolink-model/docs/NamedThing.html)
     * id : required
