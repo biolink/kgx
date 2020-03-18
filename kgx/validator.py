@@ -474,14 +474,15 @@ class Validator(object):
         else:
             message = f"Edge property 'object' has a value '{object}' which is not a proper CURIE"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-        if 'relation' in data and PrefixManager.is_curie(data['relation']):
-            prefix = PrefixManager.get_prefix(data['relation'])
-            if prefix not in self.prefixes:
-                message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+        if 'relation' in data:
+            if PrefixManager.is_curie(data['relation']):
+                prefix = PrefixManager.get_prefix(data['relation'])
+                if prefix not in self.prefixes:
+                    message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+            else:
+                message = f"Edge property 'relation' has a value '{data['relation']}' which is not a proper CURIE"
                 errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-        else:
-            message = f"Edge property 'relation' has a value '{data['relation']}' which is not a proper CURIE"
-            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         return errors
 
     def validate_categories(self, node: str, data: dict) -> list:
