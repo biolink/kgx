@@ -334,8 +334,8 @@ class Validator(object):
                 if element.typeof == 'string' and not isinstance(value, str):
                     message = f"Node property '{key}' expected to be of type '{element.typeof}'"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
-                elif element.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
-                    message = f"Node property '{key}' expected to be of type {element.typeof}"
+                elif element.typeof == 'uriorcurie' and not isinstance(value, str) and not validators.url(value):
+                    message = f"Node property '{key}' expected to be of type 'uri' or 'CURIE'"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 elif element.typeof == 'double' and not isinstance(value, (int, float)):
                     message = f"Node property '{key}' expected to be of type '{element.typeof}'"
@@ -387,8 +387,8 @@ class Validator(object):
                 if element.typeof == 'string' and not isinstance(value, str):
                     message = f"Edge property '{key}' expected to be of type 'string'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-                elif element.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
-                    message = f"Edge property '{key}' expected to be of type 'uri'"
+                elif element.typeof == 'uriorcurie' and not isinstance(value, str) and not validators.url(value):
+                    message = f"Edge property '{key}' expected to be of type 'uri' or 'CURIE'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 elif element.typeof == 'double' and not isinstance(value, (int, float)):
                     message = f"Edge property '{key}' expected to be of type 'double'"
@@ -473,6 +473,14 @@ class Validator(object):
                 errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         else:
             message = f"Edge property 'object' has a value '{object}' which is not a proper CURIE"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        if 'relation' in data and PrefixManager.is_curie(data['relation']):
+            prefix = PrefixManager.get_prefix(data['relation'])
+            if prefix not in self.prefixes:
+                message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        else:
+            message = f"Edge property 'relation' has a value '{data['relation']}' which is not a proper CURIE"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         return errors
 
