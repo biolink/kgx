@@ -205,13 +205,15 @@ class Validator(object):
             A list of errors for a given graph
 
         """
+        errors = []
         with click.progressbar(graph.nodes(data=True), label='Validating nodes in graph') as bar:
             for n, data in bar:
                 e1 = self.validate_node_properties(n, data)
                 e2 = self.validate_node_property_types(n, data)
                 e3 = self.validate_node_property_values(n, data)
                 e4 = self.validate_categories(n, data)
-        return e1 + e2 + e3 + e4
+                errors += e1 + e2 + e3 + e4
+        return errors
 
     def validate_edges(self, graph: nx.Graph) -> list:
         """
