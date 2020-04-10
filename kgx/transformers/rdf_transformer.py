@@ -10,7 +10,7 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
 
 biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
 
@@ -183,6 +183,187 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for category in categories:
                     self.add_node_attribute(uriref, key='category', value=category)
 
+    def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
+        """
+        Transform networkx.MultiDiGraph into rdflib.Graph and export
+        this graph as a file (``turtle``, by default).
+
+        Parameters
+        ----------
+        filename: str
+            Filename to write to
+        output_format: str
+            The output format; default: ``turtle``
+        kwargs: dict
+            Any additional arguments
+
+        """
+        # Make a new rdflib.Graph() instance to generate RDF triples
+        rdfgraph = rdflib.Graph()
+
+        # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
+        # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
+        rdfgraph.bind('OBO', str(OBO))
+        rdfgraph.bind('biolink', str(BIOLINK))
+
+        # saving all nodes
+        for n, data in self.graph.nodes(data=True):
+            self.save_node(rdfgraph, n, data)
+
+        # saving all edges
+        for u, v, data in self.graph.edges(data=True):
+            self.save_edge(rdfgraph, u, v, data)
+
+        # Serialize the graph into the file.
+        rdfgraph.serialize(destination=filename, format=output_format)
+        pass
+
+    def save_node(self, rdfgraph: rdflib.graph, node: str, data: dict) -> None:
+        """
+        Save a node and its attributes to rdflib.Graph
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+        node: str
+            Node identifier, as a CURIE
+        data: dict
+            Node properties
+
+        """
+        if 'iri' not in data:
+            uriRef = self.uriref(node)
+        else:
+            uriRef = URIRef(data['iri'])
+
+        # Defaulting to biolink:NamedThing for all nodes
+        rdfgraph.add((uriRef, RDF.type, URIRef(f"{BIOLINK}NamedThing")))
+        for key, value in data.items():
+            if key not in ['id', 'iri']:
+                # Note: save_attribute will only save biolink slots
+                self.save_attribute(rdfgraph, uriRef, key=key, value=value)
+
+    def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: dict) -> None:
+        """
+        Save an edge to rdflib.Graph, reifying where applicable.
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+        subject: str
+            Subject node identifier, as a CURIE
+        object: str
+            Object node identifier, as a CURIE
+        data: dict
+            Edge properties
+
+        """
+        edge_label = data['edge_label']
+        if 'biolink:' in edge_label:
+            edge_label = PrefixManager.get_reference(edge_label)
+        element = self.toolkit.get_element(edge_label)
+        if element and 'related to' in self.toolkit.ancestors(element.name):
+            if edge_label in {'subclass_of', 'part_of', 'has_part', 'same_as'} \
+                    or edge_label in {'rdfs:subClassOf', 'owl:equivalentClass'}:
+                # Note: This drops all edge properties since we do not
+                # reify the edge
+                subject = URIRef(subject)
+                predicate = URIRef(edge_label)
+                object = URIRef(object)
+                rdfgraph.add((subject, predicate, object))
+            else:
+                # edge is a Biolink association
+                if 'relation' not in data:
+                    raise Exception(
+                        'Relation is a required edge property in the Biolink Model, edge {} --> {}'.format(u, v))
+
+                if 'id' in data and data['id'] is not None:
+                    assoc_id = URIRef(data['id'])
+                else:
+                    # generating a UUID for association
+                    assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+
+                # Defaulting to biolink:Association for all reified edges
+                rdfgraph.add((assoc_id, RDF.type, BIOLINK.association))
+                u = self.uriref(subject)
+                v = self.uriref(object)
+                predicate = self.uriref(edge_label)
+                relation = self.uriref(data['relation'])
+                rdfgraph.add((assoc_id, OBAN.association_has_subject, u))
+                rdfgraph.add((assoc_id, OBAN.association_has_predicate, predicate))
+                rdfgraph.add((assoc_id, OBAN.association_has_object, v))
+                rdfgraph.add((assoc_id, BIOLINK.relation, relation))
+
+                for key, value in data.items():
+                    if key not in ['subject', 'relation', 'object']:
+                        self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
+        else:
+            subject = URIRef(subject)
+            if not PrefixManager.is_curie(edge_label):
+                # TODO: this should be handled upstream
+                edge_label = f"biolink:{sentencecase_to_snakecase(edge_label)}"
+            predicate = URIRef(edge_label)
+            object = URIRef(object)
+            rdfgraph.add((subject, predicate, object))
+
+    def uriref(self, identifier: str) -> URIRef:
+        """
+        Generate a rdflib.URIRef for a given string.
+
+        Parameters
+        ----------
+        identifier: str
+            Identifier as string.
+
+        Returns
+        -------
+        rdflib.URIRef
+            URIRef form of the input ``identifier``
+
+        """
+        if identifier in property_mapping:
+            uri = property_mapping[identifier]
+        else:
+            uri = self.prefix_manager.expand(identifier)
+        return URIRef(uri)
+
+    def save_attribute(self, rdfgraph: rdflib.Graph, object_iri: URIRef, key: str, value: Union[List[str], str]) -> None:
+        """
+        Saves a node or edge attributes from networkx.MultiDiGraph into rdflib.Graph
+
+        Intended to be used within `ObanRdfTransformer.save()`.
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            Graph containing nodes and edges
+        object_iri: rdflib.URIRef
+            IRI of an object in the graph
+        key: str
+            The name of the attribute
+        value: Union[List[str], str]
+            The value of the attribute; Can be either a List or just a string
+
+        """
+        element = self.toolkit.get_element(key)
+        if element is None:
+            return
+        if element.is_a == 'association slot' or element.is_a == 'node property':
+            if key in property_mapping:
+                key = property_mapping[key]
+            else:
+                key = URIRef('{}{}'.format(BIOLINK, element.name.replace(' ', '_')))
+            if not isinstance(value, (list, tuple, set)):
+                value = [value]
+            for value in value:
+                if element.range == 'iri type':
+                    value = URIRef(value)
+                else:
+                    value = rdflib.term.Literal(value)
+                rdfgraph.add((object_iri, key, value))
+
 class ObanRdfTransformer(RdfTransformer):
     """
     Transformer that parses a 'turtle' file and loads triples, as nodes and edges, into a networkx.MultiDiGraph
@@ -255,60 +436,6 @@ class ObanRdfTransformer(RdfTransformer):
                     for key, values in edge_attr.items():
                         for value in values:
                             self.add_edge_attribute(subject, object, predicate, key=key, value=value)
-
-    def uriref(self, identifier: str) -> URIRef:
-        """
-        Generate a rdflib.URIRef for a given string.
-
-        Parameters
-        ----------
-        identifier: str
-            Identifier as string.
-
-        Returns
-        -------
-        rdflib.URIRef
-            URIRef form of the input ``identifier``
-
-        """
-        if identifier in property_mapping:
-            uri = property_mapping[identifier]
-        else:
-            uri = self.prefix_manager.expand(identifier)
-        return URIRef(uri)
-
-    def save_attribute(self, rdfgraph: rdflib.Graph, object_iri: URIRef, key: str, value: Union[List[str], str]) -> None:
-        """
-        Saves a node or edge attributes from networkx.MultiDiGraph into rdflib.Graph
-
-        Intended to be used within `ObanRdfTransformer.save()`.
-
-        Parameters
-        ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
-        object_iri: rdflib.URIRef
-            IRI of an object in the graph
-        key: str
-            The name of the attribute
-        value: Union[List[str], str]
-            The value of the attribute; Can be either a List or just a string
-
-        """
-        element = self.toolkit.get_element(key)
-        if element is None:
-            return
-        if element.is_a == 'association slot' or element.is_a == 'node property':
-            if key in property_mapping:
-                key = property_mapping[key]
-            else:
-                key = URIRef('{}{}'.format(BIOLINK, element.name.replace(' ', '_')))
-            if not isinstance(value, (list, tuple, set)):
-                value = [value]
-            for value in value:
-                if element.range == 'iri type':
-                    value = URIRef('{}{}'.format(BIOLINK, ''.join(value.title().split(' '))))
-                rdfgraph.add((object_iri, key, rdflib.term.Literal(value)))
 
     def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
         """
