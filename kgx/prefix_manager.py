@@ -42,8 +42,12 @@ class PrefixManager(object):
             Dictionary of prefix to URI mappings
 
         """
-        self.prefix_map = m
-        self.reverse_prefix_map = {y: x for x, y in m.items() if isinstance(y, str)}
+        self.prefix_map = {}
+        for k, v in m.items():
+            if isinstance(v, str):
+                self.prefix_map[k] = v
+
+        self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
     def expand(self, curie: str, fallback: bool = True) -> str:
         """
@@ -63,17 +67,10 @@ class PrefixManager(object):
             A URI corresponding to the CURIE
 
         """
-        uri = None
-        if curie in self.prefix_map:
-            uri = self.prefix_map[curie]
-            # TODO: prefixcommons.curie_util will not unfold objects in json-ld context
-            if isinstance(uri, str):
-                return uri
-        else:
-            uri = cu.expand_uri(curie, [self.prefix_map])
-            if uri == curie and fallback:
-                uri = cu.expand_uri(curie)
-        print("CURIE {} to IRI {}".format(curie, uri))
+        uri = cu.expand_uri(curie, [self.prefix_map])
+        if uri == curie and fallback:
+            uri = cu.expand_uri(curie)
+
         return uri
 
     def contract(self, uri: str, fallback: bool = True) -> str:
