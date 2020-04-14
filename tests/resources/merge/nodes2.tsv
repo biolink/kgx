@@ -1,0 +1,5 @@
+id	name	category	p1	p2	p3	note
+x1	node x1	biolink:NamedThing	a	a	a	repeating node x1
+x3	node x3	biolink:NamedThing	b	b	b	repeating node x2
+x5	node x5	biolink:NamedThing	c	c	c	repeating node x3
+x10	node x10	biolink:NamedThing	d	d	d	new node x10
