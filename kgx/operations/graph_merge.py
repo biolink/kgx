@@ -125,8 +125,14 @@ class GraphMerge(object):
             if k in existing_node:
                 if k in self.core_node_properties:
                     logging.debug(f"cannot modify core node property '{k}': {existing_node[k]} vs {v}")
+                elif k == 'category':
+                    logging.debug(f"updating node property '{k}'; Appending {v} to {existing_node[k]}")
+                    if isinstance(v, list):
+                        existing_node[k].extend(v)
+                    else:
+                        existing_node[k].append(v)
+                    existing_node['category'] = list(set(existing_node[k]))
                 else:
-                    # TODO: category should be a set
                     if isinstance(existing_node[k], list):
                         # append
                         logging.debug(f"node property '{k}' is a list; Appending {v} to {existing_node[k]}")
@@ -147,6 +153,7 @@ class GraphMerge(object):
             else:
                 logging.debug(f"adding new node property {k} to node")
                 existing_node[k] = v
+
 
     def add_all_edges(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True):
         """
