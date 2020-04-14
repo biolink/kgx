@@ -59,7 +59,7 @@ class GraphMerge(object):
         merged_graph = self.merge_graphs(largest, graphs, preserve)
         return merged_graph
 
-    def merge_graphs(self, graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve: bool = True):
+    def merge_graphs(self, graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx.MultiDiGraph:
         """
         Merge all graphs in ``graphs`` to ``graph``.
 
@@ -155,7 +155,7 @@ class GraphMerge(object):
                 existing_node[k] = v
 
 
-    def add_all_edges(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True):
+    def add_all_edges(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> None:
         """
         Add all edges from source graph (``g2``) to target graph (``g1``).
 
