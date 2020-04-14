@@ -97,7 +97,7 @@ class GraphMerge(object):
             Whether or not to preserve conflicting properties
 
         """
-        logging.info(f"Adding all nodes from {g2} to {g1}")
+        logging.info(f"Adding all nodes from {g2.name} to {g1.name}")
         for n, data in g2.nodes(data=True):
             if n in g1.nodes():
                 self.merge_node(g1, n, data, preserve)

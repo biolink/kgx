@@ -673,7 +673,8 @@ def load_and_merge(config: dict, load_config):
         if target['type'] in get_file_types():
             # loading from a file
             transformer = get_transformer(target['type'])()
-            transformer.parse(target['filename'])
+            for f in target['filename']:
+                transformer.parse(f, input_format=target['type'])
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
             transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
