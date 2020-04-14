@@ -139,7 +139,7 @@ class PandasTransformer(Transformer):
 
         """
         node = Transformer.validate_node(node)
-        kwargs = PandasTransformer._build_kwargs(node)
+        kwargs = PandasTransformer._build_kwargs(node.copy())
         if 'id' in kwargs:
             n = kwargs['id']
             self.graph.add_node(n, **kwargs)
@@ -192,7 +192,7 @@ class PandasTransformer(Transformer):
         rows = []
         for n, data in self.graph.nodes(data=True):
             data = self.validate_node(data)
-            row = PandasTransformer._build_export_row(data)
+            row = PandasTransformer._build_export_row(data.copy())
             row['id'] = n
             rows.append(row)
         df = pd.DataFrame.from_records(rows)
@@ -211,7 +211,7 @@ class PandasTransformer(Transformer):
         rows = []
         for s, o, data in self.graph.edges(data=True):
             data = self.validate_edge(data)
-            row = PandasTransformer._build_export_row(data)
+            row = PandasTransformer._build_export_row(data.copy())
             row['subject'] = s
             row['object'] = o
             rows.append(row)
