@@ -51,6 +51,7 @@ class PrefixManager(object):
         if ':' in self.prefix_map:
             logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
         else:
+            # TODO: the Default URL should be configurable
             self.prefix_map[':'] = 'www.example.org/UNKNOWN/'
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
