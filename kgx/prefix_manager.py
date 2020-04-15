@@ -46,6 +46,12 @@ class PrefixManager(object):
         for k, v in m.items():
             if isinstance(v, str):
                 self.prefix_map[k] = v
+        if 'biolink' not in self.prefix_map:
+            self.prefix_map['biolink'] = self.prefix_map['@vocab']
+        if ':' in self.prefix_map:
+            logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
+        else:
+            self.prefix_map[':'] = 'www.example.org/UNKNOWN/'
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
@@ -94,7 +100,6 @@ class PrefixManager(object):
         """
         # always prioritize non-CURIE shortform
         curie = None
-        print(uri)
         if uri in self.reverse_prefix_map:
             curie = self.reverse_prefix_map[uri]
         else:
@@ -124,7 +129,7 @@ class PrefixManager(object):
             Whether or not the given string is a CURIE
 
         """
-        m = re.match(r"^[^ :]+:[^/ :]+$", s)
+        m = re.match(r"^[^ :]*:[^/ :]+$", s)
         return bool(m)
 
     @staticmethod
