@@ -10,16 +10,8 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
 
-biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
-
-# TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
-OBO = Namespace('http://purl.obolibrary.org/obo/')
-OBAN = Namespace(biolink_prefix_map['OBAN'])
-PMID = Namespace(biolink_prefix_map['PMID'])
-BIOLINK = Namespace(biolink_prefix_map['@vocab'])
-DEFAULT_EDGE_LABEL = 'related_to'
 
 class RdfTransformer(RdfGraphMixin, Transformer):
     """
@@ -37,7 +29,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
         self.ontologies = []
-        self.prefix_manager = PrefixManager()
         self.toolkit = get_toolkit()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
@@ -183,6 +174,203 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for category in categories:
                     self.add_node_attribute(uriref, key='category', value=category)
 
+    def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
+        """
+        Transform networkx.MultiDiGraph into rdflib.Graph and export
+        this graph as a file (``turtle``, by default).
+
+        Parameters
+        ----------
+        filename: str
+            Filename to write to
+        output_format: str
+            The output format; default: ``turtle``
+        kwargs: dict
+            Any additional arguments
+
+        """
+        # Make a new rdflib.Graph() instance to generate RDF triples
+        rdfgraph = rdflib.Graph()
+
+        # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
+        # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
+        rdfgraph.bind('', str(self.DEFAULT))
+        rdfgraph.bind('OBO', str(self.OBO))
+        rdfgraph.bind('OBAN', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('biolink', str(self.BIOLINK))
+
+        # saving all nodes
+        for n, data in self.graph.nodes(data=True):
+            self.save_node(rdfgraph, n, data)
+
+        # saving all edges
+        for u, v, data in self.graph.edges(data=True):
+            self.save_edge(rdfgraph, u, v, data)
+
+        # Serialize the graph into the file.
+        rdfgraph.serialize(destination=filename, format=output_format)
+        pass
+
+    def save_node(self, rdfgraph: rdflib.graph, node: str, data: dict) -> None:
+        """
+        Save a node and its attributes to rdflib.Graph
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+        node: str
+            Node identifier, as a CURIE
+        data: dict
+            Node properties
+
+        """
+        if 'iri' not in data:
+            uriRef = self.uriref(node)
+        else:
+            uriRef = URIRef(data['iri'])
+
+        # Defaulting to biolink:NamedThing for all nodes
+        rdfgraph.add((uriRef, RDF.type, URIRef(self.BIOLINK.NamedThing)))
+        for key, value in data.items():
+            if key not in ['id', 'iri']:
+                self.save_attribute(rdfgraph, uriRef, key=key, value=value)
+
+    def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: dict) -> None:
+        """
+        Save an edge to rdflib.Graph, reifying where applicable.
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+        subject: str
+            Subject node identifier, as a CURIE
+        object: str
+            Object node identifier, as a CURIE
+        data: dict
+            Edge properties
+
+        """
+        edge_label = data['edge_label']
+        if 'biolink:' in edge_label:
+            edge_label = PrefixManager.get_reference(edge_label)
+
+        if edge_label in {'subclass_of', 'part_of', 'has_part', 'same_as'} \
+                    or edge_label in {'rdfs:subClassOf', 'owl:equivalentClass'}:
+            # Note: This drops all edge properties since we do not reify the edge
+            subject_term = self.uriref(subject)
+            predicate_term = self.uriref(edge_label)
+            object_term = self.uriref(object)
+            rdfgraph.add((subject_term, predicate_term, object_term))
+        else:
+            element = self.toolkit.get_element(edge_label)
+            if element:
+                # edge is a Biolink association
+                if 'relation' not in data:
+                    raise Exception(
+                        'Relation is a required edge property in the Biolink Model, edge {} --> {}'.format(subject, object))
+
+                if 'id' in data and data['id'] is not None:
+                    assoc_id = URIRef(data['id'])
+                else:
+                    # generating a UUID for association
+                    assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
+
+                # Defaulting to biolink:Association for all reified edges
+                rdfgraph.add((assoc_id, RDF.type, self.BIOLINK.association))
+                subject_term = self.uriref(subject)
+                object_term = self.uriref(object)
+                predicate_term = self.uriref(data['edge_label'])
+                relation = self.uriref(data['relation'])
+                rdfgraph.add((assoc_id, self.OBAN.association_has_subject, subject_term))
+                rdfgraph.add((assoc_id, self.OBAN.association_has_predicate, predicate_term))
+                rdfgraph.add((assoc_id, self.OBAN.association_has_object, object_term))
+                rdfgraph.add((assoc_id, self.BIOLINK.relation, relation))
+
+                for key, value in data.items():
+                    if key not in ['subject', 'relation', 'object', 'edge_label']:
+                        self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
+            else:
+                subject_term = self.uriref(subject)
+                predicate_term = self.uriref(edge_label)
+                object_term = self.uriref(object)
+                rdfgraph.add((subject_term, predicate_term, object_term))
+
+    def uriref(self, identifier: str) -> URIRef:
+        """
+        Generate a rdflib.URIRef for a given string.
+
+        Parameters
+        ----------
+        identifier: str
+            Identifier as string.
+
+        Returns
+        -------
+        rdflib.URIRef
+            URIRef form of the input ``identifier``
+
+        """
+        if identifier in property_mapping:
+            uri = property_mapping[identifier]
+        else:
+            if identifier.startswith(':'):
+                # TODO: this should be handled upstream by prefixcommons-py
+                uri = self.DEFAULT.term(identifier.replace(':', '', 1))
+            else:
+                uri = self.prefix_manager.expand(identifier)
+            if identifier == uri:
+                if PrefixManager.is_curie(identifier):
+                    identifier = identifier.replace(':', '_')
+                if ' ' in identifier:
+                    identifier = identifier.replace(' ', '_')
+                uri = self.DEFAULT.term(identifier)
+
+        return URIRef(uri)
+
+    def save_attribute(self, rdfgraph: rdflib.Graph, object_iri: URIRef, key: str, value: Union[List[str], str]) -> None:
+        """
+        Saves a node or edge attributes from networkx.MultiDiGraph into rdflib.Graph
+
+        Intended to be used within `ObanRdfTransformer.save()`.
+
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            Graph containing nodes and edges
+        object_iri: rdflib.URIRef
+            IRI of an object in the graph
+        key: str
+            The name of the attribute
+        value: Union[List[str], str]
+            The value of the attribute; Can be either a List or just a string
+
+        """
+        element = self.toolkit.get_element(key)
+        if element:
+            if element.is_a == 'association slot' or element.is_a == 'node property':
+                if key in property_mapping:
+                    key = property_mapping[key]
+                else:
+                    key = self.BIOLINK.term(element.name.replace(' ', '_'))
+                if not isinstance(value, (list, tuple, set)):
+                    value = [value]
+                for v in value:
+                    if element.range == 'iri type':
+                        v = self.uriref(v)
+                    else:
+                        v = rdflib.term.Literal(v)
+                    rdfgraph.add((object_iri, key, v))
+        else:
+            # key is not a biolink property
+            # treat value as a literal
+            key = self.DEFAULT.term(key)
+            v = rdflib.term.Literal(value)
+            rdfgraph.add((object_iri, key, v))
+
+
 class ObanRdfTransformer(RdfTransformer):
     """
     Transformer that parses a 'turtle' file and loads triples, as nodes and edges, into a networkx.MultiDiGraph
@@ -219,7 +407,7 @@ class ObanRdfTransformer(RdfTransformer):
                         self.add_edge(s, o, p)
 
         # get all OBAN.associations
-        associations = rdfgraph.subjects(RDF.type, OBAN.association)
+        associations = rdfgraph.subjects(RDF.type, self.OBAN.association)
         logging.info("Loading from rdflib.Graph into networkx.MultiDiGraph")
         with click.progressbar(list(associations), label='Progress') as bar:
             for association in bar:
@@ -233,7 +421,7 @@ class ObanRdfTransformer(RdfTransformer):
 
                 # get all triples for association
                 for s, p, o in rdfgraph.triples((association, None, None)):
-                    if o.startswith(PMID):
+                    if o.startswith(self.PMID):
                         edge_attr['publications'].append(o)
                     if p in property_mapping or isinstance(o, rdflib.term.Literal):
                         p = property_mapping.get(p, p)
@@ -248,67 +436,13 @@ class ObanRdfTransformer(RdfTransformer):
 
                 if predicate is None:
                     logging.warning("No 'predicate' for OBAN.association {}; defaulting to '{}'".format(association, self.DEFAULT_EDGE_LABEL))
-                    predicate = DEFAULT_EDGE_LABEL
+                    predicate = self.DEFAULT_EDGE_LABEL
 
                 if subject and object:
                     self.add_edge(subject, object, predicate)
                     for key, values in edge_attr.items():
                         for value in values:
                             self.add_edge_attribute(subject, object, predicate, key=key, value=value)
-
-    def uriref(self, identifier: str) -> URIRef:
-        """
-        Generate a rdflib.URIRef for a given string.
-
-        Parameters
-        ----------
-        identifier: str
-            Identifier as string.
-
-        Returns
-        -------
-        rdflib.URIRef
-            URIRef form of the input ``identifier``
-
-        """
-        if identifier in property_mapping:
-            uri = property_mapping[identifier]
-        else:
-            uri = self.prefix_manager.expand(identifier)
-        return URIRef(uri)
-
-    def save_attribute(self, rdfgraph: rdflib.Graph, object_iri: URIRef, key: str, value: Union[List[str], str]) -> None:
-        """
-        Saves a node or edge attributes from networkx.MultiDiGraph into rdflib.Graph
-
-        Intended to be used within `ObanRdfTransformer.save()`.
-
-        Parameters
-        ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
-        object_iri: rdflib.URIRef
-            IRI of an object in the graph
-        key: str
-            The name of the attribute
-        value: Union[List[str], str]
-            The value of the attribute; Can be either a List or just a string
-
-        """
-        element = self.toolkit.get_element(key)
-        if element is None:
-            return
-        if element.is_a == 'association slot' or element.is_a == 'node property':
-            if key in property_mapping:
-                key = property_mapping[key]
-            else:
-                key = URIRef('{}{}'.format(BIOLINK, element.name.replace(' ', '_')))
-            if not isinstance(value, (list, tuple, set)):
-                value = [value]
-            for value in value:
-                if element.range == 'iri type':
-                    value = URIRef('{}{}'.format(BIOLINK, ''.join(value.title().split(' '))))
-                rdfgraph.add((object_iri, key, rdflib.term.Literal(value)))
 
     def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
         """
@@ -328,17 +462,17 @@ class ObanRdfTransformer(RdfTransformer):
         # Make a new rdflib.Graph() instance to generate RDF triples
         rdfgraph = rdflib.Graph()
 
-        # Register OBAN URL prefix (http://purl.org/oban/) as `OBAN` in the namespace.
-        rdfgraph.bind('OBAN', str(OBAN))
-
         # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
         # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
-        rdfgraph.bind('OBO', str(OBO))
-        rdfgraph.bind('biolink', str(BIOLINK))
+        rdfgraph.bind('', str(self.DEFAULT))
+        rdfgraph.bind('OBO', str(self.OBO))
+        rdfgraph.bind('OBAN', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('biolink', str(self.BIOLINK))
 
         # saving all nodes
         for n, data in self.graph.nodes(data=True):
-            if 'iri' not in n:
+            if 'iri' not in data:
                 uriRef = self.uriref(n)
             else:
                 uriRef = URIRef(data['iri'])
@@ -358,10 +492,10 @@ class ObanRdfTransformer(RdfTransformer):
                 # generating a UUID for association
                 assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
 
-            rdfgraph.add((assoc_id, RDF.type, OBAN.association))
-            rdfgraph.add((assoc_id, OBAN.association_has_subject, self.uriref(u)))
-            rdfgraph.add((assoc_id, OBAN.association_has_predicate, self.uriref(data['relation'])))
-            rdfgraph.add((assoc_id, OBAN.association_has_object, self.uriref(v)))
+            rdfgraph.add((assoc_id, RDF.type, self.OBAN.association))
+            rdfgraph.add((assoc_id, self.OBAN.association_has_subject, self.uriref(u)))
+            rdfgraph.add((assoc_id, self.OBAN.association_has_predicate, self.uriref(data['relation'])))
+            rdfgraph.add((assoc_id, self.OBAN.association_has_object, self.uriref(v)))
 
             for key, value in data.items():
                 if key not in ['subject', 'relation', 'object']:

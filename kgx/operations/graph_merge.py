@@ -97,7 +97,7 @@ class GraphMerge(object):
             Whether or not to preserve conflicting properties
 
         """
-        logging.info(f"Adding all nodes from {g2.name} to {g1.name}")
+        logging.info(f"Adding {g2.number_of_nodes()} nodes from {g2.name} to {g1.name}")
         for n, data in g2.nodes(data=True):
             if n in g1.nodes():
                 self.merge_node(g1, n, data, preserve)
@@ -169,7 +169,7 @@ class GraphMerge(object):
             Whether or not to preserve conflicting properties
 
         """
-        logging.info(f"Adding all edges from {g2} to {g1}")
+        logging.info(f"Adding {g2.number_of_edges()} edges from {g2} to {g1}")
         for u, v, key, data in g2.edges(keys=True, data=True):
             if g1.has_edge(u, v, key):
                 self.merge_edge(g1, u, v, key, data, preserve)

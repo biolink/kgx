@@ -24,11 +24,6 @@ class RdfGraphMixin(object):
 
     """
 
-    # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
-    OBO = Namespace('http://purl.obolibrary.org/obo/')
-    OBAN = Namespace(biolink_prefix_map['OBAN'])
-    PMID = Namespace(biolink_prefix_map['PMID'])
-    BIOLINK = Namespace('https://w3id.org/biolink/')
     DEFAULT_EDGE_LABEL = 'related_to'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
@@ -38,6 +33,13 @@ class RdfGraphMixin(object):
             self.graph = nx.MultiDiGraph()
 
         self.graph_metadata = {}
+        self.prefix_manager = PrefixManager()
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[':'])
+        # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
+        self.OBO = Namespace('http://purl.obolibrary.org/obo/')
+        self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
+        self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
+        self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
