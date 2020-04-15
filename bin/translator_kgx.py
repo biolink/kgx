@@ -10,6 +10,7 @@ from terminaltables import AsciiTable
 from datetime import datetime
 
 from kgx import Transformer, map_graph
+from kgx.operations.graph_merge import GraphMerge
 from kgx.validator import Validator
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable, build_transformer, get_prefix, \
     stringify, load_transformer, make_neo4j_transformer
@@ -661,7 +662,7 @@ def load_and_merge(config: dict, load_config):
     Parameters
     ----------
     """
-
+    gm = GraphMerge()
     with open(load_config, 'r') as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
@@ -672,7 +673,8 @@ def load_and_merge(config: dict, load_config):
         if target['type'] in get_file_types():
             # loading from a file
             transformer = get_transformer(target['type'])()
-            transformer.parse(target['filename'])
+            for f in target['filename']:
+                transformer.parse(f, input_format=target['type'])
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
             transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
@@ -683,7 +685,8 @@ def load_and_merge(config: dict, load_config):
             logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
     merged_transformer = Transformer()
-    merged_transformer.merge_graphs([x.graph for x in transformers])
+    merged_graph = gm.merge_all_graphs([x.graph for x in transformers])
+    merged_transformer.graph = merged_graph
 
     destination = cfg['destination']
     if destination['type'] in ['csv', 'tsv', 'ttl', 'json', 'tar']:

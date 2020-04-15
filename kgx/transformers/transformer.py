@@ -129,29 +129,6 @@ class Transformer(object):
         nx.set_node_attributes(self.graph, node_to_categories, 'category')
         nx.set_node_attributes(self.graph, preserve, '_old_category')
 
-    def merge_graphs(self, graphs: List[nx.MultiDiGraph]) -> None:
-        """
-        Merge all graphs with ``self.graph``
-
-        - If two nodes with same 'id' exist in two graphs, the nodes will be merged based on the 'id'
-        - If two nodes with the same 'id' exists in two graphs and they both have conflicting values
-          for a property, then the value is overwritten from left to right
-        - If two edges with the same 'key' exists in two graphs, the edge will be merged based on the
-          'key' property
-        - If two edges with the same 'key' exists in two graphs and they both have one or more conflicting
-          values for a property, then the value is overwritten from left to right
-
-        Parameters
-        ----------
-        graphs: List[networkx.MultiDiGraph]
-            List of graphs that are to be merged with self.graph
-
-        """
-        # TODO: Check behavior and consistency
-
-        graphs.insert(0, self.graph)
-        self.graph = nx.compose_all(graphs)
-
     def remap_node_identifier(self, type: str, new_property: str, prefix=None) -> None:
         """
         Remap a node's 'id' attribute with value from a node's ``new_property`` attribute.
