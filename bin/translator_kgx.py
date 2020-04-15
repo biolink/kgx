@@ -684,16 +684,14 @@ def load_and_merge(config: dict, load_config):
         else:
             logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
-    merged_transformer = Transformer()
     merged_graph = gm.merge_all_graphs([x.graph for x in transformers])
-    merged_transformer.graph = merged_graph
 
     destination = cfg['destination']
     if destination['type'] in ['csv', 'tsv', 'ttl', 'json', 'tar']:
-        destination_transformer = get_transformer(destination['type'])()
+        destination_transformer = get_transformer(destination['type'])(merged_graph)
         destination_transformer.save(destination['filename'])
     elif destination['type'] == 'neo4j':
-        destination_transformer = kgx.NeoTransformer(merged_transformer.graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
+        destination_transformer = kgx.NeoTransformer(merged_graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
         destination_transformer.save_with_unwind()
     else:
         logging.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))
