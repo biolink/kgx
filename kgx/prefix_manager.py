@@ -105,7 +105,6 @@ class PrefixManager(object):
             curie = self.reverse_prefix_map[uri]
         else:
             curie_list = cu.contract_uri(uri, [self.prefix_map])
-            print(curie_list)
             if len(curie_list) == 0 and fallback:
                 curie_list = cu.contract_uri(uri)
                 if len(curie_list) != 0:
@@ -132,6 +131,24 @@ class PrefixManager(object):
         """
         m = re.match(r"^[^ :]*:[^/ :]+$", s)
         return bool(m)
+
+    @staticmethod
+    def is_iri(s: str) -> bool:
+        """
+        Check if a given string as an IRI.
+
+        Parameters
+        ----------
+        s: str
+            A string
+
+        Returns
+        -------
+        bool
+            Whether or not the given string is an IRI.
+
+        """
+        return s.startswith('http') or s.startswith('https')
 
     @staticmethod
     def get_prefix(curie: str) -> str:
