@@ -216,8 +216,8 @@ class ObographJsonTransformer(JsonTransformer):
 
         if 'description' in node_properties:
             fixed_node['description'] = node_properties['description']
-        if 'synonyms' in node_properties:
-            fixed_node['synonyms'] = node_properties['synonyms']
+        if 'synonym' in node_properties:
+            fixed_node['synonym'] = node_properties['synonym']
 
         if 'category' not in node:
             category = self.get_category(curie, node)
@@ -338,9 +338,9 @@ class ObographJsonTransformer(JsonTransformer):
             properties['description'] = description
 
         if 'synonyms' in meta:
-            # parse 'synonyms' as 'synonyms'
+            # parse 'synonyms' as 'synonym'
             synonyms = [s['val'] for s in meta['synonyms']]
-            properties['synonyms'] = synonyms
+            properties['synonym'] = synonyms
 
         if 'xrefs' in meta:
             # parse 'xrefs' as 'xrefs'
