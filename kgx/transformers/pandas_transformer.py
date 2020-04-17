@@ -225,6 +225,7 @@ class PandasTransformer(Transformer):
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
+        If mode is set to ``None``, then there will be no archive created.
 
         Parameters
         ----------
@@ -233,7 +234,7 @@ class PandasTransformer(Transformer):
         extension: str
             The output file format (``csv``, by default)
         mode: str
-            Form of compression to use (``w``, by default, signifies no compression)
+            Form of compression to use (``w``, by default, signifies no compression).
         kwargs: dict
             Any additional arguments
 
@@ -241,19 +242,24 @@ class PandasTransformer(Transformer):
         if extension not in _extension_types:
             raise Exception('Unsupported extension: ' + extension)
 
-        archive_name = "{}.{}".format(filename, _archive_format[mode])
         delimiter = _extension_types[extension]
-
+        # TODO: export should be streaming and NOT a blob of content
         nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
         edges_content = self.export_edges().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
 
         nodes_file_name = "{}_nodes.{}".format(filename, extension)
         edges_file_name = "{}_edges.{}".format(filename, extension)
 
-        make_path(archive_name)
-        with tarfile.open(name=archive_name, mode=mode) as tar:
-            PandasTransformer._add_to_tar(tar, nodes_file_name, nodes_content)
-            PandasTransformer._add_to_tar(tar, edges_file_name, edges_content)
+        if mode:
+            archive_name = "{}.{}".format(filename, _archive_format[mode])
+            make_path(archive_name)
+            with tarfile.open(name=archive_name, mode=mode) as tar:
+                PandasTransformer._add_to_tar(tar, nodes_file_name, nodes_content)
+                PandasTransformer._add_to_tar(tar, edges_file_name, edges_content)
+        else:
+            make_path(nodes_file_name)
+            open(nodes_file_name, 'w').write(nodes_content)
+            open(edges_file_name, 'w').write(edges_content)
 
         return filename
 
