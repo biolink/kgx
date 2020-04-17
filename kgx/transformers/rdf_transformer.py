@@ -20,7 +20,9 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     This is the base class which is used to implement other RDF-based transformers.
     """
 
-    OWL_PREDICATES = [RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass]
+    OWL_PREDICATES = {RDFS.subClassOf, OWL.sameAs, OWL.equivalentClass}
+    BASIC_PREDICATES = {'subclass_of', 'part_of', 'has_part', 'same_as'}
+    BASIC_BIOLINK_PREDICATES = set([f"biolink:{x}" for x in BASIC_PREDICATES])
 
     is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
     has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
@@ -254,15 +256,16 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         edge_label = data['edge_label']
-        if 'biolink:' in edge_label:
-            edge_label = PrefixManager.get_reference(edge_label)
 
-        if edge_label in {'subclass_of', 'part_of', 'has_part', 'same_as'} \
-                    or edge_label in {'rdfs:subClassOf', 'owl:equivalentClass'}:
+        if edge_label in self.BASIC_BIOLINK_PREDICATES \
+                    or edge_label in self.BASIC_PREDICATES \
+                    or edge_label in self.OWL_PREDICATES:
             # Note: This drops all edge properties since we do not reify the edge
             subject_term = self.uriref(subject)
-            predicate_term = self.uriref(edge_label)
             object_term = self.uriref(object)
+            if edge_label in self.BASIC_PREDICATES:
+                edge_label = f"biolink:{edge_label}"
+            predicate_term = self.uriref(edge_label)
             rdfgraph.add((subject_term, predicate_term, object_term))
         else:
             element = self.toolkit.get_element(edge_label)
@@ -367,8 +370,11 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             # key is not a biolink property
             # treat value as a literal
             key = self.DEFAULT.term(key)
-            v = rdflib.term.Literal(value)
-            rdfgraph.add((object_iri, key, v))
+            if not isinstance(value, (list, tuple, set)):
+                value = [value]
+            for v in value:
+                v = rdflib.term.Literal(v)
+                rdfgraph.add((object_iri, key, v))
 
 
 class ObanRdfTransformer(RdfTransformer):
