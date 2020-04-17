@@ -344,13 +344,13 @@ class Transformer(object):
 
         """
         if len(node) == 0:
-            logging.warning("Empty node encountered: {}".format(node))
+            logging.debug("Empty node encountered: {}".format(node))
             return node
 
         if 'id' not in node:
             raise KeyError("node does not have 'id' property: {}".format(node))
         if 'name' not in node:
-            logging.warning("node does not have 'name' property: {}".format(node))
+            logging.debug("node does not have 'name' property: {}".format(node))
         if 'category' not in node:
             logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_LABEL))
             node['category'] = [Transformer.DEFAULT_NODE_LABEL]

@@ -1,3 +1,4 @@
+import os
 import re
 import pandas as pd
 import numpy as np
@@ -7,7 +8,7 @@ from kgx.utils import make_path
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 LIST_DELIMITER = '|'
 
@@ -221,10 +222,11 @@ class PandasTransformer(Transformer):
         df = df[cols]
         return df
 
-    def save(self, filename: str, extension: str = 'csv', mode: str = 'w', **kwargs) -> str:
+    def save(self, filename: str, extension: str = 'csv', mode: Optional[str] = 'w', **kwargs) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
+        If mode is set to ``None``, then there will be no archive created.
 
         Parameters
         ----------
@@ -233,7 +235,7 @@ class PandasTransformer(Transformer):
         extension: str
             The output file format (``csv``, by default)
         mode: str
-            Form of compression to use (``w``, by default, signifies no compression)
+            Form of compression to use (``w``, by default, signifies no compression).
         kwargs: dict
             Any additional arguments
 
@@ -241,19 +243,23 @@ class PandasTransformer(Transformer):
         if extension not in _extension_types:
             raise Exception('Unsupported extension: ' + extension)
 
-        archive_name = "{}.{}".format(filename, _archive_format[mode])
         delimiter = _extension_types[extension]
-
-        nodes_content = self.export_nodes().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
-        edges_content = self.export_edges().to_csv(sep=delimiter, index=False, escapechar="\\", doublequote=False)
-
         nodes_file_name = "{}_nodes.{}".format(filename, extension)
         edges_file_name = "{}_edges.{}".format(filename, extension)
+        make_path(nodes_file_name)
 
-        make_path(archive_name)
-        with tarfile.open(name=archive_name, mode=mode) as tar:
-            PandasTransformer._add_to_tar(tar, nodes_file_name, nodes_content)
-            PandasTransformer._add_to_tar(tar, edges_file_name, edges_content)
+        self.export_nodes().to_csv(sep=delimiter, path_or_buf=nodes_file_name, index=False, escapechar="\\", doublequote=False)
+        self.export_edges().to_csv(sep=delimiter, path_or_buf=edges_file_name, index=False, escapechar="\\", doublequote=False)
+
+        if mode:
+            archive_name = "{}.{}".format(filename, _archive_format[mode])
+            with tarfile.open(name=archive_name, mode=mode) as tar:
+                tar.add(nodes_file_name)
+                tar.add(edges_file_name)
+                if os.path.isfile(nodes_file_name):
+                    os.remove(nodes_file_name)
+                if os.path.isfile(edges_file_name):
+                    os.remove(edges_file_name)
 
         return filename
 
@@ -366,27 +372,3 @@ class PandasTransformer(Transformer):
                 cols2.append(c)
                 cols.remove(c)
         return cols2 + cols
-
-    @staticmethod
-    def _add_to_tar(tar: tarfile.TarFile, filename: str, filecontent: pd.DataFrame) -> None:
-        """
-        Write file contents to a given filename and add the file
-        to a specified tar archive.
-
-        Parameters
-        ----------
-        tar: tarfile.TarFile
-            Tar archive handle
-        filename: str
-            Name of file to add to the archive
-        filecontent: pandas.DataFrame
-            DataFrame containing data to write to filename
-
-        """
-        content = filecontent.encode()
-        with TemporaryFile() as tmp:
-            tmp.write(content)
-            tmp.seek(0)
-            info = tarfile.TarInfo(name=filename)
-            info.size = len(content)
-            tar.addfile(tarinfo=info, fileobj=tmp)
