@@ -17,6 +17,7 @@ from .debug_sink import DebugSink
 from .progress_sink import ProgressSink
 from .file_sink import FileSink
 from .csv_sink import CsvSink
+from .tsv_sink import TsvSink
 
 from .source import Source
 from .neo_source import NeoSource
