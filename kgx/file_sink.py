@@ -15,25 +15,26 @@ class FileSink(Sink):
 
     def add_node(self, node_id, attributes):
         node = {}
+        node_id = str(node_id)
         node[':ID'] = node_id
         self.node_writer.writerow(node)
         # TODO: process attributes as nodeprops?
         for k,v in attributes.items():
-            prop = {':ID': node_id, 'propname': k, 'value': json.dumps(v)}
+            prop = {':ID': node_id, 'propname': str(k), 'value': json.dumps(v)}
             self.nodeprop_writer.writerow(prop)
 
     def add_edge(self, subject_id, object_id, attributes):
         # TODO: should we generate our own arbitrary :IDs in this way?
         # Can we use a canonical id property instead?
-        eid = self.edge_count
+        eid = str(self.edge_count)
         edge = {}
-        edge[':START'] = subject_id
-        edge[':END'] = object_id
+        edge[':START'] = str(subject_id)
+        edge[':END'] = str(object_id)
         edge[':ID'] = eid
         self.edge_writer.writerow(edge)
         # TODO: process attributes as edgeprops?
         for k,v in attributes.items():
-            prop = {':ID': eid, 'propname': k, 'value': json.dumps(v)}
+            prop = {':ID': eid, 'propname': str(k), 'value': json.dumps(v)}
             self.edgeprop_writer.writerow(prop)
         self.edge_count += 1
 
