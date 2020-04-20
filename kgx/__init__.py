@@ -15,6 +15,7 @@ from .filter import Filter, FilterLocation, FilterType
 from .sink import Sink
 from .debug_sink import DebugSink
 from .progress_sink import ProgressSink
+from .file_sink import FileSink
 from .csv_sink import CsvSink
 
 from .source import Source
