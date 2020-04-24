@@ -9,10 +9,15 @@ neo4j:
 ontologies:
   RO: http://purl.obolibrary.org/obo/ro.owl
   BFO: http://purl.obolibrary.org/obo/bfo.owl
-  HP: http://purl.obolibrary.org/obo/hp.owl
-  GO: http://purl.obolibrary.org/obo/go.owl
-  SO: http://purl.obolibrary.org/obo/so.owl
+#  HP: http://purl.obolibrary.org/obo/hp.owl
+#  GO: http://purl.obolibrary.org/obo/go.owl
+#  SO: http://purl.obolibrary.org/obo/so.owl
 
 logging:
   level: DEBUG
   format: '[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
+
+biolink-model: https://biolink.github.io/biolink-model/biolink-model.yaml
+
+jsonld-context:
+  biolink: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld

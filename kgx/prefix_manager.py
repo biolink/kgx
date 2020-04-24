@@ -4,6 +4,8 @@ from typing import Dict
 
 import prefixcommons.curie_util as cu
 
+from kgx.config import get_config
+
 
 class PrefixManager(object):
     """
@@ -27,7 +29,7 @@ class PrefixManager(object):
 
         """
         if url is None:
-            url = "https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld"
+            url = get_config()['jsonld-context']['biolink']
 
         # NOTE: this is cached
         self.set_prefix_map(cu.read_remote_jsonld_context(url))
@@ -48,11 +50,12 @@ class PrefixManager(object):
                 self.prefix_map[k] = v
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = self.prefix_map['@vocab']
+            del self.prefix_map['@vocab']
         if ':' in self.prefix_map:
             logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
         else:
             # TODO: the Default URL should be configurable
-            self.prefix_map[':'] = 'www.example.org/UNKNOWN/'
+            self.prefix_map[':'] = 'https://www.example.org/UNKNOWN/'
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
