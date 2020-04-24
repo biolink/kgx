@@ -23,29 +23,7 @@ from .utils.model_utils import make_valid_types
 
 import logging
 
-CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
-config = None
-
-def get_config(filename: str = CONFIG_FILENAME) -> dict:
-    """
-    Get config as a dictionary
-
-    Parameters
-    ----------
-    filename: str
-        The filename with all the configuration
-
-    Returns
-    -------
-    dict
-        A dictionary containing all the entries from the config YAML
-
-    """
-    global config
-    if config is None:
-        config = yaml.load(open(filename), Loader=yaml.FullLoader)
-    return config
-
+from kgx.config import get_config
 
 config = get_config()
 logger = logging.getLogger()
