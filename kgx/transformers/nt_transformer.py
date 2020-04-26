@@ -7,7 +7,8 @@ from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
 import networkx as nx
 
-from kgx import PrefixManager, RdfTransformer
+from kgx import RdfTransformer
+from kgx.prefix_manager import PrefixManager
 from kgx.utils.kgx_utils import get_toolkit
 from kgx.utils.rdf_utils import generate_uuid
 
