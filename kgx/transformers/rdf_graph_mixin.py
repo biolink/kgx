@@ -7,11 +7,7 @@ from rdflib import URIRef, Namespace
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
 from kgx.utils.kgx_utils import generate_edge_key
-from prefixcommons.curie_util import read_remote_jsonld_context
 from kgx.prefix_manager import PrefixManager
-
-biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
-
 
 class RdfGraphMixin(object):
     """
@@ -90,15 +86,13 @@ class RdfGraphMixin(object):
             The CURIE identifier of a node
 
         """
-        kwargs = {
-            'iri': str(iri),
-        }
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-
-        n = make_curie(iri)
-
-        if n not in self.graph:
+        n = self.prefix_manager.contract(iri)
+        if not n:
+            n = iri
+        if not self.graph.has_node(n):
+            kwargs = {'id': n}
+            if 'provided_by' in self.graph_metadata:
+                kwargs['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_node(n, **kwargs)
 
         return n
@@ -128,7 +122,7 @@ class RdfGraphMixin(object):
         """
         s = self.add_node(subject_iri)
         o = self.add_node(object_iri)
-        relation = make_curie(predicate_iri)
+        relation = self.prefix_manager.contract(predicate_iri)
         edge_label = process_iri(predicate_iri)
         if ' ' in edge_label:
             logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
@@ -147,10 +141,10 @@ class RdfGraphMixin(object):
 
         kwargs = {
             'subject': s,
-            'predicate': predicate_iri,
+            'predicate': str(predicate_iri),
             'object': o,
             'relation': relation,
-            'edge_label': edge_label
+            'edge_label': f"biolink:{edge_label}"
         }
         if 'provided_by' in self.graph_metadata:
             kwargs['provided_by'] = self.graph_metadata['provided_by']
@@ -158,7 +152,7 @@ class RdfGraphMixin(object):
         key = generate_edge_key(s, edge_label, o)
         if not self.graph.has_edge(s, o, key=key):
             self.graph.add_edge(s, o, key=key, **kwargs)
-
+        # TODO: support append
         return s, o, edge_label
 
     def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> None:
@@ -182,18 +176,13 @@ class RdfGraphMixin(object):
             The value of the attribute
 
         """
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
-
+        if not isinstance(key, URIRef):
+            key = URIRef(key)
+        key = property_mapping.get(key)
         if key is not None:
             n = self.add_node(iri)
             attr_dict = self.graph.nodes[n]
-            self._add_attribute(attr_dict, key, value)
-
+            self._add_attribute(attr_dict, key, str(value))
 
     def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
         """
@@ -232,8 +221,8 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None:
-            subject_curie = make_curie(subject_iri)
-            object_curie = make_curie(object_iri)
+            subject_curie = self.prefix_manager.contract(subject_iri)
+            object_curie = self.prefix_manager.contract(object_iri)
             edge_label = process_iri(predicate_iri)
             if PrefixManager.is_curie(edge_label):
                 edge_label = curie_lookup(edge_label)
@@ -262,19 +251,14 @@ class RdfGraphMixin(object):
             The value of the attribute
 
         """
-        if key is None or key not in is_property_multivalued:
-            logging.warning("Discarding key {} as it is not a valid property.".format(key))
-            return
-
-        value = make_curie(process_iri(value))
-
-        if is_property_multivalued[key]:
+        value = process_iri(value)
+        if key in is_property_multivalued and is_property_multivalued[key]:
             if key not in attr_dict:
                 attr_dict[key] = [value]
             elif value not in attr_dict[key]:
                 attr_dict[key].append(value)
         else:
-            if key not in attr_dict:
-                attr_dict[key] = value
-            elif key == 'name':
+            if key == 'name':
                 self._add_attribute(attr_dict, 'synonym', value)
+            else:
+                attr_dict[key] = value
