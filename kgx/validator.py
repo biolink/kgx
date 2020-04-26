@@ -8,13 +8,14 @@ import requests
 import validators
 import networkx as nx
 
+from kgx.config import get_config
 from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
     camelcase_to_sentencecase
 from kgx.prefix_manager import PrefixManager
 
 
-BIOLINK_MODEL = 'https://biolink.github.io/biolink-model/biolink-model.yaml'
-CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'
+BIOLINK_MODEL = get_config()['biolink-model']
+CONTEXT_JSONLD = get_config()['jsonld-context']['biolink']
 
 
 class ErrorType(Enum):
