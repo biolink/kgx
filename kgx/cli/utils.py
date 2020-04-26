@@ -14,6 +14,7 @@ _transformers = {
     'csv': kgx.PandasTransformer,
     'tsv': kgx.PandasTransformer,
     'graphml': kgx.GraphMLTransformer,
+    'nt': kgx.NtTransformer,
     'ttl': kgx.ObanRdfTransformer,
     'json': kgx.JsonTransformer,
     'rq': kgx.SparqlTransformer,
