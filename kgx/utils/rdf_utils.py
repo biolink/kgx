@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 from typing import List, Union
 import rdflib
 from rdflib import Namespace, URIRef
@@ -6,6 +7,7 @@ from rdflib.namespace import RDF, RDFS, OWL
 from prefixcommons.curie_util import expand_uri
 from kgx.utils.graph_utils import get_category_via_superclass
 from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, make_curie
+import uuid
 
 toolkit = get_toolkit()
 m = toolkit.generator.mappings
@@ -19,8 +21,9 @@ for key, value in m.items():
     else:
         mapping[k] = v
 
+
 OBAN = Namespace('http://purl.org/oban/')
-BIOLINK = Namespace('http://w3id.org/biolink/vocab/')
+BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 
 predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002200': 'has_phenotype',
@@ -97,27 +100,39 @@ category_mapping.update(
     }
 )
 
-property_mapping = {
+# TODO: any biolink model property should be accounted for
+property_mapping = OrderedDict({
     OBAN.association_has_subject: 'subject',
+    BIOLINK.subject: 'subject',
     OBAN.association_has_object: 'object',
+    BIOLINK.object: 'object',
     OBAN.association_has_predicate: 'predicate',
+    BIOLINK.predicate: 'predicate',
+    BIOLINK.edge_label: 'edge_label',
+    BIOLINK.category: 'category',
+    BIOLINK.relation: 'relation',
     BIOLINK.name: 'name',
     RDFS.label: 'name',
     RDF.type: 'type',
     URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): 'type',
-    BIOLINK.description: 'description',
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115'): 'description',
     URIRef('http://purl.org/dc/elements/1.1/description'): 'description',
+    BIOLINK.description: 'description',
     BIOLINK.has_evidence: 'has_evidence',
     URIRef('http://purl.obolibrary.org/obo/RO_0002558'): 'has_evidence',
-    BIOLINK.synonym: 'synonym',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym'): 'synonym',
+    BIOLINK.synonym: 'synonym',
     OWL.sameAs: 'same_as',
     OWL.equivalentClass: 'same_as',
-    BIOLINK.in_taxon: 'in_taxon',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
-}
+    BIOLINK.in_taxon: 'in_taxon',
+})
 
+reverse_property_mapping = {}
+for k, v in property_mapping.items():
+    reverse_property_mapping[v] = k
+
+# TODO: this should be populated via bmt
 is_property_multivalued = {
     'subject': False,
     'object': False,
@@ -132,6 +147,7 @@ is_property_multivalued = {
     'category': True,
     'publications': True,
     'type': False,
+    'relation': False
 }
 
 def process_iri(iri:Union[str, URIRef]) -> str:
@@ -241,3 +257,6 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         cls = get_curie_lookup_service()
         category = get_category_via_superclass(cls.ontology_graph, subject_curie)
     return category
+
+def generate_uuid():
+    return f"urn:uuid:{uuid.uuid4()}"
