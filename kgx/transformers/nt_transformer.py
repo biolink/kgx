@@ -32,7 +32,8 @@ class NtTransformer(RdfTransformer):
         self.node_properties.update(
             ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
              'OBAN:association_has_predicate', 'OBAN:association_has_object'])
-        self.edge_properties.update(['biolink:has_modifier'])
+        self.edge_properties.update(['biolink:has_modifier', 'biolink:has_gene_product', 'biolink:has_db_xref', 'biolink:in_taxon'])
+        self.edge_properties.update(['biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'])
         self.assocs = set()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
@@ -76,7 +77,11 @@ class NtTransformer(RdfTransformer):
         predicate = self.prefix_manger.contract(str(p))
         prop = PrefixManager.get_reference(predicate)
         # check if property is a biolink model property
+        # TODO: move this to a separate method
         element = self.toolkit.get_element(prop)
+        if element is None:
+            mapping = self.toolkit.get_by_mapping(predicate)
+            element = self.toolkit.get_element(mapping)
         if element:
             if element.is_a == 'association slot' or predicate in self.edge_properties:
                 logging.debug(f"property {prop} is an edge property but belongs to a reified node")
@@ -191,7 +196,7 @@ class NtTransformer(RdfTransformer):
 
         """
         for u, v, k, data in self.graph.edges(data=True, keys=True):
-            if data['edge_label'] in {'biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'}:
+            if data['edge_label'] in self.edge_properties:
                 # treat as a direct edge
                 s = self.uriref(u)
                 p = self.uriref(data['edge_label'])
