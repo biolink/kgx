@@ -98,6 +98,7 @@ def contract(uri) -> str:
 
 def make_curie(uri) -> str:
     """
+    # TODO: get rid of this method
     Convert a given URI into a CURIE.
     This method tries to handle the ``http`` and ``https``
     ambiguity in URI contraction.
@@ -122,7 +123,7 @@ def make_curie(uri) -> str:
     curie = contract(uri)
 
     if curie is None:
-        return uri
+        return str(uri)
     else:
         return curie
 

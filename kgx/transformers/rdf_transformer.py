@@ -9,7 +9,7 @@ from prefixcommons.curie_util import read_remote_jsonld_context
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category
+from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category, reverse_property_mapping
 from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
 
 
@@ -316,9 +316,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             URIRef form of the input ``identifier``
 
         """
-        if identifier in property_mapping:
-            uri = property_mapping[identifier]
+        if identifier.startswith('urn:uuid:'):
+            uri = identifier
+        elif identifier in reverse_property_mapping:
+            # identifier is a property
+            uri = reverse_property_mapping[identifier]
         else:
+            # identifier is an entity
             if identifier.startswith(':'):
                 # TODO: this should be handled upstream by prefixcommons-py
                 uri = self.DEFAULT.term(identifier.replace(':', '', 1))
