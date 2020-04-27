@@ -132,7 +132,7 @@ class PrefixManager(object):
             Whether or not the given string is a CURIE
 
         """
-        m = re.match(r"^[^ :]*:[^/ :]+$", s)
+        m = re.match(r"^[^ <()>:]*:[^/ :]+$", s)
         return bool(m)
 
     @staticmethod

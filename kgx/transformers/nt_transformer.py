@@ -215,10 +215,17 @@ class NtTransformer(RdfTransformer):
                     if prop in {'id'}:
                         continue
                     p = self.uriref(prop)
-                    if self.prefix_manger.is_curie(value):
-                        o = self.uriref(value)
+                    if isinstance(value, list):
+                        for x in value:
+                            if self.prefix_manager.is_curie(x):
+                                o = self.uriref(x)
+                            else:
+                                o = Literal(x)
+                            yield (s, p, o)
                     else:
-                        # literal
-                        o = Literal(value)
-
-                    yield (s, p, o)
+                        if self.prefix_manger.is_curie(value):
+                            o = self.uriref(value)
+                        else:
+                            # literal
+                            o = Literal(value)
+                        yield (s, p, o)
