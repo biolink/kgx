@@ -1,17 +1,15 @@
-import json, logging
+import json
+import logging
 
 import networkx as nx
 import stringcase
-from prefixcommons import contract_uri
 
 from kgx.prefix_manager import PrefixManager
 from kgx.mapper import get_prefix
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict
 
-from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, get_toolkit
-from kgx.utils.rdf_utils import infer_category
+from kgx.utils.kgx_utils import get_toolkit
 
 
 class JsonTransformer(PandasTransformer):
@@ -203,7 +201,7 @@ class ObographJsonTransformer(JsonTransformer):
             A node
 
         """
-        curie = contract_uri(node['id'])[0]
+        curie = self.prefix_manager.contract(node['id'])
         node_properties = {}
         if 'meta' in node:
             node_properties = self.parse_meta(node['id'], node['meta'])
@@ -225,7 +223,6 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_node['category'] = [category]
             else:
                 fixed_node['category'] = ['biolink:OntologyClass']
-
         super().load_node(fixed_node)
         if 'equivalent_nodes' in node_properties:
             for n in node_properties['equivalent_nodes']:
@@ -331,11 +328,19 @@ class ObographJsonTransformer(JsonTransformer):
             'xrefs', and 'equivalent_nodes'.
 
         """
+        # cross species links are in meta; this needs to be parsed properly too
+        # do not put assumptions in code; import as much as possible
+
         properties = {}
         if 'definition' in meta:
             # parse 'definition' as 'description'
             description = meta['definition']['val']
             properties['description'] = description
+
+        if 'subsets' in meta:
+            # parse 'subsets'
+            subsets = meta['subsets']
+            properties['subsets'] = subsets
 
         if 'synonyms' in meta:
             # parse 'synonyms' as 'synonym'
@@ -352,7 +357,7 @@ class ObographJsonTransformer(JsonTransformer):
             # parse SKOS_EXACT_MATCH entries as 'equivalent_nodes'
             for p in meta['basicPropertyValues']:
                 if p['pred'] in {self.SKOS_EXACT_MATCH}:
-                    n = contract_uri(p['val'])
+                    n = self.prefix_manager.contract(p['val'])
                     if not n:
                         n = [p['val']]
                     equivalent_nodes.append(n[0])
