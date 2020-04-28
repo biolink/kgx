@@ -4,7 +4,7 @@ from typing import Dict
 
 import prefixcommons.curie_util as cu
 
-from kgx.config import get_config
+from kgx.config import get_jsonld_context
 
 
 class PrefixManager(object):
@@ -14,7 +14,7 @@ class PrefixManager(object):
     These include mappings for CURIEs such as GO:0008150, as well as shortforms such as
     biolink types such as Disease
     """
-
+    DEFAULT_NAMESPACE = 'https://www.example.org/UNKNOWN/'
     prefix_map = None
     reverse_prefix_map = None
 
@@ -28,11 +28,11 @@ class PrefixManager(object):
             The URL from which to read a JSON-LD context for prefix mappings
 
         """
-        if url is None:
-            url = get_config()['jsonld-context']['biolink']
-
-        # NOTE: this is cached
-        self.set_prefix_map(cu.read_remote_jsonld_context(url))
+        if url:
+            context = cu.read_remote_jsonld_context(url)
+        else:
+            context = get_jsonld_context()
+        self.set_prefix_map(context)
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -54,8 +54,7 @@ class PrefixManager(object):
         if ':' in self.prefix_map:
             logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
         else:
-            # TODO: the Default URL should be configurable
-            self.prefix_map[':'] = 'https://www.example.org/UNKNOWN/'
+            self.prefix_map[':'] = self.DEFAULT_NAMESPACE
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
@@ -79,7 +78,7 @@ class PrefixManager(object):
         """
         uri = cu.expand_uri(curie, [self.prefix_map])
         if uri == curie and fallback:
-            uri = cu.expand_uri(curie)
+            uri = cu.expand_uri(curie, [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')])
 
         return uri
 
@@ -109,7 +108,7 @@ class PrefixManager(object):
         else:
             curie_list = cu.contract_uri(uri, [self.prefix_map])
             if len(curie_list) == 0 and fallback:
-                curie_list = cu.contract_uri(uri)
+                curie_list = cu.contract_uri(uri, [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')])
                 if len(curie_list) != 0:
                     curie = curie_list[0]
             else:

@@ -4,18 +4,13 @@ from enum import Enum
 from typing import Tuple, List, TextIO
 
 import click
-import requests
 import validators
 import networkx as nx
 
-from kgx.config import get_config
+from kgx.config import get_jsonld_context
 from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
     camelcase_to_sentencecase
 from kgx.prefix_manager import PrefixManager
-
-
-BIOLINK_MODEL = get_config()['biolink-model']
-CONTEXT_JSONLD = get_config()['jsonld-context']['biolink']
 
 
 class ErrorType(Enum):
@@ -98,11 +93,7 @@ class Validator(object):
         self.required_node_properties = None
         self.required_edge_properties = None
         self.verbose = verbose
-
-        try:
-            self.jsonld = requests.get(CONTEXT_JSONLD).json()
-        except:
-            raise Exception('Unable to download JSON-LD context from {}'.format(CONTEXT_JSONLD))
+        self.jsonld = get_jsonld_context()
 
     def get_all_prefixes(self) -> set:
         """
@@ -117,7 +108,7 @@ class Validator(object):
 
         """
         if self.prefixes is None:
-            prefixes = set(k for k, v in self.jsonld['@context'].items() if isinstance(v, str))
+            prefixes = set(k for k, v in self.jsonld.items() if isinstance(v, str))
             self.prefixes = prefixes
         return self.prefixes
 
