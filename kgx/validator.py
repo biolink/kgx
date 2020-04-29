@@ -419,8 +419,8 @@ class Validator(object):
         """
         errors = []
         error_type = ErrorType.INVALID_NODE_PROPERTY_VALUE
-        if not re.match(r"^[^ :]+:[^ :]+$", node):
-            message = f"Node property 'id' expected to be of type 'string'"
+        if not PrefixManager.is_curie(node):
+            message = f"Node property 'id' expected to be of type 'CURIE'"
             errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
         else:
             prefix = PrefixManager.get_prefix(node)

@@ -131,8 +131,11 @@ class PrefixManager(object):
             Whether or not the given string is a CURIE
 
         """
-        m = re.match(r"^[^ <()>:]*:[^/ :]+$", s)
-        return bool(m)
+        if isinstance(s, str):
+            m = re.match(r"^[^ <()>:]*:[^/ :]+$", s)
+            return bool(m)
+        else:
+            return False
 
     @staticmethod
     def is_iri(s: str) -> bool:
@@ -150,7 +153,10 @@ class PrefixManager(object):
             Whether or not the given string is an IRI.
 
         """
-        return s.startswith('http') or s.startswith('https')
+        if isinstance(s, str):
+            return s.startswith('http') or s.startswith('https')
+        else:
+            return False
 
     @staticmethod
     def get_prefix(curie: str) -> str:
