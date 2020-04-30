@@ -169,15 +169,23 @@ class NtTransformer(RdfTransformer):
                 p = self.uriref(k)
                 if isinstance(v, list):
                     for x in v:
-                        if self.prefix_manger.is_curie(x) or x.startswith('urn:uuid:'):
-                            o = self.uriref(x)
+                        if isinstance(x, str):
+                            if self.prefix_manger.is_curie(x) or x.startswith('urn:uuid:'):
+                                o = self.uriref(x)
+                            else:
+                                # literal
+                                o = Literal(x)
                         else:
                             # literal
                             o = Literal(x)
                         yield (s, p, o)
                 else:
-                    if self.prefix_manger.is_curie(v) or v.startswith('urn:uuid:'):
-                        o = self.uriref(v)
+                    if isinstance(v, str):
+                        if self.prefix_manger.is_curie(v) or v.startswith('urn:uuid:'):
+                            o = self.uriref(v)
+                        else:
+                            # literal
+                            o = Literal(v)
                     else:
                         # literal
                         o = Literal(v)
@@ -217,13 +225,13 @@ class NtTransformer(RdfTransformer):
                     p = self.uriref(prop)
                     if isinstance(value, list):
                         for x in value:
-                            if self.prefix_manager.is_curie(x):
+                            if isinstance(x, str) and PrefixManager.is_curie(x):
                                 o = self.uriref(x)
                             else:
                                 o = Literal(x)
                             yield (s, p, o)
                     else:
-                        if self.prefix_manger.is_curie(value):
+                        if isinstance(value, str) and PrefixManager.is_curie(value):
                             o = self.uriref(value)
                         else:
                             # literal
