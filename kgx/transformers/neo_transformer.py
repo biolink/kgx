@@ -16,6 +16,9 @@ class NeoTransformer(Transformer):
     Transformer for reading from and writing to a Neo4j database.
     """
 
+    CATEGORY_DELIMITER = '|'
+    CYPHER_CATEGORY_DELIMITER = ':'
+
     def __init__(self, graph: nx.MultiDiGraph = None, uri: str = None, username: str = None, password: str = None):
         """
         Initialize an instance of NeoTransformer.
@@ -359,7 +362,8 @@ class NeoTransformer(Transformer):
         """
         for category in nodes_by_category.keys():
             logging.debug("Generating UNWIND for category: {}".format(category))
-            query = self.generate_unwind_node_query(category)
+            cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
+            query = self.generate_unwind_node_query(cypher_category)
             logging.info(query)
             try:
                 self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
@@ -486,7 +490,8 @@ class NeoTransformer(Transformer):
             if 'id' not in node_data:
                 node_data['id'] = n
             node_data = self.validate_node(node_data)
-            category = ':'.join(node_data['category'])
+            category = self.sanitize_category(node_data['category'])
+            category = self.CATEGORY_DELIMITER.join(category)
             logging.info("Category: {}".format(category))
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node_data]
@@ -568,12 +573,12 @@ class NeoTransformer(Transformer):
             Set of categories
 
         """
-        query = "CREATE CONSTRAINT ON (n:`{}`) ASSERT n.id IS UNIQUE"
-        label_set = {Transformer.DEFAULT_NODE_LABEL}
+        query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
+        label_set = {f"`{Transformer.DEFAULT_NODE_LABEL}`"}
 
         for label in categories:
-            if ':' in label:
-                sub_labels = label.split(':')
+            if self.CATEGORY_DELIMITER in label:
+                sub_labels = label.split(self.CATEGORY_DELIMITER)
                 for sublabel in sub_labels:
                     label_set.add(sublabel)
             else:
@@ -604,3 +609,23 @@ class NeoTransformer(Transformer):
         if key in self.filters and len(self.filters[key]) != 0:
             value = f":`{self.filters[key]}`"
         return value
+
+    @staticmethod
+    def sanitize_category(category: list):
+        """
+        Sanitize category for use in UNWIND cypher clause.
+        This method adds escape characters to each element in category
+        list to ensure the category is processed correctly.
+
+        Parameters
+        ----------
+        category: list
+            Category
+
+        Returns
+        -------
+        list
+            Sanitized category list
+
+        """
+        return [f"`{x}`" for x in category]
