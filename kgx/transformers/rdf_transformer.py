@@ -534,7 +534,7 @@ class RdfOwlTransformer(RdfTransformer):
             Any additional arguments
         """
         triples = rdfgraph.triples((None, RDFS.subClassOf, None))
-        logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
+        logging.info("Loading RDFS:subClassOf triples from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 # ignoring blank nodes
@@ -542,7 +542,6 @@ class RdfOwlTransformer(RdfTransformer):
                     continue
                 pred = None
                 parent = None
-                # TODO: does this block load all relevant bits from an OWL?
                 if isinstance(o, rdflib.term.BNode):
                     # C SubClassOf R some D
                     for x in rdfgraph.objects(o, OWL.onProperty):
@@ -558,6 +557,11 @@ class RdfOwlTransformer(RdfTransformer):
                     parent = o
                 self.add_edge(s, parent, pred)
 
+        triples = rdfgraph.triples((None, OWL.equivalentClass, None))
+        logging.info("Loading OWL:equivalentClass triples from rdflib.Graph to networkx.MultiDiGraph")
+        with click.progressbar(list(triples), label='Progress') as bar:
+            for s, p, o in bar:
+                self.add_edge(s, o, p)
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         logging.debug("Loading relations")
         with click.progressbar(relations, label='Progress') as bar:
@@ -568,3 +572,8 @@ class RdfOwlTransformer(RdfTransformer):
                     else:
                         self.add_node_attribute(relation, key=p, value=o)
                 self.add_node_attribute(relation, key='category', value='relation')
+        triples = rdfgraph.triples((None, None, None))
+        with click.progressbar(list(triples), label='Progress') as bar:
+            for s, p, o in bar:
+                if p in property_mapping.keys():
+                    self.add_node_attribute(s, key=p, value=o)
