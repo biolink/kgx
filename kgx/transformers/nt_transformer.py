@@ -35,6 +35,7 @@ class NtTransformer(RdfTransformer):
         self.edge_properties.update(['biolink:has_modifier', 'biolink:has_gene_product', 'biolink:has_db_xref', 'biolink:in_taxon'])
         self.edge_properties.update(['biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'])
         self.assocs = set()
+        self.count = 0
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
         """
@@ -105,6 +106,9 @@ class NtTransformer(RdfTransformer):
                 # treating as an edge
                 logging.debug(f"treating {predicate} as edge property")
                 self.add_edge(s, o, p)
+        self.count += 1
+        if self.count % 1000 == 0:
+            logging.info(f"Parsed {self.count} triples")
 
     def dereify(self, associations: Set[str]) -> None:
         """
