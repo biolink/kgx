@@ -6,7 +6,7 @@ from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from prefixcommons.curie_util import expand_uri
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, make_curie
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, contract
 import uuid
 
 toolkit = get_toolkit()
@@ -178,7 +178,7 @@ def process_iri(iri:Union[str, URIRef]) -> str:
             if iri.lower() == key.lower():
                 return value
 
-    return make_curie(iri)
+    return contract(iri)
 
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
@@ -249,7 +249,7 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         subj = closure[-1]
         if subj == iri:
             return category
-        subject_curie = make_curie(subj)
+        subject_curie = contract(subj)
         if '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
             logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))

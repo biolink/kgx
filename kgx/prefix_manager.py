@@ -5,6 +5,7 @@ from typing import Dict
 import prefixcommons.curie_util as cu
 
 from kgx.config import get_jsonld_context
+from kgx.utils.kgx_utils import contract, expand
 
 
 class PrefixManager(object):
@@ -76,10 +77,7 @@ class PrefixManager(object):
             A URI corresponding to the CURIE
 
         """
-        uri = cu.expand_uri(curie, [self.prefix_map])
-        if uri == curie and fallback:
-            uri = cu.expand_uri(curie, [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')])
-
+        uri = expand(curie, [self.prefix_map], fallback)
         return uri
 
     def contract(self, uri: str, fallback: bool = True) -> str:
@@ -102,17 +100,10 @@ class PrefixManager(object):
 
         """
         # always prioritize non-CURIE shortform
-        curie = None
         if uri in self.reverse_prefix_map:
             curie = self.reverse_prefix_map[uri]
         else:
-            curie_list = cu.contract_uri(uri, [self.prefix_map])
-            if len(curie_list) == 0 and fallback:
-                curie_list = cu.contract_uri(uri, [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')])
-                if len(curie_list) != 0:
-                    curie = curie_list[0]
-            else:
-                curie = curie_list[0]
+            curie = contract(uri, [self.prefix_map], fallback)
         return curie
 
     @staticmethod

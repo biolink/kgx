@@ -9,7 +9,7 @@ from prefixcommons.curie_util import read_remote_jsonld_context
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category, reverse_property_mapping
+from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping
 from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
 
 

@@ -1,25 +1,16 @@
+from typing import List
+
 import stringcase
 from bmt import Toolkit
 from cachetools import LRUCache
-from prefixcommons import contract_uri
-from prefixcommons.curie_util import default_curie_maps
+from prefixcommons.curie_util import contract_uri
+from prefixcommons.curie_util import expand_uri
+
+from kgx.config import get_jsonld_context
 
 toolkit = None
 curie_lookup_service = None
 cache = None
-
-
-cmaps = [
-            {
-                'OMIM': 'https://omim.org/entry/',
-                'HGNC': 'http://identifiers.org/hgnc/',
-                'DRUGBANK': 'http://identifiers.org/drugbank:',
-                'biolink': 'http://w3id.org/biolink/vocab/'
-            },
-            {
-                'DRUGBANK': 'http://w3id.org/data2services/data/drugbank/'
-            }
-        ] + default_curie_maps
 
 
 def camelcase_to_sentencecase(s: str) -> str:
@@ -74,58 +65,75 @@ def sentencecase_to_snakecase(s: str) -> str:
     return stringcase.snakecase(s).lower()
 
 
-def contract(uri) -> str:
+def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
     """
-    Contract a URI a CURIE.
-    We sort the curies to ensure that we take the same item every time.
+    Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
+    If no prefix map is provided then will use defaults from prefixcommons-py.
 
     Parameters
     ----------
-    uri: Union[rdflib.term.URIRef, str]
+    uri: str
         A URI
+    prefix_maps: List[dict]
+        A list of prefix maps to use for mapping
+    fallback: bool
+        Determines whether to fallback to default prefix mappings, as determined
+        by `prefixcommons.curie_util`, when URI prefix is not found in `prefix_maps`.
 
     Returns
     -------
     str
-        The CURIE
+        A CURIE corresponding to the URI
 
     """
-    curies = contract_uri(str(uri), cmaps=cmaps)
-    if len(curies) > 0:
-        curies.sort()
-        return curies[0]
-    return None
-
-def make_curie(uri) -> str:
-    """
-    # TODO: get rid of this method
-    Convert a given URI into a CURIE.
-    This method tries to handle the ``http`` and ``https``
-    ambiguity in URI contraction.
-
-    .. warning::
-        This is a temporary solution and will be deprecated in the near future.
-
-    """
-    HTTP = 'http'
-    HTTPS = 'https'
-
-    curie = contract(uri)
-
-    if curie is not None:
-        return curie
-
-    if uri.startswith(HTTPS):
-        uri = HTTP + uri[len(HTTPS):]
-    elif uri.startswith(HTTP):
-        uri = HTTPS + uri[len(HTTP):]
-
-    curie = contract(uri)
-
-    if curie is None:
-        return str(uri)
+    curie = None
+    default_curie_maps = [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')]
+    if prefix_maps:
+        curie_list = contract_uri(uri, prefix_maps)
+        if len(curie_list) == 0 and fallback:
+            curie_list = contract_uri(uri, default_curie_maps)
+            if len(curie_list) != 0:
+                curie = curie_list[0]
+        else:
+            curie = curie_list[0]
     else:
-        return curie
+        curie_list = contract_uri(uri, default_curie_maps)
+        if len(curie_list) > 0:
+            curie = curie_list[0]
+
+    return curie
+
+
+def expand(curie: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
+    """
+    Expand a given CURIE to an URI, based on mappings from `prefix_map`.
+
+    Parameters
+    ----------
+    curie: str
+        A CURIE
+    prefix_maps: List[dict]
+        A list of prefix maps to use for mapping
+    fallback: bool
+        Determines whether to fallback to default prefix mappings, as determined
+        by `prefixcommons.curie_util`, when CURIE prefix is not found in `prefix_maps`.
+
+    Returns
+    -------
+    str
+        A URI corresponding to the CURIE
+
+    """
+    default_curie_maps = [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')]
+    if prefix_maps:
+        uri = expand_uri(curie, prefix_maps)
+        if uri == curie and fallback:
+            uri = expand_uri(curie, default_curie_maps)
+    else:
+        uri = expand_uri(curie, default_curie_maps)
+
+    return uri
+
 
 def get_toolkit() -> Toolkit:
     """

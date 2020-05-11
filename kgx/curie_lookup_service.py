@@ -1,7 +1,7 @@
 import networkx as nx
 import rdflib
 from kgx import get_config
-from kgx.utils.kgx_utils import make_curie, generate_edge_key
+from kgx.utils.kgx_utils import generate_edge_key, contract
 
 CURIE_MAP = {
     'BFO:0000054': 'realized_in',
@@ -36,8 +36,8 @@ class CurieLookupService(object):
             rdfgraph.parse(ontology, format=input_format)
             triples = rdfgraph.triples((None, rdflib.RDFS.subClassOf, None))
             for s,p,o in triples:
-                subject_curie = make_curie(s)
-                object_curie = make_curie(o)
+                subject_curie = contract(s)
+                object_curie = contract(o)
                 self.ontology_graph.add_node(subject_curie)
                 self.ontology_graph.add_node(object_curie)
                 key = generate_edge_key(subject_curie, 'subclass_of', object_curie)
@@ -45,7 +45,7 @@ class CurieLookupService(object):
 
             triples = rdfgraph.triples((None, rdflib.RDFS.label, None))
             for s, p, o in triples:
-                key = make_curie(s)
+                key = contract(s)
                 value = o.value
                 value = value.replace(' ', '_')
                 self.curie_map[key] = value
