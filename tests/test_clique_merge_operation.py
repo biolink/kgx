@@ -8,6 +8,8 @@ cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, 'resources')
 target_dir = os.path.join(cwd, 'target')
 
+prefix_prioritization_map = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
+
 def test_clique_generation():
     """
     Test for generation of cliques
@@ -16,7 +18,7 @@ def test_clique_generation():
     t.parse(os.path.join(resource_dir, 'cm_nodes.csv'))
     t.parse(os.path.join(resource_dir, 'cm_edges.csv'))
     t.report()
-    cm = CliqueMerge()
+    cm = CliqueMerge(prefix_prioritization_map)
     cm.build_cliques(t.graph)
     cliques = list(nx.connected_components(cm.clique_graph))
     assert len(cliques) == 2
@@ -30,7 +32,7 @@ def test_clique_merge():
     t.parse(os.path.join(resource_dir, 'cm_nodes.csv'))
     t.parse(os.path.join(resource_dir, 'cm_edges.csv'))
     t.report()
-    cm = CliqueMerge()
+    cm = CliqueMerge(prefix_prioritization_map)
     cm.build_cliques(t.graph)
     cm.elect_leader()
     updated_graph = cm.consolidate_edges()
