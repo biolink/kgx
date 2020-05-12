@@ -47,7 +47,7 @@ def test_neo_to_graph_upload():
 def test_neo_to_graph_download():
     """ downloads a neo4j graph
     """
-    subject_label = 'gene'
+    subject_label = 'biolink:Gene'
     object_label = None
     edge_type = None
     stop_after = 100
