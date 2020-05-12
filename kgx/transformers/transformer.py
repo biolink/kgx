@@ -32,7 +32,7 @@ class Transformer(object):
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
     """
 
-    DEFAULT_NODE_LABEL = 'named_thing'
+    DEFAULT_NODE_LABEL = 'biolink:NamedThing'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         if source_graph:
