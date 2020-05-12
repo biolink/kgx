@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 import stringcase
@@ -63,6 +64,29 @@ def sentencecase_to_snakecase(s: str) -> str:
 
     """
     return stringcase.snakecase(s).lower()
+
+
+def format_biolink_category(s: str) -> str:
+    """
+    Convert a sentence case Biolink category name to
+    a proper Biolink CURIE with the category itself
+    in CamelCase form.
+
+    Parameters
+    ----------
+    s: str
+        Input string in sentence case
+
+    Returns
+    -------
+    str
+        a proper Biolink CURIE
+    """
+    if re.match("biolink:.+", s):
+        return s
+    else:
+        formatted = stringcase.pascalcase(stringcase.snakecase(s))
+        return f"biolink:{formatted}"
 
 
 def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
@@ -229,3 +253,38 @@ def get_cache(maxsize=10000):
     if cache is None:
         cache = LRUCache(maxsize)
     return cache
+
+
+def get_prefix_prioritization_map():
+    toolkit = get_toolkit()
+    prefix_prioritization_map = {}
+    # TODO: Lookup via Biolink CURIE should be supported in bmt
+    descendants = toolkit.descendents('named thing')
+    for d in descendants:
+        element = toolkit.get_element(d)
+        if 'id_prefixes' in element:
+            prefixes = element.id_prefixes
+            key = format_biolink_category(element.name)
+            prefix_prioritization_map[key] = prefixes
+    return prefix_prioritization_map
+
+
+def get_biolink_element(name):
+    toolkit = get_toolkit()
+    if re.match("biolink:.+", name):
+        name = name.split(':', 1)[1]
+        name = camelcase_to_sentencecase(name)
+
+    element = toolkit.get_element(name)
+    return element
+
+
+def get_biolink_ancestors(name):
+    toolkit = get_toolkit()
+    if re.match("biolink:.+", name):
+        name = name.split(':', 1)[1]
+        name = camelcase_to_sentencecase(name)
+
+    ancestors = toolkit.ancestors(name)
+    formatted_ancestors = [format_biolink_category(x) for x in ancestors]
+    return formatted_ancestors
