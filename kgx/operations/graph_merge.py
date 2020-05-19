@@ -79,11 +79,13 @@ class GraphMerge(object):
 
         """
         for g in graphs:
-            self.add_all_nodes(graph, g, preserve)
-            self.add_all_edges(graph, g, preserve)
+            node_merge_count = self.add_all_nodes(graph, g, preserve)
+            edge_merge_count = self.add_all_edges(graph, g, preserve)
+            logging.info(f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}")
+            logging.info(f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}")
         return graph
 
-    def add_all_nodes(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> None:
+    def add_all_nodes(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> int:
         """
         Add all nodes from source graph (``g2``) to target graph (``g1``).
 
@@ -96,13 +98,21 @@ class GraphMerge(object):
         preserve: bool
             Whether or not to preserve conflicting properties
 
+        Returns
+        -------
+        int
+            Number of nodes merged during this operation
+
         """
         logging.info(f"Adding {g2.number_of_nodes()} nodes from {g2.name} to {g1.name}")
+        merge_count = 0
         for n, data in g2.nodes(data=True):
             if n in g1.nodes():
                 self.merge_node(g1, n, data, preserve)
+                merge_count += 1
             else:
                 g1.add_node(n, **data)
+        return merge_count
 
     def merge_node(self, g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) -> None:
         """
@@ -155,7 +165,7 @@ class GraphMerge(object):
                 existing_node[k] = v
 
 
-    def add_all_edges(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> None:
+    def add_all_edges(self, g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> int:
         """
         Add all edges from source graph (``g2``) to target graph (``g1``).
 
@@ -168,13 +178,21 @@ class GraphMerge(object):
         preserve: bool
             Whether or not to preserve conflicting properties
 
+        Returns
+        -------
+        int
+            Number of edges merged during this operation
+
         """
         logging.info(f"Adding {g2.number_of_edges()} edges from {g2} to {g1}")
+        merge_count = 0
         for u, v, key, data in g2.edges(keys=True, data=True):
             if g1.has_edge(u, v, key):
                 self.merge_edge(g1, u, v, key, data, preserve)
+                merge_count += 1
             else:
                 g1.add_edge(u, v, key, **data)
+        return merge_count
 
     def merge_edge(self, g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserve: bool = True) -> None:
         """
