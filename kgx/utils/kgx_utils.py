@@ -26,10 +26,11 @@ def camelcase_to_sentencecase(s: str) -> str:
     Returns
     -------
     str
-        a normal string
+        string in sentence case form
 
     """
     return stringcase.sentencecase(s).lower()
+
 
 def snakecase_to_sentencecase(s: str) -> str:
     """
@@ -43,10 +44,11 @@ def snakecase_to_sentencecase(s: str) -> str:
     Returns
     -------
     str
-        a normal string
+        string in sentence case form
 
     """
     return stringcase.sentencecase(s).lower()
+
 
 def sentencecase_to_snakecase(s: str) -> str:
     """
@@ -60,10 +62,28 @@ def sentencecase_to_snakecase(s: str) -> str:
     Returns
     -------
     str
-        a normal string
+        string in snake_case form
 
     """
     return stringcase.snakecase(s).lower()
+
+
+def sentencecase_to_camelcase(s: str) -> str:
+    """
+    Convert sentence case to CamelCase.
+
+    Parameters
+    ----------
+    s: str
+        Input string in sentence case
+
+    Returns
+    -------
+    str
+        string in CamelCase form
+
+    """
+    return stringcase.pascalcase(stringcase.snakecase(s))
 
 
 def format_biolink_category(s: str) -> str:
@@ -85,7 +105,7 @@ def format_biolink_category(s: str) -> str:
     if re.match("biolink:.+", s):
         return s
     else:
-        formatted = stringcase.pascalcase(stringcase.snakecase(s))
+        formatted = sentencecase_to_camelcase(s)
         return f"biolink:{formatted}"
 
 
@@ -93,6 +113,8 @@ def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
     If no prefix map is provided then will use defaults from prefixcommons-py.
+
+    This method will return the URI as the CURIE if there is no mapping found.
 
     Parameters
     ----------
@@ -110,14 +132,15 @@ def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
         A CURIE corresponding to the URI
 
     """
-    curie = None
+    curie = uri
     default_curie_maps = [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')]
     if prefix_maps:
         curie_list = contract_uri(uri, prefix_maps)
-        if len(curie_list) == 0 and fallback:
-            curie_list = contract_uri(uri, default_curie_maps)
-            if len(curie_list) != 0:
-                curie = curie_list[0]
+        if len(curie_list) == 0:
+            if fallback:
+                curie_list = contract_uri(uri, default_curie_maps)
+                if curie_list:
+                    curie = curie_list[0]
         else:
             curie = curie_list[0]
     else:
@@ -131,6 +154,8 @@ def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
 def expand(curie: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
     """
     Expand a given CURIE to an URI, based on mappings from `prefix_map`.
+
+    This method will return the CURIE as the IRI if there is no mapping found.
 
     Parameters
     ----------
@@ -176,6 +201,7 @@ def get_toolkit() -> Toolkit:
 
     return toolkit
 
+
 def generate_edge_key(s: str, edge_label: str, o: str) -> str:
     """
     Generates an edge key based on a given subject, edge_label and object.
@@ -197,6 +223,7 @@ def generate_edge_key(s: str, edge_label: str, o: str) -> str:
     """
     return '{}-{}-{}'.format(s, edge_label, o)
 
+
 def get_biolink_mapping(category):
     """
     Get a BioLink Model mapping for a given ``category``.
@@ -212,11 +239,13 @@ def get_biolink_mapping(category):
         A BioLink Model class corresponding to ``category``
 
     """
+    # TODO: deprecate
     global toolkit
     element = toolkit.get_element(category)
     if element is None:
         element = toolkit.get_element(snakecase_to_sentencecase(category))
     return element
+
 
 def get_curie_lookup_service():
     """
@@ -233,6 +262,7 @@ def get_curie_lookup_service():
         from kgx.curie_lookup_service import CurieLookupService
         curie_lookup_service = CurieLookupService()
     return curie_lookup_service
+
 
 def get_cache(maxsize=10000):
     """
