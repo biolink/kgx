@@ -142,5 +142,5 @@ def curie_lookup(curie: str) -> str:
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = g.nodes[curie]['name']
+        name = cls.ontology_graph.nodes[curie]['name']
     return name
