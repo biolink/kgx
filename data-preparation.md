@@ -58,7 +58,7 @@ KGX recommends the following JSON structure,
       {
         "id": "HGNC:11603",
         "name": "TBX4",
-        "category": ["biolink:ene"],
+        "category": ["biolink:Gene"],
         "iri": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:1160",
         "publications": ["PMID:12315421", "PMID:12342323"]
       },
