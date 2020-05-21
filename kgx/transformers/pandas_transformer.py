@@ -8,7 +8,7 @@ from kgx.utils import make_path
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 LIST_DELIMITER = '|'
 
@@ -279,8 +279,8 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        # remove numpy.nan
-        data = {k : v for k, v in data.items() if v is not np.nan}
+        # remove null values
+        data = {k: v for k, v in data.items() if not PandasTransformer.is_null(v)}
 
         for key, value in data.items():
             # process value as a list if key is a multi-valued property
@@ -302,6 +302,28 @@ class PandasTransformer(Transformer):
         return data
 
     @staticmethod
+    def is_null(item: Any) -> bool:
+        """
+        Checks if a given item is null or correspond to null.
+
+        This method checks for: None, numpy.nan, pandas.NA,
+        pandas.NaT, "", and " "
+
+        Parameters
+        ----------
+        item: Any
+            The item to check
+
+        Returns
+        -------
+        bool
+            Whether the given item is null or not
+
+        """
+        null_values = {np.nan, pd.NA, pd.NaT, None, "", " "}
+        return item in null_values
+
+    @staticmethod
     def _build_export_row(data: Dict) -> Dict:
         """
         Casts all values to primitive types like str or bool according to the
@@ -318,7 +340,7 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        data = {k: v for k, v in data.items() if v is not np.nan}
+        data = {k: v for k, v in data.items() if not PandasTransformer.is_null(v)}
         for key, value in data.items():
             if key in _column_types:
                 if _column_types[key] == list:
@@ -345,7 +367,8 @@ class PandasTransformer(Transformer):
                     except:
                         data[key] = False
                 else:
-                    value = value.replace('\n', '\\n')
+                    if isinstance(value, str):
+                        value = value.replace('\n', '\\n')
                     data[key] = str(value)
         return data
 
