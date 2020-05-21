@@ -32,7 +32,7 @@ class Transformer(object):
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
     """
 
-    DEFAULT_NODE_LABEL = 'biolink:NamedThing'
+    DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         if source_graph:
@@ -123,7 +123,7 @@ class Transformer(object):
 
             new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
             if len(new_categories) == 0:
-                new_categories.append('named_thing')
+                new_categories.append(Transformer.DEFAULT_NODE_CATEGORY)
             logging.debug("Output categories: {}".format(new_categories))
             node_to_categories[n] = new_categories
         nx.set_node_attributes(self.graph, node_to_categories, 'category')
@@ -352,8 +352,8 @@ class Transformer(object):
         if 'name' not in node:
             logging.debug("node does not have 'name' property: {}".format(node))
         if 'category' not in node:
-            logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_LABEL))
-            node['category'] = [Transformer.DEFAULT_NODE_LABEL]
+            logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
+            node['category'] = [Transformer.DEFAULT_NODE_CATEGORY]
 
         return node
 

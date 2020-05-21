@@ -133,8 +133,8 @@ class NeoTransformer(Transformer):
             if l not in attributes['category']:
                 attributes['category'].append(l)
 
-        if Transformer.DEFAULT_NODE_LABEL not in attributes['category']:
-            attributes['category'].append(Transformer.DEFAULT_NODE_LABEL)
+        if Transformer.DEFAULT_NODE_CATEGORY not in attributes['category']:
+            attributes['category'].append(Transformer.DEFAULT_NODE_CATEGORY)
 
         node_id = node['id'] if 'id' in node else node.id
         self.graph.add_node(node_id, **attributes)
@@ -374,9 +374,9 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving nodes into Neo4j.
 
-        There should be a CONSTRAINT in Neo4j for ``self.DEFAULT_NODE_LABEL``.
-        The query uses ``self.DEFAULT_NODE_LABEL`` as the node label to increase speed for adding nodes.
-        The query also sets label to ``self.DEFAULT_NODE_LABEL`` for any node to make sure that the CONSTRAINT applies.
+        There should be a CONSTRAINT in Neo4j for ``self.DEFAULT_NODE_CATEGORY``.
+        The query uses ``self.DEFAULT_NODE_CATEGORY`` as the node label to increase speed for adding nodes.
+        The query also sets label to ``self.DEFAULT_NODE_CATEGORY`` for any node to make sure that the CONSTRAINT applies.
 
         Parameters
         ----------
@@ -391,7 +391,7 @@ class NeoTransformer(Transformer):
         """
         query = f"""
         UNWIND $nodes AS node
-        MERGE (n:`{self.DEFAULT_NODE_LABEL}` {{id: node.id}})
+        MERGE (n:`{self.DEFAULT_NODE_CATEGORY}` {{id: node.id}})
         ON CREATE SET n += node, n:{category}
         """
 
@@ -427,7 +427,7 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
 
-        Query uses ``self.DEFAULT_NODE_LABEL`` to quickly lookup the required subject and object node.
+        Query uses ``self.DEFAULT_NODE_CATEGORY`` to quickly lookup the required subject and object node.
 
         Parameters
         ----------
@@ -443,7 +443,7 @@ class NeoTransformer(Transformer):
 
         query = f"""
         UNWIND $edges AS edge
-        MATCH (s:`{self.DEFAULT_NODE_LABEL}` {{id: edge.subject}}), (o:`{self.DEFAULT_NODE_LABEL}` {{id: edge.object}})
+        MATCH (s:`{self.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{self.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
         MERGE (s)-[r:`{edge_label}`]->(o)
         SET r += edge
         """
@@ -523,7 +523,7 @@ class NeoTransformer(Transformer):
         TODO: To be deprecated.
 
         """
-        categories = {self.DEFAULT_NODE_LABEL}
+        categories = {self.DEFAULT_NODE_CATEGORY}
         for n, node_data in self.graph.nodes(data=True):
             if 'category' in node_data:
                 if isinstance(node_data['category'], list):
@@ -574,7 +574,7 @@ class NeoTransformer(Transformer):
 
         """
         query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
-        label_set = {f"`{Transformer.DEFAULT_NODE_LABEL}`"}
+        label_set = {f"`{Transformer.DEFAULT_NODE_CATEGORY}`"}
 
         for label in categories:
             if self.CATEGORY_DELIMITER in label:
