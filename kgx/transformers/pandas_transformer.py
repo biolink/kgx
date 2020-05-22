@@ -367,7 +367,7 @@ class PandasTransformer(Transformer):
                 new_value = str(value)
         else:
             if type(value) == list:
-                new_value = value.join(LIST_DELIMITER)
+                new_value = LIST_DELIMITER.join(value)
             elif type(value) == bool:
                 try:
                     new_value = bool(value)
