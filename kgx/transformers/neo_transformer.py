@@ -6,7 +6,7 @@ import networkx as nx
 from typing import Tuple, List, Dict
 
 from kgx.transformers.transformer import Transformer
-from kgx.utils.kgx_utils import generate_edge_key
+from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
@@ -52,12 +52,12 @@ class NeoTransformer(Transformer):
             count = end - start
 
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
-            time_start = self.current_time_in_millis()
+            time_start = current_time_in_millis()
             for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, **{'is_directed': is_directed}):
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
             bar.update(count)
-            time_end = self.current_time_in_millis()
+            time_end = current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
     def count(self, is_directed: bool = True) -> int:
@@ -100,10 +100,10 @@ class NeoTransformer(Transformer):
             A list of node records
 
         """
-        start = self.current_time_in_millis()
+        start = current_time_in_millis()
         for node in nodes:
             self.load_node(node)
-        end = self.current_time_in_millis()
+        end = current_time_in_millis()
         logging.debug("time taken to load nodes: {} ms".format(end - start))
 
     def load_node(self, node: Node) -> None:
@@ -149,11 +149,11 @@ class NeoTransformer(Transformer):
             A list of edge records
 
         """
-        start = self.current_time_in_millis()
+        start = current_time_in_millis()
         for record in edges:
             edge = record[1]
             self.load_edge(edge)
-        end = self.current_time_in_millis()
+        end = current_time_in_millis()
         logging.debug("time taken to load edges: {} ms".format(end - start))
 
     def load_edge(self, edge: Relationship) -> None:
@@ -415,12 +415,12 @@ class NeoTransformer(Transformer):
                 end = i + 1000
                 subset = edges[i:end]
                 logging.info("edges subset: {}-{} for predicate {}".format(i, end, predicate))
-                time_start = self.current_time_in_millis()
+                time_start = current_time_in_millis()
                 try:
                     self.http_driver.query(query, params={"relationship": predicate, "edges": subset})
                 except CypherException as ce:
                     logging.error(ce)
-                time_end = self.current_time_in_millis()
+                time_end = current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
     def generate_unwind_edge_query(self, edge_label: str) -> str:
