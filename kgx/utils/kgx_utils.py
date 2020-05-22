@@ -1,4 +1,5 @@
 import re
+import time
 from typing import List
 
 import stringcase
@@ -283,6 +284,10 @@ def get_cache(maxsize=10000):
     if cache is None:
         cache = LRUCache(maxsize)
     return cache
+
+
+def current_time_in_millis():
+    return int(round(time.time() * 1000))
 
 
 def get_prefix_prioritization_map():
