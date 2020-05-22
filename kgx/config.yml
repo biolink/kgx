@@ -14,7 +14,7 @@ ontologies:
 #  SO: http://purl.obolibrary.org/obo/so.owl
 
 logging:
-  level: DEBUG
+  level: INFO
   format: '[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
 biolink-model:

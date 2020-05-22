@@ -178,7 +178,7 @@ class Transformer(object):
         if 'name' not in node:
             logging.debug("node does not have 'name' property: {}".format(node))
         if 'category' not in node:
-            logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
+            logging.debug("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
             node['category'] = [Transformer.DEFAULT_NODE_CATEGORY]
 
         return node

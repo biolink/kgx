@@ -8,7 +8,7 @@ from kgx.utils import make_path
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 LIST_DELIMITER = '|'
 
@@ -279,27 +279,12 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        # remove numpy.nan
-        data = {k : v for k, v in data.items() if v is not np.nan}
-
+        tidy_data = {}
         for key, value in data.items():
-            # process value as a list if key is a multi-valued property
-            if key in _column_types:
-                if _column_types[key] == list:
-                    if isinstance(value, (list, set, tuple)):
-                        data[key] = list(value)
-                    elif isinstance(value, str):
-                        data[key] = value.split(LIST_DELIMITER)
-                    else:
-                        data[key] = [str(value)]
-                elif _column_types[key] == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    data[key] = str(value)
-        return data
+            new_value = PandasTransformer._remove_null(value)
+            if new_value:
+                tidy_data[key] = PandasTransformer._sanitize_import(key, new_value)
+        return tidy_data
 
     @staticmethod
     def _build_export_row(data: Dict) -> Dict:
@@ -318,36 +303,12 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        data = {k: v for k, v in data.items() if v is not np.nan}
+        tidy_data = {}
         for key, value in data.items():
-            if key in _column_types:
-                if _column_types[key] == list:
-                    if isinstance(value, (list, set, tuple)):
-                        data[key] = LIST_DELIMITER.join(value)
-                    else:
-                        data[key] = str(value)
-                elif _column_types[key] == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    # some OWL files provide values that span multiple lines, which
-                    # is parsed as-is by Rdflib. Escaping all new line characters.
-                    value = value.replace('\n', '\\n')
-                    data[key] = str(value)
-            else:
-                if type(data[key]) == list:
-                    data[key] = LIST_DELIMITER.join(value)
-                elif type(data[key]) == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    value = value.replace('\n', '\\n')
-                    data[key] = str(value)
-        return data
+            new_value = PandasTransformer._remove_null(value)
+            if new_value:
+                tidy_data[key] = PandasTransformer._sanitize_export(key, new_value)
+        return tidy_data
 
     @staticmethod
     def _order_cols(cols: List[str]) -> List[str]:
@@ -372,3 +333,158 @@ class PandasTransformer(Transformer):
                 cols2.append(c)
                 cols.remove(c)
         return cols2 + cols
+
+    @staticmethod
+    def _sanitize_export(key, value):
+        """
+        Sanitize value for a key for the purpose of export.
+
+        Parameters
+        ----------
+        key: str
+            Key corresponding to a node/edge property
+        value: Any
+            Value corresponding to the key
+
+        Returns
+        -------
+        value: Any
+            Sanitized value
+
+        """
+        if key in _column_types:
+            if _column_types[key] == list:
+                if isinstance(value, (list, set, tuple)):
+                    new_value = LIST_DELIMITER.join(value)
+                else:
+                    new_value = str(value)
+            elif _column_types[key] == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value)
+        else:
+            if type(value) == list:
+                new_value = LIST_DELIMITER.join(value)
+            elif type(value) == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value)
+        return new_value
+
+    @staticmethod
+    def _sanitize_import(key: str, value: Any):
+        """
+        Sanitize value for a key for the purpose of import.
+
+        Parameters
+        ----------
+        key: str
+            Key corresponding to a node/edge property
+        value: Any
+            Value corresponding to the key
+
+        Returns
+        -------
+        value: Any
+            Sanitized value
+
+        """
+        if key in _column_types:
+            if _column_types[key] == list:
+                if isinstance(value, (list, set, tuple)):
+                    new_value = list(value)
+                elif isinstance(value, str):
+                    new_value = value.split(LIST_DELIMITER)
+                else:
+                    new_value = [str(value)]
+            elif _column_types[key] == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value)
+        else:
+            if isinstance(value, (list, set, tuple)):
+                new_value = list(value)
+            elif isinstance(value, str):
+                if LIST_DELIMITER in value:
+                    new_value = value.split(LIST_DELIMITER)
+                else:
+                    new_value = value
+            elif isinstance(value, bool):
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value)
+        return new_value
+
+    @staticmethod
+    def _remove_null(input: Any):
+        """
+        Remove any null values from input.
+
+        Parameters
+        ----------
+        input: Any
+            Can be a str, list or dict
+
+        Returns
+        -------
+        Any
+            The input without any null values
+
+        """
+        new_value = None
+        if isinstance(input, (list, set, tuple)):
+            # value is a list, set or a tuple
+            new_value = []
+            for v in input:
+                x = PandasTransformer._remove_null(v)
+                if x:
+                    new_value.append(x)
+        elif isinstance(input, dict):
+            # value is a dict
+            new_value = {}
+            for k, v in input.items():
+                x = PandasTransformer._remove_null(v)
+                if x:
+                    new_value[k] = x
+        elif isinstance(input, str):
+            # value is a str
+            if not PandasTransformer.is_null(input):
+                new_value = input
+        else:
+            if not PandasTransformer.is_null(input):
+                new_value = input
+        return new_value
+
+    @staticmethod
+    def is_null(item: Any) -> bool:
+        """
+        Checks if a given item is null or correspond to null.
+
+        This method checks for: None, numpy.nan, pandas.NA,
+        pandas.NaT, "", and " "
+
+        Parameters
+        ----------
+        item: Any
+            The item to check
+
+        Returns
+        -------
+        bool
+            Whether the given item is null or not
+
+        """
+        null_values = {np.nan, pd.NA, pd.NaT, None, "", " "}
+        return item in null_values
