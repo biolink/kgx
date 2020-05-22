@@ -1,9 +1,8 @@
 import logging
 import itertools
-import uuid
 import click
 import networkx as nx
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 
 from kgx.transformers.transformer import Transformer
 from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis
@@ -326,31 +325,7 @@ class NeoTransformer(Transformer):
             return edge_triples
         return []
 
-    def save_node(self, obj: dict) -> None:
-        """
-        Load a node into Neo4j.
-
-        TODO: To be deprecated.
-
-        Parameters
-        ----------
-        obj: dict
-            A dictionary that represents a node and its properties.
-            The node must have 'id' property. For all other necessary properties, refer to the BioLink Model.
-
-        """
-        obj = self.validate_node(obj)
-        category = obj.pop('category')[0]
-
-        properties = ', '.join('n.{0}=${0}'.format(k) for k in obj.keys())
-        query = f"MERGE (n:`{category}` {{id: $id}}) SET {properties}"
-        logging.debug(query)
-        try:
-            self.http_driver.query(query, params=obj)
-        except CypherException as ce:
-            logging.error(ce)
-
-    def save_node_unwind(self, nodes_by_category: Dict[str, list]) -> None:
+    def save_node(self, nodes_by_category: Dict[str, list]) -> None:
         """
         Save all nodes into Neo4j using the UNWIND cypher clause.
 
@@ -363,14 +338,15 @@ class NeoTransformer(Transformer):
         for category in nodes_by_category.keys():
             logging.debug("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
-            query = self.generate_unwind_node_query(cypher_category)
+            query = NeoTransformer.generate_unwind_node_query(cypher_category)
             logging.info(query)
             try:
                 self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
             except CypherException as ce:
                 logging.error(ce)
 
-    def generate_unwind_node_query(self, category: str) -> str:
+    @staticmethod
+    def generate_unwind_node_query(category: str) -> str:
         """
         Generate UNWIND cypher query for saving nodes into Neo4j.
 
@@ -391,13 +367,13 @@ class NeoTransformer(Transformer):
         """
         query = f"""
         UNWIND $nodes AS node
-        MERGE (n:`{self.DEFAULT_NODE_CATEGORY}` {{id: node.id}})
+        MERGE (n:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: node.id}})
         ON CREATE SET n += node, n:{category}
         """
 
         return query
 
-    def save_edge_unwind(self, edges_by_edge_label: Dict[str, list]) -> None:
+    def save_edge(self, edges_by_edge_label: Dict[str, list]) -> None:
         """
         Save all edges into Neo4j using the UNWIND cypher clause.
 
@@ -423,7 +399,8 @@ class NeoTransformer(Transformer):
                 time_end = current_time_in_millis()
                 logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-    def generate_unwind_edge_query(self, edge_label: str) -> str:
+    @staticmethod
+    def generate_unwind_edge_query(edge_label: str) -> str:
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
 
@@ -443,43 +420,13 @@ class NeoTransformer(Transformer):
 
         query = f"""
         UNWIND $edges AS edge
-        MATCH (s:`{self.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{self.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
+        MATCH (s:`{NeoTransformer.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
         MERGE (s)-[r:`{edge_label}`]->(o)
         SET r += edge
         """
         return query
 
-    def save_edge(self, obj: dict) -> None:
-        """
-        Load an edge into Neo4j.
-
-        TODO: To be deprecated.
-
-        Parameters
-        ----------
-        obj: dict
-            A dictionary that represents an edge and its properties.
-            The edge must have 'subject', 'edge_label' and 'object' properties.
-            For all other necessary properties, refer to the BioLink Model.
-
-        """
-        obj = self.validate_edge(obj)
-        edge_label = obj.pop('edge_label')
-
-        properties = ', '.join('r.{0}=${0}'.format(k) for k in obj.keys())
-
-        q = f"""
-        MATCH (s {{id: $subject}}), (o {{id: $object}})
-        MERGE (s)-[r:{edge_label}]->(o)
-        SET {properties}
-        """
-
-        try:
-            self.http_driver.query(q, params=obj)
-        except CypherException as ce:
-            logging.error(ce)
-
-    def save_with_unwind(self) -> None:
+    def save(self) -> None:
         """
         Save all nodes and edges from networkx.MultiDiGraph into Neo4j using the UNWIND cypher clause.
 
@@ -499,48 +446,20 @@ class NeoTransformer(Transformer):
                 nodes_by_category[category].append(node_data)
 
         edges_by_edge_label = {}
-        for n, nbrs in self.graph.adjacency():
-            for nbr, eattr in nbrs.items():
-                for entry, adjitem in eattr.items():
-                    edge = self.validate_edge(adjitem)
-                    if adjitem['edge_label'] not in edges_by_edge_label:
-                        edges_by_edge_label[edge['edge_label']] = [edge]
-                    else:
-                        edges_by_edge_label[edge['edge_label']].append(edge)
+        for u, v, k, data in self.graph.edges(keys=True, data=True):
+            self.validate_edge(data)
+            edge_label = data['edge_label']
+            if edge_label in edges_by_edge_label:
+                edges_by_edge_label[edge_label].append(data)
+            else:
+                edges_by_edge_label[edge_label] = [data]
 
         # create indexes
-        print(set(nodes_by_category.keys()))
         self.create_constraints(set(nodes_by_category.keys()))
         # save all nodes
-        self.save_node_unwind(nodes_by_category)
+        self.save_node(nodes_by_category)
         # save all edges
-        self.save_edge_unwind(edges_by_edge_label)
-
-    def save(self) -> None:
-        """
-        Save all nodes and edges from networkx.MultiDiGraph into Neo4j.
-
-        TODO: To be deprecated.
-
-        """
-        categories = {self.DEFAULT_NODE_CATEGORY}
-        for n, node_data in self.graph.nodes(data=True):
-            if 'category' in node_data:
-                if isinstance(node_data['category'], list):
-                    categories.update(node_data['category'])
-                else:
-                    categories.add(node_data['category'])
-
-        self.create_constraints(categories)
-        for n, node_data in self.graph.nodes(data=True):
-            if 'id' not in node_data:
-                node_data['id'] = n
-            self.save_node(node_data)
-        for n, nbrs in self.graph.adjacency():
-            for nbr, eattr in nbrs.items():
-                for entry, adjitem in eattr.items():
-                    self.save_edge(adjitem)
-        self.neo4j_report()
+        self.save_edge(edges_by_edge_label)
 
     def neo4j_report(self) -> None:
         """
@@ -563,7 +482,7 @@ class NeoTransformer(Transformer):
         for r in edge_results:
             logging.info("Number of Edges: {}".format(r[0]))
 
-    def create_constraints(self, categories: set) -> None:
+    def create_constraints(self, categories: Union[set, list]) -> None:
         """
         Create a unique constraint on node 'id' for all ``categories`` in Neo4j.
 
@@ -573,22 +492,18 @@ class NeoTransformer(Transformer):
             Set of categories
 
         """
-        query = "CREATE CONSTRAINT ON (n:{}) ASSERT n.id IS UNIQUE"
-        label_set = {f"`{Transformer.DEFAULT_NODE_CATEGORY}`"}
-
-        for label in categories:
-            if self.CATEGORY_DELIMITER in label:
-                sub_labels = label.split(self.CATEGORY_DELIMITER)
-                for sublabel in sub_labels:
-                    label_set.add(sublabel)
+        categories_set = set(categories)
+        categories_set.add(f"`{Transformer.DEFAULT_NODE_CATEGORY}`")
+        for category in categories_set:
+            if self.CATEGORY_DELIMITER in category:
+                subcategories = category.split(self.CATEGORY_DELIMITER)
+                self.create_constraints(subcategories)
             else:
-                label_set.add(label)
-
-        for label in label_set:
-            try:
-                self.http_driver.query(query.format(label))
-            except CypherException as ce:
-                logging.error(ce)
+                query = NeoTransformer.create_constraint_query(category)
+                try:
+                    self.http_driver.query(query)
+                except CypherException as ce:
+                    logging.error(ce)
 
     def get_filter(self, key: str) -> str:
         """
@@ -629,3 +544,8 @@ class NeoTransformer(Transformer):
 
         """
         return [f"`{x}`" for x in category]
+
+    @staticmethod
+    def create_constraint_query(category):
+        query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
+        return query
