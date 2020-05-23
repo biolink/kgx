@@ -2,9 +2,8 @@ import os
 import re
 import pandas as pd
 import numpy as np
-import logging, tarfile
-from tempfile import TemporaryFile
-from kgx.utils import make_path
+import logging
+import tarfile
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
@@ -246,7 +245,9 @@ class PandasTransformer(Transformer):
         delimiter = _extension_types[extension]
         nodes_file_name = "{}_nodes.{}".format(filename, extension)
         edges_file_name = "{}_edges.{}".format(filename, extension)
-        make_path(nodes_file_name)
+        file_dir = os.path.dirname(nodes_file_name)
+        if file_dir:
+            os.makedirs(file_dir, exist_ok=True)
 
         self.export_nodes().to_csv(sep=delimiter, path_or_buf=nodes_file_name, index=False, escapechar="\\", doublequote=False)
         self.export_edges().to_csv(sep=delimiter, path_or_buf=edges_file_name, index=False, escapechar="\\", doublequote=False)
