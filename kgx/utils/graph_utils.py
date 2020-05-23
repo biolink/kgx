@@ -4,7 +4,6 @@ import networkx as nx
 import stringcase
 from cachetools import cached
 
-from kgx.mapper import get_prefix
 from kgx.operations.graph_merge import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
 from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key
 from kgx.prefix_manager import PrefixManager
@@ -138,7 +137,7 @@ def curie_lookup(curie: str) -> str:
     """
     cls = get_curie_lookup_service()
     name = None
-    prefix = get_prefix(curie)
+    prefix = PrefixManager.get_prefix(curie)
     if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
         name = stringcase.snakecase(curie.split(':', 1)[1])
     elif curie in cls.curie_map:

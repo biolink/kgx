@@ -5,7 +5,6 @@ import networkx as nx
 import stringcase
 
 from kgx.prefix_manager import PrefixManager
-from kgx.mapper import get_prefix
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict
 
@@ -300,7 +299,7 @@ class ObographJsonTransformer(JsonTransformer):
                         if element:
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
         else:
-            prefix = get_prefix(curie)
+            prefix = PrefixManager.get_prefix(curie)
             if prefix == 'CHEBI':
                 category = "biolink:ChemicalSubstance"
             elif prefix == 'MONDO':

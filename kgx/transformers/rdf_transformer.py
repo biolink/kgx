@@ -72,17 +72,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.load_node_attributes(rdfgraph)
         self.report()
 
-    def add_ontology(self, file: str) -> None:
-        """
-        Load an ontology OWL into a Rdflib.Graph
-        # TODO: is there better way of pre-loading required ontologies?
-        """
-        ont = rdflib.Graph()
-        logging.info("Parsing {}".format(file))
-        ont.parse(file, format=rdflib.util.guess_format(file))
-        self.ontologies.append(ont)
-        logging.info("{} parsed with {} triples".format(file, len(ont)))
-
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
         Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
