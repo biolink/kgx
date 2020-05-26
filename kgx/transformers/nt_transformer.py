@@ -195,6 +195,7 @@ class NtTransformer(RdfTransformer):
                         o = Literal(v)
                     yield (s, p, o)
 
+
     def export_edges(self) -> Set[URIRef]:
         """
         Export all edges from networkx.MultiDiGraph.
@@ -224,7 +225,7 @@ class NtTransformer(RdfTransformer):
                 all_data = data.copy()
                 all_data['type'] = 'biolink:Association'
                 for prop, value in all_data.items():
-                    if prop in {'id'}:
+                    if prop in {'id', 'association_id', 'edge_key'}:
                         continue
                     p = self.uriref(prop)
                     if isinstance(value, list):
