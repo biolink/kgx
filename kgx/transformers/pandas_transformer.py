@@ -356,26 +356,28 @@ class PandasTransformer(Transformer):
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
+                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
                     new_value = LIST_DELIMITER.join(value)
                 else:
-                    new_value = str(value)
+                    new_value = str(value).replace('\n', ' ')
             elif _column_types[key] == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value)
+                new_value = str(value).replace('\n', ' ')
         else:
             if type(value) == list:
                 new_value = LIST_DELIMITER.join(value)
+                new_value = new_value.replace('\n', ' ')
             elif type(value) == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value)
+                new_value = str(value).replace('\n', ' ')
         return new_value
 
     @staticmethod
@@ -399,33 +401,37 @@ class PandasTransformer(Transformer):
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
+                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
                     new_value = list(value)
                 elif isinstance(value, str):
+                    value = value.replace('\n', ' ')
                     new_value = value.split(LIST_DELIMITER)
                 else:
-                    new_value = [str(value)]
+                    new_value = [str(value).replace('\n', ' ')]
             elif _column_types[key] == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value)
+                new_value = str(value).replace('\n', ' ')
         else:
             if isinstance(value, (list, set, tuple)):
+                value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
                 new_value = list(value)
             elif isinstance(value, str):
                 if LIST_DELIMITER in value:
+                    value = value.replace('\n', ' ')
                     new_value = value.split(LIST_DELIMITER)
                 else:
-                    new_value = value
+                    new_value = value.replace('\n', ' ')
             elif isinstance(value, bool):
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value)
+                new_value = str(value).replace('\n', ' ')
         return new_value
 
     @staticmethod
