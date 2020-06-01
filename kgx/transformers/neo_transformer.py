@@ -318,6 +318,7 @@ class NeoTransformer(Transformer):
         if skip < limit:
             logging.debug(query)
             try:
+                # TODO: shouldn't data_contents=True?
                 results = self.http_driver.query(query, returns=(Node, Relationship, Node))
             except CypherException as ce:
                 logging.error(ce)
@@ -369,6 +370,7 @@ class NeoTransformer(Transformer):
         UNWIND $nodes AS node
         MERGE (n:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: node.id}})
         ON CREATE SET n += node, n:{category}
+        ON MATCH SET n += node, n:{category}
         """
 
         return query
