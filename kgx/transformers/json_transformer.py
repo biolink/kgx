@@ -100,14 +100,9 @@ class JsonTransformer(PandasTransformer):
         nodes = []
         edges = []
         for id, data in self.graph.nodes(data=True):
-            node = data.copy()
-            node['id'] = id
-            nodes.append(node)
+            nodes.append(data)
         for s, o, data in self.graph.edges(data=True):
-            edge = data.copy()
-            edge['subject'] = s
-            edge['object'] = o
-            edges.append(edge)
+            edges.append(data)
 
         return {
             'nodes': nodes,
@@ -215,6 +210,10 @@ class ObographJsonTransformer(JsonTransformer):
             fixed_node['description'] = node_properties['description']
         if 'synonym' in node_properties:
             fixed_node['synonym'] = node_properties['synonym']
+        if 'xrefs' in node_properties:
+            fixed_node['xrefs'] = node_properties['xrefs']
+        if 'subsets' in node_properties:
+            fixed_node['subsets'] = node_properties['subsets']
 
         if 'category' not in node:
             category = self.get_category(curie, node)
@@ -239,7 +238,7 @@ class ObographJsonTransformer(JsonTransformer):
 
         """
         fixed_edge = dict()
-        fixed_edge['subject'] = edge['sub']
+        fixed_edge['subject'] = self.prefix_manager.contract(edge['sub'])
         if PrefixManager.is_iri(edge['pred']):
             curie = self.prefix_manager.contract(edge['pred'])
             fixed_edge['relation'] = curie
@@ -247,7 +246,7 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge['edge_label'] = f"biolink:{self.graph.nodes[curie]['name'].replace(' ', '_')}"
                 # TODO: validate edge_label to biolink model
             else:
-                fixed_edge['edge_label'] = 'related_to'
+                fixed_edge['edge_label'] = 'biolink:related_to'
         else:
             if edge['pred'] == 'is_a':
                 fixed_edge['edge_label'] = 'biolink:subclass_of'
@@ -262,7 +261,7 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge['edge_label'] = f"biolink:{edge['pred'].replace(' ', '_')}"
                 fixed_edge['relation'] = edge['pred']
 
-        fixed_edge['object'] = edge['obj']
+        fixed_edge['object'] = self.prefix_manager.contract(edge['obj'])
         for x in edge.keys():
             if x not in {'sub', 'pred', 'obj'}:
                 fixed_edge[x] = edge[x]
@@ -339,7 +338,7 @@ class ObographJsonTransformer(JsonTransformer):
         if 'subsets' in meta:
             # parse 'subsets'
             subsets = meta['subsets']
-            properties['subsets'] = subsets
+            properties['subsets'] = [x.split('#')[1] if '#' in x else x for x in subsets]
 
         if 'synonyms' in meta:
             # parse 'synonyms' as 'synonym'
