@@ -104,7 +104,7 @@ class PrefixManager(object):
             curie = self.reverse_prefix_map[uri]
         else:
             curie = contract(uri, [self.prefix_map], fallback)
-        return curie
+        return str(curie)
 
     @staticmethod
     def is_curie(s: str) -> bool:

@@ -93,6 +93,8 @@ class RdfGraphMixin(object):
             kwargs = {'id': n}
             if 'provided_by' in self.graph_metadata:
                 kwargs['provided_by'] = self.graph_metadata['provided_by']
+            if 'category' not in kwargs:
+                kwargs['category'] = ["biolink:NamedThing"]
             self.graph.add_node(n, **kwargs)
 
         return n

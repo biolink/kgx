@@ -30,7 +30,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
-        self.ontologies = []
         self.toolkit = get_toolkit()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
@@ -138,6 +137,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         logging.info("Loading node attributes from rdflib.Graph into networkx.MultiDiGraph")
         with click.progressbar(self.graph.nodes(data=True), label='Progress') as bar:
             for n, data in bar:
+                print(n, data)
                 if 'id' not in data:
                     data['id'] = n
                 if 'iri' in data:
@@ -188,7 +188,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         rdfgraph.bind('', str(self.DEFAULT))
         rdfgraph.bind('OBO', str(self.OBO))
         rdfgraph.bind('OBAN', str(self.OBAN))
-        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.PMID))
         rdfgraph.bind('biolink', str(self.BIOLINK))
 
         # saving all nodes
@@ -466,7 +466,7 @@ class ObanRdfTransformer(RdfTransformer):
         rdfgraph.bind('', str(self.DEFAULT))
         rdfgraph.bind('OBO', str(self.OBO))
         rdfgraph.bind('OBAN', str(self.OBAN))
-        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.PMID))
         rdfgraph.bind('biolink', str(self.BIOLINK))
 
         # saving all nodes
