@@ -89,16 +89,19 @@ class PandasTransformer(Transformer):
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    df = pd.read_csv(f, dtype=str, quoting=3, **kwargs) # type: pd.DataFrame
+                    iter = pd.read_csv(f, dtype=str, quoting=3, chunksize=10000, low_memory=False, **kwargs) # type: pd.DataFrame
                     if re.search('nodes.{}'.format(input_format), member.name):
-                        self.load_nodes(df)
+                        for chunk in iter:
+                            self.load_nodes(chunk)
                     elif re.search('edges.{}'.format(input_format), member.name):
-                        self.load_edges(df)
+                        for chunk in iter:
+                            self.load_edges(chunk)
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            df = pd.read_csv(filename, dtype=str, quoting=3, **kwargs) # type: pd.DataFrame
-            self.load(df)
+            iter = pd.read_csv(filename, dtype=str, quoting=3, chunksize=10000, low_memory=False, **kwargs) # type: pd.DataFrame
+            for chunk in iter:
+                self.load(chunk)
 
     def load(self, df: pd.DataFrame) -> None:
         """
