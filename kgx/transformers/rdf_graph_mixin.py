@@ -1,15 +1,13 @@
 import logging
-from typing import Set, Dict, Tuple
-
 import networkx as nx
+from typing import List, Set, Dict, Tuple, Union
 import rdflib
-from prefixcommons.curie_util import read_remote_jsonld_context
 from rdflib import URIRef, Namespace
 
+from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
-
-biolink_prefix_map = read_remote_jsonld_context('https://biolink.github.io/biolink-model/context.jsonld')
-
+from kgx.utils.kgx_utils import generate_edge_key
+from kgx.prefix_manager import PrefixManager
 
 class RdfGraphMixin(object):
     """
@@ -22,12 +20,6 @@ class RdfGraphMixin(object):
 
     """
 
-    # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
-    OBO = Namespace('http://purl.obolibrary.org/obo/')
-    OBAN = Namespace(biolink_prefix_map['OBAN'])
-    PMID = Namespace(biolink_prefix_map['PMID'])
-    # TODO: double check: is this the correct prefix change? (biolink --> biolinkml)
-    BIOLINK = Namespace(biolink_prefix_map['biolinkml'])
     DEFAULT_EDGE_LABEL = 'related_to'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
@@ -37,6 +29,13 @@ class RdfGraphMixin(object):
             self.graph = nx.MultiDiGraph()
 
         self.graph_metadata = {}
+        self.prefix_manager = PrefixManager()
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[':'])
+        # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
+        self.OBO = Namespace('http://purl.obolibrary.org/obo/')
+        self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
+        self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
+        self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
@@ -47,14 +46,14 @@ class RdfGraphMixin(object):
         when adding nodes, edges, and their attributes.
 
         Instead, Using the following methods,
-            - add_node()
-            - add_node_attribute()
-            - add_edge()
-            - add_edge_attribute()
+            - ``add_node()``
+            - ``add_node_attribute()``
+            - ``add_edge()``
+            - ``add_edge_attribute()``
 
         to ensure that nodes, edges, and their attributes
-        are added in conformance with the biolink model, and that URIRef's are
-        translated into CURIEs or biolink model elements whenever appropriate.
+        are added in conformance with the BioLink Model, and that URIRef's are
+        translated into CURIEs or BioLink Model elements whenever appropriate.
 
         Parameters
         ----------
@@ -64,6 +63,7 @@ class RdfGraphMixin(object):
             A list of rdflib.URIRef representing predicates to be loaded
         kwargs: dict
             Any additional arguments
+
         """
         raise NotImplementedError("Method not implemented.")
 
@@ -71,7 +71,7 @@ class RdfGraphMixin(object):
         """
         This method should be used by all derived classes when adding a node to
         the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
-        and that it's 'iri' property is set.
+        and that it's `iri` property is set.
 
         Returns the CURIE identifier for the node in the networkx.MultiDiGraph
 
@@ -86,15 +86,13 @@ class RdfGraphMixin(object):
             The CURIE identifier of a node
 
         """
-        kwargs = {
-            'iri': str(iri),
-        }
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-
-        n = make_curie(iri)
-
-        if n not in self.graph:
+        n = self.prefix_manager.contract(iri)
+        if not n:
+            n = iri
+        if not self.graph.has_node(n):
+            kwargs = {'id': n}
+            if 'provided_by' in self.graph_metadata:
+                kwargs['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_node(n, **kwargs)
 
         return n
@@ -102,10 +100,10 @@ class RdfGraphMixin(object):
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef) -> Tuple[str, str, str]:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
-        This ensures that the subject and object identifiers are CURIEs, and that edge_label is in the correct form.
+        This ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label` is in the correct form.
 
-        Returns the CURIE identifiers used for the subject and object in the
-        networkx.MultiDiGraph, and the processed edge_label.
+        Returns the CURIE identifiers used for the `subject` and `object` in the
+        networkx.MultiDiGraph, and the processed `edge_label`.
 
         Parameters
         ----------
@@ -124,52 +122,53 @@ class RdfGraphMixin(object):
         """
         s = self.add_node(subject_iri)
         o = self.add_node(object_iri)
-
-        relation = make_curie(predicate_iri)
+        relation = self.prefix_manager.contract(predicate_iri)
         edge_label = process_iri(predicate_iri)
         if ' ' in edge_label:
             logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
-        # TODO: shouldn't this move to the utilities function process_uri()
         if edge_label.startswith(self.BIOLINK):
             logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label, self.BIOLINK))
             edge_label = edge_label.replace(self.BIOLINK, '')
 
-        # TODO: is there no way to get label of a CURIE?
-        # TODO: this should also move to the utilities function
-        # Any service? or preload required ontologies by prefix?
-        if ':' in edge_label:
-            logging.debug("edge label '{}' is a CURIE; defaulting back to 'related_to'".format(edge_label))
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
-            edge_label = self.DEFAULT_EDGE_LABEL
+        if PrefixManager.is_curie(edge_label):
+            name = curie_lookup(edge_label)
+            if name:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
+                edge_label = name
+            else:
+                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
+                edge_label = self.DEFAULT_EDGE_LABEL
 
         kwargs = {
+            'subject': s,
+            'predicate': str(predicate_iri),
+            'object': o,
             'relation': relation,
-            'edge_label': edge_label
+            'edge_label': f"biolink:{edge_label}"
         }
         if 'provided_by' in self.graph_metadata:
             kwargs['provided_by'] = self.graph_metadata['provided_by']
 
-        if self.graph.has_edge(s, o, key=edge_label):
-            logging.debug("{} -- {} --> {} edge already exists".format(s, edge_label, o))
-        else:
-            self.graph.add_edge(s, o, key=edge_label, **kwargs)
-
+        key = generate_edge_key(s, edge_label, o)
+        if not self.graph.has_edge(s, o, key=key):
+            self.graph.add_edge(s, o, key=key, **kwargs)
+        # TODO: support append
         return s, o, edge_label
 
-    def add_node_attribute(self, iri: URIRef, key: str, value: str) -> None:
+    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> None:
         """
         Add an attribute to a node, while taking into account whether the attribute
         should be multi-valued.
         Multi-valued properties will not contain duplicates.
 
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
+        The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
+        as defined in ``rdf_utils.property_mapping``.
 
-        If the node does not exist then it is created using the given iri.
+        If the node does not exist then it is created using the given ``iri``.
 
         Parameters
         ----------
-        iri: rdflib.URIRef
+        iri: Union[rdflib.URIRef, str]
             The IRI of a node in the rdflib.Graph
         key: str
             The name of the attribute. Can be a rdflib.URIRef or URI string
@@ -177,37 +176,32 @@ class RdfGraphMixin(object):
             The value of the attribute
 
         """
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
-
+        if not isinstance(key, URIRef):
+            key = URIRef(key)
+        key = property_mapping.get(key)
         if key is not None:
             n = self.add_node(iri)
-            attr_dict = self.graph.node[n]
-            self._add_attribute(attr_dict, key, value)
+            attr_dict = self.graph.nodes[n]
+            self._add_attribute(attr_dict, key, str(value))
 
-
-    def add_edge_attribute(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
+    def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
         """
         Adds an attribute to an edge, while taking into account whether the attribute
         should be multi-valued.
         Multi-valued properties will not contain duplicates.
 
-        The key may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in `rdf_utils.property_mapping`.
+        The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
+        as defined in ``rdf_utils.property_mapping``.
 
         If the nodes in the edge does not exist then they will be created
-        using subject_iri and object_iri.
+        using ``subject_iri`` and ``object_iri``.
 
         If the edge itself does not exist then it will be created using
-        subject_iri, object_iri and predicate_iri.
+        ``subject_iri``, ``object_iri`` and ``predicate_iri``.
 
         Parameters
         ----------
-        subject_iri: rdflib.URIRef
+        subject_iri: [rdflib.URIRef, str]
             The IRI of the subject node of an edge in rdflib.Graph
         object_iri: rdflib.URIRef
             The IRI of the object node of an edge in rdflib.Graph
@@ -227,8 +221,13 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None:
-            s, o, edge_label = self.add_edge(subject_iri, object_iri, predicate_iri)
-            attr_dict = self.graph.get_edge_data(s, o, key=edge_label)
+            subject_curie = self.prefix_manager.contract(subject_iri)
+            object_curie = self.prefix_manager.contract(object_iri)
+            edge_label = process_iri(predicate_iri)
+            if PrefixManager.is_curie(edge_label):
+                edge_label = curie_lookup(edge_label)
+            edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
+            attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
             self._add_attribute(attr_dict, key, value)
 
     def _add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:
@@ -239,8 +238,8 @@ class RdfGraphMixin(object):
 
         Some attributes are singular form of others. In such cases overflowing values
         will be placed into the correlating multi-valued attribute.
-        For example, 'name' attribute will hold only one value while any additional
-        value will be stored as 'synonym' attribute.
+        For example, `name` attribute will hold only one value while any additional
+        value will be stored as `synonym` attribute.
 
         Parameters
         ----------
@@ -252,19 +251,14 @@ class RdfGraphMixin(object):
             The value of the attribute
 
         """
-        if key is None or key not in is_property_multivalued:
-            logging.warning("Discarding key {} as it is not a valid property.".format(key))
-            return
-
-        value = make_curie(process_iri(value))
-
-        if is_property_multivalued[key]:
+        value = process_iri(value)
+        if key in is_property_multivalued and is_property_multivalued[key]:
             if key not in attr_dict:
                 attr_dict[key] = [value]
             elif value not in attr_dict[key]:
                 attr_dict[key].append(value)
         else:
-            if key not in attr_dict:
-                attr_dict[key] = value
-            elif key == 'name':
+            if key == 'name':
                 self._add_attribute(attr_dict, 'synonym', value)
+            else:
+                attr_dict[key] = value

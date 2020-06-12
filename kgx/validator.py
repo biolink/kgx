@@ -1,332 +1,613 @@
+import logging
 import re
+from enum import Enum
+from typing import Tuple, List, TextIO
 
 import click
 import requests
 import validators
+import networkx as nx
 
-from kgx.utils.kgx_utils import get_toolkit
-from .prefix_manager import PrefixManager
+from kgx.config import get_config
+from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
+    camelcase_to_sentencecase
+from kgx.prefix_manager import PrefixManager
 
-BIOLINK_MODEL = 'https://biolink.github.io/biolink-model/biolink-model.yaml'
-CONTEXT_JSONLD = 'https://biolink.github.io/biolink-model/context.jsonld'
+
+BIOLINK_MODEL = get_config()['biolink-model']
+CONTEXT_JSONLD = get_config()['jsonld-context']['biolink']
 
 
-class Error(object):
-    def __init__(self, error_type, message=None):
+class ErrorType(Enum):
+    """
+    Validation error types
+    """
+    MISSING_NODE_PROPERTY = 1
+    MISSING_EDGE_PROPERTY = 2
+    INVALID_NODE_PROPERTY_VALUE_TYPE = 3
+    INVALID_NODE_PROPERTY_VALUE = 4
+    INVALID_EDGE_PROPERTY_VALUE_TYPE = 5
+    INVALID_EDGE_PROPERTY_VALUE = 6
+    NO_CATEGORY = 7
+    INVALID_CATEGORY = 8
+    NO_EDGE_LABEL = 9
+    INVALID_EDGE_LABEL = 10
+
+
+class MessageLevel(Enum):
+    """
+    Message level for validation reports
+    """
+    # Recommendations
+    INFO = 1
+    # Message to convey 'should'
+    WARNING = 2
+    # Message to convey 'must'
+    ERROR = 3
+
+
+class ValidationError(object):
+    """
+    ValidationError class that represents an error.
+
+    Parameters
+    ----------
+    entity: str
+        The node or edge entity that is failing validation
+    error_type: kgx.validator.ErrorType
+        The nature of the error
+    message: str
+        The error message
+    message_level: kgx.validator.MessageLevel
+        The message level
+
+    """
+    def __init__(self, entity: str, error_type: ErrorType, message: str, message_level: MessageLevel):
+        self.entity = entity
         self.error_type = error_type
-        self.message = message if message is not None else error_type
+        self.message = message
+        self.message_level = message_level
 
+    def __str__(self):
+        return f"[{self.message_level.name}][{self.error_type.name}] {self.entity} - {self.message}"
 
-class NodeError(Error):
-    def __init__(self, node, error_type, message=None):
-        super().__init__(error_type, message)
-        self.node = node
-
-
-class EdgeError(Error):
-    def __init__(self, subject, object, error_type, message=None):
-        super().__init__(error_type, message)
-        self.subject = subject
-        self.object = object
-
-
-def is_curie(s:str) -> bool:
-    return re.match(r'^[^ :]+:[^ :]+$', s)
-
+    def as_dict(self):
+        return {
+            'entity': self.entity,
+            'error_type': self.error_type.name,
+            'message': self.message,
+            'message_level': self.message_level.name
+        }
 
 class Validator(object):
     """
-    Object for validating a property graph
+    Class for validating a property graph.
+
+
+    Parameters
+    ----------
+    verbose: bool
+        Whether the generated report should be verbose or not (default: ``False``)
+
     """
 
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
-        self.errors = []
+        self.prefixes = None
+        self.required_node_properties = None
+        self.required_edge_properties = None
+        self.verbose = verbose
 
         try:
             self.jsonld = requests.get(CONTEXT_JSONLD).json()
         except:
-            raise Exception('Unable to download jsonld file from {}'.format(CONTEXT_JSONLD))
+            raise Exception('Unable to download JSON-LD context from {}'.format(CONTEXT_JSONLD))
 
-    def ok(self):
-        return len(self.errors) == 0
-
-    def validate(self, G):
+    def get_all_prefixes(self) -> set:
         """
-        Validate a property graph
+        Get all prefixes from Biolink Model JSON-LD context.
 
-        Test all node and edge properties plus relationship types are declared
+        It also sets ``self.prefixes`` for subsequent access.
+
+        Returns
+        -------
+        set
+            A set of prefixes
+
         """
-        self.validate_categories(G)
-        self.validate_edge_labels(G)
+        if self.prefixes is None:
+            prefixes = set(k for k, v in self.jsonld['@context'].items() if isinstance(v, str))
+            self.prefixes = prefixes
+        return self.prefixes
 
-        self.validate_required_node_properties(G)
-        self.validate_node_property_types(G)
-        self.validate_node_property_values(G)
-
-        self.validate_required_edge_properties(G)
-        self.validate_edge_property_types(G)
-        self.validate_edge_property_values(G)
-
-    def validate_id(self, id):
-        if ":" in id:
-            uri = self.prefix_manager.expand(id)
-            if uri is None or uri == id:
-                self.report(id, "expansion is identical")
-        else:
-            if id not in self.prefix_manager.prefixmap:
-                self.report(id, "no such short form")
-
-    def validate_node_requirements(self, ad):
-        node_id = ad.get('id')
-
-        self.test(lambda: 'id' in ad, node_id, 'node lacks id attribute')
-        self.test(lambda: 'name' in ad, node_id, 'node lacks name attribute')
-        success = self.test(lambda: 'category' in ad, node_id, 'node lacks category attribute')
-
-        if not success:
-            return
-
-        category = ad['category']
-
-        if isinstance(category, str):
-            self.test(lambda: category in self.schema.classes, category, 'node category is invalid')
-        elif isinstance(category, (list, tuple, set)):
-            for c in category:
-                self.test(lambda: c in self.schema.classes, c, 'node category is invalid')
-        else:
-            self.report(edge_label, f'category is invalid type: {type(category)}')
-
-        labels = ad.get('labels')
-
-        if labels is not None:
-            for label in labels:
-                if label not in self.schema.classes:
-                    self.report(label, 'node label is invalid')
-
-    def validate_edge_requirements(self, G, oid, sid, ad):
+    def get_required_node_properties(self) -> list:
         """
-        Checks that an edge has an edge_label, that it's valid and within the
-        minimal list, and that the subject and object fall within the edge's
-        domain and range.
+        Get all properties for a node that are required, as defined by Biolink Model.
+
+        Returns
+        -------
+        list
+            A list of required node properties
+
         """
-        edge_id = ad.get('id')
+        if self.required_node_properties is None:
+            node_properties = self.toolkit.children('node property')
+            required_properties = []
+            for p in node_properties:
+                element = self.toolkit.get_element(p)
+                if hasattr(element, 'required') and element.required:
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
+            self.required_node_properties = required_properties
+        return self.required_node_properties
 
-        self.test(lambda: 'is_defined_by' in ad, edge_id, 'edge lacks is_defined_by attribute')
-        self.test(lambda: 'provided_by' in ad, edge_id, 'edge lacks provided_by attribute')
+    def get_required_edge_properties(self) -> list:
+        """
+        Get all properties for an edge that are required, as defined by Biolink Model.
 
-        success = self.test(lambda: 'edge_label' in ad, edge_id, 'edge lacks edge_label attribute')
+        Returns
+        -------
+        list
+            A list of required edge properties
 
-        if not success:
-            return
+        """
+        if self.required_edge_properties is None:
+            edge_properties = self.toolkit.children('association slot')
+            required_properties = []
+            for p in edge_properties:
+                element = self.toolkit.get_element(p)
+                if hasattr(element, 'required') and element.required:
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
+            self.required_edge_properties = required_properties
+        return self.required_edge_properties
 
-        edge_label = ad['edge_label']
+    def validate(self, graph: nx.Graph) -> list:
+        """
+        Validate nodes and edges in a graph.
+        TODO: Support strict mode
 
-        if not isinstance(edge_label, str):
-            self.report(edge_label, f'edge label is invalid type: {type(edge_label)}')
-            return
+        Parameters
+        ----------
+        graph: networkx.Graph
+            The graph to validate
 
-        if edge_label not in self.schema.slots:
-            self.report(edge_label, 'edge label is invalid')
-            return
+        Returns
+        -------
+        list
+            A list of errors for a given graph
 
-        slot = self.schema.slots[edge_label]
+        """
+        node_errors = self.validate_nodes(graph)
+        edge_errors = self.validate_edges(graph)
+        return node_errors + edge_errors
 
-        fn = lambda: 'in_subset' in slot and 'translator_minimal' in slot['in_subset']
-        self.test(fn, edge_label, 'edge label not in minimal list')
+    def validate_nodes(self, graph: nx.Graph) -> list:
+        """
+        Validate all the nodes in a graph.
 
-        object_category = G.node[oid]['category']
-        subject_category = G.node[sid]['category']
+        This method validates for the following,
+        - Node properties
+        - Node property type
+        - Node property value type
+        - Node categories
 
-        if slot.domain is not None:
-            if slot.domain != subject_category:
-                self.report(sid, f'{subject_category} is outside of domain of {edge_label}')
+        Parameters
+        ----------
+        graph: networkx.Graph
+            The graph to validate
 
-        if slot.range is not None:
-            if slot.range != object_category:
-                self.report(oid, f'{object_category} is outside of domain of {edge_label}')
+        Returns
+        -------
+        list
+            A list of errors for a given graph
 
-    def validate_props(self, ad):
-        for p,v in ad.items():
-            self.validate_id(p)
-
-    def validate_categories(self, G):
-        with click.progressbar(G.nodes(data=True), label='validating category for nodes') as bar:
+        """
+        errors = []
+        with click.progressbar(graph.nodes(data=True), label='Validating nodes in graph') as bar:
             for n, data in bar:
-                categories = data.get('category')
-                if categories is None:
-                    self.log_node_error(n, 'absent category')
-                elif not isinstance(categories, list):
-                    self.log_node_error(n, 'invalid category type', message='category type is {} when it should be {}'.format(type(categories), list))
-                else:
-                    for category in categories:
-                        if not self.toolkit.is_category(category):
-                            self.log_node_error(n, 'invalid category', message='{} not in biolink model'.format(category))
-                        else:
-                            c = self.toolkit.get_element(category)
-                            if category != c.name and category in c.aliases:
-                                self.log_node_error(n, 'alias category', message='should not use alias {} for {}'.format(c.name, category))
+                e1 = self.validate_node_properties(n, data)
+                e2 = self.validate_node_property_types(n, data)
+                e3 = self.validate_node_property_values(n, data)
+                e4 = self.validate_categories(n, data)
+                errors += e1 + e2 + e3 + e4
+        return errors
 
-    def validate_edge_labels(self, G):
-        TYPE = 'invalid edge label'
-        with click.progressbar(G.edges(data=True), label='validating edge_label for edges') as bar:
+    def validate_edges(self, graph: nx.Graph) -> list:
+        """
+        Validate all the edges in a graph.
+
+        This method validates for the following,
+        - Edge properties
+        - Edge property type
+        - Edge property value type
+        - Edge label
+
+        Parameters
+        ----------
+        graph: networkx.Graph
+            The graph to validate
+
+        Returns
+        -------
+        list
+            A list of errors for a given graph
+
+        """
+        errors = []
+        with click.progressbar(graph.edges(data=True), label='Validate edges in graph') as bar:
             for u, v, data in bar:
-                edge_label = data.get('edge_label')
-                if edge_label is None:
-                    self.log_edge_error(u, v, 'absent edge label')
-                elif not isinstance(edge_label, str):
-                    self.log_edge_error(u, v, TYPE, message='edge label type is {} when it should be {}'.format(type(edge_label), str))
-                else:
-                    p = self.toolkit.get_element(edge_label)
-                    if p is None:
-                        self.log_edge_error(u, v, TYPE, message='{} not in biolink model'.format(edge_label))
-                    elif edge_label != p.name and edge_label in p.aliases:
-                        self.log_edge_error(u, v, TYPE, message='should not use alias {} for {}'.format(p.name, edge_label))
-                    elif not re.match(r'^[a-z_]*$', edge_label):
-                        self.log_edge_error(u, v, TYPE, message='"{}" is not snake case'.format(edge_label))
+                e1 = self.validate_edge_properties(u, v, data)
+                e2 = self.validate_edge_property_types(u, v, data)
+                e3 = self.validate_edge_property_values(u, v, data)
+                e4 = self.validate_edge_label(u, v, data)
+                errors += e1 + e2 + e3 + e4
+        return errors
 
-    def validate_required_node_properties(self, G):
+    def validate_node_properties(self, node: str, data: dict) -> list:
         """
-        Checks that if a property is required then it is present
+        Checks if all the required node properties exist for a given node.
+
+        Parameters
+        ----------
+        node: str
+            Node identifier
+        data: dict
+            Node properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given node
+
         """
-        TYPE='invalid node property'
-        node_properties = self.toolkit.children('node property')
-        required_properties = []
+        errors = []
+        required_properties = self.get_required_node_properties()
+        for p in required_properties:
+            if p not in data:
+                error_type = ErrorType.MISSING_NODE_PROPERTY
+                message = f"Required node property '{p}' missing"
+                errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        return errors
 
-        for p in node_properties:
-            e = self.toolkit.get_element(p)
-            if hasattr(e, 'required') and e.required:
-                required_properties.append(e.name)
-
-        if 'id' in required_properties:
-            required_properties.remove('id')
-
-        if required_properties == []:
-            return
-
-        with click.progressbar(G.nodes(data=True), label='validate that required node properties are present') as bar:
-            for n, data in bar:
-                for p in required_properties:
-                    if p not in data:
-                        self.log_node_error(n, TYPE, message='missing required property "{}"'.format(p))
-
-    def validate_required_edge_properties(self, G):
+    def validate_edge_properties(self, subject: str, object: str, data: dict) -> list:
         """
-        Checks that if a property is required then it is present
+        Checks if all the required edge properties exist for a given edge.
+
+        Parameters
+        ----------
+        subject: str
+            Subject identifier
+        object: str
+            Object identifier
+        data: dict
+            Edge properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given edge
+
         """
-        edge_properties = self.toolkit.children('association slot')
-        required_properties = []
-
-        for p in edge_properties:
-            e = self.toolkit.get_element(p)
-            if hasattr(e, 'required') and e.required:
-                required_properties.append(e.name)
-
-        if 'subject' in required_properties:
-            required_properties.remove('subject')
-
-        if 'object' in required_properties:
-            required_properties.remove('object')
-
-        if required_properties == []:
-            return
-
-        with click.progressbar(G.edges(data=True), label='validate that required node properties are present') as bar:
-            for u, v, data in bar:
-                for p in required_properties:
-                    if p not in data:
-                        self.log_edge_error(u, v, 'absent node property', message='missing required property "{}"'.format(p))
-
-    def validate_node_property_values(self, G):
-        TYPE='invalid node property'
-        prefixes = set(key for key, value in self.jsonld['@context'].items() if isinstance(value, str))
-        with click.progressbar(G.nodes(data=True), label='validate node property values') as bar:
-            for n, data in bar:
-                if not re.match(r'^[^ :]+:[^ :]+$', n):
-                    self.log_node_error(n, TYPE, message='identifier "{}" does not have curie syntax'.format(n))
+        errors = []
+        required_properties = self.get_required_edge_properties()
+        for p in required_properties:
+            if p not in data:
+                if p == 'association_id':
+                    # check for 'id' property instead
+                    if 'id' not in data:
+                        error_type = ErrorType.MISSING_EDGE_PROPERTY
+                        message = f"Required edge property '{p}' missing"
+                        errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 else:
-                    prefix, _ = n.split(':')
-                    if prefix not in prefixes:
-                        self.log_node_error(n, TYPE, message='prefix "{}" is not in jsonld: https://biolink.github.io/biolink-model/context.jsonld'.format(prefix))
+                    error_type = ErrorType.MISSING_EDGE_PROPERTY
+                    message = f"Required edge property '{p}' missing"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        return errors
 
-    def validate_edge_property_values(self, G):
-        TYPE='invalid edge property'
-        prefixes = set(key for key, value in self.jsonld['@context'].items() if isinstance(value, str))
-        with click.progressbar(G.edges(data=True), label='validate node property values') as bar:
-            for s, o, data in bar:
-                if not is_curie(s):
-                    self.log_edge_error(s, o, TYPE, message='subject "{}" does not have curie syntax'.format(s))
+    def validate_node_property_types(self, node: str, data: dict) -> list:
+        """
+        Checks if node properties have the expected value type.
+
+        Parameters
+        ----------
+        node: str
+            Node identifier
+        data: dict
+            Node properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given node
+
+        """
+        errors = []
+        error_type = ErrorType.INVALID_NODE_PROPERTY_VALUE_TYPE
+        if not isinstance(node, str):
+            message = "Node property 'id' expected to be of type 'string'"
+            errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+
+        for key, value in data.items():
+            element = self.toolkit.get_element(key)
+            if hasattr(element, 'typeof'):
+                if element.typeof == 'string' and not isinstance(value, str):
+                    message = f"Node property '{key}' expected to be of type '{element.typeof}'"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                elif element.typeof == 'uriorcurie' and not isinstance(value, str) and not validators.url(value):
+                    message = f"Node property '{key}' expected to be of type 'uri' or 'CURIE'"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                elif element.typeof == 'double' and not isinstance(value, (int, float)):
+                    message = f"Node property '{key}' expected to be of type '{element.typeof}'"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
-                    prefix, _ = s.split(':')
-                    if prefix not in prefixes:
-                        self.log_edge_error(s, o, TYPE, message='prefix "{}" is not in jsonld: https://biolink.github.io/biolink-model/context.jsonld'.format(prefix))
-
-                if not is_curie(o):
-                    self.log_edge_error(o, TYPE, message='object "{}" does not have curie syntax'.format(o))
+                    logging.warning("Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
+            if hasattr(element, 'multivalued'):
+                if element.multivalued:
+                    if not isinstance(value, list):
+                        message = f"Multi-valued node property '{key}' expected to be of type '{list}'"
+                        errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
-                    prefix, _ = s.split(':')
-                    if prefix not in prefixes:
-                        self.log_edge_error(s, o, TYPE, message='prefix "{}" is not in jsonld: https://biolink.github.io/biolink-model/context.jsonld'.format(prefix))
+                    if isinstance(value, (list, set, tuple)):
+                        message = f"Single-valued node property '{key}' expected to be of type '{str}'"
+                        errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        return errors
 
-    def validate_node_property_types(self, G):
-        TYPE = 'invalid node property'
-        with click.progressbar(G.nodes(data=True), label='validate node property types') as bar:
-            for n, data in bar:
-                if not isinstance(n, str):
-                    self.log_node_error(n, TYPE, message='expect type of id to be str, instead got {}'.format(type(n)))
+    def validate_edge_property_types(self, subject: str, object: str, data: dict) -> list:
+        """
+        Checks if edge properties have the expected value type.
 
-                for key, value in data.items():
-                    e = self.toolkit.get_element(key)
-                    if hasattr(e, 'typeof'):
-                        if e.typeof == 'string' and not isinstance(value, str):
-                            self.log_node_error(n, TYPE, message='expected type of {} to be str, instead got {}'.format(key, type(value)))
-                        elif e.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
-                            self.log_node_error(n, TYPE, message='value for param {} is not a uri: {}'.format(key, value))
-                        elif e.typeof == 'double' and not isinstance(value, (int, float)):
-                            self.log_node_error(n, TYPE, message='expected type of {} to be float, instead got {}'.format(key, type(value)))
-                        elif e.typeof == 'time':
-                            # Don't know how to test this yet
-                            pass
-                    if hasattr(e, 'multivalued'):
-                        if e.multivalued:
-                            if not isinstance(value, list):
-                                self.log_node_error(n, TYPE, message='expected type of {} to be list, instead got {}'.format(key, type(value)))
-                        else:
-                            if isinstance(value, (list, set, tuple)):
-                                self.log_node_error(n, TYPE, message='{} is not multivalued but was type {}'.format(key, type(value)))
+        Parameters
+        ----------
+        subject: str
+            Subject identifier
+        object: str
+            Object identifier
+        data: dict
+            Edge properties
 
-    def validate_edge_property_types(self, G):
-        TYPE = 'invalid edge property'
-        with click.progressbar(G.edges(data=True), label='validate edge property types') as bar:
-            for s, o, data in bar:
-                if not isinstance(s, str):
-                    self.log_edge_error(s, o, TYPE, message='expect type of subject to be str, instead got {}'.format(type(s)))
-                if not isinstance(o, str):
-                    self.log_edge_error(s, o, TYPE, message='expect type of subject to be str, instead got {}'.format(type(o)))
+        Returns
+        -------
+        list
+            A list of errors for a given edge
 
-                for key, value in data.items():
-                    e = self.toolkit.get_element(key)
-                    if hasattr(e, 'typeof'):
-                        if (e.typeof == 'string' or e.typeof == 'uri') and not isinstance(value, str):
-                            self.log_edge_error(s, o, TYPE, message='expected type of {} to be str, instead got {}'.format(key, type(value)))
-                        elif e.typeof == 'uri' and not isinstance(value, str) and not validators.url(value):
-                            self.log_node_error(n, TYPE, message='value for param {} is not a uri: {}'.format(key, value))
-                        elif e.typeof == 'double' and not isinstance(value, (int, float)):
-                            self.log_edge_error(s, o, TYPE, message='expected type of {} to be float, instead got {}'.format(key, type(value)))
-                        elif e.typeof == 'time':
-                            # Don't know how to test this yet
-                            pass
-                    if hasattr(e, 'multivalued'):
-                        if e.multivalued:
-                            if not isinstance(value, list):
-                                self.log_edge_error(s, o, TYPE, message='expected type of {} to be list, instead got {}'.format(key, type(value)))
-                        else:
-                            if isinstance(value, (list, set, tuple)):
-                                self.log_edge_error(s, o, TYPE, message='{} is not multivalued but was type {}'.format(key, type(value)))
+        """
+        errors = []
+        error_type = ErrorType.INVALID_EDGE_PROPERTY_VALUE_TYPE
+        if not isinstance(subject, str):
+            message = "'subject' of an edge expected to be of type 'string'"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        if not isinstance(object, str):
+            message = "'object' of an edge expected to be of type 'string'"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
 
-    def log_edge_error(self, u, v, error_type=None, *, message=None):
-        self.errors.append(EdgeError(u, v, error_type, message))
+        for key, value in data.items():
+            element = self.toolkit.get_element(key)
+            if hasattr(element, 'typeof'):
+                if element.typeof == 'string' and not isinstance(value, str):
+                    message = f"Edge property '{key}' expected to be of type 'string'"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+                elif element.typeof == 'uriorcurie' and not isinstance(value, str) and not validators.url(value):
+                    message = f"Edge property '{key}' expected to be of type 'uri' or 'CURIE'"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+                elif element.typeof == 'double' and not isinstance(value, (int, float)):
+                    message = f"Edge property '{key}' expected to be of type 'double'"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+                else:
+                    logging.warning("Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
+            if hasattr(element, 'multivalued'):
+                if element.multivalued:
+                    if not isinstance(value, list):
+                        message = f"Multi-valued edge property '{key}' expected to be of type 'list'"
+                        errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+                else:
+                    if isinstance(value, (list, set, tuple)):
+                        message = f"Single-valued edge property '{key}' expected to be of type 'str'"
+                        errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        return errors
 
-    def log_node_error(self, n, error_type=None, *, message=None):
-        self.errors.append(NodeError(n, error_type, message))
+    def validate_node_property_values(self, node: str, data: dict) -> list:
+        """
+        Validate a node property's value.
+
+        Parameters
+        ----------
+        node: str
+            Node identifier
+        data: dict
+            Node properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given node
+
+        """
+        errors = []
+        error_type = ErrorType.INVALID_NODE_PROPERTY_VALUE
+        if not PrefixManager.is_curie(node):
+            message = f"Node property 'id' expected to be of type 'CURIE'"
+            errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        else:
+            prefix = PrefixManager.get_prefix(node)
+            if prefix and prefix not in self.get_all_prefixes():
+                message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}' is not represented in Biolink Model JSON-LD context"
+                errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        return errors
+
+    def validate_edge_property_values(self, subject: str, object: str, data: dict) -> list:
+        """
+        Validate an edge property's value.
+
+        Parameters
+        ----------
+        subject: str
+            Subject identifier
+        object: str
+            Object identifier
+        data: dict
+            Edge properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given edge
+
+        """
+        errors = []
+        error_type = ErrorType.INVALID_EDGE_PROPERTY_VALUE
+
+        if PrefixManager.is_curie(subject):
+            prefix = PrefixManager.get_prefix(subject)
+            if prefix and prefix not in self.get_all_prefixes():
+                message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        else:
+            message = f"Edge property 'subject' has a value '{subject}' which is not a proper CURIE"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+
+        if PrefixManager.is_curie(object):
+            prefix = PrefixManager.get_prefix(object)
+            if prefix not in self.prefixes:
+                message = f"Edge property 'object' has a value '{object}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        else:
+            message = f"Edge property 'object' has a value '{object}' which is not a proper CURIE"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        if 'relation' in data:
+            if PrefixManager.is_curie(data['relation']):
+                prefix = PrefixManager.get_prefix(data['relation'])
+                if prefix not in self.prefixes:
+                    message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+            else:
+                message = f"Edge property 'relation' has a value '{data['relation']}' which is not a proper CURIE"
+                errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        return errors
+
+    def validate_categories(self, node: str, data: dict) -> list:
+        """
+        Validate ``category`` field of a given node.
+
+        Parameters
+        ----------
+        node: str
+            Node identifier
+        data: dict
+            Node properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given node
+
+        """
+        error_type = ErrorType.INVALID_CATEGORY
+        errors = []
+        categories = data.get('category')
+        if categories is None:
+            message = "Node does not have a 'category' property"
+            errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        elif not isinstance(categories, list):
+            message = f"Node property 'category' expected to be of type {list}"
+            errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        else:
+            for category in categories:
+                if PrefixManager.is_curie(category):
+                    category = PrefixManager.get_reference(category)
+                m = re.match(r"^([A-Z][a-z\d]+)+$", category)
+                if not m:
+                    # category is not CamelCase
+                    error_type = ErrorType.INVALID_CATEGORY
+                    message = f"Category '{category}' is not in CamelCase form"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                formatted_category = camelcase_to_sentencecase(category)
+                if not self.toolkit.is_category(formatted_category):
+                    message = f"Category '{category}' not in Biolink Model"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                else:
+                    c = self.toolkit.get_element(formatted_category.lower())
+                    if category != c.name and category in c.aliases:
+                        message = f"Category {category} is actually an alias for {c.name}; Should replace '{category}' with '{c.name}'"
+                        errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+        return errors
+
+    def validate_edge_label(self, subject: str, object: str, data: dict) -> list:
+        """
+        Validate ``edge_label`` field of a given edge.
+
+        Parameters
+        ----------
+        subject: str
+            Subject identifier
+        object: str
+            Object identifier
+        data: dict
+            Edge properties
+
+        Returns
+        -------
+        list
+            A list of errors for a given edge
+
+        """
+        error_type = ErrorType.INVALID_EDGE_LABEL
+        errors = []
+        edge_label = data.get('edge_label')
+        if edge_label is None:
+            message = "Edge does not have an 'edge_label' property"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        elif not isinstance(edge_label, str):
+            message = f"Edge property 'edge_label' expected to be of type 'string'"
+            errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        else:
+            if PrefixManager.is_curie(edge_label):
+                edge_label = PrefixManager.get_reference(edge_label)
+            m = re.match(r"^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$", edge_label)
+            if m:
+                p = self.toolkit.get_element(snakecase_to_sentencecase(edge_label))
+                if p is None:
+                    message = f"Edge label '{edge_label}' not in Biolink Model"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+                elif edge_label != p.name and edge_label in p.aliases:
+                    message = f"Edge label '{edge_label}' is actually an alias for {p.name}; Should replace {edge_label} with {p.name}"
+                    errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+            else:
+                message = f"Edge label '{edge_label}' is not in snake_case form"
+                errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
+        return errors
+
+    def report(self, errors: List[ValidationError]) -> List:
+        """
+        Prepare error report.
+
+        Parameters
+        ----------
+        errors: List[ValidationError]
+            List of kgx.validator.ValidationError
+
+        Returns
+        -------
+        List
+            A list of formatted errors
+
+        """
+        return [str(x) for x in errors]
+
+    def write_report(self, errors: List[ValidationError], outstream: TextIO) -> None:
+        """
+        Write error report to a file
+
+        Parameters
+        ----------
+        errors: List[ValidationError]
+            List of kgx.validator.ValidationError
+        outstream: TextIO
+            The stream to write to
+
+        """
+        for x in self.report(errors):
+            outstream.write(f"{x}\n")

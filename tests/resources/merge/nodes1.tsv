@@ -1,0 +1,6 @@
+id	name	category	p1	p2	p3
+x1	node x1	biolink:Gene	1	1	1
+x2	node x2	biolink:Gene	2	2	2
+x3	node x3	biolink:Gene	3	3	3
+x4	node x4	biolink:Gene	4	4	4
+x5	node x5	biolink:Gene	5	5	5

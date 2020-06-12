@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 NAME = 'Knowledge Graph Exchange'
 DESCRIPTION = 'Knowledge Graph Exchange tools for BioLink model-compliant graphs.'
 URL = 'https://github.com/NCATS-Tangerine/kgx'
@@ -31,7 +30,8 @@ REQUIRED = [
     "shexjsg>=0.6.5",
     "terminaltables>=3.1.0",
     "stringcase>=1.2.0",
-    "validators>=0.13.0"
+    "validators>=0.13.0",
+    "cachetools>-4.0.0"
 ]
 
 EXTRAS = {}
@@ -48,6 +48,7 @@ setup(
     long_description=open('README.md').read(),
     license=LICENSE,
     packages=find_packages(),
+    package_data={'kgx': ["config.yml"]},
     keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator',
     classifiers=[
         'Intended Audience :: Science/Research',
@@ -59,6 +60,7 @@ setup(
     ],
     install_requires=REQUIRED,
     extras_require=EXTRAS,
+    include_package_data=True,
     entry_points="""
         [console_scripts]
         kgx=translator_kgx:cli

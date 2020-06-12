@@ -1,6 +1,10 @@
+import logging
+import re
 from typing import Dict
 
 import prefixcommons.curie_util as cu
+
+from kgx.config import get_config
 
 
 class PrefixManager(object):
@@ -25,7 +29,7 @@ class PrefixManager(object):
 
         """
         if url is None:
-            url = "https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld"
+            url = get_config()['jsonld-context']['biolink']
 
         # NOTE: this is cached
         self.set_prefix_map(cu.read_remote_jsonld_context(url))
@@ -40,8 +44,20 @@ class PrefixManager(object):
             Dictionary of prefix to URI mappings
 
         """
-        self.prefix_map = m
-        self.reverse_prefix_map = {y: x for x, y in m.items() if isinstance(y, str)}
+        self.prefix_map = {}
+        for k, v in m.items():
+            if isinstance(v, str):
+                self.prefix_map[k] = v
+        if 'biolink' not in self.prefix_map:
+            self.prefix_map['biolink'] = self.prefix_map['@vocab']
+            del self.prefix_map['@vocab']
+        if ':' in self.prefix_map:
+            logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
+        else:
+            # TODO: the Default URL should be configurable
+            self.prefix_map[':'] = 'https://www.example.org/UNKNOWN/'
+
+        self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
     def expand(self, curie: str, fallback: bool = True) -> str:
         """
@@ -61,17 +77,10 @@ class PrefixManager(object):
             A URI corresponding to the CURIE
 
         """
-        uri = None
-        if curie in self.prefix_map:
-            uri = self.prefix_map[curie]
-            # TODO: prefixcommons.curie_util will not unfold objects in json-ld context
-            if isinstance(uri, str):
-                return uri
-        else:
-            uri = cu.expand_uri(curie, [self.prefix_map])
-            if uri == curie and fallback:
-                uri = cu.expand_uri(curie)
-        print("CURIE {} to IRI {}".format(curie, uri))
+        uri = cu.expand_uri(curie, [self.prefix_map])
+        if uri == curie and fallback:
+            uri = cu.expand_uri(curie)
+
         return uri
 
     def contract(self, uri: str, fallback: bool = True) -> str:
@@ -95,17 +104,99 @@ class PrefixManager(object):
         """
         # always prioritize non-CURIE shortform
         curie = None
-        print(uri)
         if uri in self.reverse_prefix_map:
             curie = self.reverse_prefix_map[uri]
         else:
             curie_list = cu.contract_uri(uri, [self.prefix_map])
-            print(curie_list)
             if len(curie_list) == 0 and fallback:
                 curie_list = cu.contract_uri(uri)
                 if len(curie_list) != 0:
                     curie = curie_list[0]
             else:
                 curie = curie_list[0]
-        print("IRI {} to CURIE {}".format(uri, curie))
         return curie
+
+    @staticmethod
+    def is_curie(s: str) -> bool:
+        """
+        Check if a given string is a CURIE.
+
+        Parameters
+        ----------
+        s: str
+            A string
+
+        Returns
+        -------
+        bool
+            Whether or not the given string is a CURIE
+
+        """
+        if isinstance(s, str):
+            m = re.match(r"^[^ <()>:]*:[^/ :]+$", s)
+            return bool(m)
+        else:
+            return False
+
+    @staticmethod
+    def is_iri(s: str) -> bool:
+        """
+        Check if a given string as an IRI.
+
+        Parameters
+        ----------
+        s: str
+            A string
+
+        Returns
+        -------
+        bool
+            Whether or not the given string is an IRI.
+
+        """
+        if isinstance(s, str):
+            return s.startswith('http') or s.startswith('https')
+        else:
+            return False
+
+    @staticmethod
+    def get_prefix(curie: str) -> str:
+        """
+        Get the prefix from a given CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            The CURIE
+
+        Returns
+        -------
+        str
+            The CURIE prefix
+
+        """
+        prefix = None
+        if PrefixManager.is_curie(curie):
+            prefix = curie.split(':', 1)[0]
+        return prefix
+
+    @staticmethod
+    def get_reference(curie: str) -> str:
+        """
+        Get the reference of a given CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            The CURIE
+
+        Returns
+        -------
+        str
+            The reference of a CURIE
+
+        """
+        reference = None
+        if PrefixManager.is_curie(curie):
+            reference = curie.split(':', 1)[1]
+        return reference

@@ -2,10 +2,9 @@ export PYTHONPATH=.
 CONTAINER_NAME=kgx_neo_test
 
 NEO4J_HOST=localhost
-NEO4J_ADDRESS=bolt://$(NEO4J_HOST):7687
-#NEO4J_ADDRESS=http://$(NEO4J_HOST):7474
+NEO4J_ADDRESS=http://$(NEO4J_HOST):7474
 NEO4J_USER=neo4j
-NEO4J_PASSWORD=demo
+NEO4J_PASSWORD=test
 
 clean:
 	@-rm -f tests/logs/*.log

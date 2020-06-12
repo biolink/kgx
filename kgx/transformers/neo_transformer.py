@@ -1,13 +1,14 @@
-import itertools
 import logging
+import itertools
 import uuid
+import click
+import networkx as nx
 from typing import Tuple, List, Dict
 
-import click
+from kgx.transformers.transformer import Transformer
+from kgx.utils.kgx_utils import generate_edge_key
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
-
-from .transformer import Transformer
 
 
 class NeoTransformer(Transformer):
@@ -15,13 +16,15 @@ class NeoTransformer(Transformer):
     Transformer for reading from and writing to a Neo4j database.
     """
 
-    def __init__(self, graph=None, host=None, port=None, username=None, password=None):
+    def __init__(self, graph: nx.MultiDiGraph = None, uri: str = None, username: str = None, password: str = None):
+        """
+        Initialize an instance of NeoTransformer.
+        """
         super(NeoTransformer, self).__init__(graph)
         self.http_driver = None
-        http_uri = f'http://{host}:{port}'
-        self.http_driver = http_gdb(http_uri, username=username, password=password)
+        self.http_driver = http_gdb(uri, username=username, password=password)
 
-    def load(self, start=0, end=None, is_directed=True) -> None:
+    def load(self, start: int = 0, end: int = None, is_directed: bool = True) -> None:
         """
         Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
@@ -32,9 +35,11 @@ class NeoTransformer(Transformer):
         end: int
             End for pagination
         is_directed: bool
-            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         """
+        # TODO: make PAGE_SIZE configurable
+
         PAGE_SIZE = 10_000
 
         if end is None:
@@ -45,26 +50,27 @@ class NeoTransformer(Transformer):
 
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = self.current_time_in_millis()
-            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, is_directed=is_directed):
+            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, **{'is_directed': is_directed}):
                 self.load_edges(page)
                 bar.update(PAGE_SIZE)
             bar.update(count)
             time_end = self.current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
-    def count(self, is_directed=True) -> int:
+    def count(self, is_directed: bool = True) -> int:
         """
         Get the total count of records to be fetched from the Neo4j database.
 
         Parameters
         ----------
         is_directed: bool
-            Are edges directed or undirected ('True', by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         Returns
         -------
         int
             The total count of records
+
         """
         direction = '->' if is_directed else '-'
         query = f"""
@@ -72,7 +78,7 @@ class NeoTransformer(Transformer):
         RETURN COUNT(*) AS count;
         """
 
-        logging.info("Query: {}".format(query))
+        logging.debug("Query: {}".format(query))
         try:
             query_result = self.http_driver.query(query)
         except CypherException as ce:
@@ -128,7 +134,6 @@ class NeoTransformer(Transformer):
             attributes['category'].append(Transformer.DEFAULT_NODE_LABEL)
 
         node_id = node['id'] if 'id' in node else node.id
-
         self.graph.add_node(node_id, **attributes)
 
     def load_edges(self, edges: List) -> None:
@@ -158,7 +163,6 @@ class NeoTransformer(Transformer):
             An edge
 
         """
-        edge_key = str(uuid.uuid4())
         edge_subject = edge.start
         edge_predicate = edge.properties
         edge_object = edge.end
@@ -171,7 +175,6 @@ class NeoTransformer(Transformer):
         for key, value in edge_predicate.items():
             attributes[key] = value
 
-        # TODO: Is this code residual from attempting to adapt to several drivers?
         if 'subject' not in attributes:
             attributes['subject'] = subject_id
         if 'object' not in attributes:
@@ -185,30 +188,31 @@ class NeoTransformer(Transformer):
         if not self.graph.has_node(object_id):
             self.load_node(edge_object)
 
-        self.graph.add_edge(subject_id, object_id, edge_key, **attributes)
+        key = generate_edge_key(subject_id, attributes['edge_label'], object_id)
+        self.graph.add_edge(subject_id, object_id, key, **attributes)
 
     def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
         """
-        Get pages of size `page_size` from Neo4j.
-        Returns an iterator of pages where number of pages is (`end` - `start`)/`page_size`
+        Get pages of size ``page_size`` from Neo4j.
+        Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
 
         Parameters
         ----------
         query_function: func
-            The function to use to fetch records. Usually this is `self.get_nodes` or `self.get_edges`
+            The function to use to fetch records. Usually this is ``self.get_nodes`` or ``self.get_edges``
         start: int
             Start for pagination
         end: int
             End for pagination
         page_size: int
-            Size of each page (`10000`, by default)
+            Size of each page (``10000``, by default)
         **kwargs: dict
-            Any additional arguments that might be relevant for `query_function`
+            Any additional arguments that might be relevant for ``query_function``
 
         Returns
         -------
         list
-            An iterator for a list of records from Neo4j. The size of the list is `page_size`
+            An iterator for a list of records from Neo4j. The size of the list is ``page_size``
 
         """
 
@@ -290,7 +294,7 @@ class NeoTransformer(Transformer):
         limit: int
             Total number of records to query for
         is_directed: bool
-            Are edges directed or undirected (`True`, by default, since edges in most cases are directed)
+            Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
 
         Returns
         -------
@@ -323,6 +327,8 @@ class NeoTransformer(Transformer):
         """
         Load a node into Neo4j.
 
+        TODO: To be deprecated.
+
         Parameters
         ----------
         obj: dict
@@ -352,7 +358,7 @@ class NeoTransformer(Transformer):
 
         """
         for category in nodes_by_category.keys():
-            logging.info("Generating UNWIND for category: {}".format(category))
+            logging.debug("Generating UNWIND for category: {}".format(category))
             query = self.generate_unwind_node_query(category)
             logging.info(query)
             try:
@@ -364,9 +370,9 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving nodes into Neo4j.
 
-        There should be a CONSTRAINT in Neo4j for `self.DEFAULT_NODE_LABEL`.
-        The query uses `self.DEFAULT_NODE_LABEL` as the node label to increase speed for adding nodes.
-        The query also sets label to `self.DEFAULT_NODE_LABEL` for any node to make sure that the CONSTRAINT applies.
+        There should be a CONSTRAINT in Neo4j for ``self.DEFAULT_NODE_LABEL``.
+        The query uses ``self.DEFAULT_NODE_LABEL`` as the node label to increase speed for adding nodes.
+        The query also sets label to ``self.DEFAULT_NODE_LABEL`` for any node to make sure that the CONSTRAINT applies.
 
         Parameters
         ----------
@@ -417,7 +423,7 @@ class NeoTransformer(Transformer):
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
 
-        Query uses `self.DEFAULT_NODE_LABEL` to quickly lookup the required subject and object node.
+        Query uses ``self.DEFAULT_NODE_LABEL`` to quickly lookup the required subject and object node.
 
         Parameters
         ----------
@@ -443,11 +449,14 @@ class NeoTransformer(Transformer):
         """
         Load an edge into Neo4j.
 
+        TODO: To be deprecated.
+
         Parameters
         ----------
         obj: dict
             A dictionary that represents an edge and its properties.
-            The edge must have 'subject', 'edge_label' and 'object' properties. For all other necessary properties, refer to the BioLink Model.
+            The edge must have 'subject', 'edge_label' and 'object' properties.
+            For all other necessary properties, refer to the BioLink Model.
 
         """
         obj = self.validate_edge(obj)
@@ -473,17 +482,16 @@ class NeoTransformer(Transformer):
         """
         nodes_by_category = {}
 
-        for n in self.graph.nodes():
-            node = self.graph.nodes[n]
-            if 'id' not in node:
-                logging.warning("Ignoring node as it does not have an 'id' property: {}".format(node))
-                continue
-            node = self.validate_node(node)
-            category = ':'.join(node['category'])
+        for n, node_data in self.graph.nodes(data=True):
+            if 'id' not in node_data:
+                node_data['id'] = n
+            node_data = self.validate_node(node_data)
+            category = ':'.join(node_data['category'])
+            logging.info("Category: {}".format(category))
             if category not in nodes_by_category:
-                nodes_by_category[category] = [node]
+                nodes_by_category[category] = [node_data]
             else:
-                nodes_by_category[category].append(node)
+                nodes_by_category[category].append(node_data)
 
         edges_by_edge_label = {}
         for n, nbrs in self.graph.adjacency():
@@ -496,32 +504,33 @@ class NeoTransformer(Transformer):
                         edges_by_edge_label[edge['edge_label']].append(edge)
 
         # create indexes
+        print(set(nodes_by_category.keys()))
         self.create_constraints(set(nodes_by_category.keys()))
         # save all nodes
         self.save_node_unwind(nodes_by_category)
         # save all edges
         self.save_edge_unwind(edges_by_edge_label)
 
-    def save(self) -> str:
+    def save(self) -> None:
         """
         Save all nodes and edges from networkx.MultiDiGraph into Neo4j.
 
+        TODO: To be deprecated.
+
         """
         categories = {self.DEFAULT_NODE_LABEL}
-        for n in self.graph.nodes():
-            node = self.graph.nodes[n]
-            if 'category' in node:
-                if isinstance(node['category'], list):
-                    categories.update(node['category'])
+        for n, node_data in self.graph.nodes(data=True):
+            if 'category' in node_data:
+                if isinstance(node_data['category'], list):
+                    categories.update(node_data['category'])
                 else:
-                    categories.add(node['category'])
+                    categories.add(node_data['category'])
 
         self.create_constraints(categories)
-        for node_id in self.graph.nodes():
-            node_attributes = self.graph.node[node_id]
-            if 'id' not in node_attributes:
-                node_attributes['id'] = node_id
-            self.save_node(node_attributes)
+        for n, node_data in self.graph.nodes(data=True):
+            if 'id' not in node_data:
+                node_data['id'] = n
+            self.save_node(node_data)
         for n, nbrs in self.graph.adjacency():
             for nbr, eattr in nbrs.items():
                 for entry, adjitem in eattr.items():
@@ -551,7 +560,7 @@ class NeoTransformer(Transformer):
 
     def create_constraints(self, categories: set) -> None:
         """
-        Create a unique constraint on node 'id' for all `categories` in Neo4j.
+        Create a unique constraint on node 'id' for all ``categories`` in Neo4j.
 
         Parameters
         ----------
@@ -578,7 +587,7 @@ class NeoTransformer(Transformer):
 
     def get_filter(self, key: str) -> str:
         """
-        Get the value for filter as defined by `key`.
+        Get the value for filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
 
         Parameters

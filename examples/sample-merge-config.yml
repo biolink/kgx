@@ -1,42 +1,41 @@
 target:
-   kg-one:
-      neo4j:
-         username: neo4j
-         password: neo4j
-         host: localhost
-         ports:
-            bolt: 7687
-            http: 7474
-            https: 7473
-      target_filter:
-         subject_category: gene
-         object_category: phenotypic_feature
-         edge_label: has_phenotype
-      query_limits:
-         start: 0
-         end: 1000
-   kg-two:
-      neo4j:
-         username: neo4j
-         password: neo4j
-         host: localhost
-         ports:
-            bolt: 7687
-            http: 7474
-            https: 7473
-      target_filter:
-         subject_category: gene
-         object_category: phenotypic_feature
-         edge_label: has_phenotype
-      query_limits:
-         start: 0
-         end: 1000
-destination:
-   neo4j:
+   sequence-ontology:
+      type: owl
+      filename: data/so.owl
+   hgnc-dataset:
+      type: ttl
+      filename: data/hgnc_test.ttl
+   neo-kg:
+      type: neo4j
+      uri: http://localhost:7474
       username: neo4j
       password: neo4j
-      host: localhost
-      ports:
-         bolt: 7687
-         http: 7474
-         https: 7473
+      page_size: 10000
+      filters:
+         subject_category:
+            - gene
+            - disease
+         object_category:
+            - named_thing
+         edge_label:
+            - interacts_with
+            - has_phenotype
+   sparql-kg:
+      type: sparql
+      uri: http://localhost/sparql
+      filters:
+         subject_category:
+            - biolink:Gene
+            - biolink:PhenotypicFeature
+         object_category:
+            - biolink:Disease
+         edge_label:
+            - biolink:is_marker_for
+            - biolink:has_phenotype
+   local-kg:
+      type: json
+      filename: local-kg-dump.json
+destination:
+   type: tsv
+   filename: merged-kg
+

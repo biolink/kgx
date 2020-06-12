@@ -8,8 +8,9 @@ services:
   - docker
 
 before_install:
-  - docker pull neo4j:latest
-  - docker run -d -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:latest
+  - docker pull neo4j:3.5.3
+  - docker run -d -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:3.5.3
+  - docker ps -a
 
 install:
   - pip install --upgrade pip setuptools wheel

@@ -2,60 +2,75 @@ import kgx
 import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
-from urllib.parse import urlparse
-from kgx import Transformer, map_graph, Filter, FilterLocation
+
+import networkx as nx
+from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
+from collections import Counter, defaultdict, OrderedDict
+from terminaltables import AsciiTable
+from datetime import datetime
+
+from kgx import Transformer, map_graph
+from kgx.operations.graph_merge import GraphMerge
 from kgx.validator import Validator
-from kgx.cli.error_logging import append_errors_to_file, append_errors_to_files
-
-from kgx.cli.decorators import handle_exception
-from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
-
+from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable, build_transformer, get_prefix, \
+    stringify, load_transformer, make_neo4j_transformer
 from kgx.cli.utils import Config
 from kgx.utils import file_write
 
-from neo4j.v1 import GraphDatabase
-from neo4j.v1.types import Node, Record
-
-from collections import Counter, defaultdict, OrderedDict
-from terminaltables import AsciiTable
-
-import pandas as pd
-
-from datetime import datetime
-
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
+
 def error(msg):
-    click.echo(msg)
+    logging.error(msg)
     quit()
+
 
 @click.group()
 @click.option('--debug', is_flag=True, help='Prints the stack trace if error occurs')
 @click.version_option(version=kgx.__version__, prog_name=kgx.__name__)
 @pass_config
-def cli(config, debug):
+def cli(config: dict, debug: bool = False):
     """
-    Knowledge Graph Exchange
+    Knowledge Graph Exchange CLI entrypoint.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    debug: bool
+        Whether to print debug messages
+
     """
     config.debug = debug
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
-def get_prefix(curie:str) -> str:
-    if ':' in curie:
-        prefix, _ = curie.split(':', 1)
-        return prefix
-    else:
-        return None
 
 @cli.command('node-summary')
 @click.argument('filepath', type=click.Path(exists=True), required=True)
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--max-rows', '-m', type=int, help='The maximum number of rows to return')
 @click.option('--output', '-o', type=click.Path(exists=False))
-def node_summary(filepath, input_type, max_rows, output):
+@pass_config
+def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, output: str):
     """
-    Loads and summarizes a knowledge graph node set
+    Loads and summarizes a knowledge graph node set, where the input is a file.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    filepath: str
+        Input file
+    input_type: str
+        Input file type
+    max_rows: int
+        Max number of rows to display in the output
+    output: str
+        Where to write the output (stdout, by default)
+
     """
     t = build_transformer(filepath, input_type)
     t.parse(filepath)
@@ -73,8 +88,8 @@ def node_summary(filepath, input_type, max_rows, output):
             category = data.get('category')
             prefix = get_prefix(n)
 
-            if category is not None and len(category) > 1 and 'named thing' in category:
-                category.remove('named thing')
+            if category is not None and len(category) > 1 and 'named_thing' in category:
+                category.remove('named_thing')
 
             if isinstance(category, (list, set)):
                 category = ", ".join("'{}'".format(c) for c in category)
@@ -130,24 +145,31 @@ def node_summary(filepath, input_type, max_rows, output):
     else:
         click.echo(AsciiTable(headers + rows).table)
 
-def stringify(s):
-    if isinstance(s, list):
-        if s is not None and len(s) > 1 and 'named thing' in s:
-            s.remove('named thing')
-        return ", ".join("'{}'".format(c) for c in s)
-    elif isinstance(s, str):
-        return "'{}'".format(s)
-    else:
-        return str(s)
 
 @cli.command('edge-summary')
 @click.argument('filepath', type=click.Path(exists=True), required=True)
 @click.option('--input-type', type=click.Choice(get_file_types()))
 @click.option('--max_rows', '-m', type=int, help='The maximum number of rows to return')
 @click.option('--output', '-o', type=click.Path(exists=False))
-def edge_summary(filepath, input_type, max_rows, output):
+@pass_config
+def edge_summary(config: dict, filepath: str, input_type: str, max_rows: int, output: str):
     """
-    Loads and summarizes a knowledge graph edge set
+    Loads and summarizes a knowledge graph edge set, where the input is a file.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    filepath: str
+        Input file
+    input_type: str
+        Input file type
+    max_rows: int
+        Max number of rows to display in the output
+    output: str
+        Where to write the output (stdout, by default)
+
     """
     t = build_transformer(filepath, input_type)
     t.parse(filepath)
@@ -180,29 +202,45 @@ def edge_summary(filepath, input_type, max_rows, output):
     else:
         click.echo(AsciiTable(headers + rows).table)
 
+
 @cli.command(name='neo4j-node-summary')
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str, required=True)
 @click.option('-p', '--password', type=str, required=True)
 @click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def neo4j_node_summary(config, address, username, password, output=None):
+def neo4j_node_summary(config: dict, address: str, username: str, password: str, output: str = None):
+    """
+    Get a summary of all the nodes in a Neo4j database.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    address: str
+        The full HTTP address for Neo4j database
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    output: str
+        Where to write the output (stdout, by default)
+
+    """
     if output is not None and not is_writable(output):
         error(f'Cannot write to {output}')
 
-    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+    http_driver = http_gdb(address, username=username, password=password)
 
     query = """
     MATCH (x) RETURN DISTINCT x.category AS category
     """
 
-    with bolt_driver.session() as session:
-        records = session.run(query)
-
+    records = http_driver.query(query)
     categories = set()
-
     for record in records:
-        category = record['category']
+        category = record[0]
         if isinstance(category, str):
             categories.add(category)
         elif isinstance(category, (list, set, tuple)):
@@ -215,23 +253,20 @@ def neo4j_node_summary(config, address, username, password, output=None):
     rows = []
     with click.progressbar(categories, length=len(categories)) as bar:
         for category in bar:
-            query = """
-            MATCH (x) WHERE x.category = {category} OR {category} IN x.category
+            query = f"""
+            MATCH (x) WHERE x.category = '{category}' OR '{category}' IN x.category
             RETURN DISTINCT
-                {category} AS category,
+                '{category}' AS category,
                 split(x.id, ':')[0] AS prefix,
                 COUNT(*) AS frequency
             ORDER BY category, frequency DESC;
             """
-
-            with bolt_driver.session() as session:
-                records = session.run(query, category=category)
-
+            records = http_driver.query(query)
             for record in records:
                 rows.append({
-                    'category' : record['category'],
-                    'prefix' : record['prefix'],
-                    'frequency' : record['frequency']
+                    'category': record[0],
+                    'prefix': record[1],
+                    'frequency': record[2]
                 })
 
     df = pd.DataFrame(rows)
@@ -243,29 +278,46 @@ def neo4j_node_summary(config, address, username, password, output=None):
         df.to_csv(output, sep='|', header=True)
         click.echo('Saved report to {}'.format(output))
 
+
 @cli.command(name='neo4j-edge-summary')
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str, required=True)
 @click.option('-p', '--password', type=str, required=True)
 @click.option('-o', '--output', type=click.Path(exists=False))
 @pass_config
-def neo4j_edge_summary(config, address, username, password, output=None):
+def neo4j_edge_summary(config: dict, address: str, username: str, password: str, output: str = None):
+    """
+    Get a summary of all the edges in a Neo4j database.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    address: str
+        The full HTTP address for Neo4j database
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    output: str
+        Where to write the output (stdout, by default)
+
+    """
     if output is not None and not is_writable(output):
         error(f'Cannot write to {output}')
 
-    bolt_driver = GraphDatabase.driver(address, auth=(username, password))
+    http_driver = http_gdb(address, username=username, password=password)
 
     query = """
     MATCH (x) RETURN DISTINCT x.category AS category
     """
 
-    with bolt_driver.session() as session:
-        records = session.run(query)
-
+    records = http_driver.query(query)
     categories = set()
 
     for record in records:
-        category = record['category']
+        category = record[0]
         if isinstance(category, str):
             categories.add(category)
         elif isinstance(category, (list, set, tuple)):
@@ -297,17 +349,15 @@ def neo4j_edge_summary(config, address, username, password, output=None):
     rows = []
     with click.progressbar(combinations, length=len(combinations)) as bar:
         for category1, category2 in bar:
-            with bolt_driver.session() as session:
-                records = session.run(query, category1=category1, category2=category2)
-
-                for r in records:
-                    rows.append({
-                        'subject_category' : r['subject_category'],
-                        'object_category' : r['object_category'],
-                        'subject_prefix' : r['subject_prefix'],
-                        'object_prefix' : r['object_prefix'],
-                        'frequency' : r['frequency']
-                    })
+            records = http_driver.query(query, params={'category1': category2, 'category2': category2})
+            for r in records:
+                rows.append({
+                    'subject_category': r[0],
+                    'object_category': r[1],
+                    'subject_prefix': r[3],
+                    'object_prefix': r[4],
+                    'frequency': r[5]
+                })
 
     df = pd.DataFrame(rows)
     df = df[['subject_category', 'subject_prefix', 'object_category', 'object_prefix', 'frequency']]
@@ -323,45 +373,84 @@ def neo4j_edge_summary(config, address, username, password, output=None):
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--output', '-o', type=click.Path(exists=False), required=True, help='The path to a text file to append the output to.')
 @click.option('--output-dir', '-d', type=click.Path(exists=False), help='The path to a directory to save a series of text files to.')
+@click.option('--format', '-f', required=False, help='The input format type')
 @pass_config
-def validate(config, path, output, output_dir):
-    t = get_transformer(get_type(path))()
-    t.parse(path)
+def validate(config: dict, path: str, output: str, output_dir: str, format: str):
+    """
+    Run KGX validation on an input file to check for BioLink Model compliance.
+    \f
 
-    validator = Validator()
-    validator.validate(t.graph)
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    path: str
+        Path to input file
+    output: str
+        Path to output file
+    output_dir:
+        Path to a directory
+    format:
+        The input format
 
-    time = datetime.now()
-
-    if len(validator.errors) == 0:
-        click.echo('No errors found')
-
+    """
+    t = None
+    if format:
+        t = get_transformer(format)()
     else:
-        append_errors_to_file(output, validator.errors, time)
-        if output_dir is not None:
-            append_errors_to_files(output_dir, validator.errors, time)
+        t = get_transformer(get_type(path))()
+    t.parse(path)
+    validator = Validator()
+    errors = validator.validate(t.graph)
+    validator.write_report(errors, open(output, 'w'))
 
-from neo4jrestclient.client import GraphDatabase as http_gdb
-import networkx as nx
 
 @cli.command(name='neo4j-download')
-# @click.option('-d', '--directed', is_flag=True, help='Enforces subject -> object edge direction')
-# @click.option('-lb', '--labels', type=(click.Choice(FilterLocation.values()), str), multiple=True, help='For filtering on labels. CHOICE: {}'.format(', '.join(FilterLocation.values())))
-# @click.option('-pr', '--properties', type=(click.Choice(FilterLocation.values()), str, str), multiple=True, help='For filtering on properties (key value pairs). CHOICE: {}'.format(', '.join(FilterLocation.values())))
 @click.option('-a', '--address', type=str, required=True)
-@click.option('-u', '--username', type=str)
-@click.option('-p', '--password', type=str)
-@click.option('--subject-label', type=str,)
+@click.option('-u', '--username', type=str, required=True)
+@click.option('-p', '--password', type=str, required=True)
+@click.option('-o', '--output', type=click.Path(exists=False), required=True)
+@click.option('--output-type', type=click.Choice(get_file_types()), default='csv')
+@click.option('--subject-label', type=str)
 @click.option('--object-label', type=str)
-@click.option('--edge-type', type=str)
+@click.option('--edge-label', type=str)
+@click.option('--directed', type=bool, default=False, help='Whether the edges are directed')
 @click.option('--stop-after', type=int, help='Once this many edges are downloaded the application will finish')
 @click.option('--page-size', type=int, default=10_000, help='The size of pages to download for each batch')
-# @click.option('--start', type=int, default=0)
-# @click.option('--end', type=int)
-@click.option('-o', '--output', type=click.Path(exists=False), required=True)
-@click.option('--output-type', type=click.Choice(get_file_types()))
 @pass_config
-def neo4j_download(config, page_size, stop_after, subject_label, object_label, edge_type, address, username, password, output, output_type):
+def neo4j_download(config: dict, address: str, username: str, password: str, output: str, output_type: str, subject_label: str, object_label: str, edge_label: str, directed: bool, page_size: int, stop_after: int):
+    """
+    Download nodes and edges from Neo4j database.
+    \f
+
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    address: str
+        The full HTTP address for Neo4j database
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    output: str
+        Where to write the output (stdout, by default)
+    output_type: str
+        The output type (``csv``, by default)
+    subject_label: str
+        The label for subject node in an association
+    object_label: str
+        The label for object node in an association
+    edge_label: str
+        The label for the edge in an association
+    directed: bool
+        Whether or not the edge is supposed to be directed (``true``, by default)
+    stop_after: int
+        The max number of edges to fetch
+    page_size: int
+        The page size to use while fetching associations from Neo4j (``10000``, by default)
+
+    """
     if not is_writable(output):
         try:
             with open(output, 'w+') as f:
@@ -369,38 +458,37 @@ def neo4j_download(config, page_size, stop_after, subject_label, object_label, e
         except:
             error(f'Cannot write to {output}')
 
-    output_transformer = get_transformer(get_type(output))()
+    output_transformer = get_transformer(output_type)()
     G = output_transformer.graph
 
     driver = http_gdb(address, username=username, password=password)
 
     subject_label = ':`{}`'.format(subject_label) if isinstance(subject_label, str) else ''
     object_label = ':`{}`'.format(object_label) if isinstance(object_label, str) else ''
-    edge_type = ':`{}`'.format(edge_type) if isinstance(edge_type, str) else ''
+    edge_label = ':`{}`'.format(edge_label) if isinstance(edge_label, str) else ''
 
-    match = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_type, object_label)
+    if directed:
+        query = 'match (n{})-[e{}]->(m{})'.format(subject_label, edge_label, object_label)
+    else:
+        query = 'match (n{})-[e{}]-(m{})'.format(subject_label, edge_label, object_label)
 
-    results = driver.query('{} return count(*)'.format(match))
-
-    click.echo('Using cyper query: {} return n, e, m'.format(match))
-
-    for a, in results:
-        size = a
-        break
+    results = driver.query('{} return count(*)'.format(query))
+    size = [x[0] for x in results][0]
+    print("SIZE: {}".format(size))
 
     if size == 0:
-        click.echo('No data available')
-        quit()
+        click.echo('No records found.')
+        return
+
+    click.echo('Using cypher query: {} return n, e, m'.format(query))
 
     page_size = 1_000
-
     skip_flag = False
 
     with click.progressbar(list(range(0, size, page_size)), label='Downloading {} many edges'.format(size)) as bar:
         for i in bar:
-            q = '{} return n, e, m skip {} limit {}'.format(match, i, page_size)
+            q = '{} return n, e, m skip {} limit {}'.format(query, i, page_size)
             results = driver.query(q)
-
             for n, e, m in results:
                 subject_attr = n['data']
                 object_attr = m['data']
@@ -434,58 +522,42 @@ def neo4j_download(config, page_size, stop_after, subject_label, object_label, e
             if stop_after is not None and G.number_of_edges() > stop_after:
                 break
 
-    output_transformer.save(output)
+    output_transformer.save(output, extension=output_type)
 
-
-
-    # t.load(is_directed=directed, start=start, end=end)
-    # t.report()
-    # transform_and_save(t, output, output_type)
-
-def set_transformer_filters(transformer:Transformer, labels:list, properties:list) -> None:
-    for location, label in labels:
-        if location == FilterLocation.EDGE.value:
-            target = '{}_label'.format(location)
-            transformer.set_filter(target=target, value=label)
-        else:
-            target = '{}_category'.format(location)
-            transformer.set_filter(target=target, value=label)
-
-    for location, property_name, property_value in properties:
-        target = '{}_property'.format(location)
-        transformer.set_filter(target=target, value=(property_name, property_value))
-
-def make_neo4j_transformer(address, username, password):
-    o = urlparse(address)
-
-    if o.password is None and password is None:
-        error('Could not extract the password from the address, please set password argument')
-    elif password is None:
-        password = o.password
-
-    if o.username is None and username is None:
-        error('Could not extract the username from the address, please set username argument')
-    elif username is None:
-        username = o.username
-
-    return kgx.NeoTransformer(
-        host=o.hostname,
-        port=o.port,
-        username=username,
-        password=password
-    )
 
 @cli.command(name='neo4j-upload')
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.option('--use-unwind', is_flag=True, help='Loads using UNWIND, which is quicker')
+@click.option('--use-unwind', is_flag=True, help='Loads using UNWIND cypher clause, which is quicker')
 @click.option('-a', '--address', type=str, required=True)
 @click.option('-u', '--username', type=str)
 @click.option('-p', '--password', type=str)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
 @pass_config
-def neo4j_upload(config, address, username, password, inputs, input_type, use_unwind):
-    t = load_transformer(inputs, input_type)
+def neo4j_upload(config: dict, address: str, username: str, password: str, inputs: List[str], input_type: str, use_unwind: bool):
+    """
+    Upload a set of nodes/edges to a Neo4j database.
+    \f
 
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    address: str
+        The full HTTP address for Neo4j database
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    inputs: List[str]
+        A list of files that contains nodes/edges
+    input_type: str
+        The input type
+    use_unwind: bool
+        Whether or not to use the UNWIND cypher clause. While this is quicker,
+        it requires the Neo4j database to support APOC procedures.
+
+    """
+    t = load_transformer(inputs, input_type)
     neo_transformer = make_neo4j_transformer(address, username, password)
     neo_transformer.graph = t.graph
 
@@ -496,194 +568,130 @@ def neo4j_upload(config, address, username, password, inputs, input_type, use_un
 
 @cli.command()
 @click.option('--input-type', type=click.Choice(get_file_types()))
-@click.option('--output-type', type=click.Choice(get_file_types()))
+@click.option('-o', '--output', type=click.Path(exists=False), required=True)
+@click.option('--output-type', type=click.Choice(get_file_types()), required=True)
 @click.option('--mapping', type=str)
 @click.option('--preserve', is_flag=True)
 @click.argument('inputs', nargs=-1, type=click.Path(exists=False), required=True)
-@click.option('-o', '--output', type=click.Path(exists=False), required=True)
 @pass_config
-def dump(config, inputs, output, input_type, output_type, mapping, preserve):
-    """\b
-    Transforms a knowledge graph from one representation to another
+def transform(config: dict, inputs: List[str], input_type: str, output: str, output_type: str, mapping: str, preserve: bool):
     """
-    if not is_writable(output):
-        error(f'Cannot write to {output}')
+    Transform a Knowledge Graph from one serialization form to another.
+    \f
 
-    t = load_transformer(inputs, input_type)
-    if mapping != None:
-        path = get_file_path(mapping)
-        with click.open_file(path, 'rb') as f:
-            d = pickle.load(f)
-            click.echo('Performing mapping: ' + mapping)
-            map_graph(G=t.graph, mapping=d, preserve=preserve)
-    transform_and_save(t, output, output_type)
+    Parameters
+    ----------
+    config: dict
+        A dictionary containing the configuration for kgx.cli
+    inputs: List[str]
+        A list of files that contains nodes/edges
+    input_type: str
+        The input type
+    output: str
+        The output file
+    output_type: str
+        The output type
+    mapping: str
+        A mapping file (TSV) for remapping node identifiers
+    preserve: bool
+        Whether to preserve old identifiers before remapping
 
-@cli.command(name='load-mapping')
-@click.argument('name', type=str)
-@click.argument('csv', type=click.Path())
-@click.option('--no-header', is_flag=True, help='Indicates that the given CSV file has no header, so that the first row will not be ignored')
-@click.option('--columns', type=(int, int), default=(None, None), required=False, help="The zero indexed input and output columns for the mapping")
-@click.option('--show', is_flag=True, help='Shows a small slice of the mapping')
-@pass_config
-def load_mapping(config, name, csv, columns, no_header, show):
-    header = None if no_header else 0
-    data = pd.read_csv(csv, header=header)
-    source, target = (0, 1) if columns == (None, None) else columns
-    d = {row[source] : row[target] for index, row in data.iterrows()}
-
-    if show:
-        for key, value in itertools.islice(d.items(), 5):
-            click.echo(str(key) + ' : ' + str(value))
-
-    path = get_file_path(name)
-
-    with open(path, 'wb') as f:
-        pickle.dump(d, f)
-        click.echo('Mapping \'{name}\' saved at {path}'.format(name=name, path=path))
-
-from kgx import clique_merge
-
-@cli.command()
-@click.option('--inputs', '-i', required=True, type=click.Path(exists=True), multiple=True)
-@click.option('--output', '-o', required=True, type=click.Path(exists=False))
-def merge(inputs, output):
     """
-    Loads a series of knowledge graphs and merges cliques using `same_as` edges
-    as well as `same_as` node properties. The resulting graph will not have any
-    `same_as` edges, and the remaining clique leader nodes will have all
-    equivalent identifiers in their `same_as` property.
-    """
-    transformers = []
-    output_transformer = get_transformer(get_type(output))()
-    graph = None
-    for path in inputs:
-        construct = get_transformer(get_type(path))
-        if construct is None:
-            raise Exception('No transformer for {}'.format(path))
-        transformers.append(construct())
-    for transformer, path in zip(transformers, inputs):
-        if graph is None:
-            graph = transformer.graph
-        else:
-            transformer.graph = graph
-        transformer.parse(path)
-    output_transformer.graph = graph
-    output_transformer.graph = clique_merge(output_transformer.graph)
-    output_transformer.save(output)
+    # load
+    input_transformer = load_transformer(inputs, input_type)
+
+    if mapping is not None:
+        # remap
+        mapping_dictionary = {}
+        with open(mapping) as M:
+            for line in M:
+                element = line.rstrip().split('\t')
+                mapping_dictionary[element[0]] = element[1]
+        logging.info('Performing remapping based on {}'.format(mapping))
+        map_graph(input_transformer.graph, mapping=mapping_dictionary, preserve=preserve)
+
+    # save
+    output_transformer = get_transformer(output_type)
+    if output_transformer is None:
+        logging.error('Output does not have a recognized type: ' + str(get_file_types()))
+    w = output_transformer(input_transformer.graph)
+    w.save(output, extension=output_type)
+
+
+# @cli.command()
+# @click.option('--inputs', '-i', required=True, type=click.Path(exists=True), multiple=True)
+# @click.option('--output', '-o', required=True, type=click.Path(exists=False))
+# def merge(inputs, output):
+#     """
+#     Loads a series of knowledge graphs and merges cliques using `same_as` edges
+#     as well as `same_as` node properties. The resulting graph will not have any
+#     `same_as` edges, and the remaining clique leader nodes will have all
+#     equivalent identifiers in their `same_as` property.
+#     """
+#     transformers = []
+#     output_transformer = get_transformer(get_type(output))()
+#     graph = None
+#     for path in inputs:
+#         construct = get_transformer(get_type(path))
+#         if construct is None:
+#             raise Exception('No transformer for {}'.format(path))
+#         transformers.append(construct())
+#     for transformer, path in zip(transformers, inputs):
+#         if graph is None:
+#             graph = transformer.graph
+#         else:
+#             transformer.graph = graph
+#         transformer.parse(path)
+#     output_transformer.graph = graph
+#     output_transformer.graph = clique_merge(output_transformer.graph)
+#     output_transformer.save(output)
 
 @cli.command(name='load-and-merge')
-@click.argument('merge_config', type=str)
-@click.option('--destination-uri', type=str)
-@click.option('--destination-username', type=str)
-@click.option('--destination-password', type=str)
-def load_and_merge(merge_config, destination_uri, destination_username, destination_password):
+@click.argument('load_config', type=str)
+@pass_config
+def load_and_merge(config: dict, load_config):
     """
-    Load nodes and edges from KGs, as defined in a config YAML, and merge them into a single graph
-    """
+    Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
+    The merge happens in-memory. This merged graph can then be written to a local/remote Neo4j instance
+    OR be serialized into a file.
+    \f
 
-    with open(merge_config, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+    .. note::
+        Everything here is driven by the ``load_config`` YAML.
+
+    Parameters
+    ----------
+    """
+    gm = GraphMerge()
+    with open(load_config, 'r') as YML:
+        cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
     transformers = []
     for key in cfg['target']:
-        logging.info("Connecting to {}".format(cfg['target'][key]))
-        uri = "{}:{}".format(cfg['target'][key]['neo4j']['host'], cfg['target'][key]['neo4j']['port'])
-        n = kgx.NeoTransformer(None, uri, cfg['target'][key]['neo4j']['username'],
-                               cfg['target'][key]['neo4j']['password'])
-        transformers.append(n)
+        target = cfg['target'][key]
+        logging.info("Loading {}".format(key))
+        if target['type'] in get_file_types():
+            # loading from a file
+            transformer = get_transformer(target['type'])()
+            for f in target['filename']:
+                transformer.parse(f, input_format=target['type'])
+            transformers.append(transformer)
+        elif target['type'] == 'neo4j':
+            transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
+            # TODO: support filters
+            transformer.load()
+            transformers.append(transformer)
+        else:
+            logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
-        if 'target_filter' in cfg['target'][key]:
-            for target_filter in cfg['target'][key]['target_filter']:
-                # Set filters
-                n.set_filter(target_filter, cfg['target'][key]['target_filter'][target_filter])
+    merged_graph = gm.merge_all_graphs([x.graph for x in transformers])
 
-        start = 0
-        end = None
-        if 'query_limits' in cfg['target'][key]:
-            if 'start' in cfg['target'][key]['query_limits']:
-                start = cfg['target'][key]['query_limits']['start']
-            if 'end' in cfg['target'][key]['query_limits']:
-                end = cfg['target'][key]['query_limits']['end']
-
-        n.load(start=start, end=end)
-
-    mergedTransformer = Transformer()
-    mergedTransformer.merge([x.graph for x in transformers])
-
-    if destination_uri and destination_username and destination_password:
-        destination = kgx.NeoTransformer(mergedTransformer.graph, uri=destination_uri, username=destination_username, password=destination_password)
-        destination.save_with_unwind()
-
-def get_file_path(name:str) -> str:
-    app_dir = click.get_app_dir(__name__)
-
-    if not os.path.exists(app_dir):
-        os.makedirs(app_dir)
-
-    return os.path.join(app_dir, name + '.pkl')
-
-def transform_and_save(t:Transformer, output_path:str, output_type:str=None):
-    """
-    Creates a transformer with the appropraite file type from the given
-    transformer, and applies that new transformation and saves to file.
-    """
-    if output_type is None:
-        output_type = get_type(output_path)
-
-    output_transformer = get_transformer(output_type)
-
-    if output_transformer is None:
-        error('Output does not have a recognized type: ' + str(get_file_types()))
-
-    kwargs = {
-        'extention' : output_type
-    }
-
-    w = output_transformer(t.graph)
-    result_path = w.save(output_path, **kwargs)
-
-    if result_path is not None and os.path.isfile(result_path):
-        click.echo("File created at: " + result_path)
-    elif os.path.isfile(output_path):
-        click.echo("File created at: " + output_path)
+    destination = cfg['destination']
+    if destination['type'] in ['csv', 'tsv', 'ttl', 'json', 'tar']:
+        destination_transformer = get_transformer(destination['type'])(merged_graph)
+        destination_transformer.save(destination['filename'])
+    elif destination['type'] == 'neo4j':
+        destination_transformer = kgx.NeoTransformer(merged_graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
+        destination_transformer.save_with_unwind()
     else:
-        error("Could not create file.")
-
-def build_transformer(path:str, input_type:str=None) -> Transformer:
-    if input_type is None:
-        input_type = get_type(path)
-    constructor = get_transformer(input_type)
-    if constructor is None:
-        error('File does not have a recognized type: ' + str(get_file_types()))
-    return constructor()
-
-def load_transformer(input_paths:List[str], input_type:str=None) -> Transformer:
-    """
-    Creates a transformer for the appropriate file type and loads the data into
-    it from file.
-    """
-    if input_type is None:
-        input_types = [get_type(i) for i in input_paths]
-        for t in input_types:
-            if input_types[0] != t:
-                error(
-                """
-                Each input file must have the same file type.
-                Try setting the --input-type parameter to enforce a single
-                type.
-                """
-                )
-            input_type = input_types[0]
-
-    transformer_constructor = get_transformer(input_type)
-
-    if transformer_constructor is None:
-        error('Inputs do not have a recognized type: ' + str(get_file_types()))
-
-    t = transformer_constructor()
-    for i in input_paths:
-        t.parse(i, input_type)
-
-    t.report()
-
-    return t
+        logging.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))

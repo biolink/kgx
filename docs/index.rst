@@ -1,105 +1,37 @@
-.. Knowledge Graph Exchange documentation master file, created by
-   sphinx-quickstart on Fri May 18 17:03:18 2018.
+.. kgx documentation master file, created by
+   sphinx-quickstart on Tue Jun 18 16:51:38 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Knowledge Graph Exchange's documentation
-===================================================
+Welcome to Knowledge Graph Exchange documentation
+=================================================
 
-A utility library and set of command line tools for exchanging data in knowledge graphs.
+KGX is a utility library and set of command line tools for exchanging data in Knowledge Graphs (KGs).
 
-The tooling here is partly generic but intended primarily for building the translator-knowledge-graph.
+The tooling here is partly generic but intended primarily for building the translator-knowledge-graph, and thus
+expects KGs to be `BioLink Model <https://biolink.github.io/biolink-model/>`_ compliant.
 
+The tool allows you to fetch (sub)graphs from one (or more) KG and create an entirely new KG.
 
-Installation
-------------
+The core data model is a Property Graph (PG), represented internally in Python using a networkx MultiDiGraph.
 
-.. code-block:: console
-
-   pip3 install -r requirements.txt
-   python3 setup.py install
-
-The installation requires Python 3.
-
-For convenience, make use of the venv module in Python 3 to create a lightweight virtual environment:
-
-.. code-block:: console
-
-   python3 -m venv env
-   source env/bin/activate
-
-   pip install -r requirements.txt
-   python setup.py install
+KGX supports Neo4j and RDF triple stores, along with other serialization formats such as TSV, CSV, JSON and TTL.
 
 
-Documentation
--------------
-
-.. toctree::
-   :maxdepth: 2
-
-   command_line_doc
-   import
-
-
-Examples
+Contents
 --------
 
 .. toctree::
    :maxdepth: 2
 
-   command_line_examples
-   workflows
+   installation
+   documentation
    examples
+   cli_usage
 
-
-Internal Representation
------------------------
-
-Internal representation is networkx MultiDiGraph which is a property graph.
-
-The structure of this graph is expected to conform to the `tr-kg <http://bit.ly/tr-kg-standard>`_ standard, briefly summarized here:
-
-**Nodes**
-   * `id` : required
-   * `name` : string
-   * `category` : string. broad high level type. Corresponds to label in neo4j
-   * extensible other properties
-
-**Edges**
-   * `subject` : required
-   * `predicate` : required
-   * `object` : required
-   * extensible other fields
-
-
-Serialization/Deserialization
------------------------------
-
-Intended to support,
-
-   * Generic Graph Formats
-   * local or remote files
-      * CSV
-      * TSV (such as the RKB adapted data loading formats)
-      * RDF (Monarch/OBAN style, ...)
-      * GraphML
-      * CX
-   * remote store via query API
-   * Neo4j/bolt
-   * RDF
-
-RDF
----
-
-Neo4j
------
-
-Neo4j implements property graphs out the box. However, some implementations use reification nodes.
-The transform should allow for de-reification.
 
 Indices and tables
-------------------
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
