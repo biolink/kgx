@@ -26,7 +26,7 @@ class NeoTransformer(Transformer):
         self.http_driver = None
         self.http_driver = http_gdb(uri, username=username, password=password)
 
-    def load(self, start: int = 0, end: int = None, is_directed: bool = True) -> None:
+    def load(self, start: int = 0, end: int = None, is_directed: bool = True, page_size: int = 50000) -> None:
         """
         Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
@@ -38,12 +38,10 @@ class NeoTransformer(Transformer):
             End for pagination
         is_directed: bool
             Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
+        page_size: int
+            Size of page (or chunk) to fetch from Neo4j
 
         """
-        # TODO: make PAGE_SIZE configurable
-
-        PAGE_SIZE = 10_000
-
         if end is None:
             # get total number of records to be fetched from Neo4j
             count = self.count(is_directed=is_directed)
@@ -52,9 +50,9 @@ class NeoTransformer(Transformer):
 
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = current_time_in_millis()
-            for page in self.get_pages(self.get_edges, start, end, page_size=PAGE_SIZE, **{'is_directed': is_directed}):
+            for page in self.get_pages(self.get_edges, start, end, page_size=page_size, **{'is_directed': is_directed}):
                 self.load_edges(page)
-                bar.update(PAGE_SIZE)
+                bar.update(page_size)
             bar.update(count)
             time_end = current_time_in_millis()
             logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
@@ -89,14 +87,14 @@ class NeoTransformer(Transformer):
         for result in query_result:
             return result[0]
 
-    def load_nodes(self, nodes: List[Node]) -> None:
+    def load_nodes(self, nodes: List) -> None:
         """
         Load nodes into networkx.MultiDiGraph
 
         Parameters
         ----------
-        nodes: List[neo4jrestclient.client.Node]
-            A list of node records
+        nodes: List
+            A list of nodes
 
         """
         start = current_time_in_millis()
@@ -105,38 +103,17 @@ class NeoTransformer(Transformer):
         end = current_time_in_millis()
         logging.debug("time taken to load nodes: {} ms".format(end - start))
 
-    def load_node(self, node: Node) -> None:
+    def load_node(self, node: Dict) -> None:
         """
-        Load node from neo4jrestclient.client.Node into networkx.MultiDiGraph
+        Load node into networkx.MultiDiGraph
 
         Parameters
         ----------
-        node: neo4jrestclient.client.Node
+        node: Dict
             A node
 
         """
-
-        attributes = {}
-        for key, value in node.properties.items():
-            attributes[key] = value
-
-        node_labels = [x._label for x in node.labels]
-
-        if 'category' not in attributes:
-            attributes['category'] = node_labels
-        else:
-            if isinstance(attributes['category'], str):
-                attributes['category'] = [attributes['category']]
-
-        for l in node_labels:
-            if l not in attributes['category']:
-                attributes['category'].append(l)
-
-        if Transformer.DEFAULT_NODE_CATEGORY not in attributes['category']:
-            attributes['category'].append(Transformer.DEFAULT_NODE_CATEGORY)
-
-        node_id = node['id'] if 'id' in node else node.id
-        self.graph.add_node(node_id, **attributes)
+        self.graph.add_node(node['id'], **node)
 
     def load_edges(self, edges: List) -> None:
         """
@@ -150,50 +127,39 @@ class NeoTransformer(Transformer):
         """
         start = current_time_in_millis()
         for record in edges:
-            edge = record[1]
-            self.load_edge(edge)
+            self.load_edge(record)
         end = current_time_in_millis()
         logging.debug("time taken to load edges: {} ms".format(end - start))
 
-    def load_edge(self, edge: Relationship) -> None:
+    def load_edge(self, edge_record: List) -> None:
         """
-        Load an edge from neo4jrestclient.client.Relationship into networkx.MultiDiGraph
+        Load an edge into networkx.MultiDiGraph
 
         Parameters
         ----------
-        edge: neo4jrestclient.client.Relationship
-            An edge
+        edge_record: List
+            A 3-tuple edge record
 
         """
-        edge_subject = edge.start
-        edge_predicate = edge.properties
-        edge_object = edge.end
+        subject_node = edge_record[0]
+        edge = edge_record[1]
+        object_node = edge_record[2]
 
-        subject_id = edge_subject['id'] if 'id' in edge_subject else edge_subject.id
-        object_id = edge_object['id'] if 'id' in edge_object else edge_object.id
+        if 'subject' not in edge:
+            edge['subject'] = subject_node['id']
+        if 'object' not in edge:
+            edge['object'] = object_node['id']
 
-        attributes = {}
+        if not self.graph.has_node(subject_node['id']):
+            self.load_node(subject_node)
 
-        for key, value in edge_predicate.items():
-            attributes[key] = value
+        if not self.graph.has_node(object_node['id']):
+            self.load_node(object_node)
 
-        if 'subject' not in attributes:
-            attributes['subject'] = subject_id
-        if 'object' not in attributes:
-            attributes['object'] = object_id
-        if 'edge_label' not in attributes:
-            attributes['edge_label'] = edge.type
+        key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
+        self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
 
-        if not self.graph.has_node(subject_id):
-            self.load_node(edge_subject)
-
-        if not self.graph.has_node(object_id):
-            self.load_node(edge_object)
-
-        key = generate_edge_key(subject_id, attributes['edge_label'], object_id)
-        self.graph.add_edge(subject_id, object_id, key, **attributes)
-
-    def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 10_000, **kwargs) -> list:
+    def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 50000, **kwargs) -> list:
         """
         Get pages of size ``page_size`` from Neo4j.
         Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
@@ -217,7 +183,6 @@ class NeoTransformer(Transformer):
             An iterator for a list of records from Neo4j. The size of the list is ``page_size``
 
         """
-
         # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
         # it's distinguished from applying a while loop via providing an index which is formative with the for statement
         for i in itertools.count(0):
@@ -240,7 +205,7 @@ class NeoTransformer(Transformer):
             else:
                 return
 
-    def get_nodes(self, skip: int = 0, limit: int = 0) -> List[Node]:
+    def get_nodes(self, skip: int = 0, limit: int = 0) -> List:
         """
         Get a page of nodes from the Neo4j database.
 
@@ -254,7 +219,7 @@ class NeoTransformer(Transformer):
         Returns
         -------
         list
-            A list of neo4jrestclient.client.Node records
+            A list of nodes
 
         """
 
@@ -277,15 +242,13 @@ class NeoTransformer(Transformer):
 
         # Filter out all the associated metadata to ensure the results are clean
         try:
-            results = self.http_driver.query(query, returns=Node)
+            results = self.http_driver.query(query, returns=Node, data_contents=True)
         except CypherException as ce:
             logging.error(ce)
-        logging.debug("Results: {}".format(results))
-        nodes = [node for node in results]
-        logging.debug("Tidied results: {}".format(nodes))
+        nodes = [node for node in results.rows]
         return nodes
 
-    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True) -> List[Tuple[Node, Relationship, Node]]:
+    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True) -> List:
         """
         Get a page of edges from the Neo4j database.
 
@@ -301,10 +264,9 @@ class NeoTransformer(Transformer):
         Returns
         -------
         list
-            A list of 3-tuples of the form (neo4jrestclient.client.Node, neo4jrestclient.client.Relationship, neo4jrestclient.client.Node)
+            A list of 3-tuples
 
         """
-
         direction = '->' if is_directed else '-'
         query = f"""
         MATCH (s{self.get_filter('subject_category')})-[p{self.get_filter('edge_label')}]{direction}(o{self.get_filter('object_category')})
@@ -315,16 +277,16 @@ class NeoTransformer(Transformer):
         if limit:
             query += f" LIMIT {limit}"
 
-        if skip < limit:
-            logging.debug(query)
-            try:
-                # TODO: shouldn't data_contents=True?
-                results = self.http_driver.query(query, returns=(Node, Relationship, Node))
-            except CypherException as ce:
-                logging.error(ce)
-            edge_triples = [x for x in results]
-            return edge_triples
-        return []
+        logging.debug(query)
+        try:
+            start = current_time_in_millis()
+            results = self.http_driver.query(query, returns=(Node, Relationship, Node), data_contents=True)
+            end = current_time_in_millis()
+            logging.debug(f"Time taken to fetch edges from Neo4j: {end - start} ms")
+        except CypherException as ce:
+            logging.error(ce)
+        edges = [x for x in results.rows]
+        return edges
 
     def save_node(self, nodes_by_category: Dict[str, list]) -> None:
         """
