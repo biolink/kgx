@@ -6,8 +6,6 @@ from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
 
-SimpleValue = Union[List[str], str]
-
 IGNORE_CLASSES = ['All', 'entity']
 
 ADDITIONAL_LABELS = {
@@ -38,7 +36,8 @@ class Transformer(object):
         else:
             self.graph = nx.MultiDiGraph()
 
-        self.filters = {}
+        self.node_filters = {}
+        self.edge_filters = {}
         self.graph_metadata = {}
 
     def report(self) -> None:
@@ -60,20 +59,76 @@ class Transformer(object):
         """
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
-    def set_filter(self, key: str, value: SimpleValue) -> None:
+    def set_node_filter(self, key: str, value: Union[str, set]) -> None:
         """
-        Set a filter, defined by a key and value pair.
-        These filters are used to reduce the search space.
+        Set a node filter, as defined by a key and value pair.
+        These filters are used to create a subgraph or reduce the
+        search space when fetching nodes from a source.
+
+        .. note::
+            When defining the 'category' filter, the value should be of type ``set``.
+            This method also sets the 'subject_category' and 'object_category'
+            edge filters, to get a consistent set of nodes in the subgraph.
 
         Parameters
         ----------
         key: str
-            The key for a filter
-        value: Union[List[str], str]
-            The value for a filter. Can be either a string or a list
+            The key for node filter
+        value: Union[str, set]
+            The value for the node filter. Can be either a string or a set.
 
         """
-        self.filters[key] = value
+        if key == 'category':
+            if isinstance(value, set):
+                if 'subject_category' in self.edge_filters:
+                    self.edge_filters['subject_category'].update(value)
+                else:
+                    self.edge_filters['subject_category'] = value
+                if 'object_category' in self.edge_filters:
+                    self.edge_filters['object_category'].update(value)
+                else:
+                    self.edge_filters['object_category'] = value
+            else:
+                raise TypeError("'category' node filter should have a value of type 'set'")
+
+        if key in self.node_filters:
+            self.node_filters[key].update(value)
+        else:
+            self.node_filters[key] = value
+
+    def set_edge_filter(self, key: str, value: set) -> None:
+        """
+        Set an edge filter, as defined by a key and value pair.
+        These filters are used to create a subgraph or reduce the
+        search space when fetching edges from a source.
+
+        .. note::
+            When defining the 'subject_category' or 'object_category' filter,
+            the value should be of type ``set``.
+            This method also sets the 'category' node filter, to get a
+            consistent set of nodes in the subgraph.
+
+        Parameters
+        ----------
+        key: str
+            The key for edge filter
+        value: Union[str, set]
+            The value for the edge filter. Can be either a string or a set.
+
+        """
+        if key in {'subject_category', 'object_category'}:
+            if isinstance(value, set):
+                if 'category' in self.node_filters:
+                    self.node_filters['category'].update(value)
+                else:
+                    self.node_filters['category'] = value
+            else:
+                raise TypeError(f"'{key}' edge filter should have a value of type 'set'")
+
+        if key in self.edge_filters:
+            self.edge_filters[key].update(value)
+        else:
+            self.edge_filters[key] = value
 
     @staticmethod
     def serialize(g: nx.MultiDiGraph) -> Dict:

@@ -134,3 +134,106 @@ def test_sanitize_export(query):
         assert query[1] == value
     else:
         assert query[1] in value
+
+
+@pytest.mark.parametrize('query', [
+    (
+        {'category': {'biolink:Gene', 'biolink:Disease'}},
+        {},
+        2,
+        1
+    ),
+    (
+        {'category': {'biolink:Gene', 'biolink:Disease', 'biolink:PhenotypicFeature'}},
+        {'validated': 'true'},
+        3,
+        2
+    ),
+    (
+        {'category': {'biolink:Gene', 'biolink:PhenotypicFeature'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'edge_label': {'biolink:related_to'}},
+        2,
+        1
+    ),
+])
+def test_filters(query):
+    nodes = os.path.join(resource_dir, 'test_nodes2.tsv')
+    edges = os.path.join(resource_dir, 'test_edges2.tsv')
+    t = PandasTransformer()
+    for nf in query[0].keys():
+        t.set_node_filter(nf, query[0][nf])
+
+    for ef in query[1].keys():
+        t.set_edge_filter(ef, query[1][ef])
+
+    t.parse(nodes, input_format='tsv')
+    t.parse(edges, input_format='tsv')
+    assert t.graph.number_of_nodes() == query[2]
+    assert t.graph.number_of_edges() == query[3]
+
+
+@pytest.mark.parametrize('query', [
+    (
+        {},
+        {},
+        512,
+        532
+    ),
+    (
+        {'category': {'biolink:Gene'}},
+        {},
+        178,
+        178
+    ),
+    (
+        {'category': {'biolink:Gene'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}},
+        178,
+        178
+    ),
+    (
+        {'category': {'biolink:Gene'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'edge_label': {'biolink:orthologous_to'}},
+        178,
+        13
+    ),
+    (
+        {'category': {'biolink:Gene'}},
+        {'edge_label': {'biolink:interacts_with'}},
+        178,
+        165
+    ),
+    (
+        {},
+        {'provided_by': {'omim', 'hpoa', 'orphanet'}},
+        512,
+        166
+    ),
+    (
+        {},
+        {'subject_category': {'biolink:Disease'}},
+        56,
+        35
+    ),
+    (
+        {},
+        {'object_category': {'biolink:Disease'}},
+        22,
+        20
+    )
+])
+def test_filters_graph(query):
+    nodes = os.path.join(resource_dir, 'graph_nodes.tsv')
+    edges = os.path.join(resource_dir, 'graph_edges.tsv')
+    t = PandasTransformer()
+    for nf in query[0].keys():
+        t.set_node_filter(nf, query[0][nf])
+
+    for ef in query[1].keys():
+        t.set_edge_filter(ef, query[1][ef])
+
+    t.parse(nodes, input_format='tsv')
+    t.parse(edges, input_format='tsv')
+
+    assert t.graph.number_of_nodes() == query[2]
+    assert t.graph.number_of_edges() == query[3]

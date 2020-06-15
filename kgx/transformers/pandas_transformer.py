@@ -89,7 +89,7 @@ class PandasTransformer(Transformer):
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    iter = pd.read_csv(f, dtype=str, quoting=3, chunksize=10000, low_memory=False, **kwargs) # type: pd.DataFrame
+                    iter = pd.read_csv(f, dtype=str, quoting=3, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
                     if re.search('nodes.{}'.format(input_format), member.name):
                         for chunk in iter:
                             self.load_nodes(chunk)
@@ -99,7 +99,7 @@ class PandasTransformer(Transformer):
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            iter = pd.read_csv(filename, dtype=str, quoting=3, chunksize=10000, low_memory=False, **kwargs) # type: pd.DataFrame
+            iter = pd.read_csv(filename, dtype=str, quoting=3, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
             for chunk in iter:
                 self.load(chunk)
 
@@ -131,6 +131,47 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
+    def check_node_filter(self, node: dict):
+        """
+        Check if a node passes defined node filters.
+
+        Parameters
+        ----------
+        node: dict
+            A node
+
+        Returns
+        -------
+        bool
+            Whether the given node has passed all defined node filters
+
+        """
+        pass_filter = False
+        if self.node_filters:
+            for k, v in self.node_filters.items():
+                if k in node:
+                    # filter key exists in node
+                    if isinstance(v, (list, set, tuple)):
+                        if any(x in node[k] for x in v):
+                            pass_filter = True
+                        else:
+                            return False
+                    elif isinstance(v, str):
+                        if node[k] == v:
+                            pass_filter = True
+                        else:
+                            return False
+                    else:
+                        logging.error(f"Unexpected {k} node filter of type {type(v)}")
+                        return False
+                else:
+                    # filter key does not exist in node
+                    return False
+        else:
+            # no node filters defined
+            pass_filter = True
+        return pass_filter
+
     def load_node(self, node: Dict) -> None:
         """
         Load a node into a networkx.MultiDiGraph
@@ -141,13 +182,18 @@ class PandasTransformer(Transformer):
             A node
 
         """
-        node = Transformer.validate_node(node)
-        kwargs = PandasTransformer._build_kwargs(node.copy())
-        if 'id' in kwargs:
-            n = kwargs['id']
-            self.graph.add_node(n, **kwargs)
+        if self.check_node_filter(node):
+            node = Transformer.validate_node(node)
+            kwargs = PandasTransformer._build_kwargs(node.copy())
+            if 'id' in kwargs:
+                n = kwargs['id']
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
+                    kwargs['provided_by'] = self.graph_metadata['provided_by']
+                self.graph.add_node(n, **kwargs)
+            else:
+                logging.info("Ignoring node with no 'id': {}".format(node))
         else:
-            logging.info("Ignoring node with no 'id': {}".format(node))
+            logging.debug(f"Node fails node filters: {node}")
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
@@ -162,6 +208,83 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
+    def check_edge_filter(self, edge):
+        """
+        Check if an edge passes defined edge filters.
+
+        Parameters
+        ----------
+        edge: dict
+            An edge
+
+        Returns
+        -------
+        bool
+            Whether the given edge has passed all defined edge filters
+        """
+        pass_filter = False
+        if self.edge_filters:
+            for k, v in self.edge_filters.items():
+                if k in {'subject_category', 'object_category'}:
+                    continue
+                if k in edge:
+                    # filter key exists in edge
+                    if isinstance(v, (list, set, tuple)):
+                        if any(x in edge[k] for x in v):
+                            pass_filter = True
+                        else:
+                            return False
+                    elif isinstance(v, str):
+                        if edge[k] == v:
+                            pass_filter = True
+                        else:
+                            return False
+                    else:
+                        logging.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        return False
+                else:
+                    # filter does not exist in edge
+                    return False
+
+            # Check for subject and object filter
+            if self.graph.has_node(edge['subject']):
+                subject_node = self.graph.nodes()[edge['subject']]
+            else:
+                subject_node = None
+
+            if self.graph.has_node(edge['object']):
+                object_node = self.graph.nodes()[edge['object']]
+            else:
+                object_node = None
+
+            if 'subject_category' in self.edge_filters:
+                f = self.edge_filters['subject_category']
+                if subject_node:
+                    # subject node exists in graph
+                    if any(x in subject_node['category'] for x in f):
+                        pass_filter = True
+                    else:
+                        return False
+                else:
+                    # subject node does not exist in graph
+                    return False
+
+            if 'object_category' in self.edge_filters:
+                f = self.edge_filters['object_category']
+                if object_node:
+                    # object node exists in graph
+                    if any(x in object_node['category'] for x in f):
+                        pass_filter = True
+                    else:
+                        return False
+                else:
+                    # object node does not exist in graph
+                    return False
+        else:
+            # no edge filters defined
+            pass_filter = True
+        return pass_filter
+
     def load_edge(self, edge: Dict) -> None:
         """
         Load an edge into a networkx.MultiDiGraph
@@ -172,15 +295,20 @@ class PandasTransformer(Transformer):
             An edge
 
         """
-        edge = Transformer.validate_edge(edge)
-        kwargs = PandasTransformer._build_kwargs(edge.copy())
-        if 'subject' in kwargs and 'object' in kwargs:
-            s = kwargs['subject']
-            o = kwargs['object']
-            key = generate_edge_key(s, kwargs['edge_label'], o)
-            self.graph.add_edge(s, o, key, **kwargs)
+        if self.check_edge_filter(edge):
+            edge = Transformer.validate_edge(edge)
+            kwargs = PandasTransformer._build_kwargs(edge.copy())
+            if 'subject' in kwargs and 'object' in kwargs:
+                s = kwargs['subject']
+                o = kwargs['object']
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
+                    kwargs['provided_by'] = self.graph_metadata['provided_by']
+                key = generate_edge_key(s, kwargs['edge_label'], o)
+                self.graph.add_edge(s, o, key, **kwargs)
+            else:
+                logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
         else:
-            logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+            logging.debug(f"Edge fails edge filters: {edge}")
 
     def export_nodes(self) -> pd.DataFrame:
         """
