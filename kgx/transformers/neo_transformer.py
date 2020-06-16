@@ -73,12 +73,23 @@ class NeoTransformer(Transformer):
 
         """
         direction = '->' if is_directed else '-'
-        query = f"""
-        MATCH (s{self.get_filter('subject_category')})-[p{self.get_filter('edge_label')}]{direction}(o{self.get_filter('object_category')})
-        RETURN COUNT(*) AS count;
-        """
+        query = f"MATCH (s)-[p]{direction}(o)"
 
-        logging.debug("Query: {}".format(query))
+        if self.edge_filters:
+            qs = []
+            if 'subject_category' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('subject_category', 's', ':', 'OR')})")
+            if 'object_category' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('object_category', 'o', ':', 'OR')})")
+            if 'edge_label' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('edge_label', 'p', '.')})")
+            if 'provided_by' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('provided_by', 'p', '.', 'OR')})")
+            query = ' WHERE '
+            query += ' AND '.join(qs)
+        query += f" RETURN COUNT(*) AS count"
+
+        logging.debug(query)
         try:
             query_result = self.http_driver.query(query)
         except CypherException as ce:
@@ -222,30 +233,31 @@ class NeoTransformer(Transformer):
             A list of nodes
 
         """
+        query = f"MATCH (n)"
 
-        if limit == 0 or limit is None:
-            query = f"""
-            MATCH (n)
-            WHERE n{self.get_filter('subject_category')} OR n{self.get_filter('object_category')}
-            RETURN n
-            SKIP {skip}
-            """
-        else:
-            query = f"""
-             MATCH (n)
-             WHERE n{self.get_filter('subject_category')} OR n{self.get_filter('object_category')}
-             RETURN n
-             SKIP {skip} LIMIT {limit}
-             """
+        if self.node_filters:
+            qs = []
+            if 'category' in self.node_filters:
+                qs.append(f"({self.get_node_filter('category', 'n', ':', 'OR')})")
+            if 'provided_by' in self.node_filters:
+                qs.append(f"({self.get_node_filter('provided_by', 'n', '.', 'OR')})")
+            query += ' WHERE '
+            query += ' AND '.join(qs)
+
+        query += f" RETURN n SKIP {skip}"
+
+        if limit:
+            query += f" LIMIT {limit}"
 
         logging.debug(query)
-
-        # Filter out all the associated metadata to ensure the results are clean
         try:
             results = self.http_driver.query(query, returns=Node, data_contents=True)
         except CypherException as ce:
             logging.error(ce)
-        nodes = [node for node in results.rows]
+        if results:
+            nodes = [node[0] for node in results.rows]
+        else:
+            nodes = []
         return nodes
 
     def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True) -> List:
@@ -268,11 +280,21 @@ class NeoTransformer(Transformer):
 
         """
         direction = '->' if is_directed else '-'
-        query = f"""
-        MATCH (s{self.get_filter('subject_category')})-[p{self.get_filter('edge_label')}]{direction}(o{self.get_filter('object_category')})
-        RETURN s, p, o
-        SKIP {skip}
-        """
+        query = f"MATCH (s)-[p]{direction}(o)"
+
+        if self.edge_filters:
+            qs = []
+            if 'subject_category' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('subject_category', 's', ':', 'OR')})")
+            if 'object_category' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('object_category', 'o', ':', 'OR')})")
+            if 'edge_label' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('edge_label', 'p', '.')})")
+            if 'provided_by' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('provided_by', 'p', '.', 'OR')})")
+            query += ' WHERE '
+            query += ' AND '.join(qs)
+        query += f" RETURN s, p, o SKIP {skip}"
 
         if limit:
             query += f" LIMIT {limit}"
@@ -285,7 +307,10 @@ class NeoTransformer(Transformer):
             logging.debug(f"Time taken to fetch edges from Neo4j: {end - start} ms")
         except CypherException as ce:
             logging.error(ce)
-        edges = [x for x in results.rows]
+        if results:
+            edges = [x for x in results.rows]
+        else:
+            edges = []
         return edges
 
     def save_node(self, nodes_by_category: Dict[str, list]) -> None:
@@ -469,25 +494,79 @@ class NeoTransformer(Transformer):
                 except CypherException as ce:
                     logging.error(ce)
 
-    def get_filter(self, key: str) -> str:
+    def get_node_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
         """
-        Get the value for filter as defined by ``key``.
+        Get the value for node filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
 
         Parameters
         ----------
         key: str
-            Name of the filter
+            Name of the node filter
 
         Returns
         -------
         str
-            Value corresponding to the given filter `key`, formatted for CQL
+            Value corresponding to the given node filter `key`, formatted for CQL
         """
         value = ''
-        if key in self.filters and len(self.filters[key]) != 0:
-            value = f":`{self.filters[key]}`"
+        if key in self.node_filters and self.node_filters[key]:
+            if isinstance(self.node_filters[key], (list, set, tuple)):
+                if key in {'category'}:
+                    formatted = [f"{variable}{prefix}`{x}`" for x in self.node_filters[key]]
+                    value = f" {op} ".join(formatted)
+                elif key in {'provided_by'}:
+                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in self.node_filters['provided_by']]
+                    value = f" {op} ".join(formatted)
+                else:
+                    formatted = []
+                    for v in self.node_filters[key]:
+                        formatted.append(f"{variable}{prefix}{key} = '{v}'")
+                    value = f" {op} ".join(formatted)
+            elif isinstance(self.node_filters[key], str):
+                value = f"{variable}{prefix}{key} = '{self.node_filters[key]}'"
+            else:
+                logging.error(f"Unexpected {key} node filter of type {type(self.node_filters[key])}")
         return value
+
+    def get_edge_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
+        """
+        Get the value for edge filter as defined by ``key``.
+        This is used as a convenience method for generating cypher queries.
+
+        Parameters
+        ----------
+        key: str
+            Name of the edge filter
+
+        Returns
+        -------
+        str
+            Value corresponding to the given edge filter `key`, formatted for CQL
+        """
+        value = ''
+        if key in self.edge_filters and self.edge_filters[key]:
+            if isinstance(self.edge_filters[key], (list, set, tuple)):
+                if key in {'subject_category', 'object_category'}:
+                    formatted = [f"{variable}{prefix}`{x}`" for x in self.edge_filters[key]]
+                    value = f" {op} ".join(formatted)
+                elif key == 'edge_label':
+                    formatted = [f"'{x}'" for x in self.edge_filters['edge_label']]
+                    value = f"type({variable}) IN [{', '.join(formatted)}]"
+                elif key == 'provided_by':
+                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in self.edge_filters['provided_by']]
+                    value = f" {op} ".join(formatted)
+                else:
+                    formatted = []
+                    for v in self.edge_filters[key]:
+                        formatted.append(f"{variable}{prefix}{key} = '{v}'")
+                    value = f" {op} ".join(formatted)
+            elif isinstance(self.edge_filters[key], str):
+                value = f"{variable}{prefix}{key} = '{self.edge_filters[key]}'"
+            else:
+                logging.error(f"Unexpected {key} edge filter of type {type(self.edge_filters[key])}")
+        return value
+
 
     @staticmethod
     def sanitize_category(category: list):

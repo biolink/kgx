@@ -90,7 +90,20 @@ def get_graph(source):
     g3.add_node('B', id='B', category=['biolink:NamedThing'], source=source)
     g3.add_edge('A', 'B', subject='A', object='B', edge_label='biolink:related_to', source=source)
 
-    return [g1, g2, g3]
+    g4 = MultiDiGraph()
+    g4.add_node('A', id='A', category=['biolink:Gene'], provided_by=source, source=source)
+    g4.add_node('B', id='B', category=['biolink:Gene'], provided_by=source, source=source)
+    g4.add_node('A1', id='A1', category=['biolink:Protein'], provided_by=source, source=source)
+    g4.add_node('A2', id='A2', category=['biolink:Protein'], provided_by=source, source=source)
+    g4.add_node('B1', id='B1', category=['biolink:Protein'], provided_by=source, source=source)
+    g4.add_node('X', id='X', category=['biolink:Drug'], provided_by=source, source=source)
+    g4.add_node('Y', id='Y', category=['biolink:Drug'], provided_by=source, source=source)
+    g4.add_edge('A', 'A1', subject='A', object='A1', edge_label='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('A', 'A2', subject='A', object='A2', edge_label='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('B', 'B1', subject='B', object='B1', edge_label='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('X', 'A1', subject='X', object='A1', edge_label='biolink:interacts_with', provided_by=source, source=source)
+    g4.add_edge('Y', 'B', subject='Y', object='B', edge_label='biolink:interacts_with', provided_by=source, source=source)
+    return [g1, g2, g3, g4]
 
 
 def test_sanitize_category():
@@ -147,7 +160,6 @@ def test_save_merge(setup_neo4j, clean_slate):
 
     er = t.http_driver.query("MATCH ()-[p]-() RETURN p", data_contents=True, returns=(Node, Relationship, Node))
     for edge in er:
-        print(edge)
         data = edge[0].properties
         # assert data['id'] == 'A-biolink:related_to-B'
         assert data['subject'] == 'A'
@@ -156,17 +168,41 @@ def test_save_merge(setup_neo4j, clean_slate):
         assert data['test_prop'] == 'VAL123'
 
 
-@pytest.mark.skip('After implementing filters')
-def test_get_pages():
-    pass
+@pytest.mark.parametrize('query', [
+    (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene'}}, 2, ['A', 'B']),
+    (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene', 'biolink:Protein'}}, 5, ['A', 'B', 'A1', 'A2', 'B1']),
+    (get_graph('kgx-unit-test')[3], {'provided_by': {'kgx-unit-test'}}, 7, ['A', 'B', 'A1', 'A2', 'B1', 'X', 'Y']),
+])
+def test_get_nodes(setup_neo4j, clean_slate, query):
+    g = query[0]
+    t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
+    t.save()
 
+    for k, v in query[1].items():
+        t.set_node_filter(k, v)
+    nodes = t.get_nodes()
 
-@pytest.mark.skip('After implementing filters')
-def test_get_nodes():
-    pass
+    assert len(nodes) == query[2]
+    node_ids = [x['id'] for x in nodes]
+    for x in query[3]:
+        assert x in node_ids
 
+@pytest.mark.parametrize('query', [
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Protein'}}, 3),
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'object_category': {'biolink:Gene'}}, 1),
+    (get_graph('kgx-unit-test')[3], {'provided_by': {'kgx-unit-test'}}, 5),
+    (get_graph('kgx-unit-test')[3], {'edge_label': {'biolink:interacts_with'}}, 2),
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'edge_label': {'biolink:interacts_with'}}, 2),
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene', 'biolink:Protein'}, 'edge_label': {'biolink:interacts_with'}}, 0),
+])
+def test_get_edges(setup_neo4j, clean_slate, query):
+    g = get_graph('kgx-unit-test')[3]
+    t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
+    t.save()
 
-@pytest.mark.skip('After implementing filters')
-def test_get_edges():
-    pass
+    for k, v in query[1].items():
+        t.set_edge_filter(k, v)
 
+    edges = t.get_edges()
+    edge_list = [x[1] for x in edges]
+    assert len(edges) == query[2]

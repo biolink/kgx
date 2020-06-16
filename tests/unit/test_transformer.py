@@ -19,13 +19,28 @@ def get_graphs():
     g1.add_edge('B', 'A', key='B-biolink:subclass_of-A', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
     return [g1]
 
+
 def test_transformer():
     t = Transformer()
     assert isinstance(t.graph, Graph)
     assert t.is_empty()
 
-    t.set_filter('edge_label', 'biolink:related_to')
-    assert len(t.filters) > 0
+    t.set_node_filter('category', {'biolink:Gene'})
+    t.set_node_filter('category', {'biolink:Disease'})
+    t.set_edge_filter('edge_label', {'biolink:related_to'})
+    t.set_edge_filter('edge_label', {'biolink:interacts_with'})
+    t.set_edge_filter('subject_category', {'biolink:Drug'})
+    assert len(t.node_filters.keys()) == 1
+    assert len(t.edge_filters.keys()) == 3
+    assert 'category' in t.node_filters and len(t.node_filters['category']) == 3
+    assert 'edge_label' in t.edge_filters and len(t.edge_filters['edge_label']) == 2
+    assert 'subject_category' in t.edge_filters \
+           and len(t.edge_filters['subject_category']) == 3 \
+           and 'biolink:Gene' in t.edge_filters['subject_category']
+    assert 'object_category' in t.edge_filters \
+           and len(t.edge_filters['object_category']) == 3 \
+           and 'biolink:Gene' in t.edge_filters['object_category']
+    assert 'biolink:Drug' in t.node_filters['category']
 
 
 def test_serialization():
