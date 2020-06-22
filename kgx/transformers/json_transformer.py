@@ -225,6 +225,7 @@ class ObographJsonTransformer(JsonTransformer):
         if 'equivalent_nodes' in node_properties:
             for n in node_properties['equivalent_nodes']:
                 data = {'subject': fixed_node['id'], 'edge_label': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
+                super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
                 self.graph.add_edge(fixed_node['id'], n, **data)
 
     def load_edge(self, edge: dict) -> None:

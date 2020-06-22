@@ -128,6 +128,7 @@ property_mapping = OrderedDict({
     OWL.equivalentClass: 'same_as',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
     BIOLINK.in_taxon: 'in_taxon',
+    BIOLINK.provided_by: 'provided_by',
     OIO.source: 'source',
     OIO.inSubset: 'subsets',
     OIO.hasDbXref: 'xrefs',
