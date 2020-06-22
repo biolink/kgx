@@ -1,0 +1,88 @@
+@prefix : <https://monarchinitiative.org/> .
+@prefix DECIPHER: <https://decipher.sanger.ac.uk/syndrome/> .
+@prefix ECO: <http://purl.obolibrary.org/obo/ECO_> .
+@prefix HP: <http://purl.obolibrary.org/obo/HP_> .
+@prefix IAO: <http://purl.obolibrary.org/obo/IAO_> .
+@prefix ISBN: <https://monarchinitiative.org/ISBN_> .
+@prefix ISBN-10: <https://monarchinitiative.org/ISBN10_> .
+@prefix ISBN-13: <https://monarchinitiative.org/ISBN13_> .
+@prefix MONARCH: <https://monarchinitiative.org/MONARCH_> .
+@prefix OBAN: <http://purl.org/oban/> .
+@prefix OBO: <http://purl.obolibrary.org/obo/> .
+@prefix OMIM: <http://omim.org/entry/> .
+@prefix ORPHA: <http://www.orpha.net/ORDO/Orphanet_> .
+@prefix PATO: <http://purl.obolibrary.org/obo/PATO_> .
+@prefix PMID: <http://www.ncbi.nlm.nih.gov/pubmed/> .
+@prefix RO: <http://purl.obolibrary.org/obo/RO_> .
+@prefix SIO: <http://semanticscience.org/resource/SIO_> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+OBO:RO_0002558 a owl:ObjectProperty .
+
+dc:source a owl:ObjectProperty .
+
+OBAN:association_has_object a owl:ObjectProperty .
+
+OBAN:association_has_predicate a owl:ObjectProperty .
+
+OBAN:association_has_subject a owl:ObjectProperty .
+
+rdf:type a owl:AnnotationProperty .
+
+:MONARCH_anonymous a owl:AnnotationProperty .
+
+:MONARCH_b00003482a9747909127 a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000501 ;
+    dc:source <http://omim.org/entry/612947> ;
+    OBAN:association_has_object OBO:HP_0000007 ;
+    OBAN:association_has_predicate OBO:RO_0000091 ;
+    OBAN:association_has_subject <http://omim.org/entry/612947> .
+
+:MONARCH_b000044dc9b36bf0b04c a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000304 ;
+    dc:source <http://www.orpha.net/ORDO/Orphanet_93262> ;
+    OBAN:association_has_object OBO:HP_0000505 ;
+    OBAN:association_has_predicate OBO:RO_0002200 ;
+    OBAN:association_has_subject <http://www.orpha.net/ORDO/Orphanet_93262> ;
+    :frequencyOfPhenotype OBO:HP_0040283 .
+
+:MONARCH_b0000b60f7eb25a034c3 a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000501 ;
+    dc:source <http://omim.org/entry/166400> ;
+    OBAN:association_has_object OBO:HP_0000006 ;
+    OBAN:association_has_predicate OBO:RO_0000091 ;
+    OBAN:association_has_subject <http://omim.org/entry/166400> .
+
+:MONARCH_b0000f5ba39e834097f8 a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000304 ;
+    dc:source <http://omim.org/entry/607131> ;
+    OBAN:association_has_object OBO:HP_0000768 ;
+    OBAN:association_has_predicate OBO:RO_0002200 ;
+    OBAN:association_has_subject <http://omim.org/entry/607131> .
+
+:MONARCH_b00012161a6f63bad72e a OBAN:association ;
+    OBO:RO_0002558 OBO:ECO_0000501 ;
+    dc:source <http://omim.org/entry/148050> ;
+    OBAN:association_has_object OBO:HP_0008438 ;
+    OBAN:association_has_predicate OBO:RO_0002200 ;
+    OBAN:association_has_subject <http://omim.org/entry/148050> .
+
+
+OBO:HP_0000007 a owl:Class .
+
+OBO:HP_0000505 a owl:Class .
+
+OBO:HP_0000006 a owl:Class .
+
+OBO:HP_0000768 a owl:Class .
+
+OBO:HP_0008438 a owl:Class .
+
+OBO:ECO_0000501 a owl:Class .
+
+OBO:ECO_0000304 a owl:Class .

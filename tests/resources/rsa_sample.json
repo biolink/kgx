@@ -1,0 +1,56 @@
+{
+  "knowledge_graph": {
+    "nodes": [
+    {
+      "id": "HGNC:11603",
+      "name": "TBX4",
+      "type": [
+        "biolink:Gene"
+      ]
+    },
+    {
+      "id": "MONDO:0005002",
+      "name": "chronic obstructive pulmonary disease",
+      "type": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0013238",
+      "name": "chromosome 17q23.1-q23.2 deletion syndrome",
+      "type": [
+        "biolink:Disease"
+      ]
+    },
+    {
+      "id": "MONDO:0013238",
+      "name": "chromosome 17q23.1-q23.2 deletion syndrome",
+      "type": [
+        "biolink:Disease"
+      ]
+    }
+    ],
+    "edges": [
+    {
+      "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
+      "source_id": "HGNC:11603",
+      "target_id": "MONDO:0005002",
+      "relation_label": ["biolink:related_to"]
+    },
+    {
+      "id": "2d38345a-e9bf-4943-accb-dccba351dd04",
+      "source_id": "HGNC:11603",
+      "target_id": "MONDO:0013238",
+      "relation_label": ["biolink:related_to"]
+    },
+    {
+      "id": "d7edcb4b-af58-468a-8f86-ed737859693a",
+      "source_id": "HGNC:11603",
+      "target_id": "MONDO:0013329",
+      "relation_label": ["biolink:related_to"]
+    }
+    ]
+  },
+  "query_graph": {},
+  "results": []
+}
