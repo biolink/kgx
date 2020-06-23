@@ -1,17 +1,14 @@
-import json, logging
+import json
+import logging
 
 import networkx as nx
 import stringcase
-from prefixcommons import contract_uri
 
 from kgx.prefix_manager import PrefixManager
-from kgx.mapper import get_prefix
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict
 
-from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, get_toolkit
-from kgx.utils.rdf_utils import infer_category
+from kgx.utils.kgx_utils import get_toolkit
 
 
 class JsonTransformer(PandasTransformer):
@@ -103,14 +100,9 @@ class JsonTransformer(PandasTransformer):
         nodes = []
         edges = []
         for id, data in self.graph.nodes(data=True):
-            node = data.copy()
-            node['id'] = id
-            nodes.append(node)
+            nodes.append(data)
         for s, o, data in self.graph.edges(data=True):
-            edge = data.copy()
-            edge['subject'] = s
-            edge['object'] = o
-            edges.append(edge)
+            edges.append(data)
 
         return {
             'nodes': nodes,
@@ -203,7 +195,7 @@ class ObographJsonTransformer(JsonTransformer):
             A node
 
         """
-        curie = contract_uri(node['id'])[0]
+        curie = self.prefix_manager.contract(node['id'])
         node_properties = {}
         if 'meta' in node:
             node_properties = self.parse_meta(node['id'], node['meta'])
@@ -218,6 +210,10 @@ class ObographJsonTransformer(JsonTransformer):
             fixed_node['description'] = node_properties['description']
         if 'synonym' in node_properties:
             fixed_node['synonym'] = node_properties['synonym']
+        if 'xrefs' in node_properties:
+            fixed_node['xrefs'] = node_properties['xrefs']
+        if 'subsets' in node_properties:
+            fixed_node['subsets'] = node_properties['subsets']
 
         if 'category' not in node:
             category = self.get_category(curie, node)
@@ -225,11 +221,11 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_node['category'] = [category]
             else:
                 fixed_node['category'] = ['biolink:OntologyClass']
-
         super().load_node(fixed_node)
         if 'equivalent_nodes' in node_properties:
             for n in node_properties['equivalent_nodes']:
                 data = {'subject': fixed_node['id'], 'edge_label': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
+                super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
                 self.graph.add_edge(fixed_node['id'], n, **data)
 
     def load_edge(self, edge: dict) -> None:
@@ -243,7 +239,7 @@ class ObographJsonTransformer(JsonTransformer):
 
         """
         fixed_edge = dict()
-        fixed_edge['subject'] = edge['sub']
+        fixed_edge['subject'] = self.prefix_manager.contract(edge['sub'])
         if PrefixManager.is_iri(edge['pred']):
             curie = self.prefix_manager.contract(edge['pred'])
             fixed_edge['relation'] = curie
@@ -251,7 +247,7 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge['edge_label'] = f"biolink:{self.graph.nodes[curie]['name'].replace(' ', '_')}"
                 # TODO: validate edge_label to biolink model
             else:
-                fixed_edge['edge_label'] = 'related_to'
+                fixed_edge['edge_label'] = 'biolink:related_to'
         else:
             if edge['pred'] == 'is_a':
                 fixed_edge['edge_label'] = 'biolink:subclass_of'
@@ -266,7 +262,7 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge['edge_label'] = f"biolink:{edge['pred'].replace(' ', '_')}"
                 fixed_edge['relation'] = edge['pred']
 
-        fixed_edge['object'] = edge['obj']
+        fixed_edge['object'] = self.prefix_manager.contract(edge['obj'])
         for x in edge.keys():
             if x not in {'sub', 'pred', 'obj'}:
                 fixed_edge[x] = edge[x]
@@ -303,7 +299,7 @@ class ObographJsonTransformer(JsonTransformer):
                         if element:
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
         else:
-            prefix = get_prefix(curie)
+            prefix = PrefixManager.get_prefix(curie)
             if prefix == 'CHEBI':
                 category = "biolink:ChemicalSubstance"
             elif prefix == 'MONDO':
@@ -331,11 +327,19 @@ class ObographJsonTransformer(JsonTransformer):
             'xrefs', and 'equivalent_nodes'.
 
         """
+        # cross species links are in meta; this needs to be parsed properly too
+        # do not put assumptions in code; import as much as possible
+
         properties = {}
         if 'definition' in meta:
             # parse 'definition' as 'description'
             description = meta['definition']['val']
             properties['description'] = description
+
+        if 'subsets' in meta:
+            # parse 'subsets'
+            subsets = meta['subsets']
+            properties['subsets'] = [x.split('#')[1] if '#' in x else x for x in subsets]
 
         if 'synonyms' in meta:
             # parse 'synonyms' as 'synonym'
@@ -352,7 +356,7 @@ class ObographJsonTransformer(JsonTransformer):
             # parse SKOS_EXACT_MATCH entries as 'equivalent_nodes'
             for p in meta['basicPropertyValues']:
                 if p['pred'] in {self.SKOS_EXACT_MATCH}:
-                    n = contract_uri(p['val'])
+                    n = self.prefix_manager.contract(p['val'])
                     if not n:
                         n = [p['val']]
                     equivalent_nodes.append(n[0])

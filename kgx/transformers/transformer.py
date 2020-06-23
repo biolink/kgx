@@ -1,14 +1,10 @@
 import networkx as nx
-import json, time, click, logging
+import json
+import time
+import logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
 
-from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_biolink_mapping, sentencecase_to_snakecase
-
-from kgx.mapper import clique_merge
-
-SimpleValue = Union[List[str], str]
 
 IGNORE_CLASSES = ['All', 'entity']
 
@@ -32,7 +28,7 @@ class Transformer(object):
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
     """
 
-    DEFAULT_NODE_LABEL = 'named_thing'
+    DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         if source_graph:
@@ -40,7 +36,8 @@ class Transformer(object):
         else:
             self.graph = nx.MultiDiGraph()
 
-        self.filters = {}
+        self.node_filters = {}
+        self.edge_filters = {}
         self.graph_metadata = {}
 
     def report(self) -> None:
@@ -62,190 +59,79 @@ class Transformer(object):
         """
         return len(self.graph.nodes()) == 0 and len(self.graph.edges()) == 0
 
-    def set_filter(self, key: str, value: SimpleValue) -> None:
+    def set_node_filter(self, key: str, value: Union[str, set]) -> None:
         """
-        Set a filter, defined by a key and value pair.
-        These filters are used to reduce the search space.
+        Set a node filter, as defined by a key and value pair.
+        These filters are used to create a subgraph or reduce the
+        search space when fetching nodes from a source.
+
+        .. note::
+            When defining the 'category' filter, the value should be of type ``set``.
+            This method also sets the 'subject_category' and 'object_category'
+            edge filters, to get a consistent set of nodes in the subgraph.
 
         Parameters
         ----------
         key: str
-            The key for a filter
-        value: Union[List[str], str]
-            The value for a filter. Can be either a string or a list
+            The key for node filter
+        value: Union[str, set]
+            The value for the node filter. Can be either a string or a set.
 
         """
-        self.filters[key] = value
-
-    def categorize(self):
-        """
-        Find and validate category for every node in self.graph
-        """
-        node_to_categories = {}
-        preserve = {}
-        for n, data in self.graph.nodes(data=True):
-            logging.info("Processing node {}".format(n))
-            new_categories = set()
-            if 'category' in data:
-                categories = data['category']
-                preserve[n] = data['category']
-                for category in categories:
-                    element = get_biolink_mapping(category)
-                    if element is not None:
-                        # there is a direct mapping to a BioLink Model class
-                        mapped_category = element['name']
-                        logging.debug("Category: {} has a direct mapping to BioLink Model class {}".format(category, mapped_category))
-                        new_categories.update([mapped_category])
-                    else:
-                        if category in ADDITIONAL_LABELS:
-                            element = get_biolink_mapping(ADDITIONAL_LABELS[category])
-                            if element is not None:
-                                # take a look at an additional list of mappings
-                                mapped_category = element['name']
-                                logging.debug("Category: {} mapped over to {} has a direct mapping to BioLink Model class {}".format(category, ADDITIONAL_LABELS[category], mapped_category))
-                                new_categories.update([mapped_category])
-                        else:
-                            # subClassOf traversal required
-                            # assuming that the graph contains subClassOf edges
-                            # and the node subClassOf x
-                            new_categories.update(get_category_via_superclass(self.graph, category))
-            else:
-                # try via subClassOf
-                # subClassOf traversal required
-                # assuming that the graph contains subClassOf edges
-                # and the node subClassOf x
-                logging.info("node doesn't have a category field; trying to infer category via subclass_of axiom")
-                for u, v, edge_data in self.graph.edges(n, data=True):
-                    logging.info("u: {} v: {} data: {}".format(u, v, edge_data))
-                    if edge_data['edge_label'] == 'subclass_of':
-                        curie = v
-                        new_categories.update(get_category_via_superclass(self.graph, curie))
-
-            new_categories = [sentencecase_to_snakecase(x) for x in new_categories]
-            if len(new_categories) == 0:
-                new_categories.append('named_thing')
-            logging.debug("Output categories: {}".format(new_categories))
-            node_to_categories[n] = new_categories
-        nx.set_node_attributes(self.graph, node_to_categories, 'category')
-        nx.set_node_attributes(self.graph, preserve, '_old_category')
-
-    def remap_node_identifier(self, type: str, new_property: str, prefix=None) -> None:
-        """
-        Remap a node's 'id' attribute with value from a node's ``new_property`` attribute.
-
-        Parameters
-        ----------
-        type: string
-            label referring to nodes whose 'id' needs to be remapped
-
-        new_property: string
-            property name from which the new value is pulled from
-
-        prefix: string
-            signifies that the value for ``new_property`` is a list and the ``prefix`` indicates which value
-            to pick from the list
-
-        """
-        #TODO: test functionality and extend further
-        mapping = {}
-        for nid, data in self.graph.nodes(data=True):
-            node_data = data.copy()
-            if type not in node_data['category']:
-                continue
-            if new_property in node_data:
-                if prefix:
-                    # data[new_property] contains a list of values
-                    new_property_values = node_data[new_property]
-                    for v in new_property_values:
-                        if prefix in v:
-                            # take the first occurring value that contains the given prefix
-                            if 'HGNC:HGNC:' in v:
-                                # TODO: this is a temporary fix and must be removed later
-                                v = ':'.join(v.split(':')[1:])
-                            mapping[nid] = v
-                            break
+        if key == 'category':
+            if isinstance(value, set):
+                if 'subject_category' in self.edge_filters:
+                    self.edge_filters['subject_category'].update(value)
                 else:
-                    # node_data[new_property] contains a string value
-                    mapping[nid] = node_data[new_property]
+                    self.edge_filters['subject_category'] = value
+                if 'object_category' in self.edge_filters:
+                    self.edge_filters['object_category'].update(value)
+                else:
+                    self.edge_filters['object_category'] = value
             else:
-                # node does not contain new_property key; fall back to original node 'id'
-                mapping[nid] = nid
+                raise TypeError("'category' node filter should have a value of type 'set'")
 
-        # TODO: is there a better way to do this in networkx 2.x?
-        nx.set_node_attributes(self.graph, values=mapping, name='id')
-        nx.relabel_nodes(self.graph, mapping, copy=False)
+        if key in self.node_filters:
+            self.node_filters[key].update(value)
+        else:
+            self.node_filters[key] = value
 
-        # update 'subject' of all outgoing edges
-        updated_subject_values = {}
-        for edge in self.graph.out_edges(keys=True):
-            updated_subject_values[edge] = edge[0]
-        nx.set_edge_attributes(self.graph, values=updated_subject_values, name='subject')
-
-        # update 'object' of all incoming edges
-        updated_object_values = {}
-        for edge in self.graph.in_edges(keys=True):
-            updated_object_values[edge] = edge[1]
-        nx.set_edge_attributes(self.graph, values=updated_object_values, name='object')
-
-    def remap_node_property(self, type: str, old_property: str, new_property: str) -> None:
+    def set_edge_filter(self, key: str, value: set) -> None:
         """
-        Remap the value in node ``old_property`` attribute with value from node ``new_property`` attribute.
+        Set an edge filter, as defined by a key and value pair.
+        These filters are used to create a subgraph or reduce the
+        search space when fetching edges from a source.
+
+        .. note::
+            When defining the 'subject_category' or 'object_category' filter,
+            the value should be of type ``set``.
+            This method also sets the 'category' node filter, to get a
+            consistent set of nodes in the subgraph.
 
         Parameters
         ----------
-        type: string
-            label referring to nodes whose property needs to be remapped
-
-        old_property: string
-            old property name whose value needs to be replaced
-
-        new_property: string
-            new property name from which the value is pulled from
+        key: str
+            The key for edge filter
+        value: Union[str, set]
+            The value for the edge filter. Can be either a string or a set.
 
         """
-        # TODO: is there a better way to do this in networkx 2.x?
-        mapping = {}
-        for nid, data in self.graph.nodes(data=True):
-            node_data = data.copy()
-            if type not in node_data['category']:
-                continue
-            if new_property in node_data:
-                mapping[nid] = node_data[new_property]
-            elif old_property in node_data:
-                mapping[nid] = node_data[old_property]
-        nx.set_node_attributes(self.graph, values=mapping, name=old_property)
-
-    def remap_edge_property(self, type: str, old_property: str, new_property: str) -> None:
-        """
-        Remap the value in edge ``old_property`` attribute with value from edge ``new_property`` attribute.
-
-        Parameters
-        ----------
-        type: string
-            label referring to edges whose property needs to be remapped
-
-        old_property: string
-            old property name whose value needs to be replaced
-
-        new_property: string
-            new property name from which the value is pulled from
-
-        """
-        # TODO: is there a better way to do this in networkx 2.x?
-        mapping = {}
-        for edge, data in self.graph.edges(data=True, keys=True):
-            edge_key = edge[0:3]
-            edge_data = data.copy()
-            if type not in edge_data['edge_label']:
-                continue
-            if new_property in edge_data:
-                mapping[edge_key] = edge_data[new_property]
+        if key in {'subject_category', 'object_category'}:
+            if isinstance(value, set):
+                if 'category' in self.node_filters:
+                    self.node_filters['category'].update(value)
+                else:
+                    self.node_filters['category'] = value
             else:
-                mapping[edge_key] = edge_data[old_property]
-        nx.set_edge_attributes(self.graph, values=mapping, name=old_property)
+                raise TypeError(f"'{key}' edge filter should have a value of type 'set'")
+
+        if key in self.edge_filters:
+            self.edge_filters[key].update(value)
+        else:
+            self.edge_filters[key] = value
 
     @staticmethod
-    def dump(g: nx.MultiDiGraph) -> Dict:
+    def serialize(g: nx.MultiDiGraph) -> Dict:
         """
         Convert networkx.MultiDiGraph as a dictionary.
 
@@ -277,12 +163,12 @@ class Transformer(object):
 
         """
         FH = open(filename, "w")
-        json_data = Transformer.dump(g)
+        json_data = Transformer.serialize(g)
         FH.write(json.dumps(json_data))
         FH.close()
 
     @staticmethod
-    def restore(data: Dict) -> nx.MultiDiGraph:
+    def deserialize(data: Dict) -> nx.MultiDiGraph:
         """
         Deserialize a networkx.MultiDiGraph from a dictionary.
 
@@ -318,13 +204,8 @@ class Transformer(object):
         """
         FH = open(filename, "r")
         data = FH.read()
-        g = Transformer.restore(json.loads(data))
+        g = Transformer.deserialize(json.loads(data))
         return g
-
-    @staticmethod
-    def current_time_in_millis():
-        # TODO: move to Utils (and others)
-            return int(round(time.time() * 1000))
 
     @staticmethod
     def validate_node(node: dict) -> dict:
@@ -352,8 +233,8 @@ class Transformer(object):
         if 'name' not in node:
             logging.debug("node does not have 'name' property: {}".format(node))
         if 'category' not in node:
-            logging.warning("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_LABEL))
-            node['category'] = [Transformer.DEFAULT_NODE_LABEL]
+            logging.debug("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
+            node['category'] = [Transformer.DEFAULT_NODE_CATEGORY]
 
         return node
 

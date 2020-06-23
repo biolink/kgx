@@ -3,10 +3,10 @@ from collections import OrderedDict
 from typing import List, Union
 import rdflib
 from rdflib import Namespace, URIRef
-from rdflib.namespace import RDF, RDFS, OWL
+from rdflib.namespace import RDF, RDFS, OWL, SKOS
 from prefixcommons.curie_util import expand_uri
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, make_curie
+from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, contract
 import uuid
 
 toolkit = get_toolkit()
@@ -24,6 +24,7 @@ for key, value in m.items():
 
 OBAN = Namespace('http://purl.org/oban/')
 BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
+OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
 
 predicate_mapping = {
     'http://purl.obolibrary.org/obo/RO_0002200': 'has_phenotype',
@@ -113,6 +114,7 @@ property_mapping = OrderedDict({
     BIOLINK.relation: 'relation',
     BIOLINK.name: 'name',
     RDFS.label: 'name',
+    RDFS.comment: 'comment',
     RDF.type: 'type',
     URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): 'type',
     URIRef('http://purl.obolibrary.org/obo/IAO_0000115'): 'description',
@@ -126,6 +128,18 @@ property_mapping = OrderedDict({
     OWL.equivalentClass: 'same_as',
     URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
     BIOLINK.in_taxon: 'in_taxon',
+    BIOLINK.provided_by: 'provided_by',
+    OIO.source: 'source',
+    OIO.inSubset: 'subsets',
+    OIO.hasDbXref: 'xrefs',
+    OIO.hasAlternativeId: 'xrefs',
+    OIO.hasNarrowSynonym: 'synonym',
+    OIO.hasBroadSynonym: 'synonym',
+    OIO.hasRelatedSynonym: 'synonym',
+    SKOS.narrowMatch: 'same_as',
+    SKOS.broadMatch: 'same_as',
+    SKOS.exactMatch: 'same_as',
+    SKOS.closeMatch: 'same_as'
 })
 
 reverse_property_mapping = {}
@@ -178,7 +192,7 @@ def process_iri(iri:Union[str, URIRef]) -> str:
             if iri.lower() == key.lower():
                 return value
 
-    return make_curie(iri)
+    return contract(iri)
 
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
@@ -249,7 +263,7 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         subj = closure[-1]
         if subj == iri:
             return category
-        subject_curie = make_curie(subj)
+        subject_curie = contract(subj)
         if '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
             logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))

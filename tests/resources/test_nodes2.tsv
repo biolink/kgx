@@ -1,0 +1,5 @@
+id	name	category	description
+CURIE:123	Gene 123	biolink:Gene	Node of type Gene
+CURIE:456	Disease 456	biolink:Disease	Node of type Disease
+CURIE:789	PhenotypicFeature 789	biolink:PhenotypicFeature	Node of type PhenotypicFeature
+CURIE:000	NamedThing 000	biolink:NamedThing	Node of type NamedThing

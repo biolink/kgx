@@ -1,6 +1,6 @@
 import os
 from kgx import PandasTransformer
-from kgx.operations.graph_merge import GraphMerge
+from kgx.operations.graph_merge import merge_all_graphs
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, 'resources')
@@ -16,8 +16,7 @@ def test_merge():
     pt2 = PandasTransformer()
     pt2.parse(os.path.join(resource_dir, 'merge', 'nodes2.tsv'), input_format='tsv')
     pt2.parse(os.path.join(resource_dir, 'merge', 'edges2.tsv'), input_format='tsv')
-    gm = GraphMerge()
-    merged_graph = gm.merge_all_graphs([pt1.graph, pt2.graph], preserve=True)
+    merged_graph = merge_all_graphs([pt1.graph, pt2.graph], preserve=True)
     assert len(merged_graph.nodes()) == 6
     assert len(merged_graph.edges()) == 8
 
@@ -42,8 +41,7 @@ def test_merge_no_preserve():
     pt2 = PandasTransformer()
     pt2.parse(os.path.join(resource_dir, 'merge', 'nodes2.tsv'), input_format='tsv')
     pt2.parse(os.path.join(resource_dir, 'merge', 'edges2.tsv'), input_format='tsv')
-    gm = GraphMerge()
-    merged_graph = gm.merge_all_graphs([pt1.graph, pt2.graph], preserve=False)
+    merged_graph = merge_all_graphs([pt1.graph, pt2.graph], preserve=False)
     assert len(merged_graph.nodes()) == 6
     assert len(merged_graph.edges()) == 8
 
@@ -55,3 +53,4 @@ def test_merge_no_preserve():
     assert list(pt1.graph.nodes['x1']['category'])[0] in x1['category']
     assert list(pt2.graph.nodes['x1']['category'])[0] in x1['category']
     assert x1['p1'] == 'a'
+
