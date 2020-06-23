@@ -13,3 +13,13 @@ Clique Merge
    :members:
    :inherited-members:
    :show-inheritance:
+
+.. automodule:: kgx.operations.graph_merge
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
+.. automodule:: kgx.operations.summarize_graph
+   :members:
+   :inherited-members:
+   :show-inheritance:
