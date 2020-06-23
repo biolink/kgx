@@ -17,9 +17,8 @@ from kgx.transformers.logicterm_transformer import LogicTermTransformer
 from kgx.transformers.transformer import Transformer
 from .filter import Filter, FilterLocation, FilterType
 
-from .validator import Validator
-from .prefix_manager import PrefixManager
-from .utils.model_utils import make_valid_types
+from kgx.validator import Validator
+from kgx.prefix_manager import PrefixManager
 
 import logging
 
