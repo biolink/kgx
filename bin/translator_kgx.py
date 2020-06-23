@@ -670,12 +670,33 @@ def load_and_merge(config: dict, load_config):
         if target['type'] in get_file_types():
             # loading from a file
             transformer = get_transformer(target['type'])()
+            if target['type'] in {'tsv', 'neo4j'}:
+                # currently supporting filters only for TSV and Neo4j
+                if 'filters' in target:
+                    filters = target['filters']
+                    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+                    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+                    for k, v in node_filters.items():
+                        transformer.set_node_filter(k, set(v))
+                    for k, v in edge_filters.items():
+                        transformer.set_edge_filter(k, set(v))
+                    logging.info(f"with node filters: {node_filters}")
+                    logging.info(f"with edge filters: {edge_filters}")
             for f in target['filename']:
                 transformer.parse(f, input_format=target['type'])
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
             transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
-            # TODO: support filters
+            if 'filters' in target:
+                filters = target['filters']
+                node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+                edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+                for k, v in node_filters.items():
+                    transformer.set_node_filter(k, set(v))
+                for k, v in edge_filters.items():
+                    transformer.set_edge_filter(k, set(v))
+                logging.info(f"with node filters: {node_filters}")
+                logging.info(f"with edge filters: {edge_filters}")
             transformer.load()
             transformers.append(transformer)
         else:
