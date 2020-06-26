@@ -10,17 +10,27 @@ resource_dir = os.path.join(cwd, '../resources')
 target_dir = os.path.join(cwd, '../target')
 
 
-@pytest.mark.parametrize('query', [
-    (os.path.join(resource_dir, 'test_nodes.csv'), os.path.join(resource_dir, 'test_edges.csv'), 'csv', 3, 1),
-    (os.path.join(resource_dir, 'test_nodes.tsv'), os.path.join(resource_dir, 'test_edges.tsv'), 'tsv', 3, 1)
-])
-def test_load(query):
+def test_load_csv():
     t = PandasTransformer()
-    t.parse(query[0], input_format=query[2])
-    t.parse(query[1], input_format=query[2])
+    t.parse(os.path.join(resource_dir, 'test_nodes.csv'), input_format='csv')
+    t.parse(os.path.join(resource_dir, 'test_edges.csv'), input_format='csv')
 
-    assert t.graph.number_of_nodes() == query[3]
-    assert t.graph.number_of_edges() == query[4]
+    assert t.graph.number_of_nodes() == 3
+    assert t.graph.number_of_edges() == 1
+
+    assert t.graph.nodes['CURIE:123']['description'] == 'Node of type Gene, CURIE:123'
+    assert t.graph.nodes['CURIE:456']['description'] == 'Node of type Disease, CURIE:456'
+
+def test_load_tsv():
+    t = PandasTransformer()
+    t.parse(os.path.join(resource_dir, 'test_nodes.tsv'), input_format='tsv')
+    t.parse(os.path.join(resource_dir, 'test_edges.tsv'), input_format='tsv')
+
+    assert t.graph.number_of_nodes() == 3
+    assert t.graph.number_of_edges() == 1
+
+    assert t.graph.nodes['CURIE:123']['description'] == '"Node of type Gene, CURIE:123"'
+    assert t.graph.nodes['CURIE:456']['description'] == '"Node of type Disease, CURIE:456"'
 
 
 @pytest.mark.parametrize('query', [
