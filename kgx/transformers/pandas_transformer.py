@@ -84,12 +84,13 @@ class PandasTransformer(Transformer):
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-
+        if input_format == 'tsv':
+            kwargs['quoting'] = 3
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    iter = pd.read_csv(f, dtype=str, quoting=3, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
+                    iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
                     if re.search('nodes.{}'.format(input_format), member.name):
                         for chunk in iter:
                             self.load_nodes(chunk)
@@ -99,7 +100,7 @@ class PandasTransformer(Transformer):
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            iter = pd.read_csv(filename, dtype=str, quoting=3, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
+            iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
             for chunk in iter:
                 self.load(chunk)
 
