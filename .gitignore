@@ -13,3 +13,6 @@ _static
 _templates
 .idea/
 tests/logs/*.log
+
+/build
+/dist
