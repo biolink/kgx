@@ -1,1 +1,8 @@
-subject to change!
+# Examples
+
+This folder contains examples that use KGX to perform 
+certain operations.
+
+This folder also contains sample YAML files that can 
+be used as input to KGX to drive certain operations.
+ 

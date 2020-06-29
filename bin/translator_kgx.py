@@ -3,19 +3,15 @@ import os, sys, click, logging, itertools, pickle, json, yaml
 import pandas as pd
 from typing import List
 
-import networkx as nx
-from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
+from neo4jrestclient.client import GraphDatabase as http_gdb
 from collections import Counter, defaultdict, OrderedDict
 from terminaltables import AsciiTable
-from datetime import datetime
 
-from kgx import Transformer, map_graph
-from kgx.operations.graph_merge import GraphMerge
+from kgx.operations.graph_merge import merge_all_graphs
 from kgx.validator import Validator
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable, build_transformer, get_prefix, \
     stringify, load_transformer, make_neo4j_transformer
 from kgx.cli.utils import Config
-from kgx.utils import file_write
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
@@ -106,9 +102,10 @@ def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
     if len(xrefs) != 0:
         line = 'xref prefixes: {}'.format(', '.join(xrefs))
         if output is not None:
-            file_write(output, '|nodes|: {}'.format(len(g.nodes())))
-            file_write(output, '|edges|: {}'.format(len(g.edges())))
-            file_write(output, line)
+            FH = open(output)
+            FH.write('|nodes|: {}'.format(len(g.nodes())))
+            FH.write('|edges|: {}'.format(len(g.edges())))
+            FH.write(line)
         else:
             click.echo('|nodes|: {}'.format(len(g.nodes())))
             click.echo('|edges|: {}'.format(len(g.edges())))
@@ -119,7 +116,7 @@ def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
     headers = [['Prefix', 'Category', 'Frequency']]
     rows = [[*k, v] for k, v in tuple_count.items()]
     if output is not None:
-        file_write(output, AsciiTable(headers + rows).table, mode='a')
+        FH.write(AsciiTable(headers + rows).table)
     else:
         click.echo(AsciiTable(headers + rows).table)
 
@@ -133,7 +130,7 @@ def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
     headers = [['Category', 'Frequency']]
     rows = [[k, v] for k, v in category_count.items()]
     if output is not None:
-        file_write(output, AsciiTable(headers + rows).table, mode='a')
+        FH.write(AsciiTable(headers + rows).table)
     else:
         click.echo(AsciiTable(headers + rows).table)
 
@@ -141,7 +138,7 @@ def node_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
     rows = [[k, v] for k, v in prefix_count.items()]
 
     if output is not None:
-        file_write(output, AsciiTable(headers + rows).table, mode='a')
+        FH.write(AsciiTable(headers + rows).table)
     else:
         click.echo(AsciiTable(headers + rows).table)
 
@@ -198,7 +195,8 @@ def edge_summary(config: dict, filepath: str, input_type: str, max_rows: int, ou
     rows = [[*k, v] for k, v in tuple_count.items()]
 
     if output is not None:
-        file_write(output, AsciiTable(headers + rows).table)
+        FH = open(output)
+        FH.write(AsciiTable(headers + rows).table)
     else:
         click.echo(AsciiTable(headers + rows).table)
 
@@ -608,7 +606,7 @@ def transform(config: dict, inputs: List[str], input_type: str, output: str, out
                 element = line.rstrip().split('\t')
                 mapping_dictionary[element[0]] = element[1]
         logging.info('Performing remapping based on {}'.format(mapping))
-        map_graph(input_transformer.graph, mapping=mapping_dictionary, preserve=preserve)
+        #map_graph(input_transformer.graph, mapping=mapping_dictionary, preserve=preserve)
 
     # save
     output_transformer = get_transformer(output_type)
@@ -662,7 +660,6 @@ def load_and_merge(config: dict, load_config):
     Parameters
     ----------
     """
-    gm = GraphMerge()
     with open(load_config, 'r') as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
@@ -673,18 +670,39 @@ def load_and_merge(config: dict, load_config):
         if target['type'] in get_file_types():
             # loading from a file
             transformer = get_transformer(target['type'])()
+            if target['type'] in {'tsv', 'neo4j'}:
+                # currently supporting filters only for TSV and Neo4j
+                if 'filters' in target:
+                    filters = target['filters']
+                    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+                    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+                    for k, v in node_filters.items():
+                        transformer.set_node_filter(k, set(v))
+                    for k, v in edge_filters.items():
+                        transformer.set_edge_filter(k, set(v))
+                    logging.info(f"with node filters: {node_filters}")
+                    logging.info(f"with edge filters: {edge_filters}")
             for f in target['filename']:
                 transformer.parse(f, input_format=target['type'])
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
             transformer = kgx.NeoTransformer(None, target['uri'], target['username'],  target['password'])
-            # TODO: support filters
+            if 'filters' in target:
+                filters = target['filters']
+                node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+                edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+                for k, v in node_filters.items():
+                    transformer.set_node_filter(k, set(v))
+                for k, v in edge_filters.items():
+                    transformer.set_edge_filter(k, set(v))
+                logging.info(f"with node filters: {node_filters}")
+                logging.info(f"with edge filters: {edge_filters}")
             transformer.load()
             transformers.append(transformer)
         else:
             logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
-    merged_graph = gm.merge_all_graphs([x.graph for x in transformers])
+    merged_graph = merge_all_graphs([x.graph for x in transformers])
 
     destination = cfg['destination']
     if destination['type'] in ['csv', 'tsv', 'ttl', 'json', 'tar']:
@@ -692,6 +710,6 @@ def load_and_merge(config: dict, load_config):
         destination_transformer.save(destination['filename'])
     elif destination['type'] == 'neo4j':
         destination_transformer = kgx.NeoTransformer(merged_graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
-        destination_transformer.save_with_unwind()
+        destination_transformer.save()
     else:
         logging.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))

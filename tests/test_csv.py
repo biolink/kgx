@@ -15,7 +15,7 @@ def test_load():
     t.parse(os.path.join(resource_dir, "x1n.csv"))
     t.parse(os.path.join(resource_dir, "x1e.csv"))
     t.report()
-    t.save(os.path.join(target_dir, 'x1copy.csv'))
+    t.save(os.path.join(target_dir, 'x1copy'))
     # w = GraphMLTransformer(t.graph)
     # w.save(os.path.join(target_dir, "x1n.graphml"))
 

@@ -26,7 +26,6 @@ class NtTransformer(RdfTransformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None, node_properties: Set = None, edge_properties: Set = None):
         super().__init__(source_graph)
         self.toolkit = get_toolkit()
-        self.prefix_manger = PrefixManager()
         self.node_properties = node_properties if node_properties else set()
         self.edge_properties = edge_properties if edge_properties else set()
         self.node_properties.update(
@@ -35,6 +34,7 @@ class NtTransformer(RdfTransformer):
         self.edge_properties.update(['biolink:has_modifier', 'biolink:has_gene_product', 'biolink:has_db_xref', 'biolink:in_taxon'])
         self.edge_properties.update(['biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'])
         self.assocs = set()
+        self.count = 0
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
         """
@@ -105,6 +105,9 @@ class NtTransformer(RdfTransformer):
                 # treating as an edge
                 logging.debug(f"treating {predicate} as edge property")
                 self.add_edge(s, o, p)
+        self.count += 1
+        if self.count % 1000 == 0:
+            logging.info(f"Parsed {self.count} triples")
 
     def dereify(self, associations: Set[str]) -> None:
         """
@@ -166,18 +169,28 @@ class NtTransformer(RdfTransformer):
         for n, data in self.graph.nodes(data=True):
             s = self.uriref(n)
             for k, v in data.items():
+                if k in {'id', 'iri'}:
+                    continue
                 p = self.uriref(k)
                 if isinstance(v, list):
                     for x in v:
-                        if self.prefix_manger.is_curie(x) or x.startswith('urn:uuid:'):
-                            o = self.uriref(x)
+                        if isinstance(x, str):
+                            if self.prefix_manager.is_curie(x) or self.prefix_manager.is_iri(x) or x.startswith('urn:uuid:'):
+                                o = self.uriref(x)
+                            else:
+                                # literal
+                                o = Literal(x)
                         else:
                             # literal
                             o = Literal(x)
                         yield (s, p, o)
                 else:
-                    if self.prefix_manger.is_curie(v) or v.startswith('urn:uuid:'):
-                        o = self.uriref(v)
+                    if isinstance(v, str):
+                        if self.prefix_manager.is_curie(v) or self.prefix_manager.is_iri(v) or v.startswith('urn:uuid:'):
+                            o = self.uriref(v)
+                        else:
+                            # literal
+                            o = Literal(v)
                     else:
                         # literal
                         o = Literal(v)
@@ -195,6 +208,7 @@ class NtTransformer(RdfTransformer):
             A triple
 
         """
+        cache = []
         for u, v, k, data in self.graph.edges(data=True, keys=True):
             if data['edge_label'] in self.edge_properties:
                 # treat as a direct edge
@@ -204,6 +218,10 @@ class NtTransformer(RdfTransformer):
                 yield (s, p, o)
             else:
                 # reify
+                s = self.uriref(u)
+                p = self.uriref(data['edge_label'])
+                o = self.uriref(v)
+                cache.append((s, p, o))
                 if 'id' in data:
                     s = self.uriref(data['id'])
                 else:
@@ -212,20 +230,27 @@ class NtTransformer(RdfTransformer):
                 all_data = data.copy()
                 all_data['type'] = 'biolink:Association'
                 for prop, value in all_data.items():
-                    if prop in {'id'}:
+                    if prop in {'id', 'association_id', 'edge_key'}:
                         continue
                     p = self.uriref(prop)
                     if isinstance(value, list):
                         for x in value:
-                            if self.prefix_manager.is_curie(x):
+                            if isinstance(x, str) and PrefixManager.is_curie(x):
                                 o = self.uriref(x)
+                            elif isinstance(x, str) and PrefixManager.is_iri(x):
+                                o = URIRef(x)
                             else:
                                 o = Literal(x)
                             yield (s, p, o)
                     else:
-                        if self.prefix_manger.is_curie(value):
+                        if isinstance(value, str) and PrefixManager.is_curie(value):
                             o = self.uriref(value)
+                        elif isinstance(value, str) and PrefixManager.is_iri(value):
+                            o = URIRef(value)
                         else:
                             # literal
                             o = Literal(value)
                         yield (s, p, o)
+
+        for t in cache:
+            yield (t[0], t[1], t[2])

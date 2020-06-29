@@ -4,8 +4,8 @@ import networkx as nx
 import stringcase
 from cachetools import cached
 
-from kgx.mapper import get_prefix
-from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service
+from kgx.operations.graph_merge import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
+from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP = {}
@@ -115,6 +115,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
                 break
     return set(new_categories)
 
+
 def curie_lookup(curie: str) -> str:
     """
     Given a CURIE, find its label.
@@ -136,11 +137,142 @@ def curie_lookup(curie: str) -> str:
     """
     cls = get_curie_lookup_service()
     name = None
-    prefix = get_prefix(curie)
+    prefix = PrefixManager.get_prefix(curie)
     if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
         name = stringcase.snakecase(curie.split(':', 1)[1])
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = g.nodes[curie]['name']
+        name = cls.ontology_graph.nodes[curie]['name']
     return name
+
+
+def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_property: str, prefix=None) -> nx.MultiDiGraph:
+    """
+    Remap a node's 'id' attribute with value from a node's ``alternative_property`` attribute.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    category: string
+        category referring to nodes whose 'id' needs to be remapped
+    alternative_property: string
+        property name from which the new value is pulled from
+    prefix: string
+        signifies that the value for ``alternative_property`` is a list
+        and the ``prefix`` indicates which value to pick from the list
+
+    Returns
+    -------
+    networkx.MultiDiGraph
+        The modified graph
+
+    """
+    mapping = {}
+    for nid, data in graph.nodes(data=True):
+        node_data = data.copy()
+        if 'category' in node_data and category not in node_data['category']:
+            continue
+
+        if alternative_property in node_data:
+            alternative_values = node_data[alternative_property]
+            if isinstance(alternative_values, (list, set, tuple)):
+                if prefix:
+                    for v in alternative_values:
+                        if prefix in v:
+                            # take the first occurring value that contains the given prefix
+                            mapping[nid] = v
+                            break
+                else:
+                    # no prefix defined; pick the 1st one from list
+                    mapping[nid] = alternative_values[0]
+            elif isinstance(alternative_values, str):
+                if prefix:
+                    if alternative_values.startswith(prefix):
+                        mapping[nid] = alternative_values
+                else:
+                    # no prefix defined
+                    mapping[nid] = alternative_values
+            else:
+                logging.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
+
+    nx.set_node_attributes(graph, values=mapping, name='id')
+    nx.relabel_nodes(graph, mapping, copy=False)
+
+    # update 'subject' of all outgoing edges
+    update_edge_keys = {}
+    updated_subject_values = {}
+    updated_object_values = {}
+    for u, v, k, edge_data in graph.edges(keys=True, data=True):
+        if u is not edge_data['subject']:
+            updated_subject_values[(u, v, k)] = u
+            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+        if v is not edge_data['object']:
+            updated_object_values[(u, v, k)] = v
+            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+
+    nx.set_edge_attributes(graph, values=updated_subject_values, name='subject')
+    nx.set_edge_attributes(graph, values=updated_object_values, name='object')
+    nx.set_edge_attributes(graph, values=update_edge_keys, name='edge_key')
+
+    return graph
+
+
+def remap_node_property(graph: nx.MultiDiGraph, category: str, old_property: str, new_property: str) -> None:
+    """
+    Remap the value in node ``old_property`` attribute with value
+    from node ``new_property`` attribute.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    category: string
+        Category referring to nodes whose property needs to be remapped
+    old_property: string
+        old property name whose value needs to be replaced
+    new_property: string
+        new property name from which the value is pulled from
+
+    """
+    mapping = {}
+    if old_property in CORE_NODE_PROPERTIES:
+        raise AttributeError(f"node property {old_property} cannot be modified as it is a core property.")
+
+    for nid, data in graph.nodes(data=True):
+        node_data = data.copy()
+        if category in node_data and category not in node_data['category']:
+            continue
+        if new_property in node_data:
+            mapping[nid] = node_data[new_property]
+    nx.set_node_attributes(graph, values=mapping, name=old_property)
+
+
+def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: str, new_property: str) -> None:
+    """
+    Remap the value in an edge ``old_property`` attribute with value
+    from edge ``new_property`` attribute.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    edge_label: string
+        edge_label referring to edges whose property needs to be remapped
+    old_property: string
+        Old property name whose value needs to be replaced
+    new_property: string
+        New property name from which the value is pulled from
+
+    """
+    mapping = {}
+    if old_property in CORE_EDGE_PROPERTIES:
+        raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
+    for u, v, k, data in graph.edges(data=True, keys=True):
+        edge_data = data.copy()
+        if edge_label is not edge_data['edge_label']:
+            continue
+        if new_property in edge_data:
+            mapping[(u, v, k)] = edge_data[new_property]
+    nx.set_edge_attributes(graph, values=mapping, name=old_property)

@@ -9,7 +9,7 @@ from prefixcommons.curie_util import read_remote_jsonld_context
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, make_curie, infer_category, reverse_property_mapping
+from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping
 from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
 
 
@@ -30,7 +30,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
-        self.ontologies = []
         self.toolkit = get_toolkit()
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
@@ -71,17 +70,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.load_networkx_graph(rdfgraph, predicates)
         self.load_node_attributes(rdfgraph)
         self.report()
-
-    def add_ontology(self, file: str) -> None:
-        """
-        Load an ontology OWL into a Rdflib.Graph
-        # TODO: is there better way of pre-loading required ontologies?
-        """
-        ont = rdflib.Graph()
-        logging.info("Parsing {}".format(file))
-        ont.parse(file, format=rdflib.util.guess_format(file))
-        self.ontologies.append(ont)
-        logging.info("{} parsed with {} triples".format(file, len(ont)))
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
@@ -149,6 +137,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         logging.info("Loading node attributes from rdflib.Graph into networkx.MultiDiGraph")
         with click.progressbar(self.graph.nodes(data=True), label='Progress') as bar:
             for n, data in bar:
+                print(n, data)
                 if 'id' not in data:
                     data['id'] = n
                 if 'iri' in data:
@@ -199,7 +188,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         rdfgraph.bind('', str(self.DEFAULT))
         rdfgraph.bind('OBO', str(self.OBO))
         rdfgraph.bind('OBAN', str(self.OBAN))
-        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.PMID))
         rdfgraph.bind('biolink', str(self.BIOLINK))
 
         # saving all nodes
@@ -477,7 +466,7 @@ class ObanRdfTransformer(RdfTransformer):
         rdfgraph.bind('', str(self.DEFAULT))
         rdfgraph.bind('OBO', str(self.OBO))
         rdfgraph.bind('OBAN', str(self.OBAN))
-        rdfgraph.bind('PMID', str(self.OBAN))
+        rdfgraph.bind('PMID', str(self.PMID))
         rdfgraph.bind('biolink', str(self.BIOLINK))
 
         # saving all nodes
@@ -534,7 +523,7 @@ class RdfOwlTransformer(RdfTransformer):
             Any additional arguments
         """
         triples = rdfgraph.triples((None, RDFS.subClassOf, None))
-        logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
+        logging.info("Loading RDFS:subClassOf triples from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 # ignoring blank nodes
@@ -542,7 +531,6 @@ class RdfOwlTransformer(RdfTransformer):
                     continue
                 pred = None
                 parent = None
-                # TODO: does this block load all relevant bits from an OWL?
                 if isinstance(o, rdflib.term.BNode):
                     # C SubClassOf R some D
                     for x in rdfgraph.objects(o, OWL.onProperty):
@@ -558,6 +546,11 @@ class RdfOwlTransformer(RdfTransformer):
                     parent = o
                 self.add_edge(s, parent, pred)
 
+        triples = rdfgraph.triples((None, OWL.equivalentClass, None))
+        logging.info("Loading OWL:equivalentClass triples from rdflib.Graph to networkx.MultiDiGraph")
+        with click.progressbar(list(triples), label='Progress') as bar:
+            for s, p, o in bar:
+                self.add_edge(s, o, p)
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         logging.debug("Loading relations")
         with click.progressbar(relations, label='Progress') as bar:
@@ -568,3 +561,8 @@ class RdfOwlTransformer(RdfTransformer):
                     else:
                         self.add_node_attribute(relation, key=p, value=o)
                 self.add_node_attribute(relation, key='category', value='relation')
+        triples = rdfgraph.triples((None, None, None))
+        with click.progressbar(list(triples), label='Progress') as bar:
+            for s, p, o in bar:
+                if p in property_mapping.keys():
+                    self.add_node_attribute(s, key=p, value=o)

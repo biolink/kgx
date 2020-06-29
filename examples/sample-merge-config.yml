@@ -5,6 +5,17 @@ target:
    hgnc-dataset:
       type: ttl
       filename: data/hgnc_test.ttl
+   test-dataset:
+      type: tsv
+      filename: data/test_dataset.tar.gz
+      filters:
+         node_filters:
+            category:
+               - biolink:Gene
+               - biolink:Disease
+         edge_filters:
+            edge_label:
+               - biolink:contributes_to
    neo-kg:
       type: neo4j
       uri: http://localhost:7474
@@ -12,26 +23,33 @@ target:
       password: neo4j
       page_size: 10000
       filters:
-         subject_category:
-            - gene
-            - disease
-         object_category:
-            - named_thing
-         edge_label:
-            - interacts_with
-            - has_phenotype
+         node_filters:
+            category:
+               - biolink:Gene
+               - biolink:Disease
+               - biolink:PhenotypicFeature
+         edge_filters:
+            subject_category:
+               - biolink:Gene
+               - biolink:Disease
+            object_category:
+               - biolink:PhenotypicFeature
+            edge_label:
+               - biolink:interacts_with
+               - biolink:has_phenotype
    sparql-kg:
       type: sparql
       uri: http://localhost/sparql
-      filters:
-         subject_category:
-            - biolink:Gene
-            - biolink:PhenotypicFeature
-         object_category:
-            - biolink:Disease
-         edge_label:
-            - biolink:is_marker_for
-            - biolink:has_phenotype
+#      filters:
+#         edge_filters:
+#            subject_category:
+#               - biolink:Gene
+#               - biolink:PhenotypicFeature
+#            object_category:
+#               - biolink:Disease
+#            edge_label:
+#               - biolink:is_marker_for
+#               - biolink:has_phenotype
    local-kg:
       type: json
       filename: local-kg-dump.json

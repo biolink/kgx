@@ -14,10 +14,20 @@ ontologies:
 #  SO: http://purl.obolibrary.org/obo/so.owl
 
 logging:
-  level: DEBUG
+  level: INFO
   format: '[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
-biolink-model: https://biolink.github.io/biolink-model/biolink-model.yaml
+biolink-model:
+  local: biolink-model.yaml
+  remote: https://biolink.github.io/biolink-model/biolink-model.yaml
 
 jsonld-context:
-  biolink: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld
+  biolink:
+    local: context.jsonld
+    remote: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld
+  monarch_context:
+    local: monarch_context.jsonld
+    remote: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/monarch_context.jsonld
+  obo_context:
+    local: obo_context.jsonld
+    remote: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/obo_context.jsonld

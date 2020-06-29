@@ -5,7 +5,7 @@ import rdflib
 from rdflib import URIRef, Namespace
 
 from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, process_iri, make_curie, is_property_multivalued
+from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.prefix_manager import PrefixManager
 
@@ -93,6 +93,8 @@ class RdfGraphMixin(object):
             kwargs = {'id': n}
             if 'provided_by' in self.graph_metadata:
                 kwargs['provided_by'] = self.graph_metadata['provided_by']
+            if 'category' not in kwargs:
+                kwargs['category'] = ["biolink:NamedThing"]
             self.graph.add_node(n, **kwargs)
 
         return n
@@ -220,7 +222,7 @@ class RdfGraphMixin(object):
                 key = URIRef(key)
             key = property_mapping.get(key)
 
-        if key is not None:
+        if key is not None and value is not None:
             subject_curie = self.prefix_manager.contract(subject_iri)
             object_curie = self.prefix_manager.contract(object_iri)
             edge_label = process_iri(predicate_iri)
@@ -251,7 +253,8 @@ class RdfGraphMixin(object):
             The value of the attribute
 
         """
-        value = process_iri(value)
+        if PrefixManager.is_iri(value):
+            value = process_iri(value)
         if key in is_property_multivalued and is_property_multivalued[key]:
             if key not in attr_dict:
                 attr_dict[key] = [value]

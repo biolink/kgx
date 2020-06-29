@@ -2,13 +2,12 @@ import os
 import re
 import pandas as pd
 import numpy as np
-import logging, tarfile
-from tempfile import TemporaryFile
-from kgx.utils import make_path
+import logging
+import tarfile
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 LIST_DELIMITER = '|'
 
@@ -85,21 +84,25 @@ class PandasTransformer(Transformer):
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-
+        if input_format == 'tsv':
+            kwargs['quoting'] = 3
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    df = pd.read_csv(f, **kwargs) # type: pd.DataFrame
+                    iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
                     if re.search('nodes.{}'.format(input_format), member.name):
-                        self.load_nodes(df)
+                        for chunk in iter:
+                            self.load_nodes(chunk)
                     elif re.search('edges.{}'.format(input_format), member.name):
-                        self.load_edges(df)
+                        for chunk in iter:
+                            self.load_edges(chunk)
                     else:
                         raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
         else:
-            df = pd.read_csv(filename, dtype=str, **kwargs) # type: pd.DataFrame
-            self.load(df)
+            iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
+            for chunk in iter:
+                self.load(chunk)
 
     def load(self, df: pd.DataFrame) -> None:
         """
@@ -129,6 +132,47 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
+    def check_node_filter(self, node: dict):
+        """
+        Check if a node passes defined node filters.
+
+        Parameters
+        ----------
+        node: dict
+            A node
+
+        Returns
+        -------
+        bool
+            Whether the given node has passed all defined node filters
+
+        """
+        pass_filter = False
+        if self.node_filters:
+            for k, v in self.node_filters.items():
+                if k in node:
+                    # filter key exists in node
+                    if isinstance(v, (list, set, tuple)):
+                        if any(x in node[k] for x in v):
+                            pass_filter = True
+                        else:
+                            return False
+                    elif isinstance(v, str):
+                        if node[k] == v:
+                            pass_filter = True
+                        else:
+                            return False
+                    else:
+                        logging.error(f"Unexpected {k} node filter of type {type(v)}")
+                        return False
+                else:
+                    # filter key does not exist in node
+                    return False
+        else:
+            # no node filters defined
+            pass_filter = True
+        return pass_filter
+
     def load_node(self, node: Dict) -> None:
         """
         Load a node into a networkx.MultiDiGraph
@@ -139,13 +183,18 @@ class PandasTransformer(Transformer):
             A node
 
         """
-        node = Transformer.validate_node(node)
-        kwargs = PandasTransformer._build_kwargs(node.copy())
-        if 'id' in kwargs:
-            n = kwargs['id']
-            self.graph.add_node(n, **kwargs)
+        if self.check_node_filter(node):
+            node = Transformer.validate_node(node)
+            kwargs = PandasTransformer._build_kwargs(node.copy())
+            if 'id' in kwargs:
+                n = kwargs['id']
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
+                    kwargs['provided_by'] = self.graph_metadata['provided_by']
+                self.graph.add_node(n, **kwargs)
+            else:
+                logging.info("Ignoring node with no 'id': {}".format(node))
         else:
-            logging.info("Ignoring node with no 'id': {}".format(node))
+            logging.debug(f"Node fails node filters: {node}")
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
@@ -160,6 +209,83 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
+    def check_edge_filter(self, edge):
+        """
+        Check if an edge passes defined edge filters.
+
+        Parameters
+        ----------
+        edge: dict
+            An edge
+
+        Returns
+        -------
+        bool
+            Whether the given edge has passed all defined edge filters
+        """
+        pass_filter = False
+        if self.edge_filters:
+            for k, v in self.edge_filters.items():
+                if k in {'subject_category', 'object_category'}:
+                    continue
+                if k in edge:
+                    # filter key exists in edge
+                    if isinstance(v, (list, set, tuple)):
+                        if any(x in edge[k] for x in v):
+                            pass_filter = True
+                        else:
+                            return False
+                    elif isinstance(v, str):
+                        if edge[k] == v:
+                            pass_filter = True
+                        else:
+                            return False
+                    else:
+                        logging.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        return False
+                else:
+                    # filter does not exist in edge
+                    return False
+
+            # Check for subject and object filter
+            if self.graph.has_node(edge['subject']):
+                subject_node = self.graph.nodes()[edge['subject']]
+            else:
+                subject_node = None
+
+            if self.graph.has_node(edge['object']):
+                object_node = self.graph.nodes()[edge['object']]
+            else:
+                object_node = None
+
+            if 'subject_category' in self.edge_filters:
+                f = self.edge_filters['subject_category']
+                if subject_node:
+                    # subject node exists in graph
+                    if any(x in subject_node['category'] for x in f):
+                        pass_filter = True
+                    else:
+                        return False
+                else:
+                    # subject node does not exist in graph
+                    return False
+
+            if 'object_category' in self.edge_filters:
+                f = self.edge_filters['object_category']
+                if object_node:
+                    # object node exists in graph
+                    if any(x in object_node['category'] for x in f):
+                        pass_filter = True
+                    else:
+                        return False
+                else:
+                    # object node does not exist in graph
+                    return False
+        else:
+            # no edge filters defined
+            pass_filter = True
+        return pass_filter
+
     def load_edge(self, edge: Dict) -> None:
         """
         Load an edge into a networkx.MultiDiGraph
@@ -170,15 +296,20 @@ class PandasTransformer(Transformer):
             An edge
 
         """
-        edge = Transformer.validate_edge(edge)
-        kwargs = PandasTransformer._build_kwargs(edge.copy())
-        if 'subject' in kwargs and 'object' in kwargs:
-            s = kwargs['subject']
-            o = kwargs['object']
-            key = generate_edge_key(s, kwargs['edge_label'], o)
-            self.graph.add_edge(s, o, key, **kwargs)
+        if self.check_edge_filter(edge):
+            edge = Transformer.validate_edge(edge)
+            kwargs = PandasTransformer._build_kwargs(edge.copy())
+            if 'subject' in kwargs and 'object' in kwargs:
+                s = kwargs['subject']
+                o = kwargs['object']
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
+                    kwargs['provided_by'] = self.graph_metadata['provided_by']
+                key = generate_edge_key(s, kwargs['edge_label'], o)
+                self.graph.add_edge(s, o, key, **kwargs)
+            else:
+                logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
         else:
-            logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+            logging.debug(f"Edge fails edge filters: {edge}")
 
     def export_nodes(self) -> pd.DataFrame:
         """
@@ -246,7 +377,9 @@ class PandasTransformer(Transformer):
         delimiter = _extension_types[extension]
         nodes_file_name = "{}_nodes.{}".format(filename, extension)
         edges_file_name = "{}_edges.{}".format(filename, extension)
-        make_path(nodes_file_name)
+        file_dir = os.path.dirname(nodes_file_name)
+        if file_dir:
+            os.makedirs(file_dir, exist_ok=True)
 
         self.export_nodes().to_csv(sep=delimiter, path_or_buf=nodes_file_name, index=False, escapechar="\\", doublequote=False)
         self.export_edges().to_csv(sep=delimiter, path_or_buf=edges_file_name, index=False, escapechar="\\", doublequote=False)
@@ -279,27 +412,12 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        # remove numpy.nan
-        data = {k : v for k, v in data.items() if v is not np.nan}
-
+        tidy_data = {}
         for key, value in data.items():
-            # process value as a list if key is a multi-valued property
-            if key in _column_types:
-                if _column_types[key] == list:
-                    if isinstance(value, (list, set, tuple)):
-                        data[key] = list(value)
-                    elif isinstance(value, str):
-                        data[key] = value.split(LIST_DELIMITER)
-                    else:
-                        data[key] = [str(value)]
-                elif _column_types[key] == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    data[key] = str(value)
-        return data
+            new_value = PandasTransformer._remove_null(value)
+            if new_value:
+                tidy_data[key] = PandasTransformer._sanitize_import(key, new_value)
+        return tidy_data
 
     @staticmethod
     def _build_export_row(data: Dict) -> Dict:
@@ -318,36 +436,12 @@ class PandasTransformer(Transformer):
             A dictionary containing processed key-value pairs
 
         """
-        data = {k: v for k, v in data.items() if v is not np.nan}
+        tidy_data = {}
         for key, value in data.items():
-            if key in _column_types:
-                if _column_types[key] == list:
-                    if isinstance(value, (list, set, tuple)):
-                        data[key] = LIST_DELIMITER.join(value)
-                    else:
-                        data[key] = str(value)
-                elif _column_types[key] == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    # some OWL files provide values that span multiple lines, which
-                    # is parsed as-is by Rdflib. Escaping all new line characters.
-                    value = value.replace('\n', '\\n')
-                    data[key] = str(value)
-            else:
-                if type(data[key]) == list:
-                    data[key] = LIST_DELIMITER.join(value)
-                elif type(data[key]) == bool:
-                    try:
-                        data[key] = bool(value)
-                    except:
-                        data[key] = False
-                else:
-                    value = value.replace('\n', '\\n')
-                    data[key] = str(value)
-        return data
+            new_value = PandasTransformer._remove_null(value)
+            if new_value:
+                tidy_data[key] = PandasTransformer._sanitize_export(key, new_value)
+        return tidy_data
 
     @staticmethod
     def _order_cols(cols: List[str]) -> List[str]:
@@ -372,3 +466,164 @@ class PandasTransformer(Transformer):
                 cols2.append(c)
                 cols.remove(c)
         return cols2 + cols
+
+    @staticmethod
+    def _sanitize_export(key, value):
+        """
+        Sanitize value for a key for the purpose of export.
+
+        Parameters
+        ----------
+        key: str
+            Key corresponding to a node/edge property
+        value: Any
+            Value corresponding to the key
+
+        Returns
+        -------
+        value: Any
+            Sanitized value
+
+        """
+        if key in _column_types:
+            if _column_types[key] == list:
+                if isinstance(value, (list, set, tuple)):
+                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                    new_value = LIST_DELIMITER.join(value)
+                else:
+                    new_value = str(value).replace('\n', ' ')
+            elif _column_types[key] == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value).replace('\n', ' ')
+        else:
+            if type(value) == list:
+                new_value = LIST_DELIMITER.join(value)
+                new_value = new_value.replace('\n', ' ')
+            elif type(value) == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value).replace('\n', ' ')
+        return new_value
+
+    @staticmethod
+    def _sanitize_import(key: str, value: Any):
+        """
+        Sanitize value for a key for the purpose of import.
+
+        Parameters
+        ----------
+        key: str
+            Key corresponding to a node/edge property
+        value: Any
+            Value corresponding to the key
+
+        Returns
+        -------
+        value: Any
+            Sanitized value
+
+        """
+        if key in _column_types:
+            if _column_types[key] == list:
+                if isinstance(value, (list, set, tuple)):
+                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                    new_value = list(value)
+                elif isinstance(value, str):
+                    value = value.replace('\n', ' ')
+                    new_value = value.split(LIST_DELIMITER)
+                else:
+                    new_value = [str(value).replace('\n', ' ')]
+            elif _column_types[key] == bool:
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value).replace('\n', ' ')
+        else:
+            if isinstance(value, (list, set, tuple)):
+                value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                new_value = list(value)
+            elif isinstance(value, str):
+                if LIST_DELIMITER in value:
+                    value = value.replace('\n', ' ')
+                    new_value = value.split(LIST_DELIMITER)
+                else:
+                    new_value = value.replace('\n', ' ')
+            elif isinstance(value, bool):
+                try:
+                    new_value = bool(value)
+                except:
+                    new_value = False
+            else:
+                new_value = str(value).replace('\n', ' ')
+        return new_value
+
+    @staticmethod
+    def _remove_null(input: Any):
+        """
+        Remove any null values from input.
+
+        Parameters
+        ----------
+        input: Any
+            Can be a str, list or dict
+
+        Returns
+        -------
+        Any
+            The input without any null values
+
+        """
+        new_value = None
+        if isinstance(input, (list, set, tuple)):
+            # value is a list, set or a tuple
+            new_value = []
+            for v in input:
+                x = PandasTransformer._remove_null(v)
+                if x:
+                    new_value.append(x)
+        elif isinstance(input, dict):
+            # value is a dict
+            new_value = {}
+            for k, v in input.items():
+                x = PandasTransformer._remove_null(v)
+                if x:
+                    new_value[k] = x
+        elif isinstance(input, str):
+            # value is a str
+            if not PandasTransformer.is_null(input):
+                new_value = input
+        else:
+            if not PandasTransformer.is_null(input):
+                new_value = input
+        return new_value
+
+    @staticmethod
+    def is_null(item: Any) -> bool:
+        """
+        Checks if a given item is null or correspond to null.
+
+        This method checks for: None, numpy.nan, pandas.NA,
+        pandas.NaT, "", and " "
+
+        Parameters
+        ----------
+        item: Any
+            The item to check
+
+        Returns
+        -------
+        bool
+            Whether the given item is null or not
+
+        """
+        null_values = {np.nan, pd.NA, pd.NaT, None, "", " "}
+        return item in null_values

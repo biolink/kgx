@@ -4,17 +4,12 @@ from typing import Optional, Tuple
 import networkx as nx
 import stringcase
 
-from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
+    get_prefix_prioritization_map, get_biolink_element, get_biolink_ancestors
 
-SAME_AS = 'same_as'
+SAME_AS = 'biolink:same_as'
 LEADER_ANNOTATION = 'clique_leader'
-
-# TODO: Get the prefix priority order from BioLink Model
-PREFIX_PRIORITIZATION_MAP = {
-    'gene': ['HGNC', 'NCBIGene', 'Ensembl'],
-    'genomic_entity': ['HGNC', 'NCBIGene', 'Ensembl'],
-}
-
+PREFIX_PRIORITIZATION_MAP = get_prefix_prioritization_map()
 MAPPING = {}
 
 class CliqueMerge(object):
@@ -27,7 +22,7 @@ class CliqueMerge(object):
         self.clique_graph = nx.Graph()
         self.target_graph = None
         if prefix_prioritization_map:
-            for x, v in prefix_prioritization_map:
+            for x, v in prefix_prioritization_map.items():
                 PREFIX_PRIORITIZATION_MAP[x] = v
 
     def build_cliques(self, target_graph: nx.MultiDiGraph):
@@ -79,14 +74,12 @@ class CliqueMerge(object):
             extended_categories = set()
             invalid_categories = []
             for category in categories:
-                # TODO: this sentence case conversion needs to be handled properly
-                category = snakecase_to_sentencecase(category).lower()
                 logging.debug("Looking at category: {}".format(category))
-                element = self.toolkit.get_element(category)
+                element = get_biolink_element(category)
                 if element:
                     # category exists in BioLink Model as a class or as an alias to a class
                     mapped_category = element['name']
-                    ancestors = self.toolkit.ancestors(mapped_category)
+                    ancestors = get_biolink_ancestors(mapped_category)
                     if len(ancestors) > len(extended_categories):
                         # the category with the longest list of ancestors will be the most specific category
                         logging.debug("Ancestors for {} is larger than previous one".format(mapped_category))
@@ -95,16 +88,15 @@ class CliqueMerge(object):
                     logging.warning("[1] category '{}' not in BioLink Model".format(category))
                     invalid_categories.append(category)
             logging.debug("Invalid categories: {}".format(invalid_categories))
-            extended_categories = [stringcase.snakecase(x).lower() for x in extended_categories]
 
             for x in categories:
-                element = self.toolkit.get_element(x)
+                element = get_biolink_element(x)
                 if element is None:
                     logging.warning("[2] category '{}' is not in BioLink Model".format(x))
                     continue
                 mapped_category = element['name']
-                if stringcase.snakecase(mapped_category).lower() not in extended_categories:
-                    logging.warning("category '{}' not in ancestor closure: {}".format(stringcase.snakecase(mapped_category).lower(), extended_categories))
+                if mapped_category not in extended_categories:
+                    logging.warning("category '{}' not in ancestor closure: {}".format(mapped_category, extended_categories))
                     mapped = MAPPING[x] if x in MAPPING.keys() else x
                     if mapped not in extended_categories:
                         logging.warning("category '{}' is not even in any custom defined mapping. ".format(mapped_category))
@@ -150,10 +142,7 @@ class CliqueMerge(object):
             data = self.clique_graph.nodes[node]
             node_category = data['category'][0]
             logging.debug("node_category: {}".format(node_category))
-            # TODO: this sentencecase to snakecase transition needs to be handled properly
-            ancestors = [sentencecase_to_snakecase(x) for x in clique_category_ancestors]
-            logging.debug("clique ancestors: {}".format(ancestors))
-            if node_category not in ancestors:
+            if node_category not in clique_category_ancestors:
                 invalid_nodes.append(node)
                 logging.info("clique category '{}' does not match node: {}".format(clique_category, data))
             # TODO: check if node category is a subclass of any of the ancestors via other ontologies
@@ -181,13 +170,11 @@ class CliqueMerge(object):
         most_specific_category_ancestors = []
         for category in categories:
             logging.debug("category: {}".format(category))
-            formatted_category = snakecase_to_sentencecase(category)
-            logging.debug("formatted_category: {}".format(formatted_category))
-            element = self.toolkit.get_element(category)
+            element = get_biolink_element(category)
             if element:
                 # category exists in BioLink Model as a class or as an alias to a class
                 mapped_category = element['name']
-                ancestors = self.toolkit.ancestors(mapped_category)
+                ancestors = get_biolink_ancestors(mapped_category)
                 logging.debug("ancestors: {}".format(ancestors))
                 if len(ancestors) > len(most_specific_category_ancestors):
                     # the category with the longest list of ancestors will be the most specific category
@@ -312,7 +299,7 @@ class CliqueMerge(object):
         prefixes = [x.split(':', 1)[0] for x in clique]
         prefixes.sort()
         leader_prefix = prefixes[0]
-        print("clique: {} leader_prefix: {}".format(clique, leader_prefix))
+        logging.debug("clique: {} leader_prefix: {}".format(clique, leader_prefix))
         leader = [x for x in clique if leader_prefix in x]
         return leader[0], election_strategy
 
@@ -341,7 +328,6 @@ class CliqueMerge(object):
                     continue
                 in_edges = self.target_graph.in_edges(node, True)
                 filtered_in_edges = [x for x in in_edges if x[2]['edge_label'] != SAME_AS]
-                print("IN EDGES: {}".format(filtered_in_edges))
                 equiv_in_edges = [x for x in in_edges if x[2]['edge_label'] == SAME_AS]
                 logging.debug("Moving {} in-edges from {} to {}".format(len(in_edges), node, leader))
                 for u, v, edge_data in filtered_in_edges:
