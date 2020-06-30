@@ -313,7 +313,7 @@ class NeoTransformer(Transformer):
             edges = []
         return edges
 
-    def save_node(self, nodes_by_category: Dict[str, list]) -> None:
+    def save_node(self, nodes_by_category: Dict[str, list], batch_size: int = 10000) -> None:
         """
         Save all nodes into Neo4j using the UNWIND cypher clause.
 
@@ -321,17 +321,28 @@ class NeoTransformer(Transformer):
         ----------
         nodes_by_category: Dict[str, list]
             A dictionary where node category is the key and the value is a list of nodes of that category
+        batch_size: int
+            Size of batch per transaction (default: 10000)
 
         """
+        logging.info("Saving nodes")
         for category in nodes_by_category.keys():
             logging.debug("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
             query = NeoTransformer.generate_unwind_node_query(cypher_category)
-            logging.info(query)
-            try:
-                self.http_driver.query(query, params={'nodes': nodes_by_category[category]})
-            except CypherException as ce:
-                logging.error(ce)
+            logging.debug(query)
+            nodes = nodes_by_category[category]
+            time_start = current_time_in_millis()
+            for x in range(0, len(nodes), batch_size):
+                y = min(x + batch_size, len(nodes))
+                logging.debug(f"Batch {x} - {y}")
+                batch = nodes[x:y]
+                try:
+                    self.http_driver.query(query, params={'nodes': batch})
+                except CypherException as ce:
+                    logging.error(ce)
+            time_end = current_time_in_millis()
+            logging.debug(f"Time taken to load {category} edges: {time_end - time_start} ms")
 
     @staticmethod
     def generate_unwind_node_query(category: str) -> str:
@@ -362,7 +373,7 @@ class NeoTransformer(Transformer):
 
         return query
 
-    def save_edge(self, edges_by_edge_label: Dict[str, list]) -> None:
+    def save_edge(self, edges_by_edge_label: Dict[str, list], batch_size: int = 10000) -> None:
         """
         Save all edges into Neo4j using the UNWIND cypher clause.
 
@@ -370,23 +381,27 @@ class NeoTransformer(Transformer):
         ----------
         edges_by_edge_label: dict
             A dictionary where edge label is the key and the value is a list of edges with that edge label
+        batch_size: int
+            Size of batch per transaction (default: 10000)
 
         """
-        for predicate in edges_by_edge_label:
+        logging.info("Saving edges")
+        for predicate in edges_by_edge_label.keys():
             query = self.generate_unwind_edge_query(predicate)
             logging.info(query)
             edges = edges_by_edge_label[predicate]
-            for i in range(0, len(edges), 1000):
-                end = i + 1000
-                subset = edges[i:end]
-                logging.info("edges subset: {}-{} for predicate {}".format(i, end, predicate))
-                time_start = current_time_in_millis()
+            time_start = current_time_in_millis()
+            for x in range(0, len(edges), batch_size):
+                y = min(x + batch_size, len(edges))
+                batch = edges[x:y]
+                logging.debug(f"Batch {x} - {y}")
+
                 try:
-                    self.http_driver.query(query, params={"relationship": predicate, "edges": subset})
+                    self.http_driver.query(query, params={"relationship": predicate, "edges": batch})
                 except CypherException as ce:
                     logging.error(ce)
-                time_end = current_time_in_millis()
-                logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
+            time_end = current_time_in_millis()
+            logging.debug(f"Time taken to load {predicate} edges: {time_end - time_start} ms")
 
     @staticmethod
     def generate_unwind_edge_query(edge_label: str) -> str:
@@ -428,7 +443,6 @@ class NeoTransformer(Transformer):
             node_data = self.validate_node(node_data)
             category = self.sanitize_category(node_data['category'])
             category = self.CATEGORY_DELIMITER.join(category)
-            logging.info("Category: {}".format(category))
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node_data]
             else:
