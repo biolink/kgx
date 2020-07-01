@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import networkx as nx
 import yaml
@@ -13,6 +13,7 @@ COUNT_BY_EDGE_LABEL = 'count_by_edge_label'
 COUNT_BY_SPO = 'count_by_spo'
 
 # Note: the format of the stats generated might change in the future
+
 
 def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str) -> None:
     """
@@ -32,7 +33,8 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str)
     WH = open(filename, 'w')
     yaml.dump(stats, WH)
 
-def summarize_graph(graph: nx.MultiDiGraph, name: str = None) -> Dict:
+
+def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: List = None, edge_facet_properties: List = None) -> Dict:
     """
     Summarize the entire graph.
 
@@ -40,8 +42,12 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None) -> Dict:
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    graph_name: str
+    name: str
         Name for the graph
+    node_facet_properties: List
+        A list of properties to facet on. For example, ``['provided_by']``
+    edge_facet_properties: List
+        A list of properties to facet on. For example, ``['provided_by']``
 
     Returns
     -------
@@ -49,8 +55,8 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None) -> Dict:
         The stats dictionary
 
     """
-    node_stats = summarize_nodes(graph)
-    edge_stats = summarize_edges(graph)
+    node_stats = summarize_nodes(graph, node_facet_properties)
+    edge_stats = summarize_edges(graph, edge_facet_properties)
     stats = {
         'graph_name': name if name else graph.name,
         'node_stats': node_stats,
@@ -58,7 +64,8 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None) -> Dict:
     }
     return stats
 
-def summarize_nodes(graph: nx.MultiDiGraph) -> Dict:
+
+def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Dict:
     """
     Summarize the nodes in a graph.
 
@@ -66,6 +73,8 @@ def summarize_nodes(graph: nx.MultiDiGraph) -> Dict:
     ----------
     graph: networkx.MultiDiGraph
         The graph
+    facet_properties: List
+        A list of properties to facet on
 
     Returns
     -------
@@ -76,25 +85,31 @@ def summarize_nodes(graph: nx.MultiDiGraph) -> Dict:
     stats = {
         TOTAL_NODES: 0,
         NODE_CATEGORIES: set(),
-        COUNT_BY_CATEGORY: {'unknown': 0}
+        COUNT_BY_CATEGORY: {'unknown': {'count': 0}}
     }
 
     stats[TOTAL_NODES] = len(graph.nodes())
     for n, data in graph.nodes(data=True):
         if 'category' not in data:
-            stats[COUNT_BY_CATEGORY]['unknown'] += 1
+            stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
             continue
         categories = data['category']
         stats[NODE_CATEGORIES].update(categories)
         for category in categories:
             if category in stats[COUNT_BY_CATEGORY]:
-                stats[COUNT_BY_CATEGORY][category] += 1
+                stats[COUNT_BY_CATEGORY][category]['count'] += 1
             else:
-                stats[COUNT_BY_CATEGORY][category] = 1
-    stats[NODE_CATEGORIES] = list(stats[NODE_CATEGORIES])
+                stats[COUNT_BY_CATEGORY][category] = {'count': 1}
+
+            if facet_properties:
+                for facet_property in facet_properties:
+                    stats = get_facet_counts(data, stats, COUNT_BY_CATEGORY, category, facet_property)
+
+    stats[NODE_CATEGORIES] = sorted(list(stats[NODE_CATEGORIES]))
     return stats
 
-def summarize_edges(graph: nx.MultiDiGraph):
+
+def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
     """
     Summarize the edges in a graph.
 
@@ -102,6 +117,8 @@ def summarize_edges(graph: nx.MultiDiGraph):
     ----------
     graph: networkx.MultiDiGraph
         The graph
+    facet_properties: List
+        The properties to facet on
 
     Returns
     -------
@@ -119,15 +136,19 @@ def summarize_edges(graph: nx.MultiDiGraph):
     stats[TOTAL_EDGES] = len(graph.edges())
     for u, v, k, data in graph.edges(keys=True, data=True):
         if 'edge_label' not in data:
-            stats[COUNT_BY_EDGE_LABEL]['unknown'] += 1
+            stats[COUNT_BY_EDGE_LABEL]['unknown']['count'] += 1
             edge_label = "unknown"
         else:
             edge_label = data['edge_label']
             stats[EDGE_LABELS].add(edge_label)
             if edge_label in stats[COUNT_BY_EDGE_LABEL]:
-                stats[COUNT_BY_EDGE_LABEL][edge_label] += 1
+                stats[COUNT_BY_EDGE_LABEL][edge_label]['count'] += 1
             else:
-                stats[COUNT_BY_EDGE_LABEL][edge_label] = 1
+                stats[COUNT_BY_EDGE_LABEL][edge_label] = {'count': 1}
+
+            if facet_properties:
+                for facet_property in facet_properties:
+                    stats = get_facet_counts(data, stats, COUNT_BY_EDGE_LABEL, edge_label, facet_property)
 
         u_data = graph.nodes[u]
         v_data = graph.nodes[v]
@@ -144,8 +165,65 @@ def summarize_edges(graph: nx.MultiDiGraph):
 
         key = f"{u_category}-{edge_label}-{v_category}"
         if key in stats[COUNT_BY_SPO]:
-            stats[COUNT_BY_SPO][key] += 1
+            stats[COUNT_BY_SPO][key]['count'] += 1
         else:
-            stats[COUNT_BY_SPO][key] = 1
-    stats[EDGE_LABELS] = list(stats[EDGE_LABELS])
+            stats[COUNT_BY_SPO][key] = {'count': 1}
+
+        if facet_properties:
+            for facet_property in facet_properties:
+                stats = get_facet_counts(data, stats, COUNT_BY_SPO, key, facet_property)
+
+    stats[EDGE_LABELS] = sorted(list(stats[EDGE_LABELS]))
+    return stats
+
+
+def get_facet_counts(data: Dict, stats: Dict, x: str, y: str, facet_property: str) -> Dict:
+    """
+    Facet on ``facet_property`` and record the count for ``stats[x][y][facet_property]``.
+
+    Parameters
+    ----------
+    data: dict
+        Node/edge data dictionary
+    stats: dict
+        The stats dictionary
+    x: str
+        first key
+    y: str
+        second key
+    facet_property: str
+        The property to facet on
+
+    Returns
+    -------
+    Dict
+        The stats dictionary
+
+    """
+    if facet_property in data:
+        if isinstance(data[facet_property], list):
+            for k in data[facet_property]:
+                if facet_property not in stats[x][y]:
+                    stats[x][y][facet_property] = {}
+
+                if k in stats[x][y][facet_property]:
+                    stats[x][y][facet_property][k]['count'] += 1
+                else:
+                    stats[x][y][facet_property][k] = {'count': 1}
+        else:
+            k = data[facet_property]
+            if facet_property not in stats[x][y]:
+                stats[x][y][facet_property] = {}
+
+            if k in stats[x][y][facet_property]:
+                stats[x][y][facet_property][k]['count'] += 1
+            else:
+                stats[x][y][facet_property][k] = {'count': 1}
+    else:
+        if facet_property not in stats[x][y]:
+            stats[x][y][facet_property] = {}
+        if 'unknown' in stats[x][y][facet_property]:
+            stats[x][y][facet_property]['unknown']['count'] += 1
+        else:
+            stats[x][y][facet_property]['unknown'] = {'count': 1}
     return stats
