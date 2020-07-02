@@ -74,7 +74,7 @@ class NtTransformer(RdfTransformer):
             The object of a triple.
 
         """
-        predicate = self.prefix_manger.contract(str(p))
+        predicate = self.prefix_manager.contract(str(p))
         prop = PrefixManager.get_reference(predicate)
         # check if property is a biolink model property
         # TODO: move this to a separate method
