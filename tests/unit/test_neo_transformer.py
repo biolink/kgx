@@ -29,8 +29,8 @@ def clean_slate(source='kgx-unit-test'):
     http_driver = GraphDatabase('http://localhost:7474', username='neo4j', password='test')
     q = "MATCH (n { source : '" + source + "' }) DETACH DELETE (n)"
     print(q)
-    http_driver.query(q)
-    sleep(3)
+    r = http_driver.query(q)
+    print(r.get_response())
 
 
 def get_graph(source):
