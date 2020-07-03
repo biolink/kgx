@@ -12,7 +12,7 @@ clean:
 	@echo "Environment cleaned."
 
 tests:
-	pytest tests/*py
+	pytest tests/
 
 .PHONY: examples tests
 
