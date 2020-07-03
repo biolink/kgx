@@ -1,13 +1,17 @@
 import os
 import re
+
+import networkx
 import pandas as pd
 import numpy as np
 import logging
 import tarfile
+from orderedset import OrderedSet
+
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Set
 
 LIST_DELIMITER = '|'
 
@@ -46,6 +50,11 @@ class PandasTransformer(Transformer):
     """
 
     # TODO: Support parsing and export of neo4j-import tool compatible CSVs with appropriate headers
+
+    def __init__(self, source_graph: networkx.MultiDiGraph = None):
+        super().__init__(source_graph)
+        self._node_properties = set()
+        self._edge_properties = set()
 
     def parse(self, filename: str, input_format: str = 'csv', provided_by: str = None, **kwargs) -> None:
         """
@@ -191,6 +200,7 @@ class PandasTransformer(Transformer):
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
                     kwargs['provided_by'] = self.graph_metadata['provided_by']
                 self.graph.add_node(n, **kwargs)
+                self._node_properties.update(list(kwargs.keys()))
             else:
                 logging.info("Ignoring node with no 'id': {}".format(node))
         else:
@@ -306,54 +316,71 @@ class PandasTransformer(Transformer):
                     kwargs['provided_by'] = self.graph_metadata['provided_by']
                 key = generate_edge_key(s, kwargs['edge_label'], o)
                 self.graph.add_edge(s, o, key, **kwargs)
+                self._edge_properties.update(list(kwargs.keys()))
             else:
                 logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
         else:
             logging.debug(f"Edge fails edge filters: {edge}")
 
-    def export_nodes(self) -> pd.DataFrame:
+    def export_nodes(self, filename: str, delimiter: str) -> None:
         """
-        Export nodes from networkx.MultiDiGraph as a pandas.DataFrame
+        Export nodes from networkx.MultiDiGraph
 
-        Returns
-        -------
-        pandas.DataFrame
-            A Dataframe where each record corresponds to a node from the networkx.MultiDiGraph
+        Parameters
+        ----------
+        filename: str
+            The filename
+        delimiter: str
+            The delimiter to use as a separator
 
         """
-        rows = []
+        if not self._node_properties:
+            self._node_properties = PandasTransformer.get_all_node_properties(self.graph)
+        ordered_node_columns = PandasTransformer._order_node_columns(self._node_properties)
+        FH = open(filename, 'w')
+        FH.write(delimiter.join(ordered_node_columns) + '\n')
         for n, data in self.graph.nodes(data=True):
-            data = self.validate_node(data)
-            row = PandasTransformer._build_export_row(data.copy())
+            row = PandasTransformer._build_export_row(data)
             row['id'] = n
-            rows.append(row)
-        df = pd.DataFrame.from_records(rows)
-        return df
+            values = []
+            for c in ordered_node_columns:
+                if c in row:
+                    values.append(row[c])
+                else:
+                    values.append("")
+            FH.write(delimiter.join(values) + '\n')
 
-    def export_edges(self) -> pd.DataFrame:
+    def export_edges(self, filename: str, delimiter: str) -> None:
         """
-        Export edges from networkx.MultiDiGraph as a pandas.DataFrame
+        Export edges from networkx.MultiDiGraph
 
-        Returns
-        -------
-        pandas.DataFrame
-            A Dataframe where each record corresponds to an edge from the networkx.MultiDiGraph
+        Parameters
+        ----------
+        filename: str
+            The filename
+        delimiter: str
+            The delimiter to use as a separator
 
         """
-        rows = []
+        if not self._edge_properties:
+            self._edge_properties = PandasTransformer.get_all_edge_properties(self.graph)
+        ordered_edge_columns = PandasTransformer._order_edge_columns(self._edge_properties)
+        FH = open(filename, 'w')
+        FH.write(delimiter.join(ordered_edge_columns) + '\n')
         for s, o, data in self.graph.edges(data=True):
             data = self.validate_edge(data)
-            row = PandasTransformer._build_export_row(data.copy())
+            row = PandasTransformer._build_export_row(data)
             row['subject'] = s
             row['object'] = o
-            rows.append(row)
-        df = pd.DataFrame.from_records(rows)
-        cols = df.columns.tolist()
-        cols = PandasTransformer._order_cols(cols)
-        df = df[cols]
-        return df
+            values = []
+            for c in ordered_edge_columns:
+                if c in row:
+                    values.append(str(row[c]))
+                else:
+                    values.append("")
+            FH.write(delimiter.join(values) + '\n')
 
-    def save(self, filename: str, extension: str = 'csv', mode: Optional[str] = 'w', **kwargs) -> str:
+    def save(self, filename: str, output_format: str = 'csv', mode: Optional[str] = 'w', **kwargs) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
@@ -363,7 +390,7 @@ class PandasTransformer(Transformer):
         ----------
         filename: str
             Name of tar archive file to create
-        extension: str
+        output_format: str
             The output file format (``csv``, by default)
         mode: str
             Form of compression to use (``w``, by default, signifies no compression).
@@ -371,24 +398,28 @@ class PandasTransformer(Transformer):
             Any additional arguments
 
         """
-        if extension not in _extension_types:
-            raise Exception('Unsupported extension: ' + extension)
+        if output_format not in _extension_types:
+            raise Exception('Unsupported output format: ' + output_format)
 
-        delimiter = _extension_types[extension]
-        nodes_file_name = "{}_nodes.{}".format(filename, extension)
-        edges_file_name = "{}_edges.{}".format(filename, extension)
-        file_dir = os.path.dirname(nodes_file_name)
-        if file_dir:
-            os.makedirs(file_dir, exist_ok=True)
+        delimiter = _extension_types[output_format]
+        dirname = os.path.abspath(os.path.dirname(filename))
+        basename = os.path.basename(filename)
+        nodes_file_basename = "{}_nodes.{}".format(basename, output_format)
+        edges_file_basename = "{}_edges.{}".format(basename, output_format)
+        if dirname:
+            os.makedirs(dirname, exist_ok=True)
 
-        self.export_nodes().to_csv(sep=delimiter, path_or_buf=nodes_file_name, index=False, escapechar="\\", doublequote=False)
-        self.export_edges().to_csv(sep=delimiter, path_or_buf=edges_file_name, index=False, escapechar="\\", doublequote=False)
+        nodes_file_name = os.path.join(dirname if dirname else '', nodes_file_basename)
+        edges_file_name = os.path.join(dirname if dirname else '', edges_file_basename)
+        self.export_nodes(nodes_file_name, delimiter)
+        self.export_edges(edges_file_name, delimiter)
 
         if mode:
-            archive_name = "{}.{}".format(filename, _archive_format[mode])
+            archive_basename = "{}.{}".format(basename, _archive_format[mode])
+            archive_name = os.path.join(dirname if dirname else '', archive_basename)
             with tarfile.open(name=archive_name, mode=mode) as tar:
-                tar.add(nodes_file_name)
-                tar.add(edges_file_name)
+                tar.add(nodes_file_name, arcname=nodes_file_basename)
+                tar.add(edges_file_name, arcname=edges_file_basename)
                 if os.path.isfile(nodes_file_name):
                     os.remove(nodes_file_name)
                 if os.path.isfile(edges_file_name):
@@ -444,31 +475,101 @@ class PandasTransformer(Transformer):
         return tidy_data
 
     @staticmethod
-    def _order_cols(cols: List[str]) -> List[str]:
+    def _order_node_columns(cols: Set) -> OrderedSet:
         """
-        Arrange columns in a defined order.
+        Arrange node columns in a defined order.
 
         Parameters
         ----------
-        cols: list
-            A list with elements in any order
+        cols: Set
+            A set with elements in any order
 
         Returns
         -------
-        list
-            A list with elements in a particular order
+        OrderedSet
+            A set with elements in a defined order
 
         """
-        ORDER = ['id', 'subject', 'predicate', 'object', 'relation']
-        cols2 = []
+        node_columns = cols.copy()
+        ORDER = OrderedSet(['id', 'name', 'category', 'provided_by'])
+        ordered_columns = OrderedSet()
         for c in ORDER:
-            if c in cols:
-                cols2.append(c)
-                cols.remove(c)
-        return cols2 + cols
+            if c in node_columns:
+                ordered_columns.add(c)
+                node_columns.remove(c)
+        ordered_columns.update(node_columns)
+        return ordered_columns
 
     @staticmethod
-    def _sanitize_export(key, value):
+    def _order_edge_columns(cols: Set) -> OrderedSet:
+        """
+        Arrange edge columns in a defined order.
+
+        Parameters
+        ----------
+        cols: Set
+            A set with elements in any order
+
+        Returns
+        -------
+        OrderedSet
+            A set with elements in a defined order
+
+        """
+        edge_columns = cols.copy()
+        ORDER = OrderedSet(['id', 'subject', 'edge_label', 'object', 'relation', 'provided_by'])
+        ordered_columns = OrderedSet()
+        for c in ORDER:
+            if c in edge_columns:
+                ordered_columns.add(c)
+                edge_columns.remove(c)
+        ordered_columns.update(edge_columns)
+        return ordered_columns
+
+    @staticmethod
+    def get_all_node_properties(graph: networkx.MultiDiGraph) -> Set:
+        """
+        Given a graph, get all possible property names for nodes.
+
+        Parameters
+        ----------
+        graph: networkx.Graph
+            A graph
+
+        Returns
+        -------
+        Set
+            A set of node properties
+
+        """
+        properties = set()
+        for n, data in graph.nodes(data=True):
+            properties.update(list(data.keys()))
+        return properties
+
+    @staticmethod
+    def get_all_edge_properties(graph: networkx.MultiDiGraph) -> Set:
+        """
+        Given a graph, get all possible property names for edges.
+
+        Parameters
+        ----------
+        graph: networkx.Graph
+            A graph
+
+        Returns
+        -------
+        Set
+            A set of edge properties
+
+        """
+        properties = set()
+        for u, v, k, data in graph.edges(keys=True, data=True):
+            properties.update(list(data.keys()))
+        return properties
+
+    @staticmethod
+    def _sanitize_export(key: str, value: Any) -> Any:
         """
         Sanitize value for a key for the purpose of export.
 
@@ -513,7 +614,7 @@ class PandasTransformer(Transformer):
         return new_value
 
     @staticmethod
-    def _sanitize_import(key: str, value: Any):
+    def _sanitize_import(key: str, value: Any) -> Any:
         """
         Sanitize value for a key for the purpose of import.
 
@@ -567,7 +668,7 @@ class PandasTransformer(Transformer):
         return new_value
 
     @staticmethod
-    def _remove_null(input: Any):
+    def _remove_null(input: Any) -> Any:
         """
         Remove any null values from input.
 
