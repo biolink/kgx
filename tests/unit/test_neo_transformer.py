@@ -17,10 +17,7 @@ def check_for_container():
     client = docker.from_env()
     try:
         c = client.containers.get(name)
-        logging.debug(f"Container '{name}' already exists")
-        if c.status == 'exited':
-            logging.debug(f"Restarting container '{name}'...")
-            c.restart()
+        if c.status == 'running':
             fail_status = False
     except:
         fail_status = True
