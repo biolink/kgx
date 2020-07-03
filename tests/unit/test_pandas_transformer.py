@@ -50,7 +50,7 @@ def test_export(query):
     assert t.graph.number_of_edges() == 1
 
     output_filename = os.path.join(target_dir, query[0])
-    t.save(filename=output_filename, extension=query[1], mode=query[2])
+    t.save(filename=output_filename, output_format=query[1], mode=query[2])
 
     if isinstance(query[3], str):
         assert os.path.exists(os.path.join(target_dir, query[3]))
