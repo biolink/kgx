@@ -129,7 +129,7 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
     stats = {
         TOTAL_EDGES: 0,
         EDGE_LABELS: set(),
-        COUNT_BY_EDGE_LABEL: {'unknown': 0},
+        COUNT_BY_EDGE_LABEL: {'unknown': {'count': 0}},
         COUNT_BY_SPO: {}
     }
 
