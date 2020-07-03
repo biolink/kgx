@@ -1,5 +1,4 @@
 import logging
-from os import wait
 from time import sleep
 
 import pytest
@@ -31,6 +30,7 @@ def clean_slate(source='kgx-unit-test'):
     q = "MATCH (n { source : '" + source + "' }) DETACH DELETE (n)"
     print(q)
     http_driver.query(q)
+    sleep(3)
 
 
 def get_graph(source):
@@ -119,7 +119,7 @@ def test_save_merge(clean_slate):
 
     t.graph.add_node('B', id='B', publications=['PMID:1', 'PMID:2'], category=['biolink:NamedThing'])
     t.graph.add_node('C', id='C', source='kgx-unit-test')
-    t.graph.add_edge('A', 'B', subject='A', object='B', edge_label='biolink:related_to', test_prop='VAL123')
+    t.graph.add_edge('A', 'B', subject='A', object='B', edge_label='biolink:related_to', test_prop='VAL123', source='kgx-unit-test')
     assert t.graph.number_of_nodes() == 3
     t.save()
 
