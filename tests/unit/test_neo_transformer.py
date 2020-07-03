@@ -9,6 +9,7 @@ from networkx import MultiDiGraph
 
 from kgx import NeoTransformer
 
+skip_neo_tests = True
 
 def check_for_container():
     fail_status = True
@@ -93,7 +94,7 @@ def test_create_constraint_query(category):
     assert q == f"CREATE CONSTRAINT ON (n:{sanitized_category}) ASSERT n.id IS UNIQUE"
 
 
-@pytest.mark.skipif(check_for_container(), reason="Skipping test")
+@pytest.mark.skipif(skip_neo_tests, reason="Skipping test")
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[0], 3, 1),
     (get_graph('kgx-unit-test')[1], 6, 6)
@@ -111,7 +112,7 @@ def test_load(clean_slate, query):
     assert edge_counts == query[2]
 
 
-@pytest.mark.skipif(check_for_container(), reason="Skipping test")
+@pytest.mark.skipif(skip_neo_tests, reason="Skipping test")
 def test_save_merge(clean_slate):
     g = get_graph('kgx-unit-test')[2]
     t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
@@ -140,7 +141,7 @@ def test_save_merge(clean_slate):
         assert data['test_prop'] == 'VAL123'
 
 
-@pytest.mark.skipif(check_for_container(), reason="Skipping test")
+@pytest.mark.skipif(skip_neo_tests, reason="Skipping test")
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene'}}, 2, ['A', 'B']),
     (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene', 'biolink:Protein'}}, 5, ['A', 'B', 'A1', 'A2', 'B1']),
@@ -160,7 +161,7 @@ def test_get_nodes(clean_slate, query):
     for x in query[3]:
         assert x in node_ids
 
-@pytest.mark.skipif(check_for_container(), reason="Skipping test")
+@pytest.mark.skipif(skip_neo_tests, reason="Skipping test")
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Protein'}}, 3),
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'object_category': {'biolink:Gene'}}, 1),
