@@ -9,7 +9,7 @@ services:
 
 before_install:
   - docker pull neo4j:3.5.3
-  - docker run -d -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:3.5.3 --name kgx-neo4j-test-51ec1703-3768-43f5-baa2-bc3aa424b57e
+  - docker run -d --name kgx-neo4j-test-51ec1703-3768-43f5-baa2-bc3aa424b57e -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:3.5.3
   - docker ps -a
 
 install:
