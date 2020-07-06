@@ -180,11 +180,14 @@ class RdfGraphMixin(object):
         """
         if not isinstance(key, URIRef):
             key = URIRef(key)
-        key = property_mapping.get(key)
-        if key is not None:
-            n = self.add_node(iri)
-            attr_dict = self.graph.nodes[n]
-            self._add_attribute(attr_dict, key, str(value))
+        mapped_key = property_mapping.get(key)
+        if not mapped_key:
+            logging.debug(f"{key} could not be mapped; using {key}")
+            mapped_key = key
+
+        n = self.prefix_manager.contract(str(iri))
+        attr_dict = self.graph.nodes[n]
+        self._add_attribute(attr_dict, mapped_key, str(value))
 
     def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
         """
