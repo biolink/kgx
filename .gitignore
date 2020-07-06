@@ -1,6 +1,7 @@
 examples/monarch-build-workflow/data/
 
 venv/
+py*/
 __pycache__
 .pytest_cache/
 tests/target/
