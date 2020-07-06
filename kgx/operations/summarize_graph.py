@@ -1,3 +1,5 @@
+import json
+import pprint
 from typing import Dict, List
 
 import networkx as nx
@@ -32,7 +34,6 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str)
     stats = summarize_graph(graph, graph_name)
     WH = open(filename, 'w')
     yaml.dump(stats, WH)
-
 
 def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: List = None, edge_facet_properties: List = None) -> Dict:
     """
@@ -89,6 +90,8 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
     }
 
     stats[TOTAL_NODES] = len(graph.nodes())
+    for facet_property in facet_properties:
+        stats[facet_property] = set()
     for n, data in graph.nodes(data=True):
         if 'category' not in data:
             stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
@@ -106,6 +109,8 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
                     stats = get_facet_counts(data, stats, COUNT_BY_CATEGORY, category, facet_property)
 
     stats[NODE_CATEGORIES] = sorted(list(stats[NODE_CATEGORIES]))
+    for facet_property in facet_properties:
+        stats[facet_property] = sorted(list(stats[facet_property]))
     return stats
 
 
@@ -134,6 +139,8 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
     }
 
     stats[TOTAL_EDGES] = len(graph.edges())
+    for facet_property in facet_properties:
+        stats[facet_property] = set()
     for u, v, k, data in graph.edges(keys=True, data=True):
         if 'edge_label' not in data:
             stats[COUNT_BY_EDGE_LABEL]['unknown']['count'] += 1
@@ -174,6 +181,9 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
                 stats = get_facet_counts(data, stats, COUNT_BY_SPO, key, facet_property)
 
     stats[EDGE_LABELS] = sorted(list(stats[EDGE_LABELS]))
+    for facet_property in facet_properties:
+        stats[facet_property] = sorted(list(stats[facet_property]))
+
     return stats
 
 
@@ -210,6 +220,7 @@ def get_facet_counts(data: Dict, stats: Dict, x: str, y: str, facet_property: st
                     stats[x][y][facet_property][k]['count'] += 1
                 else:
                     stats[x][y][facet_property][k] = {'count': 1}
+                    stats[facet_property].update([k])
         else:
             k = data[facet_property]
             if facet_property not in stats[x][y]:
@@ -219,6 +230,7 @@ def get_facet_counts(data: Dict, stats: Dict, x: str, y: str, facet_property: st
                 stats[x][y][facet_property][k]['count'] += 1
             else:
                 stats[x][y][facet_property][k] = {'count': 1}
+                stats[facet_property].update([k])
     else:
         if facet_property not in stats[x][y]:
             stats[x][y][facet_property] = {}
@@ -226,4 +238,5 @@ def get_facet_counts(data: Dict, stats: Dict, x: str, y: str, facet_property: st
             stats[x][y][facet_property]['unknown']['count'] += 1
         else:
             stats[x][y][facet_property]['unknown'] = {'count': 1}
+            stats[facet_property].update(['unknown'])
     return stats
