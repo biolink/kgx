@@ -1,3 +1,4 @@
+import gzip
 import itertools
 import logging
 from typing import Set, Optional
@@ -9,8 +10,10 @@ import networkx as nx
 
 from kgx import RdfTransformer
 from kgx.prefix_manager import PrefixManager
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis
 from kgx.utils.rdf_utils import generate_uuid
+
+INPUT_FORMATS = ['nt', 'nt.gz']
 
 
 class NtTransformer(RdfTransformer):
@@ -35,6 +38,8 @@ class NtTransformer(RdfTransformer):
         self.edge_properties.update(['biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'])
         self.assocs = set()
         self.count = 0
+        self.start = 0
+        self.cache = {}
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
         """
@@ -47,14 +52,19 @@ class NtTransformer(RdfTransformer):
         filename : str
             File to read from.
         input_format : str
-            The input file format;  default: ``nt``
-            RDF will be supported in the future.
+            The input file format. Must be one of ``['nt', 'nt.gz']``
         provided_by : str
             Define the source providing the input file.
 
         """
-        p = NTriplesParser(self)
-        p.parse(open(filename, 'rb'))
+        p = p = NTriplesParser(self)
+        self.start = current_time_in_millis()
+        if input_format == INPUT_FORMATS[0]:
+            p.parse(open(filename, 'rb'))
+        elif input_format == INPUT_FORMATS[1]:
+            p.parse(gzip.open(filename, 'rb'))
+        else:
+            raise NameError(f"input_format: {input_format} not supported. Must be one of {INPUT_FORMATS}")
         print("Done parsing NT file")
         self.dereify(self.assocs)
 
@@ -74,29 +84,33 @@ class NtTransformer(RdfTransformer):
             The object of a triple.
 
         """
-        predicate = self.prefix_manger.contract(str(p))
-        prop = PrefixManager.get_reference(predicate)
-        # check if property is a biolink model property
-        # TODO: move this to a separate method
-        element = self.toolkit.get_element(prop)
-        if element is None:
-            mapping = self.toolkit.get_by_mapping(predicate)
-            element = self.toolkit.get_element(mapping)
+        if p in self.cache:
+            # already processed this predicate before; pull from cache
+            element = self.cache[p]['element']
+            predicate = self.cache[p]['predicate']
+            property_name = self.cache[p]['property_name']
+        else:
+            # haven't seen this predicate before; map to element
+            predicate = self.prefix_manager.contract(str(p))
+            property_name = self.prefix_manager.get_reference(predicate)
+            element = self.get_biolink_element(predicate, property_name)
+            self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
+
         if element:
             if element.is_a == 'association slot' or predicate in self.edge_properties:
-                logging.debug(f"property {prop} is an edge property but belongs to a reified node")
+                logging.debug(f"property {property_name} is an edge property but belongs to a reified node")
                 n = self.add_node(s)
                 self.add_node_attribute(n, p, o)
                 self.assocs.add(n)
             elif element.is_a == 'node property' or predicate in self.node_properties:
-                logging.debug(f"property {prop} is a node property")
+                logging.debug(f"property {property_name} is a node property")
                 n = self.add_node(s)
                 self.add_node_attribute(n, p, o)
             else:
-                logging.debug(f"property {prop} is a related_to property")
+                logging.debug(f"property {property_name} is a related_to property")
                 self.add_edge(s, o, p)
         else:
-            logging.debug(f"property {prop} is not a biolink model element")
+            logging.debug(f"property {property_name} is not a biolink model element")
             if predicate in self.node_properties:
                 logging.debug(f"treating {predicate} as node property")
                 n = self.add_node(s)
@@ -107,7 +121,16 @@ class NtTransformer(RdfTransformer):
                 self.add_edge(s, o, p)
         self.count += 1
         if self.count % 1000 == 0:
-            logging.info(f"Parsed {self.count} triples")
+            logging.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
+            self.start = current_time_in_millis()
+
+    def get_biolink_element(self, predicate, property_name):
+        element = self.toolkit.get_element(property_name)
+        if not element:
+            # using original predicate to get mapping
+            mapping = self.toolkit.get_by_mapping(predicate)
+            element = self.toolkit.get_element(mapping)
+        return element
 
     def dereify(self, associations: Set[str]) -> None:
         """
