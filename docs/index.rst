@@ -25,9 +25,10 @@ Contents
    :maxdepth: 2
 
    installation
-   documentation
-   examples
-   cli_usage
+   command_line
+   transformers
+   operations
+   utilities
 
 
 Indices and tables
