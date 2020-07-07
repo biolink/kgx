@@ -23,12 +23,15 @@ _column_types = {
     'provided_by': list,
     'same_as': list,
     'negated': bool,
+    'xrefs': list
 }
 
 _extension_types = {
     'csv': ',',
     'tsv': '\t',
-    'txt': '|'
+    'txt': '|',
+    'csv:neo4j': ',',
+    'tsv:neo4j': '\t'
 }
 
 _archive_mode = {
@@ -386,6 +389,10 @@ class PandasTransformer(Transformer):
         and add them to a `.tar` archive.
         If mode is set to ``None``, then there will be no archive created.
 
+        ..note::
+            If your node/edge properties are likely to contain commas then it is recommended
+            to export to a TSV format instead of CSV.
+
         Parameters
         ----------
         filename: str
@@ -400,32 +407,122 @@ class PandasTransformer(Transformer):
         """
         if output_format not in _extension_types:
             raise Exception('Unsupported output format: ' + output_format)
+        else:
+            delimiter = _extension_types[output_format]
+            dirname = os.path.abspath(os.path.dirname(filename))
+            basename = os.path.basename(filename)
+            extension = output_format.split(':')[0]
+            nodes_file_basename = f"{basename}_nodes.{extension}"
+            edges_file_basename = f"{basename}_edges.{extension}"
+            if dirname:
+                os.makedirs(dirname, exist_ok=True)
 
-        delimiter = _extension_types[output_format]
-        dirname = os.path.abspath(os.path.dirname(filename))
-        basename = os.path.basename(filename)
-        nodes_file_basename = "{}_nodes.{}".format(basename, output_format)
-        edges_file_basename = "{}_edges.{}".format(basename, output_format)
-        if dirname:
-            os.makedirs(dirname, exist_ok=True)
+            nodes_file_name = os.path.join(dirname if dirname else '', nodes_file_basename)
+            edges_file_name = os.path.join(dirname if dirname else '', edges_file_basename)
 
-        nodes_file_name = os.path.join(dirname if dirname else '', nodes_file_basename)
-        edges_file_name = os.path.join(dirname if dirname else '', edges_file_basename)
-        self.export_nodes(nodes_file_name, delimiter)
-        self.export_edges(edges_file_name, delimiter)
+            if output_format in {'csv:neo4j', 'tsv:neo4j'}:
+                self.export_neo4j_nodes(nodes_file_name, delimiter)
+                self.export_neo4j_edges(edges_file_name, delimiter)
+            else:
+                self.export_nodes(nodes_file_name, delimiter)
+                self.export_edges(edges_file_name, delimiter)
 
-        if mode:
-            archive_basename = "{}.{}".format(basename, _archive_format[mode])
-            archive_name = os.path.join(dirname if dirname else '', archive_basename)
-            with tarfile.open(name=archive_name, mode=mode) as tar:
-                tar.add(nodes_file_name, arcname=nodes_file_basename)
-                tar.add(edges_file_name, arcname=edges_file_basename)
-                if os.path.isfile(nodes_file_name):
-                    os.remove(nodes_file_name)
-                if os.path.isfile(edges_file_name):
-                    os.remove(edges_file_name)
+            if mode:
+                archive_basename = f"{basename}.{_archive_format[mode]}"
+                archive_name = os.path.join(dirname if dirname else '', archive_basename)
+                with tarfile.open(name=archive_name, mode=mode) as tar:
+                    tar.add(nodes_file_name, arcname=nodes_file_basename)
+                    tar.add(edges_file_name, arcname=edges_file_basename)
+                    if os.path.isfile(nodes_file_name):
+                        os.remove(nodes_file_name)
+                    if os.path.isfile(edges_file_name):
+                        os.remove(edges_file_name)
 
         return filename
+
+    def export_neo4j_nodes(self, filename, delimiter):
+        """
+        Export nodes from networkx.MultiDiGraph in Neo4j compatible format.
+        This format is meant for use with the ``neo4j-admin import`` tool.
+
+        Parameters
+        ----------
+        filename: str
+            The filename
+        delimiter: str
+            The delimiter to use as a separator
+
+        """
+        if not self._node_properties:
+            self._node_properties = PandasTransformer.get_all_node_properties(self.graph)
+        ordered_node_columns = PandasTransformer._order_node_columns(self._node_properties)
+        header = []
+        for x in ordered_node_columns:
+            if x == 'id':
+                header.append(f"{x}:ID")
+            elif x == 'category':
+                header.append(f"{x}:LABEL")
+            elif x in _column_types and _column_types[x] == list:
+                header.append(f"{x}:string[]")
+            else:
+                header.append(x)
+
+        FH = open(filename, 'w')
+        FH.write(delimiter.join(header) + '\n')
+        for n, data in self.graph.nodes(data=True):
+            row = PandasTransformer._build_export_row(data)
+            row['id'] = n
+            values = []
+            for c in ordered_node_columns:
+                if c in row:
+                    values.append(row[c])
+                else:
+                    values.append("")
+            FH.write(delimiter.join(values) + '\n')
+
+    def export_neo4j_edges(self, filename, delimiter):
+        """
+        Export edges from networkx.MultiDiGraph in Neo4j compatible format.
+        This format is meant for use with the ``neo4j-admin import`` tool.
+
+        Parameters
+        ----------
+        filename: str
+            The filename
+        delimiter: str
+            The delimiter to use as a separator
+
+        """
+        if not self._edge_properties:
+            self._edge_properties = PandasTransformer.get_all_edge_properties(self.graph)
+        ordered_edge_columns = PandasTransformer._order_edge_columns(self._edge_properties)
+        header = []
+        for x in ordered_edge_columns:
+            if x == 'subject':
+                header.append(f"{x}:START_ID")
+            elif x == 'object':
+                header.append(f"{x}:END_ID")
+            elif x == 'edge_label':
+                header.append(f"{x}:TYPE")
+            elif x in _column_types and _column_types[x] == list:
+                header.append(f"{x}:string[]")
+            else:
+                header.append(x)
+
+        FH = open(filename, 'w')
+        FH.write(delimiter.join(header) + '\n')
+        for s, o, data in self.graph.edges(data=True):
+            data = self.validate_edge(data)
+            row = PandasTransformer._build_export_row(data)
+            row['subject'] = s
+            row['object'] = o
+            values = []
+            for c in ordered_edge_columns:
+                if c in row:
+                    values.append(str(row[c]))
+                else:
+                    values.append("")
+            FH.write(delimiter.join(values) + '\n')
 
     @staticmethod
     def _build_kwargs(data: Dict) -> Dict:
@@ -545,6 +642,7 @@ class PandasTransformer(Transformer):
         properties = set()
         for n, data in graph.nodes(data=True):
             properties.update(list(data.keys()))
+
         return properties
 
     @staticmethod
@@ -589,28 +687,30 @@ class PandasTransformer(Transformer):
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
-                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                    value = [v.replace('\n', ' ').replace('\\"', '') if isinstance(v, str) else v for v in value]
                     new_value = LIST_DELIMITER.join(value)
                 else:
-                    new_value = str(value).replace('\n', ' ')
+                    new_value = str(value).replace('\n', ' ').replace('\\"', '')
             elif _column_types[key] == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ')
+                new_value = str(value).replace('\n', ' ').replace('\\"', '')
         else:
             if type(value) == list:
                 new_value = LIST_DELIMITER.join(value)
-                new_value = new_value.replace('\n', ' ')
+                new_value = new_value.replace('\n', ' ').replace('\\"', '')
+                _column_types[key] = list
             elif type(value) == bool:
                 try:
                     new_value = bool(value)
+                    _column_types[key] = bool
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ')
+                new_value = str(value).replace('\n', ' ').replace('\\"', '')
         return new_value
 
     @staticmethod
