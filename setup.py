@@ -32,7 +32,7 @@ REQUIRED = [
     "stringcase>=1.2.0",
     "validators>=0.13.0",
     "cachetools>-4.0.0",
-    "orderedset>=2.0.3"
+    "ordered-set>=4.0.2"
 ]
 
 EXTRAS = {}

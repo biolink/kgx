@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import logging
 import tarfile
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
