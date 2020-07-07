@@ -3,6 +3,7 @@ import re
 from typing import Dict
 
 import prefixcommons.curie_util as cu
+from cachetools import LRUCache, cached
 
 from kgx.config import get_jsonld_context
 from kgx.utils.kgx_utils import contract, expand
@@ -59,6 +60,7 @@ class PrefixManager(object):
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
+    @cached(LRUCache(maxsize=1024))
     def expand(self, curie: str, fallback: bool = True) -> str:
         """
         Expand a given CURIE to an URI, based on mappings from `prefix_map`.
@@ -80,6 +82,7 @@ class PrefixManager(object):
         uri = expand(curie, [self.prefix_map], fallback)
         return uri
 
+    @cached(LRUCache(maxsize=1024))
     def contract(self, uri: str, fallback: bool = True) -> str:
         """
         Contract a given URI to a CURIE, based on mappings from `prefix_map`.
@@ -107,6 +110,7 @@ class PrefixManager(object):
         return str(curie)
 
     @staticmethod
+    @cached(LRUCache(maxsize=1024))
     def is_curie(s: str) -> bool:
         """
         Check if a given string is a CURIE.
@@ -129,6 +133,7 @@ class PrefixManager(object):
             return False
 
     @staticmethod
+    @cached(LRUCache(maxsize=1024))
     def is_iri(s: str) -> bool:
         """
         Check if a given string as an IRI.
@@ -150,6 +155,7 @@ class PrefixManager(object):
             return False
 
     @staticmethod
+    @cached(LRUCache(maxsize=1024))
     def get_prefix(curie: str) -> str:
         """
         Get the prefix from a given CURIE.
@@ -171,6 +177,7 @@ class PrefixManager(object):
         return prefix
 
     @staticmethod
+    @cached(LRUCache(maxsize=1024))
     def get_reference(curie: str) -> str:
         """
         Get the reference of a given CURIE.

@@ -221,12 +221,14 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_node['category'] = [category]
             else:
                 fixed_node['category'] = ['biolink:OntologyClass']
-        super().load_node(fixed_node)
         if 'equivalent_nodes' in node_properties:
-            for n in node_properties['equivalent_nodes']:
-                data = {'subject': fixed_node['id'], 'edge_label': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
-                super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
-                self.graph.add_edge(fixed_node['id'], n, **data)
+            equivalent_nodes = node_properties['equivalent_nodes']
+            fixed_node['same_as'] = equivalent_nodes
+            # for n in node_properties['equivalent_nodes']:
+            #     data = {'subject': fixed_node['id'], 'edge_label': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
+            #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
+            #     self.graph.add_edge(fixed_node['id'], n, **data)
+        super().load_node(fixed_node)
 
     def load_edge(self, edge: dict) -> None:
         """
@@ -298,15 +300,30 @@ class ObographJsonTransformer(JsonTransformer):
                         element = self.toolkit.get_by_mapping(category)
                         if element:
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
-        else:
+                        else:
+                            category = 'biolink:OntologyClass'
+
+        if not category or category == 'biolink:OntologyClass':
             prefix = PrefixManager.get_prefix(curie)
-            if prefix == 'CHEBI':
+            # TODO: the mapping should be via biolink-model lookups
+            if prefix == 'HP':
+                category = "biolink:PhenotypicFeature"
+            elif prefix == 'CHEBI':
                 category = "biolink:ChemicalSubstance"
             elif prefix == 'MONDO':
                 category = "biolink:Disease"
             elif prefix == 'UBERON':
                 category = "biolink:AnatomicalEntity"
-
+            elif prefix == 'SO':
+                category = "biolink:SequenceFeature"
+            elif prefix == 'CL':
+                category = "biolink:Cell"
+            elif prefix == 'PR':
+                category = "biolink:Protein"
+            elif prefix == 'NCBITaxon':
+                category = "organism taxon"
+            else:
+                logging.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
         return category
 
     def parse_meta(self, node: str, meta: dict):
@@ -351,6 +368,10 @@ class ObographJsonTransformer(JsonTransformer):
             xrefs = [x['val'] for x in meta['xrefs']]
             properties['xrefs'] = xrefs
 
+        if 'deprecated' in meta:
+            # parse 'deprecated' flag
+            properties['deprecated'] = meta['deprecated']
+
         equivalent_nodes = []
         if 'basicPropertyValues' in meta:
             # parse SKOS_EXACT_MATCH entries as 'equivalent_nodes'
@@ -358,7 +379,7 @@ class ObographJsonTransformer(JsonTransformer):
                 if p['pred'] in {self.SKOS_EXACT_MATCH}:
                     n = self.prefix_manager.contract(p['val'])
                     if not n:
-                        n = [p['val']]
-                    equivalent_nodes.append(n[0])
+                        n = p['val']
+                    equivalent_nodes.append(n)
         properties['equivalent_nodes'] = equivalent_nodes
         return properties

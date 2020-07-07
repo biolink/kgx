@@ -53,8 +53,8 @@ def test_generate_graph_stats():
             'total_nodes': 3,
             'node_categories': ['biolink:NamedThing'],
             'count_by_category': {
-                'unknown': 0,
-                'biolink:NamedThing': 3
+                'unknown': {'count': 0},
+                'biolink:NamedThing': {'count': 3}
             }
         },
         'edge_stats': {
@@ -62,11 +62,11 @@ def test_generate_graph_stats():
         },
         'edge_labels': ['biolink:subclass_of'],
         'count_by_edge_label': {
-            'unknown': 0,
-            'biolink:subclass_of': 2
+            'unknown': {'count': 0},
+            'biolink:subclass_of': {'count': 2}
         },
         'count_by_spo': {
-            'biolink:NamedThing-biolink:subclass_of-biolink:NamedThing': 2
+            'biolink:NamedThing-biolink:subclass_of-biolink:NamedThing': {'count': 2}
         }
     }
     ),
@@ -76,19 +76,19 @@ def test_generate_graph_stats():
             'total_nodes': 5,
             'node_categories': ['biolink:NamedThing'],
             'count_by_category': {
-                'unknown': 0,
-                'biolink:NamedThing': 5
+                'unknown': {'count': 0},
+                'biolink:NamedThing': {'count': 5}
             }
         },
         'edge_stats': {
             'total_edges': 3,
             'edge_labels': ['biolink:related_to'],
             'count_by_edge_label': {
-                'unknown': 0,
-                'biolink:related_to': 3
+                'unknown': {'count': 0},
+                'biolink:related_to': {'count': 3}
             },
             'count_by_spo': {
-                'biolink:NamedThing-biolink:related_to-biolink:NamedThing': 3
+                'biolink:NamedThing-biolink:related_to-biolink:NamedThing': {'count': 3}
             }
         }
     }
@@ -99,18 +99,18 @@ def test_generate_graph_stats():
             'total_nodes': 2,
             'node_categories': [],
             'count_by_category': {
-                'unknown': 2
+                'unknown': {'count': 2}
             }
         },
          'edge_stats': {
              'total_edges': 1,
              'edge_labels': ['biolink:same_as'],
              'count_by_edge_label': {
-                 'unknown': 0,
-                 'biolink:same_as': 1
+                 'unknown': {'count': 0},
+                 'biolink:same_as': {'count': 1}
              },
              'count_by_spo': {
-                 'unknown-biolink:same_as-unknown': 1
+                 'unknown-biolink:same_as-unknown': {'count': 1}
              }
          }
      }
@@ -118,7 +118,6 @@ def test_generate_graph_stats():
 ])
 def test_summarize_graph(query):
     stats = summarize_graph(query[0])
-    print(stats)
     for k, v in query[1]['node_stats'].items():
         assert v == stats['node_stats'][k]
     for k, v in query[1]['edge_stats'].items():

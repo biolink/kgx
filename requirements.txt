@@ -24,3 +24,4 @@ cachetools==4.0.0
 Sphinx>=2.3.1
 sphinx-rtd-theme==0.4.3
 sphinx-click==2.3.1
+orderedset>=2.0.3
