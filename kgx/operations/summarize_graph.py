@@ -90,8 +90,10 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
     }
 
     stats[TOTAL_NODES] = len(graph.nodes())
-    for facet_property in facet_properties:
-        stats[facet_property] = set()
+    if facet_properties:
+        for facet_property in facet_properties:
+            stats[facet_property] = set()
+
     for n, data in graph.nodes(data=True):
         if 'category' not in data:
             stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
@@ -109,8 +111,9 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
                     stats = get_facet_counts(data, stats, COUNT_BY_CATEGORY, category, facet_property)
 
     stats[NODE_CATEGORIES] = sorted(list(stats[NODE_CATEGORIES]))
-    for facet_property in facet_properties:
-        stats[facet_property] = sorted(list(stats[facet_property]))
+    if facet_properties:
+        for facet_property in facet_properties:
+            stats[facet_property] = sorted(list(stats[facet_property]))
     return stats
 
 
@@ -139,8 +142,10 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
     }
 
     stats[TOTAL_EDGES] = len(graph.edges())
-    for facet_property in facet_properties:
-        stats[facet_property] = set()
+    if facet_properties:
+        for facet_property in facet_properties:
+            stats[facet_property] = set()
+
     for u, v, k, data in graph.edges(keys=True, data=True):
         if 'edge_label' not in data:
             stats[COUNT_BY_EDGE_LABEL]['unknown']['count'] += 1
@@ -181,8 +186,9 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
                 stats = get_facet_counts(data, stats, COUNT_BY_SPO, key, facet_property)
 
     stats[EDGE_LABELS] = sorted(list(stats[EDGE_LABELS]))
-    for facet_property in facet_properties:
-        stats[facet_property] = sorted(list(stats[facet_property]))
+    if facet_properties:
+        for facet_property in facet_properties:
+            stats[facet_property] = sorted(list(stats[facet_property]))
 
     return stats
 
