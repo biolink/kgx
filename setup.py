@@ -23,7 +23,6 @@ REQUIRED = [
     "neo4j>=1.7.4",
     "neo4jrestclient>=0.0",
     "pyyaml>=0.0",
-    #"BiolinkMG>=0.0",
     "biolinkml>=0.0",
     "bmt>=0.1.0",
     "prologterms>=0.0.5",
