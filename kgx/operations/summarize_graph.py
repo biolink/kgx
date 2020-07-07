@@ -17,7 +17,7 @@ COUNT_BY_SPO = 'count_by_spo'
 # Note: the format of the stats generated might change in the future
 
 
-def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str) -> None:
+def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str, node_facet_properties: List = None, edge_facet_properties: List = None) -> None:
     """
     Generate stats from Graph.
 
@@ -29,9 +29,13 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str)
         Name for the graph
     filename: str
         Filename to write the stats to
+    node_facet_properties: List
+        A list of properties to facet on. For example, ``['provided_by']``
+    edge_facet_properties: List
+        A list of properties to facet on. For example, ``['provided_by']``
 
     """
-    stats = summarize_graph(graph, graph_name)
+    stats = summarize_graph(graph, graph_name, node_facet_properties, edge_facet_properties)
     WH = open(filename, 'w')
     yaml.dump(stats, WH)
 
