@@ -12,7 +12,7 @@ KGX allows conversion to and from:
 
  * RDF serializations (read/write) and SPARQL endpoints (read)
  * Neo4J endpoints (read) or Neo4J dumps (write)
- * CSV/TSV
+ * CSV/TSV and JSON (see [associated data formats](./data-preparation.md) and [example script to load CSV/TSV to Neo4j](./examples/scripts/load_csv_to_neo4j.py))
  * Any format supported by networkx
 
 
