@@ -63,7 +63,7 @@ def test_prefix_manager():
     ('biolink:category', 'https://w3id.org/biolink/vocab/category'),
     ('biolink:related_to', 'https://w3id.org/biolink/vocab/related_to'),
     ('biolink:NamedThing', 'https://w3id.org/biolink/vocab/NamedThing'),
-    ('HGNC:1103', 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=1103')
+    ('HGNC:1103', 'http://identifiers.org/hgnc/1103')
 ])
 def test_prefix_manager_expand(query):
     pm = PrefixManager()
@@ -77,7 +77,7 @@ def test_prefix_manager_expand(query):
     ('https://w3id.org/biolink/vocab/category', 'biolink:category'),
     ('https://w3id.org/biolink/vocab/related_to', 'biolink:related_to'),
     ('https://w3id.org/biolink/vocab/NamedThing', 'biolink:NamedThing'),
-    ('http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=1103', 'HGNC:1103')
+    ('http://identifiers.org/hgnc/1103', 'HGNC:1103')
 ])
 def test_prefix_manager_contract(query):
     pm = PrefixManager()
