@@ -613,7 +613,7 @@ def transform(config: dict, inputs: List[str], input_type: str, output: str, out
     if output_transformer is None:
         logging.error('Output does not have a recognized type: ' + str(get_file_types()))
     w = output_transformer(input_transformer.graph)
-    w.save(output, extension=output_type)
+    w.save(output, output_format=output_type)
 
 
 # @cli.command()
