@@ -397,7 +397,7 @@ def validate(config: dict, path: str, output: str, output_dir: str, format: str)
         t = get_transformer(format)()
     else:
         t = get_transformer(get_type(path))()
-    t.parse(path)
+    t.parse(path, input_format=format)
     validator = Validator()
     errors = validator.validate(t.graph)
     validator.write_report(errors, open(output, 'w'))
