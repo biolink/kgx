@@ -11,8 +11,13 @@ clean:
 	@-rm -f target/*.json
 	@echo "Environment cleaned."
 
-tests:
-	pytest tests/*py
+tests: unit-tests integration-tests
+
+unit-tests:
+	pytest tests/unit/*.py
+
+integration-tests:
+	pytest tests/*.py
 
 .PHONY: examples tests
 
