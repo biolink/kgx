@@ -430,7 +430,7 @@ class NeoTransformer(Transformer):
         """
         return query
 
-    def save(self) -> None:
+    def save(self, **kwargs) -> None:
         """
         Save all nodes and edges from networkx.MultiDiGraph into Neo4j using the UNWIND cypher clause.
 
