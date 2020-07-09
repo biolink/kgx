@@ -37,7 +37,7 @@ class LogicTermTransformer(Transformer):
         self.file.write(self.renderer.render(t) + "\n")
 
 
-    def save(self, filename: str, format='sxpr', zipmode='w', **kwargs):
+    def save(self, filename: str, output_format='sxpr', zipmode='w', **kwargs):
         """
         """
         with open(filename,'w') as file:
