@@ -10,57 +10,30 @@ from networkx import MultiDiGraph
 
 from kgx import NeoTransformer
 
+CONTAINER_NAME = 'kgx-neo4j-unit-test'
+DEFAULT_NEO4J_URL = 'http://localhost:8484'
+DEFAULT_NEO4J_USERNAME = 'neo4j'
+DEFAULT_NEO4J_PASSWORD = 'test'
 
-@pytest.fixture(scope='module')
-def setup_neo4j():
-    container_name = 'kgx-neo4j-unit-test2'
-    c = start_container(container_name)
-    sleep(10)
-    yield c
-    stop_container(container_name)
+
+def check_container():
+    client = docker.from_env()
+    status = False
+    try:
+        c = client.containers.get(CONTAINER_NAME)
+        if c.status == 'running':
+            status = True
+    except:
+        status = False
+    return status
 
 
 @pytest.fixture(scope='function')
 def clean_slate(source='kgx-unit-test'):
-    # TODO: make this configurable
-    http_driver = GraphDatabase('http://localhost:7474', username='neo4j', password='test')
+    http_driver = GraphDatabase(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     q = "MATCH (n { source : '" + source + "' }) DETACH DELETE (n)"
     print(q)
     http_driver.query(q)
-
-
-def start_container(name):
-    client = docker.from_env()
-    create_container = False
-    try:
-        c = client.containers.get(name)
-        logging.debug(f"Container '{name}' already exists")
-        if c.status == 'exited':
-            logging.debug(f"Restarting container '{name}'...")
-            c.restart()
-    except:
-        create_container = True
-
-    if create_container:
-        logging.debug(f"Creating container '{name}'")
-        try:
-            c = client.containers.run(
-                'neo4j:3.5.3', name=name, detach=True,
-                environment=['NEO4J_AUTH=neo4j/test'],
-                ports={'7687': '7687', '7474': '7474'}
-            )
-        except APIError as e:
-            logging.error(e)
-    return c
-
-
-def stop_container(name):
-    client = docker.from_env()
-    try:
-        c = client.containers.get(name)
-        c.stop()
-    except:
-        logging.error(f"'{name}' container not found")
 
 
 def get_graph(source):
@@ -123,12 +96,13 @@ def test_create_constraint_query(category):
     assert q == f"CREATE CONSTRAINT ON (n:{sanitized_category}) ASSERT n.id IS UNIQUE"
 
 
+@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[0], 3, 1),
     (get_graph('kgx-unit-test')[1], 6, 6)
 ])
-def test_load(setup_neo4j, clean_slate, query):
-    t = NeoTransformer(query[0], uri='http://localhost:7474', username='neo4j', password='test')
+def test_load(clean_slate, query):
+    t = NeoTransformer(query[0], uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     t.save()
 
     nr = t.http_driver.query("MATCH (n) RETURN count(n)")
@@ -140,9 +114,10 @@ def test_load(setup_neo4j, clean_slate, query):
     assert edge_counts == query[2]
 
 
-def test_save_merge(setup_neo4j, clean_slate):
+@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
+def test_save_merge(clean_slate):
     g = get_graph('kgx-unit-test')[2]
-    t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
+    t = NeoTransformer(g, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     t.save()
 
     t.graph.add_node('B', id='B', publications=['PMID:1', 'PMID:2'], category=['biolink:NamedThing'])
@@ -168,14 +143,15 @@ def test_save_merge(setup_neo4j, clean_slate):
         assert data['test_prop'] == 'VAL123'
 
 
+@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene'}}, 2, ['A', 'B']),
     (get_graph('kgx-unit-test')[3], {'category': {'biolink:Gene', 'biolink:Protein'}}, 5, ['A', 'B', 'A1', 'A2', 'B1']),
     (get_graph('kgx-unit-test')[3], {'provided_by': {'kgx-unit-test'}}, 7, ['A', 'B', 'A1', 'A2', 'B1', 'X', 'Y']),
 ])
-def test_get_nodes(setup_neo4j, clean_slate, query):
+def test_get_nodes(clean_slate, query):
     g = query[0]
-    t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
+    t = NeoTransformer(g, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     t.save()
 
     for k, v in query[1].items():
@@ -187,6 +163,8 @@ def test_get_nodes(setup_neo4j, clean_slate, query):
     for x in query[3]:
         assert x in node_ids
 
+
+@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 @pytest.mark.parametrize('query', [
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Protein'}}, 3),
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'object_category': {'biolink:Gene'}}, 1),
@@ -195,9 +173,9 @@ def test_get_nodes(setup_neo4j, clean_slate, query):
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'edge_label': {'biolink:interacts_with'}}, 2),
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene', 'biolink:Protein'}, 'edge_label': {'biolink:interacts_with'}}, 0),
 ])
-def test_get_edges(setup_neo4j, clean_slate, query):
+def test_get_edges(clean_slate, query):
     g = get_graph('kgx-unit-test')[3]
-    t = NeoTransformer(g, uri='http://localhost:7474', username='neo4j', password='test')
+    t = NeoTransformer(g, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     t.save()
 
     for k, v in query[1].items():
