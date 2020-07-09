@@ -7,6 +7,7 @@ import numpy as np
 import logging
 import tarfile
 from ordered_set import OrderedSet
+from distutils.util import strtobool
 
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
@@ -542,8 +543,8 @@ class PandasTransformer(Transformer):
         """
         tidy_data = {}
         for key, value in data.items():
-            new_value = PandasTransformer._remove_null(value)
-            if new_value:
+            valid, new_value = PandasTransformer._remove_null(value)
+            if valid:
                 tidy_data[key] = PandasTransformer._sanitize_import(key, new_value)
         return tidy_data
 
@@ -566,8 +567,8 @@ class PandasTransformer(Transformer):
         """
         tidy_data = {}
         for key, value in data.items():
-            new_value = PandasTransformer._remove_null(value)
-            if new_value:
+            valid, new_value = PandasTransformer._remove_null(value)
+            if valid:
                 tidy_data[key] = PandasTransformer._sanitize_export(key, new_value)
         return tidy_data
 
@@ -705,7 +706,7 @@ class PandasTransformer(Transformer):
                 _column_types[key] = list
             elif type(value) == bool:
                 try:
-                    new_value = bool(value)
+                    new_value = bool(strtobool(value))
                     _column_types[key] = bool
                 except:
                     new_value = False
@@ -743,7 +744,10 @@ class PandasTransformer(Transformer):
                     new_value = [str(value).replace('\n', ' ')]
             elif _column_types[key] == bool:
                 try:
-                    new_value = bool(value)
+                    if isinstance(value, str):
+                        new_value = bool(strtobool(value))
+                    else:
+                        new_value = bool(value) # blind faith in this non-string value being sensibly interpreted?
                 except:
                     new_value = False
             else:
@@ -760,7 +764,7 @@ class PandasTransformer(Transformer):
                     new_value = value.replace('\n', ' ')
             elif isinstance(value, bool):
                 try:
-                    new_value = bool(value)
+                    new_value = bool(strtobool(value))
                 except:
                     new_value = False
             else:
@@ -768,7 +772,7 @@ class PandasTransformer(Transformer):
         return new_value
 
     @staticmethod
-    def _remove_null(input: Any) -> Any:
+    def _remove_null(input: Any) -> (bool, Any):
         """
         Remove any null values from input.
 
@@ -783,29 +787,36 @@ class PandasTransformer(Transformer):
             The input without any null values
 
         """
+        valid: bool = False
         new_value = None
         if isinstance(input, (list, set, tuple)):
             # value is a list, set or a tuple
             new_value = []
             for v in input:
-                x = PandasTransformer._remove_null(v)
-                if x:
+                valid, x = PandasTransformer._remove_null(v)
+                if valid:
                     new_value.append(x)
+            # Assumed False if empty
+            valid = bool(new_value)
         elif isinstance(input, dict):
             # value is a dict
             new_value = {}
             for k, v in input.items():
-                x = PandasTransformer._remove_null(v)
-                if x:
+                valid, x = PandasTransformer._remove_null(v)
+                if valid:
                     new_value[k] = x
+            # Assumed False if empty
+            valid = bool(new_value)
         elif isinstance(input, str):
             # value is a str
             if not PandasTransformer.is_null(input):
+                valid = True
                 new_value = input
         else:
             if not PandasTransformer.is_null(input):
+                valid = True
                 new_value = input
-        return new_value
+        return valid, new_value
 
     @staticmethod
     def is_null(item: Any) -> bool:
