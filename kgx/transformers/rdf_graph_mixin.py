@@ -98,11 +98,8 @@ class RdfGraphMixin(object):
         if not n:
             n = iri
         if self.graph.has_node(n):
-            node_data = self.graph.nodes[n]
-            if kwargs:
-                node_data.update(kwargs)
+            node_data = self.update_node(n, **kwargs)
         else:
-            print(f"Adding node {n}")
             node_data = kwargs
             node_data['id'] = n
             if 'category' not in node_data:
@@ -112,13 +109,34 @@ class RdfGraphMixin(object):
             self.graph.add_node(n, **node_data)
         return node_data
 
+    def update_node(self, n: Union[URIRef, str], **kwargs: Dict) -> Dict:
+        """
+        Update a node with properties.
+
+        Parameters
+        ----------
+        n: Union[URIRef, str]
+            Node identifier
+        kwargs: Dict
+            Node properties
+
+        Returns
+        -------
+        Dict
+            The node data
+
+        """
+        node_data = self.graph.nodes[str(n)]
+        if kwargs:
+            new_data = RdfGraphMixin._prepare_data_dict(node_data, kwargs)
+            node_data.update(new_data)
+        return node_data
+
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, **kwargs) -> Dict:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
-        This ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label` is in the correct form.
-
-        Returns the CURIE identifiers used for the `subject` and `object` in the
-        networkx.MultiDiGraph, and the processed `edge_label`.
+        This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
+        is in the correct form.
 
         Parameters
         ----------
@@ -142,37 +160,67 @@ class RdfGraphMixin(object):
         relation = self.prefix_manager.contract(predicate_iri)
         edge_label = process_iri(predicate_iri)
         if ' ' in edge_label:
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
+            logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
         if edge_label.startswith(self.BIOLINK):
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label, self.BIOLINK))
+            logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that starts with '{self.BIOLINK}'; removing IRI prefix")
             edge_label = edge_label.replace(self.BIOLINK, '')
 
         if PrefixManager.is_curie(edge_label):
             name = curie_lookup(edge_label)
             if name:
-                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
+                logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
                 edge_label = name
             else:
-                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
+                logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
                 edge_label = self.DEFAULT_EDGE_LABEL
 
-        kwargs.update({
-            'subject': subject_node['id'],
-            'predicate': str(predicate_iri),
-            'object': object_node['id'],
-            'relation': relation,
-            'edge_label': f"biolink:{edge_label}"
-        })
-
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
-        kwargs['edge_key'] = edge_key
-        if not self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
-            self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **kwargs)
-        # TODO: support append
-        return kwargs
+        if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
+            # edge already exists; process kwargs and update the edge
+            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, **kwargs)
+        else:
+            # add a new edge
+            edge_data = kwargs
+            edge_data.update({
+                'subject': subject_node['id'],
+                'predicate': str(predicate_iri),
+                'object': object_node['id'],
+                'relation': relation,
+                'edge_label': f"biolink:{edge_label}"
+            })
+            edge_data['edge_key'] = edge_key
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
+                edge_data['provided_by'] = self.graph_metadata['provided_by']
+            self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **edge_data)
+
+        return edge_data
+
+    def update_edge(self, subject_curie, object_curie, edge_key, **kwargs):
+        """
+        Update an edge with properties.
+
+        Parameters
+        ----------
+        subject_curie: str
+            Subject CURIE
+        object_curie: str
+            Object CURIE
+        edge_key: str
+            Edge key
+        kwargs: Dict
+            Edge properties
+
+        Returns
+        -------
+        Dict
+            The edge data
+
+        """
+        edge_data = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
+        if kwargs:
+            new_data = RdfGraphMixin._prepare_data_dict(edge_data, kwargs)
+            edge_data.update(new_data)
+        return edge_data
 
     def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> Dict:
         """
@@ -183,7 +231,7 @@ class RdfGraphMixin(object):
         The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
         as defined in ``rdf_utils.property_mapping``.
 
-        If the node does not exist then it is created using the given ``iri``.
+        If the node does not exist then it is created.
 
         Parameters
         ----------
@@ -210,46 +258,8 @@ class RdfGraphMixin(object):
         if not mapped_key:
             logging.debug(f"{key} could not be mapped; using {key}")
             mapped_key = key
-        print(f"{key} mapped to {mapped_key}")
-        node_data = self.add_node(iri)
-        node_data = self._add_node_attribute(node_data, mapped_key, str(value))
+        node_data = self.add_node(iri, **{mapped_key: value})
         return node_data
-
-    def _add_node_attribute(self, node: Dict, key: str, value: str) -> Dict:
-        """
-        Adds an attribute to a node.
-
-        Parameters
-        ----------
-        node: Dict
-            Node data
-        key: str
-            The key of an attribute
-        value: str
-            The value of the attribute
-
-        Returns
-        -------
-        Dict
-            The node data
-
-        """
-        if PrefixManager.is_iri(value):
-            value = process_iri(value)
-        if key in is_property_multivalued and is_property_multivalued[key]:
-            if key in node:
-                node[key].append(value)
-            else:
-                node[key] = [value]
-        else:
-            if key == 'name' and 'name' in node:
-                if 'synonym' in node:
-                    node['synonym'].append(value)
-                else:
-                    node['synonym'] = [value]
-            else:
-                node[key] = value
-        return node
 
     def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> Dict:
         """
@@ -260,11 +270,7 @@ class RdfGraphMixin(object):
         The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
         as defined in ``rdf_utils.property_mapping``.
 
-        If the nodes in the edge does not exist then they will be created
-        using ``subject_iri`` and ``object_iri``.
-
-        If the edge itself does not exist then it will be created using
-        ``subject_iri``, ``object_iri`` and ``predicate_iri``.
+        If the nodes in the edge does not exist then they will be created.
 
         Parameters
         ----------
@@ -294,51 +300,75 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None and value is not None:
-            subject_curie = self.prefix_manager.contract(subject_iri)
-            object_curie = self.prefix_manager.contract(object_iri)
-            edge_label = process_iri(predicate_iri)
-            if PrefixManager.is_curie(edge_label):
-                edge_label = curie_lookup(edge_label)
-            edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
-            if self.graph.has_edge(subject_curie, object_curie, edge_key):
-                edge_data = self.graph.get_edge_data(subject_iri, object_iri, edge_key)
-            else:
-                edge_data = self.add_edge(subject_iri, object_iri, predicate_iri)
-            edge_data = self._add_edge_attribute(edge_data, key, value)
+            edge_data = self.add_edge(subject_iri, object_iri, predicate_iri, **{key: value})
         return edge_data
 
-
-    def _add_edge_attribute(self, edge_data, key: str, value: str):
+    @staticmethod
+    def _prepare_data_dict(d1, d2):
         """
-        Adds an attribute to an edge.
+        Given two dict objects, make a new dict object that is the intersection of the two.
+
+        If a key is known to be multivalued then it's value is converted to a list.
+        If a key is already multivalued then it is updated with new values.
+        If a key is single valued, and a new unique value is found then the existing value is
+        converted to a list and the new value is appended to this list.
 
         Parameters
         ----------
-        subject_iri: Union[URIRef, str]
-            Subject of an edge
-        object_iri: Union[URIRef, str]
-            Object of an edge
-        predicate_iri: Union[URIRef, str]
-            Predicate of an edge
-        key: str
-            The key of an attribute
-        value: str
-            The value of the attribute
+        d1: Dict
+            Dict object
+        d2: Dict
+            Dict object
 
         Returns
         -------
-        dict
-            The edge data
+        Dict
+            The intersection of d1 and d2
 
         """
-        if PrefixManager.is_iri(value):
-            value = process_iri(value)
-        if key in is_property_multivalued and is_property_multivalued[key]:
-            if key in edge_data:
-                edge_data[key].append(value)
+        new_data = {}
+        for key, value in d2.items():
+            if key in is_property_multivalued and is_property_multivalued[key]:
+                # key is supposed to be multivalued
+                if key in d1:
+                    # key is in data
+                    if isinstance(d1[key], list):
+                        # existing key has value type list
+                        new_data[key] = d1[key]
+                        if isinstance(value, (list, set, tuple)):
+                            new_data[key] += [x for x in value if x not in new_data[key]]
+                        else:
+                            if value not in new_data[key]:
+                                new_data[key].append(value)
+                    else:
+                        # existing key does not have value type list; converting to list
+                        new_data[key] = [d1[key]]
+                        if isinstance(value, (list, set, tuple)):
+                            new_data[key] += [x for x in value if x not in new_data[key]]
+                        else:
+                            if value not in new_data[key]:
+                                new_data[key].append(value)
+                else:
+                    # key is not in data; adding
+                    if isinstance(value, (list, set, tuple)):
+                        new_data[key] = value
+                    else:
+                        new_data[key] = [value]
             else:
-                edge_data[key] = [value]
-        else:
-            edge_data[key] = value
-        return edge_data
-
+                # key is not multivalued; adding/replacing as-is
+                if key in d1:
+                    if isinstance(d1[key], list):
+                        new_data[key] = d1[key]
+                        if isinstance(value, (list, set, tuple)):
+                            new_data[key] += value
+                        else:
+                            new_data[key].append(value)
+                    else:
+                        new_data[key] = [d1[key]]
+                        if isinstance(value, (list, set, tuple)):
+                            new_data[key] += value
+                        else:
+                            new_data[key].append(value)
+                else:
+                    new_data[key] = value
+        return new_data
