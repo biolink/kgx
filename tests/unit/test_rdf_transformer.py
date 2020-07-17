@@ -27,3 +27,30 @@ def test_load_ttl2():
 @pytest.mark.skip()
 def test_save_ttl():
     pass
+
+@pytest.mark.parametrize("query", [
+    (
+        {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
+        {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
+        ['biolink:NamedThing', 'biolink:Gene'],
+        {'prop1': [1, 2, 3, 4]}
+    ),
+    (
+        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'prop1': 1},
+        {'category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
+        ['biolink:NamedThing', 'biolink:Gene'],
+        {'prop1': [1, 2, 3]}
+    ),
+    (
+        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
+        {'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
+        ['biolink:NamedThing', 'biolink:Gene'],
+        {'provided_by': ['test']}
+    )
+])
+def test_prepare_data_dict(query):
+    new_data = RdfTransformer._prepare_data_dict(query[0], query[1])
+    assert new_data['category'] == query[2]
+    for k, v in query[3].items():
+        assert new_data[k] == v
+
