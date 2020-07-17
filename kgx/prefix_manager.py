@@ -60,6 +60,20 @@ class PrefixManager(object):
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
+    def update_prefix_map(self, m: Dict) -> None:
+        """
+        Update prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New prefix to IRI mappings
+
+        """
+        for k, v in m.items():
+            self.prefix_map[k] = v
+            self.reverse_prefix_map[v] = k
+
     @cached(LRUCache(maxsize=1024))
     def expand(self, curie: str, fallback: bool = True) -> str:
         """
@@ -151,6 +165,13 @@ class PrefixManager(object):
         """
         if isinstance(s, str):
             return s.startswith('http') or s.startswith('https')
+        else:
+            return False
+    @staticmethod
+    @cached(LRUCache(maxsize=1024))
+    def has_urlfragment(s: str) -> bool:
+        if '#' in s:
+            return True
         else:
             return False
 

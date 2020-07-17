@@ -110,6 +110,14 @@ def format_biolink_category(s: str) -> str:
         return f"biolink:{formatted}"
 
 
+def format_biolink_slots(s: str) -> str:
+    if re.match("biolink:.+", s):
+        return s
+    else:
+        formatted = sentencecase_to_snakecase(s)
+        return f"biolink:{formatted}"
+
+
 def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
@@ -323,3 +331,25 @@ def get_biolink_ancestors(name):
     ancestors = toolkit.ancestors(name)
     formatted_ancestors = [format_biolink_category(x) for x in ancestors]
     return formatted_ancestors
+
+
+def get_biolink_node_properties():
+    toolkit = get_toolkit()
+    properties = toolkit.children('node property')
+    node_properties = set()
+    for p in properties:
+        element = toolkit.get_element(p)
+        node_properties.add(element.name)
+
+    return [format_biolink_slots(x) for x in node_properties]
+
+
+def get_biolink_edge_properties():
+    toolkit = get_toolkit()
+    properties = toolkit.children('association slot')
+    edge_properties = set()
+    for p in properties:
+        element = toolkit.get_element(p)
+        edge_properties.add(element.name)
+
+    return [format_biolink_slots(x) for x in edge_properties]

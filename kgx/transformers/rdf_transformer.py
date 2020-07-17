@@ -10,7 +10,8 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping
-from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase
+from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase, get_biolink_node_properties, \
+    get_biolink_edge_properties
 
 
 class RdfTransformer(RdfGraphMixin, Transformer):
@@ -24,15 +25,11 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     BASIC_PREDICATES = {'subclass_of', 'part_of', 'has_part', 'same_as'}
     BASIC_BIOLINK_PREDICATES = set([f"biolink:{x}" for x in BASIC_PREDICATES])
 
-    is_about = URIRef('http://purl.obolibrary.org/obo/IAO_0000136')
-    has_subsequence = URIRef('http://purl.obolibrary.org/obo/RO_0002524')
-    is_subsequence_of = URIRef('http://purl.obolibrary.org/obo/RO_0002525')
-
-    def __init__(self, source_graph: nx.MultiDiGraph = None):
-        super().__init__(source_graph)
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+        super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -47,6 +44,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
         provided_by : str
             Define the source providing the input file.
+        node_property_predicates: Set[str]
+            A set of rdflib.URIRef representing predicates that are to be treated as node properties
 
         """
         rdfgraph = rdflib.Graph()
@@ -67,103 +66,70 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             elif hasattr(filename, 'name'):
                 self.graph_metadata['provided_by'] = [filename.name]
 
-        self.load_networkx_graph(rdfgraph, predicates)
-        self.load_node_attributes(rdfgraph)
+        self.load_networkx_graph(rdfgraph, node_property_predicates)
         self.report()
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, node_property_predicates: Set[str] = None, **kwargs) -> None:
         """
         Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
 
-        By default this method loads the following predicates,
-            - ``RDFS.subClassOf``
-            - ``OWL.sameAs``
-            - ``OWL.equivalentClass``
-            - ``is_about`` (IAO:0000136)
-            - ``has_subsequence`` (RO:0002524)
-            - ``is_subsequence_of`` (RO:0002525)
-
-        This behavior can be overridden by providing a list of rdflib.URIRef that ought to be loaded
-        via the ``predicates`` parameter.
+        Optionally, you can define which predicates are to be treated as node properties.
 
         Parameters
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        predicates: list
-            A list of rdflib.URIRef representing predicates to be loaded
+        node_property_predicates: Set[str]
+            A set of rdflib.URIRef representing predicates that are to be treated as node properties
         kwargs: dict
             Any additional arguments
 
         """
-        if predicates is None:
-            predicates = set()
-            predicates = predicates.union(self.OWL_PREDICATES, [self.is_about, self.is_subsequence_of, self.has_subsequence])
-
+        reified_nodes = set()
+        node_properties = get_biolink_node_properties()
+        node_properties += node_property_predicates
+        np = [URIRef(self.prefix_manager.expand(x)) for x in node_properties]
         triples = rdfgraph.triples((None, None, None))
-        logging.info("Loading from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
-                if (p == self.is_about) and (p in predicates):
-                    logging.debug("Loading is_about predicate")
-                    # if predicate is 'is_about' then treat object as publication
-                    self.add_node_attribute(o, key=s, value='publications')
-                elif (p == self.is_subsequence_of) and (p in predicates):
-                    logging.debug("Loading is_subsequence_of predicate")
-                    # if predicate is 'is_subsequence_of'
-                    self.add_edge(s, o, self.is_subsequence_of)
-                elif (p == self.has_subsequence) and (p in predicates):
-                    logging.debug("Loading has_subsequence predicate")
-                    # if predicate is 'has_subsequence', interpret the inverse relation 'is_subsequence_of'
-                    self.add_edge(o, s, self.is_subsequence_of)
-                elif any(p.lower() == x.lower() for x in predicates):
-                    logging.debug("Loading {} predicate".format(p))
+                if s in reified_nodes:
+                    # subject is a reified node
+                    self.add_node_attribute(s, key=p, value=o)
+                elif p in {RDF.subject, RDF.object, RDF.predicate}:
+                    # subject is a reified node
+                    reified_nodes.add(s)
+                    self.add_node_attribute(s, key=p, value=o)
+                elif o in {RDF.Statement}:
+                    # subject is a reified node
+                    reified_nodes.add(s)
+                    self.add_node_attribute(s, key=p, value=o)
+                elif p in np:
+                    # treating predicate as a node property
+                    self.add_node_attribute(s, key=p, value=o)
+                else:
+                    # treating predicate as an edge
                     self.add_edge(s, o, p)
+        self.dereify(reified_nodes)
 
-    def load_node_attributes(self, rdfgraph: rdflib.Graph) -> None:
+    def dereify(self, nodes: Set[str]) -> None:
         """
-        This method loads the properties of nodes into networkx.MultiDiGraph
-        As there can be many values for a single key, all properties are lists by default.
-
-        This method assumes that ``RdfTransformer.load_edges()`` has been called, and that all nodes
-        have had their IRI as an attribute.
+        Dereify a set of nodes where each node has all the properties
+        necessary to create an edge.
 
         Parameters
         ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
+        nodes: Set[str]
+            A set of nodes
 
         """
-        logging.info("Loading node attributes from rdflib.Graph into networkx.MultiDiGraph")
-        with click.progressbar(self.graph.nodes(data=True), label='Progress') as bar:
-            for n, data in bar:
-                print(n, data)
-                if 'id' not in data:
-                    data['id'] = n
-                if 'iri' in data:
-                    uriref = URIRef(data['iri'])
-                else:
-                    provided_by = self.graph_metadata.get('provided_by')
-                    logging.warning("No 'iri' property for {} provided by {}".format(n, provided_by))
-                    continue
-
-                for s, p, o in rdfgraph.triples((uriref, None, None)):
-                    if p in property_mapping:
-                        # predicate corresponds to a property on subject
-                        if not (isinstance(s, rdflib.term.BNode) and isinstance(o, rdflib.term.BNode)):
-                            # neither subject nor object is a BNode
-                            if isinstance(o, rdflib.term.Literal):
-                                o = o.value
-                            self.add_node_attribute(uriref, key=p, value=o)
-                    elif isinstance(o, rdflib.term.Literal):
-                        # object is a Literal
-                        # i.e. predicate corresponds to a property on subject
-                        self.add_node_attribute(uriref, key=p, value=o.value)
-
-                categories = infer_category(uriref, rdfgraph)
-                logging.debug("Inferred '{}' as category for node '{}'".format(categories, uriref))
-                for category in categories:
-                    self.add_node_attribute(uriref, key='category', value=category)
+        for n in nodes:
+            node = self.graph.nodes[str(n)]
+            if 'relation' not in node:
+                node['relation'] = node['predicate']
+            if 'edge_label' not in node:
+                node['edge_label'] = "biolink:related_to"
+            self.add_edge(node['subject'], node['object'], node['edge_label'], **node)
+            self.graph.remove_node(str(n))
 
     def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
         """
@@ -182,9 +148,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         """
         # Make a new rdflib.Graph() instance to generate RDF triples
         rdfgraph = rdflib.Graph()
-
-        # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
-        # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
         rdfgraph.bind('', str(self.DEFAULT))
         rdfgraph.bind('OBO', str(self.OBO))
         rdfgraph.bind('OBAN', str(self.OBAN))
@@ -225,7 +188,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         # Defaulting to biolink:NamedThing for all nodes
         rdfgraph.add((uriRef, RDF.type, URIRef(self.BIOLINK.NamedThing)))
         for key, value in data.items():
-            if key not in ['id', 'iri']:
+            if key not in {'id', 'iri'}:
                 self.save_attribute(rdfgraph, uriRef, key=key, value=value)
 
     def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: dict) -> None:
