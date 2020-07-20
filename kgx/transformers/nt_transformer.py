@@ -1,8 +1,9 @@
 import gzip
 import itertools
 import logging
-from typing import Set, Optional
+from typing import Set, Optional, Dict
 
+from rdflib import RDF
 from rdflib.plugins.parsers.ntriples import NTriplesParser
 from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
@@ -10,7 +11,7 @@ import networkx as nx
 
 from kgx import RdfTransformer
 from kgx.prefix_manager import PrefixManager
-from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis
+from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, get_biolink_node_properties
 from kgx.utils.rdf_utils import generate_uuid
 
 INPUT_FORMATS = ['nt', 'nt.gz']
@@ -26,22 +27,19 @@ class NtTransformer(RdfTransformer):
 
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, node_properties: Set = None, edge_properties: Set = None):
-        super().__init__(source_graph)
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+        super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
-        self.node_properties = node_properties if node_properties else set()
-        self.edge_properties = edge_properties if edge_properties else set()
-        self.node_properties.update(
-            ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
-             'OBAN:association_has_predicate', 'OBAN:association_has_object'])
-        self.edge_properties.update(['biolink:has_modifier', 'biolink:has_gene_product', 'biolink:has_db_xref', 'biolink:in_taxon'])
-        self.edge_properties.update(['biolink:subclass_of', 'biolink:same_as', 'biolink:part_of', 'biolink:has_part'])
-        self.assocs = set()
+        self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
+        additional_predicates = ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
+             'OBAN:association_has_predicate', 'OBAN:association_has_object']
+        self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in additional_predicates])
+        self.reified_nodes = set()
         self.count = 0
         self.start = 0
         self.cache = {}
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, predicates: Set[URIRef] = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
         Parse a n-triple file into networkx.MultiDiGraph
 
@@ -55,9 +53,14 @@ class NtTransformer(RdfTransformer):
             The input file format. Must be one of ``['nt', 'nt.gz']``
         provided_by : str
             Define the source providing the input file.
+        node_property_predicates: Set[str]
+            A set of rdflib.URIRef representing predicates that are to be treated as node properties
 
         """
-        p = p = NTriplesParser(self)
+        p = NTriplesParser(self)
+        if node_property_predicates:
+            self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
+        print(f"All node predicates: {self.node_properties}")
         self.start = current_time_in_millis()
         if input_format == INPUT_FORMATS[0]:
             p.parse(open(filename, 'rb'))
@@ -65,8 +68,8 @@ class NtTransformer(RdfTransformer):
             p.parse(gzip.open(filename, 'rb'))
         else:
             raise NameError(f"input_format: {input_format} not supported. Must be one of {INPUT_FORMATS}")
-        print("Done parsing NT file")
-        self.dereify(self.assocs)
+        print(f"Done parsing {filename}")
+        self.dereify(self.reified_nodes)
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
         """
@@ -97,63 +100,29 @@ class NtTransformer(RdfTransformer):
             self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
 
         if element:
-            if element.is_a == 'association slot' or predicate in self.edge_properties:
+            if element.is_a == 'association slot':
                 logging.debug(f"property {property_name} is an edge property but belongs to a reified node")
-                n = self.add_node(s)
-                self.add_node_attribute(n, p, o)
-                self.assocs.add(n)
+                self.add_node_attribute(s, p, o)
+                self.reified_nodes.add(s)
             elif element.is_a == 'node property' or predicate in self.node_properties:
                 logging.debug(f"property {property_name} is a node property")
-                n = self.add_node(s)
-                self.add_node_attribute(n, p, o)
+                self.add_node_attribute(s, p, o)
             else:
-                logging.debug(f"property {property_name} is a related_to property")
+                logging.debug(f"adding property {property_name} as an edge")
                 self.add_edge(s, o, p)
         else:
             logging.debug(f"property {property_name} is not a biolink model element")
             if predicate in self.node_properties:
                 logging.debug(f"treating {predicate} as node property")
-                n = self.add_node(s)
-                self.add_node_attribute(n, p, o)
+                self.add_node_attribute(s, p, o)
             else:
                 # treating as an edge
-                logging.debug(f"treating {predicate} as edge property")
+                logging.debug(f"treating {predicate} as edge")
                 self.add_edge(s, o, p)
         self.count += 1
         if self.count % 1000 == 0:
             logging.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
             self.start = current_time_in_millis()
-
-    def get_biolink_element(self, predicate, property_name):
-        element = self.toolkit.get_element(property_name)
-        if not element:
-            # using original predicate to get mapping
-            mapping = self.toolkit.get_by_mapping(predicate)
-            element = self.toolkit.get_element(mapping)
-        return element
-
-    def dereify(self, associations: Set[str]) -> None:
-        """
-        Dereify an association node.
-
-        Parameters
-        ----------
-        associations: Set[str]
-            A set containing nodes to be dereified.
-
-        """
-        for n in associations:
-            data = self.graph.nodes[n]
-            logging.debug(f"Dereifying node {n} {data}")
-            subject = data['subject']
-            object = data['object']
-            predicate = data['predicate']
-            edge_data = {'id': n, 'subject': subject, 'object': object, 'edge_label': predicate}
-            for k, v in data.items():
-                if k not in {'association_has_subject', 'association_has_object', 'association_has_predicate'}:
-                    edge_data[k] = v
-            self.graph.add_edge(subject, object, n, **edge_data)
-            self.graph.remove_node(n)
 
     def save(self, filename: str = None, output_format: str = "nt", **kwargs) -> None:
         """

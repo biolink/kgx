@@ -30,7 +30,7 @@ class RdfGraphMixin(object):
 
         self.graph_metadata = {}
         self.prefix_manager = PrefixManager()
-        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[':'])
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
         if curie_map:
             self.prefix_manager.update_prefix_map(curie_map)
         # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
@@ -39,7 +39,7 @@ class RdfGraphMixin(object):
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
         """
         This method should be overridden and be implemented by the derived class,
         and should load all desired nodes and edges from rdflib.Graph into networkx.MultiDiGraph
@@ -61,15 +61,13 @@ class RdfGraphMixin(object):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        predicates: list
-            A list of rdflib.URIRef representing predicates to be loaded
         kwargs: dict
             Any additional arguments
 
         """
         raise NotImplementedError("Method not implemented.")
 
-    def add_node(self, iri: URIRef, **kwargs: Dict) -> Dict:
+    def add_node(self, iri: URIRef, data: Dict = None) -> Dict:
         """
         This method should be used by all derived classes when adding a node to
         the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
@@ -81,7 +79,7 @@ class RdfGraphMixin(object):
         ----------
         iri: rdflib.URIRef
             IRI of a node
-        kwargs: dict
+        data: dict
             Additional node properties
 
         Returns
@@ -98,9 +96,12 @@ class RdfGraphMixin(object):
         if not n:
             n = iri
         if self.graph.has_node(n):
-            node_data = self.update_node(n, **kwargs)
+            node_data = self.update_node(n, data)
         else:
-            node_data = kwargs
+            if data:
+                node_data = data
+            else:
+                node_data = {}
             node_data['id'] = n
             if 'category' not in node_data:
                 node_data['category'] = ["biolink:NamedThing"]
@@ -109,7 +110,7 @@ class RdfGraphMixin(object):
             self.graph.add_node(n, **node_data)
         return node_data
 
-    def update_node(self, n: Union[URIRef, str], **kwargs: Dict) -> Dict:
+    def update_node(self, n: Union[URIRef, str], data: Dict = None) -> Dict:
         """
         Update a node with properties.
 
@@ -117,7 +118,7 @@ class RdfGraphMixin(object):
         ----------
         n: Union[URIRef, str]
             Node identifier
-        kwargs: Dict
+        data: Dict
             Node properties
 
         Returns
@@ -127,12 +128,12 @@ class RdfGraphMixin(object):
 
         """
         node_data = self.graph.nodes[str(n)]
-        if kwargs:
-            new_data = RdfGraphMixin._prepare_data_dict(node_data, kwargs)
+        if data:
+            new_data = self._prepare_data_dict(node_data, data)
             node_data.update(new_data)
         return node_data
 
-    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, **kwargs) -> Dict:
+    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Dict = None) -> Dict:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
         This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
@@ -146,7 +147,7 @@ class RdfGraphMixin(object):
             Object IRI for the object in a triple
         predicate_iri: rdflib.URIRef
             Predicate IRI for the predicate in a triple
-        kwargs:
+        data:
             Additional edge properties
 
         Returns
@@ -177,10 +178,13 @@ class RdfGraphMixin(object):
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
         if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
             # edge already exists; process kwargs and update the edge
-            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, **kwargs)
+            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
         else:
             # add a new edge
-            edge_data = kwargs
+            if data:
+                edge_data = data
+            else:
+                edge_data = {}
             edge_data.update({
                 'subject': subject_node['id'],
                 'predicate': str(predicate_iri),
@@ -195,7 +199,7 @@ class RdfGraphMixin(object):
 
         return edge_data
 
-    def update_edge(self, subject_curie, object_curie, edge_key, **kwargs):
+    def update_edge(self, subject_curie: str, object_curie: str, edge_key: str, data: Dict) -> Dict:
         """
         Update an edge with properties.
 
@@ -207,7 +211,7 @@ class RdfGraphMixin(object):
             Object CURIE
         edge_key: str
             Edge key
-        kwargs: Dict
+        data: Dict
             Edge properties
 
         Returns
@@ -217,8 +221,8 @@ class RdfGraphMixin(object):
 
         """
         edge_data = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
-        if kwargs:
-            new_data = RdfGraphMixin._prepare_data_dict(edge_data, kwargs)
+        if data:
+            new_data = self._prepare_data_dict(edge_data, data)
             edge_data.update(new_data)
         return edge_data
 
@@ -258,7 +262,8 @@ class RdfGraphMixin(object):
         if not mapped_key:
             logging.debug(f"{key} could not be mapped; using {key}")
             mapped_key = key
-        node_data = self.add_node(iri, **{mapped_key: value})
+
+        node_data = self.add_node(iri, {mapped_key: value})
         return node_data
 
     def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> Dict:
@@ -300,11 +305,10 @@ class RdfGraphMixin(object):
             key = property_mapping.get(key)
 
         if key is not None and value is not None:
-            edge_data = self.add_edge(subject_iri, object_iri, predicate_iri, **{key: value})
+            edge_data = self.add_edge(subject_iri, object_iri, predicate_iri, {key: value})
         return edge_data
 
-    @staticmethod
-    def _prepare_data_dict(d1, d2):
+    def _prepare_data_dict(self, d1: Dict, d2: Dict) -> Dict:
         """
         Given two dict objects, make a new dict object that is the intersection of the two.
 
@@ -328,6 +332,11 @@ class RdfGraphMixin(object):
         """
         new_data = {}
         for key, value in d2.items():
+            if isinstance(value, (list, set, tuple)):
+                new_value = [self.prefix_manager.contract(x) if self.prefix_manager.is_iri(x) else x for x in value]
+            else:
+                new_value = self.prefix_manager.contract(value) if self.prefix_manager.is_iri(value) else value
+
             if key in is_property_multivalued and is_property_multivalued[key]:
                 # key is supposed to be multivalued
                 if key in d1:
@@ -335,40 +344,45 @@ class RdfGraphMixin(object):
                     if isinstance(d1[key], list):
                         # existing key has value type list
                         new_data[key] = d1[key]
-                        if isinstance(value, (list, set, tuple)):
-                            new_data[key] += [x for x in value if x not in new_data[key]]
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value if x not in new_data[key]]
                         else:
-                            if value not in new_data[key]:
-                                new_data[key].append(value)
+                            if new_value not in new_data[key]:
+                                new_data[key].append(new_value)
                     else:
-                        # existing key does not have value type list; converting to list
-                        new_data[key] = [d1[key]]
-                        if isinstance(value, (list, set, tuple)):
-                            new_data[key] += [x for x in value if x not in new_data[key]]
-                        else:
-                            if value not in new_data[key]:
-                                new_data[key].append(value)
+                        if key not in {'id', 'name', 'description', 'edge_label', 'subject', 'object', 'relation'}:
+                            # existing key does not have value type list; converting to list
+                            new_data[key] = [d1[key]]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                if new_value not in new_data[key]:
+                                    new_data[key].append(new_value)
                 else:
                     # key is not in data; adding
-                    if isinstance(value, (list, set, tuple)):
-                        new_data[key] = value
+                    if isinstance(new_value, (list, set, tuple)):
+                        new_data[key] = [x for x in new_value]
                     else:
-                        new_data[key] = [value]
+                        new_data[key] = [new_value]
             else:
                 # key is not multivalued; adding/replacing as-is
                 if key in d1:
                     if isinstance(d1[key], list):
                         new_data[key] = d1[key]
-                        if isinstance(value, (list, set, tuple)):
-                            new_data[key] += value
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value]
                         else:
-                            new_data[key].append(value)
+                            new_data[key].append(new_value)
                     else:
-                        new_data[key] = [d1[key]]
-                        if isinstance(value, (list, set, tuple)):
-                            new_data[key] += value
-                        else:
-                            new_data[key].append(value)
+                        if key not in {'id', 'name', 'description', 'edge_label', 'subject', 'object', 'relation'}:
+                            new_data[key] = [d1[key]]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value]
+                            else:
+                                new_data[key].append(new_value)
                 else:
-                    new_data[key] = value
+                    if isinstance(new_value, (list, set, tuple)):
+                        new_data[key] += [x for x in new_value]
+                    else:
+                        new_data[key] = new_value
         return new_data

@@ -341,7 +341,7 @@ def get_biolink_node_properties():
         element = toolkit.get_element(p)
         node_properties.add(element.name)
 
-    return [format_biolink_slots(x) for x in node_properties]
+    return set([format_biolink_slots(x) for x in node_properties])
 
 
 def get_biolink_edge_properties():
@@ -352,4 +352,4 @@ def get_biolink_edge_properties():
         element = toolkit.get_element(p)
         edge_properties.add(element.name)
 
-    return [format_biolink_slots(x) for x in edge_properties]
+    return set([format_biolink_slots(x) for x in edge_properties])

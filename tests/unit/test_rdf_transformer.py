@@ -43,13 +43,14 @@ def test_save_ttl():
     ),
     (
         {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
-        {'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
+        {'id': 'DEF:456', 'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
         ['biolink:NamedThing', 'biolink:Gene'],
         {'provided_by': ['test']}
     )
 ])
 def test_prepare_data_dict(query):
-    new_data = RdfTransformer._prepare_data_dict(query[0], query[1])
+    rt = RdfTransformer()
+    new_data = rt._prepare_data_dict(query[0], query[1])
     assert new_data['category'] == query[2]
     for k, v in query[3].items():
         assert new_data[k] == v

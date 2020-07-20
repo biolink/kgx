@@ -1,6 +1,8 @@
-import click, rdflib, logging, os, uuid
+import click, rdflib, os, uuid
 import networkx as nx
 from typing import Tuple, Union, Set, List, Dict
+
+from biolinkml.meta import Element
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL
 from collections import defaultdict
@@ -10,8 +12,7 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping
-from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_snakecase, get_biolink_node_properties, \
-    get_biolink_edge_properties
+from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, current_time_in_millis
 
 
 class RdfTransformer(RdfGraphMixin, Transformer):
@@ -28,6 +29,11 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
+        self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
+        self.reified_nodes = set()
+        self.start = 0
+        self.count = 0
+        self.cache = {}
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
@@ -49,6 +55,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         rdfgraph = rdflib.Graph()
+        if node_property_predicates:
+            self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
 
         if input_format is None:
             input_format = rdflib.util.guess_format(filename)
@@ -66,14 +74,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             elif hasattr(filename, 'name'):
                 self.graph_metadata['provided_by'] = [filename.name]
 
-        self.load_networkx_graph(rdfgraph, node_property_predicates)
+        self.load_networkx_graph(rdfgraph)
         self.report()
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, node_property_predicates: Set[str] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
         """
         Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
-
-        Optionally, you can define which predicates are to be treated as node properties.
 
         Parameters
         ----------
@@ -81,35 +87,95 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Graph containing nodes and edges
         node_property_predicates: Set[str]
             A set of rdflib.URIRef representing predicates that are to be treated as node properties
-        kwargs: dict
+        kwargs: Dict
             Any additional arguments
 
         """
-        reified_nodes = set()
-        node_properties = get_biolink_node_properties()
-        node_properties += node_property_predicates
-        np = [URIRef(self.prefix_manager.expand(x)) for x in node_properties]
         triples = rdfgraph.triples((None, None, None))
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
-                if s in reified_nodes:
-                    # subject is a reified node
-                    self.add_node_attribute(s, key=p, value=o)
-                elif p in {RDF.subject, RDF.object, RDF.predicate}:
-                    # subject is a reified node
-                    reified_nodes.add(s)
-                    self.add_node_attribute(s, key=p, value=o)
-                elif o in {RDF.Statement}:
-                    # subject is a reified node
-                    reified_nodes.add(s)
-                    self.add_node_attribute(s, key=p, value=o)
-                elif p in np:
-                    # treating predicate as a node property
-                    self.add_node_attribute(s, key=p, value=o)
-                else:
-                    # treating predicate as an edge
-                    self.add_edge(s, o, p)
-        self.dereify(reified_nodes)
+                self.triples(s, p, o)
+                self.count += 1
+                if self.count % 1000 == 0:
+                    logging.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
+                    self.start = current_time_in_millis()
+
+    def triples(self, s: URIRef, p: URIRef, o: URIRef) -> None:
+        """
+        Parse a triple.
+
+        Parameters
+        ----------
+        s: URIRef
+            Subject
+        p: URIRef
+            Predicate
+        o: URIRef
+            Object
+
+        """
+        if p in self.cache:
+            # already processed this predicate before; pull from cache
+            element = self.cache[p]['element']
+            predicate = self.cache[p]['predicate']
+            property_name = self.cache[p]['property_name']
+        else:
+            # haven't seen this predicate before; map to element
+            predicate = self.prefix_manager.contract(str(p))
+            property_name = self.prefix_manager.get_reference(predicate)
+            element = self.get_biolink_element(predicate, property_name)
+            self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
+
+        if element:
+            if element.is_a == 'association slot':
+                logging.debug(f"property {property_name} is an edge property but belongs to a reified node")
+                self.add_node_attribute(s, p, o)
+                self.reified_nodes.add(s)
+            elif element.is_a == 'node property' or predicate in self.node_properties:
+                logging.debug(f"property {property_name} is a node property")
+                self.add_node_attribute(s, p, o)
+            else:
+                logging.debug(f"adding property {property_name} as an edge")
+                self.add_edge(s, o, p)
+        else:
+            logging.debug(f"property {property_name} is not a biolink model element")
+            if predicate in self.node_properties:
+                logging.debug(f"treating {predicate} as node property")
+                self.add_node_attribute(s, p, o)
+            else:
+                # treating as an edge
+                logging.debug(f"treating {predicate} as an edge")
+                self.add_edge(s, o, p)
+
+    def get_biolink_element(self, predicate: str, property_name: str) -> Element:
+        """
+        Returns a Biolink Model element for a given predicate and property name.
+
+        If property_name could not be mapped to a biolink model element
+        then will return ``None``.
+
+        Parameters
+        ----------
+        predicate: str
+            The CURIE of a predicate
+        property_name: str
+            The property name (usually the reference of a CURIE)
+
+        Returns
+        -------
+        Optional[Element]
+            The corresponding Biolink Model element
+
+        """
+        element = self.toolkit.get_element(property_name)
+        if not element:
+            # using original predicate to get mapping
+            try:
+                mapping = self.toolkit.get_by_mapping(predicate)
+                element = self.toolkit.get_element(mapping)
+            except ValueError as e:
+                logging.error(e)
+        return element
 
     def dereify(self, nodes: Set[str]) -> None:
         """
@@ -128,8 +194,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 node['relation'] = node['predicate']
             if 'edge_label' not in node:
                 node['edge_label'] = "biolink:related_to"
-            self.add_edge(node['subject'], node['object'], node['edge_label'], **node)
+            self.add_edge(node['subject'], node['object'], node['edge_label'], node)
             self.graph.remove_node(str(n))
+
+    def reify(self, edges: Set[str]) -> None:
+        """
+        Reify a set of edges.
+        """
+        pass
 
     def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
         """
@@ -142,7 +214,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Filename to write to
         output_format: str
             The output format; default: ``turtle``
-        kwargs: dict
+        kwargs: Dict
             Any additional arguments
 
         """
@@ -166,7 +238,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         rdfgraph.serialize(destination=filename, format=output_format)
         pass
 
-    def save_node(self, rdfgraph: rdflib.graph, node: str, data: dict) -> None:
+    def save_node(self, rdfgraph: rdflib.graph, node: str, data: Dict) -> None:
         """
         Save a node and its attributes to rdflib.Graph
 
@@ -176,7 +248,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             rdflib.Graph containing nodes and edges
         node: str
             Node identifier, as a CURIE
-        data: dict
+        data: Dict
             Node properties
 
         """
@@ -191,7 +263,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             if key not in {'id', 'iri'}:
                 self.save_attribute(rdfgraph, uriRef, key=key, value=value)
 
-    def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: dict) -> None:
+    def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: Dict) -> None:
         """
         Save an edge to rdflib.Graph, reifying where applicable.
 
@@ -203,7 +275,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Subject node identifier, as a CURIE
         object: str
             Object node identifier, as a CURIE
-        data: dict
+        data: Dict
             Edge properties
 
         """
