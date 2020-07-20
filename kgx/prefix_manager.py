@@ -53,10 +53,10 @@ class PrefixManager(object):
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = self.prefix_map['@vocab']
             del self.prefix_map['@vocab']
-        if ':' in self.prefix_map:
-            logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
+        if '' in self.prefix_map:
+            logging.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
         else:
-            self.prefix_map[':'] = self.DEFAULT_NAMESPACE
+            self.prefix_map[''] = self.DEFAULT_NAMESPACE
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 

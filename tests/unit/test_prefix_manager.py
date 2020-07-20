@@ -54,7 +54,7 @@ def test_prefix_manager():
     assert pm.prefix_map
     assert pm.reverse_prefix_map
     assert 'biolink' in pm.prefix_map
-    assert ':' in pm.prefix_map
+    assert '' in pm.prefix_map
 
 
 @pytest.mark.parametrize('query', [
