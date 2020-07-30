@@ -3,6 +3,7 @@ import time
 from typing import List
 
 import stringcase
+from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition
 from bmt import Toolkit
 from cachetools import LRUCache
 from prefixcommons.curie_util import contract_uri
@@ -353,3 +354,77 @@ def get_biolink_edge_properties():
         edge_properties.add(element.name)
 
     return set([format_biolink_slots(x) for x in edge_properties])
+
+
+def get_biolink_property_types():
+    toolkit = get_toolkit()
+    types = {}
+    node_properties = set()
+    edge_properties = set()
+
+    properties = toolkit.children('node property')
+    for p in properties:
+        element = toolkit.get_element(p)
+        node_properties.add(element.name)
+
+    properties = toolkit.children('association slot')
+    for p in properties:
+        element = toolkit.get_element(p)
+        edge_properties.add(element.name)
+
+    for p in node_properties:
+        property_type = get_type_for_property(p)
+        types[p] = property_type
+
+    for p in edge_properties:
+        property_type = get_type_for_property(p)
+        types[p] = property_type
+
+    # TODO: this should be moved to biolink model
+    types['predicate'] = 'uriorcurie'
+    types['edge_label'] = 'uriorcurie'
+
+    return types
+
+def get_type_for_property(p: str) -> str:
+    """
+    Get type for a property.
+
+    TODO: Move this to biolink-model-toolkit
+
+    Parameters
+    ----------
+    p: str
+
+    Returns
+    -------
+    str
+        The type for a given property
+
+    """
+    toolkit = get_toolkit()
+    e = toolkit.get_element(p)
+    if isinstance(e, ClassDefinition):
+        t = "uriorcurie"
+    elif isinstance(e, TypeDefinition):
+        t = e.uri
+    else:
+        r = e.range
+        if isinstance(r, SlotDefinition):
+            t = r.range
+            t = get_type_for_property(t)
+        elif isinstance(r, TypeDefinitionName):
+            t = get_type_for_property(r)
+        elif isinstance(r, ElementName):
+            t = get_type_for_property(r)
+        else:
+            t = "xsd:string"
+    return t
+
+
+def get_biolink_association_types():
+    toolkit = get_toolkit()
+    associations = toolkit.descendents('association')
+    associations.append('association')
+    formatted_associations = set([format_biolink_category(x) for x in associations])
+    return formatted_associations

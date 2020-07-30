@@ -11,10 +11,11 @@ import networkx as nx
 
 from kgx import RdfTransformer
 from kgx.prefix_manager import PrefixManager
-from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, get_biolink_node_properties
+from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, get_biolink_node_properties, \
+    get_biolink_property_types, get_biolink_association_types
 from kgx.utils.rdf_utils import generate_uuid
 
-INPUT_FORMATS = ['nt', 'nt.gz']
+FORMATS = ['nt', 'nt.gz']
 
 
 class NtTransformer(RdfTransformer):
@@ -38,6 +39,11 @@ class NtTransformer(RdfTransformer):
         self.count = 0
         self.start = 0
         self.cache = {}
+        self.property_types = get_biolink_property_types()
+
+    def set_property_types(self, m):
+        for k, v in m.items():
+            self.property_types[k] = v
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
@@ -60,15 +66,14 @@ class NtTransformer(RdfTransformer):
         p = NTriplesParser(self)
         if node_property_predicates:
             self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
-        print(f"All node predicates: {self.node_properties}")
         self.start = current_time_in_millis()
-        if input_format == INPUT_FORMATS[0]:
+        if input_format == FORMATS[0]:
             p.parse(open(filename, 'rb'))
-        elif input_format == INPUT_FORMATS[1]:
+        elif input_format == FORMATS[1]:
             p.parse(gzip.open(filename, 'rb'))
         else:
-            raise NameError(f"input_format: {input_format} not supported. Must be one of {INPUT_FORMATS}")
-        print(f"Done parsing {filename}")
+            raise NameError(f"input_format: {input_format} not supported. Must be one of {FORMATS}")
+        logging.info(f"Done parsing {filename}")
         self.dereify(self.reified_nodes)
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
@@ -87,44 +92,9 @@ class NtTransformer(RdfTransformer):
             The object of a triple.
 
         """
-        if p in self.cache:
-            # already processed this predicate before; pull from cache
-            element = self.cache[p]['element']
-            predicate = self.cache[p]['predicate']
-            property_name = self.cache[p]['property_name']
-        else:
-            # haven't seen this predicate before; map to element
-            predicate = self.prefix_manager.contract(str(p))
-            property_name = self.prefix_manager.get_reference(predicate)
-            element = self.get_biolink_element(predicate, property_name)
-            self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
+        super().triple(s, p, o)
 
-        if element:
-            if element.is_a == 'association slot':
-                logging.debug(f"property {property_name} is an edge property but belongs to a reified node")
-                self.add_node_attribute(s, p, o)
-                self.reified_nodes.add(s)
-            elif element.is_a == 'node property' or predicate in self.node_properties:
-                logging.debug(f"property {property_name} is a node property")
-                self.add_node_attribute(s, p, o)
-            else:
-                logging.debug(f"adding property {property_name} as an edge")
-                self.add_edge(s, o, p)
-        else:
-            logging.debug(f"property {property_name} is not a biolink model element")
-            if predicate in self.node_properties:
-                logging.debug(f"treating {predicate} as node property")
-                self.add_node_attribute(s, p, o)
-            else:
-                # treating as an edge
-                logging.debug(f"treating {predicate} as edge")
-                self.add_edge(s, o, p)
-        self.count += 1
-        if self.count % 1000 == 0:
-            logging.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
-            self.start = current_time_in_millis()
-
-    def save(self, filename: str = None, output_format: str = "nt", **kwargs) -> None:
+    def save(self, filename: str = None, output_format: str = "nt", reify_all_edges = False, **kwargs) -> None:
         """
         Export networkx.MultiDiGraph into n-triple format.
 
@@ -135,114 +105,90 @@ class NtTransformer(RdfTransformer):
         filename: str
             Filename to write to
         output_format: str
-            The output format; default: ``nt``
+            The output format. Must be one of ``['nt', 'nt.gz']``
         kwargs: dict
             Any additional arguments
 
         """
         nodes_generator = self.export_nodes()
-        edges_generator = self.export_edges()
+        edges_generator = self.export_edges(reify_all_edges)
         generator = itertools.chain(nodes_generator, edges_generator)
         serializer = NT11Serializer(generator)
-        serializer.serialize(open(filename, 'wb'))
+        if output_format == FORMATS[0]:
+            f = open(filename, 'wb')
+        elif output_format == FORMATS[1]:
+            f = gzip.open(filename, 'wb')
+        else:
+            raise NameError(f"output_format: {output_format} not supported. Must be one of {FORMATS}")
+        serializer.serialize(f)
 
-    def export_nodes(self) -> Set[URIRef]:
-        """
-        Export all nodes from networkx.MultiDiGraph.
-
-        This method yields one (or more) triple that corresponds to a node.
-
-        Returns
-        -------
-        Set[rdflib.term.URIRef]
-            A triple
-
-        """
+    def export_nodes(self):
         for n, data in self.graph.nodes(data=True):
             s = self.uriref(n)
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
+                prop_type = self._get_property_type(k)
                 p = self.uriref(k)
+                logging.info(f"[n] Treating {p} as {prop_type}")
                 if isinstance(v, list):
                     for x in v:
-                        if isinstance(x, str):
-                            if self.prefix_manager.is_curie(x) or self.prefix_manager.is_iri(x) or x.startswith('urn:uuid:'):
-                                o = self.uriref(x)
-                            else:
-                                # literal
-                                o = Literal(x)
-                        else:
-                            # literal
-                            o = Literal(x)
+                        o = self._prepare_object(k, prop_type, x)
                         yield (s, p, o)
                 else:
-                    if isinstance(v, str):
-                        if self.prefix_manager.is_curie(v) or self.prefix_manager.is_iri(v) or v.startswith('urn:uuid:'):
-                            o = self.uriref(v)
-                        else:
-                            # literal
-                            o = Literal(v)
-                    else:
-                        # literal
-                        o = Literal(v)
+                    o = self._prepare_object(k, prop_type, v)
                     yield (s, p, o)
 
-    def export_edges(self) -> Set[URIRef]:
-        """
-        Export all edges from networkx.MultiDiGraph.
-
-        This method yields one (or more) triple that corresponds to an edge.
-
-        Returns
-        -------
-        Set[rdflib.term.URIRef]
-            A triple
-
-        """
+    def export_edges(self, reify_all_edges = False):
         cache = []
+        associations = get_biolink_association_types()
+        print(associations)
         for u, v, k, data in self.graph.edges(data=True, keys=True):
-            if data['edge_label'] in self.edge_properties:
-                # treat as a direct edge
-                s = self.uriref(u)
-                p = self.uriref(data['edge_label'])
-                o = self.uriref(v)
-                yield (s, p, o)
-            else:
-                # reify
-                s = self.uriref(u)
-                p = self.uriref(data['edge_label'])
-                o = self.uriref(v)
+            if reify_all_edges:
+                reified_node = self.reify(u, v, k, data)
+                s = reified_node['subject']
+                p = reified_node['edge_label']
+                o = reified_node['object']
                 cache.append((s, p, o))
-                if 'id' in data:
-                    s = self.uriref(data['id'])
-                else:
-                    # generate a UUID for the reified node
-                    s = self.uriref(generate_uuid())
-                all_data = data.copy()
-                all_data['type'] = 'biolink:Association'
-                for prop, value in all_data.items():
+                n = reified_node['id']
+                for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
+                    prop_type = self._get_property_type(prop)
                     p = self.uriref(prop)
                     if isinstance(value, list):
                         for x in value:
-                            if isinstance(x, str) and PrefixManager.is_curie(x):
-                                o = self.uriref(x)
-                            elif isinstance(x, str) and PrefixManager.is_iri(x):
-                                o = URIRef(x)
-                            else:
-                                o = Literal(x)
-                            yield (s, p, o)
+                            o = self._prepare_object(prop, prop_type, x)
+                            yield (n, p, o)
                     else:
-                        if isinstance(value, str) and PrefixManager.is_curie(value):
-                            o = self.uriref(value)
-                        elif isinstance(value, str) and PrefixManager.is_iri(value):
-                            o = URIRef(value)
+                        o = self._prepare_object(prop, prop_type, value)
+                        yield (n, p, o)
+            else:
+                if 'type' in data and data['type'] in associations:
+                    reified_node = self.reify(u, v, k, data)
+                    s = reified_node['subject']
+                    p = reified_node['edge_label']
+                    o = reified_node['object']
+                    cache.append((s, p, o))
+                    n = reified_node['id']
+                    for prop, value in reified_node.items():
+                        if prop in {'id', 'association_id', 'edge_key'}:
+                            continue
+                        prop_type = self._get_property_type(prop)
+                        p = self.uriref(prop)
+                        logging.info(f"[e] Treating {p} as {prop_type}")
+                        if isinstance(value, list):
+                            for x in value:
+                                o = self._prepare_object(prop, prop_type, x)
+                                yield (n, p, o)
                         else:
-                            # literal
-                            o = Literal(value)
-                        yield (s, p, o)
-
+                            o = self._prepare_object(prop, prop_type, value)
+                            yield (n, p, o)
+                else:
+                    s = self.uriref(u)
+                    p = self.uriref(data['edge_label'])
+                    o = self.uriref(v)
+                    yield (s, p, o)
         for t in cache:
             yield (t[0], t[1], t[2])
+

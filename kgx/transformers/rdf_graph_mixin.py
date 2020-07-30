@@ -20,7 +20,7 @@ class RdfGraphMixin(object):
 
     """
 
-    DEFAULT_EDGE_LABEL = 'related_to'
+    DEFAULT_EDGE_LABEL = 'biolink:related_to'
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         if source_graph:
@@ -160,20 +160,19 @@ class RdfGraphMixin(object):
         object_node = self.add_node(object_iri)
         relation = self.prefix_manager.contract(predicate_iri)
         edge_label = process_iri(predicate_iri)
+        print(f"predicate_iri {predicate_iri} mapped to edge_label {edge_label}")
         if ' ' in edge_label:
             logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
-        if edge_label.startswith(self.BIOLINK):
-            logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that starts with '{self.BIOLINK}'; removing IRI prefix")
-            edge_label = edge_label.replace(self.BIOLINK, '')
 
-        if PrefixManager.is_curie(edge_label):
-            name = curie_lookup(edge_label)
-            if name:
-                logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
-                edge_label = name
-            else:
-                logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
-                edge_label = self.DEFAULT_EDGE_LABEL
+        if not edge_label.startswith('biolink:'):
+            if PrefixManager.is_curie(edge_label):
+                name = curie_lookup(edge_label)
+                if name:
+                    logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
+                    edge_label = name
+                else:
+                    logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
+                    edge_label = self.DEFAULT_EDGE_LABEL
 
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
         if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
@@ -185,12 +184,13 @@ class RdfGraphMixin(object):
                 edge_data = data
             else:
                 edge_data = {}
+
             edge_data.update({
                 'subject': subject_node['id'],
                 'predicate': str(predicate_iri),
                 'object': object_node['id'],
                 'relation': relation,
-                'edge_label': f"biolink:{edge_label}"
+                'edge_label': f"{edge_label}"
             })
             edge_data['edge_key'] = edge_key
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
@@ -262,6 +262,12 @@ class RdfGraphMixin(object):
         if not mapped_key:
             logging.debug(f"{key} could not be mapped; using {key}")
             mapped_key = key
+
+        if isinstance(value, rdflib.term.Identifier):
+            if isinstance(value, rdflib.term.URIRef):
+                value = self.prefix_manager.contract(value)
+            else:
+                value = value.toPython()
 
         node_data = self.add_node(iri, {mapped_key: value})
         return node_data
