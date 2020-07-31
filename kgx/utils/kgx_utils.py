@@ -1,9 +1,10 @@
+import logging
 import re
 import time
 from typing import List
 
 import stringcase
-from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition
+from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
 from bmt import Toolkit
 from cachetools import LRUCache
 from prefixcommons.curie_util import contract_uri
@@ -356,6 +357,12 @@ def get_biolink_edge_properties():
     return set([format_biolink_slots(x) for x in edge_properties])
 
 
+def get_biolink_relations():
+    toolkit = get_toolkit()
+    relations = toolkit.descendents('related to')
+    return relations
+
+
 def get_biolink_property_types():
     toolkit = get_toolkit()
     types = {}
@@ -428,3 +435,5 @@ def get_biolink_association_types():
     associations.append('association')
     formatted_associations = set([format_biolink_category(x) for x in associations])
     return formatted_associations
+
+

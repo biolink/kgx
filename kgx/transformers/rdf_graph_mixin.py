@@ -2,11 +2,13 @@ import logging
 import networkx as nx
 from typing import List, Set, Dict, Tuple, Union
 import rdflib
+from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued
-from kgx.utils.kgx_utils import generate_edge_key
+from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, get_biolink_edge_properties, \
+    get_biolink_node_properties, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
 
 class RdfGraphMixin(object):
@@ -159,12 +161,13 @@ class RdfGraphMixin(object):
         subject_node = self.add_node(subject_iri)
         object_node = self.add_node(object_iri)
         relation = self.prefix_manager.contract(predicate_iri)
-        edge_label = process_iri(predicate_iri)
+        edge_label = self.process_predicate(relation)
         print(f"predicate_iri {predicate_iri} mapped to edge_label {edge_label}")
         if ' ' in edge_label:
             logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
 
-        if not edge_label.startswith('biolink:'):
+        edge_label_prefix = self.prefix_manager.get_prefix(edge_label)
+        if edge_label_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
             if PrefixManager.is_curie(edge_label):
                 name = curie_lookup(edge_label)
                 if name:
@@ -198,6 +201,78 @@ class RdfGraphMixin(object):
             self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **edge_data)
 
         return edge_data
+
+    def get_biolink_element(self, predicate: str) -> Element:
+        """
+        Returns a Biolink Model element for a given predicate and property name.
+
+        If property_name could not be mapped to a biolink model element
+        then will return ``None``.
+
+        Parameters
+        ----------
+        predicate: str
+            The CURIE of a predicate
+        property_name: str
+            The property name (usually the reference of a CURIE)
+
+        Returns
+        -------
+        Optional[Element]
+            The corresponding Biolink Model element
+
+        """
+        toolkit = get_toolkit()
+        reference = self.prefix_manager.get_reference(predicate)
+        element = toolkit.get_element(reference)
+        if not element:
+            try:
+                mapping = toolkit.get_by_mapping(predicate)
+                element = toolkit.get_element(mapping)
+            except ValueError as e:
+                logging.error(e)
+        return element
+
+    def process_predicate(self, curie: str) -> str:
+        """
+        Process a given predicate CURIE.
+
+        Parameters
+        ----------
+        curie: str
+            A predicate CURIE
+
+        Returns
+        -------
+        str
+            The processed predicate
+
+        """
+        biolink_relations = get_biolink_relations()
+        p = curie
+        element = self.get_biolink_element(curie)
+        if element:
+            if isinstance(element, SlotDefinition):
+                if element.name in biolink_relations:
+                    # predicate corresponds to a biolink relation
+                    p = element.definition_uri
+                    print(f"[process_predicate] Mapping {curie} to {p}")
+                else:
+                    # predicate corresponds to a biolink property
+                    p = element.definition_uri
+                    print(f"[process_predicate] Mapping {curie} to {p}")
+            elif isinstance(element, ClassDefinition):
+                # this will happen only when the IRI is actually
+                # a reference to a class
+                p = element.class_uri
+                print(f"[process_predicate] Mapping {curie} to {p}")
+            else:
+                p = sentencecase_to_camelcase(element.name)
+                print(f"[process_predicate] Mapping {curie} to {p}")
+        else:
+            # no mapping to biolink model
+            print(f"[process_predicate] No mapping from biolink model for {curie}")
+        return p
 
     def update_edge(self, subject_curie: str, object_curie: str, edge_key: str, data: Dict) -> Dict:
         """
@@ -252,16 +327,12 @@ class RdfGraphMixin(object):
             The node data
 
         """
-        if not isinstance(key, URIRef):
-            key = URIRef(key)
-        mapped_key = property_mapping.get(key)
-        if not mapped_key:
-            mapped_key = self.prefix_manager.contract(key)
-            if self.prefix_manager.is_curie(mapped_key):
-                mapped_key = self.prefix_manager.get_reference(mapped_key)
-        if not mapped_key:
-            logging.debug(f"{key} could not be mapped; using {key}")
-            mapped_key = key
+        key_curie = self.prefix_manager.contract(key)
+        mapped_key = self.process_predicate(key_curie)
+
+        if self.prefix_manager.is_curie(mapped_key):
+            # property names will always be just the reference
+            mapped_key = self.prefix_manager.get_reference(mapped_key)
 
         if isinstance(value, rdflib.term.Identifier):
             if isinstance(value, rdflib.term.URIRef):

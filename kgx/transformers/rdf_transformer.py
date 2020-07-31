@@ -1,9 +1,9 @@
 import click, rdflib, os, uuid
 import networkx as nx
 import logging
-from typing import Tuple, Union, Set, List, Dict
+from typing import Tuple, Union, Set, List, Dict, Any
 
-from biolinkml.meta import Element
+from biolinkml.meta import Element, SlotDefinition, ClassDefinition
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
 from collections import defaultdict
@@ -14,7 +14,7 @@ from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping, generate_uuid
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, \
-    current_time_in_millis, get_biolink_association_types, get_biolink_property_types
+    current_time_in_millis, get_biolink_association_types, get_biolink_property_types, get_biolink_relations
 
 
 class RdfTransformer(RdfGraphMixin, Transformer):
@@ -136,7 +136,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             predicate = self.prefix_manager.contract(str(p))
             print(f"Mapping {p} to {predicate}")
             property_name = self.prefix_manager.get_reference(predicate)
-            element = self.get_biolink_element(predicate, property_name)
+            element = self.get_biolink_element(predicate)
             self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
 
         if s in self.reified_nodes:
@@ -158,36 +158,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             # treating predicate as an edge
             print(f"Adding edge {s} {p} {o}")
             self.add_edge(s, o, p)
-
-    def get_biolink_element(self, predicate: str, property_name: str) -> Element:
-        """
-        Returns a Biolink Model element for a given predicate and property name.
-
-        If property_name could not be mapped to a biolink model element
-        then will return ``None``.
-
-        Parameters
-        ----------
-        predicate: str
-            The CURIE of a predicate
-        property_name: str
-            The property name (usually the reference of a CURIE)
-
-        Returns
-        -------
-        Optional[Element]
-            The corresponding Biolink Model element
-
-        """
-        element = self.toolkit.get_element(property_name)
-        if not element:
-            # using original predicate to get mapping
-            try:
-                mapping = self.toolkit.get_by_mapping(predicate)
-                element = self.toolkit.get_element(mapping)
-            except ValueError as e:
-                logging.error(e)
-        return element
 
     def dereify(self, nodes: Set[str]) -> None:
         """
@@ -248,7 +218,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         reified_node['object'] = o
         return reified_node
 
-    def save(self, filename: str = None, output_format: str = "turtle", reify_all_edges = False, **kwargs) -> None:
+    def save(self, filename: str = None, output_format: str = "turtle", reify_all_edges: bool = False, **kwargs) -> None:
         """
         Transform networkx.MultiDiGraph into rdflib.Graph and export
         this graph as a file (``turtle``, by default).
@@ -259,6 +229,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Filename to write to
         output_format: str
             The output format; default: ``turtle``
+        reify_all_edges: bool
+            Whether to reify all edges in the graph
         kwargs: Dict
             Any additional arguments
 
@@ -275,29 +247,16 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         # Serialize the graph into the file.
         rdfgraph.serialize(destination=filename, format=output_format)
 
-    # def save_node(self, rdfgraph: rdflib.graph, node: str, data: Dict) -> None:
-    #     """
-    #     Save a node and its attributes to rdflib.Graph
-    #
-    #     Parameters
-    #     ----------
-    #     rdfgraph: rdflib.Graph
-    #         rdflib.Graph containing nodes and edges
-    #     node: str
-    #         Node identifier, as a CURIE
-    #     data: Dict
-    #         Node properties
-    #
-    #     """
-    #     node_uri = URIRef(data['id'])
-    #
-    #     # Defaulting to biolink:NamedThing for all nodes
-    #     rdfgraph.add((node_uri, RDF.type, URIRef(self.BIOLINK.NamedThing)))
-    #     for key, value in data.items():
-    #         if key not in {'id', 'iri'}:
-    #             self.save_attribute(rdfgraph, node_uri, key=key, value=value)
+    def save_nodes(self, rdfgraph: rdflib.Graph) -> None:
+        """
+        Save nodes and its attributes to rdflib.Graph
 
-    def save_nodes(self, rdfgraph):
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+
+        """
         for n, data in self.graph.nodes(data=True):
             s = self.uriref(n)
             for k, v in data.items():
@@ -314,73 +273,18 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     o = self._prepare_object(k, prop_type, v)
                     rdfgraph.add((s, p, o))
 
-    # def save_edge(self, rdfgraph: rdflib.Graph, subject: str, object: str, data: Dict) -> None:
-    #     """
-    #     Save an edge to rdflib.Graph, reifying where applicable.
-    #
-    #     Parameters
-    #     ----------
-    #     rdfgraph: rdflib.Graph
-    #         rdflib.Graph containing nodes and edges
-    #     subject: str
-    #         Subject node identifier, as a CURIE
-    #     object: str
-    #         Object node identifier, as a CURIE
-    #     data: Dict
-    #         Edge properties
-    #
-    #     """
-    #     edge_label = data['edge_label']
-    #
-    #     if edge_label in self.BASIC_BIOLINK_PREDICATES \
-    #                 or edge_label in self.BASIC_PREDICATES \
-    #                 or edge_label in self.OWL_PREDICATES:
-    #         # Note: This drops all edge properties since we do not reify these edges
-    #         subject_term = self.uriref(subject)
-    #         object_term = self.uriref(object)
-    #         if edge_label in self.BASIC_PREDICATES:
-    #             edge_label = f"biolink:{edge_label}"
-    #         predicate_term = self.uriref(edge_label)
-    #         rdfgraph.add((subject_term, predicate_term, object_term))
-    #     else:
-    #         element = self.toolkit.get_element(edge_label)
-    #         if element:
-    #             # edge is a Biolink association
-    #             if 'relation' not in data:
-    #                 raise Exception(
-    #                     'Relation is a required edge property in the Biolink Model, edge {} --> {}'.format(subject, object))
-    #
-    #             if 'id' in data and data['id'] is not None:
-    #                 assoc_id = URIRef(data['id'])
-    #             else:
-    #                 # generating a UUID for association
-    #                 assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
-    #
-    #             # Defaulting to biolink:Association for all reified edges
-    #             if 'type' in data:
-    #                 assoc_type = data['type']
-    #             else:
-    #                 assoc_type = self.BIOLINK.association
-    #             rdfgraph.add((assoc_id, RDF.type, URIRef(assoc_type)))
-    #             s = self.uriref(subject)
-    #             p = self.uriref(data['edge_label'])
-    #             o = self.uriref(object)
-    #             relation = self.uriref(data['relation'])
-    #             rdfgraph.add((assoc_id, self.OBAN.association_has_subject, s))
-    #             rdfgraph.add((assoc_id, self.OBAN.association_has_predicate, p))
-    #             rdfgraph.add((assoc_id, self.OBAN.association_has_object, o))
-    #             rdfgraph.add((assoc_id, self.BIOLINK.relation, relation))
-    #
-    #             for key, value in data.items():
-    #                 if key not in {'subject', 'relation', 'object', 'edge_label'}:
-    #                     self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
-    #         else:
-    #             s = self.uriref(subject)
-    #             p = self.uriref(edge_label)
-    #             o = self.uriref(object)
-    #             rdfgraph.add((s, p, o))
+    def save_edges(self, rdfgraph, reify_all_edges: bool = False) -> None:
+        """
+        Save an edge to rdflib.Graph, reifying where applicable.
 
-    def save_edges(self, rdfgraph, reify_all_edges = False):
+        Parameters
+        ----------
+        rdfgraph: rdflib.Graph
+            rdflib.Graph containing nodes and edges
+        reify_all_edges: bool
+            Whether to reify all edges in the graph
+
+        """
         associations = get_biolink_association_types()
         for u, v, k, data in self.graph.edges(data=True, keys=True):
             if reify_all_edges:
@@ -430,9 +334,25 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     o = self.uriref(v)
                     rdfgraph.add((s, p, o))
 
+    def _prepare_object(self, prop: str, prop_type: str, value: Any) -> rdflib.term.Identifier:
+        """
+        Prepare the object of a triple.
 
-    def _prepare_object(self, prop, prop_type, value):
-        print(prop, prop_type, value)
+        Parameters
+        ----------
+        prop: str
+            property name
+        prop_type: str
+            property type
+        value: Any
+            property value
+
+        Returns
+        -------
+        rdflib.term.Identifier
+            An instance of rdflib.term.Identifier
+
+        """
         if prop_type == 'uriorcurie' or prop_type == 'xsd:anyURI':
             if isinstance(value, str) and PrefixManager.is_curie(value):
                 o = self.uriref(value)
@@ -446,14 +366,27 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             o = Literal(value, datatype=self.prefix_manager.expand("xsd:string"))
         return o
 
-    def _get_property_type(self, p):
+    def _get_property_type(self, p: str) -> str:
+        """
+        Get type for a given property name.
+
+        Parameters
+        ----------
+        p: str
+            property name
+
+        Returns
+        -------
+        str
+            The type for property name
+
+        """
         if p in {'type'}:
             t = 'uriorcurie'
         elif p in self.property_types:
             t = self.property_types[p]
         else:
             t = 'xsd:string'
-        print(f"# {p} => {t}")
         return t
 
     def uriref(self, identifier: str) -> URIRef:
@@ -730,3 +663,4 @@ class RdfOwlTransformer(RdfTransformer):
             for s, p, o in bar:
                 if p in property_mapping.keys():
                     self.add_node_attribute(s, key=p, value=o)
+
