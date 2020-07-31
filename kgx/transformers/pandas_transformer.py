@@ -348,7 +348,7 @@ class PandasTransformer(Transformer):
             values = []
             for c in ordered_node_columns:
                 if c in row:
-                    values.append(row[c])
+                    values.append(str(row[c]))
                 else:
                     values.append("")
             FH.write(delimiter.join(values) + '\n')
