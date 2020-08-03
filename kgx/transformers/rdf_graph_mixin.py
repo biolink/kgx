@@ -105,8 +105,13 @@ class RdfGraphMixin(object):
             else:
                 node_data = {}
             node_data['id'] = n
-            if 'category' not in node_data:
+
+            if 'category' in node_data:
+                if 'biolink:NamedThing' not in set(node_data['category']):
+                    node_data['category'].append('biolink:NamedThing')
+            else:
                 node_data['category'] = ["biolink:NamedThing"]
+
             if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
                 node_data['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_node(n, **node_data)
@@ -339,6 +344,8 @@ class RdfGraphMixin(object):
                 value = self.prefix_manager.contract(value)
             else:
                 value = value.toPython()
+        if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
+            value = [value]
 
         node_data = self.add_node(iri, {mapped_key: value})
         return node_data

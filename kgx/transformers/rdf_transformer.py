@@ -32,9 +32,10 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
         self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
-        additional_predicates = ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
-             'OBAN:association_has_predicate', 'OBAN:association_has_object']
-        self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in additional_predicates])
+        self.node_properties.update(get_biolink_node_properties())
+        # additional_predicates = ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
+        #      'OBAN:association_has_predicate', 'OBAN:association_has_object']
+        #self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in additional_predicates])
         self.node_properties.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
         self.reified_nodes = set()
         self.start = 0
@@ -102,6 +103,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Any additional arguments
 
         """
+        self.reified_nodes = set()
         triples = rdfgraph.triples((None, None, None))
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
@@ -151,8 +153,18 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         elif o in {RDF.Statement, self.BIOLINK.Association}:
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=p, value=o)
-        elif p in self.node_properties or property_name in self.node_properties:
+        elif element and element.definition_uri in self.node_properties:
             # treating predicate as a node property
+            print(f"Adding {p} as node property")
+            self.add_node_attribute(s, key=p, value=o)
+        elif p in self.node_properties \
+                or predicate in self.node_properties \
+                or property_name in self.node_properties:
+            # treating predicate as a node property
+            print(f"Adding {p} as node property")
+            self.add_node_attribute(s, key=p, value=o)
+        elif isinstance(o, rdflib.term.Literal):
+            print(f"Adding {p} as node property")
             self.add_node_attribute(s, key=p, value=o)
         else:
             # treating predicate as an edge
@@ -170,7 +182,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             A set of nodes
 
         """
-        for n in nodes:
+        while nodes:
+            n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
             node = self.graph.nodes[n_curie]
             if 'relation' not in node:
@@ -263,15 +276,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 if k in {'id', 'iri'}:
                     continue
                 prop_type = self._get_property_type(k)
-                p = self.uriref(k)
-                logging.info(f"[n] Treating {p} as {prop_type}")
+                prop_uri = self.uriref(k)
                 if isinstance(v, (list, set, tuple)):
                     for x in v:
-                        o = self._prepare_object(k, prop_type, x)
-                        rdfgraph.add((s, p, o))
+                        value_uri = self._prepare_object(k, prop_type, x)
+                        rdfgraph.add((s, prop_uri, value_uri))
                 else:
-                    o = self._prepare_object(k, prop_type, v)
-                    rdfgraph.add((s, p, o))
+                    value_uri = self._prepare_object(k, prop_type, v)
+                    rdfgraph.add((s, prop_uri, value_uri))
 
     def save_edges(self, rdfgraph, reify_all_edges: bool = False) -> None:
         """
@@ -298,15 +310,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
                     prop_type = self._get_property_type(prop)
-                    p = self.uriref(prop)
-                    logging.info(f"[e] Treating {p} as {prop_type}")
+                    prop_uri = self.uriref(prop)
                     if isinstance(value, list):
                         for x in value:
-                            o = self._prepare_object(prop, prop_type, x)
-                            rdfgraph.add((n, p, o))
+                            value_uri = self._prepare_object(prop, prop_type, x)
+                            rdfgraph.add((n, prop_uri, value_uri))
                     else:
-                        o = self._prepare_object(prop, prop_type, value)
-                        rdfgraph.add((n, p, o))
+                        value_uri = self._prepare_object(prop, prop_type, value)
+                        rdfgraph.add((n, prop_uri, value_uri))
             else:
                 if 'type' in data and data['type'] in associations:
                     reified_node = self.reify(u, v, k, data)
@@ -319,15 +330,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
                         prop_type = self._get_property_type(prop)
-                        p = self.uriref(prop)
+                        prop_uri = self.uriref(prop)
                         if isinstance(value, list):
                             for x in value:
-                                o = self._prepare_object(prop, prop_type, x)
-                                rdfgraph.add((n, p, o))
+                                value_uri = self._prepare_object(prop, prop_type, x)
+                                rdfgraph.add((n, prop_uri, value_uri))
                         else:
-                            o = self._prepare_object(prop, prop_type, value)
-                            rdfgraph.add((n, p, o))
-                    rdfgraph.add((s, p, o))
+                            value_uri = self._prepare_object(prop, prop_type, value)
+                            rdfgraph.add((n, prop_uri, value_uri))
                 else:
                     s = self.uriref(u)
                     p = self.uriref(data['edge_label'])
@@ -424,49 +434,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 uri = self.DEFAULT.term(identifier)
 
         return URIRef(uri)
-
-    def save_attribute(self, rdfgraph: rdflib.Graph, object_iri: URIRef, key: str, value: Union[List[str], str]) -> None:
-        """
-        Saves a node or edge attributes from networkx.MultiDiGraph into rdflib.Graph
-
-        Intended to be used within `ObanRdfTransformer.save()`.
-
-        Parameters
-        ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
-        object_iri: rdflib.URIRef
-            IRI of an object in the graph
-        key: str
-            The name of the attribute
-        value: Union[List[str], str]
-            The value of the attribute; Can be either a List or just a string
-
-        """
-        element = self.toolkit.get_element(key)
-        if element:
-            if element.is_a == 'association slot' or element.is_a == 'node property':
-                if key in property_mapping:
-                    key = property_mapping[key]
-                else:
-                    key = self.BIOLINK.term(element.name.replace(' ', '_'))
-                if not isinstance(value, (list, tuple, set)):
-                    value = [value]
-                for v in value:
-                    if element.range == 'iri type':
-                        v = self.uriref(v)
-                    else:
-                        v = rdflib.term.Literal(v)
-                    rdfgraph.add((object_iri, key, v))
-        else:
-            # key is not a biolink property
-            # treat value as a literal
-            key = self.DEFAULT.term(key)
-            if not isinstance(value, (list, tuple, set)):
-                value = [value]
-            for v in value:
-                v = rdflib.term.Literal(v)
-                rdfgraph.add((object_iri, key, v))
 
 
 class ObanRdfTransformer(RdfTransformer):
@@ -575,7 +542,8 @@ class ObanRdfTransformer(RdfTransformer):
 
             for key, value in data.items():
                 if key not in ['id', 'iri']:
-                    self.save_attribute(rdfgraph, uriRef, key=key, value=value)
+                    pass
+                    #self.save_attribute(rdfgraph, uriRef, key=key, value=value)
 
         # saving all edges
         for u, v, data in self.graph.edges(data=True):
