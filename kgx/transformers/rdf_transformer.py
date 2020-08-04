@@ -33,10 +33,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.toolkit = get_toolkit()
         self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
         self.node_properties.update(get_biolink_node_properties())
-        # additional_predicates = ['biolink:same_as', 'OBAN:association_has_object', 'OBAN:association_has_subject',
-        #      'OBAN:association_has_predicate', 'OBAN:association_has_object']
-        #self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in additional_predicates])
         self.node_properties.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
+        self.reification_types = {RDF.Statement, self.BIOLINK.Association}
+        self.reification_predicates = {
+            self.BIOLINK.subject, self.BIOLINK.predicate, self.BIOLINK.object,
+            RDF.subject, RDF.object, RDF.predicate
+        }
         self.reified_nodes = set()
         self.start = 0
         self.count = 0
@@ -136,7 +138,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         else:
             # haven't seen this predicate before; map to element
             predicate = self.prefix_manager.contract(str(p))
-            print(f"Mapping {p} to {predicate}")
             property_name = self.prefix_manager.get_reference(predicate)
             element = self.get_biolink_element(predicate)
             self.cache[p] = {'element': element, 'predicate': predicate, 'property_name': property_name}
@@ -144,31 +145,27 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         if s in self.reified_nodes:
             # subject is a reified node
             self.add_node_attribute(s, key=p, value=o)
-        elif p in {RDF.subject, RDF.object, RDF.predicate}:
+        elif p in self.reification_predicates:
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=p, value=o)
         elif property_name in {'subject', 'edge_label', 'object', 'predicate', 'relation'}:
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=p, value=o)
-        elif o in {RDF.Statement, self.BIOLINK.Association}:
+        elif o in self.reification_types:
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=p, value=o)
         elif element and element.definition_uri in self.node_properties:
             # treating predicate as a node property
-            print(f"Adding {p} as node property")
             self.add_node_attribute(s, key=p, value=o)
         elif p in self.node_properties \
                 or predicate in self.node_properties \
                 or property_name in self.node_properties:
             # treating predicate as a node property
-            print(f"Adding {p} as node property")
             self.add_node_attribute(s, key=p, value=o)
         elif isinstance(o, rdflib.term.Literal):
-            print(f"Adding {p} as node property")
             self.add_node_attribute(s, key=p, value=o)
         else:
             # treating predicate as an edge
-            print(f"Adding edge {s} {p} {o}")
             self.add_edge(s, o, p)
 
     def dereify(self, nodes: Set[str]) -> None:
@@ -186,10 +183,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
             node = self.graph.nodes[n_curie]
-            if 'relation' not in node:
-                node['relation'] = node['predicate']
             if 'edge_label' not in node:
                 node['edge_label'] = "biolink:related_to"
+            if 'relation' not in node:
+                node['relation'] = node['edge_label']
+            if 'category' in node:
+                del node['category']
             self.add_edge(node['subject'], node['object'], node['edge_label'], node)
             self.graph.remove_node(n_curie)
 
@@ -224,6 +223,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             # generate a UUID for the reified node
             node_id = self.uriref(generate_uuid())
         reified_node = data.copy()
+        if 'category' in reified_node:
+            del reified_node['category']
         reified_node['id'] = node_id
         reified_node['type'] = 'biolink:Association'
         reified_node['subject'] = s
@@ -297,7 +298,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Whether to reify all edges in the graph
 
         """
-        associations = get_biolink_association_types()
+        associations = set([self.prefix_manager.contract(x) for x in self.reification_types])
+        associations.update([str(x) for x in get_biolink_association_types()])
         for u, v, k, data in self.graph.edges(data=True, keys=True):
             if reify_all_edges:
                 reified_node = self.reify(u, v, k, data)
@@ -446,127 +448,12 @@ class ObanRdfTransformer(RdfTransformer):
 
     """
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
-        """
-        Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
-
-        Parameters
-        ----------
-        rdfgraph: rdflib.Graph
-            Graph containing nodes and edges
-        kwargs: dict
-            Any additional arguments
-
-        """
-        if not predicates:
-            predicates = set()
-            predicates = predicates.union(self.OWL_PREDICATES)
-
-        for rel in predicates:
-            triples = rdfgraph.triples((None, rel, None))
-            with click.progressbar(list(triples), label="Loading relation '{}'".format(rel)) as bar:
-                for s, p, o in bar:
-                    if not (isinstance(s, rdflib.term.BNode) and isinstance(o, rdflib.term.BNode)):
-                        self.add_edge(s, o, p)
-
-        # get all OBAN.associations
-        associations = rdfgraph.subjects(RDF.type, self.OBAN.association)
-        logging.info("Loading from rdflib.Graph into networkx.MultiDiGraph")
-        with click.progressbar(list(associations), label='Progress') as bar:
-            for association in bar:
-                edge_attr = defaultdict(list)
-                edge_attr['id'].append(str(association))
-
-                # dereify OBAN.association
-                subject = None
-                object = None
-                predicate = None
-
-                # get all triples for association
-                for s, p, o in rdfgraph.triples((association, None, None)):
-                    if o.startswith(self.PMID):
-                        edge_attr['publications'].append(o)
-                    if p in property_mapping or isinstance(o, rdflib.term.Literal):
-                        p = property_mapping.get(p, p)
-                        if p == 'subject':
-                            subject = o
-                        elif p == 'object':
-                            object = o
-                        elif p == 'predicate':
-                            predicate = o
-                        else:
-                            edge_attr[p].append(o)
-
-                if predicate is None:
-                    logging.warning("No 'predicate' for OBAN.association {}; defaulting to '{}'".format(association, self.DEFAULT_EDGE_LABEL))
-                    predicate = self.DEFAULT_EDGE_LABEL
-
-                if subject and object:
-                    self.add_edge(subject, object, predicate)
-                    for key, values in edge_attr.items():
-                        for value in values:
-                            self.add_edge_attribute(subject, object, predicate, key=key, value=value)
-
-    def save(self, filename: str = None, output_format: str = "turtle", **kwargs) -> None:
-        """
-        Transform networkx.MultiDiGraph into rdflib.Graph that follow OBAN-style reification and export
-        this graph as a file (``turtle``, by default).
-
-        Parameters
-        ----------
-        filename: str
-            Filename to write to
-        output_format: str
-            The output format; default: ``turtle``
-        kwargs: dict
-            Any additional arguments
-
-        """
-        # Make a new rdflib.Graph() instance to generate RDF triples
-        rdfgraph = rdflib.Graph()
-
-        # <http://purl.obolibrary.org/obo/RO_0002558> is currently stored as OBO:RO_0002558 rather than RO:0002558
-        # because of the bug in rdflib. See https://github.com/RDFLib/rdflib/issues/632
-        rdfgraph.bind('', str(self.DEFAULT))
-        rdfgraph.bind('OBO', str(self.OBO))
-        rdfgraph.bind('OBAN', str(self.OBAN))
-        rdfgraph.bind('PMID', str(self.PMID))
-        rdfgraph.bind('biolink', str(self.BIOLINK))
-
-        # saving all nodes
-        for n, data in self.graph.nodes(data=True):
-            if 'iri' not in data:
-                uriRef = self.uriref(n)
-            else:
-                uriRef = URIRef(data['iri'])
-
-            for key, value in data.items():
-                if key not in ['id', 'iri']:
-                    pass
-                    #self.save_attribute(rdfgraph, uriRef, key=key, value=value)
-
-        # saving all edges
-        for u, v, data in self.graph.edges(data=True):
-            if 'relation' not in data:
-                raise Exception('Relation is a required edge property in the biolink model, edge {} --> {}'.format(u, v))
-
-            if 'id' in data and data['id'] is not None:
-                assoc_id = URIRef(data['id'])
-            else:
-                # generating a UUID for association
-                assoc_id = URIRef('urn:uuid:{}'.format(uuid.uuid4()))
-
-            rdfgraph.add((assoc_id, RDF.type, self.OBAN.association))
-            rdfgraph.add((assoc_id, self.OBAN.association_has_subject, self.uriref(u)))
-            rdfgraph.add((assoc_id, self.OBAN.association_has_predicate, self.uriref(data['relation'])))
-            rdfgraph.add((assoc_id, self.OBAN.association_has_object, self.uriref(v)))
-
-            for key, value in data.items():
-                if key not in ['subject', 'relation', 'object']:
-                    self.save_attribute(rdfgraph, assoc_id, key=key, value=value)
-
-        # Serialize the graph into the file.
-        rdfgraph.serialize(destination=filename, format=output_format)
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+        super().__init__(source_graph, curie_map)
+        self.reification_types.update({self.OBAN.association})
+        self.reification_predicates.update({
+            self.OBAN.association_has_subject, self.OBAN.association_has_predicate, self.OBAN.association_has_object
+        })
 
 
 class RdfOwlTransformer(RdfTransformer):

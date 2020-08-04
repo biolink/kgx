@@ -6,7 +6,7 @@ from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued
+from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued, generate_uuid
 from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, get_biolink_edge_properties, \
     get_biolink_node_properties, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
@@ -177,7 +177,7 @@ class RdfGraphMixin(object):
                 name = curie_lookup(edge_label)
                 if name:
                     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
-                    edge_label = name
+                    edge_label = f"{edge_label_prefix}:{name}"
                 else:
                     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
                     edge_label = self.DEFAULT_EDGE_LABEL
@@ -200,7 +200,7 @@ class RdfGraphMixin(object):
                 'relation': relation,
                 'edge_label': f"{edge_label}"
             })
-            edge_data['edge_key'] = edge_key
+
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **edge_data)
@@ -466,7 +466,7 @@ class RdfGraphMixin(object):
                                 new_data[key].append(new_value)
                 else:
                     if isinstance(new_value, (list, set, tuple)):
-                        new_data[key] += [x for x in new_value]
+                        new_data[key] = [x for x in new_value]
                     else:
                         new_data[key] = new_value
         return new_data
