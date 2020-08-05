@@ -360,3 +360,18 @@ def test_uriref(query):
     assert type(x).__name__ == query[1]
     assert str(x) == query[2]
 
+@pytest.mark.parametrize("query", [
+    ('http://purl.org/oban/association_has_object', 'biolink:object', 'OBAN:association_has_object', 'association_has_object'),
+    ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'biolink:type', 'rdf:type', 'type'),
+    ('https://monarchinitiative.org/frequencyOfPhenotype', None, ':frequencyOfPhenotype', 'frequencyOfPhenotype'),
+    ('http://purl.obolibrary.org/obo/RO_0002200', 'biolink:has_phenotype', 'RO:0002200', '0002200'),
+    ('http://www.w3.org/2002/07/owl#equivalentClass', 'biolink:same_as', 'owl:equivalentClass', 'equivalentClass'),
+    ('https://www.example.org/UNKNOWN/new_prop', None, ':new_prop', 'new_prop')
+])
+def test_process_predicate(query):
+    rt = RdfTransformer()
+    x = rt.process_predicate(query[0])
+    assert x[0] == query[1]
+    assert x[1] == query[2]
+    assert x[2] == query[3]
+
