@@ -6,10 +6,10 @@ from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued, generate_uuid
-from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, get_biolink_edge_properties, \
-    get_biolink_node_properties, sentencecase_to_camelcase
+from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid
+from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
+
 
 class RdfGraphMixin(object):
     """

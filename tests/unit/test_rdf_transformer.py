@@ -4,6 +4,7 @@ import pytest
 import pprint
 
 import rdflib
+from rdflib import URIRef
 
 from kgx import RdfTransformer
 
