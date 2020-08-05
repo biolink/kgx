@@ -1,4 +1,5 @@
 import os
+import pprint
 
 from kgx import ObanRdfTransformer
 
@@ -11,6 +12,10 @@ cmap={
     'OMIM': 'http://omim.org/entry/'
 }
 
+def print_graph(g):
+    pprint.pprint([x for x in g.nodes(data=True)])
+    pprint.pprint([x for x in g.edges(data=True)])
+
 
 def test_parse():
     np = {
@@ -20,7 +25,8 @@ def test_parse():
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
-    assert t1.graph.number_of_nodes() == 14
+    print_graph(t1.graph)
+    assert t1.graph.number_of_nodes() == 18
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes['HP:0000505']
@@ -52,7 +58,8 @@ def test_save():
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_property_types(prop_types)
     t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
-    assert t1.graph.number_of_nodes() == 14
+    print_graph(t1.graph)
+    assert t1.graph.number_of_nodes() == 18
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes['HP:0000505']
@@ -78,10 +85,10 @@ def test_save():
 
     t2 = ObanRdfTransformer(curie_map=cmap)
     t2.parse(os.path.join(target_dir, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
-    assert t2.graph.number_of_nodes() == 14
+    assert t2.graph.number_of_nodes() == 18
     assert t2.graph.number_of_edges() == 7
 
     t3 = ObanRdfTransformer(curie_map=cmap)
     t3.parse(os.path.join(target_dir, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
-    assert t3.graph.number_of_nodes() == 14
+    assert t3.graph.number_of_nodes() == 18
     assert t3.graph.number_of_edges() == 7

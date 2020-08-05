@@ -33,6 +33,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.toolkit = get_toolkit()
         self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
         self.node_properties.update(get_biolink_node_properties())
+        self.node_properties.update(get_biolink_edge_properties())
         self.node_properties.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
         self.reification_types = {RDF.Statement, self.BIOLINK.Association}
         self.reification_predicates = {
@@ -276,7 +277,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
-                prop_type = self._get_property_type(k)
+                prop_type = self._get_property_type(k, v)
                 prop_uri = self.uriref(k)
                 if isinstance(v, (list, set, tuple)):
                     for x in v:
@@ -311,7 +312,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    prop_type = self._get_property_type(prop)
+                    prop_type = self._get_property_type(prop, value)
                     prop_uri = self.uriref(prop)
                     if isinstance(value, list):
                         for x in value:
@@ -331,7 +332,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     for prop, value in reified_node.items():
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
-                        prop_type = self._get_property_type(prop)
+                        prop_type = self._get_property_type(prop, value)
                         prop_uri = self.uriref(prop)
                         if isinstance(value, list):
                             for x in value:
@@ -378,7 +379,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             o = Literal(value, datatype=self.prefix_manager.expand("xsd:string"))
         return o
 
-    def _get_property_type(self, p: str) -> str:
+    def _get_property_type(self, p: str, value = None) -> str:
         """
         Get type for a given property name.
 
@@ -393,12 +394,27 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             The type for property name
 
         """
-        if p in {'type'}:
+        if p in {'type', 'category', 'subject', 'object', 'relation', 'edge_label'}:
             t = 'uriorcurie'
-        elif p in self.property_types:
-            t = self.property_types[p]
         else:
-            t = 'xsd:string'
+            if p in self.property_types:
+                t = self.property_types[p]
+            else:
+                t = 'xsd:string'
+
+            if value:
+                if isinstance(value, (list, set, tuple)):
+                    x = value[0]
+                    if self.graph.has_node(x):
+                        t = 'uriorcurie'
+                    else:
+                        t = 'xsd:string'
+                else:
+                    if self.graph.has_node(value):
+                        t = 'uriorcurie'
+                    else:
+                        t = 'xsd:string'
+        print(f"{p} has type {t}")
         return t
 
     def uriref(self, identifier: str) -> URIRef:

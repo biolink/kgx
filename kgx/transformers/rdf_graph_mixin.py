@@ -23,6 +23,8 @@ class RdfGraphMixin(object):
     """
 
     DEFAULT_EDGE_LABEL = 'biolink:related_to'
+    CORE_NODE_PROPERTIES = {'id'}
+    CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation', 'type'}
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         if source_graph:
@@ -341,7 +343,13 @@ class RdfGraphMixin(object):
 
         if isinstance(value, rdflib.term.Identifier):
             if isinstance(value, rdflib.term.URIRef):
-                value = self.prefix_manager.contract(value)
+                value_curie = self.prefix_manager.contract(value)
+                if self.prefix_manager.get_prefix(value_curie) not in {'biolink'} \
+                        and mapped_key not in {'type', 'category', 'edge_label', 'relation', 'predicate'}:
+                    d = self.add_node(value)
+                    value = d['id']
+                else:
+                    value = value_curie
             else:
                 value = value.toPython()
         if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
@@ -434,7 +442,9 @@ class RdfGraphMixin(object):
                             if new_value not in new_data[key]:
                                 new_data[key].append(new_value)
                     else:
-                        if key not in {'id', 'name', 'description', 'edge_label', 'subject', 'object', 'relation'}:
+                        if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                            logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        else:
                             # existing key does not have value type list; converting to list
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
@@ -458,7 +468,9 @@ class RdfGraphMixin(object):
                         else:
                             new_data[key].append(new_value)
                     else:
-                        if key not in {'id', 'name', 'description', 'edge_label', 'subject', 'object', 'relation'}:
+                        if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                            logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        else:
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
                                 new_data[key] += [x for x in new_value]

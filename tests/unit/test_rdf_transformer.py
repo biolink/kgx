@@ -20,6 +20,7 @@ def print_graph(g):
 def test_parse1():
     t1 = RdfTransformer()
     t1.parse(os.path.join(resource_dir, 'rdf', 'test1.nt'))
+    print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 2
     assert t1.graph.number_of_edges() == 1
 
@@ -280,26 +281,41 @@ def test_save3():
     (
         {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
         {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
-        ['biolink:NamedThing', 'biolink:Gene'],
+        {'category': ['biolink:NamedThing', 'biolink:Gene']},
         {'prop1': [1, 2, 3, 4]}
     ),
     (
         {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'prop1': 1},
         {'category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
-        ['biolink:NamedThing', 'biolink:Gene'],
+        {'category': ['biolink:NamedThing', 'biolink:Gene']},
         {'prop1': [1, 2, 3]}
     ),
     (
         {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
         {'id': 'DEF:456', 'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
-        ['biolink:NamedThing', 'biolink:Gene'],
+        {'category': ['biolink:NamedThing', 'biolink:Gene']},
         {'provided_by': ['test']}
+    ),
+    (
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
+        {},
+        {}
+    ),
+    (
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
+         'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
+         'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
+        {},
+        {'source': ['Orphanet:331206', 'Orphanet:331206']}
     )
 ])
 def test_prepare_data_dict(query):
     rt = RdfTransformer()
     new_data = rt._prepare_data_dict(query[0], query[1])
-    assert new_data['category'] == query[2]
+    for k, v in query[2].items():
+        assert new_data[k] == v
     for k, v in query[3].items():
         assert new_data[k] == v
 
