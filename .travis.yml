@@ -18,4 +18,5 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - pytest tests/*
+  - make unit-tests
+  - make integration-tests
