@@ -53,12 +53,28 @@ class PrefixManager(object):
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = self.prefix_map['@vocab']
             del self.prefix_map['@vocab']
-        if ':' in self.prefix_map:
-            logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
+        if 'MONARCH' not in self.prefix_map:
+            self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
+        if '' in self.prefix_map:
+            logging.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
         else:
-            self.prefix_map[':'] = self.DEFAULT_NAMESPACE
+            self.prefix_map[''] = self.DEFAULT_NAMESPACE
 
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
+
+    def update_prefix_map(self, m: Dict) -> None:
+        """
+        Update prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New prefix to IRI mappings
+
+        """
+        for k, v in m.items():
+            self.prefix_map[k] = v
+            self.reverse_prefix_map[v] = k
 
     @cached(LRUCache(maxsize=1024))
     def expand(self, curie: str, fallback: bool = True) -> str:
@@ -151,6 +167,13 @@ class PrefixManager(object):
         """
         if isinstance(s, str):
             return s.startswith('http') or s.startswith('https')
+        else:
+            return False
+    @staticmethod
+    @cached(LRUCache(maxsize=1024))
+    def has_urlfragment(s: str) -> bool:
+        if '#' in s:
+            return True
         else:
             return False
 

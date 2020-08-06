@@ -1,0 +1,26 @@
+<http://identifiers.org/ensembl/ENSG0000000000001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.obolibrary.org/obo/SO_0000704> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/Gene> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/GenomicEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/MolecularEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/name> "Test Gene 123" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/description> "This is a Test Gene 123" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/provided_by> "Test Dataset" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.obolibrary.org/obo/SO_0000704> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/Gene> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/GenomicEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/MolecularEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/name> "Test Gene 456" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/description> "This is a Test Gene 456" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/provided_by> "Test Dataset" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/has_gene_product> <http://identifiers.org/ensembl/ENSP0000000000001> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/has_gene_product> <http://identifiers.org/ensembl/ENSP0000000000002> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/biolink/vocab/Association> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://w3id.org/biolink/vocab/subject> <http://identifiers.org/ensembl/ENSP0000000000001> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://w3id.org/biolink/vocab/predicate> <https://w3id.org/biolink/vocab/interacts_with> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://w3id.org/biolink/vocab/object> <http://identifiers.org/ensembl/ENSP0000000000002> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://w3id.org/biolink/vocab/relation> <https://w3id.org/biolink/vocab/interacts_with> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://w3id.org/biolink/vocab/edge_label> <https://w3id.org/biolink/vocab/interacts_with> .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://www.example.org/UNKNOWN/fusion> "0" .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://www.example.org/UNKNOWN/homology> "0.0" .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://www.example.org/UNKNOWN/combined_score> "490.0" .
+<urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518> <https://www.example.org/UNKNOWN/cooccurence> "332" .

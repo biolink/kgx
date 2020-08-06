@@ -1,105 +1,18 @@
 import logging
 from collections import OrderedDict
-from typing import List, Union
+from typing import List, Union, Optional
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
-from prefixcommons.curie_util import expand_uri
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, contract
+from kgx.utils.kgx_utils import get_curie_lookup_service, contract
 import uuid
-
-toolkit = get_toolkit()
-m = toolkit.generator.mappings
-x = set()
-mapping = {}
-for key, value in m.items():
-    k = expand_uri(key)
-    v = toolkit.get_by_mapping(key)
-    if k == key:
-        x.add(key)
-    else:
-        mapping[k] = v
 
 
 OBAN = Namespace('http://purl.org/oban/')
 BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
-
-predicate_mapping = {
-    'http://purl.obolibrary.org/obo/RO_0002200': 'has_phenotype',
-    'http://purl.obolibrary.org/obo/RO_0000091': 'has_disposition',
-    'http://purl.obolibrary.org/obo/RO_0003303': 'causes_condition',
-    'http://purl.obolibrary.org/obo/RO_0002525': 'is_subsequence_of',
-    'http://purl.obolibrary.org/obo/RO_0002524': 'has_subsequence',
-    OWL.sameAs.lower(): 'same_as',
-    OWL.equivalentClass.lower(): 'same_as',
-    OWL.inverseOf.lower(): 'inverse_of',
-    RDFS.subClassOf.lower(): 'subclass_of',
-    RDFS.subPropertyOf.lower(): 'subproperty_of',
-}
-
-predicate_mapping.update(
-    {
-        '{}{}'.format(BIOLINK, n) : n
-            for n in
-        [x.replace(',', '').replace(' ', '_') for x in toolkit.descendents('related to')]
-    }
-)
-
-predicate_mapping.update(mapping)
-
-# TODO: consolidate
-category_mapping = {
-# subclasses mapped onto their superclasses:
-    "http://purl.obolibrary.org/obo/SO_0000405": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000001": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000100": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000336": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000340": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000404": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000460": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000651": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000655": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0001217": "gene",
-    "http://purl.obolibrary.org/obo/GENO_0000002": "sequence_variant",
-    'http://purl.obolibrary.org/obo/UPHENO_0001002': 'phenotypic_feature',
-    "http://purl.obolibrary.org/obo/CL_0000000": "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0001062": "anatomical_entity",
-    "http://purl.obolibrary.org/obo/ZFA_0009000": "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0004529": "anatomical_projection",
-    "http://purl.obolibrary.org/obo/UBERON_0000468": "multi_cellular_organism",
-    "http://purl.obolibrary.org/obo/UBERON_0000955": "brain",
-    "http://purl.obolibrary.org/obo/PATO_0000001": "quality",
-    "http://purl.obolibrary.org/obo/GO_0005623": "cell",
-    "http://purl.obolibrary.org/obo/WBbt_0007833": "organism",
-    "http://purl.obolibrary.org/obo/WBbt_0004017": "cell",
-    "http://purl.obolibrary.org/obo/MONDO_0000001": "disease",
-    "http://purl.obolibrary.org/obo/PATO_0000003": "assay",
-    "http://purl.obolibrary.org/obo/PATO_0000006": "process",
-    "http://purl.obolibrary.org/obo/PATO_0000011": "age",
-    "http://purl.obolibrary.org/obo/ZFA_0000008": "brain",
-    "http://purl.obolibrary.org/obo/ZFA_0001637": "bony_projection",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000061": "extended_life_span",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000039": "life_span_variant",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0001171": "shortened_life_span",
-    "http://purl.obolibrary.org/obo/CHEBI_23367": "molecular_entity",
-    "http://purl.obolibrary.org/obo/CHEBI_23888": "drug",
-    "http://purl.obolibrary.org/obo/CHEBI_51086": "chemical_role",
-    "http://purl.obolibrary.org/obo/UPHENO_0001001": "phenotypic_feature",
-    "http://purl.obolibrary.org/obo/GO_0008150": "biological_process",
-    "http://purl.obolibrary.org/obo/GO_0005575": "cellular_component",
-    "http://purl.obolibrary.org/obo/SO_0000704": "gene",
-    "http://purl.obolibrary.org/obo/SO_0000110": "sequence_feature",
-    "http://purl.obolibrary.org/obo/GENO_0000536": "genotype",
-}
-
-category_mapping.update(mapping)
-category_mapping.update(
-    {
-        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')): n for n in toolkit.descendents('named thing')
-    }
-)
+OBO = Namespace('http://purl.obolibrary.org/obo/')
 
 # TODO: any biolink model property should be accounted for
 property_mapping = OrderedDict({
@@ -121,7 +34,6 @@ property_mapping = OrderedDict({
     URIRef('http://purl.org/dc/elements/1.1/description'): 'description',
     BIOLINK.description: 'description',
     BIOLINK.has_evidence: 'has_evidence',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002558'): 'has_evidence',
     URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym'): 'synonym',
     BIOLINK.synonym: 'synonym',
     OWL.sameAs: 'same_as',
@@ -148,6 +60,7 @@ for k, v in property_mapping.items():
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
+    'id': False,
     'subject': False,
     'object': False,
     'edge_label': False,
@@ -164,37 +77,6 @@ is_property_multivalued = {
     'relation': False
 }
 
-def process_iri(iri:Union[str, URIRef]) -> str:
-    """
-    Casts iri to a string, and then checks whether it maps to any pre-defined
-    values. If so returns that value, otherwise converts that iri to a curie
-    and returns.
-
-    Parameters
-    ----------
-    iri: Union[str, URIRef]
-        IRI to process; can be a string or a rdflib.term.URIRef
-
-    Returns
-    -------
-    str
-        A string corresponding to the IRI
-
-    """
-    mappings = [
-        predicate_mapping,
-        category_mapping,
-        property_mapping,
-    ]
-
-    for mapping in mappings:
-        for key, value in mapping.items():
-            if iri.lower() == key.lower():
-                return value
-
-    return contract(iri)
-
-OBO = Namespace('http://purl.obolibrary.org/obo/')
 
 top_level_terms = {
     OBO.term('CL_0000000'): 'cell',
@@ -231,9 +113,20 @@ top_level_terms = {
     OBO.term('HP_0032443'): 'past_medical_history',
     OBO.term('HP_0000005'): 'mode_of_inheritance',
     OBO.term('HP_0012823'): 'clinical_modifier'
-
-
 }
+
+
+def generate_uuid():
+    """
+    Generates a UUID.
+
+    Returns
+    -------
+    str
+        A UUID
+
+    """
+    return f"urn:uuid:{uuid.uuid4()}"
 
 
 def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
@@ -271,6 +164,3 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         cls = get_curie_lookup_service()
         category = get_category_via_superclass(cls.ontology_graph, subject_curie)
     return category
-
-def generate_uuid():
-    return f"urn:uuid:{uuid.uuid4()}"

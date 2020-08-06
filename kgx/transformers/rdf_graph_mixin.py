@@ -1,13 +1,14 @@
 import logging
 import networkx as nx
-from typing import List, Set, Dict, Tuple, Union
+from typing import List, Set, Dict, Tuple, Union, Optional
 import rdflib
+from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
-from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, process_iri, is_property_multivalued
-from kgx.utils.kgx_utils import generate_edge_key
+from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
+
 
 class RdfGraphMixin(object):
     """
@@ -20,9 +21,11 @@ class RdfGraphMixin(object):
 
     """
 
-    DEFAULT_EDGE_LABEL = 'related_to'
+    DEFAULT_EDGE_LABEL = 'biolink:related_to'
+    CORE_NODE_PROPERTIES = {'id'}
+    CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'type'}
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None):
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         if source_graph:
             self.graph = source_graph
         else:
@@ -30,14 +33,19 @@ class RdfGraphMixin(object):
 
         self.graph_metadata = {}
         self.prefix_manager = PrefixManager()
-        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[':'])
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
+        if curie_map:
+            self.prefix_manager.update_prefix_map(curie_map)
         # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
         self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
+        self.predicate_mapping = property_mapping.copy()
+        self.reverse_predicate_mapping = reverse_property_mapping.copy()
+        self.cache = {}
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
         """
         This method should be overridden and be implemented by the derived class,
         and should load all desired nodes and edges from rdflib.Graph into networkx.MultiDiGraph
@@ -59,15 +67,13 @@ class RdfGraphMixin(object):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        predicates: list
-            A list of rdflib.URIRef representing predicates to be loaded
         kwargs: dict
             Any additional arguments
 
         """
         raise NotImplementedError("Method not implemented.")
 
-    def add_node(self, iri: URIRef) -> str:
+    def add_node(self, iri: URIRef, data: Dict = None) -> Dict:
         """
         This method should be used by all derived classes when adding a node to
         the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
@@ -77,35 +83,72 @@ class RdfGraphMixin(object):
 
         Parameters
         ----------
-        iri : rdflib.URIRef
+        iri: rdflib.URIRef
             IRI of a node
+        data: dict
+            Additional node properties
 
         Returns
         -------
-        str
-            The CURIE identifier of a node
+        Dict
+            The node data
 
         """
-        n = self.prefix_manager.contract(iri)
+        n = self.prefix_manager.contract(str(iri))
+        if n == iri:
+            if self.prefix_manager.has_urlfragment(iri):
+                n = rdflib.namespace.urldefrag(iri).fragment
+
         if not n:
             n = iri
-        if not self.graph.has_node(n):
-            kwargs = {'id': n}
-            if 'provided_by' in self.graph_metadata:
-                kwargs['provided_by'] = self.graph_metadata['provided_by']
-            if 'category' not in kwargs:
-                kwargs['category'] = ["biolink:NamedThing"]
-            self.graph.add_node(n, **kwargs)
+        if self.graph.has_node(n):
+            node_data = self.update_node(n, data)
+        else:
+            if data:
+                node_data = data
+            else:
+                node_data = {}
+            node_data['id'] = n
 
-        return n
+            if 'category' in node_data:
+                if 'biolink:NamedThing' not in set(node_data['category']):
+                    node_data['category'].append('biolink:NamedThing')
+            else:
+                node_data['category'] = ["biolink:NamedThing"]
 
-    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef) -> Tuple[str, str, str]:
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
+                node_data['provided_by'] = self.graph_metadata['provided_by']
+            self.graph.add_node(n, **node_data)
+        return node_data
+
+    def update_node(self, n: Union[URIRef, str], data: Dict = None) -> Dict:
+        """
+        Update a node with properties.
+
+        Parameters
+        ----------
+        n: Union[URIRef, str]
+            Node identifier
+        data: Dict
+            Node properties
+
+        Returns
+        -------
+        Dict
+            The node data
+
+        """
+        node_data = self.graph.nodes[str(n)]
+        if data:
+            new_data = self._prepare_data_dict(node_data, data)
+            node_data.update(new_data)
+        return node_data
+
+    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Dict = None) -> Dict:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
-        This ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label` is in the correct form.
-
-        Returns the CURIE identifiers used for the `subject` and `object` in the
-        networkx.MultiDiGraph, and the processed `edge_label`.
+        This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
+        is in the correct form.
 
         Parameters
         ----------
@@ -115,49 +158,82 @@ class RdfGraphMixin(object):
             Object IRI for the object in a triple
         predicate_iri: rdflib.URIRef
             Predicate IRI for the predicate in a triple
+        data:
+            Additional edge properties
 
         Returns
         -------
-        Tuple[str, str, str]
-            A 3-nary tuple (of the form subject, object, predicate) that represents the edge
+        Dict
+            The edge data
 
         """
-        s = self.add_node(subject_iri)
-        o = self.add_node(object_iri)
-        relation = self.prefix_manager.contract(predicate_iri)
-        edge_label = process_iri(predicate_iri)
-        if ' ' in edge_label:
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that not in snake_case form; replacing ' ' with '_'".format(predicate_iri, edge_label))
-        if edge_label.startswith(self.BIOLINK):
-            logging.debug("predicate IRI '{}' yields edge_label '{}' that starts with '{}'; removing IRI prefix".format(predicate_iri, edge_label, self.BIOLINK))
-            edge_label = edge_label.replace(self.BIOLINK, '')
+        (element_uri, predicate, property_name) = self.process_predicate(predicate_iri)
+        subject_node = self.add_node(subject_iri)
+        object_node = self.add_node(object_iri)
+        edge_label = element_uri if element_uri else predicate
 
-        if PrefixManager.is_curie(edge_label):
-            name = curie_lookup(edge_label)
-            if name:
-                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; Using its mapping instead: {}".format(predicate_iri, edge_label, name))
-                edge_label = name
-            else:
-                logging.debug("predicate IRI '{}' yields edge_label '{}' that is actually a CURIE; defaulting back to {}".format(predicate_iri, edge_label, self.DEFAULT_EDGE_LABEL))
+        if ' ' in edge_label:
+            logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
+        edge_label_prefix = self.prefix_manager.get_prefix(edge_label)
+        if edge_label_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
+            if PrefixManager.is_curie(edge_label):
+                # name = curie_lookup(edge_label)
+                # if name:
+                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
+                #     edge_label = f"{edge_label_prefix}:{name}"
+                # else:
+                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
                 edge_label = self.DEFAULT_EDGE_LABEL
 
-        kwargs = {
-            'subject': s,
-            'predicate': str(predicate_iri),
-            'object': o,
-            'relation': relation,
-            'edge_label': f"biolink:{edge_label}"
-        }
-        if 'provided_by' in self.graph_metadata:
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
+        edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
+        if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
+            # edge already exists; process kwargs and update the edge
+            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
+        else:
+            # add a new edge
+            edge_data = data if data else {}
+            edge_data.update({
+                'subject': subject_node['id'],
+                'edge_label': f"{edge_label}",
+                'object': object_node['id']
+            })
+            if 'relation' not in edge_data:
+                edge_data['relation'] = predicate
 
-        key = generate_edge_key(s, edge_label, o)
-        if not self.graph.has_edge(s, o, key=key):
-            self.graph.add_edge(s, o, key=key, **kwargs)
-        # TODO: support append
-        return s, o, edge_label
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
+                edge_data['provided_by'] = self.graph_metadata['provided_by']
+            self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **edge_data)
 
-    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> None:
+        return edge_data
+
+    def update_edge(self, subject_curie: str, object_curie: str, edge_key: str, data: Dict) -> Dict:
+        """
+        Update an edge with properties.
+
+        Parameters
+        ----------
+        subject_curie: str
+            Subject CURIE
+        object_curie: str
+            Object CURIE
+        edge_key: str
+            Edge key
+        data: Dict
+            Edge properties
+
+        Returns
+        -------
+        Dict
+            The edge data
+
+        """
+        edge_data = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
+        if data:
+            new_data = self._prepare_data_dict(edge_data, data)
+            edge_data.update(new_data)
+        return edge_data
+
+    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> Dict:
         """
         Add an attribute to a node, while taking into account whether the attribute
         should be multi-valued.
@@ -166,7 +242,7 @@ class RdfGraphMixin(object):
         The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
         as defined in ``rdf_utils.property_mapping``.
 
-        If the node does not exist then it is created using the given ``iri``.
+        If the node does not exist then it is created.
 
         Parameters
         ----------
@@ -177,23 +253,45 @@ class RdfGraphMixin(object):
         value: str
             The value of the attribute
 
+        Returns
+        -------
+        Dict
+            The node data
+
         """
-        if not isinstance(key, URIRef):
-            key = URIRef(key)
-        mapped_key = property_mapping.get(key)
-        if not mapped_key:
-            logging.debug(f"{key} could not be mapped; using {key}")
-            mapped_key = key
-
-        n = self.prefix_manager.contract(str(iri))
-        if self.graph.has_node(n):
-            attr_dict = self.graph.nodes[n]
+        (element_uri, predicate, property_name) = self.process_predicate(key)
+        if element_uri:
+            key_curie = element_uri
+        elif predicate:
+            key_curie = predicate
         else:
-            self.add_node(n)
-            attr_dict = {'id': n}
-        self._add_attribute(attr_dict, mapped_key, str(value))
+            key_curie = property_name
 
-    def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> None:
+        if self.prefix_manager.is_curie(key_curie):
+            # property names will always be just the reference
+            mapped_key = self.prefix_manager.get_reference(key_curie)
+        else:
+            mapped_key = key_curie
+
+        if isinstance(value, rdflib.term.Identifier):
+            if isinstance(value, rdflib.term.URIRef):
+                value_curie = self.prefix_manager.contract(value)
+                # if self.prefix_manager.get_prefix(value_curie) not in {'biolink'} \
+                #         and mapped_key not in {'type', 'category', 'edge_label', 'relation', 'predicate'}:
+                #     d = self.add_node(value)
+                #     value = d['id']
+                # else:
+                #     value = value_curie
+                value = value_curie
+            else:
+                value = value.toPython()
+        if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
+            value = [value]
+
+        node_data = self.add_node(iri, {mapped_key: value})
+        return node_data
+
+    def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> Dict:
         """
         Adds an attribute to an edge, while taking into account whether the attribute
         should be multi-valued.
@@ -202,11 +300,7 @@ class RdfGraphMixin(object):
         The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
         as defined in ``rdf_utils.property_mapping``.
 
-        If the nodes in the edge does not exist then they will be created
-        using ``subject_iri`` and ``object_iri``.
-
-        If the edge itself does not exist then it will be created using
-        ``subject_iri``, ``object_iri`` and ``predicate_iri``.
+        If the nodes in the edge does not exist then they will be created.
 
         Parameters
         ----------
@@ -221,54 +315,186 @@ class RdfGraphMixin(object):
         value: str
             The value of the attribute
 
+        Returns
+        -------
+        Dict
+            The edge data
+
         """
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
+        pass
 
-        if key is not None and value is not None:
-            subject_curie = self.prefix_manager.contract(subject_iri)
-            object_curie = self.prefix_manager.contract(object_iri)
-            edge_label = process_iri(predicate_iri)
-            if PrefixManager.is_curie(edge_label):
-                edge_label = curie_lookup(edge_label)
-            edge_key = generate_edge_key(subject_curie, edge_label, object_curie)
-            attr_dict = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
-            self._add_attribute(attr_dict, key, value)
-
-    def _add_attribute(self, attr_dict: Dict, key: str, value: str) -> None:
+    def _prepare_data_dict(self, d1: Dict, d2: Dict) -> Dict:
         """
-        Adds an attribute to the attribute dictionary, respecting whether or not
-        that attribute should be multi-valued.
-        Multi-valued attributes will not contain duplicates.
+        Given two dict objects, make a new dict object that is the intersection of the two.
 
-        Some attributes are singular form of others. In such cases overflowing values
-        will be placed into the correlating multi-valued attribute.
-        For example, `name` attribute will hold only one value while any additional
-        value will be stored as `synonym` attribute.
+        If a key is known to be multivalued then it's value is converted to a list.
+        If a key is already multivalued then it is updated with new values.
+        If a key is single valued, and a new unique value is found then the existing value is
+        converted to a list and the new value is appended to this list.
 
         Parameters
         ----------
-        attr_dict: dict
-            Dictionary representing the attribute set of a node or an edge in a networkx graph
-        key: str
-            The name of the attribute
-        value: str
-            The value of the attribute
+        d1: Dict
+            Dict object
+        d2: Dict
+            Dict object
+
+        Returns
+        -------
+        Dict
+            The intersection of d1 and d2
 
         """
-        if PrefixManager.is_iri(value):
-            value = process_iri(value)
-        if key in is_property_multivalued and is_property_multivalued[key]:
-            if key not in attr_dict:
-                attr_dict[key] = [value]
-            elif value not in attr_dict[key]:
-                attr_dict[key].append(value)
-        else:
-            if key == 'name':
-                self._add_attribute(attr_dict, 'synonym', value)
+        new_data = {}
+        for key, value in d2.items():
+            if isinstance(value, (list, set, tuple)):
+                new_value = [self.prefix_manager.contract(x) if self.prefix_manager.is_iri(x) else x for x in value]
             else:
-                attr_dict[key] = value
+                new_value = self.prefix_manager.contract(value) if self.prefix_manager.is_iri(value) else value
+
+            if key in is_property_multivalued:
+                if is_property_multivalued[key]:
+                    # key is supposed to be multivalued
+                    if key in d1:
+                        # key is in data
+                        if isinstance(d1[key], list):
+                            # existing key has value type list
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                if new_value not in new_data[key]:
+                                    new_data[key].append(new_value)
+                        else:
+                            if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            else:
+                                # existing key does not have value type list; converting to list
+                                new_data[key] = [d1[key]]
+                                if isinstance(new_value, (list, set, tuple)):
+                                    new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                else:
+                                    if new_value not in new_data[key]:
+                                        new_data[key].append(new_value)
+                    else:
+                        # key is not in data; adding
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] = [x for x in new_value]
+                        else:
+                            new_data[key] = [new_value]
+                else:
+                    # key is not multivalued; adding/replacing as-is
+                    if key in d1:
+                        if isinstance(d1[key], list):
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value]
+                            else:
+                                new_data[key].append(new_value)
+                        else:
+                            if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            else:
+                                new_data[key] = new_value
+                    else:
+                        new_data[key] = new_value
+            else:
+                # treating key as multivalued
+                if key in d1:
+                    # key is in data
+                    if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                        logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                    else:
+                        if isinstance(d1[key], list):
+                            # existing key has value type list
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                new_data[key].append(new_value)
+                        else:
+                            # existing key does not have value type list; converting to list
+                            new_data[key] = [d1[key]]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                new_data[key].append(new_value)
+                else:
+                    new_data[key] = new_value
+        return new_data
+
+    def get_biolink_element(self, predicate: str) -> Optional[Element]:
+        """
+        Returns a Biolink Model element for a given predicate and property name.
+
+        If property_name could not be mapped to a biolink model element
+        then will return ``None``.
+
+        Parameters
+        ----------
+        predicate: str
+            The CURIE of a predicate
+        property_name: str
+            The property name (usually the reference of a CURIE)
+
+        Returns
+        -------
+        Optional[Element]
+            The corresponding Biolink Model element
+
+        """
+        toolkit = get_toolkit()
+        reference = self.prefix_manager.get_reference(predicate)
+        element = toolkit.get_element(reference)
+        if not element:
+            try:
+                mapping = toolkit.get_by_mapping(predicate)
+                element = toolkit.get_element(mapping)
+            except ValueError as e:
+                logging.error(e)
+        return element
+
+    def process_predicate(self, p: Union[URIRef, str]) -> Tuple:
+        """
+        Process a predicate where the method checks if there is a mapping in Biolink Model.
+
+        Parameters
+        ----------
+        p: Optional[URIRef, str]
+            The predicate
+
+        Returns
+        -------
+        Tuple
+            A tuple that contains the Biolink IRI (if available), the CURIE form of p, the reference of p
+
+        """
+        if p in self.cache:
+            # already processed this predicate before; pull from cache
+            element_uri = self.cache[p]['element_uri']
+            predicate = self.cache[p]['predicate']
+            property_name = self.cache[p]['property_name']
+        else:
+            # haven't seen this predicate before; map to element
+            predicate = self.prefix_manager.contract(str(p))
+            property_name = self.prefix_manager.get_reference(predicate)
+            element = self.get_biolink_element(predicate)
+            if element:
+                if isinstance(element, SlotDefinition):
+                    # predicate corresponds to a biolink slot
+                    element_uri = self.prefix_manager.contract(element.definition_uri)
+                elif isinstance(element, ClassDefinition):
+                    # this will happen only when the IRI is actually
+                    # a reference to a class
+                    element_uri = self.prefix_manager.contract(element.class_uri)
+                else:
+                    element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
+            else:
+                # no mapping to biolink model;
+                # look at predicate mappings
+                element_uri = None
+                if p in self.predicate_mapping:
+                    property_name = self.predicate_mapping[p]
+                    predicate = None
+            self.cache[p] = {'element_uri': element_uri, 'predicate': predicate, 'property_name': property_name}
+        return element_uri, predicate, property_name

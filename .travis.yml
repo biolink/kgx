@@ -1,8 +1,8 @@
-dist: xenial
+dist: bionic
 
 language: python
 python:
-  - "3.8.1"
+  - "3.8.3"
 
 services:
   - docker

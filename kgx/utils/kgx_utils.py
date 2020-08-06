@@ -1,8 +1,10 @@
+import logging
 import re
 import time
 from typing import List
 
 import stringcase
+from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
 from bmt import Toolkit
 from cachetools import LRUCache
 from prefixcommons.curie_util import contract_uri
@@ -107,6 +109,14 @@ def format_biolink_category(s: str) -> str:
         return s
     else:
         formatted = sentencecase_to_camelcase(s)
+        return f"biolink:{formatted}"
+
+
+def format_biolink_slots(s: str) -> str:
+    if re.match("biolink:.+", s):
+        return s
+    else:
+        formatted = sentencecase_to_snakecase(s)
         return f"biolink:{formatted}"
 
 
@@ -323,3 +333,107 @@ def get_biolink_ancestors(name):
     ancestors = toolkit.ancestors(name)
     formatted_ancestors = [format_biolink_category(x) for x in ancestors]
     return formatted_ancestors
+
+
+def get_biolink_node_properties():
+    toolkit = get_toolkit()
+    properties = toolkit.children('node property')
+    node_properties = set()
+    for p in properties:
+        element = toolkit.get_element(p)
+        node_properties.add(element.name)
+
+    return set([format_biolink_slots(x) for x in node_properties])
+
+
+def get_biolink_edge_properties():
+    toolkit = get_toolkit()
+    properties = toolkit.children('association slot')
+    edge_properties = set()
+    for p in properties:
+        element = toolkit.get_element(p)
+        edge_properties.add(element.name)
+
+    return set([format_biolink_slots(x) for x in edge_properties])
+
+
+def get_biolink_relations():
+    toolkit = get_toolkit()
+    relations = toolkit.descendents('related to')
+    return relations
+
+
+def get_biolink_property_types():
+    toolkit = get_toolkit()
+    types = {}
+    node_properties = set()
+    edge_properties = set()
+
+    properties = toolkit.children('node property')
+    for p in properties:
+        element = toolkit.get_element(p)
+        node_properties.add(element.name)
+
+    properties = toolkit.children('association slot')
+    for p in properties:
+        element = toolkit.get_element(p)
+        edge_properties.add(element.name)
+
+    for p in node_properties:
+        property_type = get_type_for_property(p)
+        types[format_biolink_slots(p)] = property_type
+
+    for p in edge_properties:
+        property_type = get_type_for_property(p)
+        types[format_biolink_slots(p)] = property_type
+
+    # TODO: this should be moved to biolink model
+    types['biolink:predicate'] = 'uriorcurie'
+    types['biolink:edge_label'] = 'uriorcurie'
+
+    return types
+
+def get_type_for_property(p: str) -> str:
+    """
+    Get type for a property.
+
+    TODO: Move this to biolink-model-toolkit
+
+    Parameters
+    ----------
+    p: str
+
+    Returns
+    -------
+    str
+        The type for a given property
+
+    """
+    toolkit = get_toolkit()
+    e = toolkit.get_element(p)
+    if isinstance(e, ClassDefinition):
+        t = "uriorcurie"
+    elif isinstance(e, TypeDefinition):
+        t = e.uri
+    else:
+        r = e.range
+        if isinstance(r, SlotDefinition):
+            t = r.range
+            t = get_type_for_property(t)
+        elif isinstance(r, TypeDefinitionName):
+            t = get_type_for_property(r)
+        elif isinstance(r, ElementName):
+            t = get_type_for_property(r)
+        else:
+            t = "xsd:string"
+    return t
+
+
+def get_biolink_association_types():
+    toolkit = get_toolkit()
+    associations = toolkit.descendents('association')
+    associations.append('association')
+    formatted_associations = set([format_biolink_category(x) for x in associations])
+    return formatted_associations
+
+
