@@ -44,6 +44,23 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.count = 0
         self.property_types = get_biolink_property_types()
 
+    def set_predicate_mapping(self, m: Dict) -> None:
+        """
+        Set predicate mappings.
+
+        Use this method to update predicate mappings for predicates that are
+        not in Biolink Model.
+
+        Parameters
+        ----------
+        m: Dict
+            A dictionary where the keys are IRIs and values are their corresponding property names
+
+        """
+        for k, v in m.items():
+            self.predicate_mapping[URIRef(k)] = v
+            self.reverse_predicate_mapping[v] = URIRef(k)
+
     def set_property_types(self, m: Dict) -> None:
         """
         Set property types.
@@ -59,7 +76,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         """
         for k, v in m.items():
             (element_uri, predicate, property_name) = self.process_predicate(k)
-            key = element_uri if element_uri else predicate
+            if element_uri:
+                key = element_uri
+            elif predicate:
+                key = predicate
+            else:
+                key = property_name
+
             self.property_types[key] = v
 
     def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
@@ -144,17 +167,26 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         (element_uri, predicate, property_name) = self.process_predicate(p)
-        prop_uri = element_uri if element_uri else predicate
+        if element_uri:
+            prop_uri = element_uri
+        elif predicate:
+            prop_uri = predicate
+        else:
+            prop_uri = property_name
+
         if s in self.reified_nodes:
             # subject is a reified node
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif p in self.reification_predicates:
+            # subject is a reified node
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif property_name in {'subject', 'edge_label', 'object', 'predicate', 'relation'}:
+            # subject is a reified node
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif o in self.reification_types:
+            # subject is a reified node
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif element_uri and element_uri in self.node_properties:
@@ -486,8 +518,17 @@ class ObanRdfTransformer(RdfTransformer):
 
 class RdfOwlTransformer(RdfTransformer):
     """
-    Transformer that parses an OWL ontology in RDF, while retaining class-class relationships.
+    Transformer that parses an OWL ontology.
+
+    .. note::
+        This is a simple parser that loads direct class-class relationships.
+        Axioms and restrictions are not parsed.
+        This may (or may not) be added in the future.
+
     """
+
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+        super().__init__(source_graph, curie_map)
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
@@ -503,7 +544,6 @@ class RdfOwlTransformer(RdfTransformer):
             Any additional arguments
         """
         triples = rdfgraph.triples((None, RDFS.subClassOf, None))
-        logging.info("Loading RDFS:subClassOf triples from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 # ignoring blank nodes
@@ -527,12 +567,13 @@ class RdfOwlTransformer(RdfTransformer):
                 self.add_edge(s, parent, pred)
 
         triples = rdfgraph.triples((None, OWL.equivalentClass, None))
-        logging.info("Loading OWL:equivalentClass triples from rdflib.Graph to networkx.MultiDiGraph")
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
+                if isinstance(o, rdflib.term.BNode):
+                    continue
                 self.add_edge(s, o, p)
+
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
-        logging.debug("Loading relations")
         with click.progressbar(relations, label='Progress') as bar:
             for relation in bar:
                 for _, p, o in rdfgraph.triples((relation, None, None)):
@@ -540,10 +581,11 @@ class RdfOwlTransformer(RdfTransformer):
                         self.add_edge(relation, o, p)
                     else:
                         self.add_node_attribute(relation, key=p, value=o)
-                self.add_node_attribute(relation, key='category', value='relation')
+
         triples = rdfgraph.triples((None, None, None))
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
+                if isinstance(s, rdflib.term.BNode):
+                    continue
                 if p in property_mapping.keys():
                     self.add_node_attribute(s, key=p, value=o)
-

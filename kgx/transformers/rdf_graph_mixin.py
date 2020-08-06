@@ -6,7 +6,7 @@ from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid
+from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
 
@@ -43,6 +43,8 @@ class RdfGraphMixin(object):
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
         self.biolink_relations = get_biolink_relations()
+        self.predicate_mapping = property_mapping.copy()
+        self.reverse_predicate_mapping = reverse_property_mapping.copy()
         self.cache = {}
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
@@ -259,7 +261,14 @@ class RdfGraphMixin(object):
             The node data
 
         """
-        key_curie = self.prefix_manager.contract(key)
+        (element_uri, predicate, property_name) = self.process_predicate(key)
+        if element_uri:
+            key_curie = element_uri
+        elif predicate:
+            key_curie = predicate
+        else:
+            key_curie = property_name
+
         if self.prefix_manager.is_curie(key_curie):
             # property names will always be just the reference
             mapped_key = self.prefix_manager.get_reference(key_curie)
@@ -314,17 +323,7 @@ class RdfGraphMixin(object):
             The edge data
 
         """
-        edge_data = None
-        if key.lower() in is_property_multivalued:
-            key = key.lower()
-        else:
-            if not isinstance(key, URIRef):
-                key = URIRef(key)
-            key = property_mapping.get(key)
-
-        if key is not None and value is not None:
-            edge_data = self.add_edge(subject_iri, object_iri, predicate_iri, {key: value})
-        return edge_data
+        pass
 
     def _prepare_data_dict(self, d1: Dict, d2: Dict) -> Dict:
         """
@@ -480,7 +479,11 @@ class RdfGraphMixin(object):
                 else:
                     element_uri = sentencecase_to_camelcase(element.name)
             else:
-                # no mapping to biolink model
+                # no mapping to biolink model;
+                # look at predicate mappings
                 element_uri = None
+                if p in self.predicate_mapping:
+                    property_name = self.predicate_mapping[p]
+                    predicate = None
             self.cache[p] = {'element_uri': element_uri, 'predicate': predicate, 'property_name': property_name}
         return element_uri, predicate, property_name
