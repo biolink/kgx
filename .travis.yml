@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 
 language: python
 python:
@@ -14,7 +14,7 @@ before_install:
   - docker ps -a
 
 install:
-  - pip install --upgrade pip setuptools wheel pytest
+  - pip install --upgrade pip setuptools wheel
   - pip install -r requirements.txt
 
 script:
