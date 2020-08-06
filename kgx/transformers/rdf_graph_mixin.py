@@ -6,7 +6,7 @@ from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
-from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, sentencecase_to_camelcase
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
 
 
@@ -41,7 +41,6 @@ class RdfGraphMixin(object):
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
-        self.biolink_relations = get_biolink_relations()
         self.predicate_mapping = property_mapping.copy()
         self.reverse_predicate_mapping = reverse_property_mapping.copy()
         self.cache = {}
@@ -482,12 +481,8 @@ class RdfGraphMixin(object):
             element = self.get_biolink_element(predicate)
             if element:
                 if isinstance(element, SlotDefinition):
-                    if element.name in self.biolink_relations:
-                        # predicate corresponds to a biolink relation
-                        element_uri = self.prefix_manager.contract(element.definition_uri)
-                    else:
-                        # predicate corresponds to a biolink property
-                        element_uri = self.prefix_manager.contract(element.definition_uri)
+                    # predicate corresponds to a biolink slot
+                    element_uri = self.prefix_manager.contract(element.definition_uri)
                 elif isinstance(element, ClassDefinition):
                     # this will happen only when the IRI is actually
                     # a reference to a class
