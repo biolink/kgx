@@ -484,16 +484,16 @@ class RdfGraphMixin(object):
                 if isinstance(element, SlotDefinition):
                     if element.name in self.biolink_relations:
                         # predicate corresponds to a biolink relation
-                        element_uri = element.definition_uri
+                        element_uri = self.prefix_manager.contract(element.definition_uri)
                     else:
                         # predicate corresponds to a biolink property
-                        element_uri = element.definition_uri
+                        element_uri = self.prefix_manager.contract(element.definition_uri)
                 elif isinstance(element, ClassDefinition):
                     # this will happen only when the IRI is actually
                     # a reference to a class
-                    element_uri = element.class_uri
+                    element_uri = self.prefix_manager.contract(element.class_uri)
                 else:
-                    element_uri = sentencecase_to_camelcase(element.name)
+                    element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
             else:
                 # no mapping to biolink model;
                 # look at predicate mappings
