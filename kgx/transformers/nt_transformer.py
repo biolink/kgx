@@ -52,6 +52,10 @@ class NtTransformer(RdfTransformer):
         p = NTriplesParser(self)
         if node_property_predicates:
             self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
+
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
+
         self.start = current_time_in_millis()
         if input_format == FORMATS[0]:
             p.parse(open(filename, 'rb'))
@@ -59,8 +63,8 @@ class NtTransformer(RdfTransformer):
             p.parse(gzip.open(filename, 'rb'))
         else:
             raise NameError(f"input_format: {input_format} not supported. Must be one of {FORMATS}")
-        logging.info(f"Done parsing {filename}")
         self.dereify(self.reified_nodes)
+        logging.info(f"Done parsing {filename}")
 
     def save(self, filename: str = None, output_format: str = "nt", reify_all_edges = False, **kwargs) -> None:
         """

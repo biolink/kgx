@@ -5,7 +5,6 @@ import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
-from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_biolink_relations, get_toolkit, sentencecase_to_camelcase
 from kgx.prefix_manager import PrefixManager
@@ -24,7 +23,7 @@ class RdfGraphMixin(object):
 
     DEFAULT_EDGE_LABEL = 'biolink:related_to'
     CORE_NODE_PROPERTIES = {'id'}
-    CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation', 'type'}
+    CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'type'}
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         if source_graph:
@@ -173,20 +172,19 @@ class RdfGraphMixin(object):
         subject_node = self.add_node(subject_iri)
         object_node = self.add_node(object_iri)
         edge_label = element_uri if element_uri else predicate
-        relation = predicate
 
         if ' ' in edge_label:
             logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
         edge_label_prefix = self.prefix_manager.get_prefix(edge_label)
         if edge_label_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
             if PrefixManager.is_curie(edge_label):
-                name = curie_lookup(edge_label)
-                if name:
-                    logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
-                    edge_label = f"{edge_label_prefix}:{name}"
-                else:
-                    logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
-                    edge_label = self.DEFAULT_EDGE_LABEL
+                # name = curie_lookup(edge_label)
+                # if name:
+                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
+                #     edge_label = f"{edge_label_prefix}:{name}"
+                # else:
+                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
+                edge_label = self.DEFAULT_EDGE_LABEL
 
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
         if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
@@ -198,9 +196,10 @@ class RdfGraphMixin(object):
             edge_data.update({
                 'subject': subject_node['id'],
                 'edge_label': f"{edge_label}",
-                'object': object_node['id'],
-                'relation': relation
+                'object': object_node['id']
             })
+            if 'relation' not in edge_data:
+                edge_data['relation'] = predicate
 
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
@@ -354,58 +353,75 @@ class RdfGraphMixin(object):
             else:
                 new_value = self.prefix_manager.contract(value) if self.prefix_manager.is_iri(value) else value
 
-            if key in is_property_multivalued and is_property_multivalued[key]:
-                # key is supposed to be multivalued
+            if key in is_property_multivalued:
+                if is_property_multivalued[key]:
+                    # key is supposed to be multivalued
+                    if key in d1:
+                        # key is in data
+                        if isinstance(d1[key], list):
+                            # existing key has value type list
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                if new_value not in new_data[key]:
+                                    new_data[key].append(new_value)
+                        else:
+                            if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            else:
+                                # existing key does not have value type list; converting to list
+                                new_data[key] = [d1[key]]
+                                if isinstance(new_value, (list, set, tuple)):
+                                    new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                else:
+                                    if new_value not in new_data[key]:
+                                        new_data[key].append(new_value)
+                    else:
+                        # key is not in data; adding
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] = [x for x in new_value]
+                        else:
+                            new_data[key] = [new_value]
+                else:
+                    # key is not multivalued; adding/replacing as-is
+                    if key in d1:
+                        if isinstance(d1[key], list):
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value]
+                            else:
+                                new_data[key].append(new_value)
+                        else:
+                            if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            else:
+                                new_data[key] = new_value
+                    else:
+                        new_data[key] = new_value
+            else:
+                # treating key as multivalued
                 if key in d1:
                     # key is in data
-                    if isinstance(d1[key], list):
-                        # existing key has value type list
-                        new_data[key] = d1[key]
-                        if isinstance(new_value, (list, set, tuple)):
-                            new_data[key] += [x for x in new_value if x not in new_data[key]]
-                        else:
-                            if new_value not in new_data[key]:
-                                new_data[key].append(new_value)
+                    if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
+                        logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                     else:
-                        if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
-                            logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        if isinstance(d1[key], list):
+                            # existing key has value type list
+                            new_data[key] = d1[key]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                new_data[key].append(new_value)
                         else:
                             # existing key does not have value type list; converting to list
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
                                 new_data[key] += [x for x in new_value if x not in new_data[key]]
                             else:
-                                if new_value not in new_data[key]:
-                                    new_data[key].append(new_value)
-                else:
-                    # key is not in data; adding
-                    if isinstance(new_value, (list, set, tuple)):
-                        new_data[key] = [x for x in new_value]
-                    else:
-                        new_data[key] = [new_value]
-            else:
-                # key is not multivalued; adding/replacing as-is
-                if key in d1:
-                    if isinstance(d1[key], list):
-                        new_data[key] = d1[key]
-                        if isinstance(new_value, (list, set, tuple)):
-                            new_data[key] += [x for x in new_value]
-                        else:
-                            new_data[key].append(new_value)
-                    else:
-                        if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
-                            logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
-                        else:
-                            new_data[key] = [d1[key]]
-                            if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value]
-                            else:
                                 new_data[key].append(new_value)
                 else:
-                    if isinstance(new_value, (list, set, tuple)):
-                        new_data[key] = [x for x in new_value]
-                    else:
-                        new_data[key] = new_value
+                    new_data[key] = new_value
         return new_data
 
     def get_biolink_element(self, predicate: str) -> Optional[Element]:

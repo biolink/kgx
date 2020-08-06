@@ -53,6 +53,8 @@ class PrefixManager(object):
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = self.prefix_map['@vocab']
             del self.prefix_map['@vocab']
+        if 'MONARCH' not in self.prefix_map:
+            self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
         if '' in self.prefix_map:
             logging.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
         else:

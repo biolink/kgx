@@ -381,15 +381,15 @@ def get_biolink_property_types():
 
     for p in node_properties:
         property_type = get_type_for_property(p)
-        types[p] = property_type
+        types[format_biolink_slots(p)] = property_type
 
     for p in edge_properties:
         property_type = get_type_for_property(p)
-        types[p] = property_type
+        types[format_biolink_slots(p)] = property_type
 
     # TODO: this should be moved to biolink model
-    types['predicate'] = 'uriorcurie'
-    types['edge_label'] = 'uriorcurie'
+    types['biolink:predicate'] = 'uriorcurie'
+    types['biolink:edge_label'] = 'uriorcurie'
 
     return types
 

@@ -60,6 +60,7 @@ for k, v in property_mapping.items():
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
+    'id': False,
     'subject': False,
     'object': False,
     'edge_label': False,

@@ -4,20 +4,15 @@ import click, rdflib, os, uuid
 import networkx as nx
 import logging
 from typing import Tuple, Union, Set, List, Dict, Any, Iterator
-
-from biolinkml.meta import Element, SlotDefinition, ClassDefinition
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
-from collections import defaultdict
-from prefixcommons.curie_util import read_remote_jsonld_context
 
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, infer_category, reverse_property_mapping, generate_uuid
+from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, generate_uuid
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, \
-    current_time_in_millis, get_biolink_association_types, get_biolink_property_types, get_biolink_relations, \
-    sentencecase_to_camelcase
+    current_time_in_millis, get_biolink_association_types, get_biolink_property_types
 
 
 class RdfTransformer(RdfGraphMixin, Transformer):
@@ -115,16 +110,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         rdfgraph.parse(filename, format=input_format)
         logging.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
 
-        # TODO: use source from RDF
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-        else:
-            if isinstance(filename, str):
-                self.graph_metadata['provided_by'] = [os.path.basename(filename)]
-            elif hasattr(filename, 'name'):
-                self.graph_metadata['provided_by'] = [filename.name]
 
+        self.start = current_time_in_millis()
         self.load_networkx_graph(rdfgraph)
+        logging.info(f"Done parsing {filename}")
         self.report()
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
@@ -314,8 +305,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
-                prop_type = self._get_property_type(k)
-                prop_uri = self.uriref(k)
+                if k in self.reverse_predicate_mapping:
+                    prop_uri = self.reverse_predicate_mapping[k]
+                    prop_uri = self.prefix_manager.contract(prop_uri)
+                else:
+                    prop_uri = k
+                prop_type = self._get_property_type(prop_uri)
+                prop_uri = self.uriref(prop_uri)
                 if isinstance(v, (list, set, tuple)):
                     for x in v:
                         value_uri = self._prepare_object(k, prop_type, x)
@@ -354,8 +350,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    prop_type = self._get_property_type(prop)
-                    prop_uri = self.uriref(prop)
+                    if prop in self.reverse_predicate_mapping:
+                        prop_uri = self.reverse_predicate_mapping[prop]
+                        prop_uri = self.prefix_manager.contract(prop_uri)
+                    else:
+                        prop_uri = prop
+                    prop_type = self._get_property_type(prop_uri)
+                    prop_uri = self.uriref(prop_uri)
                     if isinstance(value, list):
                         for x in value:
                             value_uri = self._prepare_object(prop, prop_type, x)
@@ -374,8 +375,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     for prop, value in reified_node.items():
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
-                        prop_type = self._get_property_type(prop)
-                        prop_uri = self.uriref(prop)
+                        if prop in self.reverse_predicate_mapping:
+                            prop_uri = self.reverse_predicate_mapping[prop]
+                            prop_uri = self.prefix_manager.contract(prop_uri)
+                        else:
+                            prop_uri = prop
+                        prop_type = self._get_property_type(prop_uri)
+                        prop_uri = self.uriref(prop_uri)
                         if isinstance(value, list):
                             for x in value:
                                 value_uri = self._prepare_object(prop, prop_type, x)
@@ -438,7 +444,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             The type for property name
 
         """
-        if p in {'type', 'category', 'subject', 'object', 'relation', 'edge_label'}:
+        if p in {'biolink:type', 'rdf:type', 'biolink:category', 'biolink:subject', 'biolink:object', 'biolink:relation', 'biolink:edge_label'}:
             t = 'uriorcurie'
         else:
             if p in self.property_types:
