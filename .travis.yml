@@ -14,8 +14,13 @@ before_install:
   - docker ps -a
 
 install:
-  - pip install --upgrade pip setuptools wheel
+  - pip install --upgrade pip setuptools wheel pytest-cov
   - pip install -r requirements.txt
 
 script:
   - pytest tests/*
+  - coverage erase
+  - pytest --cov=kgx --cov-report xml:coverage.xml tests/*
+  - coverage combine --append || true
+  - coverage report
+  - coverage xml
