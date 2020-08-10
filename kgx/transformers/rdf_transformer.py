@@ -394,8 +394,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     p = self.uriref(data['edge_label'])
                     o = self.uriref(v)
                     yield (s, p, o)
-            for t in ecache:
-                yield (t[0], t[1], t[2])
+        for t in ecache:
+            yield (t[0], t[1], t[2])
 
     def _prepare_object(self, prop: str, prop_type: str, value: Any) -> rdflib.term.Identifier:
         """
