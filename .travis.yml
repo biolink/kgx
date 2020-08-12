@@ -1,5 +1,11 @@
 dist: bionic
 
+addons:
+  sonarcloud:
+    organization: "NCATS-Tangerine_kgx"
+    token:
+      secure: "RSmVhnGtDpdgDMbaSWZ9HzwiB3Yr7+oN1ZgKqjlp40pHjnmEjVaoleuiQiHMMMBy3IQoj22uepwYIWoNgx9aFLty+M6HUqx/Jdsnx07RtBhiy7xzGqWcFGo88La9fPnujf0ofec+e/4+TCF8+HcDXEETQlGk2numIcqWqyhtdyLZZbg3AAoG3gj8n/YrY/BNMPlAAk9V2781QF2B9lSijGImgaFLF4v05CSjTbwlY5XQefVKhQnbXeCts+F4hUbHgfMTfs1h8UShensaRBs09Ibj7X9dilyQLyO1ygxNelVfRi5kThPePyWNBx5m+//iTuyKQvh75vqHzkFlLq8b6WM7iaIl0Uty/rDflgVG+iZA3Wccggr8cSRWvzkMzeD4tPRXw8a2SPlkdGW+JUQR8CmP500TuTCC4RWoJqRTff99QZongtgA7AKTqpz0m60v90m942gGNJECqzNHWU0vsrxBC8N8SJAQ/p0ruCIhuaAD9WEwQ+G0I/VdCAv3JQ2wHd+mxWGy+ckih4TPIJQxx9RVbOPHWEc11OPaTepCmk11b2Yj1l8rCkoCdDh5K7WrCRHJARwFhtJ8VdqsqAXZNge7rbGbzgHtUHPSiMq6dTHPobQtL2Y2u+RtXcIHX1KVFU6i6TeJgfbVatTJFuJqeBZ2DcOrALHVJ4Nub/qDJ+s="
+
 language: python
 python:
   - "3.8.3"
@@ -24,3 +30,4 @@ script:
   - coverage combine --append || true
   - coverage report
   - coverage xml
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sonar-scanner; fi'
