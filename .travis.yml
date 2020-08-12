@@ -1,5 +1,11 @@
 dist: bionic
 
+addons:
+  sonarcloud:
+    organization: "ncats-tangerine"
+    token:
+      secure: "D1CgyJqISRJDYj0tK2eUbXOyOp+45ma4u0usBfkyUpcN2k1eHpPIMM8aFG54Os88b69Fk3+IgfyaoKzGbC8gn+Gq/z7F7rEOhmDZ09EfvLPzMQKEOlATVe4R0q97N8YfqItwzeN/rYh8Boh2ULcyQBPzQD/z5p3DzXXPoRFbWKvQSUnEE0kYTwzsA8ZOe3rsamnkLMd/WFIGYly6vESze/xIZDC6dIEMF0OdWT8EPsjVQWqIjxWJU5YzR5W1Oqj0fgrO46SwtHzUrLfU0qvcxloK7BTiFvWkP8YrfchRxED/lAw9VDSdQbkATvqCk8q2yo9kdMnzGxxNH0c/YzY5q3EiWfyyXBMIbZNXibq0BWj37lau12VN5C8BMBRpcGLnKsompLkbMQnTl4aqDzm4NJOD01E598tj1Dk0ckncvznifBD5g01aglfvpG4vbGvppxIJUTXsaUOcnptsiawTxTgscnN5S3KyzyRU+K3lOnP0eziHZC4TcSYqWbmePbJAK87gA4bLPpTdOavr/94kclH4eNL5AyzcGZtt0+OWK5fKpC6u2Z1i8Xw6K6vUSMOoCE+geE87i4EGzLzw9zZDFcSi4+rDCPtwJPQqh8vQ01EdO1RaRnmm/EBx4vxTu/Wi/Cci5rKoUIWnT9fdhold2FFZ/jgfAq+p3eeuWA0hXAg="
+
 language: python
 python:
   - "3.8.3"
@@ -18,9 +24,10 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - pytest tests/*
+  - docker ps
   - coverage erase
   - pytest --cov=kgx --cov-report xml:coverage.xml tests/*
   - coverage combine --append || true
   - coverage report
   - coverage xml
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sonar-scanner; fi'
