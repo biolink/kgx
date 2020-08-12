@@ -51,7 +51,8 @@ class PrefixManager(object):
             if isinstance(v, str):
                 self.prefix_map[k] = v
         if 'biolink' not in self.prefix_map:
-            self.prefix_map['biolink'] = self.prefix_map['@vocab']
+            self.prefix_map['biolink'] = self.prefix_map['@vocab'] if '@vocab' in self.prefix_map else 'https://w3id.org/biolink/vocab/'
+        if '@vocab' in self.prefix_map:
             del self.prefix_map['@vocab']
         if 'MONARCH' not in self.prefix_map:
             self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
