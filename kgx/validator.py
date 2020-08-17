@@ -127,6 +127,7 @@ class Validator(object):
         """
         toolkit = get_toolkit()
         node_properties = toolkit.children('node property')
+        node_properties.append('category')
         required_properties = []
         for p in node_properties:
             element = toolkit.get_element(p)

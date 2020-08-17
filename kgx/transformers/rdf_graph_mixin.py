@@ -6,7 +6,7 @@ from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
-from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase
 from kgx.prefix_manager import PrefixManager
 
 
@@ -167,10 +167,12 @@ class RdfGraphMixin(object):
             The edge data
 
         """
-        (element_uri, predicate, property_name) = self.process_predicate(predicate_iri)
+        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(predicate_iri)
         subject_node = self.add_node(subject_iri)
         object_node = self.add_node(object_iri)
         edge_label = element_uri if element_uri else predicate
+        if not edge_label:
+            edge_label = property_name
 
         if ' ' in edge_label:
             logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
@@ -259,13 +261,10 @@ class RdfGraphMixin(object):
             The node data
 
         """
-        (element_uri, predicate, property_name) = self.process_predicate(key)
-        if element_uri:
-            key_curie = element_uri
-        elif predicate:
-            key_curie = predicate
+        if self.prefix_manager.is_iri(key):
+            key_curie = self.prefix_manager.contract(key)
         else:
-            key_curie = property_name
+            key_curie = key
 
         if self.prefix_manager.is_curie(key_curie):
             # property names will always be just the reference
@@ -287,7 +286,6 @@ class RdfGraphMixin(object):
                 value = value.toPython()
         if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
             value = [value]
-
         node_data = self.add_node(iri, {mapped_key: value})
         return node_data
 
@@ -444,7 +442,14 @@ class RdfGraphMixin(object):
 
         """
         toolkit = get_toolkit()
-        reference = self.prefix_manager.get_reference(predicate)
+        if self.prefix_manager.is_iri(predicate):
+            predicate_curie = self.prefix_manager.contract(predicate)
+        else:
+            predicate_curie = predicate
+        if self.prefix_manager.is_curie(predicate_curie):
+            reference = self.prefix_manager.get_reference(predicate_curie)
+        else:
+            reference = predicate_curie
         element = toolkit.get_element(reference)
         if not element:
             try:
@@ -454,7 +459,7 @@ class RdfGraphMixin(object):
                 logging.error(e)
         return element
 
-    def process_predicate(self, p: Union[URIRef, str]) -> Tuple:
+    def process_predicate(self, p):
         """
         Process a predicate where the method checks if there is a mapping in Biolink Model.
 
@@ -466,35 +471,56 @@ class RdfGraphMixin(object):
         Returns
         -------
         Tuple
-            A tuple that contains the Biolink IRI (if available), the CURIE form of p, the reference of p
+            A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
+            the CURIE form of p, the reference of p
 
         """
         if p in self.cache:
             # already processed this predicate before; pull from cache
             element_uri = self.cache[p]['element_uri']
+            canonical_uri = self.cache[p]['canonical_uri']
             predicate = self.cache[p]['predicate']
             property_name = self.cache[p]['property_name']
         else:
-            # haven't seen this predicate before; map to element
-            predicate = self.prefix_manager.contract(str(p))
-            property_name = self.prefix_manager.get_reference(predicate)
-            element = self.get_biolink_element(predicate)
+            # haven't seen this property before; map to element
+            if self.prefix_manager.is_iri(p):
+                predicate = self.prefix_manager.contract(str(p))
+            else:
+                predicate = None
+            if self.prefix_manager.is_curie(p):
+                property_name = self.prefix_manager.get_reference(p)
+                predicate = p
+            else:
+                if predicate and self.prefix_manager.is_curie(predicate):
+                    property_name = self.prefix_manager.get_reference(predicate)
+                else:
+                    property_name = p
+                    predicate = f":{p}"
+            element = self.get_biolink_element(p)
+            canonical_uri = None
             if element:
                 if isinstance(element, SlotDefinition):
                     # predicate corresponds to a biolink slot
-                    element_uri = self.prefix_manager.contract(element.definition_uri)
+                    if element.definition_uri:
+                        element_uri = self.prefix_manager.contract(element.definition_uri)
+                    else:
+                        element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+                    if element.slot_uri:
+                        canonical_uri = element.slot_uri
                 elif isinstance(element, ClassDefinition):
                     # this will happen only when the IRI is actually
                     # a reference to a class
                     element_uri = self.prefix_manager.contract(element.class_uri)
                 else:
                     element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
+                if not predicate:
+                    predicate = element_uri
             else:
                 # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
                     property_name = self.predicate_mapping[p]
-                    predicate = None
-            self.cache[p] = {'element_uri': element_uri, 'predicate': predicate, 'property_name': property_name}
-        return element_uri, predicate, property_name
+                    predicate = f":{property_name}"
+            self.cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+        return element_uri, canonical_uri, predicate, property_name

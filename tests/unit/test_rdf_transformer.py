@@ -232,7 +232,12 @@ def test_save2():
 
 def test_save3():
     np = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
+    property_types = {}
+    for k in np:
+        property_types[k] = 'xsd:float'
+
     t1 = RdfTransformer()
+    t1.set_property_types(property_types)
     t1.parse(os.path.join(resource_dir, 'rdf', 'test3.nt'), node_property_predicates=np)
     assert t1.graph.number_of_nodes() == 7
     assert t1.graph.number_of_edges() == 6
@@ -272,10 +277,10 @@ def test_save3():
     assert e1t1['relation'] == e1t2['relation'] == e1t3['relation'] == 'biolink:interacts_with'
     assert e1t1['type'] == e1t2['type'] == e1t3['type'] == 'biolink:Association'
     assert e1t1['id'] == e1t2['id'] == e1t3['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
-    assert e1t1['fusion'] == e1t2['fusion'] == e1t3['fusion'] == '0'
-    assert e1t1['homology'] == e1t2['homology'] == e1t3['homology'] == '0.0'
-    assert e1t1['combined_score'] == e1t2['combined_score'] == e1t3['combined_score'] == '490.0'
-    assert e1t1['cooccurence'] == e1t2['cooccurence'] == e1t3['cooccurence'] == '332'
+    assert e1t2['fusion'] == e1t3['fusion'] == 0.0
+    assert e1t2['homology'] == e1t3['homology'] == 0.0
+    assert e1t2['combined_score'] == e1t3['combined_score'] == 490.0
+    assert e1t2['cooccurence'] == e1t3['cooccurence'] == 332.0
 
 
 @pytest.mark.parametrize("query", [
@@ -351,8 +356,6 @@ def test_get_property_type(query):
     ('MONDO:000001', 'URIRef', 'http://purl.obolibrary.org/obo/MONDO_000001'),
     ('urn:uuid:12345', 'URIRef', 'urn:uuid:12345'),
     (':new_prop', 'URIRef', 'https://www.example.org/UNKNOWN/new_prop'),
-    ('edge_label', 'URIRef', 'https://w3id.org/biolink/vocab/edge_label'),
-    ('type', 'URIRef', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 ])
 def test_uriref(query):
     rt = RdfTransformer()
@@ -361,12 +364,18 @@ def test_uriref(query):
     assert str(x) == query[2]
 
 @pytest.mark.parametrize("query", [
-    ('http://purl.org/oban/association_has_object', 'biolink:object', 'OBAN:association_has_object', 'association_has_object'),
-    ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'biolink:type', 'rdf:type', 'type'),
-    ('https://monarchinitiative.org/frequencyOfPhenotype', None, 'MONARCH:frequencyOfPhenotype', 'frequencyOfPhenotype'),
-    ('http://purl.obolibrary.org/obo/RO_0002200', 'biolink:has_phenotype', 'RO:0002200', '0002200'),
-    ('http://www.w3.org/2002/07/owl#equivalentClass', 'biolink:same_as', 'owl:equivalentClass', 'equivalentClass'),
-    ('https://www.example.org/UNKNOWN/new_prop', None, ':new_prop', 'new_prop')
+    ('http://purl.org/oban/association_has_object', 'biolink:object', 'rdf:object', 'OBAN:association_has_object', 'association_has_object'),
+    ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'biolink:type', 'rdf:type', 'rdf:type', 'type'),
+    ('https://monarchinitiative.org/frequencyOfPhenotype', None, None, 'MONARCH:frequencyOfPhenotype', 'frequencyOfPhenotype'),
+    ('http://purl.obolibrary.org/obo/RO_0002200', 'biolink:has_phenotype', 'biolink:has_phenotype', 'RO:0002200', '0002200'),
+    ('http://www.w3.org/2002/07/owl#equivalentClass', 'biolink:same_as', 'biolink:same_as', 'owl:equivalentClass', 'equivalentClass'),
+    ('https://www.example.org/UNKNOWN/new_prop', None, None, ':new_prop', 'new_prop'),
+    ('http://purl.obolibrary.org/obo/RO_0000091', None, None, 'RO:0000091', '0000091'),
+    ('RO:0000091', None, None, 'RO:0000091', '0000091'),
+    ('category', 'biolink:category', 'biolink:category', ':category', 'category'),
+    ('edge_label', 'biolink:edge_label', 'rdf:predicate', ':edge_label', 'edge_label'),
+    ('type', 'biolink:type', 'rdf:type', ':type', 'type'),
+    ('name', 'biolink:name', 'rdfs:label', ':name', 'name'),
 ])
 def test_process_predicate(query):
     rt = RdfTransformer()
@@ -374,4 +383,4 @@ def test_process_predicate(query):
     assert x[0] == query[1]
     assert x[1] == query[2]
     assert x[2] == query[3]
-
+    assert x[3] == query[4]

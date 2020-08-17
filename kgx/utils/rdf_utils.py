@@ -2,10 +2,12 @@ import logging
 from collections import OrderedDict
 from typing import List, Union, Optional
 import rdflib
+from biolinkml.meta import SlotDefinition, ClassDefinition
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, contract
+from kgx.utils.kgx_utils import get_curie_lookup_service, contract, get_toolkit, get_biolink_node_properties, \
+    get_biolink_edge_properties, get_biolink_relations, sentencecase_to_camelcase, expand, sentencecase_to_snakecase
 import uuid
 
 
@@ -14,49 +16,8 @@ BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
-# TODO: any biolink model property should be accounted for
-property_mapping = OrderedDict({
-    OBAN.association_has_subject: 'subject',
-    BIOLINK.subject: 'subject',
-    OBAN.association_has_object: 'object',
-    BIOLINK.object: 'object',
-    OBAN.association_has_predicate: 'predicate',
-    BIOLINK.predicate: 'predicate',
-    BIOLINK.edge_label: 'edge_label',
-    BIOLINK.category: 'category',
-    BIOLINK.relation: 'relation',
-    BIOLINK.name: 'name',
-    RDFS.label: 'name',
-    RDFS.comment: 'comment',
-    RDF.type: 'type',
-    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): 'type',
-    URIRef('http://purl.obolibrary.org/obo/IAO_0000115'): 'description',
-    URIRef('http://purl.org/dc/elements/1.1/description'): 'description',
-    BIOLINK.description: 'description',
-    BIOLINK.has_evidence: 'has_evidence',
-    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym'): 'synonym',
-    BIOLINK.synonym: 'synonym',
-    OWL.sameAs: 'same_as',
-    OWL.equivalentClass: 'same_as',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
-    BIOLINK.in_taxon: 'in_taxon',
-    BIOLINK.provided_by: 'provided_by',
-    OIO.source: 'source',
-    OIO.inSubset: 'subsets',
-    OIO.hasDbXref: 'xrefs',
-    OIO.hasAlternativeId: 'xrefs',
-    OIO.hasNarrowSynonym: 'synonym',
-    OIO.hasBroadSynonym: 'synonym',
-    OIO.hasRelatedSynonym: 'synonym',
-    SKOS.narrowMatch: 'same_as',
-    SKOS.broadMatch: 'same_as',
-    SKOS.exactMatch: 'same_as',
-    SKOS.closeMatch: 'same_as'
-})
-
-reverse_property_mapping = {}
-for k, v in property_mapping.items():
-    reverse_property_mapping[v] = k
+property_mapping = OrderedDict()
+reverse_property_mapping = OrderedDict()
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
