@@ -688,7 +688,7 @@ class PandasTransformer(Transformer):
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
                     value = [v.replace('\n', ' ').replace('\\"', '') if isinstance(v, str) else v for v in value]
-                    new_value = LIST_DELIMITER.join(value)
+                    new_value = LIST_DELIMITER.join([str(x) for x in value])
                 else:
                     new_value = str(value).replace('\n', ' ').replace('\\"', '')
             elif _column_types[key] == bool:
@@ -700,7 +700,7 @@ class PandasTransformer(Transformer):
                 new_value = str(value).replace('\n', ' ').replace('\\"', '')
         else:
             if type(value) == list:
-                new_value = LIST_DELIMITER.join(value)
+                new_value = LIST_DELIMITER.join([str(x) for x in value])
                 new_value = new_value.replace('\n', ' ').replace('\\"', '')
                 _column_types[key] = list
             elif type(value) == bool:
