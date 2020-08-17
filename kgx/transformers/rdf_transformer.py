@@ -70,7 +70,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         for k, v in m.items():
-            (element_uri, predicate, property_name) = self.process_predicate(k)
+            (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
             if element_uri:
                 key = element_uri
             elif predicate:
@@ -157,7 +157,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Object
 
         """
-        (element_uri, predicate, property_name) = self.process_predicate(p)
+        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
         if element_uri:
             prop_uri = element_uri
         elif predicate:
@@ -305,11 +305,16 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
-                if k in self.reverse_predicate_mapping:
-                    prop_uri = self.reverse_predicate_mapping[k]
-                    prop_uri = self.prefix_manager.contract(prop_uri)
+                (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
+                if element_uri is None:
+                    # not a biolink predicate
+                    if k in self.reverse_predicate_mapping:
+                        prop_uri = self.reverse_predicate_mapping[k]
+                        prop_uri = self.prefix_manager.contract(prop_uri)
+                    else:
+                        prop_uri = k
                 else:
-                    prop_uri = k
+                    prop_uri = canonical_uri if canonical_uri else element_uri
                 prop_type = self._get_property_type(prop_uri)
                 prop_uri = self.uriref(prop_uri)
                 if isinstance(v, (list, set, tuple)):
@@ -350,11 +355,15 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    if prop in self.reverse_predicate_mapping:
-                        prop_uri = self.reverse_predicate_mapping[prop]
-                        prop_uri = self.prefix_manager.contract(prop_uri)
+                    (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                    if element_uri:
+                        prop_uri = canonical_uri if canonical_uri else element_uri
                     else:
-                        prop_uri = prop
+                        if prop in self.reverse_predicate_mapping:
+                            prop_uri = self.reverse_predicate_mapping[prop]
+                            prop_uri = self.prefix_manager.contract(prop_uri)
+                        else:
+                            prop_uri = predicate
                     prop_type = self._get_property_type(prop_uri)
                     prop_uri = self.uriref(prop_uri)
                     if isinstance(value, list):
@@ -375,11 +384,15 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     for prop, value in reified_node.items():
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
-                        if prop in self.reverse_predicate_mapping:
-                            prop_uri = self.reverse_predicate_mapping[prop]
-                            prop_uri = self.prefix_manager.contract(prop_uri)
+                        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                        if element_uri:
+                            prop_uri = canonical_uri if canonical_uri else element_uri
                         else:
-                            prop_uri = prop
+                            if prop in self.reverse_predicate_mapping:
+                                prop_uri = self.reverse_predicate_mapping[prop]
+                                prop_uri = self.prefix_manager.contract(prop_uri)
+                            else:
+                                prop_uri = predicate
                         prop_type = self._get_property_type(prop_uri)
                         prop_uri = self.uriref(prop_uri)
                         if isinstance(value, list):
@@ -444,7 +457,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             The type for property name
 
         """
-        if p in {'biolink:type', 'rdf:type', 'biolink:category', 'biolink:subject', 'biolink:object', 'biolink:relation', 'biolink:edge_label'}:
+        # TODO: this should be properly defined in the model
+        default_uri_types = {
+            'biolink:type', 'biolink:category', 'biolink:subject',
+            'biolink:object', 'biolink:relation', 'biolink:edge_label',
+            'rdf:type', 'rdf:subject', 'rdf:predicate', 'rdf:object'
+        }
+
+        if p in default_uri_types:
             t = 'uriorcurie'
         else:
             if p in self.property_types:
@@ -570,28 +590,27 @@ class RdfOwlTransformer(RdfTransformer):
                     # C SubClassOf D (C and D are named classes)
                     pred = p
                     parent = o
-                self.add_edge(s, parent, pred)
+                self.triple(s, pred, parent)
 
         triples = rdfgraph.triples((None, OWL.equivalentClass, None))
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 if isinstance(o, rdflib.term.BNode):
                     continue
-                self.add_edge(s, o, p)
+                self.triple(s, p, o)
 
         relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
         with click.progressbar(relations, label='Progress') as bar:
             for relation in bar:
                 for _, p, o in rdfgraph.triples((relation, None, None)):
                     if o.startswith('http://purl.obolibrary.org/obo/RO_'):
-                        self.add_edge(relation, o, p)
+                        self.triple(s, p, o)
                     else:
-                        self.add_node_attribute(relation, key=p, value=o)
+                        self.triple(s, p, o)
 
         triples = rdfgraph.triples((None, None, None))
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 if isinstance(s, rdflib.term.BNode):
                     continue
-                if p in property_mapping.keys():
-                    self.add_node_attribute(s, key=p, value=o)
+                self.triple(s, p, o)

@@ -338,11 +338,13 @@ def get_biolink_ancestors(name):
 def get_biolink_node_properties():
     toolkit = get_toolkit()
     properties = toolkit.children('node property')
+    # TODO: fix bug in bmt when getting descendants
     node_properties = set()
     for p in properties:
         element = toolkit.get_element(p)
         node_properties.add(element.name)
-
+    element = toolkit.get_element('category')
+    node_properties.add(element.name)
     return set([format_biolink_slots(x) for x in node_properties])
 
 
