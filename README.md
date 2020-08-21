@@ -5,6 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/kgx/badge/?version=latest)](https://kgx.readthedocs.io/en/latest/?badge=latest)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=alert_status)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=coverage)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 
 KGX (Knowledge Graph Exchange) is a Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](https://biolink.github.io/biolink-model/).
 
