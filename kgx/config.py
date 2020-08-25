@@ -78,7 +78,6 @@ def get_logger(name: str = 'KGX') -> logging.Logger:
     """
     global logger
     if logger is None:
-        print("Creating logger")
         config = get_config()
         logger = logging.getLogger(name)
         handler = logging.StreamHandler(sys.stdout)
