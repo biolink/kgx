@@ -1,14 +1,15 @@
 import json
-import logging
-
 import networkx as nx
 import stringcase
 
+from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict
 
 from kgx.utils.kgx_utils import get_toolkit
+
+log = get_logger()
 
 
 class JsonTransformer(PandasTransformer):
@@ -37,7 +38,7 @@ class JsonTransformer(PandasTransformer):
             Any additional arguments
 
         """
-        logging.info("Parsing {}".format(filename))
+        log.info("Parsing {}".format(filename))
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         with open(filename, 'r') as FH:
@@ -69,7 +70,7 @@ class JsonTransformer(PandasTransformer):
             List of nodes
 
         """
-        logging.info("Loading {} nodes into networkx.MultiDiGraph".format(len(nodes)))
+        log.info("Loading {} nodes into networkx.MultiDiGraph".format(len(nodes)))
         for node in nodes:
             self.load_node(node)
 
@@ -83,7 +84,7 @@ class JsonTransformer(PandasTransformer):
             List of edges
 
         """
-        logging.info("Loading {} edges into networkx.MultiDiGraph".format(len(edges)))
+        log.info("Loading {} edges into networkx.MultiDiGraph".format(len(edges)))
         for edge in edges:
             self.load_edge(edge)
 
@@ -178,7 +179,7 @@ class ObographJsonTransformer(JsonTransformer):
             Any additional arguments
 
         """
-        logging.info("Parsing {}".format(filename))
+        log.info("Parsing {}".format(filename))
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         with open(filename, 'r') as FH:
@@ -323,7 +324,7 @@ class ObographJsonTransformer(JsonTransformer):
             elif prefix == 'NCBITaxon':
                 category = "organism taxon"
             else:
-                logging.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
+                log.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
         return category
 
     def parse_meta(self, node: str, meta: dict):

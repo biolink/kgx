@@ -1,13 +1,15 @@
-import logging
 import networkx as nx
 from typing import List, Set, Dict, Tuple, Union, Optional
 import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
+from kgx.config import get_logger
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase
 from kgx.prefix_manager import PrefixManager
+
+log = get_logger()
 
 
 class RdfGraphMixin(object):
@@ -175,16 +177,16 @@ class RdfGraphMixin(object):
             edge_label = property_name
 
         if ' ' in edge_label:
-            logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
+            log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
         edge_label_prefix = self.prefix_manager.get_prefix(edge_label)
         if edge_label_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
             if PrefixManager.is_curie(edge_label):
                 # name = curie_lookup(edge_label)
                 # if name:
-                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
+                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
                 #     edge_label = f"{edge_label_prefix}:{name}"
                 # else:
-                #     logging.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
+                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
                 edge_label = self.DEFAULT_EDGE_LABEL
 
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
@@ -365,7 +367,7 @@ class RdfGraphMixin(object):
                                     new_data[key].append(new_value)
                         else:
                             if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
-                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                                log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                             else:
                                 # existing key does not have value type list; converting to list
                                 new_data[key] = [d1[key]]
@@ -391,7 +393,7 @@ class RdfGraphMixin(object):
                                 new_data[key].append(new_value)
                         else:
                             if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
-                                logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                                log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                             else:
                                 new_data[key] = new_value
                     else:
@@ -401,7 +403,7 @@ class RdfGraphMixin(object):
                 if key in d1:
                     # key is in data
                     if key in self.CORE_NODE_PROPERTIES or key in self.CORE_EDGE_PROPERTIES:
-                        logging.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                     else:
                         if isinstance(d1[key], list):
                             # existing key has value type list
@@ -456,7 +458,7 @@ class RdfGraphMixin(object):
                 mapping = toolkit.get_by_mapping(predicate)
                 element = toolkit.get_element(mapping)
             except ValueError as e:
-                logging.error(e)
+                log.error(e)
         return element
 
     def process_predicate(self, p):

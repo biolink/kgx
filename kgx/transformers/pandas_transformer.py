@@ -4,10 +4,10 @@ import re
 import networkx
 import pandas as pd
 import numpy as np
-import logging
 import tarfile
 from ordered_set import OrderedSet
 
+from kgx.config import get_logger
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
@@ -45,6 +45,8 @@ _archive_format = {
     'w:gz': 'tar.gz',
     'w:bz2': 'tar.bz2'
 }
+
+log = get_logger()
 
 
 class PandasTransformer(Transformer):
@@ -175,7 +177,7 @@ class PandasTransformer(Transformer):
                         else:
                             return False
                     else:
-                        logging.error(f"Unexpected {k} node filter of type {type(v)}")
+                        log.error(f"Unexpected {k} node filter of type {type(v)}")
                         return False
                 else:
                     # filter key does not exist in node
@@ -205,9 +207,9 @@ class PandasTransformer(Transformer):
                 self.graph.add_node(n, **kwargs)
                 self._node_properties.update(list(kwargs.keys()))
             else:
-                logging.info("Ignoring node with no 'id': {}".format(node))
+                log.info("Ignoring node with no 'id': {}".format(node))
         else:
-            logging.debug(f"Node fails node filters: {node}")
+            log.debug(f"Node fails node filters: {node}")
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
@@ -254,7 +256,7 @@ class PandasTransformer(Transformer):
                         else:
                             return False
                     else:
-                        logging.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        log.error(f"Unexpected {k} edge filter of type {type(v)}")
                         return False
                 else:
                     # filter does not exist in edge
@@ -321,9 +323,9 @@ class PandasTransformer(Transformer):
                 self.graph.add_edge(s, o, key, **kwargs)
                 self._edge_properties.update(list(kwargs.keys()))
             else:
-                logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+                log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
         else:
-            logging.debug(f"Edge fails edge filters: {edge}")
+            log.debug(f"Edge fails edge filters: {edge}")
 
     def export_nodes(self, filename: str, delimiter: str) -> None:
         """

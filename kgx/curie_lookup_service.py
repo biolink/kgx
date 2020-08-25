@@ -1,12 +1,15 @@
 import networkx as nx
 import rdflib
 from kgx import get_config
+from kgx.config import get_logger
 from kgx.utils.kgx_utils import generate_edge_key, contract
 
 CURIE_MAP = {
     'BFO:0000054': 'realized_in',
     'RO:0000091': 'has_disposition'
 }
+
+log = get_logger()
 
 
 class CurieLookupService(object):

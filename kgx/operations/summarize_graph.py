@@ -39,6 +39,7 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str,
     WH = open(filename, 'w')
     yaml.dump(stats, WH)
 
+
 def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: List = None, edge_facet_properties: List = None) -> Dict:
     """
     Summarize the entire graph.

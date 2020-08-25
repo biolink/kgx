@@ -1,3 +1,5 @@
+import logging
+import sys
 from os import path
 import json
 
@@ -5,6 +7,7 @@ import requests
 import yaml
 
 config = None
+logger = None
 jsonld_context_map = {}
 
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
@@ -56,3 +59,32 @@ def get_jsonld_context(name: str = "biolink"):
             content = content['@context']
             jsonld_context_map[name] = content
     return content
+
+
+def get_logger(name: str = 'KGX') -> logging.Logger:
+    """
+    Get an instance of logger.
+
+    Parameters
+    ----------
+    name: str
+        The name of logger
+
+    Returns
+    -------
+    logging.Logger
+        An instance of logging.Logger
+
+    """
+    global logger
+    if logger is None:
+        print("Creating logger")
+        config = get_config()
+        logger = logging.getLogger(name)
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(config['logging']['format'])
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(config['logging']['level'])
+        logger.propagate = False
+    return logger

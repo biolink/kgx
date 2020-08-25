@@ -7,6 +7,7 @@ from neo4jrestclient.client import GraphDatabase as http_gdb
 from collections import Counter, defaultdict, OrderedDict
 from terminaltables import AsciiTable
 
+from kgx.config import get_logger
 from kgx.operations.graph_merge import merge_all_graphs
 from kgx.validator import Validator
 from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable, build_transformer, get_prefix, \
@@ -14,10 +15,11 @@ from kgx.cli.utils import get_file_types, get_type, get_transformer, is_writable
 from kgx.cli.utils import Config
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
+log = get_logger()
 
 
 def error(msg):
-    logging.error(msg)
+    log.error(msg)
     quit()
 
 
@@ -605,13 +607,13 @@ def transform(config: dict, inputs: List[str], input_type: str, output: str, out
             for line in M:
                 element = line.rstrip().split('\t')
                 mapping_dictionary[element[0]] = element[1]
-        logging.info('Performing remapping based on {}'.format(mapping))
+        log.info('Performing remapping based on {}'.format(mapping))
         #map_graph(input_transformer.graph, mapping=mapping_dictionary, preserve=preserve)
 
     # save
     output_transformer = get_transformer(output_type)
     if output_transformer is None:
-        logging.error('Output does not have a recognized type: ' + str(get_file_types()))
+        log.error('Output does not have a recognized type: ' + str(get_file_types()))
     w = output_transformer(input_transformer.graph)
     w.save(output, output_format=output_type)
 
@@ -666,7 +668,7 @@ def load_and_merge(config: dict, load_config):
     transformers = []
     for key in cfg['target']:
         target = cfg['target'][key]
-        logging.info("Loading {}".format(key))
+        log.info("Loading {}".format(key))
         if target['type'] in get_file_types():
             # loading from a file
             transformer = get_transformer(target['type'])()
@@ -680,8 +682,8 @@ def load_and_merge(config: dict, load_config):
                         transformer.set_node_filter(k, set(v))
                     for k, v in edge_filters.items():
                         transformer.set_edge_filter(k, set(v))
-                    logging.info(f"with node filters: {node_filters}")
-                    logging.info(f"with edge filters: {edge_filters}")
+                    log.info(f"with node filters: {node_filters}")
+                    log.info(f"with edge filters: {edge_filters}")
             for f in target['filename']:
                 transformer.parse(f, input_format=target['type'])
             transformers.append(transformer)
@@ -695,12 +697,12 @@ def load_and_merge(config: dict, load_config):
                     transformer.set_node_filter(k, set(v))
                 for k, v in edge_filters.items():
                     transformer.set_edge_filter(k, set(v))
-                logging.info(f"with node filters: {node_filters}")
-                logging.info(f"with edge filters: {edge_filters}")
+                log.info(f"with node filters: {node_filters}")
+                log.info(f"with edge filters: {edge_filters}")
             transformer.load()
             transformers.append(transformer)
         else:
-            logging.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
+            log.error("type {} not yet supported for KGX load-and-merge operation.".format(target['type']))
 
     merged_graph = merge_all_graphs([x.graph for x in transformers])
 
@@ -712,4 +714,4 @@ def load_and_merge(config: dict, load_config):
         destination_transformer = kgx.NeoTransformer(merged_graph, uri=destination['uri'], username=destination['username'], password=destination['password'])
         destination_transformer.save()
     else:
-        logging.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))
+        log.error("type {} not yet supported for KGX load-and-merge operation.".format(destination['type']))

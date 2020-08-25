@@ -1,12 +1,13 @@
-import logging
 import re
 from typing import Dict
 
 import prefixcommons.curie_util as cu
 from cachetools import LRUCache, cached
 
-from kgx.config import get_jsonld_context
+from kgx.config import get_jsonld_context, get_logger
 from kgx.utils.kgx_utils import contract, expand
+
+log = get_logger()
 
 
 class PrefixManager(object):
@@ -57,7 +58,7 @@ class PrefixManager(object):
         if 'MONARCH' not in self.prefix_map:
             self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
         if '' in self.prefix_map:
-            logging.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
+            log.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
         else:
             self.prefix_map[''] = self.DEFAULT_NAMESPACE
 

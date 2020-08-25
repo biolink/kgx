@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 import kgx
@@ -6,6 +5,7 @@ import os
 import pathlib
 from urllib.parse import urlparse
 
+from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 
 _transformers = {
@@ -22,6 +22,9 @@ _transformers = {
     'owl': kgx.RdfOwlTransformer,
     'rsa': kgx.RsaTransformer
 }
+
+log = get_logger()
+
 
 def is_writable(filepath):
     """
@@ -76,7 +79,7 @@ def load_transformer(input_paths: List[str], input_type: str = None) -> Transfor
         input_types = [get_type(i) for i in input_paths]
         for t in input_types:
             if input_types[0] != t:
-                logging.error(
+                log.error(
                 """
                 Each input file must have the same file type.
                 Try setting the --input-type parameter to enforce a single
@@ -87,7 +90,7 @@ def load_transformer(input_paths: List[str], input_type: str = None) -> Transfor
 
     transformer_constructor = get_transformer(input_type)
     if transformer_constructor is None:
-        logging.error('Inputs do not have a recognized type: ' + str(get_file_types()))
+        log.error('Inputs do not have a recognized type: ' + str(get_file_types()))
 
     t = transformer_constructor()
     for i in input_paths:
@@ -117,7 +120,7 @@ def build_transformer(path: str, input_type: str = None) -> Transformer:
         input_type = get_type(path)
     constructor = get_transformer(input_type)
     if constructor is None:
-        logging.error('File does not have a recognized type: ' + str(get_file_types()))
+        log.error('File does not have a recognized type: ' + str(get_file_types()))
     return constructor()
 
 
@@ -125,12 +128,12 @@ def make_neo4j_transformer(address, username, password):
     o = urlparse(address)
 
     if o.password is None and password is None:
-        logging.error('Could not extract the password from the address, please set password argument')
+        log.error('Could not extract the password from the address, please set password argument')
     elif password is None:
         password = o.password
 
     if o.username is None and username is None:
-        logging.error('Could not extract the username from the address, please set username argument')
+        log.error('Could not extract the username from the address, please set username argument')
     elif username is None:
         username = o.username
 

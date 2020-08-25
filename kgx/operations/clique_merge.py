@@ -1,9 +1,9 @@
-import logging
 from typing import Optional, Tuple
 
 import networkx as nx
 import stringcase
 
+from kgx.config import get_logger
 from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
     get_prefix_prioritization_map, get_biolink_element, get_biolink_ancestors
 
@@ -11,6 +11,9 @@ SAME_AS = 'biolink:same_as'
 LEADER_ANNOTATION = 'clique_leader'
 PREFIX_PRIORITIZATION_MAP = get_prefix_prioritization_map()
 MAPPING = {}
+
+log = get_logger()
+
 
 class CliqueMerge(object):
     """
@@ -74,7 +77,7 @@ class CliqueMerge(object):
             extended_categories = set()
             invalid_categories = []
             for category in categories:
-                logging.debug("Looking at category: {}".format(category))
+                log.debug("Looking at category: {}".format(category))
                 element = get_biolink_element(category)
                 if element:
                     # category exists in BioLink Model as a class or as an alias to a class
@@ -82,31 +85,31 @@ class CliqueMerge(object):
                     ancestors = get_biolink_ancestors(mapped_category)
                     if len(ancestors) > len(extended_categories):
                         # the category with the longest list of ancestors will be the most specific category
-                        logging.debug("Ancestors for {} is larger than previous one".format(mapped_category))
+                        log.debug("Ancestors for {} is larger than previous one".format(mapped_category))
                         extended_categories = ancestors
                 else:
-                    logging.warning("[1] category '{}' not in BioLink Model".format(category))
+                    log.warning("[1] category '{}' not in BioLink Model".format(category))
                     invalid_categories.append(category)
-            logging.debug("Invalid categories: {}".format(invalid_categories))
+            log.debug("Invalid categories: {}".format(invalid_categories))
 
             for x in categories:
                 element = get_biolink_element(x)
                 if element is None:
-                    logging.warning("[2] category '{}' is not in BioLink Model".format(x))
+                    log.warning("[2] category '{}' is not in BioLink Model".format(x))
                     continue
                 mapped_category = element['name']
                 if mapped_category not in extended_categories:
-                    logging.warning("category '{}' not in ancestor closure: {}".format(mapped_category, extended_categories))
+                    log.warning("category '{}' not in ancestor closure: {}".format(mapped_category, extended_categories))
                     mapped = MAPPING[x] if x in MAPPING.keys() else x
                     if mapped not in extended_categories:
-                        logging.warning("category '{}' is not even in any custom defined mapping. ".format(mapped_category))
+                        log.warning("category '{}' is not even in any custom defined mapping. ".format(mapped_category))
                         invalid_categories.append(x)
 
             update_dict = {'category': extended_categories}
             if invalid_categories:
                 update_dict['_invalid_category'] = invalid_categories
             updated_node_categories[node] = update_dict
-        logging.debug("Updating nodes in clique with: {}".format(updated_node_categories))
+        log.debug("Updating nodes in clique with: {}".format(updated_node_categories))
         nx.set_node_attributes(self.clique_graph, updated_node_categories)
         nx.set_node_attributes(self.target_graph, updated_node_categories)
 
@@ -129,24 +132,24 @@ class CliqueMerge(object):
         invalid_nodes = []
         all_categories = []
         for node in clique:
-            logging.info(node)
+            log.info(node)
             node_data = self.clique_graph.nodes[node]
             if 'category' in node_data and len(node_data['category']) > 0:
                 all_categories.append(node_data['category'][0])
         if len(all_categories) == 0:
             return None, None
         (clique_category, clique_category_ancestors) = self.get_the_most_specific_category(all_categories)
-        logging.debug("Most specific category: {}".format(clique_category))
-        logging.debug("Most specific category ancestors: {}".format(clique_category_ancestors))
+        log.debug("Most specific category: {}".format(clique_category))
+        log.debug("Most specific category ancestors: {}".format(clique_category_ancestors))
         for node in clique:
             data = self.clique_graph.nodes[node]
             node_category = data['category'][0]
-            logging.debug("node_category: {}".format(node_category))
+            log.debug("node_category: {}".format(node_category))
             if node_category not in clique_category_ancestors:
                 invalid_nodes.append(node)
-                logging.info("clique category '{}' does not match node: {}".format(clique_category, data))
+                log.info("clique category '{}' does not match node: {}".format(clique_category, data))
             # TODO: check if node category is a subclass of any of the ancestors via other ontologies
-        logging.info("Invalid Nodes: {}".format(invalid_nodes))
+        log.info("Invalid Nodes: {}".format(invalid_nodes))
         return clique_category, invalid_nodes
 
     def get_the_most_specific_category(self, categories: list) -> Tuple[str, list]:
@@ -169,13 +172,13 @@ class CliqueMerge(object):
         most_specific_category = None
         most_specific_category_ancestors = []
         for category in categories:
-            logging.debug("category: {}".format(category))
+            log.debug("category: {}".format(category))
             element = get_biolink_element(category)
             if element:
                 # category exists in BioLink Model as a class or as an alias to a class
                 mapped_category = element['name']
                 ancestors = get_biolink_ancestors(mapped_category)
-                logging.debug("ancestors: {}".format(ancestors))
+                log.debug("ancestors: {}".format(ancestors))
                 if len(ancestors) > len(most_specific_category_ancestors):
                     # the category with the longest list of ancestors will be the most specific category
                     most_specific_category = category
@@ -192,13 +195,13 @@ class CliqueMerge(object):
         election_strategy = None
         for clique in cliques:
             clique_category = None
-            logging.info("Processing clique: {}".format(clique))
+            log.info("Processing clique: {}".format(clique))
             # first update all categories for nodes in a clique
             self.update_categories(clique)
             # validate categories of all nodes in a clique, while removing the ones that are not supposed to be in the clique
             (clique_category, invalid_nodes) = self.validate_categories(clique)
             if invalid_nodes:
-                logging.debug("Removing nodes {} as they are not supposed to be part of clique: {}".format(invalid_nodes, clique))
+                log.debug("Removing nodes {} as they are not supposed to be part of clique: {}".format(invalid_nodes, clique))
                 clique = [x for x in clique if x not in invalid_nodes]
                 for n in invalid_nodes:
                     self.clique_graph.remove_node(n)
@@ -211,19 +214,19 @@ class CliqueMerge(object):
 
                 if leader is None:
                     # If leader is None, then use prefix prioritization
-                    logging.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
+                    log.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
                     # assuming that all nodes in a clique belong to the same category
                     if clique_category in PREFIX_PRIORITIZATION_MAP.keys():
                         (leader, election_strategy) = self.get_leader_by_prefix_priority(clique, PREFIX_PRIORITIZATION_MAP[clique_category])
                     else:
-                        logging.debug("No prefix order found for category '{}' in PREFIX_PRIORITIZATION_MAP".format(clique_category))
+                        log.debug("No prefix order found for category '{}' in PREFIX_PRIORITIZATION_MAP".format(clique_category))
 
                 if leader is None:
                     # If leader is still None then fall back to alphabetical sort on prefixes
-                    logging.info("Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes")
+                    log.info("Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes")
                     (leader, election_strategy) = self.get_leader_by_sort(clique)
 
-                logging.debug("Elected {} as leader via {} for clique {}".format(leader, election_strategy, clique))
+                log.debug("Elected {} as leader via {} for clique {}".format(leader, election_strategy, clique))
                 self.clique_graph.nodes[leader][LEADER_ANNOTATION] = True
                 self.target_graph.nodes[leader][LEADER_ANNOTATION] = True
                 self.clique_graph.nodes[leader]['election_strategy'] = election_strategy
@@ -249,7 +252,7 @@ class CliqueMerge(object):
         for node in clique:
             attributes = self.clique_graph.nodes[node]
             if LEADER_ANNOTATION in attributes and eval(attributes[LEADER_ANNOTATION]):
-                logging.debug("Node {} in clique has LEADER_ANNOTATION property; electing it as clique leader".format(node))
+                log.debug("Node {} in clique has LEADER_ANNOTATION property; electing it as clique leader".format(node))
                 election_strategy = 'LEADER_ANNOTATION'
         return leader, election_strategy
 
@@ -273,7 +276,7 @@ class CliqueMerge(object):
         leader = None
         election_strategy = None
         for prefix in prefix_priority_list:
-            logging.debug("Checking for prefix {} in {}".format(prefix, clique))
+            log.debug("Checking for prefix {} in {}".format(prefix, clique))
             leader = next((s for s in clique if prefix in s), None)
             if leader:
                 election_strategy = "PREFIX_PRIORITIZATION"
@@ -299,7 +302,7 @@ class CliqueMerge(object):
         prefixes = [x.split(':', 1)[0] for x in clique]
         prefixes.sort()
         leader_prefix = prefixes[0]
-        logging.debug("clique: {} leader_prefix: {}".format(clique, leader_prefix))
+        log.debug("clique: {} leader_prefix: {}".format(clique, leader_prefix))
         leader = [x for x in clique if leader_prefix in x]
         return leader[0], election_strategy
 
@@ -315,10 +318,10 @@ class CliqueMerge(object):
         """
         cliques = list(nx.connected_components(self.clique_graph))
         for clique in cliques:
-            logging.info("processing clique: {}".format(clique))
+            log.info("processing clique: {}".format(clique))
             leader = [x for x in clique if LEADER_ANNOTATION in self.clique_graph.nodes[x] and self.clique_graph.nodes[x][LEADER_ANNOTATION]]
             if len(leader) == 0:
-                logging.debug("No leader for clique {}; skipping".format(clique))
+                log.debug("No leader for clique {}; skipping".format(clique))
                 continue
             else:
                 leader = leader[0]
@@ -329,7 +332,7 @@ class CliqueMerge(object):
                 in_edges = self.target_graph.in_edges(node, True)
                 filtered_in_edges = [x for x in in_edges if x[2]['edge_label'] != SAME_AS]
                 equiv_in_edges = [x for x in in_edges if x[2]['edge_label'] == SAME_AS]
-                logging.debug("Moving {} in-edges from {} to {}".format(len(in_edges), node, leader))
+                log.debug("Moving {} in-edges from {} to {}".format(len(in_edges), node, leader))
                 for u, v, edge_data in filtered_in_edges:
                     key = generate_edge_key(u, edge_data['edge_label'], v)
                     self.target_graph.remove_edge(u, v, key=key)
@@ -342,7 +345,7 @@ class CliqueMerge(object):
                 out_edges = self.target_graph.out_edges(node, True)
                 filtered_out_edges = [x for x in out_edges if x[2]['edge_label'] != SAME_AS]
                 equiv_out_edges = [x for x in out_edges if x[2]['edge_label'] == SAME_AS]
-                logging.debug("Moving {} out-edges from {} to {}".format(len(out_edges), node, leader))
+                log.debug("Moving {} out-edges from {} to {}".format(len(out_edges), node, leader))
                 for u, v, edge_data in filtered_out_edges:
                     key = generate_edge_key(u, edge_data['edge_label'], v)
                     self.target_graph.remove_edge(u, v, key=key)
@@ -361,13 +364,13 @@ class CliqueMerge(object):
                         aliases.append(v)
                     self.target_graph.remove_edge(u, v, key=generate_edge_key(u, SAME_AS, v))
 
-                logging.debug("equiv out edges: {}".format(equiv_out_edges))
+                log.debug("equiv out edges: {}".format(equiv_out_edges))
                 for u, v, edge_data in equiv_out_edges:
                     if u != leader:
-                        logging.debug("{} is an alias of leader {}".format(u, leader))
+                        log.debug("{} is an alias of leader {}".format(u, leader))
                         aliases.append(u)
                     if v != leader:
-                        logging.debug("{} is an alias of leader {}".format(v, leader))
+                        log.debug("{} is an alias of leader {}".format(v, leader))
                         aliases.append(v)
                     self.target_graph.remove_edge(u, v, key=generate_edge_key(u, SAME_AS, v))
 

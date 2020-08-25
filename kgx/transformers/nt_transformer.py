@@ -1,6 +1,5 @@
 import gzip
 import itertools
-import logging
 from typing import Set, Optional, Dict
 
 from rdflib import RDF
@@ -10,12 +9,14 @@ from rdflib.term import URIRef, Literal
 import networkx as nx
 
 from kgx import RdfTransformer
+from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, get_biolink_node_properties, \
     get_biolink_property_types, get_biolink_association_types
 from kgx.utils.rdf_utils import generate_uuid
 
 FORMATS = ['nt', 'nt.gz']
+log = get_logger()
 
 
 class NtTransformer(RdfTransformer):
@@ -64,7 +65,7 @@ class NtTransformer(RdfTransformer):
         else:
             raise NameError(f"input_format: {input_format} not supported. Must be one of {FORMATS}")
         self.dereify(self.reified_nodes)
-        logging.info(f"Done parsing {filename}")
+        log.info(f"Done parsing {filename}")
 
     def save(self, filename: str = None, output_format: str = "nt", reify_all_edges = False, **kwargs) -> None:
         """

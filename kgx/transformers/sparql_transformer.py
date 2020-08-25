@@ -1,5 +1,3 @@
-import logging
-
 import rdflib
 from rdflib import URIRef
 from requests import HTTPError
@@ -9,8 +7,12 @@ from typing import Set, List, Dict, Generator
 from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
 from itertools import zip_longest
+
+from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
+
+log = get_logger()
 
 
 class SparqlTransformer(RdfGraphMixin, Transformer):
@@ -93,10 +95,10 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
         sparql = SPARQLWrapper(self.url)
         sparql.setQuery(q)
         sparql.setReturnFormat(JSON)
-        logging.info("Query: {}".format(q))
+        log.info("Query: {}".format(q))
         results = sparql.query().convert()
         bindings = results['results']['bindings']
-        logging.info("Rows fetched: {}".format(len(bindings)))
+        log.info("Rows fetched: {}".format(len(bindings)))
         return bindings
 
     def get_filters(self) -> Dict:
@@ -251,19 +253,19 @@ class RedSparqlTransformer(SparqlTransformer):
             sparql = SPARQLWrapper(self.url)
             association = '<{}>'.format(predicate)
             query = render(self.count_query, {'association': association})
-            logging.debug(query)
+            log.debug(query)
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
             count = int(results['results']['bindings'][0]['triples']['value'])
-            logging.info("Expected triples for query: {}".format(count))
+            log.info("Expected triples for query: {}".format(count))
             step = 1000
             start = 0
             for i in range(step, count + step, step):
                 end = i
                 query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
                 sparql.setQuery(query)
-                logging.debug("Fetching triples with predicate {}".format(predicate))
+                log.debug("Fetching triples with predicate {}".format(predicate))
                 results = sparql.query().convert()
                 node_list = set()
                 for r in results['results']['bindings']:
@@ -308,11 +310,11 @@ class RedSparqlTransformer(SparqlTransformer):
         node_generator = self._grouper(node_set, 10000)
         nodes = next(node_generator, None)
         while nodes is not None:
-            logging.info("Fetching properties for {} nodes".format(len(nodes)))
+            log.info("Fetching properties for {} nodes".format(len(nodes)))
             nodes = filter(None, nodes)
             # TODO: is there a better way to fetch node properties?
             query = self.get_node_properties_query.format(curie_list=' '.join(nodes))
-            logging.info(query)
+            log.info(query)
             sparql = SPARQLWrapper(self.url)
             sparql.setRequestMethod(POSTDIRECTLY)
             sparql.setMethod("POST")
