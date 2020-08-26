@@ -33,8 +33,9 @@ def cli():
 @cli.command('graph-summary')
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option('--input-format', required=True, type=click.Choice(get_file_types()), help='The input format')
+@click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=True, type=click.Path(exists=False))
-def graph_summary(inputs: List[str], input_format: str, output: str):
+def graph_summary(inputs: List[str], input_format: str, input_compression: str, output: str):
     """
     Loads and summarizes a knowledge graph from a set of input files.
     \f
@@ -45,13 +46,15 @@ def graph_summary(inputs: List[str], input_format: str, output: str):
         Input file
     input_format: str
         Input file format
+    input_compression: str
+        The input compression type
     output: str
         Where to write the output (stdout, by default)
 
     """
     transformer = get_transformer(input_format)()
     for file in inputs:
-        transformer.parse(file, input_format=input_format)
+        transformer.parse(file, input_format=input_format, compression=input_compression)
 
     stats = summarize_graph(transformer.graph)
     if output:
@@ -64,8 +67,9 @@ def graph_summary(inputs: List[str], input_format: str, output: str):
 @cli.command()
 @click.argument('inputs',  required=True, type=click.Path(exists=True), nargs=-1)
 @click.option('--input-format', required=True, help=f'The input format. Can be one of {get_file_types()}')
+@click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=False, type=click.Path(exists=False), help='File to write validation reports to')
-def validate(inputs: List[str], input_format: str, output: str):
+def validate(inputs: List[str], input_format: str, input_compression: str, output: str):
     """
     Run KGX validator on an input file to check for BioLink Model compliance.
     \f
@@ -76,13 +80,15 @@ def validate(inputs: List[str], input_format: str, output: str):
         Input files
     input_format: str
         The input format
+    input_compression: str
+        The input compression type
     output: str
         Path to output file
 
     """
     transformer = get_transformer(input_format)()
     for file in inputs:
-        transformer.parse(file, input_format=input_format)
+        transformer.parse(file, input_format=input_format, input_compression=input_compression)
 
     validator = Validator()
     errors = validator.validate(transformer.graph)
@@ -98,9 +104,10 @@ def validate(inputs: List[str], input_format: str, output: str):
 @click.option('--password', required=True, type=str, help='Neo4j password')
 @click.option('--output', required=True, type=click.Path(exists=False), help='Output')
 @click.option('--output-format', required=True, help=f'The output format. Can be one of {get_file_types()}')
+@click.option('--output-compression', required=False, help='The output compression type')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, node_filters: Tuple, edge_filters: Tuple):
+def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
     """
     Download nodes and edges from Neo4j database.
     \f
@@ -117,6 +124,8 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
         Where to write the output (stdout, by default)
     output_format: str
         The output type (``csv``, by default)
+    output_compression: str
+        The output compression type
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
@@ -139,12 +148,13 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
 @cli.command(name='neo4j-upload')
 @click.argument('inputs',  required=True, type=click.Path(exists=True), nargs=-1)
 @click.option('--input-format', required=True, help=f'The input format. Can be one of {get_file_types()}')
+@click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--uri', required=True, type=str, help='Neo4j URI to upload to. For example, https://localhost:7474')
 @click.option('--username', required=True, type=str, help='Neo4j username')
 @click.option('--password', required=True, type=str, help='Neo4j password')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def neo4j_upload(inputs: List[str], input_format: str, uri: str, username: str, password: str, node_filters: Tuple[str, str], edge_filters: Tuple[str, str]):
+def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, uri: str, username: str, password: str, node_filters: Tuple[str, str], edge_filters: Tuple[str, str]):
     """
     Upload a set of nodes/edges to a Neo4j database.
     \f
@@ -155,6 +165,8 @@ def neo4j_upload(inputs: List[str], input_format: str, uri: str, username: str, 
         A list of files that contains nodes/edges
     input_format: str
         The input format
+    input_compression: str
+        The input compression type
     uri: str
         The full HTTP address for Neo4j database
     username: str
@@ -169,7 +181,7 @@ def neo4j_upload(inputs: List[str], input_format: str, uri: str, username: str, 
     """
     transformer = get_transformer(input_format)()
     for file in inputs:
-        transformer.parse(file, input_format=input_format)
+        transformer.parse(file, input_format=input_format, compression=input_compression)
     if node_filters:
         for n in node_filters:
             transformer.set_node_filter(n[0], n[1])
@@ -184,11 +196,13 @@ def neo4j_upload(inputs: List[str], input_format: str, uri: str, username: str, 
 @cli.command()
 @click.argument('inputs',  required=True, type=click.Path(exists=True), nargs=-1)
 @click.option('--input-format', required=True, help=f'The input format. Can be one of {get_file_types()}')
+@click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=True, type=click.Path(exists=False), help='Output')
 @click.option('--output-format', required=True, help=f'The output format. Can be one of {get_file_types()}')
+@click.option('--output-compression', required=False, help='The output compression type')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def transform(inputs: List[str], input_format: str, output: str, output_format: str, node_filters: Tuple, edge_filters: Tuple):
+def transform(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
     """
     Transform a Knowledge Graph from one serialization form to another.
     \f
@@ -199,10 +213,14 @@ def transform(inputs: List[str], input_format: str, output: str, output_format: 
         A list of files that contains nodes/edges
     input_format: str
         The input format
+    input_compression: str
+        The input compression type
     output: str
         The output file
     output_format: str
         The output format
+    output_compression: str
+        The output compression type
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
@@ -218,14 +236,14 @@ def transform(inputs: List[str], input_format: str, output: str, output_format: 
             transformer.set_edge_filter(e[0], e[1])
 
     for file in inputs:
-        transformer.parse(filename=file, input_format=input_format)
+        transformer.parse(filename=file, input_format=input_format, compression=input_compression)
 
     output_transformer = get_transformer(output_format)(transformer.graph)
-    output_transformer.save(output, output_format=output_format)
+    output_transformer.save(output, output_format=output_format, compression=output_compression)
 
 
 @cli.command(name='merge')
-@click.argument('--merge-config', required=True, type=click.Path(exists=True))
+@click.argument('merge-config', required=True, type=click.Path(exists=True))
 def merge(merge_config: str):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
@@ -244,6 +262,17 @@ def merge(merge_config: str):
     with open(merge_config, 'r') as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
+    node_properties = []
+    predicate_mappings = {}
+    curie_map = {}
+    if 'configuration' in cfg:
+        if 'node_properties' in cfg['configuration']:
+            node_properties = cfg['configuration']['node_properties']
+        if 'predicate_mappings' in cfg['configuration']:
+            predicate_mappings = cfg['configuration']['predicate_mappings']
+        if 'curie_map' in cfg['configuration']:
+            curie_map = cfg['configuration']['curie_map']
+
     for key in cfg['target']:
         target = cfg['target'][key]
         if target['type'] in get_file_types():
@@ -255,21 +284,44 @@ def merge(merge_config: str):
 
     transformers = []
     for key in cfg['target']:
+        log.info(f"Processing target '{key}'")
         target = cfg['target'][key]
+        target_curie_map = target['curie_map'] if 'curie_map' in target else {}
+        target_curie_map.update(curie_map)
+        target_predicate_mappings = target['predicate_mappings'] if 'predicate_mappings' in target else {}
+        target_predicate_mappings.update(predicate_mappings)
+        target_node_properties = target['node_properties'] if 'node_properties' in target else []
+        target_node_properties.extend(node_properties)
+
+        input_format = target['type']
+        compression = target['compression'] if 'compression' in target else None
+
         logging.info("Loading {}".format(key))
-        if target['type'] in get_file_types():
-            # loading from a file
+        if target['type'] in {'nt', 'ttl'}:
+            # Parse RDF file types
+            transformer = get_transformer(target['type'])(curie_map=target_curie_map)
+            transformer.set_predicate_mapping(predicate_mappings)
+            transformer.graph.name = key
+            if 'filters' in target:
+                apply_filters(target, transformer)
+            for f in target['filename']:
+                transformer.parse(f, input_format=input_format, compression=compression, node_property_predicates=target_node_properties)
+            if 'operations' in target:
+                apply_operations(target, transformer)
+            transformers.append(transformer)
+        elif target['type'] in get_file_types():
+            # Parse other supported file types
             transformer = get_transformer(target['type'])()
             transformer.graph.name = key
-            if target['type'] in {'tsv', 'neo4j'}:
-                if 'filters' in target:
-                    apply_filters(target, transformer)
+            if 'filters' in target:
+                apply_filters(target, transformer)
             for f in target['filename']:
-                transformer.parse(f, input_format='tsv')
+                transformer.parse(f, input_format=input_format, compression=compression)
             if 'operations' in target:
                 apply_operations(target, transformer)
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
+            # Parse Neo4j
             transformer = NeoTransformer(None, target['uri'], target['username'],  target['password'])
             transformer.graph.name = key
             if 'filters' in target:
@@ -296,8 +348,8 @@ def merge(merge_config: str):
                 destination_transformer.save()
             elif destination['type'] in get_file_types():
                 destination_transformer = get_transformer(destination['type'])(merged_graph)
-                mode = 'w:gz' if destination['type'] in {'tsv', 'csv'} else None
-                destination_transformer.save(destination['filename'], output_format=destination['type'], mode=mode)
+                compression = destination['compression'] if 'compression' in destination else None
+                destination_transformer.save(destination['filename'], output_format=destination['type'], compression=compression)
             else:
                 log.error(f"type {destination['type']} not yet supported for KGX load-and-merge operation.")
     else:
