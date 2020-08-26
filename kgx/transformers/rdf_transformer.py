@@ -83,7 +83,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
             self.property_types[key] = v
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -96,6 +96,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         input_format : str
             The input file format.
             If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
+        compression: str
+            The compression type. For example, ``gz``
         provided_by : str
             Define the source providing the input file.
         node_property_predicates: Set[str]
@@ -106,6 +108,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         if node_property_predicates:
             self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
 
+        if compression:
+            log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
         if input_format is None:
             input_format = rdflib.util.guess_format(filename)
 

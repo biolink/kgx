@@ -7,13 +7,9 @@ from kgx.config import get_logger
 
 _transformers = {
     'tar': kgx.PandasTransformer,
-    'tar.gz': kgx.PandasTransformer,
-    'tar.bz2': kgx.PandasTransformer,
-    'txt': kgx.PandasTransformer,
     'csv': kgx.PandasTransformer,
     'tsv': kgx.PandasTransformer,
     'nt': kgx.NtTransformer,
-    'nt.gz': kgx.NtTransformer,
     'ttl': kgx.RdfTransformer,
     'json': kgx.JsonTransformer,
     # 'rq': kgx.SparqlTransformer,

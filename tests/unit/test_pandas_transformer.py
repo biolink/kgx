@@ -60,14 +60,14 @@ def test_export(query):
 
 
 @pytest.mark.parametrize('query', [
-    (os.path.join(resource_dir, 'test.tar'), 'tsv', 3, 1),
-    (os.path.join(resource_dir, 'test.tar.gz'), 'tsv', 3, 1)
+    (os.path.join(resource_dir, 'test.tar'), 'tsv', 'tar', 3, 1),
+    (os.path.join(resource_dir, 'test.tar.gz'), 'tsv', 'tar.gz', 3, 1)
 ])
 def test_load_compressed(query):
     t = PandasTransformer()
-    t.parse(query[0], input_format=query[1])
-    assert t.graph.number_of_nodes() == query[2]
-    assert t.graph.number_of_edges() == query[3]
+    t.parse(query[0], input_format=query[1], compression=query[2])
+    assert t.graph.number_of_nodes() == query[3]
+    assert t.graph.number_of_edges() == query[4]
 
 
 @pytest.mark.parametrize('query', [

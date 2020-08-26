@@ -12,8 +12,8 @@ def test_load():
     """
     t = PandasTransformer()
     os.makedirs(target_dir, exist_ok=True)
-    t.parse(os.path.join(resource_dir, "x1n.csv"))
-    t.parse(os.path.join(resource_dir, "x1e.csv"))
+    t.parse(os.path.join(resource_dir, "x1n.csv"), input_format='csv')
+    t.parse(os.path.join(resource_dir, "x1e.csv"), input_format='csv')
     t.report()
     t.save(os.path.join(target_dir, 'x1copy'))
     # w = GraphMLTransformer(t.graph)
@@ -35,10 +35,10 @@ def test_semmeddb_csv():
     t.save(output)
 
     # save output as *.tar.gz
-    t.save(output, mode='w:gz')
+    t.save(output, output_format='tsv', compression='gz')
 
     # save output as *tar.bz2
-    t.save(output, mode='w:bz2')
+    t.save(output, output_format='tsv', compression='bz2')
 
 def test_semmeddb_csv_to_tsv():
     """
@@ -53,7 +53,7 @@ def test_semmeddb_csv_to_tsv():
     t.parse(edges_file)
 
     # save output as TSV in a tar archive
-    t.save(output, extension='tsv')
+    t.save(output, output_format='tsv', compression='tar')
 
 def test_read_achive():
     """
@@ -65,13 +65,13 @@ def test_read_achive():
     tar_bz_file = os.path.join(target_dir, "semmeddb_test_export.tar.bz2")
 
     pt = PandasTransformer()
-    pt.parse(tar_file)
+    pt.parse(tar_file, input_format='csv', compression='tar')
     assert not pt.is_empty()
 
     pt2 = PandasTransformer()
-    pt2.parse(tar_gz_file)
+    pt2.parse(tar_gz_file, input_format='csv', compression='tar.gz')
     assert not pt2.is_empty()
 
     pt3 = PandasTransformer()
-    pt3.parse(tar_bz_file)
+    pt3.parse(tar_bz_file, input_format='csv', compression='tar.bz2')
     assert not pt3.is_empty()
