@@ -39,7 +39,7 @@ HGNC:11603  biolink:contributes_to    MONDO:0005002   RO:0003304  https://archiv
 Edge properties,
 
 - `subject`: must be a CURIE (required)
-- `edge_label`: must be a [Biolink Model type](https://biolink.github.io/bio-model/docs/related_to) (required)
+- `edge_label`: must be a [Biolink Model type](https://biolink.github.io/biolink-model/docs/related_to) (required)
 - `object`: must be a CURIE (required)
 - `relation`: must be a CURIE (required); this field can be a more specific ontology term that well characterizes this relationship
 
