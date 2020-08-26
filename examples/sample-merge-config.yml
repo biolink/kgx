@@ -7,6 +7,7 @@ target:
       filename: data/hgnc_test.ttl
    test-dataset:
       type: tsv
+      compression: tar.gz
       filename: data/test_dataset.tar.gz
       filters:
          node_filters:

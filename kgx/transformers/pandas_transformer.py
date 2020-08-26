@@ -4,10 +4,10 @@ import re
 import networkx
 import pandas as pd
 import numpy as np
-import logging
 import tarfile
 from ordered_set import OrderedSet
 
+from kgx.config import get_logger
 from kgx.utils.kgx_utils import generate_edge_key
 from kgx.transformers.transformer import Transformer
 
@@ -29,22 +29,31 @@ _column_types = {
 _extension_types = {
     'csv': ',',
     'tsv': '\t',
-    'txt': '|',
     'csv:neo4j': ',',
     'tsv:neo4j': '\t'
 }
 
-_archive_mode = {
+_archive_read_mode = {
     'tar': 'r',
     'tar.gz': 'r:gz',
     'tar.bz2': 'r:bz2'
 }
+_archive_write_mode = {
+    'tar': 'w',
+    'tar.gz': 'w:gz',
+    'tar.bz2': 'w:bz2'
+}
 
 _archive_format = {
+    'r': 'tar',
+    'r:gz': 'tar.gz',
+    'r:bz2': 'tar.bz2',
     'w': 'tar',
     'w:gz': 'tar.gz',
     'w:bz2': 'tar.bz2'
 }
+
+log = get_logger()
 
 
 class PandasTransformer(Transformer):
@@ -59,7 +68,7 @@ class PandasTransformer(Transformer):
         self._node_properties = set()
         self._edge_properties = set()
 
-    def parse(self, filename: str, input_format: str = 'csv', provided_by: str = None, **kwargs) -> None:
+    def parse(self, filename: str, input_format: str = 'csv', compression: str = None, provided_by: str = None, **kwargs) -> None:
         """
         Parse a CSV/TSV (or plain text) file.
 
@@ -74,6 +83,8 @@ class PandasTransformer(Transformer):
             File to read from
         input_format: str
             The input file format (``csv``, by default)
+        compression: str
+            The compression. For example, `tar`
         provided_by: str
             Define the source providing the input file
         kwargs: Dict
@@ -84,15 +95,7 @@ class PandasTransformer(Transformer):
             # infer delimiter from file format
             kwargs['delimiter'] = _extension_types[input_format]
 
-        if filename.endswith('.tar'):
-            mode = _archive_mode['tar']
-        elif filename.endswith('.tar.gz'):
-            mode = _archive_mode['tar.gz']
-        elif filename.endswith('.tar.bz2'):
-            mode = _archive_mode['tar.bz2']
-        else:
-            # file is not an archive
-            mode = None
+        mode = _archive_read_mode[compression] if compression in _archive_read_mode else None
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
@@ -175,7 +178,7 @@ class PandasTransformer(Transformer):
                         else:
                             return False
                     else:
-                        logging.error(f"Unexpected {k} node filter of type {type(v)}")
+                        log.error(f"Unexpected {k} node filter of type {type(v)}")
                         return False
                 else:
                     # filter key does not exist in node
@@ -205,9 +208,9 @@ class PandasTransformer(Transformer):
                 self.graph.add_node(n, **kwargs)
                 self._node_properties.update(list(kwargs.keys()))
             else:
-                logging.info("Ignoring node with no 'id': {}".format(node))
+                log.info("Ignoring node with no 'id': {}".format(node))
         else:
-            logging.debug(f"Node fails node filters: {node}")
+            log.debug(f"Node fails node filters: {node}")
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
@@ -254,7 +257,7 @@ class PandasTransformer(Transformer):
                         else:
                             return False
                     else:
-                        logging.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        log.error(f"Unexpected {k} edge filter of type {type(v)}")
                         return False
                 else:
                     # filter does not exist in edge
@@ -321,9 +324,9 @@ class PandasTransformer(Transformer):
                 self.graph.add_edge(s, o, key, **kwargs)
                 self._edge_properties.update(list(kwargs.keys()))
             else:
-                logging.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+                log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
         else:
-            logging.debug(f"Edge fails edge filters: {edge}")
+            log.debug(f"Edge fails edge filters: {edge}")
 
     def export_nodes(self, filename: str, delimiter: str) -> None:
         """
@@ -383,11 +386,10 @@ class PandasTransformer(Transformer):
                     values.append("")
             FH.write(delimiter.join(values) + '\n')
 
-    def save(self, filename: str, output_format: str = 'csv', mode: Optional[str] = 'w', **kwargs) -> str:
+    def save(self, filename: str, output_format: str = 'csv', compression: str = None, **kwargs) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
-        If mode is set to ``None``, then there will be no archive created.
 
         ..note::
             If your node/edge properties are likely to contain commas then it is recommended
@@ -399,8 +401,8 @@ class PandasTransformer(Transformer):
             Name of tar archive file to create
         output_format: str
             The output file format (``csv``, by default)
-        mode: str
-            Form of compression to use (``w``, by default, signifies no compression).
+        compression: str
+            The compression. For example, `tar`
         kwargs: dict
             Any additional arguments
 
@@ -412,6 +414,7 @@ class PandasTransformer(Transformer):
             dirname = os.path.abspath(os.path.dirname(filename))
             basename = os.path.basename(filename)
             extension = output_format.split(':')[0]
+            mode = _archive_write_mode[compression] if compression in _archive_write_mode else None
             nodes_file_basename = f"{basename}_nodes.{extension}"
             edges_file_basename = f"{basename}_edges.{extension}"
             if dirname:

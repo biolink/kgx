@@ -1,8 +1,10 @@
-import logging
 from typing import Dict, List
 
+from kgx.config import get_logger
 from kgx.transformers.json_transformer import JsonTransformer
 from kgx.utils.kgx_utils import generate_edge_key
+
+log = get_logger()
 
 
 class RsaTransformer(JsonTransformer):

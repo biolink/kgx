@@ -1,4 +1,3 @@
-import logging
 import re
 from enum import Enum
 from typing import Tuple, List, TextIO
@@ -7,10 +6,12 @@ import click
 import validators
 import networkx as nx
 
-from kgx.config import get_jsonld_context
+from kgx.config import get_jsonld_context, get_logger
 from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
     camelcase_to_sentencecase
 from kgx.prefix_manager import PrefixManager
+
+log = get_logger()
 
 
 class ErrorType(Enum):
@@ -344,7 +345,7 @@ class Validator(object):
                     message = f"Node property '{key}' expected to be of type '{element.typeof}'"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
-                    logging.warning("Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
+                    log.warning("Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
             if hasattr(element, 'multivalued'):
                 if element.multivalued:
                     if not isinstance(value, list):
@@ -399,7 +400,7 @@ class Validator(object):
                     message = f"Edge property '{key}' expected to be of type 'double'"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
                 else:
-                    logging.warning("Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
+                    log.warning("Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(key, element.typeof, type(value)))
             if hasattr(element, 'multivalued'):
                 if element.multivalued:
                     if not isinstance(value, list):

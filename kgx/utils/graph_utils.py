@@ -1,15 +1,17 @@
-import logging
 from typing import List, Set
 import networkx as nx
 import stringcase
 from cachetools import cached
 
+from kgx.config import get_logger
 from kgx.operations.graph_merge import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
 from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP = {}
 ONTOLOGY_GRAPH_CACHE = {}
+
+log = get_logger()
 
 
 def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
@@ -92,7 +94,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
         A set containing one (or more) category for the given CURIE
 
     """
-    logging.debug("curie: {}".format(curie))
+    log.debug("curie: {}".format(curie))
     new_categories = []
     toolkit = get_toolkit()
     if PrefixManager.is_curie(curie):
@@ -101,14 +103,14 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
             cls = get_curie_lookup_service()
             ontology_graph = cls.ontology_graph
             new_categories += [x for x in get_category_via_superclass(ontology_graph, curie, False)]
-        logging.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
+        log.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
         seen = []
         for anc in ancestors:
             mapping = toolkit.get_by_mapping(anc)
             seen.append(anc)
             if mapping:
                 # there is direct mapping to BioLink Model
-                logging.debug("Ancestor {} mapped to {}".format(anc, mapping))
+                log.debug("Ancestor {} mapped to {}".format(anc, mapping))
                 seen_labels = [graph.nodes[x]['name'] for x in seen if 'name' in graph.nodes[x]]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
@@ -195,7 +197,7 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
                     # no prefix defined
                     mapping[nid] = alternative_values
             else:
-                logging.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
+                log.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
 
     nx.set_node_attributes(graph, values=mapping, name='id')
     nx.relabel_nodes(graph, mapping, copy=False)

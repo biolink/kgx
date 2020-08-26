@@ -1,6 +1,11 @@
 import networkx as nx
 import copy
+
+from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
+
+log = get_logger()
+
 
 class NetworkxTransformer(Transformer):
     """

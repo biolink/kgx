@@ -1,10 +1,14 @@
-import logging
 import pandas as pd
 import networkx as nx
 from prologterms import Term, SExpressionRenderer, PrologRenderer
+
+from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 
 from typing import Dict, List, Union
+
+log = get_logger()
+
 
 class LogicTermTransformer(Transformer):
     """

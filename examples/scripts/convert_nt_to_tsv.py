@@ -31,4 +31,4 @@ t.parse(args.input)
 
 # Initialize PandasTransformer
 pt = PandasTransformer(t.graph)
-pt.save(args.output, output_format='tsv', mode=None)
+pt.save(args.output, output_format='tsv')

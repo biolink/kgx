@@ -1,15 +1,15 @@
-import logging
 from collections import OrderedDict
-from typing import List, Union, Optional
+from typing import List
 import rdflib
-from biolinkml.meta import SlotDefinition, ClassDefinition
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
+
+from kgx.config import get_logger
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, contract, get_toolkit, get_biolink_node_properties, \
-    get_biolink_edge_properties, get_biolink_relations, sentencecase_to_camelcase, expand, sentencecase_to_snakecase
+from kgx.utils.kgx_utils import get_curie_lookup_service, contract
 import uuid
 
+log = get_logger()
 
 OBAN = Namespace('http://purl.org/oban/')
 BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
@@ -112,7 +112,7 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
     closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
     category = [top_level_terms[x] for x in closure if x in top_level_terms.keys()]
     if category:
-        logging.debug("Inferred category as {} based on transitive closure over 'subClassOf' relation".format(category))
+        log.debug("Inferred category as {} based on transitive closure over 'subClassOf' relation".format(category))
     else:
         subj = closure[-1]
         if subj == iri:
@@ -120,7 +120,7 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         subject_curie = contract(subj)
         if '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
-            logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
+            log.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
             subject_curie = fixed_curie
         cls = get_curie_lookup_service()
         category = get_category_via_superclass(cls.ontology_graph, subject_curie)

@@ -1,13 +1,15 @@
-import logging
 import itertools
 import click
 import networkx as nx
 from typing import Tuple, List, Dict, Union
 
+from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
+
+log = get_logger()
 
 
 class NeoTransformer(Transformer):
@@ -55,7 +57,7 @@ class NeoTransformer(Transformer):
                 bar.update(page_size)
             bar.update(count)
             time_end = current_time_in_millis()
-            logging.debug("time taken to load edges: {} ms".format(time_end - time_start))
+            log.debug("time taken to load edges: {} ms".format(time_end - time_start))
 
     def count(self, is_directed: bool = True) -> int:
         """
@@ -89,11 +91,11 @@ class NeoTransformer(Transformer):
             query += ' AND '.join(qs)
         query += f" RETURN COUNT(*) AS count"
 
-        logging.debug(query)
+        log.debug(query)
         try:
             query_result = self.http_driver.query(query)
         except CypherException as ce:
-            logging.error(ce)
+            log.error(ce)
 
         for result in query_result:
             return result[0]
@@ -112,7 +114,7 @@ class NeoTransformer(Transformer):
         for node in nodes:
             self.load_node(node)
         end = current_time_in_millis()
-        logging.debug("time taken to load nodes: {} ms".format(end - start))
+        log.debug("time taken to load nodes: {} ms".format(end - start))
 
     def load_node(self, node: Dict) -> None:
         """
@@ -140,7 +142,7 @@ class NeoTransformer(Transformer):
         for record in edges:
             self.load_edge(record)
         end = current_time_in_millis()
-        logging.debug("time taken to load edges: {} ms".format(end - start))
+        log.debug("time taken to load edges: {} ms".format(end - start))
 
     def load_edge(self, edge_record: List) -> None:
         """
@@ -249,11 +251,11 @@ class NeoTransformer(Transformer):
         if limit:
             query += f" LIMIT {limit}"
 
-        logging.debug(query)
+        log.debug(query)
         try:
             results = self.http_driver.query(query, returns=Node, data_contents=True)
         except CypherException as ce:
-            logging.error(ce)
+            log.error(ce)
         if results:
             nodes = [node[0] for node in results.rows]
         else:
@@ -299,14 +301,14 @@ class NeoTransformer(Transformer):
         if limit:
             query += f" LIMIT {limit}"
 
-        logging.debug(query)
+        log.debug(query)
         try:
             start = current_time_in_millis()
             results = self.http_driver.query(query, returns=(Node, Relationship, Node), data_contents=True)
             end = current_time_in_millis()
-            logging.debug(f"Time taken to fetch edges from Neo4j: {end - start} ms")
+            log.debug(f"Time taken to fetch edges from Neo4j: {end - start} ms")
         except CypherException as ce:
-            logging.error(ce)
+            log.error(ce)
         if results:
             edges = [x for x in results.rows]
         else:
@@ -325,24 +327,24 @@ class NeoTransformer(Transformer):
             Size of batch per transaction (default: 10000)
 
         """
-        logging.info("Saving nodes")
+        log.info("Saving nodes")
         for category in nodes_by_category.keys():
-            logging.debug("Generating UNWIND for category: {}".format(category))
+            log.debug("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
             query = NeoTransformer.generate_unwind_node_query(cypher_category)
-            logging.debug(query)
+            log.debug(query)
             nodes = nodes_by_category[category]
             time_start = current_time_in_millis()
             for x in range(0, len(nodes), batch_size):
                 y = min(x + batch_size, len(nodes))
-                logging.debug(f"Batch {x} - {y}")
+                log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
                     self.http_driver.query(query, params={'nodes': batch})
                 except CypherException as ce:
-                    logging.error(ce)
+                    log.error(ce)
             time_end = current_time_in_millis()
-            logging.debug(f"Time taken to load {category} edges: {time_end - time_start} ms")
+            log.debug(f"Time taken to load {category} edges: {time_end - time_start} ms")
 
     @staticmethod
     def generate_unwind_node_query(category: str) -> str:
@@ -385,23 +387,23 @@ class NeoTransformer(Transformer):
             Size of batch per transaction (default: 10000)
 
         """
-        logging.info("Saving edges")
+        log.info("Saving edges")
         for predicate in edges_by_edge_label.keys():
             query = self.generate_unwind_edge_query(predicate)
-            logging.info(query)
+            log.info(query)
             edges = edges_by_edge_label[predicate]
             time_start = current_time_in_millis()
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
-                logging.debug(f"Batch {x} - {y}")
+                log.debug(f"Batch {x} - {y}")
 
                 try:
                     self.http_driver.query(query, params={"relationship": predicate, "edges": batch})
                 except CypherException as ce:
-                    logging.error(ce)
+                    log.error(ce)
             time_end = current_time_in_millis()
-            logging.debug(f"Time taken to load {predicate} edges: {time_end - time_start} ms")
+            log.debug(f"Time taken to load {predicate} edges: {time_end - time_start} ms")
 
     @staticmethod
     def generate_unwind_edge_query(edge_label: str) -> str:
@@ -472,18 +474,18 @@ class NeoTransformer(Transformer):
         try:
             node_results = self.http_driver.query("MATCH (n) RETURN COUNT(*)")
         except CypherException as ce:
-            logging.error(ce)
+            log.error(ce)
 
         for r in node_results:
-            logging.info("Number of Nodes: {}".format(r[0]))
+            log.info("Number of Nodes: {}".format(r[0]))
 
         try:
             edge_results = self.http_driver.query("MATCH (s)-->(o) RETURN COUNT(*)")
         except CypherException as ce:
-            logging.error(ce)
+            log.error(ce)
 
         for r in edge_results:
-            logging.info("Number of Edges: {}".format(r[0]))
+            log.info("Number of Edges: {}".format(r[0]))
 
     def create_constraints(self, categories: Union[set, list]) -> None:
         """
@@ -506,7 +508,7 @@ class NeoTransformer(Transformer):
                 try:
                     self.http_driver.query(query)
                 except CypherException as ce:
-                    logging.error(ce)
+                    log.error(ce)
 
     def get_node_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
         """
@@ -540,7 +542,7 @@ class NeoTransformer(Transformer):
             elif isinstance(self.node_filters[key], str):
                 value = f"{variable}{prefix}{key} = '{self.node_filters[key]}'"
             else:
-                logging.error(f"Unexpected {key} node filter of type {type(self.node_filters[key])}")
+                log.error(f"Unexpected {key} node filter of type {type(self.node_filters[key])}")
         return value
 
     def get_edge_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
@@ -578,7 +580,7 @@ class NeoTransformer(Transformer):
             elif isinstance(self.edge_filters[key], str):
                 value = f"{variable}{prefix}{key} = '{self.edge_filters[key]}'"
             else:
-                logging.error(f"Unexpected {key} edge filter of type {type(self.edge_filters[key])}")
+                log.error(f"Unexpected {key} edge filter of type {type(self.edge_filters[key])}")
         return value
 
 

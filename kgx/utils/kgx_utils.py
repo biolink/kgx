@@ -1,4 +1,3 @@
-import logging
 import re
 import time
 from typing import List
@@ -10,11 +9,13 @@ from cachetools import LRUCache
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
-from kgx.config import get_jsonld_context
+from kgx.config import get_jsonld_context, get_logger
 
 toolkit = None
 curie_lookup_service = None
 cache = None
+
+log = get_logger()
 
 
 def camelcase_to_sentencecase(s: str) -> str:

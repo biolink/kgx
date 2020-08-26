@@ -1,6 +1,5 @@
 import gzip
 import itertools
-import logging
 from typing import Set, Optional, Dict
 
 from rdflib import RDF
@@ -10,12 +9,10 @@ from rdflib.term import URIRef, Literal
 import networkx as nx
 
 from kgx import RdfTransformer
-from kgx.prefix_manager import PrefixManager
-from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, get_biolink_node_properties, \
-    get_biolink_property_types, get_biolink_association_types
-from kgx.utils.rdf_utils import generate_uuid
+from kgx.config import get_logger
+from kgx.utils.kgx_utils import  current_time_in_millis
 
-FORMATS = ['nt', 'nt.gz']
+log = get_logger()
 
 
 class NtTransformer(RdfTransformer):
@@ -31,7 +28,7 @@ class NtTransformer(RdfTransformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str = None, input_format: str = 'nt', compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
         Parse a n-triple file into networkx.MultiDiGraph
 
@@ -42,7 +39,9 @@ class NtTransformer(RdfTransformer):
         filename : str
             File to read from.
         input_format : str
-            The input file format. Must be one of ``['nt', 'nt.gz']``
+            The input file format. Must be ``nt``
+        compression: str
+            The compression type. For example, ``gz``
         provided_by : str
             Define the source providing the input file.
         node_property_predicates: Set[str]
@@ -57,16 +56,15 @@ class NtTransformer(RdfTransformer):
             self.graph_metadata['provided_by'] = [provided_by]
 
         self.start = current_time_in_millis()
-        if input_format == FORMATS[0]:
-            p.parse(open(filename, 'rb'))
-        elif input_format == FORMATS[1]:
+        if compression == 'gz':
             p.parse(gzip.open(filename, 'rb'))
         else:
-            raise NameError(f"input_format: {input_format} not supported. Must be one of {FORMATS}")
-        self.dereify(self.reified_nodes)
-        logging.info(f"Done parsing {filename}")
+            p.parse(open(filename, 'rb'))
 
-    def save(self, filename: str = None, output_format: str = "nt", reify_all_edges = False, **kwargs) -> None:
+        self.dereify(self.reified_nodes)
+        log.info(f"Done parsing {filename}")
+
+    def save(self, filename: str = None, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
         Export networkx.MultiDiGraph into n-triple format.
 
@@ -77,7 +75,9 @@ class NtTransformer(RdfTransformer):
         filename: str
             Filename to write to
         output_format: str
-            The output format. Must be one of ``['nt', 'nt.gz']``
+            The output format. Must be ``nt``
+        compression: str
+            The compression type. For example, ``gz``
         kwargs: dict
             Any additional arguments
 
@@ -86,10 +86,8 @@ class NtTransformer(RdfTransformer):
         edges_generator = self.export_edges(reify_all_edges)
         generator = itertools.chain(nodes_generator, edges_generator)
         serializer = NT11Serializer(generator)
-        if output_format == FORMATS[0]:
-            f = open(filename, 'wb')
-        elif output_format == FORMATS[1]:
+        if compression == 'gz':
             f = gzip.open(filename, 'wb')
         else:
-            raise NameError(f"output_format: {output_format} not supported. Must be one of {FORMATS}")
+            f = open(filename, 'wb')
         serializer.serialize(f)

@@ -2,17 +2,20 @@ import itertools
 
 import click, rdflib, os, uuid
 import networkx as nx
-import logging
 from typing import Tuple, Union, Set, List, Dict, Any, Iterator
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
 
+from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, generate_uuid
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, \
     current_time_in_millis, get_biolink_association_types, get_biolink_property_types
+
+
+log = get_logger()
 
 
 class RdfTransformer(RdfGraphMixin, Transformer):
@@ -80,7 +83,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
             self.property_types[key] = v
 
-    def parse(self, filename: str = None, input_format: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str = None, input_format: str = None, compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -93,6 +96,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         input_format : str
             The input file format.
             If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
+        compression: str
+            The compression type. For example, ``gz``
         provided_by : str
             Define the source providing the input file.
         node_property_predicates: Set[str]
@@ -103,19 +108,21 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         if node_property_predicates:
             self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
 
+        if compression:
+            log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
         if input_format is None:
             input_format = rdflib.util.guess_format(filename)
 
-        logging.info("Parsing {} with '{}' format".format(filename, input_format))
+        log.info("Parsing {} with '{}' format".format(filename, input_format))
         rdfgraph.parse(filename, format=input_format)
-        logging.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
+        log.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
 
         self.start = current_time_in_millis()
         self.load_networkx_graph(rdfgraph)
-        logging.info(f"Done parsing {filename}")
+        log.info(f"Done parsing {filename}")
         self.report()
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
@@ -139,7 +146,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 self.triple(s, p, o)
                 self.count += 1
                 if self.count % 1000 == 0:
-                    logging.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
+                    log.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
                     self.start = current_time_in_millis()
         self.dereify(self.reified_nodes)
 
@@ -584,7 +591,7 @@ class RdfOwlTransformer(RdfTransformer):
                     for x in rdfgraph.objects(o, OWL.someValuesFrom):
                         parent = x
                     if pred is None or parent is None:
-                        logging.warning("Do not know how to handle BNode: {}".format(o))
+                        log.warning("Do not know how to handle BNode: {}".format(o))
                         continue
                 else:
                     # C SubClassOf D (C and D are named classes)

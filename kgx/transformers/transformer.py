@@ -1,9 +1,11 @@
 import networkx as nx
 import json
-import time
-import logging
 from typing import Union, List, Dict, Tuple
 from networkx.readwrite import json_graph
+
+from kgx.config import get_logger
+
+log = get_logger()
 
 
 IGNORE_CLASSES = ['All', 'entity']
@@ -44,8 +46,8 @@ class Transformer(object):
         """
         Print a summary report about self.graph
         """
-        logging.info('Total nodes in {}: {}'.format(self.graph.name or 'graph', len(self.graph.nodes())))
-        logging.info('Total edges in {}: {}'.format(self.graph.name or 'graph', len(self.graph.edges())))
+        log.info('Total nodes in {}: {}'.format(self.graph.name or 'graph', len(self.graph.nodes())))
+        log.info('Total edges in {}: {}'.format(self.graph.name or 'graph', len(self.graph.edges())))
 
     def is_empty(self) -> bool:
         """
@@ -225,15 +227,15 @@ class Transformer(object):
 
         """
         if len(node) == 0:
-            logging.debug("Empty node encountered: {}".format(node))
+            log.debug("Empty node encountered: {}".format(node))
             return node
 
         if 'id' not in node:
             raise KeyError("node does not have 'id' property: {}".format(node))
         if 'name' not in node:
-            logging.debug("node does not have 'name' property: {}".format(node))
+            log.debug("node does not have 'name' property: {}".format(node))
         if 'category' not in node:
-            logging.debug("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
+            log.debug("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
             node['category'] = [Transformer.DEFAULT_NODE_CATEGORY]
 
         return node

@@ -1,12 +1,15 @@
-import logging
 from typing import List
 
 import networkx as nx
 
 
 # TODO: refer to Biolink Model to populate this
+from kgx.config import get_logger
+
 CORE_NODE_PROPERTIES = {'id', 'name'}
 CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation'}
+
+log = get_logger()
 
 
 def merge_all_graphs(graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx.MultiDiGraph:
@@ -49,7 +52,7 @@ def merge_all_graphs(graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx
     """
     graph_size = [len(x.edges()) for x in graphs]
     largest = graphs.pop(graph_size.index(max(graph_size)))
-    logging.debug(f"Largest graph {largest.name} has {len(largest.nodes())} nodes and {len(largest.edges())} edges")
+    log.debug(f"Largest graph {largest.name} has {len(largest.nodes())} nodes and {len(largest.edges())} edges")
     merged_graph = merge_graphs(largest, graphs, preserve)
     return merged_graph
 
@@ -76,8 +79,8 @@ def merge_graphs(graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve
     for g in graphs:
         node_merge_count = add_all_nodes(graph, g, preserve)
         edge_merge_count = add_all_edges(graph, g, preserve)
-        logging.info(f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}")
-        logging.info(f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}")
+        log.info(f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}")
+        log.info(f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}")
     return graph
 
 
@@ -100,7 +103,7 @@ def add_all_nodes(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = Tru
         Number of nodes merged during this operation
 
     """
-    logging.info(f"Adding {g2.number_of_nodes()} nodes from {g2.name} to {g1.name}")
+    log.info(f"Adding {g2.number_of_nodes()} nodes from {g2.name} to {g1.name}")
     merge_count = 0
     for n, data in g2.nodes(data=True):
         if n in g1.nodes():
@@ -136,9 +139,9 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
     for k, v in data.items():
         if k in existing_node:
             if k in CORE_NODE_PROPERTIES:
-                logging.debug(f"cannot modify core node property '{k}': {existing_node[k]} vs {v}")
+                log.debug(f"cannot modify core node property '{k}': {existing_node[k]} vs {v}")
             elif k == 'category':
-                logging.debug(f"updating node property '{k}'; Appending {v} to {existing_node[k]}")
+                log.debug(f"updating node property '{k}'; Appending {v} to {existing_node[k]}")
                 if isinstance(v, list):
                     existing_node[k].extend(v)
                 else:
@@ -147,7 +150,7 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
             else:
                 if isinstance(existing_node[k], list):
                     # append
-                    logging.debug(f"node property '{k}' is a list; Appending {v} to {existing_node[k]}")
+                    log.debug(f"node property '{k}' is a list; Appending {v} to {existing_node[k]}")
                     if isinstance(v, list):
                         existing_node[k].extend(v)
                     else:
@@ -155,15 +158,15 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
                 else:
                     if preserve:
                         # convert to a list and append
-                        logging.debug(f"preserving node property '{k}'; Appending {v} to {existing_node[k]}")
+                        log.debug(f"preserving node property '{k}'; Appending {v} to {existing_node[k]}")
                         existing_node[k] = [existing_node[k]]
                         existing_node[k].append(v)
                     else:
                         # overwrite the value for key
-                        logging.debug(f"overwriting node property '{k}'; Replacing {existing_node[k]} with {v}")
+                        log.debug(f"overwriting node property '{k}'; Replacing {existing_node[k]} with {v}")
                         existing_node[k] = v
         else:
-            logging.debug(f"adding new node property {k} to node")
+            log.debug(f"adding new node property {k} to node")
             existing_node[k] = v
     return existing_node
 
@@ -187,7 +190,7 @@ def add_all_edges(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = Tru
         Number of edges merged during this operation
 
     """
-    logging.info(f"Adding {g2.number_of_edges()} edges from {g2} to {g1}")
+    log.info(f"Adding {g2.number_of_edges()} edges from {g2} to {g1}")
     merge_count = 0
     for u, v, key, data in g2.edges(keys=True, data=True):
         if g1.has_edge(u, v, key):
@@ -226,11 +229,11 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
     for k, v in data.items():
         if k in existing_edge:
             if k in CORE_EDGE_PROPERTIES:
-                logging.debug(f"cannot modify core edge property '{k}': {existing_edge[k]} vs {v}")
+                log.debug(f"cannot modify core edge property '{k}': {existing_edge[k]} vs {v}")
             else:
                 if isinstance(existing_edge[k], list):
                     # append
-                    logging.debug(f"edge property '{k}' list a list; Appending {v} to {existing_edge[k]}")
+                    log.debug(f"edge property '{k}' list a list; Appending {v} to {existing_edge[k]}")
                     if isinstance(v, list):
                         existing_edge[k].extend(v)
                     else:
@@ -238,14 +241,14 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
                 else:
                     if preserve:
                         # convert to a list and append
-                        logging.debug(f"preserving edge property '{k}'; Appending {v} to {existing_edge[k]}")
+                        log.debug(f"preserving edge property '{k}'; Appending {v} to {existing_edge[k]}")
                         existing_edge[k] = [existing_edge[k]]
                         existing_edge[k].append(v)
                     else:
                         # overwrite the value for key
-                        logging.debug(f"overwriting edge property '{k}'; Replacing {existing_edge[k]} with {v}")
+                        log.debug(f"overwriting edge property '{k}'; Replacing {existing_edge[k]} with {v}")
                         existing_edge[k] = v
         else:
-            logging.debug(f"adding new edge property {k} to edge")
+            log.debug(f"adding new edge property {k} to edge")
             existing_edge[k] = v
     return existing_edge

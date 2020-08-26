@@ -9,30 +9,8 @@ REQUIRES_PYTHON = '>=3.6.0'
 VERSION = '0.0.1'
 LICENSE = 'BSD'
 
-REQUIRED = [
-    "prefixcommons>=0.1.4",
-    "pip>=9.0.1",
-    "networkx>=2.2",
-    "SPARQLWrapper>=1.8.2",
-    "pandas>=0.24.2",
-    "pytest>=0.0",
-    "mypy>=0.0",
-    "pystache>=0.0",
-    "rdflib>=0.0",
-    "Click>=7.0",
-    "neo4j>=1.7.4",
-    "neo4jrestclient>=0.0",
-    "pyyaml>=0.0",
-    "biolinkml>=0.0",
-    "bmt>=0.1.0",
-    "prologterms>=0.0.5",
-    "shexjsg>=0.6.5",
-    "terminaltables>=3.1.0",
-    "stringcase>=1.2.0",
-    "validators>=0.13.0",
-    "cachetools>-4.0.0",
-    "ordered-set>=4.0.2"
-]
+with open("requirements.txt", "r") as FH:
+    REQUIREMENTS = FH.readlines()
 
 EXTRAS = {}
 
@@ -58,12 +36,10 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3'
     ],
-    install_requires=REQUIRED,
+    install_requires=[r for r in REQUIREMENTS if not r.startswith("#")],
     extras_require=EXTRAS,
     include_package_data=True,
-    entry_points="""
-        [console_scripts]
-        kgx=translator_kgx:cli
-    """,
-    scripts=['bin/translator_kgx.py']
+    entry_points={
+        'console_scripts': ['kgx=kgx.cli.translator_kgx:cli']
+    }
 )

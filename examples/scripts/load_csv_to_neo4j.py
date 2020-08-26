@@ -27,9 +27,9 @@ t = PandasTransformer()
 
 # Load nodes and edges into graph
 if args.nodes:
-    t.parse(args.nodes)
+    t.parse(args.nodes, input_format='csv')
 if args.edges:
-    t.parse(args.edges)
+    t.parse(args.edges, input_format='csv')
 
 # Initialize NeoTransformer
 n = NeoTransformer(t.graph, uri=args.uri, username=args.username, password=args.password)
