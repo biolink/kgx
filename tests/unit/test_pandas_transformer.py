@@ -36,8 +36,8 @@ def test_load_tsv():
 @pytest.mark.parametrize('query', [
     ('export', 'csv', None, ['export_nodes.csv', 'export_edges.csv']),
     ('export', 'tsv', None, ['export_nodes.tsv', 'export_edges.tsv']),
-    ('export', 'tsv', 'w', 'export.tar'),
-    ('export', 'tsv', 'w:gz', 'export.tar.gz')
+    ('export', 'tsv', 'tar', 'export.tar'),
+    ('export', 'tsv', 'tar.gz', 'export.tar.gz')
 ])
 def test_export(query):
     nodes = os.path.join(resource_dir, 'test_nodes.tsv')
@@ -50,7 +50,7 @@ def test_export(query):
     assert t.graph.number_of_edges() == 1
 
     output_filename = os.path.join(target_dir, query[0])
-    t.save(filename=output_filename, output_format=query[1], mode=query[2])
+    t.save(filename=output_filename, output_format=query[1], compression=query[2])
 
     if isinstance(query[3], str):
         assert os.path.exists(os.path.join(target_dir, query[3]))

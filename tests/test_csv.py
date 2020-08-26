@@ -32,13 +32,13 @@ def test_semmeddb_csv():
     t.parse(edges_file)
 
     # save output as *.tar
-    t.save(output)
+    t.save(output, output_format='csv', compression='tar')
 
     # save output as *.tar.gz
-    t.save(output, output_format='tsv', compression='gz')
+    t.save(output, output_format='csv', compression='tar.gz')
 
     # save output as *tar.bz2
-    t.save(output, output_format='tsv', compression='bz2')
+    t.save(output, output_format='csv', compression='tar.bz2')
 
 def test_semmeddb_csv_to_tsv():
     """
