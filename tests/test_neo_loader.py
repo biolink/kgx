@@ -20,13 +20,17 @@ target_dir = os.path.join(cwd, 'target')
 
 
 def check_container():
-    client = docker.from_env()
-    status = False
     try:
-        c = client.containers.get(CONTAINER_NAME)
-        if c.status == 'running':
-            status = True
+        client = docker.from_env()
+        status = False
+        try:
+            c = client.containers.get(CONTAINER_NAME)
+            if c.status == 'running':
+                status = True
+        except:
+            status = False
     except:
+        print("Could not connect to local Docker daemon")
         status = False
     return status
 

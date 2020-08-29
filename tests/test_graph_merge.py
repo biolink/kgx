@@ -11,11 +11,11 @@ def test_merge():
     Test for merging graphs
     """
     pt1 = PandasTransformer()
-    pt1.parse(os.path.join(resource_dir, 'merge', 'nodes1.tsv'), input_format='tsv')
-    pt1.parse(os.path.join(resource_dir, 'merge', 'edges1.tsv'), input_format='tsv')
+    pt1.parse(os.path.join(resource_dir, 'merge', 'test1_nodes.tsv'), input_format='tsv')
+    pt1.parse(os.path.join(resource_dir, 'merge', 'test1_edges.tsv'), input_format='tsv')
     pt2 = PandasTransformer()
-    pt2.parse(os.path.join(resource_dir, 'merge', 'nodes2.tsv'), input_format='tsv')
-    pt2.parse(os.path.join(resource_dir, 'merge', 'edges2.tsv'), input_format='tsv')
+    pt2.parse(os.path.join(resource_dir, 'merge', 'test2_nodes.tsv'), input_format='tsv')
+    pt2.parse(os.path.join(resource_dir, 'merge', 'test2_edges.tsv'), input_format='tsv')
     merged_graph = merge_all_graphs([pt1.graph, pt2.graph], preserve=True)
     assert len(merged_graph.nodes()) == 6
     assert len(merged_graph.edges()) == 8
@@ -36,11 +36,11 @@ def test_merge_no_preserve():
     Test for merging graphs, overwriting conflicting properties
     """
     pt1 = PandasTransformer()
-    pt1.parse(os.path.join(resource_dir, 'merge', 'nodes1.tsv'), input_format='tsv')
-    pt1.parse(os.path.join(resource_dir, 'merge', 'edges1.tsv'), input_format='tsv')
+    pt1.parse(os.path.join(resource_dir, 'merge', 'test1_nodes.tsv'), input_format='tsv')
+    pt1.parse(os.path.join(resource_dir, 'merge', 'test1_edges.tsv'), input_format='tsv')
     pt2 = PandasTransformer()
-    pt2.parse(os.path.join(resource_dir, 'merge', 'nodes2.tsv'), input_format='tsv')
-    pt2.parse(os.path.join(resource_dir, 'merge', 'edges2.tsv'), input_format='tsv')
+    pt2.parse(os.path.join(resource_dir, 'merge', 'test2_nodes.tsv'), input_format='tsv')
+    pt2.parse(os.path.join(resource_dir, 'merge', 'test2_edges.tsv'), input_format='tsv')
     merged_graph = merge_all_graphs([pt1.graph, pt2.graph], preserve=False)
     assert len(merged_graph.nodes()) == 6
     assert len(merged_graph.edges()) == 8

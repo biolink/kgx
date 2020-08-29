@@ -12,8 +12,8 @@ def test_load():
     """
     t = PandasTransformer()
     os.makedirs(target_dir, exist_ok=True)
-    t.parse(os.path.join(resource_dir, "x1n.csv"), input_format='csv')
-    t.parse(os.path.join(resource_dir, "x1e.csv"), input_format='csv')
+    t.parse(os.path.join(resource_dir, "x1_nodes.csv"), input_format='csv')
+    t.parse(os.path.join(resource_dir, "x1_edges.csv"), input_format='csv')
     t.report()
     t.save(os.path.join(target_dir, 'x1copy'))
     # w = GraphMLTransformer(t.graph)

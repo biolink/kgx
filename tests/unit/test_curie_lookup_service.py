@@ -10,7 +10,7 @@ from kgx.curie_lookup_service import CurieLookupService
 ])
 def test_curie_lookup(query):
     cls = CurieLookupService()
-    assert len(cls.ontologies) == 2
+    assert len(cls.ontologies) > 0
     assert query[0] in cls.ontology_graph
     assert query[0] in cls.curie_map
     assert cls.curie_map[query[0]] == query[1]
@@ -18,6 +18,6 @@ def test_curie_lookup(query):
 
 def test_curie_lookup_with_custom():
     cls = CurieLookupService(curie_map={'XYZ:123': 'custom entry'})
-    assert len(cls.ontologies) == 2
+    assert len(cls.ontologies) > 0
     assert 'XYZ:123' in cls.curie_map
     assert cls.curie_map['XYZ:123'] == 'custom entry'

@@ -167,8 +167,8 @@ def test_sanitize_export(query):
     ),
 ])
 def test_filters(query):
-    nodes = os.path.join(resource_dir, 'test_nodes2.tsv')
-    edges = os.path.join(resource_dir, 'test_edges2.tsv')
+    nodes = os.path.join(resource_dir, 'test2_nodes.tsv')
+    edges = os.path.join(resource_dir, 'test2_edges.tsv')
     t = PandasTransformer()
     for nf in query[0].keys():
         t.set_node_filter(nf, query[0][nf])
