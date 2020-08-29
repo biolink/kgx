@@ -2,7 +2,7 @@ from kgx import NeoTransformer
 from kgx.operations.summarize_graph import summarize_graph
 
 import kgx
-import os, sys, click, logging, yaml
+import os, sys, click, yaml
 from typing import List, Tuple
 
 from kgx.config import get_logger, get_config
@@ -244,7 +244,8 @@ def transform(inputs: List[str], input_format: str, input_compression: str, outp
 
 @cli.command(name='merge')
 @click.argument('merge-config', required=True, type=click.Path(exists=True))
-def merge(merge_config: str):
+@click.option('--targets', required=False, type=str, multiple=True, help='Target(s) from the YAML to process')
+def merge(merge_config: str, targets: List):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
     The merged graph can then be written to a local/remote Neo4j instance OR be serialized into a file.
@@ -257,6 +258,8 @@ def merge(merge_config: str):
     ----------
     merge_config: str
         Merge config YAML
+    targets: List
+        A list of targets to load from the YAML
 
     """
     with open(merge_config, 'r') as YML:
@@ -265,6 +268,8 @@ def merge(merge_config: str):
     node_properties = []
     predicate_mappings = {}
     curie_map = {}
+    property_types = {}
+
     if 'configuration' in cfg:
         if 'node_properties' in cfg['configuration']:
             node_properties = cfg['configuration']['node_properties']
@@ -272,20 +277,28 @@ def merge(merge_config: str):
             predicate_mappings = cfg['configuration']['predicate_mappings']
         if 'curie_map' in cfg['configuration']:
             curie_map = cfg['configuration']['curie_map']
+        if 'property_types' in cfg['configuration']:
+            property_types = cfg['configuration']['property_types']
 
-    for key in cfg['target']:
-        target = cfg['target'][key]
-        if target['type'] in get_file_types():
-            for f in target['filename']:
+    if not targets:
+        targets = cfg['target'].keys()
+
+    for target in targets:
+        target_properties = cfg['target'][target]
+        if target_properties['type'] in get_file_types():
+            for f in target_properties['filename']:
                 if not os.path.exists(f):
-                    raise FileNotFoundError(f"Filename '{f}' for target '{key}' does not exist!")
+                    raise FileNotFoundError(f"Filename '{f}' for target '{target}' does not exist!")
                 elif not os.path.isfile(f):
-                    raise FileNotFoundError(f"Filename '{f}' for target '{key}' is not a file!")
+                    raise FileNotFoundError(f"Filename '{f}' for target '{target}' is not a file!")
 
     transformers = []
     for key in cfg['target']:
-        log.info(f"Processing target '{key}'")
+        if key not in targets:
+            continue
         target = cfg['target'][key]
+        target_name = target['name'] if 'name' in target else key
+        log.info(f"Processing target '{key}'")
         target_curie_map = target['curie_map'] if 'curie_map' in target else {}
         target_curie_map.update(curie_map)
         target_predicate_mappings = target['predicate_mappings'] if 'predicate_mappings' in target else {}
@@ -296,7 +309,6 @@ def merge(merge_config: str):
         input_format = target['type']
         compression = target['compression'] if 'compression' in target else None
 
-        logging.info("Loading {}".format(key))
         if target['type'] in {'nt', 'ttl'}:
             # Parse RDF file types
             transformer = get_transformer(target['type'])(curie_map=target_curie_map)
@@ -305,7 +317,13 @@ def merge(merge_config: str):
             if 'filters' in target:
                 apply_filters(target, transformer)
             for f in target['filename']:
-                transformer.parse(f, input_format=input_format, compression=compression, node_property_predicates=target_node_properties)
+                transformer.parse(
+                    filename=f,
+                    input_format=input_format,
+                    compression=compression,
+                    node_property_predicates=target_node_properties,
+                    provided_by=target_name
+                )
             if 'operations' in target:
                 apply_operations(target, transformer)
             transformers.append(transformer)
@@ -316,31 +334,43 @@ def merge(merge_config: str):
             if 'filters' in target:
                 apply_filters(target, transformer)
             for f in target['filename']:
-                transformer.parse(f, input_format=input_format, compression=compression)
+                transformer.parse(
+                    filename=f,
+                    input_format=input_format,
+                    compression=compression,
+                    provided_by=target_name
+                )
             if 'operations' in target:
                 apply_operations(target, transformer)
             transformers.append(transformer)
         elif target['type'] == 'neo4j':
             # Parse Neo4j
-            transformer = NeoTransformer(None, target['uri'], target['username'],  target['password'])
+            transformer = NeoTransformer(
+                graph=None,
+                uri=target['uri'],
+                username=target['username'],
+                password=target['password']
+            )
             transformer.graph.name = key
             if 'filters' in target:
                 apply_filters(target, transformer)
-            transformer.load()
+            transformer.load(provided_by=target_name)
             if 'operations' in target:
                 apply_operations(target, transformer)
             transformers.append(transformer)
             transformer.graph.name = key
         else:
-            logging.error("type {} not yet supported".format(target['type']))
+            log.error("type {} not yet supported".format(target['type']))
+
     merged_graph = merge_all_graphs([x.graph for x in transformers])
 
     # write the merged graph
     if 'destination' in cfg:
         for _, destination in cfg['destination'].items():
+            log.info(f"Writing merged graph to {_}")
             if destination['type'] == 'neo4j':
                 destination_transformer = NeoTransformer(
-                    merged_graph,
+                    graph=merged_graph,
                     uri=destination['uri'],
                     username=destination['username'],
                     password=destination['password']
@@ -348,8 +378,14 @@ def merge(merge_config: str):
                 destination_transformer.save()
             elif destination['type'] in get_file_types():
                 destination_transformer = get_transformer(destination['type'])(merged_graph)
+                if destination['type'] == 'nt':
+                    destination_transformer.set_property_types(property_types)
                 compression = destination['compression'] if 'compression' in destination else None
-                destination_transformer.save(destination['filename'], output_format=destination['type'], compression=compression)
+                destination_transformer.save(
+                    filename=destination['filename'],
+                    output_format=destination['type'],
+                    compression=compression
+                )
             else:
                 log.error(f"type {destination['type']} not yet supported for KGX load-and-merge operation.")
     else:
