@@ -1,7 +1,6 @@
 import networkx as nx
 import rdflib
-from kgx import get_config
-from kgx.config import get_logger
+from kgx.config import get_logger, get_config
 from kgx.utils.kgx_utils import generate_edge_key, contract
 
 CURIE_MAP = {
@@ -37,14 +36,14 @@ class CurieLookupService(object):
             rdfgraph = rdflib.Graph()
             input_format = rdflib.util.guess_format(ontology)
             rdfgraph.parse(ontology, format=input_format)
-            triples = rdfgraph.triples((None, rdflib.RDFS.subClassOf, None))
-            for s,p,o in triples:
-                subject_curie = contract(s)
-                object_curie = contract(o)
-                self.ontology_graph.add_node(subject_curie)
-                self.ontology_graph.add_node(object_curie)
-                key = generate_edge_key(subject_curie, 'subclass_of', object_curie)
-                self.ontology_graph.add_edge(subject_curie, object_curie, key, **{'edge_label': 'subclass_of', 'relation': 'rdfs:subClassOf'})
+            #triples = rdfgraph.triples((None, rdflib.RDFS.subClassOf, None))
+            # for s,p,o in triples:
+            #     subject_curie = contract(s)
+            #     object_curie = contract(o)
+            #     self.ontology_graph.add_node(subject_curie)
+            #     self.ontology_graph.add_node(object_curie)
+            #     key = generate_edge_key(subject_curie, 'subclass_of', object_curie)
+            #     self.ontology_graph.add_edge(subject_curie, object_curie, key, **{'edge_label': 'subclass_of', 'relation': 'rdfs:subClassOf'})
 
             triples = rdfgraph.triples((None, rdflib.RDFS.label, None))
             for s, p, o in triples:

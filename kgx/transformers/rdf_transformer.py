@@ -32,10 +32,11 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.node_properties.update(get_biolink_node_properties())
         self.node_properties.update(get_biolink_edge_properties())
         self.node_properties.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
-        self.reification_types = {RDF.Statement, self.BIOLINK.Association}
+        self.reification_types = {RDF.Statement, self.BIOLINK.Association, self.OBAN.association}
         self.reification_predicates = {
             self.BIOLINK.subject, self.BIOLINK.predicate, self.BIOLINK.object,
-            RDF.subject, RDF.object, RDF.predicate
+            RDF.subject, RDF.object, RDF.predicate,
+            self.OBAN.association_has_subject, self.OBAN.association_has_predicate, self.OBAN.association_has_object
         }
         self.reified_nodes = set()
         self.start = 0
@@ -133,8 +134,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        node_property_predicates: Set[str]
-            A set of rdflib.URIRef representing predicates that are to be treated as node properties
         kwargs: Dict
             Any additional arguments
 
@@ -144,10 +143,6 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         with click.progressbar(list(triples), label='Progress') as bar:
             for s, p, o in bar:
                 self.triple(s, p, o)
-                self.count += 1
-                if self.count % 1000 == 0:
-                    log.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
-                    self.start = current_time_in_millis()
         self.dereify(self.reified_nodes)
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
@@ -164,6 +159,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Object
 
         """
+        self.count += 1
         (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
         if element_uri:
             prop_uri = element_uri
@@ -201,6 +197,10 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             # treating predicate as an edge
             self.add_edge(s, o, p)
 
+        if self.count % 1000 == 0:
+            log.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
+            self.start = current_time_in_millis()
+
     def dereify(self, nodes: Set[str]) -> None:
         """
         Dereify a set of nodes where each node has all the properties
@@ -212,6 +212,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             A set of nodes
 
         """
+        log.info(f"Dereifying {len(nodes)} nodes")
         while nodes:
             n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
