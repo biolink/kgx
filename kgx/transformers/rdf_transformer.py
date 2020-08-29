@@ -318,7 +318,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     # not a biolink predicate
                     if k in self.reverse_predicate_mapping:
                         prop_uri = self.reverse_predicate_mapping[k]
-                        prop_uri = self.prefix_manager.contract(prop_uri)
+                        #prop_uri = self.prefix_manager.contract(prop_uri)
                     else:
                         prop_uri = k
                 else:
@@ -369,7 +369,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     else:
                         if prop in self.reverse_predicate_mapping:
                             prop_uri = self.reverse_predicate_mapping[prop]
-                            prop_uri = self.prefix_manager.contract(prop_uri)
+                            #prop_uri = self.prefix_manager.contract(prop_uri)
                         else:
                             prop_uri = predicate
                     prop_type = self._get_property_type(prop_uri)
@@ -398,7 +398,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         else:
                             if prop in self.reverse_predicate_mapping:
                                 prop_uri = self.reverse_predicate_mapping[prop]
-                                prop_uri = self.prefix_manager.contract(prop_uri)
+                                #prop_uri = self.prefix_manager.contract(prop_uri)
                             else:
                                 prop_uri = predicate
                         prop_type = self._get_property_type(prop_uri)
@@ -522,12 +522,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 uri = self.DEFAULT.term(identifier.replace(':', '', 1))
             else:
                 uri = self.prefix_manager.expand(identifier)
-            if identifier == uri:
-                if PrefixManager.is_curie(identifier):
-                    identifier = identifier.replace(':', '_')
-                if ' ' in identifier:
-                    identifier = identifier.replace(' ', '_')
-                uri = self.DEFAULT.term(identifier)
+            # if identifier == uri:
+            #     if PrefixManager.is_curie(identifier):
+            #         identifier = identifier.replace(':', '_')
+            #     if ' ' in identifier:
+            #         identifier = identifier.replace(' ', '_')
+            #     uri = self.DEFAULT.term(identifier)
 
         return URIRef(uri)
 
