@@ -94,6 +94,10 @@ class PandasTransformer(Transformer):
         if 'delimiter' not in kwargs:
             # infer delimiter from file format
             kwargs['delimiter'] = _extension_types[input_format]
+        if 'lineterminator' not in kwargs:
+            # set '\n' to be the default line terminator to prevent
+            # truncation of lines due to hidden/escaped carriage returns
+            kwargs['lineterminator'] = '\n'
 
         mode = _archive_read_mode[compression] if compression in _archive_read_mode else None
 
