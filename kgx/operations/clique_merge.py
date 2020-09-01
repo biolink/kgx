@@ -171,6 +171,7 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
 
     """
     cliques = list(nx.connected_components(clique_graph))
+    log.info(f"Consolidating edges in {len(cliques)} cliques")
     for clique in cliques:
         leader = [x for x in clique if leader_annotation in clique_graph.nodes[x] and clique_graph.nodes[x][leader_annotation]]
         if len(leader) == 0:
