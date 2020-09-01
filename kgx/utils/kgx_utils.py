@@ -306,6 +306,7 @@ def get_prefix_prioritization_map():
     prefix_prioritization_map = {}
     # TODO: Lookup via Biolink CURIE should be supported in bmt
     descendants = toolkit.descendents('named thing')
+    descendants.append('named thing')
     for d in descendants:
         element = toolkit.get_element(d)
         if 'id_prefixes' in element:
