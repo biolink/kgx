@@ -1,7 +1,9 @@
 Operations
 ==========
 
-This module provides a set of operations that are supported by KGX.
+This module provides a set of operations that are supported by KGX. Each operation has an entrypoint - a function
+that takes a ``networkx.MultiDiGraph`` as input and performs some operation on the nodes and/or edges of that graph.
+
 
 Clique Merge
 ------------

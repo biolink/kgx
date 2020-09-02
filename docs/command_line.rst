@@ -1,4 +1,7 @@
+KGX Command Line Interface
+==========================
 
-.. click:: bin.translator_kgx:cli
+.. click:: kgx.cli.translator_kgx:cli
    :prog: kgx
    :show-nested:
+

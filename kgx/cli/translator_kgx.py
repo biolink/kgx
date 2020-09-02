@@ -71,7 +71,7 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: str, 
 @click.option('--output', required=False, type=click.Path(exists=False), help='File to write validation reports to')
 def validate(inputs: List[str], input_format: str, input_compression: str, output: str):
     """
-    Run KGX validator on an input file to check for BioLink Model compliance.
+    Run KGX validator on an input file to check for Biolink Model compliance.
     \f
 
     Parameters
@@ -88,7 +88,7 @@ def validate(inputs: List[str], input_format: str, input_compression: str, outpu
     """
     transformer = get_transformer(input_format)()
     for file in inputs:
-        transformer.parse(file, input_format=input_format, input_compression=input_compression)
+        transformer.parse(file, input_format=input_format, compression=input_compression)
 
     validator = Validator()
     errors = validator.validate(transformer.graph)

@@ -1,7 +1,7 @@
 Installation
 ============
 
-The installation for requires Python 3.6 or greater.
+The installation for requires Python 3.7 or greater.
 
 Installation for users
 ----------------------
