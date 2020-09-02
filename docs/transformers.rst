@@ -1,7 +1,8 @@
 Transformers
 ============
 
-Transformers are classes in KGX that allow for you to
+Transformers are classes in KGX that allow you to read and write data of a particular form.
+
 
 Transformer
 -----------
