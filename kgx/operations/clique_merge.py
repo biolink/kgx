@@ -447,14 +447,27 @@ def get_leader_by_annotation(target_graph: nx.MultiDiGraph, clique_graph: nx.Gra
     election_strategy = None
     for node in clique:
         attributes = clique_graph.nodes[node]
-        if leader_annotation in attributes and isinstance(attributes[leader_annotation], str) and eval(attributes[leader_annotation]):
-            leader = node
-            election_strategy = 'LEADER_ANNOTATION'
-        elif leader_annotation in attributes and isinstance(attributes[leader_annotation], list) and eval(attributes[leader_annotation][0]):
-            leader = node
-            election_strategy = 'LEADER_ANNOTATION'
-    if election_strategy:
+        if leader_annotation in attributes:
+            if isinstance(attributes[leader_annotation], str):
+                v = attributes[leader_annotation]
+                if v == "true" or v == "True":
+                    leader = node
+            elif isinstance(attributes[leader_annotation], list):
+                v = attributes[leader_annotation][0]
+                if isinstance(v, str):
+                    if v == "true" or v == "True":
+                        leader = node
+                elif isinstance(v, bool):
+                    if eval(str(v)):
+                        leader = node
+            elif isinstance(attributes[leader_annotation], bool):
+                v = attributes[leader_annotation]
+                if eval(str(v)):
+                    leader = node
+    if leader:
+        election_strategy = 'LEADER_ANNOTATION'
         log.debug(f"Elected leader '{leader}' via LEADER_ANNOTATION")
+
     return leader, election_strategy
 
 
