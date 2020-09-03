@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 
-from kgx import NeoTransformer, PandasTransformer, Transformer
+from kgx import NeoTransformer
 from kgx.operations.summarize_graph import summarize_graph
 
 import kgx
@@ -309,8 +309,11 @@ def merge(merge_config: str, targets: List, processes: int):
         log.info(f"Spawning process for {k}")
         result = pool.apply_async(parse_target, (k, v, output_directory, curie_map, node_properties, predicate_mappings))
         results.append(result)
-    transformers = [r.get() for r in results]
-    merged_graph = merge_all_graphs([x for x in transformers])
+    pool.close()
+    pool.join()
+    graphs = [r.get() for r in results]
+    merged_graph = merge_all_graphs(graphs)
+
     if 'name' in cfg['merged_graph']:
         merged_graph.name = cfg['merged_graph']['name']
     if 'operations' in cfg['merged_graph']:
