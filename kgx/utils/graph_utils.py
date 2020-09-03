@@ -4,8 +4,7 @@ import stringcase
 from cachetools import cached
 
 from kgx.config import get_logger
-from kgx.operations.graph_merge import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
-from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key
+from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP = {}

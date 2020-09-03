@@ -17,6 +17,27 @@ cache = None
 
 log = get_logger()
 
+is_property_multivalued = {
+    'id': False,
+    'subject': False,
+    'object': False,
+    'edge_label': False,
+    'description': False,
+    'synonym': True,
+    'in_taxon': False,
+    'same_as': True,
+    'name': False,
+    'has_evidence': False,
+    'provided_by': True,
+    'category': True,
+    'publications': True,
+    'type': False,
+    'relation': False
+}
+
+CORE_NODE_PROPERTIES = {'id', 'name'}
+CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation'}
+
 
 def camelcase_to_sentencecase(s: str) -> str:
     """
@@ -441,3 +462,81 @@ def get_biolink_association_types():
     return formatted_associations
 
 
+def prepare_data_dict(d1, d2):
+    new_data = {}
+    for key, value in d2.items():
+        if isinstance(value, (list, set, tuple)):
+            new_value = [x for x in value]
+        else:
+            new_value = value
+
+        if key in is_property_multivalued:
+            if is_property_multivalued[key]:
+                # value for key is supposed to be multivalued
+                if key in d1:
+                    # key is in data
+                    if isinstance(d1[key], list):
+                        # existing key has value type list
+                        new_data[key] = d1[key]
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                        else:
+                            if new_value not in new_data[key]:
+                                new_data[key].append(new_value)
+                    else:
+                        if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
+                            log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        else:
+                            # existing key does not have value type list; converting to list
+                            new_data[key] = [d1[key]]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                if new_value not in new_data[key]:
+                                    new_data[key].append(new_value)
+                else:
+                    # key is not in data; adding
+                    if isinstance(new_value, (list, set, tuple)):
+                        new_data[key] = [x for x in new_value]
+                    else:
+                        new_data[key] = [new_value]
+            else:
+                # key is not multivalued; adding/replacing as-is
+                if key in d1:
+                    if isinstance(d1[key], list):
+                        new_data[key] = d1[key]
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value]
+                        else:
+                            new_data[key].append(new_value)
+                    else:
+                        if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
+                            log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        else:
+                            new_data[key] = new_value
+                else:
+                    new_data[key] = new_value
+        else:
+            # treating key as multivalued
+            if key in d1:
+                # key is in data
+                if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
+                    log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                else:
+                    if isinstance(d1[key], list):
+                        # existing key has value type list
+                        new_data[key] = d1[key]
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                        else:
+                            new_data[key].append(new_value)
+                    else:
+                        # existing key does not have value type list; converting to list
+                        new_data[key] = [d1[key]]
+                        if isinstance(new_value, (list, set, tuple)):
+                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                        else:
+                            new_data[key].append(new_value)
+            else:
+                new_data[key] = new_value
+    return new_data
