@@ -94,6 +94,10 @@ class PandasTransformer(Transformer):
         if 'delimiter' not in kwargs:
             # infer delimiter from file format
             kwargs['delimiter'] = _extension_types[input_format]
+        if 'lineterminator' not in kwargs:
+            # set '\n' to be the default line terminator to prevent
+            # truncation of lines due to hidden/escaped carriage returns
+            kwargs['lineterminator'] = '\n'
 
         mode = _archive_read_mode[compression] if compression in _archive_read_mode else None
 
@@ -106,33 +110,24 @@ class PandasTransformer(Transformer):
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
                     iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
-                    if re.search('nodes.{}'.format(input_format), member.name):
+                    if re.search(f'nodes.{input_format}', member.name):
                         for chunk in iter:
                             self.load_nodes(chunk)
-                    elif re.search('edges.{}'.format(input_format), member.name):
+                    elif re.search(f'edges.{input_format}', member.name):
                         for chunk in iter:
                             self.load_edges(chunk)
                     else:
-                        raise Exception('Tar archive contains an unrecognized file: {}'.format(member.name))
+                        raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
         else:
             iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
-            for chunk in iter:
-                self.load(chunk)
-
-    def load(self, df: pd.DataFrame) -> None:
-        """
-        Load a panda.DataFrame, containing either nodes or edges, into a networkx.MultiDiGraph
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            Dataframe containing records that represent nodes or edges
-
-        """
-        if 'subject' in df:
-            self.load_edges(df)
-        else:
-            self.load_nodes(df)
+            if re.search(f'nodes.{input_format}', filename):
+                for chunk in iter:
+                    self.load_nodes(chunk)
+            elif re.search(f'edges.{input_format}', filename):
+                for chunk in iter:
+                    self.load_edges(chunk)
+            else:
+                raise Exception(f'Unrecognized file: {filename}')
 
     def load_nodes(self, df: pd.DataFrame) -> None:
         """

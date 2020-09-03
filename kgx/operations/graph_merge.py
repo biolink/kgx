@@ -5,9 +5,8 @@ import networkx as nx
 
 # TODO: refer to Biolink Model to populate this
 from kgx.config import get_logger
+from kgx.utils.kgx_utils import prepare_data_dict
 
-CORE_NODE_PROPERTIES = {'id', 'name'}
-CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation'}
 
 log = get_logger()
 
@@ -136,38 +135,8 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
 
     """
     existing_node = g.nodes[n]
-    for k, v in data.items():
-        if k in existing_node:
-            if k in CORE_NODE_PROPERTIES:
-                log.debug(f"cannot modify core node property '{k}': {existing_node[k]} vs {v}")
-            elif k == 'category':
-                log.debug(f"updating node property '{k}'; Appending {v} to {existing_node[k]}")
-                if isinstance(v, list):
-                    existing_node[k].extend(v)
-                else:
-                    existing_node[k].append(v)
-                existing_node['category'] = list(set(existing_node[k]))
-            else:
-                if isinstance(existing_node[k], list):
-                    # append
-                    log.debug(f"node property '{k}' is a list; Appending {v} to {existing_node[k]}")
-                    if isinstance(v, list):
-                        existing_node[k].extend(v)
-                    else:
-                        existing_node[k].append(v)
-                else:
-                    if preserve:
-                        # convert to a list and append
-                        log.debug(f"preserving node property '{k}'; Appending {v} to {existing_node[k]}")
-                        existing_node[k] = [existing_node[k]]
-                        existing_node[k].append(v)
-                    else:
-                        # overwrite the value for key
-                        log.debug(f"overwriting node property '{k}'; Replacing {existing_node[k]} with {v}")
-                        existing_node[k] = v
-        else:
-            log.debug(f"adding new node property {k} to node")
-            existing_node[k] = v
+    new_data = prepare_data_dict(existing_node, data, preserve)
+    existing_node.update(new_data)
     return existing_node
 
 
@@ -200,6 +169,7 @@ def add_all_edges(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = Tru
             g1.add_edge(u, v, key, **data)
     return merge_count
 
+
 def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserve: bool = True) -> dict:
     """
     Merge edge ``u`` -> ``v`` into graph ``g``.
@@ -226,29 +196,6 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
 
     """
     existing_edge = g.get_edge_data(u, v, key)
-    for k, v in data.items():
-        if k in existing_edge:
-            if k in CORE_EDGE_PROPERTIES:
-                log.debug(f"cannot modify core edge property '{k}': {existing_edge[k]} vs {v}")
-            else:
-                if isinstance(existing_edge[k], list):
-                    # append
-                    log.debug(f"edge property '{k}' list a list; Appending {v} to {existing_edge[k]}")
-                    if isinstance(v, list):
-                        existing_edge[k].extend(v)
-                    else:
-                        existing_edge[k].append(v)
-                else:
-                    if preserve:
-                        # convert to a list and append
-                        log.debug(f"preserving edge property '{k}'; Appending {v} to {existing_edge[k]}")
-                        existing_edge[k] = [existing_edge[k]]
-                        existing_edge[k].append(v)
-                    else:
-                        # overwrite the value for key
-                        log.debug(f"overwriting edge property '{k}'; Replacing {existing_edge[k]} with {v}")
-                        existing_edge[k] = v
-        else:
-            log.debug(f"adding new edge property {k} to edge")
-            existing_edge[k] = v
+    new_data = prepare_data_dict(existing_edge, data, preserve)
+    existing_edge.update(new_data)
     return existing_edge

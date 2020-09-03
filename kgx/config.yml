@@ -9,6 +9,7 @@ neo4j:
 ontologies:
   RO: http://purl.obolibrary.org/obo/ro.owl
   BFO: http://purl.obolibrary.org/obo/bfo.owl
+  SEPIO: http://purl.obolibrary.org/obo/sepio.owl
 #  HP: http://purl.obolibrary.org/obo/hp.owl
 #  GO: http://purl.obolibrary.org/obo/go.owl
 #  SO: http://purl.obolibrary.org/obo/so.owl

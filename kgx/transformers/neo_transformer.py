@@ -28,7 +28,7 @@ class NeoTransformer(Transformer):
         self.http_driver = None
         self.http_driver = http_gdb(uri, username=username, password=password)
 
-    def load(self, start: int = 0, end: int = None, is_directed: bool = True, page_size: int = 50000) -> None:
+    def load(self, start: int = 0, end: int = None, is_directed: bool = True, page_size: int = 50000, provided_by = None) -> None:
         """
         Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
@@ -42,13 +42,17 @@ class NeoTransformer(Transformer):
             Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
         page_size: int
             Size of page (or chunk) to fetch from Neo4j
-
+        provided_by: str
+            Define the source providing the data
         """
         if end is None:
             # get total number of records to be fetched from Neo4j
             count = self.count(is_directed=is_directed)
         else:
             count = end - start
+
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
 
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = current_time_in_millis()
@@ -126,6 +130,8 @@ class NeoTransformer(Transformer):
             A node
 
         """
+        if 'provided_by' in self.graph_metadata and 'provided_by' not in node.keys():
+            node['provided_by'] = self.graph_metadata['provided_by']
         self.graph.add_node(node['id'], **node)
 
     def load_edges(self, edges: List) -> None:
@@ -168,6 +174,9 @@ class NeoTransformer(Transformer):
 
         if not self.graph.has_node(object_node['id']):
             self.load_node(object_node)
+
+        if 'provided_by' in self.graph_metadata and 'provided_by' not in edge.keys():
+            edge['provided_by'] = self.graph_metadata['provided_by']
 
         key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
         self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)

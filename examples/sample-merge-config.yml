@@ -1,60 +1,68 @@
-target:
-   sequence-ontology:
+configuration:
+  output_directory: 'output_data'
+merged_graph:
+  target:
+    sequence-ontology:
       type: owl
       filename: data/so.owl
-   hgnc-dataset:
+    hgnc-dataset:
       type: ttl
       filename: data/hgnc_test.ttl
-   test-dataset:
+    test-dataset:
       type: tsv
       compression: tar.gz
       filename: data/test_dataset.tar.gz
       filters:
-         node_filters:
-            category:
-               - biolink:Gene
-               - biolink:Disease
-         edge_filters:
-            edge_label:
-               - biolink:contributes_to
-   neo-kg:
+        node_filters:
+          category:
+            - biolink:Gene
+            - biolink:Disease
+        edge_filters:
+          edge_label:
+            - biolink:contributes_to
+    neo-kg:
       type: neo4j
       uri: http://localhost:7474
       username: neo4j
       password: neo4j
       page_size: 10000
       filters:
-         node_filters:
-            category:
-               - biolink:Gene
-               - biolink:Disease
-               - biolink:PhenotypicFeature
-         edge_filters:
-            subject_category:
-               - biolink:Gene
-               - biolink:Disease
-            object_category:
-               - biolink:PhenotypicFeature
-            edge_label:
-               - biolink:interacts_with
-               - biolink:has_phenotype
-   sparql-kg:
+        node_filters:
+          category:
+            - biolink:Gene
+            - biolink:Disease
+            - biolink:PhenotypicFeature
+        edge_filters:
+          subject_category:
+            - biolink:Gene
+            - biolink:Disease
+          object_category:
+            - biolink:PhenotypicFeature
+          edge_label:
+            - biolink:interacts_with
+            - biolink:has_phenotype
+    sparql-kg:
       type: sparql
       uri: http://localhost/sparql
-#      filters:
-#         edge_filters:
-#            subject_category:
-#               - biolink:Gene
-#               - biolink:PhenotypicFeature
-#            object_category:
-#               - biolink:Disease
-#            edge_label:
-#               - biolink:is_marker_for
-#               - biolink:has_phenotype
-   local-kg:
+    #      filters:
+    #         edge_filters:
+    #            subject_category:
+    #               - biolink:Gene
+    #               - biolink:PhenotypicFeature
+    #            object_category:
+    #               - biolink:Disease
+    #            edge_label:
+    #               - biolink:is_marker_for
+    #               - biolink:has_phenotype
+    local-kg:
       type: json
       filename: local-kg-dump.json
-destination:
-   type: tsv
-   filename: merged-kg
-
+  operations:
+    - name: kgx.operations.clique_merge.clique_merge
+      args:
+        leader_annotation: 'cliqueLeader'
+        prefix_prioritization_map:
+          'biolink:NamedThing': ['HGNC', 'NCBIGene', 'ENSEMBL']
+  destination:
+    type: tsv
+    filename: merged-kg
