@@ -67,8 +67,9 @@ def test_merge_all_graphs():
     assert len(edges) == 2
 
     data = list(edges.values())[0]
-    assert isinstance(data['provided_by'], str)
-    assert data['provided_by'] == 'Graph 1'
+    assert isinstance(data['provided_by'], list)
+    assert 'Graph 1' in data['provided_by']
+    assert 'Graph 2' in data['provided_by']
 
 
 def test_merge_graphs():
@@ -108,5 +109,5 @@ def test_merge_edge():
 
     assert edge['edge_label'] == 'biolink:related_to'
     assert edge['relation'] == 'biolink:related_to'
-    assert edge['provided_by'] == 'KGX'
+    assert 'KGX' in edge['provided_by']
     assert edge['evidence'] == 'PMID:123456'

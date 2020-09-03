@@ -135,7 +135,7 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
 
     """
     existing_node = g.nodes[n]
-    new_data = prepare_data_dict(existing_node, data)
+    new_data = prepare_data_dict(existing_node, data, preserve)
     existing_node.update(new_data)
     return existing_node
 
@@ -196,6 +196,6 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
 
     """
     existing_edge = g.get_edge_data(u, v, key)
-    new_data = prepare_data_dict(existing_edge, data)
+    new_data = prepare_data_dict(existing_edge, data, preserve)
     existing_edge.update(new_data)
     return existing_edge

@@ -462,7 +462,7 @@ def get_biolink_association_types():
     return formatted_associations
 
 
-def prepare_data_dict(d1, d2):
+def prepare_data_dict(d1, d2, preserve = True):
     new_data = {}
     for key, value in d2.items():
         if isinstance(value, (list, set, tuple)):
@@ -475,7 +475,7 @@ def prepare_data_dict(d1, d2):
                 # value for key is supposed to be multivalued
                 if key in d1:
                     # key is in data
-                    if isinstance(d1[key], list):
+                    if isinstance(d1[key], (list, set, tuple)):
                         # existing key has value type list
                         new_data[key] = d1[key]
                         if isinstance(new_value, (list, set, tuple)):
@@ -503,7 +503,7 @@ def prepare_data_dict(d1, d2):
             else:
                 # key is not multivalued; adding/replacing as-is
                 if key in d1:
-                    if isinstance(d1[key], list):
+                    if isinstance(d1[key], (list, set, tuple)):
                         new_data[key] = d1[key]
                         if isinstance(new_value, (list, set, tuple)):
                             new_data[key] += [x for x in new_value]
@@ -513,7 +513,14 @@ def prepare_data_dict(d1, d2):
                         if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
                             log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                         else:
-                            new_data[key] = new_value
+                            if preserve:
+                                new_data[key] = [d1[key]]
+                                if isinstance(new_value, (list, set, tuple)):
+                                    new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                else:
+                                    new_data[key].append(new_value)
+                            else:
+                                new_data[key] = new_value
                 else:
                     new_data[key] = new_value
         else:
@@ -523,7 +530,7 @@ def prepare_data_dict(d1, d2):
                 if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
                     log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
                 else:
-                    if isinstance(d1[key], list):
+                    if isinstance(d1[key], (list, set, tuple)):
                         # existing key has value type list
                         new_data[key] = d1[key]
                         if isinstance(new_value, (list, set, tuple)):
@@ -532,11 +539,14 @@ def prepare_data_dict(d1, d2):
                             new_data[key].append(new_value)
                     else:
                         # existing key does not have value type list; converting to list
-                        new_data[key] = [d1[key]]
-                        if isinstance(new_value, (list, set, tuple)):
-                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                        if preserve:
+                            new_data[key] = [d1[key]]
+                            if isinstance(new_value, (list, set, tuple)):
+                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            else:
+                                new_data[key].append(new_value)
                         else:
-                            new_data[key].append(new_value)
+                            new_data[key] = new_value
             else:
                 new_data[key] = new_value
     return new_data
