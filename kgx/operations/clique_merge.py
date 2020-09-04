@@ -259,6 +259,8 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
         The clique
 
     """
+    if not category_mapping:
+        category_mapping = {}
     updated_node_categories = {}
     for node in clique:
         data = clique_graph.nodes[node]
