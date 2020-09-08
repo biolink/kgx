@@ -285,6 +285,31 @@ def test_save3():
 
 @pytest.mark.parametrize("query", [
     (
+            {'category': {'biolink:Gene'}}, None, 2, 0
+    ),
+    (
+            {'category': {'biolink:Protein'}}, None, 4, 3
+    ),
+    (
+            {'category': {'biolink:Protein'}}, {'edge_label': {'biolink:interacts_with'}}, 4, 1
+    ),
+])
+def test_filters(query):
+    rt = RdfTransformer()
+    if query[0]:
+        for k, v in query[0].items():
+            rt.set_node_filter(k, v)
+    if query[1]:
+        for k, v in query[1].items():
+            rt.set_edge_filter(k, v)
+    rt.parse(os.path.join(resource_dir, 'rdf', 'test3.nt'))
+
+    assert rt.graph.number_of_nodes() == query[2]
+    assert rt.graph.number_of_edges() == query[3]
+
+
+@pytest.mark.parametrize("query", [
+    (
         {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
         {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
         {'category': ['biolink:NamedThing', 'biolink:Gene']},
