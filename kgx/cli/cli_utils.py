@@ -63,42 +63,6 @@ def get_file_types() -> Tuple:
     return tuple(_transformers.keys())
 
 
-def get_type(filename) -> str:
-    """
-    Get the format for a given filename.
-
-    Parameters
-    ----------
-    filename: str
-        The filename
-
-    Returns
-    -------
-    str
-        The file format
-
-    """
-    p = pathlib.Path(filename)
-    suffixes = [x[1:] for x in p.suffixes]
-
-    if len(suffixes) == 0:
-        log.error(f"Cannot infer suffix for file {filename}")
-        file_type = None
-    elif len(suffixes) == 1:
-        s = suffixes[0]
-        file_type = s if s in _transformers.keys() else None
-    elif len(suffixes) == 2:
-        s = '.'.join(suffixes)
-        file_type = s if s in _transformers.keys() else None
-        if not file_type:
-            file_type = suffixes[-1] if suffixes[-1] in _transformers.keys() else None
-    else:
-        log.warning(f"Ambiguous file name: {filename}")
-        s = suffixes[-1]
-        file_type = s if s in _transformers.keys() else None
-    return file_type
-
-
 def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None):
     """
     Parse a target (source) from a merge config YAML.
