@@ -1,7 +1,8 @@
 import re
 import time
-from typing import List
+from typing import List, Dict, Set
 
+import networkx
 import stringcase
 from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
 from bmt import Toolkit
@@ -550,3 +551,81 @@ def prepare_data_dict(d1, d2, preserve = True):
             else:
                 new_data[key] = new_value
     return new_data
+
+
+def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set], edge_filters: Dict[str, Set]) -> None:
+    """
+    Apply filters to graph and remove nodes and edges that
+    do not pass given filters.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    node_filters: Dict[str, Set]
+        Node filters
+    edge_filters: Dict[str, Set]
+        Edge filters
+
+    """
+    apply_node_filters(graph, node_filters)
+    apply_edge_filters(graph, edge_filters)
+
+
+def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set]) -> None:
+    """
+    Apply filters to graph and remove nodes that do not pass given filters.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    node_filters: Dict[str, Set]
+        Node filters
+
+    """
+    nodes_to_remove = []
+    for node, node_data in graph.nodes(data=True):
+        pass_filter = True
+        for k, v in node_filters.items():
+            if k == 'category':
+                if not any(x in node_data[k] for x in v):
+                    pass_filter = False
+        if not pass_filter:
+            nodes_to_remove.append(node)
+
+    for node in nodes_to_remove:
+        # removing node that fails category filter
+        log.debug(f"Removing node {node}")
+        graph.remove_node(node)
+
+
+def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Set]) -> None:
+    """
+    Apply filters to graph and remove edges that do not pass given filters.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+        The graph
+    edge_filters: Dict[str, Set]
+        Edge filters
+
+    """
+    edges_to_remove = []
+    for subject_node, object_node, key, data in graph.edges(keys=True, data=True):
+        pass_filter = True
+        for k, v in edge_filters.items():
+            if k == 'edge_label':
+                if data[k] not in v:
+                    pass_filter = False
+            elif k == 'relation':
+                if data[k] not in v:
+                    pass_filter = False
+        if not pass_filter:
+            edges_to_remove.append((subject_node, object_node, key))
+
+    for edge in edges_to_remove:
+        # removing edge that fails edge filters
+        log.debug(f"Removing edge {edge}")
+        graph.remove_edge(edge[0], edge[1], edge[2])

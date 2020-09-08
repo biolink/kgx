@@ -42,6 +42,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.start = 0
         self.count = 0
         self.property_types = get_biolink_property_types()
+        self.node_filters = {}
+        self.edge_filters = {}
 
     def set_predicate_mapping(self, m: Dict) -> None:
         """
@@ -124,6 +126,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.start = current_time_in_millis()
         self.load_networkx_graph(rdfgraph)
         log.info(f"Done parsing {filename}")
+        apply_filters(self.graph, self.node_filters, self.edge_filters)
         self.report()
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:

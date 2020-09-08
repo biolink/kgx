@@ -10,7 +10,7 @@ import networkx as nx
 
 from kgx import RdfTransformer
 from kgx.config import get_logger
-from kgx.utils.kgx_utils import  current_time_in_millis
+from kgx.utils.kgx_utils import current_time_in_millis, apply_filters
 
 log = get_logger()
 
@@ -63,6 +63,7 @@ class NtTransformer(RdfTransformer):
 
         self.dereify(self.reified_nodes)
         log.info(f"Done parsing {filename}")
+        apply_filters(self.graph, self.node_filters, self.edge_filters)
 
     def save(self, filename: str = None, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
