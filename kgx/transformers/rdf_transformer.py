@@ -12,7 +12,7 @@ from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, generate_uuid
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, \
-    current_time_in_millis, get_biolink_association_types, get_biolink_property_types
+    current_time_in_millis, get_biolink_association_types, get_biolink_property_types, apply_filters
 
 
 log = get_logger()
