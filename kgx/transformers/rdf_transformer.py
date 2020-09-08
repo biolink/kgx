@@ -556,13 +556,66 @@ class RdfOwlTransformer(RdfTransformer):
 
     .. note::
         This is a simple parser that loads direct class-class relationships.
-        Axioms and restrictions are not parsed.
-        This may (or may not) be added in the future.
 
     """
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+        self.imported = set()
         super().__init__(source_graph, curie_map)
+
+    def parse(self, filename: str = None, input_format: str = None, compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+        """
+        Parse an OWL, and load into a rdflib.Graph
+
+
+        Parameters
+        ----------
+        filename : str
+            File to read from.
+        input_format : str
+            The input file format.
+            If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
+        compression: str
+            The compression type. For example, ``gz``
+        provided_by : str
+            Define the source providing the input file.
+        node_property_predicates: Set[str]
+            A set of rdflib.URIRef representing predicates that are to be treated as node properties
+
+        """
+        rdfgraph = rdflib.Graph()
+        if node_property_predicates:
+            self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
+
+        if compression:
+            log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
+        if input_format is None:
+            input_format = rdflib.util.guess_format(filename)
+
+        log.info("Parsing {} with '{}' format".format(filename, input_format))
+        rdfgraph.parse(filename, format=input_format)
+        log.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
+
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.start = current_time_in_millis()
+        log.info(f"Done parsing {filename}")
+        self.report()
+        triples = rdfgraph.triples((None, OWL.imports, None))
+        for s, p, o in triples:
+            # Load all imports first
+            if p == OWL.imports:
+                if o not in self.imported:
+                    input_format = rdflib.util.guess_format(o)
+                    imported_rdfgraph = rdflib.Graph()
+                    log.info(f"Parsing OWL import: {o}")
+                    self.imported.add(o)
+                    imported_rdfgraph.parse(o, format=input_format)
+                    self.load_networkx_graph(imported_rdfgraph)
+                else:
+                    log.warning(f"Trying to import {o} but its already done")
+        self.load_networkx_graph(rdfgraph)
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
         """
@@ -577,48 +630,46 @@ class RdfOwlTransformer(RdfTransformer):
         kwargs: dict
             Any additional arguments
         """
-        triples = rdfgraph.triples((None, RDFS.subClassOf, None))
-        with click.progressbar(list(triples), label='Progress') as bar:
-            for s, p, o in bar:
-                # ignoring blank nodes
-                if isinstance(s, rdflib.term.BNode):
+        seen = set()
+        seen.add(RDFS.subClassOf)
+        for s, p, o in rdfgraph.triples((None, RDFS.subClassOf, None)):
+            # ignoring blank nodes
+            if isinstance(s, rdflib.term.BNode):
+                continue
+            pred = None
+            parent = None
+            if isinstance(o, rdflib.term.BNode):
+                # C SubClassOf R some D
+                for x in rdfgraph.objects(o, OWL.onProperty):
+                    pred = x
+                for x in rdfgraph.objects(o, OWL.someValuesFrom):
+                    parent = x
+                if pred is None or parent is None:
+                    log.warning(f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}")
+                    log.warning("Do not know how to handle BNode: {}".format(o))
                     continue
-                pred = None
-                parent = None
-                if isinstance(o, rdflib.term.BNode):
-                    # C SubClassOf R some D
-                    for x in rdfgraph.objects(o, OWL.onProperty):
-                        pred = x
-                    for x in rdfgraph.objects(o, OWL.someValuesFrom):
-                        parent = x
-                    if pred is None or parent is None:
-                        log.warning("Do not know how to handle BNode: {}".format(o))
-                        continue
-                else:
-                    # C SubClassOf D (C and D are named classes)
-                    pred = p
-                    parent = o
-                self.triple(s, pred, parent)
+            else:
+                # C SubClassOf D (C and D are named classes)
+                pred = p
+                parent = o
+            self.triple(s, pred, parent)
 
-        triples = rdfgraph.triples((None, OWL.equivalentClass, None))
-        with click.progressbar(list(triples), label='Progress') as bar:
-            for s, p, o in bar:
-                if isinstance(o, rdflib.term.BNode):
-                    continue
+        seen.add(OWL.equivalentClass)
+        for s, p, o in rdfgraph.triples((None, OWL.equivalentClass, None)):
+            if not isinstance(o, rdflib.term.BNode):
                 self.triple(s, p, o)
 
-        relations = rdfgraph.subjects(RDF.type, OWL.ObjectProperty)
-        with click.progressbar(relations, label='Progress') as bar:
-            for relation in bar:
-                for _, p, o in rdfgraph.triples((relation, None, None)):
-                    if o.startswith('http://purl.obolibrary.org/obo/RO_'):
-                        self.triple(s, p, o)
-                    else:
-                        self.triple(s, p, o)
+        for relation in rdfgraph.subjects(RDF.type, OWL.ObjectProperty):
+            seen.add(relation)
+            for s, p, o in rdfgraph.triples((relation, None, None)):
+                if o.startswith('http://purl.obolibrary.org/obo/RO_'):
+                    self.triple(s, p, o)
+                elif not isinstance(o, rdflib.term.BNode):
+                    self.triple(s, p, o)
 
-        triples = rdfgraph.triples((None, None, None))
-        with click.progressbar(list(triples), label='Progress') as bar:
-            for s, p, o in bar:
-                if isinstance(s, rdflib.term.BNode):
-                    continue
-                self.triple(s, p, o)
+        for s, p, o in rdfgraph.triples((None, None, None)):
+            if isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode):
+                continue
+            if p in seen:
+                continue
+            self.triple(s, p, o)
