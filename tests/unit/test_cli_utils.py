@@ -14,7 +14,7 @@ def test_get_transformer():
     t = get_transformer('nt')
     assert t == NtTransformer
 
-    t = get_transformer('rdf')
+    t = get_transformer('ttl')
     assert t == RdfTransformer
 
 
@@ -23,4 +23,4 @@ def test_get_file_types():
     assert 'tsv' in file_types
     assert 'nt' in file_types
     assert 'json' in file_types
-    assert 'rdf' in file_types
+    assert 'ttl' in file_types

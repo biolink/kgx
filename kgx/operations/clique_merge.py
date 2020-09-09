@@ -1,6 +1,5 @@
-from typing import Tuple, Optional, Dict, List
+from typing import Tuple, Optional, Dict, List, Any, Set
 
-import click
 import networkx as nx
 
 from kgx.config import get_logger
@@ -15,7 +14,7 @@ ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
 
 
-def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, prefix_prioritization_map: Dict[str, List] = None, category_mapping: Dict = None):
+def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, prefix_prioritization_map: Optional[Dict[str, List[str]]] = None, category_mapping: Optional[Dict[str, str]] = None) -> Tuple[nx.MultiDiGraph, nx.Graph]:
     """
 
     Parameters
@@ -24,10 +23,15 @@ def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, p
         The original graph
     leader_annotation: str
         The field on a node that signifies that the node is the leader of a clique
-    prefix_prioritization_map: Dict[str, List]
+    prefix_prioritization_map: Optional[Dict[str, List[str]]]
         A map that gives a prefix priority for one or more categories
-    category_mapping: Dict[str, str]
+    category_mapping: Optional[Dict[str, str]]
         Mapping for non-Biolink Model categories to Biolink Model categories
+
+    Returns
+    -------
+    Tuple[networkx.MultiDiGraph, networkx.Graph]
+        A tuple containing the updated target graph, and the clique graph
 
     """
     ppm = get_prefix_prioritization_map()
@@ -80,7 +84,7 @@ def build_cliques(target_graph: nx.MultiDiGraph) -> nx.Graph:
     return clique_graph
 
 
-def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_annotation: str, prefix_prioritization_map: Dict[str, List], category_mapping: Dict[str, str]) -> nx.MultiDiGraph:
+def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_annotation: str, prefix_prioritization_map: Optional[Dict[str, List[str]]], category_mapping: Optional[Dict[str, str]]) -> nx.MultiDiGraph:
     """
     Elect leader for each clique in a graph.
 
@@ -92,9 +96,9 @@ def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_a
         The clique graph
     leader_annotation: str
         The field on a node that signifies that the node is the leader of a clique
-    prefix_prioritization_map: Dict[str, List]
+    prefix_prioritization_map: Optional[Dict[str, List[str]]]
         A map that gives a prefix priority for one or more categories
-    category_mapping: Dict[str, str]
+    category_mapping: Optional[Dict[str, str]]
         Mapping for non-Biolink Model categories to Biolink Model categories
 
     Returns
@@ -130,7 +134,7 @@ def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_a
             if leader is None:
                 # If leader is None, then use prefix prioritization
                 log.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
-                if clique_category in prefix_prioritization_map.keys():
+                if prefix_prioritization_map and clique_category in prefix_prioritization_map.keys():
                     (leader, election_strategy) = get_leader_by_prefix_priority(target_graph, clique_graph, clique, prefix_prioritization_map[clique_category])
                 else:
                     log.debug(f"No prefix order found for category '{clique_category}' in PREFIX_PRIORITIZATION_MAP")
@@ -147,6 +151,7 @@ def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_a
             target_graph.nodes[leader]['election_strategy'] = election_strategy
             count += 1
     log.info(f"Total merged cliques: {count}")
+    return target_graph
 
 
 def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_annotation: str) -> nx.MultiDiGraph:
@@ -173,12 +178,11 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
     cliques = list(nx.connected_components(clique_graph))
     log.info(f"Consolidating edges in {len(cliques)} cliques")
     for clique in cliques:
-        leader = [x for x in clique if leader_annotation in clique_graph.nodes[x] and clique_graph.nodes[x][leader_annotation]]
-        if len(leader) == 0:
+        leaders: List = [x for x in clique if leader_annotation in clique_graph.nodes[x] and clique_graph.nodes[x][leader_annotation]]
+        if len(leaders) == 0:
             log.debug("No leader elected for clique {}; skipping".format(clique))
             continue
-        else:
-            leader = leader[0]
+        leader: str = leaders[0]
         # update nodes in target graph
         nx.set_node_attributes(target_graph, {leader: {leader_annotation: clique_graph.nodes[leader].get(leader_annotation), 'election_strategy': clique_graph.nodes[leader].get('election_strategy')}})
         for node in clique:
@@ -235,7 +239,7 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
     return target_graph
 
 
-def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List, category_mapping: Dict[str, str]) -> List:
+def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List, category_mapping: Optional[Dict[str, str]]) -> List:
     """
     For a given clique, get category for each node in clique and validate against Biolink Model,
     mapping to Biolink Model category where needed.
@@ -250,7 +254,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
         The clique graph
     clique: List
         A list of nodes from a clique
-    category_mapping: Dict[str, str]
+    category_mapping: Optional[Dict[str, str]]
         Mapping for non-Biolink Model categories to Biolink Model categories
 
     Returns
@@ -270,8 +274,8 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
             # get category from equivalence
             categories = get_category_from_equivalence(target_graph, clique_graph, node, data)
 
-        extended_categories = set()
-        invalid_categories = []
+        extended_categories: Set = set()
+        invalid_categories: List = []
         for category in categories:
             log.debug(f"Looking at category: {category}")
             element = get_biolink_element(category)
@@ -302,7 +306,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
             else:
                 log.warning(f"category '{x}' is not in Biolink Model")
                 continue
-        update_dict = {'category': extended_categories}
+        update_dict: Dict = {'category': list(extended_categories)}
         if invalid_categories:
             update_dict['_invalid_category'] = invalid_categories
         updated_node_categories[node] = update_dict
@@ -312,7 +316,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
     return clique
 
 
-def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, node: str, attributes: Dict) -> str:
+def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, node: str, attributes: Dict) -> List:
     """
     Get category for a node based on its equivalent nodes in a graph.
 
@@ -329,11 +333,11 @@ def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: n
 
     Returns
     -------
-    str
+    List
         Category for the node
 
     """
-    category = []
+    category: List = []
     for u, v, data in clique_graph.edges(node, data=True):
         if data['edge_label'] == SAME_AS:
             if u == node:
@@ -347,7 +351,7 @@ def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: n
     return category
 
 
-def validate_clique_category(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List) -> Tuple[str, List]:
+def validate_clique_category(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List) -> Tuple[Optional[str], List[Any]]:
     """
     For nodes in a clique, validate the category for each node to make sure that
     all nodes in a clique are of the same type.
@@ -363,13 +367,13 @@ def validate_clique_category(target_graph: nx.MultiDiGraph, clique_graph: nx.Gra
 
     Returns
     -------
-    Tuple[str, List]
+    Tuple[Optional[str], List[Any]]
         A tuple of clique category string and a list of invalid nodes
 
     """
-    invalid_nodes = []
-    all_categories = []
-    clique_category = None
+    invalid_nodes: List = []
+    all_categories: List = []
+    clique_category: Optional[str] = None
     for node in clique:
         node_data = clique_graph.nodes[node]
         if 'category' in node_data and len(node_data['category']) > 0:
@@ -388,7 +392,7 @@ def validate_clique_category(target_graph: nx.MultiDiGraph, clique_graph: nx.Gra
     return clique_category, invalid_nodes
 
 
-def get_the_most_specific_category(categories: List) -> Tuple[str, List]:
+def get_the_most_specific_category(categories: List) -> Tuple[Optional[Any], List[Any]]:
     """
     From a list of categories, get ancestors for all.
     The category with the longest ancestor is considered to be the most specific.
@@ -403,12 +407,12 @@ def get_the_most_specific_category(categories: List) -> Tuple[str, List]:
 
     Returns
     -------
-    Tuple[str, List]
+    Tuple[Optional[Any], List[Any]]
         A tuple of the most specific category and a list of ancestors of that category
 
     """
-    most_specific_category = None
-    most_specific_category_ancestors = []
+    most_specific_category: Optional[str] = None
+    most_specific_category_ancestors: List = []
     for category in categories:
         log.debug("category: {}".format(category))
         element = get_biolink_element(category)

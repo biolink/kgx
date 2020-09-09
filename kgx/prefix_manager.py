@@ -1,5 +1,5 @@
 import re
-from typing import Dict
+from typing import Dict, Optional, Any
 
 import prefixcommons.curie_util as cu
 from cachetools import LRUCache, cached
@@ -18,8 +18,8 @@ class PrefixManager(object):
     biolink types such as Disease
     """
     DEFAULT_NAMESPACE = 'https://www.example.org/UNKNOWN/'
-    prefix_map = None
-    reverse_prefix_map = None
+    prefix_map: Dict[str, str]
+    reverse_prefix_map: Dict[str, str]
 
     def __init__(self, url: str = None):
         """
@@ -63,9 +63,9 @@ class PrefixManager(object):
         else:
             self.prefix_map[''] = self.DEFAULT_NAMESPACE
 
-        self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
+        self.reverse_prefix_map: Optional[Dict[str, Any]] = {y: x for x, y in self.prefix_map.items()}
 
-    def update_prefix_map(self, m: Dict) -> None:
+    def update_prefix_map(self, m: Dict[str, str]) -> None:
         """
         Update prefix maps with new mappings.
 
@@ -102,7 +102,7 @@ class PrefixManager(object):
         return uri
 
     @cached(LRUCache(maxsize=1024))
-    def contract(self, uri: str, fallback: bool = True) -> str:
+    def contract(self, uri: str, fallback: bool = True) -> Optional[str]:
         """
         Contract a given URI to a CURIE, based on mappings from `prefix_map`.
 
@@ -117,12 +117,12 @@ class PrefixManager(object):
 
         Returns
         -------
-        str
+        Optional[str]
             A CURIE corresponding to the URI
 
         """
         # always prioritize non-CURIE shortform
-        if uri in self.reverse_prefix_map:
+        if self.reverse_prefix_map and uri in self.reverse_prefix_map:
             curie = self.reverse_prefix_map[uri]
         else:
             curie = contract(uri, [self.prefix_map], fallback)
@@ -182,7 +182,7 @@ class PrefixManager(object):
 
     @staticmethod
     @cached(LRUCache(maxsize=1024))
-    def get_prefix(curie: str) -> str:
+    def get_prefix(curie: str) -> Optional[str]:
         """
         Get the prefix from a given CURIE.
 
@@ -197,14 +197,14 @@ class PrefixManager(object):
             The CURIE prefix
 
         """
-        prefix = None
+        prefix: Optional[str] = None
         if PrefixManager.is_curie(curie):
             prefix = curie.split(':', 1)[0]
         return prefix
 
     @staticmethod
     @cached(LRUCache(maxsize=1024))
-    def get_reference(curie: str) -> str:
+    def get_reference(curie: str) -> Optional[str]:
         """
         Get the reference of a given CURIE.
 
@@ -215,11 +215,11 @@ class PrefixManager(object):
 
         Returns
         -------
-        str
+        Optional[str]
             The reference of a CURIE
 
         """
-        reference = None
+        reference: Optional[str] = None
         if PrefixManager.is_curie(curie):
             reference = curie.split(':', 1)[1]
         return reference

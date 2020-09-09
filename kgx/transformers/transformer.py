@@ -1,6 +1,6 @@
 import networkx as nx
 import json
-from typing import Union, List, Dict, Tuple
+from typing import Union, List, Dict, Tuple, Set, Any
 from networkx.readwrite import json_graph
 
 from kgx.config import get_logger
@@ -28,6 +28,12 @@ class Transformer(object):
     This can be,
      - from a source to an in-memory property graph (networkx.MultiDiGraph)
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+
     """
 
     DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
@@ -38,9 +44,9 @@ class Transformer(object):
         else:
             self.graph = nx.MultiDiGraph()
 
-        self.node_filters = {}
-        self.edge_filters = {}
-        self.graph_metadata = {}
+        self.node_filters: Dict[str, Any] = {}
+        self.edge_filters: Dict[str, Any] = {}
+        self.graph_metadata: Dict = {}
 
     def report(self) -> None:
         """

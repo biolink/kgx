@@ -2,7 +2,6 @@ import gzip
 import itertools
 from typing import Set, Optional, Dict
 
-from rdflib import RDF
 from rdflib.plugins.parsers.ntriples import NTriplesParser
 from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
@@ -28,7 +27,7 @@ class NtTransformer(RdfTransformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
 
-    def parse(self, filename: str = None, input_format: str = 'nt', compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str, input_format: Optional[str] = 'nt', compression: Optional[str] = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
         Parse a n-triple file into networkx.MultiDiGraph
 
@@ -38,13 +37,13 @@ class NtTransformer(RdfTransformer):
         ----------
         filename : str
             File to read from.
-        input_format : str
+        input_format : Optional[str]
             The input file format. Must be ``nt``
-        compression: str
+        compression: Optional[str]
             The compression type. For example, ``gz``
-        provided_by : str
+        provided_by : Optional[str]
             Define the source providing the input file.
-        node_property_predicates: Set[str]
+        node_property_predicates: Optional[Set[str]]
             A set of rdflib.URIRef representing predicates that are to be treated as node properties
 
         """
@@ -65,7 +64,7 @@ class NtTransformer(RdfTransformer):
         log.info(f"Done parsing {filename}")
         apply_filters(self.graph, self.node_filters, self.edge_filters)
 
-    def save(self, filename: str = None, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
+    def save(self, filename: str, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
         Export networkx.MultiDiGraph into n-triple format.
 
@@ -79,6 +78,8 @@ class NtTransformer(RdfTransformer):
             The output format. Must be ``nt``
         compression: str
             The compression type. For example, ``gz``
+        reify_all_edges: bool
+            Whether to reify all edges in the graph
         kwargs: dict
             Any additional arguments
 

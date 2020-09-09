@@ -1,9 +1,6 @@
 from typing import List
-
 import networkx as nx
 
-
-# TODO: refer to Biolink Model to populate this
 from kgx.config import get_logger
 from kgx.utils.kgx_utils import prepare_data_dict
 

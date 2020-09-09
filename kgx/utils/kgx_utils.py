@@ -1,6 +1,6 @@
 import re
 import time
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional, Any, Union
 
 import networkx
 import stringcase
@@ -143,7 +143,7 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
-def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
+def contract(uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True) -> str:
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
     If no prefix map is provided then will use defaults from prefixcommons-py.
@@ -154,7 +154,7 @@ def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
     ----------
     uri: str
         A URI
-    prefix_maps: List[dict]
+    prefix_maps: Optional[List[Dict]]
         A list of prefix maps to use for mapping
     fallback: bool
         Determines whether to fallback to default prefix mappings, as determined
@@ -185,7 +185,7 @@ def contract(uri: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
     return curie
 
 
-def expand(curie: str, prefix_maps: List[dict] = None, fallback: bool = True) -> str:
+def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool = True) -> str:
     """
     Expand a given CURIE to an URI, based on mappings from `prefix_map`.
 
@@ -195,7 +195,7 @@ def expand(curie: str, prefix_maps: List[dict] = None, fallback: bool = True) ->
     ----------
     curie: str
         A CURIE
-    prefix_maps: List[dict]
+    prefix_maps: Optional[List[dict]]
         A list of prefix maps to use for mapping
     fallback: bool
         Determines whether to fallback to default prefix mappings, as determined
@@ -553,7 +553,7 @@ def prepare_data_dict(d1, d2, preserve = True):
     return new_data
 
 
-def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set], edge_filters: Dict[str, Set]) -> None:
+def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Union[str, Set]], edge_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove nodes and edges that
     do not pass given filters.
@@ -562,9 +562,9 @@ def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set], ed
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    node_filters: Dict[str, Set]
+    node_filters: Dict[str, Union[str, Set]]
         Node filters
-    edge_filters: Dict[str, Set]
+    edge_filters: Dict[str, Union[str, Set]]
         Edge filters
 
     """
@@ -572,7 +572,7 @@ def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set], ed
     apply_edge_filters(graph, edge_filters)
 
 
-def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set]) -> None:
+def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove nodes that do not pass given filters.
 
@@ -580,7 +580,7 @@ def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    node_filters: Dict[str, Set]
+    node_filters: Dict[str, Union[str, Set]]
         Node filters
 
     """
@@ -600,7 +600,7 @@ def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Set
         graph.remove_node(node)
 
 
-def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Set]) -> None:
+def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove edges that do not pass given filters.
 
@@ -608,7 +608,7 @@ def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Set
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    edge_filters: Dict[str, Set]
+    edge_filters: Dict[str, Union[str, Set]]
         Edge filters
 
     """

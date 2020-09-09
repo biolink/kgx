@@ -2,7 +2,7 @@ import itertools
 
 import click, rdflib, os, uuid
 import networkx as nx
-from typing import Tuple, Union, Set, List, Dict, Any, Iterator
+from typing import Tuple, Union, Set, List, Dict, Any, Iterator, Optional
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
 
@@ -23,9 +23,17 @@ class RdfTransformer(RdfGraphMixin, Transformer):
     Transformer that parses RDF and loads triples, as nodes and edges, into a networkx.MultiDiGraph
 
     This is the base class which is used to implement other RDF-based transformers.
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    curie_map: Optional[Dict]
+        A curie map that maps non-canonical CURIEs to IRIs
+
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Optional[Dict] = None):
         super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
         self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
@@ -38,12 +46,12 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             RDF.subject, RDF.object, RDF.predicate,
             self.OBAN.association_has_subject, self.OBAN.association_has_predicate, self.OBAN.association_has_object
         }
-        self.reified_nodes = set()
-        self.start = 0
-        self.count = 0
-        self.property_types = get_biolink_property_types()
-        self.node_filters = {}
-        self.edge_filters = {}
+        self.reified_nodes: Set = set()
+        self.start: int = 0
+        self.count: int = 0
+        self.property_types: Dict = get_biolink_property_types()
+        self.node_filters: Dict[str, Union[str, Set]] = {}
+        self.edge_filters: Dict[str, Union[str, Set]] = {}
 
     def set_predicate_mapping(self, m: Dict) -> None:
         """
@@ -86,7 +94,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
             self.property_types[key] = v
 
-    def parse(self, filename: str = None, input_format: str = None, compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str, input_format: Optional[str] = None, compression: Optional[str] = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
         Parse a file, containing triples, into a rdflib.Graph
 
@@ -94,16 +102,16 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         Parameters
         ----------
-        filename : str
+        filename : Optional[str]
             File to read from.
-        input_format : str
+        input_format : Optional[str]
             The input file format.
             If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
-        compression: str
+        compression: Optional[str]
             The compression type. For example, ``gz``
-        provided_by : str
+        provided_by : Optional[str]
             Define the source providing the input file.
-        node_property_predicates: Set[str]
+        node_property_predicates: Optional[Set[str]]
             A set of rdflib.URIRef representing predicates that are to be treated as node properties
 
         """
@@ -129,7 +137,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         apply_filters(self.graph, self.node_filters, self.edge_filters)
         self.report()
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
 
@@ -137,15 +145,15 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
+        predicates: Optional[Set[URIRef]]
+            A set containing predicates in rdflib.URIRef form
         kwargs: Dict
             Any additional arguments
 
         """
-        self.reified_nodes = set()
-        triples = rdfgraph.triples((None, None, None))
-        with click.progressbar(list(triples), label='Progress') as bar:
-            for s, p, o in bar:
-                self.triple(s, p, o)
+        self.reified_nodes.clear()
+        for s, p, o in rdfgraph.triples((None, None, None)):
+            self.triple(s, p, o)
         self.dereify(self.reified_nodes)
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
@@ -269,7 +277,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         reified_node['object'] = o
         return reified_node
 
-    def save(self, filename: str = None, output_format: str = "turtle", reify_all_edges: bool = False, **kwargs) -> None:
+    def save(self, filename: str, output_format: str = "turtle", compression: Optional[str] = None, reify_all_edges: bool = False, **kwargs) -> None:
         """
         Transform networkx.MultiDiGraph into rdflib.Graph and export
         this graph as a file (``turtle``, by default).
@@ -280,6 +288,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             Filename to write to
         output_format: str
             The output format; default: ``turtle``
+        compression: Optional[str]
+            The compression type. Not yet supported.
         reify_all_edges: bool
             Whether to reify all edges in the graph
         kwargs: Dict
@@ -543,6 +553,13 @@ class ObanRdfTransformer(RdfTransformer):
     - it dereifies OBAN.association triples into a property graph form
     - it reifies property graph into OBAN.association triples
 
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    curie_map: Optional[Dict]
+        A curie map that maps non-canonical CURIEs to IRIs
+
     """
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
@@ -560,29 +577,35 @@ class RdfOwlTransformer(RdfTransformer):
     .. note::
         This is a simple parser that loads direct class-class relationships.
 
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    curie_map: Optional[Dict]
+        A curie map that maps non-canonical CURIEs to IRIs
+
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
-        self.imported = set()
+    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, curie_map: Optional[Dict] = None):
+        self.imported: Set = set()
         super().__init__(source_graph, curie_map)
 
-    def parse(self, filename: str = None, input_format: str = None, compression: str = None, provided_by: str = None, node_property_predicates: Set[str] = None) -> None:
+    def parse(self, filename: str, input_format: Optional[str] = None, compression: Optional[str] = None, provided_by: Optional[str]  = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
         Parse an OWL, and load into a rdflib.Graph
-
 
         Parameters
         ----------
         filename : str
             File to read from.
-        input_format : str
+        input_format : Optional[str]
             The input file format.
             If ``None`` is provided then the format is guessed using ``rdflib.util.guess_format()``
-        compression: str
+        compression: Optional[str]
             The compression type. For example, ``gz``
-        provided_by : str
+        provided_by : Optional[str]
             Define the source providing the input file.
-        node_property_predicates: Set[str]
+        node_property_predicates: Optional[Set[str]]
             A set of rdflib.URIRef representing predicates that are to be treated as node properties
 
         """
@@ -620,7 +643,7 @@ class RdfOwlTransformer(RdfTransformer):
                     log.warning(f"Trying to import {o} but its already done")
         self.load_networkx_graph(rdfgraph)
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
 
@@ -628,10 +651,11 @@ class RdfOwlTransformer(RdfTransformer):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        predicates: list
+        predicates: Optional[Set[URIRef]]
             A list of rdflib.URIRef representing predicates to be loaded
-        kwargs: dict
+        kwargs: Dict
             Any additional arguments
+
         """
         seen = set()
         seen.add(RDFS.subClassOf)

@@ -24,7 +24,7 @@ _transformers = {
 log = get_logger()
 
 
-def get_transformer(file_format) -> Any:
+def get_transformer(file_format: str) -> Any:
     """
     Get a Transformer corresponding to a given file format.
 
@@ -130,7 +130,7 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
     elif target['type'] == 'neo4j':
         # Parse Neo4j
         transformer = NeoTransformer(
-            graph=None,
+            source_graph=None,
             uri=target['uri'],
             username=target['username'],
             password=target['password']

@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 
-from kgx import NeoTransformer
+from kgx import NeoTransformer, RdfTransformer
 from kgx.operations.summarize_graph import summarize_graph
 
 import kgx
@@ -34,7 +34,7 @@ def cli():
 
 @cli.command('graph-summary')
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
-@click.option('--input-format', required=True, type=click.Choice(get_file_types()), help='The input format')
+@click.option('--input-format', required=True, help=f'The input format. Can be one of {get_file_types()}')
 @click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=True, type=click.Path(exists=False))
 def graph_summary(inputs: List[str], input_format: str, input_compression: str, output: str):
@@ -263,6 +263,8 @@ def merge(merge_config: str, targets: List, processes: int):
         Merge config YAML
     targets: List
         A list of targets to load from the YAML
+    processes: int
+        Number of processes to use
 
     """
     with open(merge_config, 'r') as YML:
@@ -325,7 +327,7 @@ def merge(merge_config: str, targets: List, processes: int):
             log.info(f"Writing merged graph to {_}")
             if destination['type'] == 'neo4j':
                 destination_transformer = NeoTransformer(
-                    graph=merged_graph,
+                    source_graph=merged_graph,
                     uri=destination['uri'],
                     username=destination['username'],
                     password=destination['password']
@@ -333,7 +335,7 @@ def merge(merge_config: str, targets: List, processes: int):
                 destination_transformer.save()
             elif destination['type'] in get_file_types():
                 destination_transformer = get_transformer(destination['type'])(merged_graph)
-                if destination['type'] == 'nt':
+                if destination['type'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
                     destination_transformer.set_property_types(property_types)
                 compression = destination['compression'] if 'compression' in destination else None
                 destination_transformer.save(
