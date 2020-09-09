@@ -2,7 +2,7 @@ import rdflib
 from rdflib import URIRef
 from requests import HTTPError
 import networkx as nx
-from typing import Set, List, Dict, Generator
+from typing import Set, List, Dict, Generator, Optional
 
 from pystache import render
 from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
@@ -18,6 +18,13 @@ log = get_logger()
 class SparqlTransformer(RdfGraphMixin, Transformer):
     """
     Transformer for communicating with a SPARQL endpoint.
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    url: Optional[str]
+        The URL to a SPARQL endpoint
 
     """
 
@@ -45,12 +52,12 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
 
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, url: str = None):
+    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, url: Optional[str] = None):
         super().__init__(source_graph)
-        # set the URL for SPARQL endpoint
         self.url = url
+        raise NotImplementedError("This class has not yet been implemented.")
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         Fetch triples from the SPARQL endpoint and load them as edges.
 
@@ -58,24 +65,25 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
         ----------
         rdfgraph: rdflib.Graph
             A rdflib Graph (unused)
-        predicates: set
+        predicates: Optional[Set[URIRef]]
             A set containing predicates in rdflib.URIRef form
-        kwargs: dict
+        kwargs: Dict
             Any additional arguments.
 
         """
-        for predicate in predicates:
-            predicate = '<{}>'.format(predicate)
-            q = render(self.edge_query, {'predicate': predicate})
-            results = self.query(q)
-            for r in results:
-                s = r['subject']['value']
-                p = r['predicate']['value']
-                o = r['object']['value']
-                if r['object']['type'] == 'literal':
-                    self.add_node_attribute(s, key=p, value=o)
-                else:
-                    self.add_edge(s, o, p)
+        if predicates:
+            for predicate in predicates:
+                predicate = '<{}>'.format(predicate)
+                q = render(self.edge_query, {'predicate': predicate})
+                results = self.query(q)
+                for r in results:
+                    s = r['subject']['value']
+                    p = r['predicate']['value']
+                    o = r['object']['value']
+                    if r['object']['type'] == 'literal':
+                        self.add_node_attribute(s, key=p, value=o)
+                    else:
+                        self.add_edge(s, o, p)
 
     def query(self, q: str) -> Dict:
         """
@@ -88,7 +96,7 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
 
         Returns
         -------
-        dict
+        Dict
             A dictionary containing results from the query
 
         """
@@ -101,24 +109,10 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
         log.info("Rows fetched: {}".format(len(bindings)))
         return bindings
 
-    def get_filters(self) -> Dict:
-        """
-        Gets the current filter map, transforming if necessary.
-
-        Returns
-        -------
-        dict
-            Returns a dictionary with all filters
-        """
-        d = {}
-        for k, v in self.filters.items():
-            # TODO: use biolink map here
-            d[k] = v
-        return d
 
 class MonarchSparqlTransformer(SparqlTransformer):
     """
-    see neo_transformer for discussion
+    TODO
     """
 
     # OBAN-specific query
@@ -147,6 +141,7 @@ class MonarchSparqlTransformer(SparqlTransformer):
     def __init__(self, source_graph: nx.MultiDiGraph = None):
         super().__init__(source_graph)
         raise NotImplementedError("This class has not yet been implemented.")
+
 
 class RedSparqlTransformer(SparqlTransformer):
     """
@@ -232,9 +227,9 @@ class RedSparqlTransformer(SparqlTransformer):
 
     def __init__(self, source_graph: nx.MultiDiGraph = None, url: str ='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
         super().__init__(source_graph, url)
-        self.rdfgraph = rdflib.Graph()
+        raise NotImplementedError("This class has not yet been implemented.")
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, predicates: Set[URIRef] = None, **kwargs: Dict) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         Fetch all triples using the specified predicates and add them to networkx.MultiDiGraph.
 
@@ -242,48 +237,46 @@ class RedSparqlTransformer(SparqlTransformer):
         ----------
         rdfgraph: rdflib.Graph
             A rdflib Graph (unused)
-        predicates: set
+        predicates: Optional[Set[URIRef]]
             A set containing predicates in rdflib.URIRef form
         kwargs: dict
             Any additional arguments.
             Ex: specifying 'limit' argument will limit the number of triples fetched.
 
         """
-        for predicate in predicates:
-            sparql = SPARQLWrapper(self.url)
-            association = '<{}>'.format(predicate)
-            query = render(self.count_query, {'association': association})
-            log.debug(query)
-            sparql.setQuery(query)
-            sparql.setReturnFormat(JSON)
-            results = sparql.query().convert()
-            count = int(results['results']['bindings'][0]['triples']['value'])
-            log.info("Expected triples for query: {}".format(count))
-            step = 1000
-            start = 0
-            for i in range(step, count + step, step):
-                end = i
-                query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
+        if predicates:
+            for predicate in predicates:
+                sparql = SPARQLWrapper(self.url)
+                association = '<{}>'.format(predicate)
+                query = render(self.count_query, {'association': association})
+                log.debug(query)
                 sparql.setQuery(query)
-                log.debug("Fetching triples with predicate {}".format(predicate))
+                sparql.setReturnFormat(JSON)
                 results = sparql.query().convert()
-                node_list = set()
-                for r in results['results']['bindings']:
-                    node_list.add("<{}>".format(r['subject']['value']))
-                    node_list.add("<{}>".format(r['object']['value']))
-                start = end
-                self.load_nodes(node_list)
-                for r in results['results']['bindings']:
-                    s = r['subject']['value']
-                    p = r['predicate']['value']
-                    o = r['object']['value']
-                    self.add_edge(s, o, p)
-                    # TODO: preserve edge properties
+                count = int(results['results']['bindings'][0]['triples']['value'])
+                log.info("Expected triples for query: {}".format(count))
+                step = 1000
+                start = 0
+                for i in range(step, count + step, step):
+                    end = i
+                    query = render(self.edge_query, {'association': association, 'offset': start, 'limit':step})
+                    sparql.setQuery(query)
+                    log.debug("Fetching triples with predicate {}".format(predicate))
+                    results = sparql.query().convert()
+                    node_list = set()
+                    for r in results['results']['bindings']:
+                        node_list.add("<{}>".format(r['subject']['value']))
+                        node_list.add("<{}>".format(r['object']['value']))
+                    start = end
+                    self.load_nodes(node_list)
+                    for r in results['results']['bindings']:
+                        s = r['subject']['value']
+                        p = r['predicate']['value']
+                        o = r['object']['value']
+                        self.add_edge(s, o, p)
+                        # TODO: preserve edge properties
 
-                if 'limit' in kwargs and i > kwargs['limit']:
-                    break
-
-        self.categorize()
+            self.categorize()
 
     def categorize(self) -> None:
         """
@@ -321,7 +314,7 @@ class RedSparqlTransformer(SparqlTransformer):
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             node_results = sparql.query().convert()
-            d = {}
+            d: Dict = {}
             for r in node_results['results']['bindings']:
                 if r['object']['type'] != 'bnode':
                     subject = r['subject']['value']

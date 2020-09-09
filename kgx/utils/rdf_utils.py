@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List
+from typing import List, Optional
 import rdflib
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
@@ -16,8 +16,8 @@ BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
-property_mapping = OrderedDict()
-reverse_property_mapping = OrderedDict()
+property_mapping: OrderedDict = OrderedDict()
+reverse_property_mapping: OrderedDict = OrderedDict()
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
@@ -90,7 +90,7 @@ def generate_uuid():
     return f"urn:uuid:{uuid.uuid4()}"
 
 
-def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
+def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> Optional[List]:
     """
     Infer category for a given iri by traversing rdfgraph.
 
@@ -103,12 +103,10 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
 
     Returns
     -------
-    List[str]
+    Optional[List]
         A list of category corresponding to the given IRI
 
     """
-    category = None
-    subj = None
     closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
     category = [top_level_terms[x] for x in closure if x in top_level_terms.keys()]
     if category:
@@ -117,11 +115,11 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
         subj = closure[-1]
         if subj == iri:
             return category
-        subject_curie = contract(subj)
-        if '_' in subject_curie:
+        subject_curie: Optional[str] = contract(subj)
+        if subject_curie and '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
             log.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
             subject_curie = fixed_curie
         cls = get_curie_lookup_service()
-        category = get_category_via_superclass(cls.ontology_graph, subject_curie)
+        category = list(get_category_via_superclass(cls.ontology_graph, subject_curie))
     return category

@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Dict, Optional
 import networkx as nx
 import stringcase
 from cachetools import cached
@@ -7,8 +7,8 @@ from kgx.config import get_logger
 from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
 from kgx.prefix_manager import PrefixManager
 
-ONTOLOGY_PREFIX_MAP = {}
-ONTOLOGY_GRAPH_CACHE = {}
+ONTOLOGY_PREFIX_MAP: Dict = {}
+ONTOLOGY_GRAPH_CACHE: Dict = {}
 
 log = get_logger()
 
@@ -117,7 +117,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
     return set(new_categories)
 
 
-def curie_lookup(curie: str) -> str:
+def curie_lookup(curie: str) -> Optional[str]:
     """
     Given a CURIE, find its label.
 
@@ -132,12 +132,12 @@ def curie_lookup(curie: str) -> str:
 
     Returns
     -------
-    str
+    Optional[str]
         The label corresponding to the given CURIE
 
     """
     cls = get_curie_lookup_service()
-    name = None
+    name: Optional[str] = None
     prefix = PrefixManager.get_prefix(curie)
     if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
         name = stringcase.snakecase(curie.split(':', 1)[1])
@@ -170,7 +170,7 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
         The modified graph
 
     """
-    mapping = {}
+    mapping: Dict = {}
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
         if 'category' in node_data and category not in node_data['category']:
@@ -187,7 +187,7 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
                             break
                 else:
                     # no prefix defined; pick the 1st one from list
-                    mapping[nid] = alternative_values[0]
+                    mapping[nid] = next(iter(alternative_values))
             elif isinstance(alternative_values, str):
                 if prefix:
                     if alternative_values.startswith(prefix):

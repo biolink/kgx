@@ -1,6 +1,6 @@
 import json
 import pprint
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import networkx as nx
 import yaml
@@ -17,7 +17,7 @@ COUNT_BY_SPO = 'count_by_spo'
 # Note: the format of the stats generated might change in the future
 
 
-def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str, node_facet_properties: List = None, edge_facet_properties: List = None) -> None:
+def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> None:
     """
     Generate stats from Graph.
 
@@ -29,9 +29,9 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str,
         Name for the graph
     filename: str
         Filename to write the stats to
-    node_facet_properties: List
+    node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
-    edge_facet_properties: List
+    edge_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
 
     """
@@ -40,7 +40,7 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str,
     yaml.dump(stats, WH)
 
 
-def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: List = None, edge_facet_properties: List = None) -> Dict:
+def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Summarize the entire graph.
 
@@ -50,9 +50,9 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_propert
         The graph
     name: str
         Name for the graph
-    node_facet_properties: List
+    node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
-    edge_facet_properties: List
+    edge_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
 
     Returns
@@ -71,7 +71,7 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_propert
     return stats
 
 
-def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Dict:
+def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: Optional[List] = None) -> Dict:
     """
     Summarize the nodes in a graph.
 
@@ -79,7 +79,7 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    facet_properties: List
+    facet_properties: Optional[List]
         A list of properties to facet on
 
     Returns
@@ -88,7 +88,7 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
         The node stats
 
     """
-    stats = {
+    stats: Dict = {
         TOTAL_NODES: 0,
         NODE_CATEGORIES: set(),
         COUNT_BY_CATEGORY: {'unknown': {'count': 0}}
@@ -122,7 +122,7 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: List = None) -> Di
     return stats
 
 
-def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
+def summarize_edges(graph: nx.MultiDiGraph, facet_properties: Optional[List] = None):
     """
     Summarize the edges in a graph.
 
@@ -130,7 +130,7 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    facet_properties: List
+    facet_properties: Optional[List]
         The properties to facet on
 
     Returns
@@ -139,7 +139,7 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: List = None):
         The edge stats
 
     """
-    stats = {
+    stats: Dict = {
         TOTAL_EDGES: 0,
         EDGE_LABELS: set(),
         COUNT_BY_EDGE_LABEL: {'unknown': {'count': 0}},

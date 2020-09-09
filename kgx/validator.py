@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Tuple, List, TextIO
+from typing import Tuple, List, TextIO, Optional, Dict, Set
 
 import click
 import validators
@@ -75,6 +75,7 @@ class ValidationError(object):
             'message_level': self.message_level.name
         }
 
+
 class Validator(object):
     """
     Class for validating a property graph.
@@ -96,21 +97,26 @@ class Validator(object):
         self.verbose = verbose
 
     @staticmethod
-    def get_all_prefixes(jsonld: dict = None) -> set:
+    def get_all_prefixes(jsonld: Optional[Dict] = None) -> set:
         """
         Get all prefixes from Biolink Model JSON-LD context.
 
         It also sets ``self.prefixes`` for subsequent access.
 
+        Parameters
+        ---------
+        jsonld: Optional[Dict]
+            The JSON-LD context
+
         Returns
         -------
-        set
+        Optional[Dict]
             A set of prefixes
 
         """
         if not jsonld:
             jsonld = get_jsonld_context()
-        prefixes = set(k for k, v in jsonld.items() if isinstance(v, str))
+        prefixes: Set = set(k for k, v in jsonld.items() if isinstance(v, str)) # type: ignore
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes

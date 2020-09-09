@@ -1,4 +1,6 @@
-from typing import Dict, List
+from typing import Dict, List, Any, Optional
+
+import networkx
 
 from kgx.config import get_logger
 from kgx.transformers.json_transformer import JsonTransformer
@@ -10,10 +12,21 @@ log = get_logger()
 class RsaTransformer(JsonTransformer):
     """
     Transformer that parses a Reasoner Std API format JSON and loads nodes and edges into a networkx.MultiDiGraph
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    curie_map: Optional[Dict]
+        A curie map that maps non-canonical CURIEs to IRIs
+
     """
     # TODO: ReasonerStdAPI specification
 
-    def load(self, obj: Dict[str, List]) -> None:
+    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+        super().__init__(source_graph)
+
+    def load(self, obj: Dict[str, Any]) -> None:
         """
         Load a Reasoner Std API format JSON object, containing nodes and edges, into networkx.MultiDiGraph
 
@@ -22,7 +35,7 @@ class RsaTransformer(JsonTransformer):
 
         Parameters
         ----------
-        obj: dict
+        obj: Dict[str, Any]
             A Reasoner Std API formatted JSON object
 
         """
@@ -31,7 +44,7 @@ class RsaTransformer(JsonTransformer):
         if 'edges' in obj['knowledge_graph']:
             self.load_edges(obj['knowledge_graph']['edges'])
 
-    def load_node(self, node: dict) -> None:
+    def load_node(self, node: Dict) -> None:
         """
         Load a node into networkx.MultiDiGraph
 
@@ -40,7 +53,7 @@ class RsaTransformer(JsonTransformer):
 
         Parameters
         ----------
-        node : dict
+        node : Dict
             A node
 
         """
@@ -59,7 +72,7 @@ class RsaTransformer(JsonTransformer):
 
         Parameters
         ----------
-        edge : dict
+        edge : Dict
             An edge
 
         """

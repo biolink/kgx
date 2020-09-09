@@ -58,17 +58,23 @@ log = get_logger()
 
 class PandasTransformer(Transformer):
     """
-    Transformer that parses a pandas.DataFrame, and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parses a TSV/CSV, and loads nodes and edges into a networkx.MultiDiGraph
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+
     """
 
     # TODO: Support parsing and export of neo4j-import tool compatible CSVs with appropriate headers
 
-    def __init__(self, source_graph: networkx.MultiDiGraph = None):
+    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
         super().__init__(source_graph)
-        self._node_properties = set()
-        self._edge_properties = set()
+        self._node_properties: Set = set()
+        self._edge_properties: Set = set()
 
-    def parse(self, filename: str, input_format: str = 'csv', compression: str = None, provided_by: str = None, **kwargs) -> None:
+    def parse(self, filename: str, input_format: str = 'csv', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Dict) -> None:
         """
         Parse a CSV/TSV (or plain text) file.
 
@@ -83,9 +89,9 @@ class PandasTransformer(Transformer):
             File to read from
         input_format: str
             The input file format (``csv``, by default)
-        compression: str
-            The compression. For example, `tar`
-        provided_by: str
+        compression: Optional[str]
+            The compression. For example, ``tar``
+        provided_by: Optional[str]
             Define the source providing the input file
         kwargs: Dict
             Any additional arguments
@@ -93,38 +99,38 @@ class PandasTransformer(Transformer):
         """
         if 'delimiter' not in kwargs:
             # infer delimiter from file format
-            kwargs['delimiter'] = _extension_types[input_format]
+            kwargs['delimiter'] = _extension_types[input_format] # type: ignore
         if 'lineterminator' not in kwargs:
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
-            kwargs['lineterminator'] = '\n'
+            kwargs['lineterminator'] = '\n' # type: ignore
 
         mode = _archive_read_mode[compression] if compression in _archive_read_mode else None
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         if input_format == 'tsv':
-            kwargs['quoting'] = 3
+            kwargs['quoting'] = 3 # type: ignore
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
+                    file_iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
                     if re.search(f'nodes.{input_format}', member.name):
-                        for chunk in iter:
+                        for chunk in file_iter:
                             self.load_nodes(chunk)
                     elif re.search(f'edges.{input_format}', member.name):
-                        for chunk in iter:
+                        for chunk in file_iter:
                             self.load_edges(chunk)
                     else:
                         raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
         else:
-            iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs) # type: pd.DataFrame
+            file_iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
             if re.search(f'nodes.{input_format}', filename):
-                for chunk in iter:
+                for chunk in file_iter:
                     self.load_nodes(chunk)
             elif re.search(f'edges.{input_format}', filename):
-                for chunk in iter:
+                for chunk in file_iter:
                     self.load_edges(chunk)
             else:
                 raise Exception(f'Unrecognized file: {filename}')
@@ -142,13 +148,13 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_node(obj)
 
-    def check_node_filter(self, node: dict):
+    def check_node_filter(self, node: Dict) -> bool:
         """
         Check if a node passes defined node filters.
 
         Parameters
         ----------
-        node: dict
+        node: Dict
             A node
 
         Returns
@@ -189,7 +195,7 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        node : dict
+        node : Dict
             A node
 
         """
@@ -220,13 +226,13 @@ class PandasTransformer(Transformer):
         for obj in df.to_dict('record'):
             self.load_edge(obj)
 
-    def check_edge_filter(self, edge):
+    def check_edge_filter(self, edge: Dict) -> bool:
         """
         Check if an edge passes defined edge filters.
 
         Parameters
         ----------
-        edge: dict
+        edge: Dict
             An edge
 
         Returns
@@ -303,7 +309,7 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        edge : dict
+        edge : Dict
             An edge
 
         """
@@ -381,7 +387,7 @@ class PandasTransformer(Transformer):
                     values.append("")
             FH.write(delimiter.join(values) + '\n')
 
-    def save(self, filename: str, output_format: str = 'csv', compression: str = None, **kwargs) -> str:
+    def save(self, filename: str, output_format: str = 'csv', compression: Optional[str] = None, **kwargs: Dict) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
@@ -396,10 +402,15 @@ class PandasTransformer(Transformer):
             Name of tar archive file to create
         output_format: str
             The output file format (``csv``, by default)
-        compression: str
+        compression: Optional[str]
             The compression. For example, `tar`
-        kwargs: dict
+        kwargs: Dict
             Any additional arguments
+
+        Returns
+        -------
+        str
+            The filename
 
         """
         if output_format not in _extension_types:
@@ -438,7 +449,7 @@ class PandasTransformer(Transformer):
 
         return filename
 
-    def export_neo4j_nodes(self, filename, delimiter):
+    def export_neo4j_nodes(self, filename: str, delimiter: str) -> None:
         """
         Export nodes from networkx.MultiDiGraph in Neo4j compatible format.
         This format is meant for use with the ``neo4j-admin import`` tool.
@@ -478,7 +489,7 @@ class PandasTransformer(Transformer):
                     values.append("")
             FH.write(delimiter.join(values) + '\n')
 
-    def export_neo4j_edges(self, filename, delimiter):
+    def export_neo4j_edges(self, filename: str, delimiter: str) -> None:
         """
         Export edges from networkx.MultiDiGraph in Neo4j compatible format.
         This format is meant for use with the ``neo4j-admin import`` tool.
@@ -529,12 +540,12 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        data: dict
+        data: Dict
             A dictionary containing key-value pairs
 
         Returns
         -------
-        dict
+        Dict
             A dictionary containing processed key-value pairs
 
         """
@@ -553,12 +564,12 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        data: dict
+        data: Dict
             A dictionary containing key-value pairs
 
         Returns
         -------
-        dict
+        Dict
             A dictionary containing processed key-value pairs
 
         """
@@ -628,7 +639,7 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        graph: networkx.Graph
+        graph: networkx.MultiDiGraph
             A graph
 
         Returns
@@ -650,7 +661,7 @@ class PandasTransformer(Transformer):
 
         Parameters
         ----------
-        graph: networkx.Graph
+        graph: networkx.MultiDiGraph
             A graph
 
         Returns
@@ -682,6 +693,7 @@ class PandasTransformer(Transformer):
             Sanitized value
 
         """
+        new_value: Any
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
@@ -729,6 +741,7 @@ class PandasTransformer(Transformer):
             Sanitized value
 
         """
+        new_value: Any
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
@@ -781,7 +794,7 @@ class PandasTransformer(Transformer):
             The input without any null values
 
         """
-        new_value = None
+        new_value: Any = None
         if isinstance(input, (list, set, tuple)):
             # value is a list, set or a tuple
             new_value = []

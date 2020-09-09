@@ -2,13 +2,14 @@ import logging
 import sys
 from os import path
 import json
+from typing import Dict, Any, Optional
 
 import requests
 import yaml
 
-config = None
-logger = None
-jsonld_context_map = {}
+config: Optional[Dict[str, Any]] = None
+logger: Optional[logging.Logger] = None
+jsonld_context_map: Dict = {}
 
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
 
@@ -46,12 +47,12 @@ def get_jsonld_context(name: str = "biolink"):
     if name in jsonld_context_map:
         content = jsonld_context_map[name]
     else:
-        url = config['jsonld-context'][name]['local']
+        url = config['jsonld-context'][name]['local'] # type: ignore
         if path.exists(url):
             content = json.load(open(url))
         else:
             try:
-                url = config['jsonld-context'][name]['remote']
+                url = config['jsonld-context'][name]['remote'] # type: ignore
                 content = requests.get(url).json()
             except ConnectionError:
                 raise Exception(f'Unable to download JSON-LD context from {url}')

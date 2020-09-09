@@ -40,6 +40,6 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     entry_points={
-        'console_scripts': ['kgx=kgx.cli.translator_kgx:cli']
+        'console_scripts': ['kgx=kgx.cli:cli']
     }
 )

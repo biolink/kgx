@@ -1,4 +1,4 @@
-from kgx import SparqlTransformer, GraphMLTransformer
+from kgx import SparqlTransformer
 
 def test_dummy():
     pass

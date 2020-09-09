@@ -1,4 +1,5 @@
-from kgx import LogicTermTransformer, ObanRdfTransformer, RdfOwlTransformer
+from kgx.transformers.logicterm_transformer import LogicTermTransformer
+from kgx import ObanRdfTransformer, RdfOwlTransformer
 from rdflib import Namespace
 from rdflib.namespace import RDF
 import rdflib

@@ -38,3 +38,11 @@ def test_json_save():
     assert os.path.exists(os.path.join(target_dir, 'graph.json'))
 
 
+def test_filters():
+    t = JsonTransformer()
+    t.set_node_filter('category', {'biolink:Disease'})
+    t.set_edge_filter('category', {'biolink:causes'})
+    t.parse(os.path.join(resource_dir, 'valid.json'))
+    assert t.graph.number_of_nodes() == 5
+    assert t.graph.number_of_edges() == 0
+

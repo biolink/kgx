@@ -1,12 +1,14 @@
 import gzip
 import json
+
+import networkx
 import networkx as nx
 import stringcase
 
 from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.pandas_transformer import PandasTransformer
-from typing import List, Dict
+from typing import List, Dict, Any, Optional
 
 from kgx.utils.kgx_utils import get_toolkit
 
@@ -16,9 +18,18 @@ log = get_logger()
 class JsonTransformer(PandasTransformer):
     """
     Transformer that parses a JSON, and loads nodes and edges into a networkx.MultiDiGraph
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+
     """
 
-    def parse(self, filename: str, input_format: str = 'json', compression: str = None, provided_by: str = None, **kwargs) -> None:
+    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+        super().__init__(source_graph)
+
+    def parse(self, filename: str, input_format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
         """
         Parse a JSON file of the format,
 
@@ -33,9 +44,9 @@ class JsonTransformer(PandasTransformer):
             JSON file to read from
         input_format: str
             The input file format (``json``, by default)
-        compression: str
+        compression: Optional[str]
             The compression type. For example, ``gz``
-        provided_by: str
+        provided_by: Optional[str]
             Define the source providing the input file
         kwargs: dict
             Any additional arguments
@@ -53,13 +64,13 @@ class JsonTransformer(PandasTransformer):
                 obj = json.load(FH)
                 self.load(obj)
 
-    def load(self, obj: Dict[str, List]) -> None:
+    def load(self, obj: Dict[str, Any]) -> None:
         """
         Load a JSON object, containing nodes and edges, into a networkx.MultiDiGraph
 
         Parameters
         ----------
-        obj: dict
+        obj: Dict[str, Any]
             JSON Object with all nodes and edges
 
         """
@@ -118,7 +129,7 @@ class JsonTransformer(PandasTransformer):
             'edges': edges
         }
 
-    def save(self, filename: str, compression: str = None, **kwargs) -> None:
+    def save(self, filename: str, output_format: str = 'json', compression: Optional[str] = None, **kwargs) -> str:
         """
         Write networkx.MultiDiGraph to a file as JSON.
 
@@ -126,10 +137,17 @@ class JsonTransformer(PandasTransformer):
         ----------
         filename: str
             Filename to write to
-        compression: str
+        output_format: str
+            The output file format (``json``, by default)
+        compression: Optional[str]
             The compression type. For example, ``gz``
         kwargs: dict
             Any additional arguments
+
+        Returns
+        -------
+        str
+            The filename
 
         """
         obj = self.export()
@@ -139,6 +157,7 @@ class JsonTransformer(PandasTransformer):
         else:
             with open(filename, 'w') as WH:
                 WH.write(json.dumps(obj, indent=4, sort_keys=True))
+        return filename
 
 
 class ObographJsonTransformer(JsonTransformer):
@@ -154,7 +173,7 @@ class ObographJsonTransformer(JsonTransformer):
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
 
-    def parse(self, filename: str, input_format: str = 'json', compression: str = None, provided_by: str = None, **kwargs) -> None:
+    def parse(self, filename: str, input_format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
         """
         Parse Obograph JSON file of the format,
 
@@ -187,10 +206,10 @@ class ObographJsonTransformer(JsonTransformer):
             JSON file to read from
         input_format: str
             The input file format (``json``, by default)
-        provided_by: str
-            Define the source providing the input file
-        compression: str
+        compression: Optional[str]
             The compression type. For example, ``gz``
+        provided_by: Optional[str]
+            Define the source providing the input file
         kwargs: dict
             Any additional arguments
 
@@ -292,7 +311,7 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge[x] = edge[x]
         super().load_edge(fixed_edge)
 
-    def get_category(self, curie: str, node: dict) -> str:
+    def get_category(self, curie: str, node: dict) -> Optional[str]:
         """
         Get category for a given CURIE.
 
@@ -305,7 +324,7 @@ class ObographJsonTransformer(JsonTransformer):
 
         Returns
         -------
-        str
+        Optional[str]
             Category for the given node CURIE.
 
         """

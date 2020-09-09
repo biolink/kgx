@@ -5,31 +5,31 @@ from prologterms import Term, SExpressionRenderer, PrologRenderer
 from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 
 log = get_logger()
 
 
 class LogicTermTransformer(Transformer):
     """
-    TODO: Motivation for LogicTermTransformer?
+    TODO
     """
 
-    def __init__(self, source:Union[Transformer, nx.MultiDiGraph]=None, output_format=None, **args):
-        super().__init__(source=source, **args)
+    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, output_format: Optional[str] = None, **kwargs: Dict):
+        super().__init__(source_graph=source_graph)
         if output_format is not None and output_format == 'prolog':
             self.renderer = PrologRenderer()
         else:
             self.renderer = SExpressionRenderer()
 
     def export_nodes(self) -> pd.DataFrame:
-        items = []
+        items: List = []
         for n,data in self.graph.nodes(data=True):
             for k,v in data.items():
                 self.write_term('node_prop', n, k, v)
 
     def export_edges(self) -> pd.DataFrame:
-        items = []
+        items: List = []
         for o,s,data in self.graph.edges(data=True):
             el = data.get('edge_label', None)
             self.write_term('edge', el, o, s)
@@ -37,9 +37,8 @@ class LogicTermTransformer(Transformer):
                 self.write_term('edge_prop', el, o, s, k, v)
 
     def write_term(self, pred: str, *args):
-        t = Term(pred, *args)
+        t: Term = Term(pred, *args)
         self.file.write(self.renderer.render(t) + "\n")
-
 
     def save(self, filename: str, output_format='sxpr', zipmode='w', **kwargs):
         """

@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import List, Set, Dict, Tuple, Union, Optional
+from typing import List, Set, Dict, Tuple, Union, Optional, Any
 import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
@@ -29,13 +29,13 @@ class RdfGraphMixin(object):
     CORE_NODE_PROPERTIES = {'id'}
     CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'type'}
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, curie_map: Optional[Dict] = None):
         if source_graph:
             self.graph = source_graph
         else:
             self.graph = nx.MultiDiGraph()
 
-        self.graph_metadata = {}
+        self.graph_metadata: Dict = {}
         self.prefix_manager = PrefixManager()
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
         if curie_map:
@@ -47,9 +47,9 @@ class RdfGraphMixin(object):
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
         self.predicate_mapping = property_mapping.copy()
         self.reverse_predicate_mapping = reverse_property_mapping.copy()
-        self.cache = {}
+        self.cache: Dict = {}
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph = None, **kwargs) -> None:
+    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         This method should be overridden and be implemented by the derived class,
         and should load all desired nodes and edges from rdflib.Graph into networkx.MultiDiGraph
@@ -71,13 +71,15 @@ class RdfGraphMixin(object):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        kwargs: dict
+        predicates: Optional[Set[URIRef]]
+            A set containing predicates in rdflib.URIRef form
+        kwargs: Dict
             Any additional arguments
 
         """
         raise NotImplementedError("Method not implemented.")
 
-    def add_node(self, iri: URIRef, data: Dict = None) -> Dict:
+    def add_node(self, iri: URIRef, data: Optional[Dict] = None) -> Dict:
         """
         This method should be used by all derived classes when adding a node to
         the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
@@ -89,7 +91,7 @@ class RdfGraphMixin(object):
         ----------
         iri: rdflib.URIRef
             IRI of a node
-        data: dict
+        data: Optional[Dict]
             Additional node properties
 
         Returns
@@ -125,7 +127,7 @@ class RdfGraphMixin(object):
             self.graph.add_node(n, **node_data)
         return node_data
 
-    def update_node(self, n: Union[URIRef, str], data: Dict = None) -> Dict:
+    def update_node(self, n: Union[URIRef, str], data: Optional[Dict] = None) -> Dict:
         """
         Update a node with properties.
 
@@ -133,7 +135,7 @@ class RdfGraphMixin(object):
         ----------
         n: Union[URIRef, str]
             Node identifier
-        data: Dict
+        data: Optional[Dict]
             Node properties
 
         Returns
@@ -148,7 +150,7 @@ class RdfGraphMixin(object):
             node_data.update(new_data)
         return node_data
 
-    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Dict = None) -> Dict:
+    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Optional[Dict[Any, Any]] = None) -> Dict:
         """
         This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
         This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
@@ -162,7 +164,7 @@ class RdfGraphMixin(object):
             Object IRI for the object in a triple
         predicate_iri: rdflib.URIRef
             Predicate IRI for the predicate in a triple
-        data:
+        data: Optional[Dict[Any, Any]]
             Additional edge properties
 
         Returns
@@ -212,7 +214,7 @@ class RdfGraphMixin(object):
 
         return edge_data
 
-    def update_edge(self, subject_curie: str, object_curie: str, edge_key: str, data: Dict) -> Dict:
+    def update_edge(self, subject_curie: str, object_curie: str, edge_key: str, data: Optional[Dict[Any, Any]]) -> Dict:
         """
         Update an edge with properties.
 
@@ -224,7 +226,7 @@ class RdfGraphMixin(object):
             Object CURIE
         edge_key: str
             Edge key
-        data: Dict
+        data: Optional[Dict[Any, Any]]
             Edge properties
 
         Returns
@@ -239,7 +241,7 @@ class RdfGraphMixin(object):
             edge_data.update(new_data)
         return edge_data
 
-    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: str) -> Dict:
+    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: Union[str, List]) -> Dict:
         """
         Add an attribute to a node, while taking into account whether the attribute
         should be multi-valued.
@@ -256,7 +258,7 @@ class RdfGraphMixin(object):
             The IRI of a node in the rdflib.Graph
         key: str
             The name of the attribute. Can be a rdflib.URIRef or URI string
-        value: str
+        value: Union[str, List]
             The value of the attribute
 
         Returns
@@ -428,19 +430,14 @@ class RdfGraphMixin(object):
                     new_data[key] = new_value
         return new_data
 
-    def get_biolink_element(self, predicate: str) -> Optional[Element]:
+    def get_biolink_element(self, predicate: Any) -> Optional[Element]:
         """
-        Returns a Biolink Model element for a given predicate and property name.
-
-        If property_name could not be mapped to a biolink model element
-        then will return ``None``.
+        Returns a Biolink Model element for a given predicate.
 
         Parameters
         ----------
-        predicate: str
+        predicate: Any
             The CURIE of a predicate
-        property_name: str
-            The property name (usually the reference of a CURIE)
 
         Returns
         -------
@@ -466,18 +463,18 @@ class RdfGraphMixin(object):
                 log.error(e)
         return element
 
-    def process_predicate(self, p):
+    def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple[str, str, str, str]:
         """
         Process a predicate where the method checks if there is a mapping in Biolink Model.
 
         Parameters
         ----------
-        p: Optional[URIRef, str]
+        p: Optional[Union[URIRef, str]]
             The predicate
 
         Returns
         -------
-        Tuple
+        Tuple[str, str, str, str]
             A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
             the CURIE form of p, the reference of p
 

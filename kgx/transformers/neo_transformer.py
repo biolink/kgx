@@ -1,12 +1,12 @@
 import itertools
 import click
 import networkx as nx
-from typing import Tuple, List, Dict, Union
+from typing import Tuple, List, Dict, Union, Any, Iterator, Optional
 
 from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
 from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis
-from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
+from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship, GraphDatabase
 from neo4jrestclient.query import CypherException
 
 log = get_logger()
@@ -15,20 +15,28 @@ log = get_logger()
 class NeoTransformer(Transformer):
     """
     Transformer for reading from and writing to a Neo4j database.
+
+    Parameters
+    ----------
+    source_graph: Optional[networkx.MultiDiGraph]
+        The source graph
+    uri: Optional[str]
+        The Neo4j URI (with port)
+    username: Optional[str]
+        The Neo4j username for authentication
+    password: Optional[str]
+        The Neo4j password for authentication
+
     """
 
     CATEGORY_DELIMITER = '|'
     CYPHER_CATEGORY_DELIMITER = ':'
 
-    def __init__(self, graph: nx.MultiDiGraph = None, uri: str = None, username: str = None, password: str = None):
-        """
-        Initialize an instance of NeoTransformer.
-        """
-        super(NeoTransformer, self).__init__(graph)
-        self.http_driver = None
-        self.http_driver = http_gdb(uri, username=username, password=password)
+    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, uri: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None):
+        super(NeoTransformer, self).__init__(source_graph)
+        self.http_driver: GraphDatabase = http_gdb(uri, username=username, password=password)
 
-    def load(self, start: int = 0, end: int = None, is_directed: bool = True, page_size: int = 50000, provided_by = None) -> None:
+    def load(self, start: int = 0, end: Optional[int] = None, is_directed: bool = True, page_size: int = 50000, provided_by: Optional[str] = None) -> None:
         """
         Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
 
@@ -36,13 +44,13 @@ class NeoTransformer(Transformer):
         ----------
         start: int
             Start for pagination
-        end: int
+        end: Optional[int]
             End for pagination
         is_directed: bool
             Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
         page_size: int
             Size of page (or chunk) to fetch from Neo4j
-        provided_by: str
+        provided_by: Optional[str]
             Define the source providing the data
         """
         if end is None:
@@ -54,9 +62,10 @@ class NeoTransformer(Transformer):
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
 
+        kwargs = {'is_directed': is_directed}
         with click.progressbar(length=count, label='Getting {:,} records from Neo4j'.format(count)) as bar:
             time_start = current_time_in_millis()
-            for page in self.get_pages(self.get_edges, start, end, page_size=page_size, **{'is_directed': is_directed}):
+            for page in self.get_pages(self.get_edges, start, end, page_size=page_size, **kwargs):
                 self.load_edges(page)
                 bar.update(page_size)
             bar.update(count)
@@ -96,13 +105,16 @@ class NeoTransformer(Transformer):
         query += f" RETURN COUNT(*) AS count"
 
         log.debug(query)
+        query_result: Any
         try:
             query_result = self.http_driver.query(query)
         except CypherException as ce:
             log.error(ce)
 
+        counts: int
         for result in query_result:
-            return result[0]
+            counts = result[0]
+        return counts
 
     def load_nodes(self, nodes: List) -> None:
         """
@@ -181,7 +193,7 @@ class NeoTransformer(Transformer):
         key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
         self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
 
-    def get_pages(self, query_function, start: int = 0, end: int = None, page_size: int = 50000, **kwargs) -> list:
+    def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Dict) -> Iterator:
         """
         Get pages of size ``page_size`` from Neo4j.
         Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
@@ -192,16 +204,16 @@ class NeoTransformer(Transformer):
             The function to use to fetch records. Usually this is ``self.get_nodes`` or ``self.get_edges``
         start: int
             Start for pagination
-        end: int
+        end: Optional[int]
             End for pagination
         page_size: int
             Size of each page (``10000``, by default)
-        **kwargs: dict
+        kwargs: Dict
             Any additional arguments that might be relevant for ``query_function``
 
         Returns
         -------
-        list
+        Iterator
             An iterator for a list of records from Neo4j. The size of the list is ``page_size``
 
         """
@@ -441,7 +453,7 @@ class NeoTransformer(Transformer):
         """
         return query
 
-    def save(self, **kwargs) -> None:
+    def save(self) -> None:
         """
         Save all nodes and edges from networkx.MultiDiGraph into Neo4j using the UNWIND cypher clause.
 
@@ -459,7 +471,7 @@ class NeoTransformer(Transformer):
             else:
                 nodes_by_category[category].append(node_data)
 
-        edges_by_edge_label = {}
+        edges_by_edge_label: Dict[str, List] = {}
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             self.validate_edge(data)
             edge_label = data['edge_label']
@@ -519,7 +531,7 @@ class NeoTransformer(Transformer):
                 except CypherException as ce:
                     log.error(ce)
 
-    def get_node_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
+    def get_node_filter(self, key: str, variable: Optional[str] = None, prefix: Optional[str] = None, op: Optional[str] = None) -> str:
         """
         Get the value for node filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
@@ -528,11 +540,18 @@ class NeoTransformer(Transformer):
         ----------
         key: str
             Name of the node filter
+        variable: Optional[str]
+            Variable binding for cypher query
+        prefix: Optional[str]
+            Prefix for the cypher
+        op: Optional[str]
+            The operator
 
         Returns
         -------
         str
             Value corresponding to the given node filter `key`, formatted for CQL
+
         """
         value = ''
         if key in self.node_filters and self.node_filters[key]:
@@ -554,7 +573,7 @@ class NeoTransformer(Transformer):
                 log.error(f"Unexpected {key} node filter of type {type(self.node_filters[key])}")
         return value
 
-    def get_edge_filter(self, key: str, variable: str = None, prefix: str = None, op: str = None) -> str:
+    def get_edge_filter(self, key: str, variable: Optional[str] = None, prefix: Optional[str] = None, op: Optional[str] = None) -> str:
         """
         Get the value for edge filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
@@ -563,11 +582,18 @@ class NeoTransformer(Transformer):
         ----------
         key: str
             Name of the edge filter
+        variable: Optional[str]
+            Variable binding for cypher query
+        prefix: Optional[str]
+            Prefix for the cypher
+        op: Optional[str]
+            The operator
 
         Returns
         -------
         str
             Value corresponding to the given edge filter `key`, formatted for CQL
+
         """
         value = ''
         if key in self.edge_filters and self.edge_filters[key]:
@@ -592,9 +618,8 @@ class NeoTransformer(Transformer):
                 log.error(f"Unexpected {key} edge filter of type {type(self.edge_filters[key])}")
         return value
 
-
     @staticmethod
-    def sanitize_category(category: list):
+    def sanitize_category(category: List) -> List:
         """
         Sanitize category for use in UNWIND cypher clause.
         This method adds escape characters to each element in category
@@ -602,18 +627,32 @@ class NeoTransformer(Transformer):
 
         Parameters
         ----------
-        category: list
+        category: List
             Category
 
         Returns
         -------
-        list
+        List
             Sanitized category list
 
         """
         return [f"`{x}`" for x in category]
 
     @staticmethod
-    def create_constraint_query(category):
+    def create_constraint_query(category: str) -> str:
+        """
+        Create a Cypher CONSTRAINT query
+
+        Parameters
+        ----------
+        category: str
+            The category to create a constraint on
+
+        Returns
+        -------
+        str
+            The Cypher CONSTRAINT query
+
+        """
         query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
         return query
