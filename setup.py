@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-NAME = 'Knowledge Graph Exchange'
-DESCRIPTION = 'Knowledge Graph Exchange tools for BioLink model-compliant graphs.'
+NAME = 'kgx'
+DESCRIPTION = 'A Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the Biolink Model.'
 URL = 'https://github.com/NCATS-Tangerine/kgx'
 AUTHOR = 'Deepak Unni'
 EMAIL = 'deepak.unni3@gmail.com'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.7.0'
 VERSION = '0.0.1'
 LICENSE = 'BSD'
 
@@ -14,10 +14,8 @@ with open("requirements.txt", "r") as FH:
 
 EXTRAS = {}
 
-
 setup(
     name=NAME,
-    version=VERSION,
     author=AUTHOR,
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
@@ -25,9 +23,9 @@ setup(
     description=DESCRIPTION,
     long_description=open('README.md').read(),
     license=LICENSE,
-    packages=find_packages(),
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'kgx': ["config.yml"]},
-    keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator',
+    keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator Biolink-Model',
     classifiers=[
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bioinformatics',

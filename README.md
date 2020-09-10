@@ -14,13 +14,13 @@ The core datamodel is a [Property Graph](https://neo4j.com/developer/graph-datab
 KGX allows conversion to and from:
 
  * RDF serializations (read/write) and SPARQL endpoints (read)
- * Neo4J endpoints (read) or Neo4J dumps (write)
+ * Neo4j endpoints (read) or Neo4J dumps (write)
  * CSV/TSV and JSON (see [associated data formats](./data-preparation.md) and [example script to load CSV/TSV to Neo4j](./examples/scripts/load_csv_to_neo4j.py))
  * Reasoner Standard API format
  * OBOGraph JSON format
 
 
-KGX will also provide validation, to ensure the KGs are conformant to the Biolink model: making sure nodes are categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
+KGX will also provide validation, to ensure the KGs are conformant to the Biolink Model: making sure nodes are categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
 
 
 ## Internal Representation
@@ -139,9 +139,3 @@ which may not be compatible with your `venv` installed Python 3.7)
 ```bash
 python -m pip install .
 ```
-
-## Docker Dependencies
-
-Some components of KGX leverage the use of Docker. If not installed in your operating system environment, the following
-[instructions to install Docker](DOCKER_README.md) is recommended.
-
