@@ -22,15 +22,14 @@ setup(
     url=URL,
     description=DESCRIPTION,
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license=LICENSE,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'kgx': ["config.yml"]},
     keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator Biolink-Model',
     classifiers=[
         'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Bioinformatics',
-        'Topic :: Scientific/Engineering :: Knowledge Graphs',
-        'Topic :: Scientific/Engineering :: Translational Research',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3'
     ],
