@@ -10,7 +10,7 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict, Any, Optional
 
-from kgx.utils.kgx_utils import get_toolkit
+from kgx.utils.kgx_utils import get_toolkit, get_biolink_element, format_biolink_slots
 
 log = get_logger()
 
@@ -172,6 +172,7 @@ class ObographJsonTransformer(JsonTransformer):
         super().__init__(source_graph)
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
+        self.ecache = {}
 
     def parse(self, filename: str, input_format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
         """
@@ -285,12 +286,25 @@ class ObographJsonTransformer(JsonTransformer):
         fixed_edge['subject'] = self.prefix_manager.contract(edge['sub'])
         if PrefixManager.is_iri(edge['pred']):
             curie = self.prefix_manager.contract(edge['pred'])
-            fixed_edge['relation'] = curie
-            if self.graph.has_node(curie):
-                fixed_edge['edge_label'] = f"biolink:{self.graph.nodes[curie]['name'].replace(' ', '_')}"
-                # TODO: validate edge_label to biolink model
+            if curie in self.ecache:
+                edge_label = self.ecache[curie]
             else:
-                fixed_edge['edge_label'] = 'biolink:related_to'
+                element = get_biolink_element(curie)
+                if not element:
+                    try:
+                        mapping = self.toolkit.get_by_mapping(edge['pred'])
+                        element = self.toolkit.get_element(mapping)
+                    except ValueError as e:
+                        log.error(e)
+
+                if element:
+                    edge_label = format_biolink_slots(element.name.replace(',', ''))
+                    fixed_edge['edge_label'] = edge_label
+                else:
+                    edge_label = 'biolink:related_to'
+                self.ecache[curie] = edge_label
+            fixed_edge['edge_label'] = edge_label
+            fixed_edge['relation'] = curie
         else:
             if edge['pred'] == 'is_a':
                 fixed_edge['edge_label'] = 'biolink:subclass_of'
