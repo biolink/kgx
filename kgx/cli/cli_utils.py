@@ -8,7 +8,7 @@ import networkx
 import yaml
 
 import kgx
-from kgx import PandasTransformer, NeoTransformer, Validator
+from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer
 from kgx.config import get_logger
 from kgx.operations.graph_merge import merge_all_graphs
 from kgx.operations.summarize_graph import summarize_graph
@@ -67,7 +67,7 @@ def get_file_types() -> Tuple:
     return tuple(_transformers.keys())
 
 
-def graph_summary(inputs: List[str], input_format: str, input_compression: str, output: str):
+def graph_summary(inputs: List[str], input_format: str, input_compression: str, output: str) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
 
@@ -81,6 +81,12 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: str, 
         The input compression type
     output: str
         Where to write the output (stdout, by default)
+
+    Returns
+    -------
+    Dict
+        A dictionary with the graph stats
+
     """
     transformer = get_transformer(input_format)()
     for file in inputs:
@@ -95,7 +101,7 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: str, 
     return stats
 
 
-def validate(inputs: List[str], input_format: str, input_compression: str, output: str):
+def validate(inputs: List[str], input_format: str, input_compression: str, output: str) -> kgx.Validator:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
 
@@ -109,6 +115,11 @@ def validate(inputs: List[str], input_format: str, input_compression: str, outpu
         The input compression type
     output: str
         Path to output file
+
+    Returns
+    -------
+    kgx.Validator
+        An instance of the Validator
 
     """
     transformer = get_transformer(input_format)()
@@ -124,7 +135,7 @@ def validate(inputs: List[str], input_format: str, input_compression: str, outpu
     return validator
 
 
-def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
+def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
     """
     Download nodes and edges from Neo4j database.
 
@@ -142,10 +153,15 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
         The output type (``csv``, by default)
     output_compression: str
         The output compression type
-    node_filters: Tuple[str, str]
+    node_filters: Optional[Tuple]
         Node filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[Tuple]
         Edge filters
+
+    Returns
+    -------
+    kgx.Transformer
+        The NeoTransformer
 
     """
     transformer = NeoTransformer(uri=uri, username=username, password=password)
@@ -162,7 +178,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
     return output_transformer
 
 
-def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, uri: str, username: str, password: str, node_filters: Tuple[str, str], edge_filters: Tuple[str, str]):
+def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, uri: str, username: str, password: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
     """
     Upload a set of nodes/edges to a Neo4j database.
 
@@ -180,10 +196,15 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, u
         Username for authentication
     password: str
         Password for authentication
-    node_filters: Tuple[str, str]
+    node_filters: Optional[Tuple]
         Node filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[Tuple]
         Edge filters
+
+    Returns
+    -------
+    kgx.Transformer
+        The NeoTransformer
 
     """
     transformer = get_transformer(input_format)()
@@ -201,7 +222,7 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, u
     return neo_transformer
 
 
-def transform(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
+def transform(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
     """
     Transform a Knowledge Graph from one serialization form to another.
 
@@ -219,9 +240,9 @@ def transform(inputs: List[str], input_format: str, input_compression: str, outp
         The output format
     output_compression: str
         The output compression type
-    node_filters: Tuple[str, str]
+    node_filters: Optional[Tuple]
         Node filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[Tuple]
         Edge filters
 
     """
@@ -241,7 +262,7 @@ def transform(inputs: List[str], input_format: str, input_compression: str, outp
     return output_transformer
 
 
-def merge(merge_config: str, targets: List, processes: int):
+def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1) -> networkx.MultiDiGraph:
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
     The merged graph can then be written to a local/remote Neo4j instance OR be serialized into a file.
@@ -250,10 +271,15 @@ def merge(merge_config: str, targets: List, processes: int):
     ----------
     merge_config: str
         Merge config YAML
-    targets: List
+    targets: Optional[List]
         A list of targets to load from the YAML
     processes: int
         Number of processes to use
+
+    Returns
+    -------
+    networkx.MultiDiGraph
+        The merged graph
 
     """
     with open(merge_config, 'r') as YML:
@@ -336,6 +362,7 @@ def merge(merge_config: str, targets: List, processes: int):
                 log.error(f"type {destination['type']} not yet supported for KGX load-and-merge operation.")
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
+    return merged_graph
 
 
 def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None):
