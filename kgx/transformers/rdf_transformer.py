@@ -209,7 +209,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             self.add_edge(s, o, p)
 
         if self.count % 1000 == 0:
-            log.info(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
+            log.debug(f"Parsed {self.count} triples; time taken: {current_time_in_millis() - self.start} ms")
             self.start = current_time_in_millis()
 
     def dereify(self, nodes: Set[str]) -> None:
