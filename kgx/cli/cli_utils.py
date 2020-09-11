@@ -291,8 +291,11 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
     curie_map = {}
     property_types = {}
     output_directory = 'output'
+    checkpoint = False
 
     if 'configuration' in cfg:
+        if 'checkpoint' in cfg['configuration']:
+            checkpoint = cfg['configuration']['checkpoint']
         if 'node_properties' in cfg['configuration']:
             node_properties = cfg['configuration']['node_properties']
         if 'predicate_mappings' in cfg['configuration']:
@@ -324,8 +327,8 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
     results = []
     pool = Pool(processes=processes)
     for k, v in targets_to_parse.items():
-        log.info(f"Spawning process for {k}")
-        result = pool.apply_async(parse_target, (k, v, output_directory, curie_map, node_properties, predicate_mappings))
+        log.info(f"Spawning process for '{k}'")
+        result = pool.apply_async(parse_target, (k, v, output_directory, curie_map, node_properties, predicate_mappings, checkpoint))
         results.append(result)
     pool.close()
     pool.join()
@@ -351,11 +354,12 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
                 destination_transformer.save()
             elif destination['type'] in get_file_types():
                 destination_transformer = get_transformer(destination['type'])(merged_graph)
+                destination_filename = f"{output_directory}/{destination['filename']}"
                 if destination['type'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
                     destination_transformer.set_property_types(property_types)
                 compression = destination['compression'] if 'compression' in destination else None
                 destination_transformer.save(
-                    filename=destination['filename'],
+                    filename=destination_filename,
                     output_format=destination['type'],
                     compression=compression
                 )
@@ -366,7 +370,7 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
     return merged_graph
 
 
-def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None):
+def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, checkpoint: bool = False):
     """
     Parse a target (source) from a merge config YAML.
 
@@ -384,6 +388,8 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
         A set of predicates that ought to be treated as node properties (This is applicable for RDF)
     predicate_mappings: Dict[str, str]
         A mapping of predicate IRIs to property names (This is applicable for RDF)
+    checkpoint: bool
+        Whether to serialize each individual target to a TSV
 
     """
     target_name = target['name'] if 'name' in target else key
@@ -447,8 +453,10 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
         transformer.graph.name = key
     else:
         raise TypeError("type {} not yet supported".format(target['type']))
-    pt = PandasTransformer(transformer.graph)
-    pt.save(filename=f'{output_directory}/{key}', output_format='tsv', compression=None)
+    if checkpoint:
+        log.info(f"Writing checkpoint for target '{key}'")
+        pt = PandasTransformer(transformer.graph)
+        pt.save(filename=f'{output_directory}/{key}', output_format='tsv', compression=None)
     return transformer.graph
 
 
