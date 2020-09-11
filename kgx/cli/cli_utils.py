@@ -20,6 +20,7 @@ _transformers = {
     'nt': kgx.NtTransformer,
     'ttl': kgx.RdfTransformer,
     'json': kgx.JsonTransformer,
+    'obojson': kgx.ObographJsonTransformer,
     # 'rq': kgx.SparqlTransformer,
     'owl': kgx.RdfOwlTransformer,
     'rsa': kgx.RsaTransformer
@@ -445,7 +446,7 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
             apply_operations(target, transformer.graph)
         transformer.graph.name = key
     else:
-        log.error("type {} not yet supported".format(target['type']))
+        raise TypeError("type {} not yet supported".format(target['type']))
     pt = PandasTransformer(transformer.graph)
     pt.save(filename=f'{output_directory}/{key}', output_format='tsv', compression=None)
     return transformer.graph
