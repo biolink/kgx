@@ -10,13 +10,10 @@ ontologies:
   RO: http://purl.obolibrary.org/obo/ro.owl
   BFO: http://purl.obolibrary.org/obo/bfo.owl
   SEPIO: http://purl.obolibrary.org/obo/sepio.owl
-#  HP: http://purl.obolibrary.org/obo/hp.owl
-#  GO: http://purl.obolibrary.org/obo/go.owl
-#  SO: http://purl.obolibrary.org/obo/so.owl
 
 logging:
   level: INFO
-  format: '[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
+  format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
 biolink-model:
   local: biolink-model.yaml

@@ -697,21 +697,21 @@ class PandasTransformer(Transformer):
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
-                    value = [v.replace('\n', ' ').replace('\\"', '') if isinstance(v, str) else v for v in value]
+                    value = [v.replace('\n', ' ').replace('\\"', '').replace('\t', ' ') if isinstance(v, str) else v for v in value]
                     new_value = LIST_DELIMITER.join([str(x) for x in value])
                 else:
-                    new_value = str(value).replace('\n', ' ').replace('\\"', '')
+                    new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
             elif _column_types[key] == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ').replace('\\"', '')
+                new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
         else:
             if type(value) == list:
                 new_value = LIST_DELIMITER.join([str(x) for x in value])
-                new_value = new_value.replace('\n', ' ').replace('\\"', '')
+                new_value = new_value.replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
                 _column_types[key] = list
             elif type(value) == bool:
                 try:
@@ -720,7 +720,7 @@ class PandasTransformer(Transformer):
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ').replace('\\"', '')
+                new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
         return new_value
 
     @staticmethod
@@ -745,37 +745,37 @@ class PandasTransformer(Transformer):
         if key in _column_types:
             if _column_types[key] == list:
                 if isinstance(value, (list, set, tuple)):
-                    value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                    value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
                     new_value = list(value)
                 elif isinstance(value, str):
-                    value = value.replace('\n', ' ')
+                    value = value.replace('\n', ' ').replace('\t', ' ')
                     new_value = value.split(LIST_DELIMITER)
                 else:
-                    new_value = [str(value).replace('\n', ' ')]
+                    new_value = [str(value).replace('\n', ' ').replace('\t', ' ')]
             elif _column_types[key] == bool:
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ')
+                new_value = str(value).replace('\n', ' ').replace('\t', ' ')
         else:
             if isinstance(value, (list, set, tuple)):
-                value = [v.replace('\n', ' ') if isinstance(v, str) else v for v in value]
+                value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
                 new_value = list(value)
             elif isinstance(value, str):
                 if LIST_DELIMITER in value:
-                    value = value.replace('\n', ' ')
+                    value = value.replace('\n', ' ').replace('\t', ' ')
                     new_value = value.split(LIST_DELIMITER)
                 else:
-                    new_value = value.replace('\n', ' ')
+                    new_value = value.replace('\n', ' ').replace('\t', ' ')
             elif isinstance(value, bool):
                 try:
                     new_value = bool(value)
                 except:
                     new_value = False
             else:
-                new_value = str(value).replace('\n', ' ')
+                new_value = str(value).replace('\n', ' ').replace('\t', ' ')
         return new_value
 
     @staticmethod
