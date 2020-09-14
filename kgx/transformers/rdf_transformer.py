@@ -234,8 +234,11 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 node['relation'] = node['edge_label']
             if 'category' in node:
                 del node['category']
-            self.add_edge(node['subject'], node['object'], node['edge_label'], node)
-            self.graph.remove_node(n_curie)
+            if 'subject' in node and 'object' in node:
+                self.add_edge(node['subject'], node['object'], node['edge_label'], node)
+                self.graph.remove_node(n_curie)
+            else:
+                log.warning(f"Cannot dereify node {n} {node}")
 
     def reify(self, u: str, v: str, k: str, data: Dict) -> Dict:
         """
