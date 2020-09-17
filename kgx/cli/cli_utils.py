@@ -17,6 +17,7 @@ _transformers = {
     'tar': kgx.PandasTransformer,
     'csv': kgx.PandasTransformer,
     'tsv': kgx.PandasTransformer,
+    'tsv:neo4j': kgx.PandasTransformer,
     'nt': kgx.NtTransformer,
     'ttl': kgx.RdfTransformer,
     'json': kgx.JsonTransformer,
