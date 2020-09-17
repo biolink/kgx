@@ -22,10 +22,7 @@ KGX allows conversion to and from:
 
 KGX will also provide validation, to ensure the KGs are conformant to the Biolink Model: making sure nodes are categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
 
-
-## Internal Representation
-
-Internal representation is networkx MultiDiGraph which is a property graph.
+Internal representation is a property graph, specifically a networkx MultiDiGraph.
 
 The structure of this graph is expected to conform to the Biolink Model standard, briefly summarized here:
 
@@ -33,39 +30,43 @@ The structure of this graph is expected to conform to the Biolink Model standard
     * `id`: CURIE; required
     * `name`: string; recommended
     * `category`: string; broad high level type. Corresponds to node label in Neo4j
-    * Other properties 
- * [Edges](https://biolink.github.io/biolink-model/docs/Association.html)
+    * other properties 
+ * [Edges](https://biolink.github.io/biolink-model/docs/related_to.html)
     * `subject`: CURIE; required
     * `edge_label`: CURIE; required; Corresponds to edge label in Neo4j
     * `object`: CURIE, required
     * `relation`: CURIE; required
-    * Other properties
+    * other properties
+
+
+In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 
 
 ## Installation
+
 
 ### Python 3.7+ and Core Tool Dependencies
 
 > **Note:** the installation of KGX requires Python 3.7+
 
-You should first confirm what version of Python 
-you have running and upgrade to v3.7 as necessary, following best practices of your operating system. 
+You should first confirm what version of Python you have running and upgrade to v3.7 as necessary, following best practices of your operating system. 
 It is also assumed that the common development tools are installed including git, pip, and all necessary development libraries for your operating system.
 
 
-### Getting the Project Code
+### Getting the repository
 
-Go to where you wish to host your local project repository and git clone the project, namely:
+Go to where you wish to host your local project repository and clone the repository:
 
 ```bash
 cd /path/to/your/local/git/project/folder
 git clone https://github.com/NCATS-Tangerine/kgx.git
 
-# then  enter  into the cloned project repository
+# then enter into the cloned project repository
 cd kgx
 ```
 
-### Configuring a Safe Virtual Environment for KGX
+
+### Configuring a virtual environment for KGX
 
 For convenience, make use of the Python `venv` module to create a lightweight virtual environment. 
 
@@ -85,13 +86,6 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-To exit the environment, type:
-
-```
-deactivate
-```
-
-To re-enter, source the `activate` command again.
 
 Alternately, you can also use **conda env** to manage packages and the development environment:
 
@@ -99,8 +93,6 @@ Alternately, you can also use **conda env** to manage packages and the developme
 conda create -n translator-modules python=3.7
 conda activate translator-modules
 ```
-
-Some IDE's (e.g. PyCharm) may also have provisions for directly creating a virtual environment. This should work just fine.
 
 
 ### Installing Python Dependencies 
@@ -125,17 +117,16 @@ At this point, it is advisable to separately install the `wheel` package depende
 pip3 install wheel
 ```
  
-After installation of the `wheel` package, we install the remaining KGX Python package dependencies without error:
+After installation of the `wheel` package, install KGX:
 
 ```bash
-pip3 install .
+python3 setup.py install
 ```
 
-It is *sometimes* better to use the `python -m pip` version of pip rather than just `pip`
-to ensure that the proper version of pip - i.e. for the python3 in your virtual environment - is used 
-(i.e. once again, better check your pip version.  On some systems, it may run the operating system's version, 
-which may not be compatible with your `venv` installed Python 3.7)
-
+To ensure that the installation is successful, try the following command:
 ```bash
-python -m pip install .
+kgx --help
 ```
+
+
+
