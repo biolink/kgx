@@ -21,6 +21,7 @@ _transformers = {
     'nt': kgx.NtTransformer,
     'ttl': kgx.RdfTransformer,
     'json': kgx.JsonTransformer,
+    'jsonl': kgx.JsonlTransformer,
     'obojson': kgx.ObographJsonTransformer,
     # 'rq': kgx.SparqlTransformer,
     'owl': kgx.RdfOwlTransformer,
@@ -319,7 +320,7 @@ def transform(inputs: List[str], input_format: str, input_compression: str, outp
                 'filename': output
             }
         }
-        transform_target(None, target, output_directory)
+        transform_target(None, target, None)
 
 
 def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1) -> networkx.MultiDiGraph:
@@ -559,11 +560,14 @@ def parse_target_input(key: str, target: Dict, output_directory: str, curie_map:
     edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
     operations = target['input']['operations'] if 'operations' in target['input'] and target['filters'] is not None else {}
     target_curie_map = target['curie_map'] if 'curie_map' in target and target['curie_map'] is not None else {}
-    target_curie_map.update(curie_map)
+    if curie_map:
+        target_curie_map.update(curie_map)
     target_predicate_mappings = target['predicate_mappings'] if 'predicate_mappings' in target and target['predicate_mappings'] is not None else {}
-    target_predicate_mappings.update(predicate_mappings)
+    if predicate_mappings:
+        target_predicate_mappings.update(predicate_mappings)
     target_node_properties = target['node_properties'] if 'node_properties' in target and target['node_properties'] is not None else []
-    target_node_properties.extend(node_properties)
+    if node_properties:
+        target_node_properties.extend(node_properties)
 
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types

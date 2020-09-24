@@ -3,6 +3,7 @@ from kgx.transformers.rdf_transformer import RdfTransformer, ObanRdfTransformer,
 from kgx.transformers.nt_transformer import NtTransformer
 from kgx.transformers.sparql_transformer import SparqlTransformer, RedSparqlTransformer
 from kgx.transformers.json_transformer import JsonTransformer, ObographJsonTransformer
+from kgx.transformers.jsonl_transformer import JsonlTransformer
 from kgx.transformers.rsa_transformer import RsaTransformer
 from kgx.transformers.neo_transformer import NeoTransformer
 from kgx.transformers.transformer import Transformer
