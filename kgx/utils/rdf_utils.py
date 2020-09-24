@@ -77,19 +77,6 @@ top_level_terms = {
 }
 
 
-def generate_uuid():
-    """
-    Generates a UUID.
-
-    Returns
-    -------
-    str
-        A UUID
-
-    """
-    return f"urn:uuid:{uuid.uuid4()}"
-
-
 def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> Optional[List]:
     """
     Infer category for a given iri by traversing rdfgraph.

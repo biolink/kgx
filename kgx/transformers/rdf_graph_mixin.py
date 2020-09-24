@@ -7,7 +7,7 @@ from rdflib import URIRef, Namespace
 from kgx.config import get_logger
 from kgx.curie_lookup_service import CurieLookupService
 from kgx.utils.graph_utils import curie_lookup
-from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, generate_uuid, reverse_property_mapping
+from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase
 from kgx.prefix_manager import PrefixManager
 

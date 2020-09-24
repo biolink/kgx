@@ -10,10 +10,10 @@ from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, generate_uuid
+from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_node_properties, get_biolink_edge_properties, \
-    current_time_in_millis, get_biolink_association_types, get_biolink_property_types, apply_filters
-
+    current_time_in_millis, get_biolink_association_types, get_biolink_property_types, apply_filters, \
+    generate_edge_identifiers, generate_uuid
 
 log = get_logger()
 
@@ -135,7 +135,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         self.load_networkx_graph(rdfgraph)
         log.info(f"Done parsing {filename}")
         apply_filters(self.graph, self.node_filters, self.edge_filters)
-        self.report()
+        generate_edge_identifiers(self.graph)
 
     def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
@@ -707,3 +707,5 @@ class RdfOwlTransformer(RdfTransformer):
             if p in seen:
                 continue
             self.triple(s, p, o)
+
+        generate_edge_identifiers(self.graph)

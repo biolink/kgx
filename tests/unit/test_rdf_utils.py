@@ -2,7 +2,7 @@ import os
 import pytest
 from rdflib import URIRef, Graph
 
-from kgx.utils.rdf_utils import infer_category, generate_uuid
+from kgx.utils.rdf_utils import infer_category
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, '../resources')
@@ -20,7 +20,3 @@ def test_infer_category(query):
     [c] = infer_category(query[0], graph)
     assert c == query[1]
 
-
-def test_generate_uuid():
-    s = generate_uuid()
-    assert s.startswith('urn:uuid:')

@@ -1,5 +1,6 @@
 import re
 import time
+import uuid
 from typing import List, Dict, Set, Optional, Any, Union
 
 import networkx
@@ -629,3 +630,31 @@ def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Uni
         # removing edge that fails edge filters
         log.debug(f"Removing edge {edge}")
         graph.remove_edge(edge[0], edge[1], edge[2])
+
+
+def generate_uuid():
+    """
+    Generates a UUID.
+
+    Returns
+    -------
+    str
+        A UUID
+
+    """
+    return f"urn:uuid:{uuid.uuid4()}"
+
+
+def generate_edge_identifiers(graph: networkx.MultiDiGraph):
+    """
+    Generate unique identifiers for edges in a graph that do not
+    have an ``id`` field.
+
+    Parameters
+    ----------
+    graph: networkx.MultiDiGraph
+
+    """
+    for u, v, data in graph.edges(data=True):
+        if 'id' not in data:
+            data['id'] = generate_uuid()
