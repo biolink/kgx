@@ -321,10 +321,27 @@ def get_cache(maxsize=10000):
 
 
 def current_time_in_millis():
+    """
+    Get current time in milliseconds.
+
+    Returns
+    -------
+    int
+        Time in milliseconds
+
+    """
     return int(round(time.time() * 1000))
 
 
-def get_prefix_prioritization_map():
+def get_prefix_prioritization_map() -> Dict[str, List]:
+    """
+    Get prefix prioritization map as defined in Biolink Model.
+
+    Returns
+    -------
+    Dict[str, List]
+
+    """
     toolkit = get_toolkit()
     prefix_prioritization_map = {}
     # TODO: Lookup via Biolink CURIE should be supported in bmt
@@ -339,7 +356,21 @@ def get_prefix_prioritization_map():
     return prefix_prioritization_map
 
 
-def get_biolink_element(name):
+def get_biolink_element(name) -> Optional[Element]:
+    """
+    Get Biolink element for a given name, where name can be a class, slot, or relation.
+
+    Parameters
+    ----------
+    name: str
+        The name
+
+    Returns
+    -------
+    Optional[biolinkml.meta.Element]
+        An instance of biolinkml.meta.Element
+
+    """
     toolkit = get_toolkit()
     if re.match("biolink:.+", name):
         name = name.split(':', 1)[1]
@@ -349,7 +380,20 @@ def get_biolink_element(name):
     return element
 
 
-def get_biolink_ancestors(name):
+def get_biolink_ancestors(name: str):
+    """
+    Get ancestors for a given Biolink class.
+
+    Parameters
+    ----------
+    name: str
+
+    Returns
+    -------
+    List
+        A list of ancestors
+
+    """
     toolkit = get_toolkit()
     if re.match("biolink:.+", name):
         name = name.split(':', 1)[1]
@@ -360,7 +404,16 @@ def get_biolink_ancestors(name):
     return formatted_ancestors
 
 
-def get_biolink_node_properties():
+def get_biolink_node_properties() -> Set:
+    """
+    Get all Biolink node properties.
+
+    Returns
+    -------
+    Set
+        A set containing all Biolink node properties
+
+    """
     toolkit = get_toolkit()
     properties = toolkit.children('node property')
     # TODO: fix bug in bmt when getting descendants
@@ -373,7 +426,16 @@ def get_biolink_node_properties():
     return set([format_biolink_slots(x) for x in node_properties])
 
 
-def get_biolink_edge_properties():
+def get_biolink_edge_properties() -> Set:
+    """
+    Get all Biolink edge properties.
+
+    Returns
+    -------
+    Set
+        A set containing all Biolink edge properties
+
+    """
     toolkit = get_toolkit()
     properties = toolkit.children('association slot')
     edge_properties = set()
@@ -384,13 +446,32 @@ def get_biolink_edge_properties():
     return set([format_biolink_slots(x) for x in edge_properties])
 
 
-def get_biolink_relations():
+def get_biolink_relations() -> Set:
+    """
+    Get all Biolink relations.
+
+    Returns
+    -------
+    Set
+        A set containing all Biolink relations
+
+    """
     toolkit = get_toolkit()
-    relations = toolkit.descendents('related to')
+    relations = set(toolkit.descendents('related to'))
     return relations
 
 
-def get_biolink_property_types():
+def get_biolink_property_types() -> Set:
+    """
+    Get all Biolink property types.
+    This includes both node and edges properties.
+
+    Returns
+    -------
+    Set
+        A set containing all Biolink property types
+
+    """
     toolkit = get_toolkit()
     types = {}
     node_properties = set()
@@ -417,8 +498,25 @@ def get_biolink_property_types():
     # TODO: this should be moved to biolink model
     types['biolink:predicate'] = 'uriorcurie'
     types['biolink:edge_label'] = 'uriorcurie'
-
     return types
+
+
+def get_biolink_association_types() -> Set:
+    """
+    Get all Biolink association types.
+
+    Returns
+    -------
+    Set
+        A set containing all Biolink association types
+
+    """
+    toolkit = get_toolkit()
+    associations = toolkit.descendents('association')
+    associations.append('association')
+    formatted_associations = set([format_biolink_category(x) for x in associations])
+    return formatted_associations
+
 
 def get_type_for_property(p: str) -> str:
     """
@@ -456,15 +554,30 @@ def get_type_for_property(p: str) -> str:
     return t
 
 
-def get_biolink_association_types():
-    toolkit = get_toolkit()
-    associations = toolkit.descendents('association')
-    associations.append('association')
-    formatted_associations = set([format_biolink_category(x) for x in associations])
-    return formatted_associations
+def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
+    """
+    Given two dict objects, make a new dict object that is the intersection of the two.
 
+    If a key is known to be multivalued then it's value is converted to a list.
+    If a key is already multivalued then it is updated with new values.
+    If a key is single valued, and a new unique value is found then the existing value is
+    converted to a list and the new value is appended to this list.
 
-def prepare_data_dict(d1, d2, preserve = True):
+    Parameters
+    ----------
+    d1: Dict
+        Dict object
+    d2: Dict
+        Dict object
+    preserve: bool
+        Whether or not to preserve values for conflicting keys
+
+    Returns
+    -------
+    Dict
+        The intersection of d1 and d2
+
+    """
     new_data = {}
     for key, value in d2.items():
         if isinstance(value, (list, set, tuple)):
