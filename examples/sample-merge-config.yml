@@ -1,68 +1,104 @@
 configuration:
-  output_directory: 'output_data'
+  output_directory: output_data
+  checkpoint: false
+  curie_map:
+    # define non-canonical CURIE to IRI mappings (for RDF)
+  node_properties:
+    # define predicates that are to be treated as direct node properties (for RDF)
+  predicate_mappings:
+    # map non-canonical predicates to a property name (for RDF)
+  property_types:
+    # define the type for non-canonical properties for RDF export
 merged_graph:
-  target:
+  name: Merged Graph
+  targets:
     sequence-ontology:
-      type: owl
-      filename: data/so.owl
+      input:
+        name: "Sequence Ontology"
+        format: owl
+        filename:
+          - data/so.owl
     hgnc-dataset:
-      type: ttl
-      filename: data/hgnc_test.ttl
+      curie_map:
+        # define non-canonical CURIE to IRI mappings (for RDF), specifically for this target
+      node_properties:
+        # define predicates that are to be treated as direct node properties (for RDF), specifically for this target
+      predicate_mappings:
+        # map non-canonical predicates to a property name (for RDF), specifically for this target
+      property_types:
+        # define the type for non-canonical properties for RDF export,  specifically for this target
+      input:
+        name: "HGNC"
+        format: nt
+        filename:
+          - data/hgnc.nt
     test-dataset:
-      type: tsv
-      compression: tar.gz
-      filename: data/test_dataset.tar.gz
-      filters:
-        node_filters:
-          category:
-            - biolink:Gene
-            - biolink:Disease
-        edge_filters:
-          edge_label:
-            - biolink:contributes_to
+      input:
+        format: tsv
+        compression: tar.gz
+        filename:
+          - data/test_dataset.tar.gz
+        filters:
+          node_filters:
+            category:
+              - biolink:Gene
+              - biolink:Disease
+          edge_filters:
+            edge_label:
+              - biolink:contributes_to
     neo-kg:
-      type: neo4j
-      uri: http://localhost:7474
-      username: neo4j
-      password: neo4j
-      page_size: 10000
-      filters:
-        node_filters:
-          category:
-            - biolink:Gene
-            - biolink:Disease
-            - biolink:PhenotypicFeature
-        edge_filters:
-          subject_category:
-            - biolink:Gene
-            - biolink:Disease
-          object_category:
-            - biolink:PhenotypicFeature
-          edge_label:
-            - biolink:interacts_with
-            - biolink:has_phenotype
+      input:
+        format: neo4j
+        uri: http://localhost:7474
+        username: neo4j
+        password: neo4j
+        page_size: 10000
+        filters:
+          node_filters:
+            category:
+              - biolink:Gene
+              - biolink:Disease
+              - biolink:PhenotypicFeature
+          edge_filters:
+            subject_category:
+              - biolink:Gene
+              - biolink:Disease
+            object_category:
+              - biolink:PhenotypicFeature
+            edge_label:
+              - biolink:interacts_with
+              - biolink:has_phenotype
     sparql-kg:
-      type: sparql
-      uri: http://localhost/sparql
-    #      filters:
-    #         edge_filters:
-    #            subject_category:
-    #               - biolink:Gene
-    #               - biolink:PhenotypicFeature
-    #            object_category:
-    #               - biolink:Disease
-    #            edge_label:
-    #               - biolink:is_marker_for
-    #               - biolink:has_phenotype
+      input:
+        format: sparql
+        uri: http://localhost/sparql
+        filters:
+          edge_filters:
+            subject_category:
+              - biolink:Gene
+              - biolink:PhenotypicFeature
+            object_category:
+              - biolink:Disease
+            edge_label:
+              - biolink:is_marker_for
+              - biolink:has_phenotype
     local-kg:
-      type: json
-      filename: local-kg-dump.json
+      input:
+        format: json
+        filename:
+          - local-kg-dump.json
   operations:
-    - name: kgx.operations.clique_merge.clique_merge
+    - name: kgx.operations.summarize_graph.generate_graph_stats
       args:
-        leader_annotation: 'cliqueLeader'
-        prefix_prioritization_map:
-          'biolink:NamedThing': ['HGNC', 'NCBIGene', 'ENSEMBL']
+        graph_name: Merged Graph
+        filename: merged-kg_stats.yaml
+        node_facet_properties:
+          - provided_by
+        edge_facet_properties:
+          - provided_by
   destination:
-    type: tsv
-    filename: merged-kg
+    merged-kg-tsv:
+      format: tsv
+      compression: tar.gz
+      filename:
+        - merged-kg

@@ -224,7 +224,7 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: str, u
     return neo_transformer
 
 
-def transform(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
+def transform(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, targets: Optional[List] = None, processes: int = 1) -> kgx.Transformer:
     """
     Transform a Knowledge Graph from one serialization form to another.
 
@@ -246,22 +246,80 @@ def transform(inputs: List[str], input_format: str, input_compression: str, outp
         Node filters
     edge_filters: Optional[Tuple]
         Edge filters
+    transform_config: str
+        The transform config YAML
+    targets: Optional[List]
+        A list of targets to load from the YAML
+    processes: int
+        Number of processes to use
 
     """
-    transformer = get_transformer(input_format)()
-    if node_filters:
-        for n in node_filters:
-            transformer.set_node_filter(n[0], n[1])
-    if edge_filters:
-        for e in edge_filters:
-            transformer.set_edge_filter(e[0], e[1])
+    if transform_config and inputs:
+        raise ValueError("Can accept either --transform-config OR inputs, not both")
 
-    for file in inputs:
-        transformer.parse(filename=file, input_format=input_format, compression=input_compression)
+    output_directory = 'output'
 
-    output_transformer = get_transformer(output_format)(transformer.graph)
-    output_transformer.save(output, output_format=output_format, compression=output_compression)
-    return output_transformer
+    if transform_config:
+        node_properties = []
+        predicate_mappings = {}
+        curie_map = {}
+        property_types = {}
+        checkpoint = False
+        cfg = yaml.load(open(transform_config), Loader=yaml.FullLoader)
+        if 'configuration' in cfg:
+            if 'checkpoint' in cfg['configuration'] and cfg['configuration']['checkpoint'] is not None:
+                checkpoint = cfg['configuration']['checkpoint']
+            if 'node_properties' in cfg['configuration'] and cfg['configuration']['node_properties']:
+                node_properties = cfg['configuration']['node_properties']
+            if 'predicate_mappings' in cfg['configuration'] and cfg['configuration']['predicate_mappings']:
+                predicate_mappings = cfg['configuration']['predicate_mappings']
+            if 'curie_map' in cfg['configuration'] and cfg['configuration']['curie_map']:
+                curie_map = cfg['configuration']['curie_map']
+            if 'property_types' in cfg['configuration'] and cfg['configuration']['property_types']:
+                property_types = cfg['configuration']['property_types']
+            if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
+                output_directory = cfg['configuration']['output_directory']
+
+        if not targets:
+            targets = cfg['transform']['targets'].keys()
+
+        for target in targets:
+            target_properties = cfg['transform']['targets'][target]
+            if target_properties['input']['format'] in get_file_types():
+                for f in target_properties['input']['filename']:
+                    if not os.path.exists(f):
+                        raise FileNotFoundError(f"Filename '{f}' for target '{target}' does not exist!")
+                    elif not os.path.isfile(f):
+                        raise FileNotFoundError(f"Filename '{f}' for target '{target}' is not a file!")
+
+        targets_to_parse = {}
+        for key, target in cfg['transform']['targets'].items():
+            if key in targets:
+                targets_to_parse[key] = target
+
+        results = []
+        pool = Pool(processes=processes)
+        for k, v in targets_to_parse.items():
+            log.info(f"Spawning process for '{k}'")
+            r = pool.apply_async(transform_target, (k, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint))
+            results.append(r)
+        _ = [x.get() for x in results]
+        pool.close()
+        pool.join()
+    else:
+        target = {
+            'input': {
+                'format': input_format,
+                'compression': input_compression,
+                'filename': inputs,
+            },
+            'output': {
+                'format': output_format,
+                'compression': output_compression,
+                'filename': output
+            }
+        }
+        transform_target(None, target, output_directory)
 
 
 def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1) -> networkx.MultiDiGraph:
@@ -295,17 +353,17 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
     checkpoint = False
 
     if 'configuration' in cfg:
-        if 'checkpoint' in cfg['configuration']:
+        if 'checkpoint' in cfg['configuration'] and cfg['configuration']['checkpoint'] is not None:
             checkpoint = cfg['configuration']['checkpoint']
-        if 'node_properties' in cfg['configuration']:
+        if 'node_properties' in cfg['configuration'] and cfg['configuration']['node_properties']:
             node_properties = cfg['configuration']['node_properties']
-        if 'predicate_mappings' in cfg['configuration']:
+        if 'predicate_mappings' in cfg['configuration'] and cfg['configuration']['predicate_mappings']:
             predicate_mappings = cfg['configuration']['predicate_mappings']
-        if 'curie_map' in cfg['configuration']:
+        if 'curie_map' in cfg['configuration'] and cfg['configuration']['curie_map']:
             curie_map = cfg['configuration']['curie_map']
-        if 'property_types' in cfg['configuration']:
+        if 'property_types' in cfg['configuration'] and cfg['configuration']['property_types']:
             property_types = cfg['configuration']['property_types']
-        if 'output_directory' in cfg['configuration']:
+        if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
             output_directory = cfg['configuration']['output_directory']
 
     if not targets:
@@ -313,8 +371,8 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
 
     for target in targets:
         target_properties = cfg['merged_graph']['targets'][target]
-        if target_properties['type'] in get_file_types():
-            for f in target_properties['filename']:
+        if target_properties['input']['format'] in get_file_types():
+            for f in target_properties['input']['filename']:
                 if not os.path.exists(f):
                     raise FileNotFoundError(f"Filename '{f}' for target '{target}' does not exist!")
                 elif not os.path.isfile(f):
@@ -345,7 +403,7 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
     if 'destination' in cfg['merged_graph']:
         for _, destination in cfg['merged_graph']['destination'].items():
             log.info(f"Writing merged graph to {_}")
-            if destination['type'] == 'neo4j':
+            if destination['format'] == 'neo4j':
                 destination_transformer = NeoTransformer(
                     source_graph=merged_graph,
                     uri=destination['uri'],
@@ -353,19 +411,22 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
                     password=destination['password']
                 )
                 destination_transformer.save()
-            elif destination['type'] in get_file_types():
-                destination_transformer = get_transformer(destination['type'])(merged_graph)
-                destination_filename = f"{output_directory}/{destination['filename']}"
-                if destination['type'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
+            elif destination['format'] in get_file_types():
+                destination_transformer = get_transformer(destination['format'])(merged_graph)
+                filename = destination['filename']
+                if isinstance(filename, list):
+                    filename = filename[0]
+                destination_filename = f"{output_directory}/{filename}"
+                if destination['format'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
                     destination_transformer.set_property_types(property_types)
                 compression = destination['compression'] if 'compression' in destination else None
                 destination_transformer.save(
                     filename=destination_filename,
-                    output_format=destination['type'],
+                    output_format=destination['format'],
                     compression=compression
                 )
             else:
-                log.error(f"type {destination['type']} not yet supported for KGX load-and-merge operation.")
+                log.error(f"type {destination['format']} not yet supported for KGX load-and-merge operation.")
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
     return merged_graph
@@ -381,7 +442,7 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
         Target key
     target: Dict
         Target configuration
-    output_directory:
+    output_directory: str
         Location to write output to
     curie_map: Dict[str, str]
         Non-canonical CURIE mappings
@@ -393,51 +454,150 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
         Whether to serialize each individual target to a TSV
 
     """
-    target_name = target['name'] if 'name' in target else key
     log.info(f"Processing target '{key}'")
-    target_curie_map = target['curie_map'] if 'curie_map' in target else {}
+    transformer = parse_target_input(key, target, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint)
+    return transformer.graph
+
+
+def transform_target(key: str, target: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
+    """
+    Transform a target (source) from a transform config YAML.
+
+    Parameters
+    ----------
+    key: str
+        Target key
+    target: Dict
+        Target configuration
+    output_directory: str
+        Location to write output to
+    curie_map: Dict[str, str]
+        Non-canonical CURIE mappings
+    node_properties: Set[str]
+        A set of predicates that ought to be treated as node properties (This is applicable for RDF)
+    predicate_mappings: Dict[str, str]
+        A mapping of predicate IRIs to property names (This is applicable for RDF)
+    property_types: Dict[str, str]
+        The xml property type for properties that are other than ``xsd:string``.
+        Relevant for RDF export.
+    checkpoint: bool
+        Whether to serialize each individual target to a TSV
+
+    Returns
+    -------
+    kgx.Transformer
+        Returns a kgx.Transformer instance corresponding to the target output format
+
+    """
+    log.info(f"Processing target '{key}'")
+    output_format = target['output']['format']
+    output_compression = target['output']['compression']
+    output_filename = target['output']['filename'] if 'filename' in target['output'] else key
+    if isinstance(output_filename, list):
+        output = output_filename[0]
+    else:
+        output = output_filename
+
+    transformer = parse_target_input(key, target, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint)
+
+    if output_directory and not output.startswith(output_directory):
+        output = os.path.join(output_directory, output)
+    if output_format == 'neo4j':
+        output_transformer = NeoTransformer(
+            source_graph=transformer.graph,
+            uri=target['output']['uri'],
+            username=target['output']['username'],
+            password=target['output']['password']
+        )
+        output_transformer.save()
+    elif output_format in get_file_types():
+        output_transformer = get_transformer(output_format)(transformer.graph)
+        if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
+            output_transformer.set_property_types(property_types)
+        output_transformer.save(output, output_format=output_format, compression=output_compression)
+    else:
+        raise ValueError(f"type {output_format} not yet supported for output")
+    return output_transformer
+
+
+def parse_target_input(key: str, target: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
+    """
+    Parse a target's input from a transform config YAML.
+
+    Parameters
+    ----------
+    key: str
+        Target key
+    target: Dict
+        Target configuration
+    output_directory: str
+        Location to write output to
+    curie_map: Dict[str, str]
+        Non-canonical CURIE mappings
+    node_properties: Set[str]
+        A set of predicates that ought to be treated as node properties (This is applicable for RDF)
+    predicate_mappings: Dict[str, str]
+        A mapping of predicate IRIs to property names (This is applicable for RDF)
+    property_types: Dict[str, str]
+        The xml property type for properties that are other than ``xsd:string``.
+        Relevant for RDF export.
+    checkpoint: bool
+        Whether to serialize each individual target to a TSV
+
+    Returns
+    -------
+    kgx.Transformer
+        An instance of kgx.Transformer corresponding to the target format
+
+    """
+    target_name = target['input']['name'] if 'name' in target['input'] else key
+    input_format = target['input']['format']
+    input_compression = target['input']['compression'] if 'compression' in target['input'] else None
+    inputs = target['input']['filename']
+    filters = target['input']['filters'] if 'filters' in target['input'] and target['filters'] is not None else {}
+    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+    operations = target['input']['operations'] if 'operations' in target['input'] and target['filters'] is not None else {}
+    target_curie_map = target['curie_map'] if 'curie_map' in target and target['curie_map'] is not None else {}
     target_curie_map.update(curie_map)
-    target_predicate_mappings = target['predicate_mappings'] if 'predicate_mappings' in target else {}
+    target_predicate_mappings = target['predicate_mappings'] if 'predicate_mappings' in target and target['predicate_mappings'] is not None else {}
     target_predicate_mappings.update(predicate_mappings)
-    target_node_properties = target['node_properties'] if 'node_properties' in target else []
+    target_node_properties = target['node_properties'] if 'node_properties' in target and target['node_properties'] is not None else []
     target_node_properties.extend(node_properties)
 
-    input_format = target['type']
-    compression = target['compression'] if 'compression' in target else None
-
-    if target['type'] in {'nt', 'ttl'}:
+    if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
-        transformer = get_transformer(target['type'])(curie_map=target_curie_map)
+        transformer = get_transformer(input_format)(curie_map=target_curie_map)
         transformer.set_predicate_mapping(predicate_mappings)
         transformer.graph.name = key
-        if 'filters' in target:
-            apply_filters(target, transformer)
-        for f in target['filename']:
+        if filters:
+            apply_filters(transformer, node_filters, edge_filters)
+        for f in inputs:
             transformer.parse(
                 filename=f,
                 input_format=input_format,
-                compression=compression,
+                compression=input_compression,
                 node_property_predicates=target_node_properties,
                 provided_by=target_name
             )
-        if 'operations' in target:
-            apply_operations(target, transformer.graph)
-    elif target['type'] in get_file_types():
+        if operations:
+            apply_operations(target['input'], transformer.graph)
+    elif input_format in get_file_types():
         # Parse other supported file types
-        transformer = get_transformer(target['type'])()
+        transformer = get_transformer(input_format)()
         transformer.graph.name = key
-        if 'filters' in target:
-            apply_filters(target, transformer)
-        for f in target['filename']:
+        if filters:
+            apply_filters(transformer, node_filters, edge_filters)
+        for f in inputs:
             transformer.parse(
                 filename=f,
                 input_format=input_format,
-                compression=compression,
+                compression=input_compression,
                 provided_by=target_name
             )
-        if 'operations' in target:
-            apply_operations(target, transformer.graph)
-    elif target['type'] == 'neo4j':
+        if operations:
+            apply_operations(target['input'], transformer.graph)
+    elif input_format == 'neo4j':
         # Parse Neo4j
         transformer = NeoTransformer(
             source_graph=None,
@@ -446,41 +606,43 @@ def parse_target(key: str, target: dict, output_directory: str, curie_map: Dict[
             password=target['password']
         )
         transformer.graph.name = key
-        if 'filters' in target:
-            apply_filters(target, transformer)
+        if filters:
+            apply_filters(transformer, node_filters, edge_filters)
         transformer.load(provided_by=target_name)
-        if 'operations' in target:
-            apply_operations(target, transformer.graph)
+        if operations:
+            apply_operations(target['input'], transformer.graph)
         transformer.graph.name = key
     else:
-        raise TypeError("type {} not yet supported".format(target['type']))
+        raise TypeError(f"type {input_format} not yet supported")
+
     if checkpoint:
         log.info(f"Writing checkpoint for target '{key}'")
         pt = PandasTransformer(transformer.graph)
-        pt.save(filename=f'{output_directory}/{key}', output_format='tsv', compression=None)
-    return transformer.graph
+        checkpoint_output = f"{output_directory}/{key}" if output_directory else key
+        pt.save(filename=checkpoint_output, output_format='tsv', compression=None)
+
+    return transformer
 
 
-def apply_filters(target: dict, transformer: kgx.Transformer) -> kgx.Transformer:
+def apply_filters(transformer: kgx.Transformer, node_filters: Optional[Dict], edge_filters: Optional[Dict]) -> kgx.Transformer:
     """
-    Apply filters as defined in the YAML.
+    Apply filters to the given transformer.
 
     Parameters
     ----------
-    target: dict
-        The target from the YAML
     transformer: kgx.Transformer
         The transformer corresponding to the target
+    node_filters: Optional[Dict]
+        Node filters
+    edge_filters: Optional[Dict]
+        Edge filters
 
     Returns
     -------
     transformer: kgx.Transformer
-        The transformer corresponding to the target
+        The transformer with filters applied
 
     """
-    filters = target['filters']
-    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
-    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
     for k, v in node_filters.items():
         transformer.set_node_filter(k, set(v))
     for k, v in edge_filters.items():
