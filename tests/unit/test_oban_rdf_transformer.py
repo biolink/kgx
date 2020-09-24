@@ -166,6 +166,7 @@ def test_save2():
     assert e2t1['frequency_of_phenotype'] == 'HP:0040283'
     assert e2t1['dc_source'] == 'Orphanet:93262'
 
+    t1.set_property_types({'frequency_of_phenotype': 'uriorcurie', 'dc_source': 'uriorcurie'})
     t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
     t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
 
