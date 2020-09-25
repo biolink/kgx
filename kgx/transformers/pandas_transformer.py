@@ -8,7 +8,7 @@ import tarfile
 from ordered_set import OrderedSet
 
 from kgx.config import get_logger
-from kgx.utils.kgx_utils import generate_edge_key
+from kgx.utils.kgx_utils import generate_edge_key, generate_uuid
 from kgx.transformers.transformer import Transformer
 
 from typing import List, Dict, Optional, Any, Set
@@ -317,6 +317,8 @@ class PandasTransformer(Transformer):
             edge = Transformer.validate_edge(edge)
             kwargs = PandasTransformer._build_kwargs(edge.copy())
             if 'subject' in kwargs and 'object' in kwargs:
+                if 'id' not in kwargs:
+                    kwargs['id'] = generate_uuid()
                 s = kwargs['subject']
                 o = kwargs['object']
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():

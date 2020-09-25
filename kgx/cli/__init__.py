@@ -151,15 +151,18 @@ def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression
 
 
 @cli.command('transform')
-@click.argument('inputs',  required=True, type=click.Path(exists=True), nargs=-1)
-@click.option('--input-format', required=True, help=f'The input format. Can be one of {get_file_types()}')
+@click.argument('inputs',  required=False, type=click.Path(exists=True), nargs=-1)
+@click.option('--input-format', required=False, help=f'The input format. Can be one of {get_file_types()}')
 @click.option('--input-compression', required=False, help='The input compression type')
-@click.option('--output', required=True, type=click.Path(exists=False), help='Output')
-@click.option('--output-format', required=True, help=f'The output format. Can be one of {get_file_types()}')
+@click.option('--output', required=False, type=click.Path(exists=False), help='Output')
+@click.option('--output-format', required=False, help=f'The output format. Can be one of {get_file_types()}')
 @click.option('--output-compression', required=False, help='The output compression type')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
+@click.option('--transform-config', required=False, type=str, help=f'Transform config YAML')
+@click.option('--targets', required=False, type=str, multiple=True, help='Target(s) from the YAML to process')
+@click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
+def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple, transform_config: str, targets: List, processes: int):
     """
     Transform a Knowledge Graph from one serialization form to another.
     \f
@@ -182,13 +185,19 @@ def transform_wrapper(inputs: List[str], input_format: str, input_compression: s
         Node filters
     edge_filters: Tuple[str, str]
         Edge filters
+    merge_config: str
+        Merge config YAML
+    targets: List
+        A list of targets to load from the YAML
+    processes: int
+        Number of processes to use
 
     """
-    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters)
+    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, targets, processes)
 
 
 @cli.command(name='merge')
-@click.argument('merge-config', required=True, type=click.Path(exists=True))
+@click.option('--merge-config', required=True, type=str)
 @click.option('--targets', required=False, type=str, multiple=True, help='Target(s) from the YAML to process')
 @click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
 def merge_wrapper(merge_config: str, targets: List, processes: int):

@@ -92,6 +92,16 @@ Transform a graph from one serialization to another.
                   tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
 
 
+Alternatively, you can also perform transformation driven by a YAML.
+
+A sample of the merge configuration can be found `here <https://github.com/NCATS-Tangerine/kgx/blob/master/examples/sample-transform-config.yml>`_
+
+
+.. code-block:: bash
+
+    kgx transform --transform-config transform.yaml
+
+
 merge
 ^^^^^
 
@@ -101,5 +111,5 @@ A sample of the merge configuration can be found `here <https://github.com/NCATS
 
 .. code-block:: bash
 
-    kgx merge merge.yaml
+    kgx merge --merge-config merge.yaml
 

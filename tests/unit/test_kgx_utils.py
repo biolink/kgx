@@ -4,7 +4,7 @@ from bmt import Toolkit
 from kgx.curie_lookup_service import CurieLookupService
 from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, get_prefix_prioritization_map, \
     get_biolink_element, get_biolink_ancestors, generate_edge_key, contract, expand, camelcase_to_sentencecase, \
-    snakecase_to_sentencecase, sentencecase_to_snakecase, sentencecase_to_camelcase
+    snakecase_to_sentencecase, sentencecase_to_snakecase, sentencecase_to_camelcase, generate_uuid
 
 
 def test_get_toolkit():
@@ -114,3 +114,7 @@ def test_expand(query):
     # get the IRI
     assert iri == query[1]
 
+
+def test_generate_uuid():
+    s = generate_uuid()
+    assert s.startswith('urn:uuid:')

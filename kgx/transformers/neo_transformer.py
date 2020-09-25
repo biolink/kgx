@@ -5,7 +5,7 @@ from typing import Tuple, List, Dict, Union, Any, Iterator, Optional
 
 from kgx.config import get_logger
 from kgx.transformers.transformer import Transformer
-from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis
+from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis, generate_uuid
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship, GraphDatabase
 from neo4jrestclient.query import CypherException
 
@@ -189,7 +189,8 @@ class NeoTransformer(Transformer):
 
         if 'provided_by' in self.graph_metadata and 'provided_by' not in edge.keys():
             edge['provided_by'] = self.graph_metadata['provided_by']
-
+        if 'id' not in edge.keys():
+            edge['id'] = generate_uuid()
         key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
         self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
 
