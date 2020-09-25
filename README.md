@@ -25,10 +25,7 @@ KGX allows conversion to and from:
 KGX will also provide validation, to ensure the KGs are conformant to the Biolink Model: making sure nodes are
 categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
 
-
-## Internal Representation
-
-Internal representation is networkx MultiDiGraph which is a property graph.
+Internal representation is a property graph, specifically a networkx MultiDiGraph.
 
 The structure of this graph is expected to conform to the Biolink Model standard, briefly summarized here:
 
@@ -36,13 +33,16 @@ The structure of this graph is expected to conform to the Biolink Model standard
     * `id`: CURIE; required
     * `name`: string; recommended
     * `category`: string; broad high level type. Corresponds to node label in Neo4j
-    * Other properties 
- * [Edges](https://biolink.github.io/biolink-model/docs/Association.html)
+    * other properties 
+ * [Edges](https://biolink.github.io/biolink-model/docs/related_to.html)
     * `subject`: CURIE; required
     * `edge_label`: CURIE; required; Corresponds to edge label in Neo4j
     * `object`: CURIE, required
     * `relation`: CURIE; required
-    * Other properties
+    * other properties
+
+
+In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 
 
 ## Installation for Users
@@ -58,6 +58,7 @@ pip install kgx
 
 ## Installation for Developers
 
+
 ### Python 3.7+ and Core Tool Dependencies
 
 > **Note:** the installation of KGX requires Python 3.7+
@@ -68,19 +69,20 @@ It is also assumed that the common development tools are installed including git
 development libraries for your operating system.
 
 
-### Getting the Project Code
+### Getting the repository
 
-Go to where you wish to host your local project repository and git clone the project, namely:
+Go to where you wish to host your local project repository and clone the repository:
 
 ```bash
 cd /path/to/your/local/git/project/folder
 git clone https://github.com/NCATS-Tangerine/kgx.git
 
-# then  enter  into the cloned project repository
+# then enter into the cloned project repository
 cd kgx
 ```
 
-### Configuring a Safe Virtual Environment for KGX
+
+### Configuring a virtual environment for KGX
 
 For convenience, make use of the Python `venv` module to create a lightweight virtual environment. 
 
@@ -124,7 +126,7 @@ At this point, it is advisable to separately install the `wheel` package depende
 pip3 install wheel
 ```
  
-After installation of the `wheel` package, we install the remaining KGX Python package dependencies without error:
+After installation of the `wheel` package, install KGX:
 
 ```bash
 pip3 install -r requirements.txt
@@ -142,3 +144,4 @@ kgx --help
 ```
 
 which invokes the KGX CLI tool.
+
