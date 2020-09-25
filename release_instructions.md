@@ -2,11 +2,13 @@
 
 This section is only relevant for core developers.
 
-To create a new release, do the following:
+To create a new release,
 
 1. First check whether the `__version__` in [`kgx/__init__.py`](kgx/__init__.py) matches with the latest tag or PyPI release. 
 If the version is the same then you need to bump the version to make a new release. 
 Follow [Semantic Versioning guidelines](https://semver.org/) to decide whether the bump in version is major or minor.
+
+2. Now do the same for `VERSION` in [`setup.py`](setup.py), such that the version is in-sync with [`kgx/__init__.py`](kgx/__init__.py).
 
 2. If you did bump the version then run the following commands:
 
