@@ -419,6 +419,7 @@ def merge(merge_config: str, targets: Optional[List] = None, processes: int = 1)
                     filename = filename[0]
                 destination_filename = f"{output_directory}/{filename}"
                 if destination['format'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
+                    destination_transformer.set_predicate_mapping(predicate_mappings)
                     destination_transformer.set_property_types(property_types)
                 compression = destination['compression'] if 'compression' in destination else None
                 destination_transformer.save(

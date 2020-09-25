@@ -8,7 +8,8 @@ from kgx.config import get_logger
 from kgx.curie_lookup_service import CurieLookupService
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, reverse_property_mapping
-from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase
+from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase, \
+    get_biolink_ancestors
 from kgx.prefix_manager import PrefixManager
 
 log = get_logger()
@@ -517,6 +518,8 @@ class RdfGraphMixin(object):
                     element_uri = self.prefix_manager.contract(element.class_uri)
                 else:
                     element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
+                if 'biolink:Attribute' in get_biolink_ancestors(element.name):
+                    element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
                 if not predicate:
                     predicate = element_uri
             else:
