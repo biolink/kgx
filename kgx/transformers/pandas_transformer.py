@@ -145,7 +145,7 @@ class PandasTransformer(Transformer):
             Dataframe containing records that represent nodes
 
         """
-        for obj in df.to_dict('record'):
+        for obj in df.to_dict('records'):
             self.load_node(obj)
 
     def check_node_filter(self, node: Dict) -> bool:
@@ -223,7 +223,7 @@ class PandasTransformer(Transformer):
             Dataframe containing records that represent edges
 
         """
-        for obj in df.to_dict('record'):
+        for obj in df.to_dict('records'):
             self.load_edge(obj)
 
     def check_edge_filter(self, edge: Dict) -> bool:
