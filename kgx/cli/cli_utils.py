@@ -282,12 +282,12 @@ def transform(inputs: Optional[List[str]] = None, input_format: Optional[str] = 
                 property_types = cfg['configuration']['property_types']
             if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
                 output_directory = cfg['configuration']['output_directory']
+                if not output_directory.startswith(os.path.sep):
+                    # relative path
+                    output_directory = f"{os.path.abspath(os.path.dirname(transform_config))}{os.path.sep}{output_directory}"
 
         if not source:
             source = cfg['transform']['source'].keys()
-
-        print(os.path.abspath('.'))
-        print("\n" * 10)
 
         for s in source:
             source_properties = cfg['transform']['source'][s]
@@ -374,6 +374,9 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             property_types = cfg['configuration']['property_types']
         if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
             output_directory = cfg['configuration']['output_directory']
+            if not output_directory.startswith(os.path.sep):
+                # relative path
+                output_directory = f"{os.path.abspath(os.path.dirname(merge_config))}{os.path.sep}{output_directory}"
 
     if not source:
         source = cfg['merged_graph']['source'].keys()
