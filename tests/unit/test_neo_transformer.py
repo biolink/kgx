@@ -1,43 +1,10 @@
-import logging
-from os import wait
-from time import sleep
-
 import pytest
-import docker
-from docker.errors import APIError
-from neo4jrestclient.client import GraphDatabase, Node, Relationship
+from neo4jrestclient.client import Node, Relationship
 from networkx import MultiDiGraph
 
 from kgx import NeoTransformer
-
-CONTAINER_NAME = 'kgx-neo4j-unit-test'
-DEFAULT_NEO4J_URL = 'http://localhost:8484'
-DEFAULT_NEO4J_USERNAME = 'neo4j'
-DEFAULT_NEO4J_PASSWORD = 'test'
-
-
-def check_container():
-    try:
-        client = docker.from_env()
-        status = False
-        try:
-            c = client.containers.get(CONTAINER_NAME)
-            if c.status == 'running':
-                status = True
-        except:
-            status = False
-    except:
-        print("Could not connect to local Docker daemon")
-        status = False
-    return status
-
-
-@pytest.fixture(scope='function')
-def clean_slate(source='kgx-unit-test'):
-    http_driver = GraphDatabase(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
-    q = "MATCH (n { source : '" + source + "' }) DETACH DELETE (n)"
-    print(q)
-    http_driver.query(q)
+from tests import clean_slate, check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, \
+    DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD
 
 
 def get_graph(source):
@@ -106,8 +73,12 @@ def test_create_constraint_query(category):
     (get_graph('kgx-unit-test')[1], 6, 6)
 ])
 def test_load(clean_slate, query):
-    t = NeoTransformer(query[0], uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+
+    t = NeoTransformer(None, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    print(f"BEFORE: {t.neo4j_report()}")
+    t.graph = query[0]
     t.save()
+    print(f"AFTER: {t.neo4j_report()}")
 
     nr = t.http_driver.query("MATCH (n) RETURN count(n)")
     [node_counts] = [x for x in nr][0]

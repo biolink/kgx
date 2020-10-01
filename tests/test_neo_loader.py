@@ -8,6 +8,7 @@ from kgx import NeoTransformer, PandasTransformer, JsonTransformer
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
+from tests import check_container
 
 CONTAINER_NAME = 'kgx-neo4j-integration-test'
 DEFAULT_NEO4J_URL = 'http://localhost:7474'
@@ -17,22 +18,6 @@ DEFAULT_NEO4J_PASSWORD = 'test'
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, 'resources')
 target_dir = os.path.join(cwd, 'target')
-
-
-def check_container():
-    try:
-        client = docker.from_env()
-        status = False
-        try:
-            c = client.containers.get(CONTAINER_NAME)
-            if c.status == 'running':
-                status = True
-        except:
-            status = False
-    except:
-        print("Could not connect to local Docker daemon")
-        status = False
-    return status
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
