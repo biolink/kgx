@@ -176,7 +176,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
             transformer.set_edge_filter(e[0], e[1])
     transformer.load()
 
-    output_transformer = get_transformer(output_format)()
+    output_transformer = get_transformer(output_format)(transformer.graph)
     output_transformer.save(output, output_format=output_format)
     return output_transformer
 
