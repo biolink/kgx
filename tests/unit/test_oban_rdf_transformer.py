@@ -2,6 +2,7 @@ import os
 import pprint
 
 from kgx import ObanRdfTransformer
+from tests import print_graph
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, '../resources')
@@ -11,10 +12,6 @@ cmap={
     'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
     'OMIM': 'http://omim.org/entry/'
 }
-
-def print_graph(g):
-    pprint.pprint([x for x in g.nodes(data=True)])
-    pprint.pprint([x for x in g.edges(data=True)])
 
 
 def test_parse1():

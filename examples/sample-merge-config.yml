@@ -11,7 +11,7 @@ configuration:
     # define the type for non-canonical properties for RDF export
 merged_graph:
   name: Merged Graph
-  targets:
+  source:
     sequence-ontology:
       input:
         name: "Sequence Ontology"
@@ -20,13 +20,13 @@ merged_graph:
           - data/so.owl
     hgnc-dataset:
       curie_map:
-        # define non-canonical CURIE to IRI mappings (for RDF), specifically for this target
+        # define non-canonical CURIE to IRI mappings (for RDF), specifically for this source
       node_properties:
-        # define predicates that are to be treated as direct node properties (for RDF), specifically for this target
+        # define predicates that are to be treated as direct node properties (for RDF), specifically for this source
       predicate_mappings:
-        # map non-canonical predicates to a property name (for RDF), specifically for this target
+        # map non-canonical predicates to a property name (for RDF), specifically for this source
       property_types:
-        # define the type for non-canonical properties for RDF export,  specifically for this target
+        # define the type for non-canonical properties for RDF export,  specifically for this source
       input:
         name: "HGNC"
         format: nt

@@ -3,7 +3,7 @@ import click
 from typing import List, Tuple
 
 from kgx.config import get_logger, get_config
-from kgx.cli.cli_utils import get_file_types, get_transformer, parse_target, apply_operations, graph_summary, validate, \
+from kgx.cli.cli_utils import get_file_types, get_transformer, parse_source, apply_operations, graph_summary, validate, \
     neo4j_download, neo4j_upload, transform, merge
 
 log = get_logger()
@@ -160,9 +160,9 @@ def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
 @click.option('--transform-config', required=False, type=str, help=f'Transform config YAML')
-@click.option('--targets', required=False, type=str, multiple=True, help='Target(s) from the YAML to process')
+@click.option('--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process')
 @click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
-def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple, transform_config: str, targets: List, processes: int):
+def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple, transform_config: str, source: List, processes: int):
     """
     Transform a Knowledge Graph from one serialization form to another.
     \f
@@ -187,20 +187,21 @@ def transform_wrapper(inputs: List[str], input_format: str, input_compression: s
         Edge filters
     merge_config: str
         Merge config YAML
-    targets: List
-        A list of targets to load from the YAML
+    source: List
+        A list of source(s) to load from the YAML
     processes: int
         Number of processes to use
 
     """
-    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, targets, processes)
+    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, source, processes)
 
 
 @cli.command(name='merge')
 @click.option('--merge-config', required=True, type=str)
-@click.option('--targets', required=False, type=str, multiple=True, help='Target(s) from the YAML to process')
+@click.option('--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process')
+@click.option('--destination', required=False, type=str, multiple=True, help='Destination(s) from the YAML to process')
 @click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
-def merge_wrapper(merge_config: str, targets: List, processes: int):
+def merge_wrapper(merge_config: str, source: List, destination: List, processes: int):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
     The merged graph can then be written to a local/remote Neo4j instance OR be serialized into a file.
@@ -213,11 +214,13 @@ def merge_wrapper(merge_config: str, targets: List, processes: int):
     ----------
     merge_config: str
         Merge config YAML
-    targets: List
-        A list of targets to load from the YAML
+    source: List
+        A list of source to load from the YAML
+    destination: List
+        A list of destination to write to, as defined in the YAML
     processes: int
         Number of processes to use
 
     """
-    merge(merge_config, targets, processes)
+    merge(merge_config, source, destination, processes)
 

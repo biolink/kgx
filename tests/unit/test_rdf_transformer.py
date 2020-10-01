@@ -7,15 +7,11 @@ import rdflib
 from rdflib import URIRef
 
 from kgx import RdfTransformer
+from tests import print_graph
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, '../resources')
 target_dir = os.path.join(cwd, '../target')
-
-
-def print_graph(g):
-    pprint.pprint([x for x in g.nodes(data=True)])
-    pprint.pprint([x for x in g.edges(data=True)])
 
 
 def test_parse1():
