@@ -10,7 +10,7 @@ import yaml
 import kgx
 from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer
 from kgx.config import get_logger
-from kgx.operations.graph_merge import merge_all_graphs, merge_graphs
+from kgx.operations.graph_merge import merge_all_graphs
 from kgx.operations.summarize_graph import summarize_graph
 
 _transformers = {
@@ -407,8 +407,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     pool.close()
     pool.join()
     graphs = [r.get() for r in results]
-    merged_graph = networkx.MultiDiGraph()
-    merged_graph = merge_graphs(merged_graph, graphs)
+    merged_graph = merge_all_graphs(graphs)
 
     if 'name' in cfg['merged_graph']:
         merged_graph.name = cfg['merged_graph']['name']
