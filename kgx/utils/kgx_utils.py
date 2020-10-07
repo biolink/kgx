@@ -664,6 +664,10 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                             new_data[key] = new_value
             else:
                 new_data[key] = new_value
+
+    for key, value in d1.items():
+        if key not in new_data:
+            new_data[key] = value
     return new_data
 
 
