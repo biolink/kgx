@@ -1,3 +1,4 @@
+import copy
 from typing import List
 import networkx as nx
 
@@ -74,8 +75,8 @@ def merge_graphs(graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve
     """
     for g in graphs:
         node_merge_count = add_all_nodes(graph, g, preserve)
-        edge_merge_count = add_all_edges(graph, g, preserve)
         log.info(f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}")
+        edge_merge_count = add_all_edges(graph, g, preserve)
         log.info(f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}")
     return graph
 
@@ -132,7 +133,7 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
 
     """
     existing_node = g.nodes[n]
-    new_data = prepare_data_dict(existing_node.copy(), data.copy(), preserve)
+    new_data = prepare_data_dict(copy.deepcopy(existing_node), copy.deepcopy(data), preserve)
     g.add_node(n, **new_data)
     return existing_node
 
@@ -193,6 +194,6 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
 
     """
     existing_edge = g.get_edge_data(u, v, key)
-    new_data = prepare_data_dict(existing_edge.copy(), data.copy(), preserve)
+    new_data = prepare_data_dict(copy.deepcopy(existing_edge), copy.deepcopy(data), preserve)
     g.add_edge(u, v, key, **new_data)
     return existing_edge
