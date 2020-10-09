@@ -1,6 +1,7 @@
 from typing import Tuple, Optional, Dict, List, Any, Set
 
 import networkx as nx
+from ordered_set import OrderedSet
 
 from kgx.config import get_logger
 from kgx.utils.kgx_utils import get_prefix_prioritization_map, get_biolink_element, get_biolink_ancestors, \
@@ -75,6 +76,11 @@ def build_cliques(target_graph: nx.MultiDiGraph) -> nx.Graph:
 
     """
     clique_graph = nx.Graph()
+    for n, data in target_graph.nodes(data=True):
+        if 'same_as' in data:
+            clique_graph.add_node(n, **data)
+            for s in data['same_as']:
+                clique_graph.add_edge(n, s, **{'edge_label': SAME_AS, 'provided_by': data['provided_by']})
     for u, v, data in target_graph.edges(data=True):
         if 'edge_label' in data and data['edge_label'] == SAME_AS:
             # load all biolink:same_as edges to clique_graph
@@ -185,9 +191,11 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
         leader: str = leaders[0]
         # update nodes in target graph
         nx.set_node_attributes(target_graph, {leader: {leader_annotation: clique_graph.nodes[leader].get(leader_annotation), 'election_strategy': clique_graph.nodes[leader].get('election_strategy')}})
+        nodes_to_remove = set()
         for node in clique:
             if node == leader:
                 continue
+            log.info(f"Looking for in_edges for {node}")
             in_edges = target_graph.in_edges(node, True)
             filtered_in_edges = [x for x in in_edges if x[2]['edge_label'] != SAME_AS]
             equiv_in_edges = [x for x in in_edges if x[2]['edge_label'] == SAME_AS]
@@ -201,6 +209,7 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
                 key = generate_edge_key(u, edge_data['edge_label'], leader)
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
+            log.info(f"Looking for out_edges for {node}")
             out_edges = target_graph.out_edges(node, True)
             filtered_out_edges = [x for x in out_edges if x[2]['edge_label'] != SAME_AS]
             equiv_out_edges = [x for x in out_edges if x[2]['edge_label'] == SAME_AS]
@@ -235,7 +244,9 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
             # set same_as property for leader
             nx.set_node_attributes(target_graph, {leader: {'same_as': list(equivalent_identifiers)}})
             # remove all node instances of aliases
-            target_graph.remove_nodes_from(equivalent_identifiers)
+            nodes_to_remove.update(equivalent_identifiers)
+        log.debug(f"removing equivalent nodes of leader: {nodes_to_remove}")
+        target_graph.remove_nodes_from(list(nodes_to_remove))
     return target_graph
 
 
@@ -266,6 +277,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
     if not category_mapping:
         category_mapping = {}
     updated_node_categories = {}
+
     for node in clique:
         data = clique_graph.nodes[node]
         if 'category' in data:
@@ -274,7 +286,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
             # get category from equivalence
             categories = get_category_from_equivalence(target_graph, clique_graph, node, data)
 
-        extended_categories: Set = set()
+        extended_categories: OrderedSet = OrderedSet()
         invalid_categories: List = []
         for category in categories:
             log.debug(f"Looking at category: {category}")
@@ -287,7 +299,7 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
                 ancestors = get_biolink_ancestors(mapped_category)
                 if len(ancestors) > len(extended_categories):
                     # the category with the longest list of ancestors will be the most specific category
-                    extended_categories = ancestors
+                    extended_categories.update(ancestors)
             else:
                 log.warning(f"category '{category}' not in Biolink Model")
                 invalid_categories.append(category)
@@ -341,11 +353,13 @@ def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: n
     for u, v, data in clique_graph.edges(node, data=True):
         if data['edge_label'] == SAME_AS:
             if u == node:
-                category = clique_graph.nodes[v]['category']
-                break
+                if 'category' in clique_graph.nodes[v]:
+                    category = clique_graph.nodes[v]['category']
+                    break
             elif v == node:
-                category = clique_graph.nodes[u]['category']
-                break
+                if 'category' in clique_graph.nodes[u]:
+                    category = clique_graph.nodes[u]['category']
+                    break
             update = {node: {'category': category}}
             nx.set_node_attributes(clique_graph, update)
     return category
@@ -392,7 +406,7 @@ def validate_clique_category(target_graph: nx.MultiDiGraph, clique_graph: nx.Gra
     return clique_category, invalid_nodes
 
 
-def get_the_most_specific_category(categories: List) -> Tuple[Optional[Any], List[Any]]:
+def get_the_most_specific_category(categories: List) -> Tuple[Optional[Any], OrderedSet[Any]]:
     """
     From a list of categories, get ancestors for all.
     The category with the longest ancestor is considered to be the most specific.
@@ -407,12 +421,12 @@ def get_the_most_specific_category(categories: List) -> Tuple[Optional[Any], Lis
 
     Returns
     -------
-    Tuple[Optional[Any], List[Any]]
+    Tuple[Optional[Any], OrderedSet[Any]]
         A tuple of the most specific category and a list of ancestors of that category
 
     """
     most_specific_category: Optional[str] = None
-    most_specific_category_ancestors: List = []
+    most_specific_category_ancestors: OrderedSet = OrderedSet()
     for category in categories:
         log.debug("category: {}".format(category))
         element = get_biolink_element(category)
@@ -424,7 +438,7 @@ def get_the_most_specific_category(categories: List) -> Tuple[Optional[Any], Lis
             if len(ancestors) > len(most_specific_category_ancestors):
                 # the category with the longest list of ancestors will be the most specific category
                 most_specific_category = category
-                most_specific_category_ancestors = ancestors
+                most_specific_category_ancestors.update(ancestors)
     return most_specific_category, most_specific_category_ancestors
 
 
