@@ -10,6 +10,7 @@ from kgx.utils.kgx_utils import get_prefix_prioritization_map, get_biolink_eleme
 log = get_logger()
 
 SAME_AS = 'biolink:same_as'
+SUBCLASS_OF = 'biolink:subclass_of'
 LEADER_ANNOTATION = 'cliqueLeader'
 ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
@@ -207,6 +208,8 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['object'] = leader
                 key = generate_edge_key(u, edge_data['edge_label'], leader)
+                if edge_data['subject'] == edge_data['object'] and edge_data['edge_label'] == SUBCLASS_OF:
+                    continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
             log.info(f"Looking for out_edges for {node}")
@@ -221,6 +224,8 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['subject'] = leader
                 key = generate_edge_key(leader, edge_data['edge_label'], v)
+                if edge_data['subject'] == edge_data['object'] and edge_data['edge_label'] == SUBCLASS_OF:
+                    continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
             equivalent_identifiers = set(target_graph.nodes[leader].get('same_as')) if 'same_as' in target_graph.nodes[leader] else set()
