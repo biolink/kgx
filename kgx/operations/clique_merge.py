@@ -18,7 +18,7 @@ ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
 
 
-def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, prefix_prioritization_map: Optional[Dict[str, List[str]]] = None, category_mapping: Optional[Dict[str, str]] = None) -> Tuple[nx.MultiDiGraph, nx.Graph]:
+def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, prefix_prioritization_map: Optional[Dict[str, List[str]]] = None, category_mapping: Optional[Dict[str, str]] = None, strict: bool = True) -> Tuple[nx.MultiDiGraph, nx.Graph]:
     """
 
     Parameters
@@ -31,6 +31,8 @@ def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, p
         A map that gives a prefix priority for one or more categories
     category_mapping: Optional[Dict[str, str]]
         Mapping for non-Biolink Model categories to Biolink Model categories
+    strict: bool
+        ???
 
     Returns
     -------
@@ -52,7 +54,7 @@ def clique_merge(target_graph: nx.MultiDiGraph, leader_annotation: str = None, p
     log.info(f"Total time taken to build cliques: {end - start} ms")
 
     start = current_time_in_millis()
-    elect_leader(target_graph, clique_graph, leader_annotation, prefix_prioritization_map, category_mapping)
+    elect_leader(target_graph, clique_graph, leader_annotation, prefix_prioritization_map, category_mapping, strict)
     end = current_time_in_millis()
     log.info(f"Total time taken to elect leaders for all cliques: {end - start} ms")
 
@@ -168,20 +170,19 @@ def build_cliques(target_graph: nx.MultiDiGraph) -> nx.Graph:
 #     return target_graph
 
 
-def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_annotation: str, prefix_prioritization_map: Optional[Dict[str, List[str]]], category_mapping: Optional[Dict[str, str]]) -> nx.MultiDiGraph:
+def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_annotation: str, prefix_prioritization_map: Optional[Dict[str, List[str]]], category_mapping: Optional[Dict[str, str]], strict: bool = True) -> nx.MultiDiGraph:
     cliques = list(nx.connected_components(clique_graph))
     log.info(f"Total cliques in clique graph: {len(cliques)}")
-    election_strategy = None
     count = 0
     for clique in cliques:
         log.debug(f"Processing clique: {clique}")
-        update_node_categories(target_graph, clique_graph, clique, category_mapping)
+        update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
         clique_category, clique_category_ancestors = get_clique_category(clique_graph, clique)
         log.debug(f"Clique category: {clique_category}")
         invalid_nodes = set()
         for n in clique:
             data = clique_graph.nodes[n]
-            if '_exclude_from_clique' in data and data['_exclude_from_clique']:
+            if '_excluded_from_clique' in data and data['_excluded_from_clique']:
                 log.info(f"Removing invalid node {n} from clique graph; node marked to be excluded")
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
@@ -393,7 +394,7 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
 #     return clique
 
 
-def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List, category_mapping: Optional[Dict[str, str]]) -> List:
+def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, clique: List, category_mapping: Optional[Dict[str, str]], strict: bool = True) -> List:
     updated_clique_graph_properties = {}
     updated_target_graph_properties = {}
     for node in clique:
@@ -418,8 +419,9 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
         target_graph_update_dict = {}
 
         if invalid_biolink_categories:
-            clique_graph_update_dict['_excluded_from_clique'] = True
-            target_graph_update_dict['_excluded_from_clique'] = True
+            if strict:
+                clique_graph_update_dict['_excluded_from_clique'] = True
+                target_graph_update_dict['_excluded_from_clique'] = True
             clique_graph_update_dict['invalid_biolink_category'] = invalid_biolink_categories
             target_graph_update_dict['invalid_biolink_category'] = invalid_biolink_categories
 
