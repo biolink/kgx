@@ -127,8 +127,9 @@ def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_a
     cliques = list(nx.connected_components(clique_graph))
     log.info(f"Total cliques in clique graph: {len(cliques)}")
     count = 0
+    update_dict = {}
     for clique in cliques:
-        log.debug(f"Processing clique: {clique}")
+        log.debug(f"Processing clique: {clique} with {[clique_graph.nodes[x]['category'] if 'category' in clique_graph.nodes[x] else None for x in clique]}")
         update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
         clique_category, clique_category_ancestors = get_clique_category(clique_graph, clique)
         log.debug(f"Clique category: {clique_category}")
@@ -163,11 +164,11 @@ def elect_leader(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, leader_a
                     leader, election_strategy = get_leader_by_sort(target_graph, clique_graph, filtered_clique)
 
                 log.debug(f"Elected {leader} as leader via {election_strategy} for clique {filtered_clique}")
-                clique_graph.nodes[leader][LEADER_ANNOTATION] = True
-                target_graph.nodes[leader][LEADER_ANNOTATION] = True
-                clique_graph.nodes[leader]['election_strategy'] = election_strategy
-                target_graph.nodes[leader]['election_strategy'] = election_strategy
+                update_dict[leader] = {LEADER_ANNOTATION: True, 'election_strategy': election_strategy}
                 count += 1
+
+    nx.set_node_attributes(clique_graph, update_dict)
+    nx.set_node_attributes(target_graph, update_dict)
     log.info(f"Total merged cliques: {count}")
     return target_graph
 
