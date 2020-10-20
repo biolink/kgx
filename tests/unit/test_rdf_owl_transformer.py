@@ -56,7 +56,7 @@ def test_owl_parse2():
 
     n1 = t.graph.nodes['GO:0008150']
     assert n1['name'] == 'biological_process'
-    assert 'subsets' in n1 and 'OBO:go#goslim_generic' in n1['subsets']
+    assert 'subsets' in n1 and 'GOP:goslim_generic' in n1['subsets']
     assert 'synonym' in n1 and 'biological process' in n1['synonym']
     assert 'description' in n1
     assert 'comment' in n1
@@ -64,7 +64,7 @@ def test_owl_parse2():
 
     n2 = t.graph.nodes['GO:0003674']
     n2['name'] = 'molecular_function'
-    assert 'subsets' in n2 and 'OBO:go#goslim_generic' in n2['subsets']
+    assert 'subsets' in n2 and 'GOP:goslim_generic' in n2['subsets']
     assert 'synonym' in n2 and 'molecular function' in n2['synonym']
     assert 'description' in n2
     assert 'comment' in n2
@@ -72,7 +72,7 @@ def test_owl_parse2():
 
     n3 = t.graph.nodes['GO:0005575']
     n3['name'] = 'cellular_component'
-    assert 'subsets' in n3 and 'OBO:go#goslim_generic' in n3['subsets']
+    assert 'subsets' in n3 and 'GOP:goslim_generic' in n3['subsets']
     assert 'synonym' in n3 and 'cellular component' in n3['synonym']
     assert 'description' in n3
     assert 'comment' in n3
