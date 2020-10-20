@@ -2,7 +2,7 @@ FROM python:3.7
 MAINTAINER  Deepak Unni "deepak.unni3@gmail.com"
 
 # Clone repository
-RUN git clone https://github.com/NCATS-Tangerine/kgx && cd kgx && git checkout tags/0.1.0
+RUN git clone https://github.com/NCATS-Tangerine/kgx && cd kgx && git checkout tags/0.2.0
 
 # Setup
 RUN cd kgx && python setup.py install
