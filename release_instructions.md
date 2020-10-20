@@ -15,6 +15,7 @@ Follow [Semantic Versioning guidelines](https://semver.org/) to decide whether t
 ```sh
 TAG=`python setup.py --version`
 git add kgx/__init__.py
+git add setup.py
 git commit --message="Bump version to $TAG in preparation of a release"
 git push
 git tag --annotate $TAG --message="Release $TAG"
