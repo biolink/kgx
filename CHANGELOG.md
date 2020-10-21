@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 - (2020-09-20)
+## 0.2.0 - (2020-10-20)
 
 - Improved clique merge operation and addded support for strict and relaxed mode
 - Fixed a major bug while merging lists during graph merge operation
