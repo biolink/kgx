@@ -30,7 +30,7 @@ def test_json_load():
     assert n2['name'] == 'cellular_component'
     assert n2['description'] == 'A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome).'
     assert n2['category'] == ['biolink:CellularComponent']
-    assert n2['xrefs'] == ['NIF_Subcellular:sao1337158144']
+    assert n2['xref'] == ['NIF_Subcellular:sao1337158144']
     assert 'goslim_chembl' in n2['subsets']
     assert 'goslim_generic' in n2['subsets']
 
