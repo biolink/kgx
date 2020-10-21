@@ -253,7 +253,7 @@ class ObographJsonTransformer(JsonTransformer):
         if 'synonym' in node_properties:
             fixed_node['synonym'] = node_properties['synonym']
         if 'xrefs' in node_properties:
-            fixed_node['xrefs'] = node_properties['xrefs']
+            fixed_node['xref'] = node_properties['xrefs']
         if 'subsets' in node_properties:
             fixed_node['subsets'] = node_properties['subsets']
 
