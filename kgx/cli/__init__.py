@@ -193,7 +193,7 @@ def transform_wrapper(inputs: List[str], input_format: str, input_compression: s
         Number of processes to use
 
     """
-    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, source, processes)
+    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, source, processes=processes)
 
 
 @cli.command(name='merge')
