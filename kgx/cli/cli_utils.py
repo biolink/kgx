@@ -305,12 +305,10 @@ def transform(inputs: Optional[List[str]] = None, input_format: Optional[str] = 
 
         results = []
         pool = Pool(processes=processes)
-        print(source_to_parse)
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
-            r = pool.apply_async(transform_source, (k, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint))
-            results.append(r)
-        _ = [x.get() for x in results]
+            result = pool.apply_async(transform_source, (k, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint, False))
+            results.append(result)
         pool.close()
         pool.join()
     else:
@@ -476,13 +474,18 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     checkpoint: bool
         Whether to serialize each individual source to a TSV
 
+    Returns
+    -------
+    networkx.MultiDiGraph
+        Returns a networkx.MultiDiGraph corresponding to the source
+
     """
     log.info(f"Processing source '{key}'")
     transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint)
     return transformer.graph
 
 
-def transform_source(key: str, source: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
+def transform_source(key: str, source: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> networkx.MultiDiGraph:
     """
     Transform a source from a transform config YAML.
 
@@ -505,11 +508,13 @@ def transform_source(key: str, source: Dict, output_directory: str, curie_map: D
         Relevant for RDF export.
     checkpoint: bool
         Whether to serialize each individual source to a TSV
+    preserve_graph: true
+        Whether or not to preserve the graph corresponding to the source
 
     Returns
     -------
-    kgx.Transformer
-        Returns a kgx.Transformer instance corresponding to the output format
+    networkx.MultiDiGraph
+        Returns a networkx.MultiDiGraph corresponding to the source
 
     """
     log.info(f"Processing source '{key}'")
@@ -540,7 +545,9 @@ def transform_source(key: str, source: Dict, output_directory: str, curie_map: D
         output_transformer.save(output, output_format=output_format, compression=output_compression)
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
-    return output_transformer
+    if not preserve_graph:
+        output_transformer.graph.clear()
+    return output_transformer.graph
 
 
 def parse_source_input(key: str, source: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
@@ -577,10 +584,10 @@ def parse_source_input(key: str, source: Dict, output_directory: str, curie_map:
     input_format = source['input']['format']
     input_compression = source['input']['compression'] if 'compression' in source['input'] else None
     inputs = source['input']['filename']
-    filters = source['input']['filters'] if 'filters' in source['input'] and source['filters'] is not None else {}
+    filters = source['input']['filters'] if 'filters' in source['input'] and source['input']['filters'] is not None else {}
     node_filters = filters['node_filters'] if 'node_filters' in filters else {}
     edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
-    operations = source['input']['operations'] if 'operations' in source['input'] and source['filters'] is not None else {}
+    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['filters'] is not None else {}
     source_curie_map = source['curie_map'] if 'curie_map' in source and source['curie_map'] is not None else {}
     if curie_map:
         source_curie_map.update(curie_map)
