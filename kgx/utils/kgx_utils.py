@@ -461,15 +461,15 @@ def get_biolink_relations() -> Set:
     return relations
 
 
-def get_biolink_property_types() -> Set:
+def get_biolink_property_types() -> Dict:
     """
     Get all Biolink property types.
     This includes both node and edges properties.
 
     Returns
     -------
-    Set
-        A set containing all Biolink property types
+    Dict
+        A dict containing all Biolink property and their types
 
     """
     toolkit = get_toolkit()

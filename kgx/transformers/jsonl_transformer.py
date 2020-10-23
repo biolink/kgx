@@ -49,9 +49,9 @@ class JsonlTransformer(JsonTransformer):
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         if re.search(f'nodes.{input_format}', filename):
-            m = self.load_node
+            m = self.load_node # type: ignore
         elif re.search(f'edges.{input_format}', filename):
-            m = self.load_edge
+            m = self.load_edge # type: ignore
         else:
             raise TypeError(f"Unrecognized file: {filename}")
 

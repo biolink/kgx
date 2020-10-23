@@ -172,7 +172,7 @@ class ObographJsonTransformer(JsonTransformer):
         super().__init__(source_graph)
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
-        self.ecache = {}
+        self.ecache: Dict = {}
 
     def parse(self, filename: str, input_format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
         """

@@ -194,7 +194,7 @@ class NeoTransformer(Transformer):
         key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
         self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
 
-    def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Dict) -> Iterator:
+    def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:
         """
         Get pages of size ``page_size`` from Neo4j.
         Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
@@ -465,8 +465,8 @@ class NeoTransformer(Transformer):
             if 'id' not in node_data:
                 node_data['id'] = n
             node_data = self.validate_node(node_data)
-            category = self.sanitize_category(node_data['category'])
-            category = self.CATEGORY_DELIMITER.join(category)
+            sanitized_category = self.sanitize_category(node_data['category'])
+            category = self.CATEGORY_DELIMITER.join(sanitized_category)
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node_data]
             else:

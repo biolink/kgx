@@ -137,9 +137,7 @@ def test_transform1():
 def test_transform2():
     # transform from a test transform yaml
     transform_config = os.path.join(resource_dir, 'test-transform.yaml')
-    transform(
-        transform_config=transform_config
-    )
+    transform(None, transform_config=transform_config)
     assert os.path.exists(os.path.join(resource_dir, 'graph_nodes.tsv'))
     assert os.path.exists(os.path.join(resource_dir, 'graph_edges.tsv'))
 
