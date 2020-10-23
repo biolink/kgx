@@ -67,8 +67,6 @@ class PandasTransformer(Transformer):
 
     """
 
-    # TODO: Support parsing and export of neo4j-import tool compatible CSVs with appropriate headers
-
     def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
         super().__init__(source_graph)
         self._node_properties: Set = set()
@@ -599,13 +597,20 @@ class PandasTransformer(Transformer):
 
         """
         node_columns = cols.copy()
-        ORDER = OrderedSet(['id', 'name', 'category', 'provided_by'])
+        core_columns = OrderedSet(['id', 'name', 'category', 'description', 'xref', 'provided_by', 'synonym'])
         ordered_columns = OrderedSet()
-        for c in ORDER:
+        for c in core_columns:
             if c in node_columns:
                 ordered_columns.add(c)
                 node_columns.remove(c)
-        ordered_columns.update(node_columns)
+        internal_columns = set()
+        remaining_columns = node_columns.copy()
+        for c in node_columns:
+            if c.startswith('_'):
+                internal_columns.add(c)
+                remaining_columns.remove(c)
+        ordered_columns.update(sorted(remaining_columns))
+        ordered_columns.update(sorted(internal_columns))
         return ordered_columns
 
     @staticmethod
@@ -625,13 +630,20 @@ class PandasTransformer(Transformer):
 
         """
         edge_columns = cols.copy()
-        ORDER = OrderedSet(['id', 'subject', 'edge_label', 'object', 'relation', 'provided_by'])
+        core_columns = OrderedSet(['id', 'subject', 'edge_label', 'object', 'relation', 'provided_by'])
         ordered_columns = OrderedSet()
-        for c in ORDER:
+        for c in core_columns:
             if c in edge_columns:
                 ordered_columns.add(c)
                 edge_columns.remove(c)
-        ordered_columns.update(edge_columns)
+        internal_columns = set()
+        remaining_columns = edge_columns.copy()
+        for c in edge_columns:
+            if c.startswith('_'):
+                internal_columns.add(c)
+                remaining_columns.remove(c)
+        ordered_columns.update(sorted(remaining_columns))
+        ordered_columns.update(sorted(internal_columns))
         return ordered_columns
 
     @staticmethod
