@@ -601,7 +601,8 @@ def parse_source_input(key: str, source: Dict, output_directory: str, curie_map:
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
         transformer = get_transformer(input_format)(curie_map=source_curie_map)
-        transformer.set_predicate_mapping(predicate_mappings)
+        if predicate_mappings:
+            transformer.set_predicate_mapping(predicate_mappings)
         transformer.graph.name = key
         if filters:
             apply_filters(transformer, node_filters, edge_filters)
