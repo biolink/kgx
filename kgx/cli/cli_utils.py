@@ -138,7 +138,7 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
     return errors
 
 
-def neo4j_download(uri: str, username: str, password: str, output: str, output_format: Optional[str], output_compression: Optional[str], node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
+def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: Optional[str], node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
     """
     Download nodes and edges from Neo4j database.
 
@@ -153,7 +153,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
     output: str
         Where to write the output (stdout, by default)
     output_format: Optional[str]
-        The output type (``csv``, by default)
+        The output type (``tsv``, by default)
     output_compression: Optional[str]
         The output compression type
     node_filters: Optional[Tuple]
@@ -176,6 +176,8 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
             transformer.set_edge_filter(e[0], e[1])
     transformer.load()
 
+    if not output_format:
+        output_format = 'tsv'
     output_transformer = get_transformer(output_format)(transformer.graph)
     output_transformer.save(output, output_format=output_format)
     return output_transformer
@@ -225,7 +227,7 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
     return neo_transformer
 
 
-def transform(inputs: Optional[List[str]] = None, input_format: Optional[str] = None, input_compression: Optional[str] = None, output: Optional[str] = None, output_format: Optional[str] = None, output_compression: Optional[str] = None, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> kgx.Transformer:
+def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, input_compression: Optional[str] = None, output: Optional[str] = None, output_format: Optional[str] = None, output_compression: Optional[str] = None, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> None:
     """
     Transform a Knowledge Graph from one serialization form to another.
 
@@ -312,7 +314,7 @@ def transform(inputs: Optional[List[str]] = None, input_format: Optional[str] = 
         pool.close()
         pool.join()
     else:
-        source = {
+        source_dict: Dict = {
             'input': {
                 'format': input_format,
                 'compression': input_compression,
@@ -324,7 +326,7 @@ def transform(inputs: Optional[List[str]] = None, input_format: Optional[str] = 
                 'filename': output
             }
         }
-        transform_source(None, source, None)
+        transform_source(None, source_dict, None)
 
 
 def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> networkx.MultiDiGraph:
@@ -412,7 +414,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     if 'operations' in cfg['merged_graph']:
         apply_operations(cfg['merged_graph'], merged_graph)
 
-    destination_to_write = {}
+    destination_to_write: Dict[str, Dict] = {}
     for d in destination:
         if d in cfg['merged_graph']['destination']:
             destination_to_write[d] = cfg['merged_graph']['destination'][d]
@@ -421,33 +423,33 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
 
     # write the merged graph
     if destination_to_write:
-        for key, destination in destination_to_write.items():
+        for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
-            if destination['format'] == 'neo4j':
+            if destination_info['format'] == 'neo4j':
                 destination_transformer = NeoTransformer(
                     source_graph=merged_graph,
-                    uri=destination['uri'],
-                    username=destination['username'],
-                    password=destination['password']
+                    uri=destination_info['uri'],
+                    username=destination_info['username'],
+                    password=destination_info['password']
                 )
                 destination_transformer.save()
-            elif destination['format'] in get_file_types():
-                destination_transformer = get_transformer(destination['format'])(merged_graph)
-                filename = destination['filename']
+            elif destination_info['format'] in get_file_types():
+                destination_transformer = get_transformer(destination_info['format'])(merged_graph)
+                filename = destination_info['filename']
                 if isinstance(filename, list):
                     filename = filename[0]
                 destination_filename = f"{output_directory}/{filename}"
-                if destination['format'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
+                if destination_info['format'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
                     destination_transformer.set_predicate_mapping(predicate_mappings)
                     destination_transformer.set_property_types(property_types)
-                compression = destination['compression'] if 'compression' in destination else None
+                compression = destination_info['compression'] if 'compression' in destination_info else None
                 destination_transformer.save(
                     filename=destination_filename,
-                    output_format=destination['format'],
+                    output_format=destination_info['format'],
                     compression=compression
-                )
+                ) # type: ignore
             else:
-                log.error(f"type {destination['format']} not yet supported for KGX merge operation.")
+                log.error(f"type {destination_info['format']} not yet supported for KGX merge operation.")
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
     return merged_graph
@@ -485,17 +487,17 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     return transformer.graph
 
 
-def transform_source(key: str, source: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> networkx.MultiDiGraph:
+def transform_source(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> networkx.MultiDiGraph:
     """
     Transform a source from a transform config YAML.
 
     Parameters
     ----------
-    key: str
+    key: Optional[str]
         Source key
     source: Dict
         Source configuration
-    output_directory: str
+    output_directory: Optional[str]
         Location to write output to
     curie_map: Dict[str, str]
         Non-canonical CURIE mappings
@@ -517,6 +519,8 @@ def transform_source(key: str, source: Dict, output_directory: str, curie_map: D
         Returns a networkx.MultiDiGraph corresponding to the source
 
     """
+    if not key:
+        key = os.path.basename(source['input']['filename'][0])
     log.info(f"Processing source '{key}'")
     output_format = source['output']['format']
     output_compression = source['output']['compression'] if 'compression' in source['output'] else None
@@ -542,7 +546,7 @@ def transform_source(key: str, source: Dict, output_directory: str, curie_map: D
         output_transformer = get_transformer(output_format)(transformer.graph)
         if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
             output_transformer.set_property_types(property_types)
-        output_transformer.save(output, output_format=output_format, compression=output_compression)
+        output_transformer.save(output, output_format=output_format, compression=output_compression) # type: ignore
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
     if not preserve_graph:
@@ -550,17 +554,17 @@ def transform_source(key: str, source: Dict, output_directory: str, curie_map: D
     return output_transformer.graph
 
 
-def parse_source_input(key: str, source: Dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
+def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
     """
     Parse a source's input from a transform config YAML.
 
     Parameters
     ----------
-    key: str
+    key: Optional[str]
         Source key
     source: Dict
         Source configuration
-    output_directory: str
+    output_directory: Optional[str]
         Location to write output to
     curie_map: Dict[str, str]
         Non-canonical CURIE mappings
@@ -580,6 +584,8 @@ def parse_source_input(key: str, source: Dict, output_directory: str, curie_map:
         An instance of kgx.Transformer corresponding to the source format
 
     """
+    if not key:
+        key = os.path.basename(source['input']['filename'][0])
     source_name = source['input']['name'] if 'name' in source['input'] else key
     input_format = source['input']['format']
     input_compression = source['input']['compression'] if 'compression' in source['input'] else None
@@ -601,7 +607,8 @@ def parse_source_input(key: str, source: Dict, output_directory: str, curie_map:
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
         transformer = get_transformer(input_format)(curie_map=source_curie_map)
-        transformer.set_predicate_mapping(predicate_mappings)
+        if predicate_mappings:
+            transformer.set_predicate_mapping(predicate_mappings)
         transformer.graph.name = key
         if filters:
             apply_filters(transformer, node_filters, edge_filters)
@@ -676,10 +683,12 @@ def apply_filters(transformer: kgx.Transformer, node_filters: Optional[Dict], ed
         The transformer with filters applied
 
     """
-    for k, v in node_filters.items():
-        transformer.set_node_filter(k, set(v))
-    for k, v in edge_filters.items():
-        transformer.set_edge_filter(k, set(v))
+    if node_filters:
+        for k, v in node_filters.items():
+            transformer.set_node_filter(k, set(v))
+    if edge_filters:
+        for k, v in edge_filters.items():
+            transformer.set_edge_filter(k, set(v))
     log.info(f"with node filters: {node_filters}")
     log.info(f"with edge filters: {edge_filters}")
     return transformer

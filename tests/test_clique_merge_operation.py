@@ -16,8 +16,8 @@ def test_clique_generation():
     Test for generation of cliques
     """
     t = PandasTransformer()
-    t.parse(os.path.join(resource_dir, 'cm_nodes.csv'))
-    t.parse(os.path.join(resource_dir, 'cm_edges.csv'))
+    t.parse(os.path.join(resource_dir, 'cm_nodes.csv'), input_format='csv')
+    t.parse(os.path.join(resource_dir, 'cm_edges.csv'), input_format='csv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
     cliques = list(nx.connected_components(clique_graph))
@@ -34,7 +34,7 @@ def test_clique_merge():
     t.parse(os.path.join(resource_dir, 'cm_edges.csv'), input_format='csv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
-    leaders = nx.get_node_attributes(updated_graph, 'cliqueLeader')
+    leaders = nx.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()
     assert len(leader_list) == 2
@@ -59,7 +59,7 @@ def test_clique_merge_edge_consolidation():
     t.parse(os.path.join(resource_dir, 'cm_test2_edges.tsv'), input_format='tsv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
-    leaders = nx.get_node_attributes(updated_graph, 'cliqueLeader')
+    leaders = nx.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()
     assert len(leader_list) == 2

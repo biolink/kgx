@@ -179,7 +179,10 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         else:
             prop_uri = property_name
 
-        if s in self.reified_nodes:
+        s_curie = self.prefix_manager.contract(s)
+        if s_curie.startswith('biolink') or s_curie.startswith('OBAN'):
+            log.warning(f"Skipping {s} {p} {o}")
+        elif s in self.reified_nodes:
             # subject is a reified node
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif p in self.reification_predicates:

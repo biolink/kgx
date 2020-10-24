@@ -12,7 +12,7 @@ log = get_logger()
 
 SAME_AS = 'biolink:same_as'
 SUBCLASS_OF = 'biolink:subclass_of'
-LEADER_ANNOTATION = 'cliqueLeader'
+LEADER_ANNOTATION = 'clique_leader'
 ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
 
@@ -309,14 +309,14 @@ def update_node_categories(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph
         valid_biolink_categories, invalid_biolink_categories, invalid_categories = check_all_categories(categories)
         log.debug(f"valid biolink categories: {valid_biolink_categories} invalid biolink categories: {invalid_biolink_categories} invalid_categories: {invalid_categories}")
         # extend categories to have the longest list of ancestors
-        extended_categories = []
+        extended_categories: List = []
         for x in valid_biolink_categories:
             ancestors = get_biolink_ancestors(x)
             if len(ancestors) > len(extended_categories):
                 extended_categories.extend(ancestors)
         log.debug(f"Extended categories: {extended_categories}")
-        clique_graph_update_dict = {'category': list(extended_categories)}
-        target_graph_update_dict = {}
+        clique_graph_update_dict: Dict = {'category': list(extended_categories)}
+        target_graph_update_dict: Dict = {}
 
         if invalid_biolink_categories:
             if strict:
@@ -423,11 +423,11 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
         A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories
 
     """
-    previous = []
-    valid_biolink_categories = []
-    invalid_biolink_categories = []
-    invalid_categories = []
-    sc = sort_categories(categories)
+    previous: List = []
+    valid_biolink_categories: List = []
+    invalid_biolink_categories: List = []
+    invalid_categories: List = []
+    sc: List = sort_categories(categories)
     for c in sc:
         if previous:
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(previous[0]), None)

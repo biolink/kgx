@@ -28,8 +28,8 @@ def test_semmeddb_csv():
     edges_file = os.path.join(resource_dir, "semmed/semmeddb_test_edges.csv")
     output = os.path.join(target_dir, "semmeddb_test_export")
 
-    t.parse(nodes_file)
-    t.parse(edges_file)
+    t.parse(nodes_file, input_format='csv')
+    t.parse(edges_file, input_format='csv')
 
     # save output as *.tar
     t.save(output, output_format='csv', compression='tar')
@@ -49,8 +49,8 @@ def test_semmeddb_csv_to_tsv():
     edges_file = os.path.join(resource_dir, "semmed/semmeddb_test_edges.csv")
     output = os.path.join(target_dir, "semmeddb_test_tsv_export")
 
-    t.parse(nodes_file)
-    t.parse(edges_file)
+    t.parse(nodes_file, input_format='csv')
+    t.parse(edges_file, input_format='csv')
 
     # save output as TSV in a tar archive
     t.save(output, output_format='tsv', compression='tar')
