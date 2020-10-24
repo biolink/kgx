@@ -72,12 +72,12 @@ class PandasTransformer(Transformer):
         self._node_properties: Set = set()
         self._edge_properties: Set = set()
 
-    def parse(self, filename: str, input_format: str = 'csv', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Dict) -> None:
+    def parse(self, filename: str, input_format: str = 'tsv', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Dict) -> None:
         """
         Parse a CSV/TSV (or plain text) file.
 
-        The file can represent either nodes (nodes.csv) or edges (edges.csv) or both (data.tar),
-        where the tar archive contains nodes.csv and edges.csv
+        The file can represent either nodes (nodes.tsv) or edges (edges.tsv) or both (data.tar),
+        where the tar archive contains nodes.tsv and edges.tsv
 
         The file can also be data.tar.gz or data.tar.bz2
 
@@ -86,7 +86,7 @@ class PandasTransformer(Transformer):
         filename: str
             File to read from
         input_format: str
-            The input file format (``csv``, by default)
+            The input file format (``tsv``, by default)
         compression: Optional[str]
             The compression. For example, ``tar``
         provided_by: Optional[str]
@@ -387,7 +387,7 @@ class PandasTransformer(Transformer):
                     values.append("")
             FH.write(delimiter.join(values) + '\n')
 
-    def save(self, filename: str, output_format: str = 'csv', compression: Optional[str] = None, **kwargs: Dict) -> str:
+    def save(self, filename: str, output_format: str = 'tsv', compression: Optional[str] = None, **kwargs: Dict) -> str:
         """
         Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
         and add them to a `.tar` archive.
@@ -401,7 +401,7 @@ class PandasTransformer(Transformer):
         filename: str
             Name of tar archive file to create
         output_format: str
-            The output file format (``csv``, by default)
+            The output file format (``tsv``, by default)
         compression: Optional[str]
             The compression. For example, `tar`
         kwargs: Dict

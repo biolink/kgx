@@ -101,7 +101,7 @@ def neo4j_download_wrapper(uri: str, username: str, password: str, output: str, 
     output: str
         Where to write the output (stdout, by default)
     output_format: str
-        The output type (``csv``, by default)
+        The output type (``tsv``, by default)
     output_compression: str
         The output compression type
     node_filters: Tuple[str, str]
