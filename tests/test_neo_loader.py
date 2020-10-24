@@ -26,8 +26,8 @@ def test_csv_to_neo_load():
     load csv to neo4j test
     """
     pt = PandasTransformer()
-    pt.parse(os.path.join(resource_dir, "cm_nodes.csv"))
-    pt.parse(os.path.join(resource_dir, "cm_edges.csv"))
+    pt.parse(os.path.join(resource_dir, "cm_nodes.csv"), input_format='csv')
+    pt.parse(os.path.join(resource_dir, "cm_edges.csv"), input_format='csv')
     nt = NeoTransformer(pt.graph, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     nt.save()
     nt.neo4j_report()
@@ -42,7 +42,7 @@ def test_neo_to_graph_transform():
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
-    t.save(os.path.join(target_dir, "neo_graph.csv"))
+    t.save(os.path.join(target_dir, "neo_graph.csv"), output_format='csv')
 
 @pytest.mark.skip(reason="Missing resource robodb2.json")
 def test_neo_to_graph_upload():
