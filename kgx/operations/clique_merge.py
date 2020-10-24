@@ -12,7 +12,7 @@ log = get_logger()
 
 SAME_AS = 'biolink:same_as'
 SUBCLASS_OF = 'biolink:subclass_of'
-LEADER_ANNOTATION = 'cliqueLeader'
+LEADER_ANNOTATION = 'clique_leader'
 ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
 

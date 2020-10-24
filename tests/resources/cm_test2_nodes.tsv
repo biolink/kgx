@@ -1,4 +1,4 @@
-id	name	category	cliqueLeader
+id	name	category	clique_leader
 HGNC:7670		biolink:Gene|Node|biolink:NamedThing	True
 OMIM:601937		biolink:Gene	
 ENSEMBL:ENSG00000124151		biolink:Disease	
