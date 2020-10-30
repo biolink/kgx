@@ -635,6 +635,9 @@ class RdfOwlTransformer(RdfTransformer):
         if input_format is None:
             input_format = rdflib.util.guess_format(filename)
 
+        if input_format == 'owl':
+            input_format = 'xml'
+
         log.info("Parsing {} with '{}' format".format(filename, input_format))
         rdfgraph.parse(filename, format=input_format)
         log.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
