@@ -1,4 +1,6 @@
 import os
+import pprint
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -25,12 +27,13 @@ def test_load_tsv():
     t = PandasTransformer()
     t.parse(os.path.join(resource_dir, 'test_nodes.tsv'), input_format='tsv')
     t.parse(os.path.join(resource_dir, 'test_edges.tsv'), input_format='tsv')
-
+    pprint.pprint([x for x in t.graph.nodes(data=True)])
+    pprint.pprint([x for x in t.graph.edges(data=True)])
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    assert t.graph.nodes['CURIE:123']['description'] == '"Node of type Gene, CURIE:123"'
-    assert t.graph.nodes['CURIE:456']['description'] == '"Node of type Disease, CURIE:456"'
+    assert t.graph.nodes['CURIE:123']['description'] == 'Node of type Gene, CURIE:123'
+    assert t.graph.nodes['CURIE:456']['description'] == 'Node of type Disease, CURIE:456'
 
 
 @pytest.mark.parametrize('query', [
@@ -161,7 +164,7 @@ def test_sanitize_export(query):
     ),
     (
         {'category': {'biolink:Gene', 'biolink:PhenotypicFeature'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'edge_label': {'biolink:related_to'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'predicate': {'biolink:related_to'}},
         2,
         1
     ),
@@ -203,13 +206,13 @@ def test_filters(query):
     ),
     (
         {'category': {'biolink:Gene'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'edge_label': {'biolink:orthologous_to'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'predicate': {'biolink:orthologous_to'}},
         178,
         13
     ),
     (
         {'category': {'biolink:Gene'}},
-        {'edge_label': {'biolink:interacts_with'}},
+        {'predicate': {'biolink:interacts_with'}},
         178,
         165
     ),

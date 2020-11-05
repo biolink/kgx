@@ -25,7 +25,7 @@ def test_load():
     print(data)
     assert data['subject'] == 'HGNC:11603'
     assert data['object'] == 'MONDO:0005002'
-    assert data['edge_label'] == 'biolink:related_to'
+    assert data['predicate'] == 'biolink:related_to'
 
 
 @pytest.mark.skip('To be implemented')

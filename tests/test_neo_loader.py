@@ -110,8 +110,8 @@ def test_neo_to_graph_download():
             s = subject_attr['id']
             o = object_attr['id']
 
-            if 'edge_label' not in edge_attr:
-                edge_attr['edge_label'] = e['metadata']['type']
+            if 'predicate' not in edge_attr:
+                edge_attr['predicate'] = e['metadata']['type']
 
             if 'category' not in subject_attr:
                 subject_attr['category'] = n['metadata']['labels']
@@ -124,7 +124,7 @@ def test_neo_to_graph_download():
             if o not in G:
                 G.add_node(o, **object_attr)
 
-            G.add_edge(s, o, key=edge_attr['edge_label'], **edge_attr)
+            G.add_edge(s, o, key=edge_attr['predicate'], **edge_attr)
 
         if stop_after is not None and G.number_of_edges() > stop_after:
             break

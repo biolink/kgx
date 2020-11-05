@@ -13,7 +13,7 @@ def get_graph(source):
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'], source=source)
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'], source=source)
     g1.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'], source=source)
-    g1.add_edge('B', 'A', subject='B', object='A', edge_label='biolink:sub_class_of', source=source)
+    g1.add_edge('B', 'A', subject='B', object='A', predicate='biolink:sub_class_of', source=source)
 
     g2 = MultiDiGraph()
     g2.add_node('A', id='A', source=source)
@@ -22,17 +22,17 @@ def get_graph(source):
     g2.add_node('D', id='D', source=source)
     g2.add_node('E', id='E', source=source)
     g2.add_node('F', id='F', source=source)
-    g2.add_edge('B', 'A', subject='B', object='A', edge_label='biolink:sub_class_of', source=source)
-    g2.add_edge('C', 'B', subject='C', object='B',  edge_label='biolink:sub_class_of', source=source)
-    g2.add_edge('D', 'C', subject='D', object='C',  edge_label='biolink:sub_class_of', source=source)
-    g2.add_edge('D', 'A', subject='D', object='A',  edge_label='biolink:related_to', source=source)
-    g2.add_edge('E', 'D', subject='E', object='D',  edge_label='biolink:sub_class_of', source=source)
-    g2.add_edge('F', 'D', subject='F', object='D',  edge_label='biolink:sub_class_of', source=source)
+    g2.add_edge('B', 'A', subject='B', object='A', predicate='biolink:sub_class_of', source=source)
+    g2.add_edge('C', 'B', subject='C', object='B',  predicate='biolink:sub_class_of', source=source)
+    g2.add_edge('D', 'C', subject='D', object='C',  predicate='biolink:sub_class_of', source=source)
+    g2.add_edge('D', 'A', subject='D', object='A',  predicate='biolink:related_to', source=source)
+    g2.add_edge('E', 'D', subject='E', object='D',  predicate='biolink:sub_class_of', source=source)
+    g2.add_edge('F', 'D', subject='F', object='D',  predicate='biolink:sub_class_of', source=source)
 
     g3 = MultiDiGraph()
     g3.add_node('A', id='A', category=['biolink:NamedThing'], source=source)
     g3.add_node('B', id='B', category=['biolink:NamedThing'], source=source)
-    g3.add_edge('A', 'B', subject='A', object='B', edge_label='biolink:related_to', source=source)
+    g3.add_edge('A', 'B', subject='A', object='B', predicate='biolink:related_to', source=source)
 
     g4 = MultiDiGraph()
     g4.add_node('A', id='A', category=['biolink:Gene'], provided_by=source, source=source)
@@ -42,11 +42,11 @@ def get_graph(source):
     g4.add_node('B1', id='B1', category=['biolink:Protein'], provided_by=source, source=source)
     g4.add_node('X', id='X', category=['biolink:Drug'], provided_by=source, source=source)
     g4.add_node('Y', id='Y', category=['biolink:Drug'], provided_by=source, source=source)
-    g4.add_edge('A', 'A1', subject='A', object='A1', edge_label='biolink:has_gene_product', provided_by=source, source=source)
-    g4.add_edge('A', 'A2', subject='A', object='A2', edge_label='biolink:has_gene_product', provided_by=source, source=source)
-    g4.add_edge('B', 'B1', subject='B', object='B1', edge_label='biolink:has_gene_product', provided_by=source, source=source)
-    g4.add_edge('X', 'A1', subject='X', object='A1', edge_label='biolink:interacts_with', provided_by=source, source=source)
-    g4.add_edge('Y', 'B', subject='Y', object='B', edge_label='biolink:interacts_with', provided_by=source, source=source)
+    g4.add_edge('A', 'A1', subject='A', object='A1', predicate='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('A', 'A2', subject='A', object='A2', predicate='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('B', 'B1', subject='B', object='B1', predicate='biolink:has_gene_product', provided_by=source, source=source)
+    g4.add_edge('X', 'A1', subject='X', object='A1', predicate='biolink:interacts_with', provided_by=source, source=source)
+    g4.add_edge('Y', 'B', subject='Y', object='B', predicate='biolink:interacts_with', provided_by=source, source=source)
     return [g1, g2, g3, g4]
 
 
@@ -97,7 +97,7 @@ def test_save_merge(clean_slate):
 
     t.graph.add_node('B', id='B', publications=['PMID:1', 'PMID:2'], category=['biolink:NamedThing'])
     t.graph.add_node('C', id='C', source='kgx-unit-test')
-    t.graph.add_edge('A', 'B', subject='A', object='B', edge_label='biolink:related_to', test_prop='VAL123')
+    t.graph.add_edge('A', 'B', subject='A', object='B', predicate='biolink:related_to', test_prop='VAL123')
     assert t.graph.number_of_nodes() == 3
     t.save()
 
@@ -114,7 +114,7 @@ def test_save_merge(clean_slate):
         # assert data['id'] == 'A-biolink:related_to-B'
         assert data['subject'] == 'A'
         assert data['object'] == 'B'
-        assert data['edge_label'] == 'biolink:related_to'
+        assert data['predicate'] == 'biolink:related_to'
         assert data['test_prop'] == 'VAL123'
 
 
@@ -144,9 +144,9 @@ def test_get_nodes(clean_slate, query):
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Protein'}}, 3),
     (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'object_category': {'biolink:Gene'}}, 1),
     (get_graph('kgx-unit-test')[3], {'provided_by': {'kgx-unit-test'}}, 5),
-    (get_graph('kgx-unit-test')[3], {'edge_label': {'biolink:interacts_with'}}, 2),
-    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'edge_label': {'biolink:interacts_with'}}, 2),
-    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene', 'biolink:Protein'}, 'edge_label': {'biolink:interacts_with'}}, 0),
+    (get_graph('kgx-unit-test')[3], {'predicate': {'biolink:interacts_with'}}, 2),
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Drug'}, 'predicate': {'biolink:interacts_with'}}, 2),
+    (get_graph('kgx-unit-test')[3], {'subject_category': {'biolink:Gene', 'biolink:Protein'}, 'predicate': {'biolink:interacts_with'}}, 0),
 ])
 def test_get_edges(clean_slate, query):
     g = get_graph('kgx-unit-test')[3]

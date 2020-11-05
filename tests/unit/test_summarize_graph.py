@@ -16,8 +16,8 @@ def get_graphs():
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'])
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'])
     g1.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g1.add_edge('C', 'B', key='C-biolink:subclass_of-B', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf')
-    g1.add_edge('B', 'A', key='B-biolink:subclass_of-A', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
+    g1.add_edge('C', 'B', key='C-biolink:subclass_of-B', predicate='biolink:sub_class_of', relation='rdfs:subClassOf')
+    g1.add_edge('B', 'A', key='B-biolink:subclass_of-A', predicate='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
 
     g2 = MultiDiGraph()
     g2.name = 'Graph 2'
@@ -26,14 +26,14 @@ def get_graphs():
     g2.add_node('C', id='C', name='Node C', description='Node C in Graph 2', category=['biolink:NamedThing'])
     g2.add_node('D', id='D', name='Node D', description='Node D in Graph 2', category=['biolink:NamedThing'])
     g2.add_node('E', id='E', name='Node E', description='Node E in Graph 2', category=['biolink:NamedThing'])
-    g2.add_edge('B', 'A', key='B-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('D', 'A', key='D-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('E', 'A', key='E-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
+    g2.add_edge('B', 'A', key='B-biolink:related_to-A', predicate='biolink:related_to', relation='biolink:related_to')
+    g2.add_edge('D', 'A', key='D-biolink:related_to-A', predicate='biolink:related_to', relation='biolink:related_to')
+    g2.add_edge('E', 'A', key='E-biolink:related_to-A', predicate='biolink:related_to', relation='biolink:related_to')
 
 
     g3 = MultiDiGraph()
     g3.name = 'Graph 3'
-    g3.add_edge('F', 'E', key='F-biolink:same_as-E', edge_label='biolink:same_as', relation='OWL:same_as')
+    g3.add_edge('F', 'E', key='F-biolink:same_as-E', predicate='biolink:same_as', relation='OWL:same_as')
 
     return [g1, g2, g3]
 
@@ -60,8 +60,8 @@ def test_generate_graph_stats():
         'edge_stats': {
             'total_edges': 2
         },
-        'edge_labels': ['biolink:subclass_of'],
-        'count_by_edge_label': {
+        'edge_predicates': ['biolink:subclass_of'],
+        'count_by_edge_predicate': {
             'unknown': {'count': 0},
             'biolink:subclass_of': {'count': 2}
         },
@@ -82,8 +82,8 @@ def test_generate_graph_stats():
         },
         'edge_stats': {
             'total_edges': 3,
-            'edge_labels': ['biolink:related_to'],
-            'count_by_edge_label': {
+            'edge_predicates': ['biolink:related_to'],
+            'count_by_edge_predicate': {
                 'unknown': {'count': 0},
                 'biolink:related_to': {'count': 3}
             },
@@ -104,8 +104,8 @@ def test_generate_graph_stats():
         },
          'edge_stats': {
              'total_edges': 1,
-             'edge_labels': ['biolink:same_as'],
-             'count_by_edge_label': {
+             'edge_predicates': ['biolink:same_as'],
+             'count_by_edge_predicate': {
                  'unknown': {'count': 0},
                  'biolink:same_as': {'count': 1}
              },

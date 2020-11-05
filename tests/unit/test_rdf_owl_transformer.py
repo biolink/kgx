@@ -36,7 +36,7 @@ def test_owl_parse1():
 
     e1 = list(t.graph.get_edge_data('GO:0008289', 'GO:0003674').values())[0]
     assert e1['subject'] == 'GO:0008289'
-    assert e1['edge_label'] == 'biolink:subclass_of'
+    assert e1['predicate'] == 'biolink:subclass_of'
     assert e1['object'] == 'GO:0003674'
     assert e1['relation'] == 'rdfs:subClassOf'
 
@@ -53,7 +53,8 @@ def test_owl_parse2():
     t = RdfOwlTransformer()
     t.set_predicate_mapping(predicate_mapping)
     t.parse(os.path.join(resource_dir, 'goslim_generic.owl'), node_property_predicates=np)
-
+    pprint.pprint([x for x in t.graph.nodes(data=True)])
+    pprint.pprint([x for x in t.graph.edges(data=True)])
     n1 = t.graph.nodes['GO:0008150']
     assert n1['name'] == 'biological_process'
     assert 'subsets' in n1 and 'GOP:goslim_generic' in n1['subsets']
@@ -80,7 +81,7 @@ def test_owl_parse2():
 
     e1 = list(t.graph.get_edge_data('GO:0008289', 'GO:0003674').values())[0]
     assert e1['subject'] == 'GO:0008289'
-    assert e1['edge_label'] == 'biolink:subclass_of'
+    assert e1['predicate'] == 'biolink:subclass_of'
     assert e1['object'] == 'GO:0003674'
     assert e1['relation'] == 'rdfs:subClassOf'
 
