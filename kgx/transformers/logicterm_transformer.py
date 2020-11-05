@@ -31,7 +31,7 @@ class LogicTermTransformer(Transformer):
     def export_edges(self) -> pd.DataFrame:
         items: List = []
         for o,s,data in self.graph.edges(data=True):
-            el = data.get('edge_label', None)
+            el = data.get('predicate', None)
             self.write_term('edge', el, o, s)
             for k,v in data.items():
                 self.write_term('edge_prop', el, o, s, k, v)

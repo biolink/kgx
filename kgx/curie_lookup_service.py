@@ -43,7 +43,7 @@ class CurieLookupService(object):
             #     self.ontology_graph.add_node(subject_curie)
             #     self.ontology_graph.add_node(object_curie)
             #     key = generate_edge_key(subject_curie, 'subclass_of', object_curie)
-            #     self.ontology_graph.add_edge(subject_curie, object_curie, key, **{'edge_label': 'subclass_of', 'relation': 'rdfs:subClassOf'})
+            #     self.ontology_graph.add_edge(subject_curie, object_curie, key, **{'predicate': 'subclass_of', 'relation': 'rdfs:subClassOf'})
 
             triples = rdfgraph.triples((None, rdflib.RDFS.label, None))
             for s, p, o in triples:

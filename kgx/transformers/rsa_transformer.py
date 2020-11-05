@@ -81,5 +81,5 @@ class RsaTransformer(JsonTransformer):
         if 'target_id' in edge:
             edge['object'] = edge['target_id']
         if 'relation_label' in edge:
-            edge['edge_label'] = edge['relation_label'][0]
+            edge['predicate'] = edge['relation_label'][0]
         super().load_edge(edge)

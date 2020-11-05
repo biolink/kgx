@@ -38,7 +38,7 @@ def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) 
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
-            parents = [x[1] for x in out_edges if x[2]['edge_label'] in relations]
+            parents = [x[1] for x in out_edges if x[2]['predicate'] in relations]
     return parents
 
 
@@ -208,10 +208,10 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
     for u, v, k, edge_data in graph.edges(keys=True, data=True):
         if u is not edge_data['subject']:
             updated_subject_values[(u, v, k)] = u
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['predicate'], v)
         if v is not edge_data['object']:
             updated_object_values[(u, v, k)] = v
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['predicate'], v)
 
     nx.set_edge_attributes(graph, values=updated_subject_values, name='subject')
     nx.set_edge_attributes(graph, values=updated_object_values, name='object')
@@ -250,7 +250,7 @@ def remap_node_property(graph: nx.MultiDiGraph, category: str, old_property: str
     nx.set_node_attributes(graph, values=mapping, name=old_property)
 
 
-def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: str, new_property: str) -> None:
+def remap_edge_property(graph: nx.MultiDiGraph, predicate: str, old_property: str, new_property: str) -> None:
     """
     Remap the value in an edge ``old_property`` attribute with value
     from edge ``new_property`` attribute.
@@ -259,8 +259,8 @@ def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: s
     ----------
     graph: networkx.MultiDiGraph
         The graph
-    edge_label: string
-        edge_label referring to edges whose property needs to be remapped
+    predicate: string
+        edge predicate referring to edges whose property needs to be remapped
     old_property: string
         Old property name whose value needs to be replaced
     new_property: string
@@ -272,7 +272,7 @@ def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: s
         raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
     for u, v, k, data in graph.edges(data=True, keys=True):
         edge_data = data.copy()
-        if edge_label is not edge_data['edge_label']:
+        if predicate is not edge_data['predicate']:
             continue
         if new_property in edge_data:
             mapping[(u, v, k)] = edge_data[new_property]

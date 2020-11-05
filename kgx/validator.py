@@ -26,8 +26,8 @@ class ErrorType(Enum):
     INVALID_EDGE_PROPERTY_VALUE = 6
     NO_CATEGORY = 7
     INVALID_CATEGORY = 8
-    NO_EDGE_LABEL = 9
-    INVALID_EDGE_LABEL = 10
+    NO_EDGE_PREDICATE = 9
+    INVALID_EDGE_PREDICATE = 10
 
 
 class MessageLevel(Enum):
@@ -139,9 +139,10 @@ class Validator(object):
         for p in node_properties:
             element = toolkit.get_element(p)
             if hasattr(element, 'required') and element.required:
-                # TODO: this should be handled by bmt
-                formatted_name = sentencecase_to_snakecase(element.name)
-                required_properties.append(formatted_name)
+                if hasattr(element, 'deprecated') and not element.deprecated:
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
         return required_properties
 
     @staticmethod
@@ -161,9 +162,10 @@ class Validator(object):
         for p in edge_properties:
             element = toolkit.get_element(p)
             if hasattr(element, 'required') and element.required:
-                # TODO: this should be handled by bmt
-                formatted_name = sentencecase_to_snakecase(element.name)
-                required_properties.append(formatted_name)
+                if hasattr(element, 'deprecated') and not element.deprecated:
+                    # TODO: this should be handled by bmt
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
         return required_properties
 
     def validate(self, graph: nx.Graph) -> list:
@@ -244,7 +246,7 @@ class Validator(object):
                 e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
                 e2 = Validator.validate_edge_property_types(u, v, data)
                 e3 = Validator.validate_edge_property_values(u, v, data)
-                e4 = Validator.validate_edge_label(u, v, data)
+                e4 = Validator.validate_edge_predicate(u, v, data)
                 errors += e1 + e2 + e3 + e4
         return errors
 
@@ -550,9 +552,9 @@ class Validator(object):
         return errors
 
     @staticmethod
-    def validate_edge_label(subject: str, object: str, data: dict) -> list:
+    def validate_edge_predicate(subject: str, object: str, data: dict) -> list:
         """
-        Validate ``edge_label`` field of a given edge.
+        Validate ``predicate`` field of a given edge.
 
         Parameters
         ----------
@@ -570,29 +572,29 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        error_type = ErrorType.INVALID_EDGE_LABEL
+        error_type = ErrorType.INVALID_EDGE_PREDICATE
         errors = []
-        edge_label = data.get('edge_label')
-        if edge_label is None:
-            message = "Edge does not have an 'edge_label' property"
+        predicate = data.get('predicate')
+        if predicate is None:
+            message = "Edge does not have an 'predicate' property"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-        elif not isinstance(edge_label, str):
-            message = f"Edge property 'edge_label' expected to be of type 'string'"
+        elif not isinstance(predicate, str):
+            message = f"Edge property 'predicate' expected to be of type 'string'"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         else:
-            if PrefixManager.is_curie(edge_label):
-                edge_label = PrefixManager.get_reference(edge_label)
-            m = re.match(r"^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$", edge_label)
+            if PrefixManager.is_curie(predicate):
+                predicate = PrefixManager.get_reference(predicate)
+            m = re.match(r"^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$", predicate)
             if m:
-                p = toolkit.get_element(snakecase_to_sentencecase(edge_label))
+                p = toolkit.get_element(snakecase_to_sentencecase(predicate))
                 if p is None:
-                    message = f"Edge label '{edge_label}' not in Biolink Model"
+                    message = f"Edge predicate '{predicate}' not in Biolink Model"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-                elif edge_label != p.name and edge_label in p.aliases:
-                    message = f"Edge label '{edge_label}' is actually an alias for {p.name}; Should replace {edge_label} with {p.name}"
+                elif predicate != p.name and predicate in p.aliases:
+                    message = f"Edge predicate '{predicate}' is actually an alias for {p.name}; Should replace {predicate} with {p.name}"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
             else:
-                message = f"Edge label '{edge_label}' is not in snake_case form"
+                message = f"Edge predicate '{predicate}' is not in snake_case form"
                 errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         return errors
 

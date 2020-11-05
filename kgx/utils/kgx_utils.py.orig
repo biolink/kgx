@@ -223,12 +223,6 @@ def get_toolkit(schema: Optional[str] = None) -> Toolkit:
     """
     Get an instance of bmt.Toolkit
     If there no instance defined, then one is instantiated and returned.
-
-    Returns
-    -------
-    bmt.Toolkit
-        an instance of bmt.Toolkit
-
     """
     global toolkit
     if toolkit is None:
@@ -236,11 +230,17 @@ def get_toolkit(schema: Optional[str] = None) -> Toolkit:
             config = get_config()
             schema = config['biolink-model']
         toolkit = Toolkit(schema=schema)
+<<<<<<< Updated upstream
+    return toolkit
+
+def generate_edge_key(s: str, edge_label: str, o: str) -> str:
+=======
 
     return toolkit
 
 
 def generate_edge_key(s: str, predicate: str, o: str) -> str:
+>>>>>>> Stashed changes
     """
     Generates an edge key based on a given subject, predicate, and object.
 

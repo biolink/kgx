@@ -86,12 +86,12 @@ def build_cliques(target_graph: nx.MultiDiGraph) -> nx.Graph:
             del new_data['same_as']
             clique_graph.add_node(n, **new_data)
             for s in data['same_as']:
-                edge_data = {'subject': n, 'edge_label': SAME_AS, 'object': s}
+                edge_data = {'subject': n, 'predicate': SAME_AS, 'object': s}
                 if 'provided_by' in data:
                     edge_data['provided_by'] = data['provided_by']
                 clique_graph.add_edge(n, s, **edge_data)
     for u, v, data in target_graph.edges(data=True):
-        if 'edge_label' in data and data['edge_label'] == SAME_AS:
+        if 'predicate' in data and data['predicate'] == SAME_AS:
             # load all biolink:same_as edges to clique_graph
             clique_graph.add_node(u, **target_graph.nodes[u])
             clique_graph.add_node(v, **target_graph.nodes[v])
@@ -211,33 +211,33 @@ def consolidate_edges(target_graph: nx.MultiDiGraph, clique_graph: nx.Graph, lea
                 continue
             log.info(f"Looking for in_edges for {node}")
             in_edges = target_graph.in_edges(node, True)
-            filtered_in_edges = [x for x in in_edges if x[2]['edge_label'] != SAME_AS]
-            equiv_in_edges = [x for x in in_edges if x[2]['edge_label'] == SAME_AS]
+            filtered_in_edges = [x for x in in_edges if x[2]['predicate'] != SAME_AS]
+            equiv_in_edges = [x for x in in_edges if x[2]['predicate'] == SAME_AS]
             log.debug(f"Moving {len(in_edges)} in-edges from {node} to {leader}")
             for u, v, edge_data in filtered_in_edges:
-                key = generate_edge_key(u, edge_data['edge_label'], v)
+                key = generate_edge_key(u, edge_data['predicate'], v)
                 target_graph.remove_edge(u, v, key=key)
                 edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['object'] = leader
-                key = generate_edge_key(u, edge_data['edge_label'], leader)
-                if edge_data['subject'] == edge_data['object'] and edge_data['edge_label'] == SUBCLASS_OF:
+                key = generate_edge_key(u, edge_data['predicate'], leader)
+                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
                     continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
             log.info(f"Looking for out_edges for {node}")
             out_edges = target_graph.out_edges(node, True)
-            filtered_out_edges = [x for x in out_edges if x[2]['edge_label'] != SAME_AS]
-            equiv_out_edges = [x for x in out_edges if x[2]['edge_label'] == SAME_AS]
+            filtered_out_edges = [x for x in out_edges if x[2]['predicate'] != SAME_AS]
+            equiv_out_edges = [x for x in out_edges if x[2]['predicate'] == SAME_AS]
             log.debug(f"Moving {len(out_edges)} out-edges from {node} to {leader}")
             for u, v, edge_data in filtered_out_edges:
-                key = generate_edge_key(u, edge_data['edge_label'], v)
+                key = generate_edge_key(u, edge_data['predicate'], v)
                 target_graph.remove_edge(u, v, key=key)
                 edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['subject'] = leader
-                key = generate_edge_key(leader, edge_data['edge_label'], v)
-                if edge_data['subject'] == edge_data['object'] and edge_data['edge_label'] == SUBCLASS_OF:
+                key = generate_edge_key(leader, edge_data['predicate'], v)
+                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
                     continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
@@ -490,7 +490,7 @@ def get_category_from_equivalence(target_graph: nx.MultiDiGraph, clique_graph: n
     """
     category: List = []
     for u, v, data in clique_graph.edges(node, data=True):
-        if data['edge_label'] == SAME_AS:
+        if data['predicate'] == SAME_AS:
             if u == node:
                 if 'category' in clique_graph.nodes[v]:
                     category = clique_graph.nodes[v]['category']

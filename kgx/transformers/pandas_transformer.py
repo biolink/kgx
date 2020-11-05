@@ -321,7 +321,7 @@ class PandasTransformer(Transformer):
                 o = kwargs['object']
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
                     kwargs['provided_by'] = self.graph_metadata['provided_by']
-                key = generate_edge_key(s, kwargs['edge_label'], o)
+                key = generate_edge_key(s, kwargs['predicate'], o)
                 self.graph.add_edge(s, o, key, **kwargs)
                 self._edge_properties.update(list(kwargs.keys()))
             else:
@@ -511,7 +511,7 @@ class PandasTransformer(Transformer):
                 header.append(f"{x}:START_ID")
             elif x == 'object':
                 header.append(f"{x}:END_ID")
-            elif x == 'edge_label':
+            elif x == 'predicate':
                 header.append(f"{x}:TYPE")
             elif x in _column_types and _column_types[x] == list:
                 header.append(f"{x}:string[]")
@@ -630,7 +630,7 @@ class PandasTransformer(Transformer):
 
         """
         edge_columns = cols.copy()
-        core_columns = OrderedSet(['id', 'subject', 'edge_label', 'object', 'relation', 'provided_by'])
+        core_columns = OrderedSet(['id', 'subject', 'predicate', 'object', 'relation', 'provided_by'])
         ordered_columns = OrderedSet()
         for c in core_columns:
             if c in edge_columns:

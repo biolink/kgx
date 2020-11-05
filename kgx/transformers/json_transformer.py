@@ -267,7 +267,7 @@ class ObographJsonTransformer(JsonTransformer):
             equivalent_nodes = node_properties['equivalent_nodes']
             fixed_node['same_as'] = equivalent_nodes
             # for n in node_properties['equivalent_nodes']:
-            #     data = {'subject': fixed_node['id'], 'edge_label': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
+            #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
             #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
             #     self.graph.add_edge(fixed_node['id'], n, **data)
         super().load_node(fixed_node)
@@ -287,7 +287,7 @@ class ObographJsonTransformer(JsonTransformer):
         if PrefixManager.is_iri(edge['pred']):
             curie = self.prefix_manager.contract(edge['pred'])
             if curie in self.ecache:
-                edge_label = self.ecache[curie]
+                predicate = self.ecache[curie]
             else:
                 element = get_biolink_element(curie)
                 if not element:
@@ -298,25 +298,25 @@ class ObographJsonTransformer(JsonTransformer):
                         log.error(e)
 
                 if element:
-                    edge_label = format_biolink_slots(element.name.replace(',', ''))
-                    fixed_edge['edge_label'] = edge_label
+                    predicate = format_biolink_slots(element.name.replace(',', ''))
+                    fixed_edge['predicate'] = predicate
                 else:
-                    edge_label = 'biolink:related_to'
-                self.ecache[curie] = edge_label
-            fixed_edge['edge_label'] = edge_label
+                    predicate = 'biolink:related_to'
+                self.ecache[curie] = predicate
+            fixed_edge['predicate'] = predicate
             fixed_edge['relation'] = curie
         else:
             if edge['pred'] == 'is_a':
-                fixed_edge['edge_label'] = 'biolink:subclass_of'
+                fixed_edge['predicate'] = 'biolink:subclass_of'
                 fixed_edge['relation'] = 'rdfs:subClassOf'
             elif edge['pred'] == 'has_part':
-                fixed_edge['edge_label'] = 'biolink:has_part'
+                fixed_edge['predicate'] = 'biolink:has_part'
                 fixed_edge['relation'] = "BFO:0000051"
             elif edge['pred'] == 'part_of':
-                fixed_edge['edge_label'] = 'biolink:part_of'
+                fixed_edge['predicate'] = 'biolink:part_of'
                 fixed_edge['relation'] = "BFO:0000050"
             else:
-                fixed_edge['edge_label'] = f"biolink:{edge['pred'].replace(' ', '_')}"
+                fixed_edge['predicate'] = f"biolink:{edge['pred'].replace(' ', '_')}"
                 fixed_edge['relation'] = edge['pred']
 
         fixed_edge['object'] = self.prefix_manager.contract(edge['obj'])

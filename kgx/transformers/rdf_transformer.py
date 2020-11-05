@@ -189,7 +189,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             # subject is a reified node
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=prop_uri, value=o)
-        elif property_name in {'subject', 'edge_label', 'object', 'predicate', 'relation'}:
+        elif property_name in {'subject', 'predicate', 'object', 'predicate', 'relation'}:
             # subject is a reified node
             self.reified_nodes.add(s)
             self.add_node_attribute(s, key=prop_uri, value=o)
@@ -231,14 +231,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
             node = self.graph.nodes[n_curie]
-            if 'edge_label' not in node:
-                node['edge_label'] = "biolink:related_to"
+            if 'predicate' not in node:
+                node['predicate'] = "biolink:related_to"
             if 'relation' not in node:
-                node['relation'] = node['edge_label']
+                node['relation'] = node['predicate']
             if 'category' in node:
                 del node['category']
             if 'subject' in node and 'object' in node:
-                self.add_edge(node['subject'], node['object'], node['edge_label'], node)
+                self.add_edge(node['subject'], node['object'], node['predicate'], node)
                 self.graph.remove_node(n_curie)
             else:
                 log.warning(f"Cannot dereify node {n} {node}")
@@ -265,7 +265,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         s = self.uriref(u)
-        p = self.uriref(data['edge_label'])
+        p = self.uriref(data['predicate'])
         o = self.uriref(v)
 
         if 'id' in data:
@@ -279,7 +279,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         reified_node['id'] = node_id
         reified_node['type'] = 'biolink:Association'
         reified_node['subject'] = s
-        reified_node['edge_label'] = p
+        reified_node['predicate'] = p
         reified_node['object'] = o
         return reified_node
 
@@ -376,7 +376,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             if reify_all_edges:
                 reified_node = self.reify(u, v, k, data)
                 s = reified_node['subject']
-                p = reified_node['edge_label']
+                p = reified_node['predicate']
                 o = reified_node['object']
                 ecache.append((s, p, o))
                 n = reified_node['id']
@@ -406,7 +406,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 if 'type' in data and data['type'] in associations:
                     reified_node = self.reify(u, v, k, data)
                     s = reified_node['subject']
-                    p = reified_node['edge_label']
+                    p = reified_node['predicate']
                     o = reified_node['object']
                     ecache.append((s, p, o))
                     n = reified_node['id']
@@ -434,7 +434,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                             yield (n, prop_uri, value_uri)
                 else:
                     s = self.uriref(u)
-                    p = self.uriref(data['edge_label'])
+                    p = self.uriref(data['predicate'])
                     o = self.uriref(v)
                     yield (s, p, o)
         for t in ecache:
@@ -490,7 +490,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         # TODO: this should be properly defined in the model
         default_uri_types = {
             'biolink:type', 'biolink:category', 'biolink:subject',
-            'biolink:object', 'biolink:relation', 'biolink:edge_label',
+            'biolink:object', 'biolink:relation', 'biolink:predicate',
             'rdf:type', 'rdf:subject', 'rdf:predicate', 'rdf:object'
         }
 
