@@ -16,7 +16,7 @@ merged_graph:
             - biolink:Gene
             - biolink:Disease
         edge_filters:
-          edge_label:
+          predicate:
             - biolink:interacts_with
             - biolink:related_to
     valid_graph:

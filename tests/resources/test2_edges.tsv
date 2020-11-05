@@ -1,4 +1,4 @@
-subject	edge_label	object	relation	publications	provided_by	validated
+subject	predicate	object	relation	publications	provided_by	validated
 CURIE:123	biolink:related_to	CURIE:456	biolink:related_to	PMID:1|PMID:2	test	true
 CURIE:123	biolink:related_to	CURIE:789	biolink:related_to	PMID:1|PMID:2	test	true
 CURIE:123	biolink:subclass_of	CURIE:789	biolink:subclass_of	PMID:1|PMID:2	test	false

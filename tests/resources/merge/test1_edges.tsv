@@ -1,4 +1,4 @@
-subject	edge_label	object	relation	p1	p2	p3
+subject	predicate	object	relation	p1	p2	p3
 x1	related_to	x2	RO:000000	1	1	1
 x2	related_to	x3	RO:000000	2	2	2
 x3	related_to	x4	RO:000000	3	3	3
