@@ -292,7 +292,7 @@ class ObographJsonTransformer(JsonTransformer):
                 element = get_biolink_element(curie)
                 if not element:
                     try:
-                        mapping = self.toolkit.get_by_mapping(edge['pred'])
+                        mapping = self.toolkit.get_element_by_mapping(edge['pred'])
                         element = self.toolkit.get_element(mapping)
                     except ValueError as e:
                         log.error(e)
@@ -352,7 +352,7 @@ class ObographJsonTransformer(JsonTransformer):
                     if element:
                         category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
                     else:
-                        element = self.toolkit.get_by_mapping(category)
+                        element = self.toolkit.get_element_by_mapping(category)
                         if element:
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
                         else:

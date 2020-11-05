@@ -105,14 +105,14 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
         log.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
         seen = []
         for anc in ancestors:
-            mapping = toolkit.get_by_mapping(anc)
+            mapping = toolkit.get_element_by_mapping(anc)
             seen.append(anc)
             if mapping:
                 # there is direct mapping to BioLink Model
                 log.debug("Ancestor {} mapped to {}".format(anc, mapping))
                 seen_labels = [graph.nodes[x]['name'] for x in seen if 'name' in graph.nodes[x]]
                 new_categories += [x for x in seen_labels]
-                new_categories += [x for x in toolkit.ancestors(mapping)]
+                new_categories += [x for x in toolkit.get_ancestors(mapping)]
                 break
     return set(new_categories)
 

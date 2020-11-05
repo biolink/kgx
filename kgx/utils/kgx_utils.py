@@ -348,7 +348,7 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     toolkit = get_toolkit()
     prefix_prioritization_map = {}
     # TODO: Lookup via Biolink CURIE should be supported in bmt
-    descendants = toolkit.descendents('named thing')
+    descendants = toolkit.get_descendants('named thing')
     descendants.append('named thing')
     for d in descendants:
         element = toolkit.get_element(d)
@@ -402,7 +402,7 @@ def get_biolink_ancestors(name: str):
         name = name.split(':', 1)[1]
         name = camelcase_to_sentencecase(name)
 
-    ancestors = toolkit.ancestors(name)
+    ancestors = toolkit.get_ancestors(name)
     formatted_ancestors = [format_biolink_category(x) for x in ancestors]
     return formatted_ancestors
 
@@ -418,7 +418,7 @@ def get_biolink_node_properties() -> Set:
 
     """
     toolkit = get_toolkit()
-    properties = toolkit.children('node property')
+    properties = toolkit.get_children('node property')
     # TODO: fix bug in bmt when getting descendants
     node_properties = set()
     for p in properties:
@@ -440,7 +440,7 @@ def get_biolink_edge_properties() -> Set:
 
     """
     toolkit = get_toolkit()
-    properties = toolkit.children('association slot')
+    properties = toolkit.get_children('association slot')
     edge_properties = set()
     for p in properties:
         element = toolkit.get_element(p)
@@ -460,7 +460,7 @@ def get_biolink_relations() -> Set:
 
     """
     toolkit = get_toolkit()
-    relations = set(toolkit.descendents('related to'))
+    relations = set(toolkit.get_descendants('related to'))
     return relations
 
 
@@ -480,12 +480,12 @@ def get_biolink_property_types() -> Dict:
     node_properties = set()
     edge_properties = set()
 
-    properties = toolkit.children('node property')
+    properties = toolkit.get_children('node property')
     for p in properties:
         element = toolkit.get_element(p)
         node_properties.add(element.name)
 
-    properties = toolkit.children('association slot')
+    properties = toolkit.get_children('association slot')
     for p in properties:
         element = toolkit.get_element(p)
         edge_properties.add(element.name)
@@ -514,7 +514,7 @@ def get_biolink_association_types() -> Set:
 
     """
     toolkit = get_toolkit()
-    associations = toolkit.descendents('association')
+    associations = toolkit.get_descendants('association')
     associations.append('association')
     formatted_associations = set([format_biolink_category(x) for x in associations])
     return formatted_associations

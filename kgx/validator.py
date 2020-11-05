@@ -133,7 +133,7 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        node_properties = toolkit.children('node property')
+        node_properties = toolkit.get_children('node property')
         node_properties.append('category')
         required_properties = []
         for p in node_properties:
@@ -157,7 +157,7 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        edge_properties = toolkit.children('association slot')
+        edge_properties = toolkit.get_children('association slot')
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
