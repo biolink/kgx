@@ -6,6 +6,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=alert_status)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=coverage)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
+[![PyPI](https://img.shields.io/pypi/v/kgx)](https://img.shields.io/pypi/v/kgx)
 [![Docker](https://img.shields.io/static/v1?label=Docker&message=biolink/kgx:latest&color=orange&logo=docker)](https://hub.docker.com/r/biolink/kgx)
 
 KGX (Knowledge Graph Exchange) is a Python library and set of command line utilities for exchanging
