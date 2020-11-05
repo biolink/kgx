@@ -2,7 +2,7 @@
 
 This section is only relevant for core developers.
 
-To create a new release,
+### Update version
 
 1. First check whether the `__version__` in [`kgx/__init__.py`](kgx/__init__.py) matches with the latest tag or PyPI release. 
 If the version is the same then you need to bump the version to make a new release. 
@@ -10,20 +10,27 @@ Follow [Semantic Versioning guidelines](https://semver.org/) to decide whether t
 
 2. Now do the same for `VERSION` in [`setup.py`](setup.py), such that the version is in-sync with [`kgx/__init__.py`](kgx/__init__.py).
 
-2. If you did bump the version then run the following commands:
+
+### Update Changelog.md
+
+Now update Changelog.md and add the changes that this new release has.
+
+### Make a new release tag
+
+Commiting changes and making a new release tag.
 
 ```sh
 TAG=`python setup.py --version`
 git add kgx/__init__.py
 git add setup.py
+git add CHANGELOG.md
 git commit --message="Bump version to $TAG in preparation of a release"
 git push
 git tag --annotate $TAG --message="Release $TAG"
 git push --tags
   ```
 
-
-3. Releasing on PyPI
+### Release on PyPI
 
 To ensure this is successful, make sure you have relevant permissions to KGX package on [PyPI](https://pypi.org/project/kgx/).
 
