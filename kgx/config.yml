@@ -13,7 +13,7 @@ ontologies:
 
 logging:
   level: INFO
-  format: '[%(name)s][%(filename)s][%(funcNametest_oban_rdf_transformer.py20s] %(levelname)s: %(message)s'
+  format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
 biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/1.3.9/biolink-model.yaml
 
