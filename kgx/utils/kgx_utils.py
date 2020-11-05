@@ -11,7 +11,7 @@ from cachetools import LRUCache
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
-from kgx.config import get_jsonld_context, get_logger
+from kgx.config import get_jsonld_context, get_logger, get_config
 
 toolkit = None
 curie_lookup_service = None
@@ -219,23 +219,18 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
     return uri
 
 
-def get_toolkit() -> Toolkit:
+def get_toolkit(schema: Optional[str] = None) -> Toolkit:
     """
     Get an instance of bmt.Toolkit
     If there no instance defined, then one is instantiated and returned.
-
-    Returns
-    -------
-    bmt.Toolkit
-        an instance of bmt.Toolkit
-
     """
     global toolkit
     if toolkit is None:
-        toolkit = Toolkit()
-
+        if not schema:
+            config = get_config()
+            schema = config['biolink-model']
+        toolkit = Toolkit(schema=schema)
     return toolkit
-
 
 def generate_edge_key(s: str, edge_label: str, o: str) -> str:
     """
