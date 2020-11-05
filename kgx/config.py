@@ -13,6 +13,7 @@ jsonld_context_map: Dict = {}
 
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
 
+
 def get_config(filename: str = CONFIG_FILENAME) -> dict:
     """
     Get config as a dictionary
@@ -33,6 +34,7 @@ def get_config(filename: str = CONFIG_FILENAME) -> dict:
         config = yaml.load(open(filename), Loader=yaml.FullLoader)
     return config
 
+
 def get_jsonld_context(name: str = "biolink"):
     """
     Get contents of a JSON-LD context.
@@ -47,15 +49,16 @@ def get_jsonld_context(name: str = "biolink"):
     if name in jsonld_context_map:
         content = jsonld_context_map[name]
     else:
-        url = config['jsonld-context'][name]['local'] # type: ignore
-        if path.exists(url):
-            content = json.load(open(url))
-        else:
+        filepath = config['jsonld-context'][name] # type: ignore
+        if filepath.startswith('http'):
             try:
-                url = config['jsonld-context'][name]['remote'] # type: ignore
-                content = requests.get(url).json()
+                content = requests.get(filepath).json()
             except ConnectionError:
-                raise Exception(f'Unable to download JSON-LD context from {url}')
+                raise Exception(f'Unable to download JSON-LD context from {filepath}')
+        else:
+            if path.exists(filepath):
+                content = json.load(open(filepath))
+
         if '@context' in content:
             content = content['@context']
             jsonld_context_map[name] = content
