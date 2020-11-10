@@ -403,7 +403,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         value_uri = self._prepare_object(prop, prop_type, value)
                         yield (n, prop_uri, value_uri)
             else:
-                if 'type' in data and data['type'] in associations:
+                if ('type' in data and data['type'] in associations) or \
+                        ('association_type' in data and data['association_type'] in associations):
                     reified_node = self.reify(u, v, k, data)
                     s = reified_node['subject']
                     p = reified_node['edge_label']
