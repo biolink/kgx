@@ -59,7 +59,7 @@ class NxGraph(BaseGraph):
             data = kwargs
         return self.graph.add_edge(subject_node, object_node, key=edge_key, **data)
 
-    def add_node_attribute(self, node: str, key: str, value: Any) -> None:
+    def add_node_attribute(self, node: str, attr_key: str, attr_value: Any) -> None:
         """
         Add an attribute to a given node.
 
@@ -67,13 +67,13 @@ class NxGraph(BaseGraph):
         ----------
         node: str
             The node identifier
-        key: str
+        attr_key: str
             The key for an attribute
-        value: Any
+        attr_value: Any
             The value corresponding to the key
 
         """
-        self.graph.add_node(node, key=value)
+        self.graph.add_node(node, **{attr_key: attr_value})
 
     def add_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any) -> None:
         """
@@ -93,9 +93,9 @@ class NxGraph(BaseGraph):
             The attribute value
 
         """
-        self.graph.add_edge(subject_node, object_node, key=edge_key, attr_key=attr_value)
+        self.graph.add_edge(subject_node, object_node, key=edge_key, **{attr_key: attr_value})
 
-    def update_node_attribute(self, node: str, key: str, value: Any) -> Dict:
+    def update_node_attribute(self, node: str, attr_key: str, attr_value: Any, preserve: bool = False) -> Dict:
         """
         Update an attribute of a given node.
 
@@ -103,9 +103,9 @@ class NxGraph(BaseGraph):
         ----------
         node: str
             The node identifier
-        key: str
+        attr_key: str
             The key for an attribute
-        value: Any
+        attr_value: Any
             The value corresponding to the key
 
         Returns
@@ -114,12 +114,14 @@ class NxGraph(BaseGraph):
             A dictionary corresponding to the updated node properties
 
         """
-        n = self.graph.nodes[node]
-        updated = prepare_data_dict(n, {key: value})
-        self.graph.add_node(n, **updated)
+        node_data = self.graph.nodes[node]
+        print(node_data)
+        updated = prepare_data_dict(node_data, {attr_key: attr_value}, preserve=preserve)
+        print(updated)
+        self.graph.add_node(node, **updated)
         return updated
 
-    def update_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any) -> Dict:
+    def update_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any, preserve: bool = False) -> Dict:
         """
         Update an attribute of a given edge.
 
@@ -142,9 +144,10 @@ class NxGraph(BaseGraph):
             A dictionary corresponding to the updated edge properties
 
         """
-        e = self.graph.edges(subject_node, object_node, edge_key)
-        updated = prepare_data_dict(e, {attr_key: attr_value})
-        self.graph.add_edge(subject_node, object_node, edge_key, **updated)
+        e = self.graph.edges((subject_node, object_node, edge_key), keys=True, data=True)
+        edge_data = list(e)[0][3]
+        updated = prepare_data_dict(edge_data, {attr_key: attr_value}, preserve)
+        self.graph.add_edge(subject_node, object_node, key=edge_key, **updated)
         return updated
 
     def get_node(self, node: str) -> Dict:
@@ -276,8 +279,8 @@ class NxGraph(BaseGraph):
         Returns
         -------
         Generator
-            A generator for nodes where each element is a node data
-            dictionary
+            A generator for nodes where each element is a Tuple that
+            contains (node_id, node_data)
 
         """
         for n in self.graph.nodes(data=True):
