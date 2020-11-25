@@ -266,7 +266,8 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
         log.debug(f"setting same_as property to leader node with {leader_equivalent_identifiers}")
         target_graph.set_node_attributes(target_graph, {leader: {'same_as': list(leader_equivalent_identifiers)}})
         log.debug(f"removing equivalent nodes of leader: {leader_equivalent_identifiers}")
-        target_graph.remove_nodes_from(list(leader_equivalent_identifiers))
+        for n in leader_equivalent_identifiers:
+            target_graph.remove_node(n)
     return target_graph
 
 

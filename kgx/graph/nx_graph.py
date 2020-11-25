@@ -366,18 +366,6 @@ class NxGraph(BaseGraph):
         """
         return self.graph.has_edge(subject_node, object_node, key=edge_key)
 
-    def remove_nodes_from(self, nodes: List[str]) -> None:
-        """
-        Remove a list of nodes from the graph.
-
-        Parameters
-        ----------
-        nodes: List[str]
-            A list of nodes
-
-        """
-        self.graph.remove_nodes_from(nodes)
-
     def number_of_nodes(self) -> int:
         """
         Returns the number of nodes in a graph.

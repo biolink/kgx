@@ -168,14 +168,6 @@ def test_remove_edge():
     assert not g.has_edge('B', 'A')
 
 
-def test_removes_nodes_from():
-    g = get_graphs()[1]
-    node_list = ['A', 'B', 'C']
-    g.remove_nodes_from(node_list)
-    for n in node_list:
-        assert not g.has_node(n)
-
-
 def test_number_of_nodes_edges():
     g = get_graphs()[1]
     assert g.number_of_nodes() == 5

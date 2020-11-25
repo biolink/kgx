@@ -353,22 +353,6 @@ class BaseGraph(object):
         """
         pass
 
-    def remove_nodes_from(self, nodes: List[str]) -> Any:
-        """
-        Remove a list of nodes from the graph.
-
-        Parameters
-        ----------
-        nodes: List[str]
-            A list of nodes
-
-        Returns
-        -------
-        Any
-
-        """
-        pass
-
     def number_of_nodes(self) -> int:
         """
         Returns the number of nodes in a graph.
