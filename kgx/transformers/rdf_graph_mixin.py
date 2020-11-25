@@ -1,11 +1,11 @@
-import networkx as nx
 from typing import List, Set, Dict, Tuple, Union, Optional, Any
 import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
-from kgx.config import get_logger
-from kgx.curie_lookup_service import CurieLookupService
+from kgx.config import get_logger, get_graph_store_class
+from kgx.graph.base_graph import BaseGraph
+from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase, \
@@ -18,7 +18,7 @@ log = get_logger()
 class RdfGraphMixin(object):
     """
     A mixin that defines the following methods,
-        - load_networkx_graph(): template method that all deriving classes should implement
+        - load_graph(): template method that all deriving classes should implement
         - add_node(): method to add a node from a RDF form to property graph form
         - add_node_attribute(): method to add a node attribute from a RDF form to property graph form
         - add_edge(): method to add an edge from a RDF form to property graph form
@@ -30,11 +30,11 @@ class RdfGraphMixin(object):
     CORE_NODE_PROPERTIES = {'id'}
     CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'type'}
 
-    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, curie_map: Optional[Dict] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         if source_graph:
             self.graph = source_graph
         else:
-            self.graph = nx.MultiDiGraph()
+            self.graph = get_graph_store_class()()
 
         self.graph_metadata: Dict = {}
         self.prefix_manager = PrefixManager()
@@ -50,12 +50,13 @@ class RdfGraphMixin(object):
         self.reverse_predicate_mapping = reverse_property_mapping.copy()
         self.cache: Dict = {}
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         This method should be overridden and be implemented by the derived class,
-        and should load all desired nodes and edges from rdflib.Graph into networkx.MultiDiGraph
+        and should load all desired nodes and edges from rdflib.Graph into
+        an instance of BaseGraph.
 
-        Its preferred that this method does not use the networkx API directly
+        Its preferred that this method does not use the BaseGraph API directly
         when adding nodes, edges, and their attributes.
 
         Instead, Using the following methods,
@@ -83,10 +84,10 @@ class RdfGraphMixin(object):
     def add_node(self, iri: URIRef, data: Optional[Dict] = None) -> Dict:
         """
         This method should be used by all derived classes when adding a node to
-        the networkx.MultiDiGraph. This ensures that a node's identifier is a CURIE,
+        the kgx.graph.base_graph.BaseGraph. This ensures that a node's identifier is a CURIE,
         and that it's `iri` property is set.
 
-        Returns the CURIE identifier for the node in the networkx.MultiDiGraph
+        Returns the CURIE identifier for the node in the kgx.graph.base_graph.BaseGraph
 
         Parameters
         ----------
@@ -145,7 +146,7 @@ class RdfGraphMixin(object):
             The node data
 
         """
-        node_data = self.graph.nodes[str(n)]
+        node_data = self.graph.nodes()[str(n)]
         if data:
             new_data = self._prepare_data_dict(node_data, data)
             node_data.update(new_data)
@@ -153,7 +154,7 @@ class RdfGraphMixin(object):
 
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Optional[Dict[Any, Any]] = None) -> Dict:
         """
-        This method should be used by all derived classes when adding an edge to the networkx.MultiDiGraph.
+        This method should be used by all derived classes when adding an edge to the kgx.graph.base_graph.BaseGraph.
         This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
         is in the correct form.
 
@@ -195,7 +196,7 @@ class RdfGraphMixin(object):
                 edge_label = self.DEFAULT_EDGE_LABEL
 
         edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
-        if self.graph.has_edge(subject_node['id'], object_node['id'], key=edge_key):
+        if self.graph.has_edge(subject_node['id'], object_node['id'], edge_key=edge_key):
             # edge already exists; process kwargs and update the edge
             edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
         else:
@@ -211,7 +212,7 @@ class RdfGraphMixin(object):
 
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
-            self.graph.add_edge(subject_node['id'], object_node['id'], key=edge_key, **edge_data)
+            self.graph.add_edge(subject_node['id'], object_node['id'], edge_key=edge_key, **edge_data)
 
         return edge_data
 
@@ -236,7 +237,7 @@ class RdfGraphMixin(object):
             The edge data
 
         """
-        edge_data = self.graph.get_edge_data(subject_curie, object_curie, key=edge_key)
+        edge_data = self.graph.get_edge(subject_curie, object_curie, edge_key=edge_key)
         if data:
             new_data = self._prepare_data_dict(edge_data, data)
             edge_data.update(new_data)

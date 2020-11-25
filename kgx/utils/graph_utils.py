@@ -1,9 +1,9 @@
 from typing import List, Set, Dict, Optional
-import networkx as nx
 import stringcase
 from cachetools import cached
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
 from kgx.prefix_manager import PrefixManager
 
@@ -13,13 +13,13 @@ ONTOLOGY_GRAPH_CACHE: Dict = {}
 log = get_logger()
 
 
-def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
+def get_parents(graph: BaseGraph, node: str, relations: List[str] = None) -> List[str]:
     """
     Return all direct `parents` of a specified node, filtered by ``relations``.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     node: str
         node identifier
@@ -33,8 +33,8 @@ def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) 
 
     """
     parents = []
-    if node in graph:
-        out_edges = [x for x in graph.out_edges(node, data=True)]
+    if graph.has_node(node):
+        out_edges = [x for x in graph.out_edges(node, keys=False, data=True)]
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
@@ -42,13 +42,13 @@ def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) 
     return parents
 
 
-def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
+def get_ancestors(graph: BaseGraph, node: str, relations: List[str] = None) -> List[str]:
     """
     Return all `ancestors` of specified node, filtered by ``relations``.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     node: str
         node identifier
@@ -72,14 +72,14 @@ def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None
     return seen
 
 @cached(get_cache())
-def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontology: bool = True) -> Set[str]:
+def get_category_via_superclass(graph: BaseGraph, curie: str, load_ontology: bool = True) -> Set[str]:
     """
     Get category for a given CURIE by tracing its superclass, via ``subclass_of`` hierarchy,
     and getting the most appropriate category based on the superclass.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     curie: str
         Input CURIE
@@ -110,7 +110,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
             if mapping:
                 # there is direct mapping to BioLink Model
                 log.debug("Ancestor {} mapped to {}".format(anc, mapping))
-                seen_labels = [graph.nodes[x]['name'] for x in seen if 'name' in graph.nodes[x]]
+                seen_labels = [graph.nodes()[x]['name'] for x in seen if 'name' in graph.nodes()[x]]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
                 break
@@ -144,17 +144,17 @@ def curie_lookup(curie: str) -> Optional[str]:
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = cls.ontology_graph.nodes[curie]['name']
+        name = cls.ontology_graph.nodes()[curie]['name']
     return name
 
 
-def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_property: str, prefix=None) -> nx.MultiDiGraph:
+def remap_node_identifier(graph: BaseGraph, category: str, alternative_property: str, prefix=None) -> BaseGraph:
     """
     Remap a node's 'id' attribute with value from a node's ``alternative_property`` attribute.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     category: string
         category referring to nodes whose 'id' needs to be remapped
@@ -166,7 +166,7 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
 
     Returns
     -------
-    networkx.MultiDiGraph
+    kgx.graph.base_graph.BaseGraph
         The modified graph
 
     """
@@ -183,51 +183,51 @@ def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_pro
                     for v in alternative_values:
                         if prefix in v:
                             # take the first occurring value that contains the given prefix
-                            mapping[nid] = v
+                            mapping[nid] = {'id': v}
                             break
                 else:
                     # no prefix defined; pick the 1st one from list
-                    mapping[nid] = next(iter(alternative_values))
+                    mapping[nid] = {'id': next(iter(alternative_values))}
             elif isinstance(alternative_values, str):
                 if prefix:
                     if alternative_values.startswith(prefix):
-                        mapping[nid] = alternative_values
+                        mapping[nid] = {'id': alternative_values}
                 else:
                     # no prefix defined
-                    mapping[nid] = alternative_values
+                    mapping[nid] = {'id': alternative_values}
             else:
                 log.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
 
-    nx.set_node_attributes(graph, values=mapping, name='id')
-    nx.relabel_nodes(graph, mapping, copy=False)
+    graph.set_node_attributes(graph, attributes=mapping)
+    graph.relabel_nodes(graph, {k: list(v.values())[0] for k, v in mapping.items()})
 
     # update 'subject' of all outgoing edges
     update_edge_keys = {}
     updated_subject_values = {}
     updated_object_values = {}
-    for u, v, k, edge_data in graph.edges(keys=True, data=True):
+    for u, v, k, edge_data in graph.edges(data=True, keys=True):
         if u is not edge_data['subject']:
-            updated_subject_values[(u, v, k)] = u
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+            updated_subject_values[(u, v, k)] = {'subject': u}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['edge_label'], v)}
         if v is not edge_data['object']:
-            updated_object_values[(u, v, k)] = v
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
+            updated_object_values[(u, v, k)] = {'object': v}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['edge_label'], v)}
 
-    nx.set_edge_attributes(graph, values=updated_subject_values, name='subject')
-    nx.set_edge_attributes(graph, values=updated_object_values, name='object')
-    nx.set_edge_attributes(graph, values=update_edge_keys, name='edge_key')
+    graph.set_edge_attributes(graph, attributes=updated_subject_values)
+    graph.set_edge_attributes(graph, attributes=updated_object_values)
+    graph.set_edge_attributes(graph, attributes=update_edge_keys)
 
     return graph
 
 
-def remap_node_property(graph: nx.MultiDiGraph, category: str, old_property: str, new_property: str) -> None:
+def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_property: str) -> None:
     """
     Remap the value in node ``old_property`` attribute with value
     from node ``new_property`` attribute.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     category: string
         Category referring to nodes whose property needs to be remapped
@@ -246,18 +246,18 @@ def remap_node_property(graph: nx.MultiDiGraph, category: str, old_property: str
         if category in node_data and category not in node_data['category']:
             continue
         if new_property in node_data:
-            mapping[nid] = node_data[new_property]
-    nx.set_node_attributes(graph, values=mapping, name=old_property)
+            mapping[nid] = {old_property: node_data[new_property]}
+    graph.set_node_attributes(graph, attributes=mapping)
 
 
-def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: str, new_property: str) -> None:
+def remap_edge_property(graph: BaseGraph, edge_label: str, old_property: str, new_property: str) -> None:
     """
     Remap the value in an edge ``old_property`` attribute with value
     from edge ``new_property`` attribute.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     edge_label: string
         edge_label referring to edges whose property needs to be remapped
@@ -275,5 +275,5 @@ def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: s
         if edge_label is not edge_data['edge_label']:
             continue
         if new_property in edge_data:
-            mapping[(u, v, k)] = edge_data[new_property]
-    nx.set_edge_attributes(graph, values=mapping, name=old_property)
+            mapping[(u, v, k)] = {old_property: edge_data[new_property]}
+    graph.set_edge_attributes(graph, attributes=mapping)

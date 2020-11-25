@@ -1,28 +1,28 @@
 import os
-
 import pytest
-from networkx import Graph, MultiDiGraph
 
 from kgx import Transformer
+from kgx.graph.base_graph import BaseGraph
+from kgx.graph.nx_graph import NxGraph
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, '../resources')
 target_dir = os.path.join(cwd, '../target')
 
 def get_graphs():
-    g1 = MultiDiGraph()
+    g1 = NxGraph()
     g1.name = 'Graph 1'
     g1.add_node('HGNC:12345', id='HGNC:12345', name='Test Gene', category=['biolink:Gene'])
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'])
     g1.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g1.add_edge('C', 'B', key='C-biolink:subclass_of-B', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf')
-    g1.add_edge('B', 'A', key='B-biolink:subclass_of-A', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
+    g1.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf')
+    g1.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
     return [g1]
 
 
 def test_transformer():
     t = Transformer()
-    assert isinstance(t.graph, Graph)
+    assert isinstance(t.graph, BaseGraph)
     assert t.is_empty()
 
     t.set_node_filter('category', {'biolink:Gene'})
@@ -41,19 +41,6 @@ def test_transformer():
            and len(t.edge_filters['object_category']) == 3 \
            and 'biolink:Gene' in t.edge_filters['object_category']
     assert 'biolink:Drug' in t.node_filters['category']
-
-
-def test_serialization():
-    graphs = get_graphs()
-    t1 = Transformer(source_graph=graphs[0])
-    assert t1.is_empty() is False
-    Transformer.dump_to_file(t1.graph, os.path.join(target_dir, 'graph_serialization.json'))
-
-    new_graph = Transformer.restore_from_file(os.path.join(target_dir, 'graph_serialization.json'))
-    t2 = Transformer(source_graph=new_graph)
-    assert t1.is_empty() is False
-    assert t2.graph.number_of_nodes() == t1.graph.number_of_nodes()
-    assert t2.graph.number_of_edges() == t1.graph.number_of_edges()
 
 
 @pytest.mark.parametrize('node', [

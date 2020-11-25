@@ -1,9 +1,9 @@
-import networkx as nx
 import json
-from typing import Union, List, Dict, Tuple, Set, Any
-from networkx.readwrite import json_graph
+from typing import Union, List, Dict, Tuple, Set, Any, Optional
 
-from kgx.config import get_logger
+from kgx.config import get_logger, get_config, get_graph_store_class
+from kgx.graph.base_graph import BaseGraph
+from kgx.graph.nx_graph import NxGraph
 
 log = get_logger()
 
@@ -26,23 +26,23 @@ class Transformer(object):
     Base class for performing a transformation.
 
     This can be,
-     - from a source to an in-memory property graph (networkx.MultiDiGraph)
+     - from a source to an in-memory property graph (kgx.graph.base_graph.BaseGraph)
      - from an in-memory property graph to a target format or database (Neo4j, CSV, RDF Triple Store, TTL)
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
 
     """
 
     DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         if source_graph:
             self.graph = source_graph
         else:
-            self.graph = nx.MultiDiGraph()
+            self.graph = get_graph_store_class()()
 
         self.node_filters: Dict[str, Any] = {}
         self.edge_filters: Dict[str, Any] = {}
@@ -137,83 +137,6 @@ class Transformer(object):
             self.edge_filters[key].update(value)
         else:
             self.edge_filters[key] = value
-
-    @staticmethod
-    def serialize(g: nx.MultiDiGraph) -> Dict:
-        """
-        Convert networkx.MultiDiGraph as a dictionary.
-
-        Parameters
-        ----------
-        g: networkx.MultiDiGraph
-            Graph to convert as a dictionary
-
-        Returns
-        -------
-        dict
-            A dictionary
-
-        """
-        data = json_graph.node_link_data(g)
-        return data
-
-    @staticmethod
-    def dump_to_file(g: nx.MultiDiGraph, filename: str) -> None:
-        """
-        Serialize networkx.MultiDiGraph as JSON and write to file.
-
-        Parameters
-        ----------
-        g: networkx.MultiDiGraph
-            Graph to convert as a dictionary
-        filename: str
-            File to write the JSON
-
-        """
-        FH = open(filename, "w")
-        json_data = Transformer.serialize(g)
-        FH.write(json.dumps(json_data))
-        FH.close()
-
-    @staticmethod
-    def deserialize(data: Dict) -> nx.MultiDiGraph:
-        """
-        Deserialize a networkx.MultiDiGraph from a dictionary.
-
-        Parameters
-        ----------
-        data: dict
-            Dictionary containing nodes and edges
-
-        Returns
-        -------
-        networkx.MultiDiGraph
-            A networkx.MultiDiGraph representation
-
-        """
-        g = json_graph.node_link_graph(data)
-        return g
-
-    @staticmethod
-    def restore_from_file(filename) -> nx.MultiDiGraph:
-        """
-        Deserialize a networkx.MultiDiGraph from a JSON file.
-
-        Parameters
-        ----------
-        filename: str
-            File to read from
-
-        Returns
-        -------
-        networkx.MultiDiGraph
-            A networkx.MultiDiGraph representation
-
-        """
-        FH = open(filename, "r")
-        data = FH.read()
-        g = Transformer.deserialize(json.loads(data))
-        return g
 
     @staticmethod
     def validate_node(node: dict) -> dict:

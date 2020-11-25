@@ -1,15 +1,15 @@
 import copy
 from typing import List
-import networkx as nx
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import prepare_data_dict
 
 
 log = get_logger()
 
 
-def merge_all_graphs(graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx.MultiDiGraph:
+def merge_all_graphs(graphs: List[BaseGraph], preserve: bool = True) -> BaseGraph:
     """
     Merge one or more graphs.
 
@@ -36,14 +36,14 @@ def merge_all_graphs(graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx
 
     Parameters
     ----------
-    graphs: List[networkx.MultiDiGraph]
-        A list of networkx.MultiDiGraph to merge
+    graphs: List[kgx.graph.base_graph.BaseGraph]
+        A list of instances of BaseGraph to merge
     preserve: bool
         Whether or not to preserve conflicting properties
 
     Returns
     -------
-    nx.MultiDiGraph
+    kgx.graph.base_graph.BaseGraph
         The merged graph
 
     """
@@ -54,22 +54,22 @@ def merge_all_graphs(graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx
     return merged_graph
 
 
-def merge_graphs(graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve: bool = True) -> nx.MultiDiGraph:
+def merge_graphs(graph: BaseGraph, graphs: List[BaseGraph], preserve: bool = True) -> BaseGraph:
     """
     Merge all graphs in ``graphs`` to ``graph``.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
-        A networkx graph
-    graphs: List[networkx.MultiDiGraph]
-        A list of networkx.MultiDiGraph to merge
+    graph: kgx.graph.base_graph.BaseGraph
+        An instance of BaseGraph
+    graphs: List[kgx.graph.base_graph.BaseGraph]
+        A list of instances of BaseGraph to merge
     preserve: bool
         Whether or not to preserve conflicting properties
 
     Returns
     -------
-    nx.MultiDiGraph
+    kgx.graph.base_graph.BaseGraph
         The merged graph
 
     """
@@ -81,15 +81,15 @@ def merge_graphs(graph: nx.MultiDiGraph, graphs: List[nx.MultiDiGraph], preserve
     return graph
 
 
-def add_all_nodes(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> int:
+def add_all_nodes(g1: BaseGraph, g2: BaseGraph, preserve: bool = True) -> int:
     """
     Add all nodes from source graph (``g2``) to target graph (``g1``).
 
     Parameters
     ----------
-    g1: networkx.MultiDiGraph
+    g1: kgx.graph.base_graph.BaseGraph
         Target graph
-    g2: networkx.MultiDiGraph
+    g2: kgx.graph.base_graph.BaseGraph
         Source graph
     preserve: bool
         Whether or not to preserve conflicting properties
@@ -111,13 +111,13 @@ def add_all_nodes(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = Tru
     return merge_count
 
 
-def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) -> dict:
+def merge_node(g: BaseGraph, n: str, data: dict, preserve: bool = True) -> dict:
     """
     Merge node ``n`` into graph ``g``.
 
     Parameters
     ----------
-    g: nx.MultiDiGraph
+    g: kgx.graph.base_graph.BaseGraph
         The target graph
     n: str
         Node id
@@ -132,21 +132,21 @@ def merge_node(g: nx.MultiDiGraph, n: str, data: dict, preserve: bool = True) ->
         The merged node
 
     """
-    existing_node = g.nodes[n]
+    existing_node = g.nodes()[n]
     new_data = prepare_data_dict(copy.deepcopy(existing_node), copy.deepcopy(data), preserve)
     g.add_node(n, **new_data)
     return existing_node
 
 
-def add_all_edges(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = True) -> int:
+def add_all_edges(g1: BaseGraph, g2: BaseGraph, preserve: bool = True) -> int:
     """
     Add all edges from source graph (``g2``) to target graph (``g1``).
 
     Parameters
     ----------
-    g1: networkx.MultiDiGraph
+    g1: kgx.graph.base_graph.BaseGraph
         Target graph
-    g2: networkx.MultiDiGraph
+    g2: kgx.graph.base_graph.BaseGraph
         Source graph
     preserve: bool
         Whether or not to preserve conflicting properties
@@ -164,17 +164,17 @@ def add_all_edges(g1: nx.MultiDiGraph, g2: nx.MultiDiGraph, preserve: bool = Tru
             merge_edge(g1, u, v, key, data, preserve)
             merge_count += 1
         else:
-            g1.add_edge(u, v, key, **data)
+            g1.add_edge(u, v, edge_key=key, **data)
     return merge_count
 
 
-def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserve: bool = True) -> dict:
+def merge_edge(g: BaseGraph, u: str, v: str, key: str, data: dict, preserve: bool = True) -> dict:
     """
     Merge edge ``u`` -> ``v`` into graph ``g``.
 
     Parameters
     ----------
-    g: nx.MultiDiGraph
+    g: kgx.graph.base_graph.BaseGraph
         The target graph
     u: str
         Subject node id
@@ -193,7 +193,7 @@ def merge_edge(g: nx.MultiDiGraph, u: str, v: str, key: str, data: dict, preserv
         The merged edge
 
     """
-    existing_edge = g.get_edge_data(u, v, key)
+    existing_edge = g.get_edge(u, v, key)
     new_data = prepare_data_dict(copy.deepcopy(existing_edge), copy.deepcopy(data), preserve)
-    g.add_edge(u, v, key, **new_data)
+    g.add_edge(u, v, edge_key=key, **new_data)
     return existing_edge

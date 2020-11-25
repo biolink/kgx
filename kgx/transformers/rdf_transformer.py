@@ -1,12 +1,11 @@
 import itertools
-
 import click, rdflib, os, uuid
-import networkx as nx
 from typing import Tuple, Union, Set, List, Dict, Any, Iterator, Optional
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
@@ -20,20 +19,21 @@ log = get_logger()
 
 class RdfTransformer(RdfGraphMixin, Transformer):
     """
-    Transformer that parses RDF and loads triples, as nodes and edges, into a networkx.MultiDiGraph
+    Transformer that parses RDF and loads triples, as nodes and edges,
+    into an instance of BaseGraph.
 
     This is the base class which is used to implement other RDF-based transformers.
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx/transformers/rdf_transformer.py:34]
         The source graph
     curie_map: Optional[Dict]
         A curie map that maps non-canonical CURIEs to IRIs
 
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Optional[Dict] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()
         self.node_properties = set([URIRef(self.prefix_manager.expand(x)) for x in get_biolink_node_properties()])
@@ -132,14 +132,14 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             self.graph_metadata['provided_by'] = [provided_by]
 
         self.start = current_time_in_millis()
-        self.load_networkx_graph(rdfgraph)
+        self.load_graph(rdfgraph)
         log.info(f"Done parsing {filename}")
         apply_filters(self.graph, self.node_filters, self.edge_filters)
         generate_edge_identifiers(self.graph)
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
-        Walk through the rdflib.Graph and load all required triples into networkx.MultiDiGraph
+        Walk through the rdflib.Graph and load all required triples into an instance of BaseGraph
 
         Parameters
         ----------
@@ -230,7 +230,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         while nodes:
             n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
-            node = self.graph.nodes[n_curie]
+            node = self.graph.nodes()[n_curie]
             if 'edge_label' not in node:
                 node['edge_label'] = "biolink:related_to"
             if 'relation' not in node:
@@ -285,7 +285,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
     def save(self, filename: str, output_format: str = "turtle", compression: Optional[str] = None, reify_all_edges: bool = False, **kwargs) -> None:
         """
-        Transform networkx.MultiDiGraph into rdflib.Graph and export
+        Transform an instance of BaseGraph into rdflib.Graph and export
         this graph as a file (``turtle``, by default).
 
         Parameters
@@ -565,7 +565,8 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
 class ObanRdfTransformer(RdfTransformer):
     """
-    Transformer that parses a 'turtle' file and loads triples, as nodes and edges, into a networkx.MultiDiGraph
+    Transformer that parses a 'turtle' file and loads triples, as nodes and edges,
+    into an instance of BaseGraph
 
     This Transformer supports OBAN style of modeling where,
     - it dereifies OBAN.association triples into a property graph form
@@ -573,14 +574,14 @@ class ObanRdfTransformer(RdfTransformer):
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
     curie_map: Optional[Dict]
         A curie map that maps non-canonical CURIEs to IRIs
 
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
         self.reification_types.update({self.OBAN.association})
         self.reification_predicates.update({
@@ -597,14 +598,14 @@ class RdfOwlTransformer(RdfTransformer):
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
     curie_map: Optional[Dict]
         A curie map that maps non-canonical CURIEs to IRIs
 
     """
 
-    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, curie_map: Optional[Dict] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         self.imported: Set = set()
         super().__init__(source_graph, curie_map)
 
@@ -659,14 +660,14 @@ class RdfOwlTransformer(RdfTransformer):
                     log.info(f"Parsing OWL import: {o}")
                     self.imported.add(o)
                     imported_rdfgraph.parse(o, format=input_format)
-                    self.load_networkx_graph(imported_rdfgraph)
+                    self.load_graph(imported_rdfgraph)
                 else:
                     log.warning(f"Trying to import {o} but its already done")
-        self.load_networkx_graph(rdfgraph)
+        self.load_graph(rdfgraph)
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
-        Walk through the rdflib.Graph and load all triples into networkx.MultiDiGraph
+        Walk through the rdflib.Graph and load all triples into kgx.graph.base_graph.BaseGraph
 
         Parameters
         ----------

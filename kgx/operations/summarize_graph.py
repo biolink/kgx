@@ -1,9 +1,7 @@
-import json
-import pprint
+import yaml
 from typing import Dict, List, Optional
 
-import networkx as nx
-import yaml
+from kgx.graph.base_graph import BaseGraph
 
 TOTAL_NODES = 'total_nodes'
 NODE_CATEGORIES = 'node_categories'
@@ -17,13 +15,13 @@ COUNT_BY_SPO = 'count_by_spo'
 # Note: the format of the stats generated might change in the future
 
 
-def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> None:
+def generate_graph_stats(graph: BaseGraph, graph_name: str, filename: str, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> None:
     """
     Generate stats from Graph.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     graph_name: str
         Name for the graph
@@ -40,13 +38,13 @@ def generate_graph_stats(graph: nx.MultiDiGraph, graph_name: str, filename: str,
     yaml.dump(stats, WH)
 
 
-def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
+def summarize_graph(graph: BaseGraph, name: str = None, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Summarize the entire graph.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     name: str
         Name for the graph
@@ -71,13 +69,13 @@ def summarize_graph(graph: nx.MultiDiGraph, name: str = None, node_facet_propert
     return stats
 
 
-def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: Optional[List] = None) -> Dict:
+def summarize_nodes(graph: BaseGraph, facet_properties: Optional[List] = None) -> Dict:
     """
     Summarize the nodes in a graph.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     facet_properties: Optional[List]
         A list of properties to facet on
@@ -122,13 +120,13 @@ def summarize_nodes(graph: nx.MultiDiGraph, facet_properties: Optional[List] = N
     return stats
 
 
-def summarize_edges(graph: nx.MultiDiGraph, facet_properties: Optional[List] = None):
+def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -> Dict:
     """
     Summarize the edges in a graph.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     facet_properties: Optional[List]
         The properties to facet on
@@ -167,8 +165,8 @@ def summarize_edges(graph: nx.MultiDiGraph, facet_properties: Optional[List] = N
                 for facet_property in facet_properties:
                     stats = get_facet_counts(data, stats, COUNT_BY_EDGE_LABEL, edge_label, facet_property)
 
-        u_data = graph.nodes[u]
-        v_data = graph.nodes[v]
+        u_data = graph.nodes()[u]
+        v_data = graph.nodes()[v]
 
         if 'category' in u_data:
             u_category = u_data['category'][0]

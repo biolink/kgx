@@ -1,9 +1,9 @@
 import itertools
 import click
-import networkx as nx
 from typing import Tuple, List, Dict, Union, Any, Iterator, Optional
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.transformer import Transformer
 from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis, generate_uuid
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship, GraphDatabase
@@ -18,7 +18,7 @@ class NeoTransformer(Transformer):
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
     uri: Optional[str]
         The Neo4j URI (with port)
@@ -32,13 +32,13 @@ class NeoTransformer(Transformer):
     CATEGORY_DELIMITER = '|'
     CYPHER_CATEGORY_DELIMITER = ':'
 
-    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, uri: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, uri: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None):
         super(NeoTransformer, self).__init__(source_graph)
         self.http_driver: GraphDatabase = http_gdb(uri, username=username, password=password)
 
     def load(self, start: int = 0, end: Optional[int] = None, is_directed: bool = True, page_size: int = 50000, provided_by: Optional[str] = None) -> None:
         """
-        Read nodes and edges from a Neo4j database and create a networkx.MultiDiGraph
+        Read nodes and edges from a Neo4j database and populate an instance of BaseGraph
 
         Parameters
         ----------
@@ -118,7 +118,7 @@ class NeoTransformer(Transformer):
 
     def load_nodes(self, nodes: List) -> None:
         """
-        Load nodes into networkx.MultiDiGraph
+        Load nodes into an instance of BaseGraph
 
         Parameters
         ----------
@@ -134,7 +134,7 @@ class NeoTransformer(Transformer):
 
     def load_node(self, node: Dict) -> None:
         """
-        Load node into networkx.MultiDiGraph
+        Load node into an instance of BaseGraph
 
         Parameters
         ----------
@@ -148,7 +148,7 @@ class NeoTransformer(Transformer):
 
     def load_edges(self, edges: List) -> None:
         """
-        Load edges into networkx.MultiDiGraph
+        Load edges into an instance of BaseGraph
 
         Parameters
         ----------
@@ -164,7 +164,7 @@ class NeoTransformer(Transformer):
 
     def load_edge(self, edge_record: List) -> None:
         """
-        Load an edge into networkx.MultiDiGraph
+        Load an edge into an instance of BaseGraph
 
         Parameters
         ----------
@@ -456,7 +456,8 @@ class NeoTransformer(Transformer):
 
     def save(self) -> None:
         """
-        Save all nodes and edges from networkx.MultiDiGraph into Neo4j using the UNWIND cypher clause.
+        Save all nodes and edges from an instance of BaseGraph
+        into Neo4j using the UNWIND cypher clause.
 
         """
         nodes_by_category = {}
