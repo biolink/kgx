@@ -15,6 +15,12 @@ Follow [Semantic Versioning guidelines](https://semver.org/) to decide whether t
 
 Now update Changelog.md and add the changes that this new release has.
 
+
+### Update Dockerfile
+
+Now update Dockerfile to use the new tag.
+
+
 ### Make a new release tag
 
 Commiting changes and making a new release tag.
@@ -24,6 +30,7 @@ TAG=`python setup.py --version`
 git add kgx/__init__.py
 git add setup.py
 git add CHANGELOG.md
+git add Dockerfile
 git commit --message="Bump version to $TAG in preparation of a release"
 git push
 git tag --annotate $TAG --message="Release $TAG"
