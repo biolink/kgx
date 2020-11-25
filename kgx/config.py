@@ -1,3 +1,4 @@
+import importlib
 import logging
 import sys
 from os import path
@@ -7,8 +8,11 @@ from typing import Dict, Any, Optional
 import requests
 import yaml
 
+from kgx.graph.base_graph import BaseGraph
+
 config: Optional[Dict[str, Any]] = None
 logger: Optional[logging.Logger] = None
+graph_store_class: Optional[BaseGraph] = None
 jsonld_context_map: Dict = {}
 
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
@@ -91,3 +95,27 @@ def get_logger(name: str = 'KGX') -> logging.Logger:
         logger.setLevel(config['logging']['level'])
         logger.propagate = False
     return logger
+
+
+def get_graph_store_class() -> Any:
+    """
+    Get a reference to the graph store class, as defined the config.
+    Defaults to ``kgx.graph.nx_graph.NxGraph``
+
+    Returns
+    -------
+    Any
+        A reference to the graph store class
+
+    """
+    global graph_store_class
+    if not graph_store_class:
+        config = get_config()
+        if 'graph_store' in config:
+            name = config['graph_store']
+        else:
+            name = 'kgx.graph.nx_graph.NxGraph'
+        module_name = '.'.join(name.split('.')[0:-1])
+        class_name = name.split('.')[-1]
+        graph_store_class = getattr(importlib.import_module(module_name), class_name)
+    return graph_store_class

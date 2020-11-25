@@ -1,7 +1,7 @@
 import json
 from typing import Union, List, Dict, Tuple, Set, Any, Optional
 
-from kgx.config import get_logger, get_config
+from kgx.config import get_logger, get_config, get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph.nx_graph import NxGraph
 
@@ -42,7 +42,7 @@ class Transformer(object):
         if source_graph:
             self.graph = source_graph
         else:
-            self.graph = NxGraph()
+            self.graph = get_graph_store_class()()
 
         self.node_filters: Dict[str, Any] = {}
         self.edge_filters: Dict[str, Any] = {}

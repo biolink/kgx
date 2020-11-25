@@ -1,3 +1,5 @@
+graph_store: kgx.graph.nx_graph.NxGraph
+
 neo4j:
   username: neo4j
   password: neo4j

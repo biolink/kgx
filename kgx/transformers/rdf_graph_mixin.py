@@ -3,7 +3,7 @@ import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, Namespace
 
-from kgx.config import get_logger
+from kgx.config import get_logger, get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import curie_lookup
@@ -34,7 +34,7 @@ class RdfGraphMixin(object):
         if source_graph:
             self.graph = source_graph
         else:
-            self.graph = NxGraph()
+            self.graph = get_graph_store_class()()
 
         self.graph_metadata: Dict = {}
         self.prefix_manager = PrefixManager()
