@@ -2,6 +2,7 @@ import os
 
 import networkx as nx
 from kgx import PandasTransformer
+from kgx.graph.nx_graph import NxGraph
 from kgx.operations.clique_merge import clique_merge
 
 cwd = os.path.abspath(os.path.dirname(__file__))
@@ -34,15 +35,15 @@ def test_clique_merge():
     t.parse(os.path.join(resource_dir, 'cm_edges.csv'), input_format='csv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
-    leaders = nx.get_node_attributes(updated_graph, 'clique_leader')
+    leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()
     assert len(leader_list) == 2
-    n1 = updated_graph.nodes[leader_list[0]]
+    n1 = updated_graph.nodes()[leader_list[0]]
     assert n1['election_strategy'] == 'PREFIX_PRIORITIZATION'
     assert 'NCBIGene:100302240' in n1['same_as']
     assert 'ENSEMBL:ENSG00000284458' in n1['same_as']
-    n2 = updated_graph.nodes[leader_list[1]]
+    n2 = updated_graph.nodes()[leader_list[1]]
     assert n2['election_strategy'] == 'PREFIX_PRIORITIZATION'
     assert 'NCBIGene:8202' in n2['same_as']
     assert 'OMIM:601937' in n2['same_as']
@@ -59,17 +60,17 @@ def test_clique_merge_edge_consolidation():
     t.parse(os.path.join(resource_dir, 'cm_test2_edges.tsv'), input_format='tsv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
-    leaders = nx.get_node_attributes(updated_graph, 'clique_leader')
+    leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()
     assert len(leader_list) == 2
 
-    n1 = updated_graph.nodes[leader_list[0]]
+    n1 = updated_graph.nodes()[leader_list[0]]
     assert n1['election_strategy'] == 'LEADER_ANNOTATION'
     assert 'NCBIGene:100302240' in n1['same_as']
     assert 'ENSEMBL:ENSG00000284458' in n1['same_as']
 
-    n2 = updated_graph.nodes[leader_list[1]]
+    n2 = updated_graph.nodes()[leader_list[1]]
     assert n2['election_strategy'] == 'LEADER_ANNOTATION'
     assert 'NCBIGene:8202' in n2['same_as']
     assert 'OMIM:601937' in n2['same_as']

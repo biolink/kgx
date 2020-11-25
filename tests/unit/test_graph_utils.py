@@ -1,17 +1,17 @@
 import pytest
-from networkx import MultiDiGraph
 
+from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import get_parents, get_ancestors, curie_lookup
 
 
 def get_graph():
-    graph = MultiDiGraph()
-    graph.add_edge('B', 'A', edge_label='biolink:sub_class_of')
-    graph.add_edge('C', 'B', edge_label='biolink:sub_class_of')
-    graph.add_edge('D', 'C', edge_label='biolink:sub_class_of')
-    graph.add_edge('D', 'A', edge_label='biolink:related_to')
-    graph.add_edge('E', 'D', edge_label='biolink:sub_class_of')
-    graph.add_edge('F', 'D', edge_label='biolink:sub_class_of')
+    graph = NxGraph()
+    graph.add_edge('B', 'A', **{'edge_label': 'biolink:sub_class_of'})
+    graph.add_edge('C', 'B', **{'edge_label': 'biolink:sub_class_of'})
+    graph.add_edge('D', 'C', **{'edge_label': 'biolink:sub_class_of'})
+    graph.add_edge('D', 'A', **{'edge_label': 'biolink:related_to'})
+    graph.add_edge('E', 'D', **{'edge_label': 'biolink:sub_class_of'})
+    graph.add_edge('F', 'D', **{'edge_label': 'biolink:sub_class_of'})
     return graph
 
 

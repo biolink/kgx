@@ -44,17 +44,6 @@ def test_neo_to_graph_transform():
     t = PandasTransformer(nt.graph)
     t.save(os.path.join(target_dir, "neo_graph.csv"), output_format='csv')
 
-@pytest.mark.skip(reason="Missing resource robodb2.json")
-def test_neo_to_graph_upload():
-    """ loads a neo4j graph from a json file
-    """
-    jt = JsonTransformer()
-    jt.parse('resources/robodb2.json')
-
-    nt = NeoTransformer(jt.graph, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
-    nt.save()
-    nt.neo4j_report()
-
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_neo_to_graph_download():
@@ -65,7 +54,7 @@ def test_neo_to_graph_download():
     edge_type = None
     stop_after = 100
 
-    output_transformer =  JsonTransformer()
+    output_transformer = JsonTransformer()
     G = output_transformer.graph
 
     driver = http_gdb(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
@@ -119,12 +108,12 @@ def test_neo_to_graph_download():
             if 'category' not in object_attr:
                 object_attr['category'] = m['metadata']['labels']
 
-            if s not in G:
+            if not G.has_node(s):
                 G.add_node(s, **subject_attr)
-            if o not in G:
+            if not G.has_node(o):
                 G.add_node(o, **object_attr)
 
-            G.add_edge(s, o, key=edge_attr['edge_label'], **edge_attr)
+            G.add_edge(s, o, edge_key=edge_attr['edge_label'], **edge_attr)
 
         if stop_after is not None and G.number_of_edges() > stop_after:
             break

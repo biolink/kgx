@@ -13,13 +13,13 @@ def test_json_load():
     assert t.graph.number_of_nodes() == 6
     assert t.graph.number_of_edges() == 5
 
-    n = t.graph.nodes['MONDO:0017148']
+    n = t.graph.nodes()['MONDO:0017148']
     assert isinstance(n, dict)
     assert 'id' in n and n['id'] == 'MONDO:0017148'
     assert n['name'] == 'heritable pulmonary arterial hypertension'
     assert n['category'][0] == 'biolink:Disease'
 
-    data = t.graph.get_edge_data('HGNC:11603', 'MONDO:0017148')
+    data = t.graph.get_edge('HGNC:11603', 'MONDO:0017148')
     assert len(data.keys()) == 1
     data = data.popitem()[1]
     assert data['subject'] == 'HGNC:11603'

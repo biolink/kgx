@@ -27,18 +27,18 @@ def test_parse1():
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
 
-    n1 = t1.graph.nodes['HP:0000505']
+    n1 = t1.graph.nodes()['HP:0000505']
     assert len(n1['category']) == 1
     assert 'biolink:NamedThing' in n1['category']
 
-    e1 = list(t1.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1['subject'] == 'OMIM:166400'
     assert e1['object'] == 'HP:0000006'
     assert e1['relation'] == 'RO:0000091'
     assert e1['type'] == 'OBAN:association'
     assert e1['has_evidence'] == 'ECO:0000501'
 
-    e2 = list(t1.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2['subject'] == 'ORPHA:93262'
     assert e2['object'] == 'HP:0000505'
     assert e2['relation'] == 'RO:0002200'
@@ -62,11 +62,11 @@ def test_parse2():
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
 
-    n1 = t1.graph.nodes['HP:0000505']
+    n1 = t1.graph.nodes()['HP:0000505']
     assert len(n1['category']) == 1
     assert 'biolink:NamedThing' in n1['category']
 
-    e1 = list(t1.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1['subject'] == 'OMIM:166400'
     assert e1['object'] == 'HP:0000006'
     assert e1['relation'] == 'RO:0000091'
@@ -74,7 +74,7 @@ def test_parse2():
     assert e1['has_evidence'] == 'ECO:0000501'
     assert e1['dc_source'] == 'OMIM:166400'
 
-    e2 = list(t1.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2['subject'] == 'ORPHA:93262'
     assert e2['object'] == 'HP:0000505'
     assert e2['relation'] == 'RO:0002200'
@@ -94,18 +94,18 @@ def test_save1():
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
 
-    n1 = t1.graph.nodes['HP:0000505']
+    n1 = t1.graph.nodes()['HP:0000505']
     assert len(n1['category']) == 1
     assert 'biolink:NamedThing' in n1['category']
 
-    e1 = list(t1.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1['subject'] == 'OMIM:166400'
     assert e1['object'] == 'HP:0000006'
     assert e1['relation'] == 'RO:0000091'
     assert e1['type'] == 'OBAN:association'
     assert e1['has_evidence'] == 'ECO:0000501'
 
-    e2 = list(t1.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2['subject'] == 'ORPHA:93262'
     assert e2['object'] == 'HP:0000505'
     assert e2['relation'] == 'RO:0002200'
@@ -143,11 +143,11 @@ def test_save2():
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
 
-    n1t1 = t1.graph.nodes['HP:0000505']
+    n1t1 = t1.graph.nodes()['HP:0000505']
     assert len(n1t1['category']) == 1
     assert 'biolink:NamedThing' in n1t1['category']
 
-    e1t1 = list(t1.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1t1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1t1['subject'] == 'OMIM:166400'
     assert e1t1['object'] == 'HP:0000006'
     assert e1t1['relation'] == 'RO:0000091'
@@ -155,7 +155,7 @@ def test_save2():
     assert e1t1['has_evidence'] == 'ECO:0000501'
     assert e1t1['source'] == 'OMIM:166400'
 
-    e2t1 = list(t1.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2t1 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2t1['subject'] == 'ORPHA:93262'
     assert e2t1['object'] == 'HP:0000505'
     assert e2t1['relation'] == 'RO:0002200'
@@ -174,11 +174,11 @@ def test_save2():
     assert t2.graph.number_of_nodes() == 14
     assert t2.graph.number_of_edges() == 7
 
-    n1t2 = t2.graph.nodes['HP:0000505']
+    n1t2 = t2.graph.nodes()['HP:0000505']
     assert len(n1t2['category']) == 1
     assert 'biolink:NamedThing' in n1t2['category']
 
-    e1t2 = list(t2.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1t2 = list(t2.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1t2['subject'] == 'OMIM:166400'
     assert e1t2['object'] == 'HP:0000006'
     assert e1t2['relation'] == 'RO:0000091'
@@ -186,7 +186,7 @@ def test_save2():
     assert e1t2['has_evidence'] == 'ECO:0000501'
     assert e1t2['source'] == 'OMIM:166400'
 
-    e2t2 = list(t2.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2t2 = list(t2.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2t2['subject'] == 'ORPHA:93262'
     assert e2t2['object'] == 'HP:0000505'
     assert e2t2['relation'] == 'RO:0002200'
@@ -200,11 +200,11 @@ def test_save2():
     assert t3.graph.number_of_nodes() == 14
     assert t3.graph.number_of_edges() == 7
 
-    n1t3 = t1.graph.nodes['HP:0000505']
+    n1t3 = t1.graph.nodes()['HP:0000505']
     assert len(n1t3['category']) == 1
     assert 'biolink:NamedThing' in n1t3['category']
 
-    e1t3 = list(t3.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1t3 = list(t3.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1t3['subject'] == 'OMIM:166400'
     assert e1t3['object'] == 'HP:0000006'
     assert e1t3['relation'] == 'RO:0000091'
@@ -212,7 +212,7 @@ def test_save2():
     assert e1t3['has_evidence'] == 'ECO:0000501'
     assert e1t3['source'] == 'OMIM:166400'
 
-    e2t3 = list(t3.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2t3 = list(t3.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2t3['subject'] == 'ORPHA:93262'
     assert e2t3['object'] == 'HP:0000505'
     assert e2t3['relation'] == 'RO:0002200'
@@ -243,11 +243,11 @@ def test_save3():
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
 
-    n1 = t1.graph.nodes['HP:0000505']
+    n1 = t1.graph.nodes()['HP:0000505']
     assert len(n1['category']) == 1
     assert 'biolink:NamedThing' in n1['category']
 
-    e1 = list(t1.graph.get_edge_data('OMIM:166400', 'HP:0000006').values())[0]
+    e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
     assert e1['subject'] == 'OMIM:166400'
     assert e1['object'] == 'HP:0000006'
     assert e1['relation'] == 'RO:0000091'
@@ -255,7 +255,7 @@ def test_save3():
     assert e1['has_evidence'] == 'ECO:0000501'
     assert e1['dc_source'] == 'OMIM:166400'
 
-    e2 = list(t1.graph.get_edge_data('ORPHA:93262', 'HP:0000505').values())[0]
+    e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
     assert e2['subject'] == 'ORPHA:93262'
     assert e2['object'] == 'HP:0000505'
     assert e2['relation'] == 'RO:0002200'

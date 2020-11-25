@@ -2,7 +2,7 @@ import os
 
 from kgx import JsonTransformer
 from kgx import Validator
-import networkx as nx
+from kgx.graph.nx_graph import NxGraph
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, 'resources')
@@ -12,10 +12,10 @@ def test_validator_bad():
     """
     A fake test to establish a fail condition for validation
     """
-    G = nx.MultiDiGraph()
+    G = NxGraph()
     G.add_node('x', foo=3)
-    G.add_node('ZZZ:3', nosuch=1)
-    G.add_edge('x', 'y', baz=6)
+    G.add_node('ZZZ:3', **{'nosuch': 1})
+    G.add_edge('x', 'y', **{'baz': 6})
     validator = Validator(verbose=True)
     e = validator.validate(G)
     assert len(e) > 0
@@ -24,7 +24,7 @@ def test_validator_good():
     """
     A fake test to establish a success condition for validation
     """
-    G = nx.MultiDiGraph()
+    G = NxGraph()
     G.add_node('UniProtKB:P123456', id='UniProtKB:P123456', name='fake', category=['Protein'])
     G.add_node('UBERON:0000001', id='UBERON:0000001', name='fake', category=['NamedThing'])
     G.add_node('UBERON:0000002', id='UBERON:0000002', name='fake', category=['NamedThing'])

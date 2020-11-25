@@ -1,11 +1,14 @@
+import pprint
+
 import pytest
 from networkx import MultiDiGraph
 
+from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import remap_node_identifier, remap_node_property, remap_edge_property
 
 
 def get_graphs():
-    g1 = MultiDiGraph()
+    g1 = NxGraph()
     g1.name = 'Graph 1'
     g1.add_node('HGNC:12345', id='HGNC:12345', name='Test Gene', category=['biolink:NamedThing'], alias='NCBIGene:54321', same_as='UniProtKB:54321')
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'], alias='Z')
@@ -13,7 +16,7 @@ def get_graphs():
     g1.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', subject='C', object='B', edge_label='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1', publications=[1], pubs=['PMID:123456'])
     g1.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', subject='B', object='A', edge_label='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1')
 
-    g2 = MultiDiGraph()
+    g2 = NxGraph()
     g2.name = 'Graph 2'
     g2.add_node('A', id='A', name='Node A', description='Node A in Graph 2', category=['biolink:Gene'], xref=['NCBIGene:12345', 'HGNC:001033'])
     g2.add_node('B', id='B', name='Node B', description='Node B in Graph 2', category=['biolink:Gene'], xref=['NCBIGene:56463', 'HGNC:012901'])
@@ -33,6 +36,7 @@ def get_graphs():
 def test_remap_node_identifier_alias():
     graphs = get_graphs()
     g = remap_node_identifier(graphs[0], 'biolink:NamedThing', alternative_property='alias')
+    pprint.pprint([x for x in g.nodes(data=True)])
     assert g.has_node('NCBIGene:54321')
     assert g.has_node('Z')
     assert g.has_node('C')
@@ -41,11 +45,11 @@ def test_remap_node_identifier_alias():
     assert not g.has_edge('C', 'B')
     assert not g.has_edge('B', 'A')
 
-    e1 = g.get_edge_data('C', 'Z')[0]
+    e1 = list(g.get_edge('C', 'Z').values())[0]
     assert e1['subject'] == 'C' and e1['object'] == 'Z'
     assert e1['edge_key'] == 'C-biolink:subclass_of-Z'
 
-    e2 = g.get_edge_data('Z', 'A')[0]
+    e2 = list(g.get_edge('Z', 'A').values())[0]
     assert e2['subject'] == 'Z' and e2['object'] == 'A'
     assert e2['edge_key'] == 'Z-biolink:subclass_of-A'
 
@@ -63,23 +67,23 @@ def test_remap_node_identifier_xref():
     assert not g.has_node('B')
     assert not g.has_node('C')
 
-    e1 = g.get_edge_data('NCBIGene:56463', 'NCBIGene:12345')[0]
+    e1 = list(g.get_edge('NCBIGene:56463', 'NCBIGene:12345').values())[0]
     assert e1['subject'] == 'NCBIGene:56463' and e1['object'] == 'NCBIGene:12345'
 
-    e2 = g.get_edge_data('D', 'NCBIGene:12345')[0]
+    e2 = list(g.get_edge('D', 'NCBIGene:12345').values())[0]
     assert e2['subject'] == 'D' and e2['object'] == 'NCBIGene:12345'
 
-    e3 = g.get_edge_data('E', 'NCBIGene:12345')[0]
+    e3 = list(g.get_edge('E', 'NCBIGene:12345').values())[0]
     assert e3['subject'] == 'E' and e3['object'] == 'NCBIGene:12345'
 
-    e4 = g.get_edge_data('E', 'F')[0]
+    e4 = list(g.get_edge('E', 'F').values())[0]
     assert e4['subject'] == 'E' and e4['object'] == 'F'
 
 
 def test_remap_node_property():
     graphs = get_graphs()
     remap_node_property(graphs[0], category='biolink:NamedThing', old_property='alias', new_property='same_as')
-    assert graphs[0].nodes['HGNC:12345']['alias'] == 'UniProtKB:54321'
+    assert graphs[0].nodes()['HGNC:12345']['alias'] == 'UniProtKB:54321'
 
 
 def test_remap_node_property_fail():
@@ -91,7 +95,7 @@ def test_remap_node_property_fail():
 def test_remap_edge_property():
     graphs = get_graphs()
     remap_edge_property(graphs[0], edge_label='biolink:subclass_of', old_property='publications', new_property='pubs')
-    e = graphs[0].get_edge_data('C', 'B')[0]
+    e = list(graphs[0].get_edge('C', 'B').values())[0]
     assert e['publications'] == ['PMID:123456']
 
 

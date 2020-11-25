@@ -15,11 +15,11 @@ def test_jsonl_load():
     assert jlt.graph.number_of_nodes() == 6
     assert jlt.graph.number_of_edges() == 5
 
-    n1 = jlt.graph.nodes['HGNC:11603']
+    n1 = jlt.graph.nodes()['HGNC:11603']
     assert n1['name'] == 'TBX4'
     assert 'biolink:Gene' in n1['category']
 
-    e1 = list(jlt.graph.get_edge_data('HGNC:11603', 'MONDO:0005002').values())[0]
+    e1 = list(jlt.graph.get_edge('HGNC:11603', 'MONDO:0005002').values())[0]
     assert e1['subject'] == 'HGNC:11603'
     assert e1['object'] == 'MONDO:0005002'
     assert e1['edge_label'] == 'biolink:related_to'

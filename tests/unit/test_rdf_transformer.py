@@ -21,7 +21,7 @@ def test_parse1():
     assert t1.graph.number_of_nodes() == 2
     assert t1.graph.number_of_edges() == 1
 
-    n1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
     assert n1['type'] == 'SO:0000704'
     assert len(n1['category']) == 4
     assert 'biolink:Gene' in n1['category']
@@ -31,7 +31,7 @@ def test_parse1():
     assert n1['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1['provided_by']
 
-    n2 = t1.graph.nodes['ENSEMBL:ENSG0000000000002']
+    n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
     assert n2['type'] == 'SO:0000704'
     assert len(n2['category']) == 4
     assert 'biolink:Gene' in n2['category']
@@ -56,7 +56,7 @@ def test_parse2():
     assert t1.graph.number_of_nodes() == 4
     assert t1.graph.number_of_edges() == 3
 
-    n1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
     assert n1['type'] == 'SO:0000704'
     assert len(n1['category']) == 4
     assert 'biolink:Gene' in n1['category']
@@ -66,7 +66,7 @@ def test_parse2():
     assert n1['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1['provided_by']
 
-    n2 = t1.graph.nodes['ENSEMBL:ENSG0000000000002']
+    n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
     assert n2['type'] == 'SO:0000704'
     assert len(n2['category']) == 4
     assert 'biolink:Gene' in n2['category']
@@ -76,8 +76,8 @@ def test_parse2():
     assert n2['description'] == 'This is a Test Gene 456'
     assert 'Test Dataset' in n2['provided_by']
 
-    print(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002'))
-    e1 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    print(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002'))
+    e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
     assert e1['edge_label'] == 'biolink:interacts_with'
@@ -98,7 +98,7 @@ def test_parse3():
     assert t1.graph.number_of_nodes() == 7
     assert t1.graph.number_of_edges() == 6
 
-    n1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
     assert n1['type'] == 'SO:0000704'
     assert len(n1['category']) == 4
     assert 'biolink:Gene' in n1['category']
@@ -108,7 +108,7 @@ def test_parse3():
     assert n1['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1['provided_by']
 
-    n2 = t1.graph.nodes['ENSEMBL:ENSG0000000000002']
+    n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
     assert n2['type'] == 'SO:0000704'
     assert len(n2['category']) == 4
     assert 'biolink:Gene' in n2['category']
@@ -118,7 +118,7 @@ def test_parse3():
     assert n2['description'] == 'This is a Test Gene 456'
     assert 'Test Dataset' in n2['provided_by']
 
-    e1 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
     assert e1['edge_label'] == 'biolink:interacts_with'
@@ -130,13 +130,13 @@ def test_parse3():
     assert e1['combined_score'] == '490.0'
     assert e1['cooccurence'] == '332'
 
-    e2 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'UniProtKB:X0000001').values())[0]
+    e2 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'UniProtKB:X0000001').values())[0]
     assert e2['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e2['object'] == 'UniProtKB:X0000001'
     assert e2['edge_label'] == 'biolink:same_as'
     assert e2['relation'] == 'owl:equivalentClass'
 
-    e3 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'MONDO:0000001').values())[0]
+    e3 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'MONDO:0000001').values())[0]
     assert e3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e3['object'] == 'MONDO:0000001'
     assert e3['edge_label'] == 'biolink:treats'
@@ -162,9 +162,9 @@ def test_save1():
     assert t3.graph.number_of_nodes() == 2
     assert t3.graph.number_of_edges() == 1
 
-    n1t1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t2 = t2.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t3 = t3.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1t1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
     assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
@@ -197,9 +197,9 @@ def test_save2():
     assert t3.graph.number_of_nodes() == 4
     assert t3.graph.number_of_edges() == 3
 
-    n1t1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t2 = t2.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t3 = t3.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1t1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
     assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
@@ -210,9 +210,9 @@ def test_save2():
     assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in n1t3['provided_by']
 
-    e1t1 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t2 = list(t2.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t3 = list(t3.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t2 = list(t2.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t3 = list(t3.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
 
     assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'
@@ -250,9 +250,9 @@ def test_save3():
     assert t3.graph.number_of_nodes() == 7
     assert t3.graph.number_of_edges() == 6
 
-    n1t1 = t1.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t2 = t2.graph.nodes['ENSEMBL:ENSG0000000000001']
-    n1t3 = t3.graph.nodes['ENSEMBL:ENSG0000000000001']
+    n1t1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
+    n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
     assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
@@ -263,9 +263,9 @@ def test_save3():
     assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in n1t3['provided_by']
 
-    e1t1 = list(t1.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t2 = list(t2.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t3 = list(t3.graph.get_edge_data('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t2 = list(t2.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t3 = list(t3.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
 
     assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'

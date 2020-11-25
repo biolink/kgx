@@ -20,7 +20,7 @@ def test_load():
     assert n['name'] == 'TBX4'
     assert n['category'] == ['biolink:Gene']
 
-    e = t.graph.get_edge_data('HGNC:11603', 'MONDO:0005002')
+    e = t.graph.get_edge('HGNC:11603', 'MONDO:0005002')
     data = e.popitem()[1]
     print(data)
     assert data['subject'] == 'HGNC:11603'

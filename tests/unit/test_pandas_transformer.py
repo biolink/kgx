@@ -18,8 +18,8 @@ def test_load_csv():
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    assert t.graph.nodes['CURIE:123']['description'] == 'Node of type Gene, CURIE:123'
-    assert t.graph.nodes['CURIE:456']['description'] == 'Node of type Disease, CURIE:456'
+    assert t.graph.nodes()['CURIE:123']['description'] == 'Node of type Gene, CURIE:123'
+    assert t.graph.nodes()['CURIE:456']['description'] == 'Node of type Disease, CURIE:456'
 
 def test_load_tsv():
     t = PandasTransformer()
@@ -29,8 +29,8 @@ def test_load_tsv():
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    assert t.graph.nodes['CURIE:123']['description'] == '"Node of type Gene, CURIE:123"'
-    assert t.graph.nodes['CURIE:456']['description'] == '"Node of type Disease, CURIE:456"'
+    assert t.graph.nodes()['CURIE:123']['description'] == '"Node of type Gene, CURIE:123"'
+    assert t.graph.nodes()['CURIE:456']['description'] == '"Node of type Disease, CURIE:456"'
 
 
 @pytest.mark.parametrize('query', [
