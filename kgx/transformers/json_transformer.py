@@ -293,7 +293,8 @@ class ObographJsonTransformer(JsonTransformer):
                 if not element:
                     try:
                         mapping = self.toolkit.get_by_mapping(edge['pred'])
-                        element = self.toolkit.get_element(mapping)
+                        if mapping:
+                            element = self.toolkit.get_element(mapping)
                     except ValueError as e:
                         log.error(e)
 
