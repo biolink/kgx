@@ -30,4 +30,4 @@ script:
   - coverage combine --append || true
   - coverage report
   - coverage xml
-  - 'if [[ "$TRAVIS_BRANCH" = "master" ]]; then sonar-scanner -X; fi'
+  - '[ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_PULL_REQUEST}" = "false" ] && sonar-scanner -X'
