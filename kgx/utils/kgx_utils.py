@@ -344,10 +344,11 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     descendants.append('named thing')
     for d in descendants:
         element = toolkit.get_element(d)
-        if 'id_prefixes' in element:
-            prefixes = element.id_prefixes
-            key = format_biolink_category(element.name)
-            prefix_prioritization_map[key] = prefixes
+        if element:
+            if 'id_prefixes' in element:
+                prefixes = element.id_prefixes
+                key = format_biolink_category(element.name)
+                prefix_prioritization_map[key] = prefixes
     return prefix_prioritization_map
 
 
@@ -415,7 +416,8 @@ def get_biolink_node_properties() -> Set:
     node_properties = set()
     for p in properties:
         element = toolkit.get_element(p)
-        node_properties.add(element.name)
+        if element:
+            node_properties.add(element.name)
     element = toolkit.get_element('category')
     node_properties.add(element.name)
     return set([format_biolink_slots(x) for x in node_properties])
@@ -436,7 +438,8 @@ def get_biolink_edge_properties() -> Set:
     edge_properties = set()
     for p in properties:
         element = toolkit.get_element(p)
-        edge_properties.add(element.name)
+        if element:
+            edge_properties.add(element.name)
 
     return set([format_biolink_slots(x) for x in edge_properties])
 
@@ -475,12 +478,14 @@ def get_biolink_property_types() -> Dict:
     properties = toolkit.children('node property')
     for p in properties:
         element = toolkit.get_element(p)
-        node_properties.add(element.name)
+        if element:
+            node_properties.add(element.name)
 
     properties = toolkit.children('association slot')
     for p in properties:
         element = toolkit.get_element(p)
-        edge_properties.add(element.name)
+        if element:
+            edge_properties.add(element.name)
 
     for p in node_properties:
         property_type = get_type_for_property(p)
@@ -531,21 +536,22 @@ def get_type_for_property(p: str) -> str:
     """
     toolkit = get_toolkit()
     e = toolkit.get_element(p)
-    if isinstance(e, ClassDefinition):
-        t = "uriorcurie"
-    elif isinstance(e, TypeDefinition):
-        t = e.uri
-    else:
-        r = e.range
-        if isinstance(r, SlotDefinition):
-            t = r.range
-            t = get_type_for_property(t)
-        elif isinstance(r, TypeDefinitionName):
-            t = get_type_for_property(r)
-        elif isinstance(r, ElementName):
-            t = get_type_for_property(r)
+    if e:
+        if isinstance(e, ClassDefinition):
+            t = "uriorcurie"
+        elif isinstance(e, TypeDefinition):
+            t = e.uri
         else:
-            t = "xsd:string"
+            r = e.range
+            if isinstance(r, SlotDefinition):
+                t = r.range
+                t = get_type_for_property(t)
+            elif isinstance(r, TypeDefinitionName):
+                t = get_type_for_property(r)
+            elif isinstance(r, ElementName):
+                t = get_type_for_property(r)
+            else:
+                t = "xsd:string"
     return t
 
 
