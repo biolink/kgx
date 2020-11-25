@@ -53,13 +53,13 @@ def test_validate_node_properties(query):
     ('A:123', 'X:1', {'edge_label': 'biolink:related_to'}, False),
     ('A:123', 'X:1', {'subject': 'A:123', 'edge_label': 'biolink:related_to'}, False),
     ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
     ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
     ('A:123', 'X:1', {'association_id': 'Edge A-X', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
 ])
 def test_validate_edge_properties(query):
     required_properties = Validator.get_required_edge_properties()
     e = Validator.validate_edge_properties(query[0], query[1], query[2], required_properties)
+    print(Validator.report(e))
     assert (len(e) == 0) == query[3]
 
 
