@@ -458,7 +458,7 @@ class RdfGraphMixin(object):
         element = toolkit.get_element(reference)
         if not element:
             try:
-                mapping = toolkit.get_by_mapping(predicate)
+                mapping = toolkit.get_element_by_mapping(predicate)
                 if mapping:
                     element = toolkit.get_element(mapping)
             except ValueError as e:

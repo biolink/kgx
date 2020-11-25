@@ -133,7 +133,7 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        node_properties = toolkit.children('node property')
+        node_properties = toolkit.get_children('node property')
         node_properties.append('category')
         required_properties = []
         for p in node_properties:
@@ -156,12 +156,11 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        edge_properties = toolkit.children('association slot')
+        edge_properties = toolkit.get_all_edge_properties(formatted=True)
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
             if hasattr(element, 'required') and element.required:
-                # TODO: this should be handled by bmt
                 formatted_name = sentencecase_to_snakecase(element.name)
                 required_properties.append(formatted_name)
         return required_properties
@@ -544,9 +543,10 @@ class Validator(object):
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
                     c = toolkit.get_element(formatted_category.lower())
-                    if category != c.name and category in c.aliases:
-                        message = f"Category {category} is actually an alias for {c.name}; Should replace '{category}' with '{c.name}'"
-                        errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                    if c:
+                        if category != c.name and category in c.aliases:
+                            message = f"Category {category} is actually an alias for {c.name}; Should replace '{category}' with '{c.name}'"
+                            errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
         return errors
 
     @staticmethod
