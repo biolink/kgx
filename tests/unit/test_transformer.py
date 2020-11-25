@@ -1,7 +1,5 @@
 import os
-
 import pytest
-from networkx import Graph, MultiDiGraph
 
 from kgx import Transformer
 from kgx.graph.base_graph import BaseGraph

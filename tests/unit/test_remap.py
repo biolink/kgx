@@ -1,7 +1,5 @@
 import pprint
-
 import pytest
-from networkx import MultiDiGraph
 
 from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import remap_node_identifier, remap_node_property, remap_edge_property
