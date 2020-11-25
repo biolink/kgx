@@ -1,27 +1,28 @@
 import gzip
 import re
 from typing import Optional
-
 import jsonlines as jsonlines
-import networkx
 
 from kgx import JsonTransformer
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
+
 
 log = get_logger()
 
 
 class JsonlTransformer(JsonTransformer):
     """
-    Transformer that parsers JSONLines (*.jsonl), and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parsers JSONLines (*.jsonl), and loads nodes and edges
+    into an instance of BaseGraph
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
 
     """
-    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
 
     def parse(self, filename: str, input_format: str = 'jsonl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
@@ -67,7 +68,7 @@ class JsonlTransformer(JsonTransformer):
 
     def save(self, filename: str, output_format: str = 'jsonl', compression: Optional[str] = None, **kwargs) -> str:
         """
-        Write networkx.MultiDiGraph to jsonl.
+        Write kgx.graph.base_graph.BaseGraph to jsonl.
         This method writes nodes to ``*nodes.jsonl`` and edges to ``edges.jsonl``
 
         Parameters

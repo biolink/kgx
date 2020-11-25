@@ -1,13 +1,12 @@
 import os
 import re
-
-import networkx
 import pandas as pd
 import numpy as np
 import tarfile
 from ordered_set import OrderedSet
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import generate_edge_key, generate_uuid
 from kgx.transformers.transformer import Transformer
 
@@ -58,16 +57,17 @@ log = get_logger()
 
 class PandasTransformer(Transformer):
     """
-    Transformer that parses a TSV/CSV, and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parses a TSV/CSV, and loads nodes and edges
+    into an instance of kgx.graph.base_graph.BaseGraph
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
 
     """
 
-    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
         self._node_properties: Set = set()
         self._edge_properties: Set = set()
@@ -135,7 +135,7 @@ class PandasTransformer(Transformer):
 
     def load_nodes(self, df: pd.DataFrame) -> None:
         """
-        Load nodes from pandas.DataFrame into a networkx.MultiDiGraph
+        Load nodes from pandas.DataFrame into an instance of BaseGraph
 
         Parameters
         ----------
@@ -189,7 +189,7 @@ class PandasTransformer(Transformer):
 
     def load_node(self, node: Dict) -> None:
         """
-        Load a node into a networkx.MultiDiGraph
+        Load a node into an instance of BaseGraph
 
         Parameters
         ----------
@@ -213,7 +213,7 @@ class PandasTransformer(Transformer):
 
     def load_edges(self, df: pd.DataFrame) -> None:
         """
-        Load edges from pandas.DataFrame into a networkx.MultiDiGraph
+        Load edges from pandas.DataFrame into an instance of BaseGraph
 
         Parameters
         ----------
@@ -303,7 +303,7 @@ class PandasTransformer(Transformer):
 
     def load_edge(self, edge: Dict) -> None:
         """
-        Load an edge into a networkx.MultiDiGraph
+        Load an edge into an instance of BaseGraph
 
         Parameters
         ----------
@@ -331,7 +331,7 @@ class PandasTransformer(Transformer):
 
     def export_nodes(self, filename: str, delimiter: str) -> None:
         """
-        Export nodes from networkx.MultiDiGraph
+        Export nodes from an instance of BaseGraph
 
         Parameters
         ----------
@@ -359,7 +359,7 @@ class PandasTransformer(Transformer):
 
     def export_edges(self, filename: str, delimiter: str) -> None:
         """
-        Export edges from networkx.MultiDiGraph
+        Export edges from an instance of BaseGraph
 
         Parameters
         ----------
@@ -389,8 +389,8 @@ class PandasTransformer(Transformer):
 
     def save(self, filename: str, output_format: str = 'tsv', compression: Optional[str] = None, **kwargs: Dict) -> str:
         """
-        Writes two files representing the node set and edge set of a networkx.MultiDiGraph,
-        and add them to a `.tar` archive.
+        Writes two files representing the node set and edge set
+        of an instance of BaseGraph and add them to a `.tar` archive.
 
         ..note::
             If your node/edge properties are likely to contain commas then it is recommended
@@ -451,7 +451,7 @@ class PandasTransformer(Transformer):
 
     def export_neo4j_nodes(self, filename: str, delimiter: str) -> None:
         """
-        Export nodes from networkx.MultiDiGraph in Neo4j compatible format.
+        Export nodes from an instance of BaseGraph in Neo4j compatible format.
         This format is meant for use with the ``neo4j-admin import`` tool.
 
         Parameters
@@ -491,7 +491,7 @@ class PandasTransformer(Transformer):
 
     def export_neo4j_edges(self, filename: str, delimiter: str) -> None:
         """
-        Export edges from networkx.MultiDiGraph in Neo4j compatible format.
+        Export edges from an instance of BaseGraph in Neo4j compatible format.
         This format is meant for use with the ``neo4j-admin import`` tool.
 
         Parameters
@@ -647,13 +647,13 @@ class PandasTransformer(Transformer):
         return ordered_columns
 
     @staticmethod
-    def get_all_node_properties(graph: networkx.MultiDiGraph) -> Set:
+    def get_all_node_properties(graph: BaseGraph) -> Set:
         """
         Given a graph, get all possible property names for nodes.
 
         Parameters
         ----------
-        graph: networkx.MultiDiGraph
+        graph: kgx.graph.base_graph.BaseGraph
             A graph
 
         Returns
@@ -669,13 +669,13 @@ class PandasTransformer(Transformer):
         return properties
 
     @staticmethod
-    def get_all_edge_properties(graph: networkx.MultiDiGraph) -> Set:
+    def get_all_edge_properties(graph: BaseGraph) -> Set:
         """
         Given a graph, get all possible property names for edges.
 
         Parameters
         ----------
-        graph: networkx.MultiDiGraph
+        graph: kgx.graph.base_graph.BaseGraph
             A graph
 
         Returns

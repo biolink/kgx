@@ -1,8 +1,8 @@
 import pandas as pd
-import networkx as nx
 from prologterms import Term, SExpressionRenderer, PrologRenderer
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.transformer import Transformer
 
 from typing import Dict, List, Union, Optional
@@ -15,7 +15,7 @@ class LogicTermTransformer(Transformer):
     TODO
     """
 
-    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, output_format: Optional[str] = None, **kwargs: Dict):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, output_format: Optional[str] = None, **kwargs: Dict):
         super().__init__(source_graph=source_graph)
         if output_format is not None and output_format == 'prolog':
             self.renderer = PrologRenderer()

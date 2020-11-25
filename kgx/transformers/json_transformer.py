@@ -1,11 +1,9 @@
 import gzip
 import json
-
-import networkx
-import networkx as nx
 import stringcase
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict, Any, Optional
@@ -17,16 +15,16 @@ log = get_logger()
 
 class JsonTransformer(PandasTransformer):
     """
-    Transformer that parses a JSON, and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parses a JSON, and loads nodes and edges into an instance of BaseGraph
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
 
     """
 
-    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
 
     def parse(self, filename: str, input_format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs) -> None:
@@ -66,7 +64,7 @@ class JsonTransformer(PandasTransformer):
 
     def load(self, obj: Dict[str, Any]) -> None:
         """
-        Load a JSON object, containing nodes and edges, into a networkx.MultiDiGraph
+        Load a JSON object, containing nodes and edges, into an instance of BaseGraph
 
         Parameters
         ----------
@@ -81,7 +79,7 @@ class JsonTransformer(PandasTransformer):
 
     def load_nodes(self, nodes: List[Dict]) -> None:
         """
-        Load a list of nodes into a networkx.MultiDiGraph
+        Load a list of nodes into an instance of BaseGraph
 
         Parameters
         ----------
@@ -89,13 +87,13 @@ class JsonTransformer(PandasTransformer):
             List of nodes
 
         """
-        log.info("Loading {} nodes into networkx.MultiDiGraph".format(len(nodes)))
+        log.info("Loading {} nodes into an instance of BaseGraph".format(len(nodes)))
         for node in nodes:
             self.load_node(node)
 
     def load_edges(self, edges: List[Dict]) -> None:
         """
-        Load a list of edges into a networkx.MultiDiGraph
+        Load a list of edges into an instance of BaseGraph
 
         Parameters
         ----------
@@ -103,13 +101,13 @@ class JsonTransformer(PandasTransformer):
             List of edges
 
         """
-        log.info("Loading {} edges into networkx.MultiDiGraph".format(len(edges)))
+        log.info("Loading {} edges into an instance of BaseGraph".format(len(edges)))
         for edge in edges:
             self.load_edge(edge)
 
     def export(self) -> Dict:
         """
-        Export networkx.MultiDiGraph as a dictionary.
+        Export an instance of BaseGraph as a dictionary.
 
         Returns
         -------
@@ -131,7 +129,7 @@ class JsonTransformer(PandasTransformer):
 
     def save(self, filename: str, output_format: str = 'json', compression: Optional[str] = None, **kwargs) -> str:
         """
-        Write networkx.MultiDiGraph to a file as JSON.
+        Write an instance of BaseGraph to a file as JSON.
 
         Parameters
         ----------
@@ -162,13 +160,13 @@ class JsonTransformer(PandasTransformer):
 
 class ObographJsonTransformer(JsonTransformer):
     """
-    Transformer that parses an Obograph JSON, and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parses an Obograph JSON, and loads nodes and edges into an instance of BaseGraph
     """
 
     HAS_OBO_NAMESPACE = 'http://www.geneontology.org/formats/oboInOwl#hasOBONamespace'
     SKOS_EXACT_MATCH = 'http://www.w3.org/2004/02/skos/core#exactMatch'
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
@@ -229,7 +227,7 @@ class ObographJsonTransformer(JsonTransformer):
 
     def load_node(self, node: Dict) -> None:
         """
-        Load a node into a networkx.MultiDiGraph
+        Load a node into an instance of BaseGraph
 
         Parameters
         ----------
@@ -274,7 +272,7 @@ class ObographJsonTransformer(JsonTransformer):
 
     def load_edge(self, edge: dict) -> None:
         """
-        Load an edge from Obograph JSON into a networkx.MultiDiGraph
+        Load an edge from Obograph JSON into an instance of BaseGraph
 
         Parameters
         ----------

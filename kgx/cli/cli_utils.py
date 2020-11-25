@@ -4,12 +4,12 @@ import sys
 from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 
-import networkx
 import yaml
 
 import kgx
 from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.operations.graph_merge import merge_all_graphs
 from kgx.operations.summarize_graph import summarize_graph
 
@@ -329,7 +329,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         transform_source(None, source_dict, None)
 
 
-def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> networkx.MultiDiGraph:
+def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> BaseGraph:
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
     The merged graph can then be written to a local/remote Neo4j instance OR be serialized into a file.
@@ -347,7 +347,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
 
     Returns
     -------
-    networkx.MultiDiGraph
+    kgx.graph.base_graph.BaseGraph
         The merged graph
 
     """
@@ -478,8 +478,8 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
 
     Returns
     -------
-    networkx.MultiDiGraph
-        Returns a networkx.MultiDiGraph corresponding to the source
+    kgx.graph.base_graph.BaseGraph
+        Returns an instance of BaseGraph corresponding to the source
 
     """
     log.info(f"Processing source '{key}'")
@@ -487,7 +487,7 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     return transformer.graph
 
 
-def transform_source(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> networkx.MultiDiGraph:
+def transform_source(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
     """
     Transform a source from a transform config YAML.
 
@@ -515,8 +515,8 @@ def transform_source(key: Optional[str], source: Dict, output_directory: Optiona
 
     Returns
     -------
-    networkx.MultiDiGraph
-        Returns a networkx.MultiDiGraph corresponding to the source
+    kgx.graph.base_graph.BaseGraph
+        Returns an instance of BaseGraph corresponding to the source
 
     """
     if not key:
@@ -695,7 +695,7 @@ def apply_filters(transformer: kgx.Transformer, node_filters: Optional[Dict], ed
     return transformer
 
 
-def apply_operations(source: dict, graph: networkx.MultiDiGraph) -> networkx.MultiDiGraph:
+def apply_operations(source: dict, graph: BaseGraph) -> BaseGraph:
     """
     Apply operations as defined in the YAML.
 
@@ -703,12 +703,12 @@ def apply_operations(source: dict, graph: networkx.MultiDiGraph) -> networkx.Mul
     ----------
     source: dict
         The source from the YAML
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph corresponding to the source
 
     Returns
     -------
-    networkx.MultiDiGraph
+    kgx.graph.base_graph.BaseGraph
         The graph corresponding to the source
 
     """

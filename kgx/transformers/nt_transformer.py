@@ -5,10 +5,10 @@ from typing import Set, Optional, Dict
 from rdflib.plugins.parsers.ntriples import NTriplesParser
 from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
-import networkx as nx
 
 from kgx import RdfTransformer
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import current_time_in_millis, apply_filters, generate_edge_identifiers
 
 log = get_logger()
@@ -16,7 +16,8 @@ log = get_logger()
 
 class NtTransformer(RdfTransformer):
     """
-    Transformer that parses n-triples (NT) and loads triples, as nodes and edges, into a networkx.MultiDiGraph
+    Transformer that parses n-triples (NT) and loads triples, as nodes and edges,
+    into an instance of BaseGraph.
 
     .. note::
         This is a specialized version of RdfTransformer that doesn't rely on rdflib.Graph when parsing NTs.
@@ -24,12 +25,12 @@ class NtTransformer(RdfTransformer):
 
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, curie_map: Dict = None):
+    def __init__(self, source_graph: BaseGraph = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
 
     def parse(self, filename: str, input_format: Optional[str] = 'nt', compression: Optional[str] = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
-        Parse a n-triple file into networkx.MultiDiGraph
+        Parse a n-triple file into an instance of kgx.graph.base_graph.BaseGraph
 
         The file must be a *.nt formatted file.
 
@@ -67,7 +68,7 @@ class NtTransformer(RdfTransformer):
 
     def save(self, filename: str, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
-        Export networkx.MultiDiGraph into n-triple format.
+        Export an instance of BaseGraph into n-triple format.
 
         Uses rdflib.plugins.serializers.nt.NT11Serializer.
 

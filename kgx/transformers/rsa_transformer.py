@@ -1,34 +1,32 @@
 from typing import Dict, List, Any, Optional
 
-import networkx
-
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.json_transformer import JsonTransformer
-from kgx.utils.kgx_utils import generate_edge_key
 
 log = get_logger()
 
 
 class RsaTransformer(JsonTransformer):
     """
-    Transformer that parses a Reasoner Std API format JSON and loads nodes and edges into a networkx.MultiDiGraph
+    Transformer that parses a Reasoner Std API format JSON
+    and loads nodes and edges into an instance of BaseGraph
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
-    curie_map: Optional[Dict]
-        A curie map that maps non-canonical CURIEs to IRIs
 
     """
     # TODO: ReasonerStdAPI specification
 
-    def __init__(self, source_graph: Optional[networkx.MultiDiGraph] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
 
     def load(self, obj: Dict[str, Any]) -> None:
         """
-        Load a Reasoner Std API format JSON object, containing nodes and edges, into networkx.MultiDiGraph
+        Load a Reasoner Std API format JSON object, containing nodes and edges,
+        into an instance of BaseGraph.
 
         .. Note::
             Only nodes and edges contained within ``knowledge_graph`` field is loaded.
@@ -46,7 +44,7 @@ class RsaTransformer(JsonTransformer):
 
     def load_node(self, node: Dict) -> None:
         """
-        Load a node into networkx.MultiDiGraph
+        Load a node into an instance of BaseGraph
 
         .. Note::
             This method transformers Reasoner Std API format fields to Biolink Model fields.
@@ -65,7 +63,7 @@ class RsaTransformer(JsonTransformer):
 
     def load_edge(self, edge: Dict) -> None:
         """
-        Load an edge into a networkx.MultiDiGraph
+        Load an edge into an instance of BaseGraph
 
         .. Note::
             This methods transformers Reasoner Std API format fields to Biolink Model fields.

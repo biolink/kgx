@@ -2,8 +2,6 @@ import re
 import time
 import uuid
 from typing import List, Dict, Set, Optional, Any, Union
-
-import networkx
 import stringcase
 from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
 from bmt import Toolkit
@@ -12,6 +10,7 @@ from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
 from kgx.config import get_jsonld_context, get_logger, get_config
+from kgx.graph.base_graph import BaseGraph
 
 toolkit = None
 curie_lookup_service = None
@@ -666,14 +665,14 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
     return new_data
 
 
-def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Union[str, Set]], edge_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]], edge_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove nodes and edges that
     do not pass given filters.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     node_filters: Dict[str, Union[str, Set]]
         Node filters
@@ -685,13 +684,13 @@ def apply_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Union[st
     apply_edge_filters(graph, edge_filters)
 
 
-def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_node_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove nodes that do not pass given filters.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     node_filters: Dict[str, Union[str, Set]]
         Node filters
@@ -713,13 +712,13 @@ def apply_node_filters(graph: networkx.MultiDiGraph, node_filters: Dict[str, Uni
         graph.remove_node(node)
 
 
-def apply_edge_filters(graph: networkx.MultiDiGraph, edge_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_edge_filters(graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]]) -> None:
     """
     Apply filters to graph and remove edges that do not pass given filters.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         The graph
     edge_filters: Dict[str, Union[str, Set]]
         Edge filters
@@ -757,14 +756,14 @@ def generate_uuid():
     return f"urn:uuid:{uuid.uuid4()}"
 
 
-def generate_edge_identifiers(graph: networkx.MultiDiGraph):
+def generate_edge_identifiers(graph: BaseGraph):
     """
     Generate unique identifiers for edges in a graph that do not
     have an ``id`` field.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
 
     """
     for u, v, data in graph.edges(data=True):

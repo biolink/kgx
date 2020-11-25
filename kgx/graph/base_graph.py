@@ -10,6 +10,7 @@ class BaseGraph(object):
 
     def __init__(self):
         self.graph = None
+        self.name = None
 
     def add_node(self, node: str, **kwargs: Any) -> Any:
         """

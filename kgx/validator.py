@@ -4,9 +4,9 @@ from typing import Tuple, List, TextIO, Optional, Dict, Set
 
 import click
 import validators
-import networkx as nx
 
 from kgx.config import get_jsonld_context, get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import get_toolkit, snakecase_to_sentencecase, sentencecase_to_snakecase, \
     camelcase_to_sentencecase
 from kgx.prefix_manager import PrefixManager
@@ -166,14 +166,14 @@ class Validator(object):
                 required_properties.append(formatted_name)
         return required_properties
 
-    def validate(self, graph: nx.Graph) -> list:
+    def validate(self, graph: BaseGraph) -> list:
         """
         Validate nodes and edges in a graph.
         TODO: Support strict mode
 
         Parameters
         ----------
-        graph: networkx.Graph
+        graph: kgx.graph.base_graph.BaseGraph
             The graph to validate
 
         Returns
@@ -186,7 +186,7 @@ class Validator(object):
         edge_errors = self.validate_edges(graph)
         return node_errors + edge_errors
 
-    def validate_nodes(self, graph: nx.Graph) -> list:
+    def validate_nodes(self, graph: BaseGraph) -> list:
         """
         Validate all the nodes in a graph.
 
@@ -198,7 +198,7 @@ class Validator(object):
 
         Parameters
         ----------
-        graph: networkx.Graph
+        graph: kgx.graph.base_graph.BaseGraph
             The graph to validate
 
         Returns
@@ -217,7 +217,7 @@ class Validator(object):
                 errors += e1 + e2 + e3 + e4
         return errors
 
-    def validate_edges(self, graph: nx.Graph) -> list:
+    def validate_edges(self, graph: BaseGraph) -> list:
         """
         Validate all the edges in a graph.
 
@@ -229,7 +229,7 @@ class Validator(object):
 
         Parameters
         ----------
-        graph: networkx.Graph
+        graph: kgx.graph.base_graph.BaseGraph
             The graph to validate
 
         Returns

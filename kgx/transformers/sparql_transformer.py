@@ -1,7 +1,5 @@
 import rdflib
 from rdflib import URIRef
-from requests import HTTPError
-import networkx as nx
 from typing import Set, List, Dict, Generator, Optional
 
 from pystache import render
@@ -9,6 +7,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POSTDIRECTLY
 from itertools import zip_longest
 
 from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 
@@ -21,7 +20,7 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
 
     Parameters
     ----------
-    source_graph: Optional[networkx.MultiDiGraph]
+    source_graph: Optional[kgx.graph.base_graph.BaseGraph]
         The source graph
     url: Optional[str]
         The URL to a SPARQL endpoint
@@ -52,12 +51,12 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
 
     """
 
-    def __init__(self, source_graph: Optional[nx.MultiDiGraph] = None, url: Optional[str] = None):
+    def __init__(self, source_graph: Optional[BaseGraph] = None, url: Optional[str] = None):
         super().__init__(source_graph)
         self.url = url
         raise NotImplementedError("This class has not yet been implemented.")
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
         Fetch triples from the SPARQL endpoint and load them as edges.
 
@@ -138,7 +137,7 @@ class MonarchSparqlTransformer(SparqlTransformer):
     }
     """
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None):
+    def __init__(self, source_graph: BaseGraph = None):
         super().__init__(source_graph)
         raise NotImplementedError("This class has not yet been implemented.")
 
@@ -225,13 +224,14 @@ class RedSparqlTransformer(SparqlTransformer):
 
     IS_DEFINED_BY = "Team Red"
 
-    def __init__(self, source_graph: nx.MultiDiGraph = None, url: str ='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
+    def __init__(self, source_graph: BaseGraph = None, url: str ='http://graphdb.dumontierlab.com/repositories/ncats-red-kg'):
         super().__init__(source_graph, url)
         raise NotImplementedError("This class has not yet been implemented.")
 
-    def load_networkx_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
         """
-        Fetch all triples using the specified predicates and add them to networkx.MultiDiGraph.
+        Fetch all triples using the specified predicates
+        and add them to an instance of BaseGraph.
 
         Parameters
         ----------
@@ -289,7 +289,7 @@ class RedSparqlTransformer(SparqlTransformer):
 
     def load_nodes(self, node_set: Set) -> None:
         """
-        Load nodes into networkx.MultiDiGraph.
+        Load nodes into an instance of BaseGraph.
 
         This method queries the SPARQL endpoint for all triples where nodes in the
         node_set is a subject.
