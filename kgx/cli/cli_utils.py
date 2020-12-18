@@ -545,7 +545,8 @@ def transform_source(key: Optional[str], source: Dict, output_directory: Optiona
     elif output_format in get_file_types():
         output_transformer = get_transformer(output_format)(transformer.graph)
         if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
-            output_transformer.set_property_types(property_types)
+            if property_types:
+                output_transformer.set_property_types(property_types)
         output_transformer.save(output, output_format=output_format, compression=output_compression) # type: ignore
     else:
         raise ValueError(f"type {output_format} not yet supported for output")

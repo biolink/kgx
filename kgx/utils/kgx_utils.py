@@ -262,29 +262,6 @@ def generate_edge_key(s: str, predicate: str, o: str) -> str:
     return '{}-{}-{}'.format(s, predicate, o)
 
 
-def get_biolink_mapping(category):
-    """
-    Get a BioLink Model mapping for a given ``category``.
-
-    Parameters
-    ----------
-    category: str
-        A category for which there is a mapping in BioLink Model
-
-    Returns
-    -------
-    str
-        A BioLink Model class corresponding to ``category``
-
-    """
-    # TODO: deprecate
-    global toolkit
-    element = toolkit.get_element(category)
-    if element is None:
-        element = toolkit.get_element(snakecase_to_sentencecase(category))
-    return element
-
-
 def get_curie_lookup_service():
     """
     Get an instance of kgx.curie_lookup_service.CurieLookupService
@@ -352,7 +329,7 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     descendants.append('named thing')
     for d in descendants:
         element = toolkit.get_element(d)
-        if 'id_prefixes' in element:
+        if element and 'id_prefixes' in element:
             prefixes = element.id_prefixes
             key = format_biolink_category(element.name)
             prefix_prioritization_map[key] = prefixes
@@ -375,12 +352,7 @@ def get_biolink_element(name) -> Optional[Element]:
 
     """
     toolkit = get_toolkit()
-    if re.match("biolink:.+", name):
-        name = name.split(':', 1)[1]
-        name = camelcase_to_sentencecase(name)
-
-    element = toolkit.get_element(name)
-    return element
+    return toolkit.get_element(name)
 
 
 def get_biolink_ancestors(name: str):
@@ -398,70 +370,7 @@ def get_biolink_ancestors(name: str):
 
     """
     toolkit = get_toolkit()
-    if re.match("biolink:.+", name):
-        name = name.split(':', 1)[1]
-        name = camelcase_to_sentencecase(name)
-
-    ancestors = toolkit.get_ancestors(name)
-    formatted_ancestors = [format_biolink_category(x) for x in ancestors]
-    return formatted_ancestors
-
-
-def get_biolink_node_properties() -> Set:
-    """
-    Get all Biolink node properties.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink node properties
-
-    """
-    toolkit = get_toolkit()
-    properties = toolkit.get_children('node property')
-    # TODO: fix bug in bmt when getting descendants
-    node_properties = set()
-    for p in properties:
-        element = toolkit.get_element(p)
-        node_properties.add(element.name)
-    element = toolkit.get_element('category')
-    node_properties.add(element.name)
-    return set([format_biolink_slots(x) for x in node_properties])
-
-
-def get_biolink_edge_properties() -> Set:
-    """
-    Get all Biolink edge properties.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink edge properties
-
-    """
-    toolkit = get_toolkit()
-    properties = toolkit.get_children('association slot')
-    edge_properties = set()
-    for p in properties:
-        element = toolkit.get_element(p)
-        edge_properties.add(element.name)
-
-    return set([format_biolink_slots(x) for x in edge_properties])
-
-
-def get_biolink_relations() -> Set:
-    """
-    Get all Biolink relations.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink relations
-
-    """
-    toolkit = get_toolkit()
-    relations = set(toolkit.get_descendants('related to'))
-    return relations
+    return toolkit.get_ancestors(name, reflexive=True, formatted=True)
 
 
 def get_biolink_property_types() -> Dict:
@@ -477,18 +386,8 @@ def get_biolink_property_types() -> Dict:
     """
     toolkit = get_toolkit()
     types = {}
-    node_properties = set()
-    edge_properties = set()
-
-    properties = toolkit.get_children('node property')
-    for p in properties:
-        element = toolkit.get_element(p)
-        node_properties.add(element.name)
-
-    properties = toolkit.get_children('association slot')
-    for p in properties:
-        element = toolkit.get_element(p)
-        edge_properties.add(element.name)
+    node_properties = set(toolkit.get_all_node_properties(formatted=True))
+    edge_properties = set(toolkit.get_all_edge_properties(formatted=True))
 
     for p in node_properties:
         property_type = get_type_for_property(p)
@@ -514,10 +413,7 @@ def get_biolink_association_types() -> Set:
 
     """
     toolkit = get_toolkit()
-    associations = toolkit.get_descendants('association')
-    associations.append('association')
-    formatted_associations = set([format_biolink_category(x) for x in associations])
-    return formatted_associations
+    return set(toolkit.get_all_associations(formatted=True))
 
 
 def get_type_for_property(p: str) -> str:
@@ -536,23 +432,25 @@ def get_type_for_property(p: str) -> str:
         The type for a given property
 
     """
+    t = "xsd:string"
     toolkit = get_toolkit()
     e = toolkit.get_element(p)
-    if isinstance(e, ClassDefinition):
-        t = "uriorcurie"
-    elif isinstance(e, TypeDefinition):
-        t = e.uri
-    else:
-        r = e.range
-        if isinstance(r, SlotDefinition):
-            t = r.range
-            t = get_type_for_property(t)
-        elif isinstance(r, TypeDefinitionName):
-            t = get_type_for_property(r)
-        elif isinstance(r, ElementName):
-            t = get_type_for_property(r)
+    if e:
+        if isinstance(e, ClassDefinition):
+            t = "uriorcurie"
+        elif isinstance(e, TypeDefinition):
+            t = e.uri
         else:
-            t = "xsd:string"
+            r = e.range
+            if isinstance(r, SlotDefinition):
+                t = r.range
+                t = get_type_for_property(t)
+            elif isinstance(r, TypeDefinitionName):
+                t = get_type_for_property(r)
+            elif isinstance(r, ElementName):
+                t = get_type_for_property(r)
+            else:
+                t = "xsd:string"
     return t
 
 

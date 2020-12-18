@@ -133,14 +133,12 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        node_properties = toolkit.get_children('node property')
-        node_properties.append('category')
+        node_properties = toolkit.get_all_node_properties()
         required_properties = []
         for p in node_properties:
             element = toolkit.get_element(p)
             if hasattr(element, 'required') and element.required:
                 if hasattr(element, 'deprecated') and not element.deprecated:
-                    # TODO: this should be handled by bmt
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
@@ -157,13 +155,12 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        edge_properties = toolkit.get_children('association slot')
+        edge_properties = toolkit.get_all_edge_properties()
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
             if hasattr(element, 'required') and element.required:
                 if hasattr(element, 'deprecated') and not element.deprecated:
-                    # TODO: this should be handled by bmt
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
