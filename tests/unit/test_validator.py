@@ -17,7 +17,6 @@ def test_get_all_prefixes(prefix):
 
 @pytest.mark.parametrize('property', [
     'id',
-    'name',
     'category'
 ])
 def test_get_required_node_properties(property):
@@ -49,13 +48,12 @@ def test_validate_node_properties(query):
 
 
 @pytest.mark.parametrize('query', [
-    ('A:123', 'X:1', {}, False),
-    ('A:123', 'X:1', {'predicate': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'predicate': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
-    # ('A:123', 'X:1', {'association_id': 'Edge A-X', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
+    # ('A:123', 'X:1', {}, False),
+    # ('A:123', 'X:1', {'predicate': 'biolink:related_to'}, False),
+    # ('A:123', 'X:1', {'subject': 'A:123', 'predicate': 'biolink:related_to'}, False),
+    # ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to'}, False),
+    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to', 'category': 'biolink:Association'}, False),
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to', 'category': 'biolink:Association'}, True),
 ])
 def test_validate_edge_properties(query):
     required_properties = Validator.get_required_edge_properties()

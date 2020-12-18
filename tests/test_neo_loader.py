@@ -8,7 +8,7 @@ from kgx import NeoTransformer, PandasTransformer, JsonTransformer
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
-from tests import check_container
+from tests import check_container, print_graph
 
 CONTAINER_NAME = 'kgx-neo4j-integration-test'
 DEFAULT_NEO4J_URL = 'http://localhost:7474'
@@ -28,6 +28,7 @@ def test_csv_to_neo_load():
     pt = PandasTransformer()
     pt.parse(os.path.join(resource_dir, "cm_nodes.csv"), input_format='csv')
     pt.parse(os.path.join(resource_dir, "cm_edges.csv"), input_format='csv')
+    print_graph(pt.graph)
     nt = NeoTransformer(pt.graph, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     nt.save()
     nt.neo4j_report()
@@ -42,18 +43,7 @@ def test_neo_to_graph_transform():
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
-    t.save(os.path.join(target_dir, "neo_graph.csv"), output_format='csv')
-
-@pytest.mark.skip(reason="Missing resource robodb2.json")
-def test_neo_to_graph_upload():
-    """ loads a neo4j graph from a json file
-    """
-    jt = JsonTransformer()
-    jt.parse('resources/robodb2.json')
-
-    nt = NeoTransformer(jt.graph, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
-    nt.save()
-    nt.neo4j_report()
+    t.save(os.path.join(target_dir, "neo_graph"), output_format='csv')
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
