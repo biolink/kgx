@@ -36,7 +36,7 @@ def test_owl_parse1():
 
     e1 = list(t.graph.get_edge('GO:0008289', 'GO:0003674').values())[0]
     assert e1['subject'] == 'GO:0008289'
-    assert e1['edge_label'] == 'biolink:subclass_of'
+    assert e1['predicate'] == 'biolink:subclass_of'
     assert e1['object'] == 'GO:0003674'
     assert e1['relation'] == 'rdfs:subClassOf'
 
@@ -80,7 +80,7 @@ def test_owl_parse2():
 
     e1 = list(t.graph.get_edge('GO:0008289', 'GO:0003674').values())[0]
     assert e1['subject'] == 'GO:0008289'
-    assert e1['edge_label'] == 'biolink:subclass_of'
+    assert e1['predicate'] == 'biolink:subclass_of'
     assert e1['object'] == 'GO:0003674'
     assert e1['relation'] == 'rdfs:subClassOf'
 

@@ -24,7 +24,7 @@ def test_json_load():
     data = data.popitem()[1]
     assert data['subject'] == 'HGNC:11603'
     assert data['object'] == 'MONDO:0017148'
-    assert data['edge_label'] == 'biolink:related_to'
+    assert data['predicate'] == 'biolink:related_to'
     assert data['relation'] == 'RO:0004013'
 
 

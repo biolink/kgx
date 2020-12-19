@@ -42,7 +42,7 @@ def test_neo_to_graph_transform():
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
-    t.save(os.path.join(target_dir, "neo_graph.csv"), output_format='csv')
+    t.save(os.path.join(target_dir, "neo_graph"), output_format='csv')
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')

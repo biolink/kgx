@@ -17,7 +17,6 @@ def test_get_all_prefixes(prefix):
 
 @pytest.mark.parametrize('property', [
     'id',
-    'name',
     'category'
 ])
 def test_get_required_node_properties(property):
@@ -28,7 +27,7 @@ def test_get_required_node_properties(property):
 @pytest.mark.parametrize('property', [
     'subject',
     'object',
-    'edge_label',
+    'predicate',
     'relation'
 ])
 def test_get_required_edge_properties(property):
@@ -50,11 +49,11 @@ def test_validate_node_properties(query):
 
 @pytest.mark.parametrize('query', [
     ('A:123', 'X:1', {}, False),
-    ('A:123', 'X:1', {'edge_label': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'edge_label': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
-    ('A:123', 'X:1', {'association_id': 'Edge A-X', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
+    ('A:123', 'X:1', {'predicate': 'biolink:related_to'}, False),
+    ('A:123', 'X:1', {'subject': 'A:123', 'predicate': 'biolink:related_to'}, False),
+    ('A:123', 'X:1', {'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to'}, False),
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to', 'category': ['biolink:Association']}, True),
+    ('A:123', 'X:1', {'id': 'Edge A-X', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to', 'category': ['biolink:Association']}, True),
 ])
 def test_validate_edge_properties(query):
     required_properties = Validator.get_required_edge_properties()
@@ -76,9 +75,9 @@ def test_validate_node_property_types(query):
 
 
 @pytest.mark.parametrize('query', [
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': ['biolink:related_to'], 'relation': 'biolink:related_to'}, False),
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': ['biolink:related_to']}, False),
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': ['biolink:related_to'], 'relation': 'biolink:related_to'}, False),
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': ['biolink:related_to']}, False),
 ])
 def test_validate_edge_property_types(query):
     e = Validator.validate_edge_property_types(query[0], query[1], query[2])
@@ -96,10 +95,10 @@ def test_validate_node_property_values(query):
 
 
 @pytest.mark.parametrize('query', [
-    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
-    ('HGNC:123', 'X:1', {'id': 'HGNC:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
-    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
-    ('HGNC_123', 'MONDO:1', {'id': 'HGNC_123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, False)
+    ('A:123', 'X:1', {'id': 'A:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
+    ('HGNC:123', 'X:1', {'id': 'HGNC:123-biolink:related_to-X:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, False),
+    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
+    ('HGNC_123', 'MONDO:1', {'id': 'HGNC_123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, False)
 ])
 def test_validate_edge_property_values(query):
     e = Validator.validate_edge_property_values(query[0], query[1], query[2])
@@ -119,11 +118,11 @@ def test_validate_categories(query):
 
 
 @pytest.mark.parametrize('query', [
-    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
-    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'related_to', 'relation': 'biolink:related_to'}, True),
-    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'related to', 'relation': 'biolink:related_to'}, False),
-    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'edge_label': 'xyz', 'relation': 'biolink:related_to'}, False),
+    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'biolink:related_to', 'relation': 'biolink:related_to'}, True),
+    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'related_to', 'relation': 'biolink:related_to'}, True),
+    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'related to', 'relation': 'biolink:related_to'}, False),
+    ('HGNC:123', 'MONDO:1', {'id': 'HGNC:123-biolink:related_to-MONDO:1', 'subject': 'A:123', 'object': 'X:1', 'predicate': 'xyz', 'relation': 'biolink:related_to'}, False),
 ])
 def test_validate_edge_label(query):
-    e = Validator.validate_edge_label(query[0], query[1], query[2])
+    e = Validator.validate_edge_predicate(query[0], query[1], query[2])
     assert (len(e) == 0) == query[3]

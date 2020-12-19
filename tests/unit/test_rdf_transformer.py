@@ -1,10 +1,6 @@
 import os
-
 import pytest
-import pprint
-
 import rdflib
-from rdflib import URIRef
 
 from kgx import RdfTransformer
 from tests import print_graph
@@ -44,7 +40,7 @@ def test_parse1():
     [(u, v, data)] = t1.graph.edges(data=True)
     assert u == data['subject'] == 'ENSEMBL:ENSG0000000000001'
     assert v == data['object'] == 'ENSEMBL:ENSG0000000000002'
-    assert data['edge_label'] == 'biolink:interacts_with'
+    assert data['predicate'] == 'biolink:interacts_with'
     assert data['relation'] == 'biolink:interacts_with'
 
 
@@ -80,7 +76,7 @@ def test_parse2():
     e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1['edge_label'] == 'biolink:interacts_with'
+    assert e1['predicate'] == 'biolink:interacts_with'
     assert e1['relation'] == 'biolink:interacts_with'
     assert e1['type'] == 'biolink:Association'
     assert e1['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
@@ -121,7 +117,7 @@ def test_parse3():
     e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1['edge_label'] == 'biolink:interacts_with'
+    assert e1['predicate'] == 'biolink:interacts_with'
     assert e1['relation'] == 'biolink:interacts_with'
     assert e1['type'] == 'biolink:Association'
     assert e1['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
@@ -133,13 +129,13 @@ def test_parse3():
     e2 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'UniProtKB:X0000001').values())[0]
     assert e2['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e2['object'] == 'UniProtKB:X0000001'
-    assert e2['edge_label'] == 'biolink:same_as'
+    assert e2['predicate'] == 'biolink:same_as'
     assert e2['relation'] == 'owl:equivalentClass'
 
     e3 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'MONDO:0000001').values())[0]
     assert e3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e3['object'] == 'MONDO:0000001'
-    assert e3['edge_label'] == 'biolink:treats'
+    assert e3['predicate'] == 'biolink:treats'
     assert e3['relation'] == 'RO:0002606'
 
 
@@ -216,7 +212,7 @@ def test_save2():
 
     assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1t1['edge_label'] == e1t2['edge_label'] == e1t3['edge_label'] == 'biolink:interacts_with'
+    assert e1t1['predicate'] == e1t2['predicate'] == e1t3['predicate'] == 'biolink:interacts_with'
     assert e1t1['relation'] == e1t2['relation'] == e1t3['relation'] == 'biolink:interacts_with'
     assert e1t1['type'] == e1t2['type'] == e1t3['type'] == 'biolink:Association'
     assert e1t1['id'] == e1t2['id'] == e1t3['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
@@ -269,7 +265,7 @@ def test_save3():
 
     assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1t1['edge_label'] == e1t2['edge_label'] == e1t3['edge_label'] == 'biolink:interacts_with'
+    assert e1t1['predicate'] == e1t2['predicate'] == e1t3['predicate'] == 'biolink:interacts_with'
     assert e1t1['relation'] == e1t2['relation'] == e1t3['relation'] == 'biolink:interacts_with'
     assert e1t1['type'] == e1t2['type'] == e1t3['type'] == 'biolink:Association'
     assert e1t1['id'] == e1t2['id'] == e1t3['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
@@ -287,7 +283,7 @@ def test_save3():
             {'category': {'biolink:Protein'}}, None, 4, 3
     ),
     (
-            {'category': {'biolink:Protein'}}, {'edge_label': {'biolink:interacts_with'}}, 4, 1
+            {'category': {'biolink:Protein'}}, {'predicate': {'biolink:interacts_with'}}, 4, 1
     ),
 ])
 def test_filters(query):
@@ -324,16 +320,16 @@ def test_filters(query):
         {'provided_by': ['test']}
     ),
     (
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
+        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
         {},
         {}
     ),
     (
         {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
+         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
         {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'edge_label': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
+         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
         {},
         {'source': ['Orphanet:331206', 'Orphanet:331206']}
     )
@@ -350,7 +346,7 @@ def test_prepare_data_dict(query):
 @pytest.mark.parametrize("query", [
     ('id', 'uriorcurie', 'MONDO:000001', 'URIRef', None),
     ('name', 'xsd:string', 'Test concept name', 'Literal', rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#string')),
-    ('edge_label', 'uriorcurie', 'biolink:related_to', 'URIRef', None),
+    ('predicate', 'uriorcurie', 'biolink:related_to', 'URIRef', None),
     ('relation', 'uriorcurie', 'RO:000000', 'URIRef', None),
     ('custom_property1', 'uriorcurie', 'X:123', 'URIRef', None),
     ('custom_property2', 'xsd:float', '480.213', 'Literal', rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#float')),
@@ -365,7 +361,7 @@ def test_prepare_object(query):
 
 @pytest.mark.parametrize("query", [
     ('name', 'xsd:string'),
-    ('edge_label', 'uriorcurie'),
+    ('predicate', 'uriorcurie'),
     ('xyz', 'xsd:string')
 ])
 def test_get_property_type(query):
@@ -394,7 +390,7 @@ def test_uriref(query):
     ('http://purl.obolibrary.org/obo/RO_0000091', None, None, 'RO:0000091', '0000091'),
     ('RO:0000091', None, None, 'RO:0000091', '0000091'),
     ('category', 'biolink:category', 'biolink:category', ':category', 'category'),
-    ('edge_label', 'biolink:edge_label', 'rdf:predicate', ':edge_label', 'edge_label'),
+    ('predicate', 'biolink:predicate', 'rdf:predicate', ':predicate', 'predicate'),
     ('type', 'biolink:type', 'rdf:type', ':type', 'type'),
     ('name', 'biolink:name', 'rdfs:label', ':name', 'name'),
 ])

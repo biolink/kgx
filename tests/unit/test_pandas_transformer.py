@@ -161,7 +161,7 @@ def test_sanitize_export(query):
     ),
     (
         {'category': {'biolink:Gene', 'biolink:PhenotypicFeature'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'edge_label': {'biolink:related_to'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'predicate': {'biolink:related_to'}},
         2,
         1
     ),
@@ -203,13 +203,13 @@ def test_filters(query):
     ),
     (
         {'category': {'biolink:Gene'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'edge_label': {'biolink:orthologous_to'}},
+        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'predicate': {'biolink:orthologous_to'}},
         178,
         13
     ),
     (
         {'category': {'biolink:Gene'}},
-        {'edge_label': {'biolink:interacts_with'}},
+        {'predicate': {'biolink:interacts_with'}},
         178,
         165
     ),

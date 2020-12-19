@@ -35,7 +35,7 @@ def test_check_all_categories1():
 def test_check_all_categories2():
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 7
+    assert len(vbc) == 8
     assert len(ibc) == 0
     assert len(ic) == 0
 
@@ -75,12 +75,12 @@ def test_clique_merge1():
     g1.add_node('HGNC:7', **{'category': ['biolink:Gene']})
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
 
-    g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'), **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'), **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'), **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
-    g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'), **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'), **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     print_graph(updated_graph)
@@ -122,16 +122,16 @@ def test_clique_merge2():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
 
@@ -172,16 +172,16 @@ def test_clique_merge3():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:NamedThing', 'Node']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
 
@@ -223,16 +223,16 @@ def test_clique_merge4():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene', 'biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     print("clique graph:")
@@ -276,16 +276,16 @@ def test_clique_merge5():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene', 'biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm, strict=False)
     assert updated_graph.number_of_nodes() == 2
@@ -326,16 +326,16 @@ def test_clique_merge6():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 5
@@ -376,16 +376,16 @@ def test_clique_merge7():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 4
@@ -423,12 +423,12 @@ def test_clique_merge8():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
 
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 2
@@ -469,14 +469,14 @@ def test_clique_merge9():
     g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
 
     g1.add_edge('X:00001', 'OMIM:2', edge_key=generate_edge_key('X:00001', 'biolink:same_as', 'OMIM:2'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'edge_label': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 4
