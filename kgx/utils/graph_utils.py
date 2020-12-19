@@ -38,7 +38,7 @@ def get_parents(graph: BaseGraph, node: str, relations: List[str] = None) -> Lis
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
-            parents = [x[1] for x in out_edges if x[2]['edge_label'] in relations]
+            parents = [x[1] for x in out_edges if x[2]['predicate'] in relations]
     return parents
 
 
@@ -208,10 +208,10 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
     for u, v, k, edge_data in graph.edges(data=True, keys=True):
         if u is not edge_data['subject']:
             updated_subject_values[(u, v, k)] = {'subject': u}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['edge_label'], v)}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
         if v is not edge_data['object']:
             updated_object_values[(u, v, k)] = {'object': v}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['edge_label'], v)}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
 
     graph.set_edge_attributes(graph, attributes=updated_subject_values)
     graph.set_edge_attributes(graph, attributes=updated_object_values)
@@ -250,7 +250,7 @@ def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_
     graph.set_node_attributes(graph, attributes=mapping)
 
 
-def remap_edge_property(graph: BaseGraph, edge_label: str, old_property: str, new_property: str) -> None:
+def remap_edge_property(graph: BaseGraph, edge_predicate: str, old_property: str, new_property: str) -> None:
     """
     Remap the value in an edge ``old_property`` attribute with value
     from edge ``new_property`` attribute.
@@ -259,8 +259,8 @@ def remap_edge_property(graph: BaseGraph, edge_label: str, old_property: str, ne
     ----------
     graph: kgx.graph.base_graph.BaseGraph
         The graph
-    edge_label: string
-        edge_label referring to edges whose property needs to be remapped
+    edge_predicate: string
+        edge_predicate referring to edges whose property needs to be remapped
     old_property: string
         Old property name whose value needs to be replaced
     new_property: string
@@ -272,7 +272,7 @@ def remap_edge_property(graph: BaseGraph, edge_label: str, old_property: str, ne
         raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
     for u, v, k, data in graph.edges(data=True, keys=True):
         edge_data = data.copy()
-        if edge_label is not edge_data['edge_label']:
+        if edge_predicate is not edge_data['predicate']:
             continue
         if new_property in edge_data:
             mapping[(u, v, k)] = {old_property: edge_data[new_property]}

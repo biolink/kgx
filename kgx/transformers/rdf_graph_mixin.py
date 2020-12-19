@@ -26,9 +26,9 @@ class RdfGraphMixin(object):
 
     """
 
-    DEFAULT_EDGE_LABEL = 'biolink:related_to'
+    DEFAULT_EDGE_PREDICATE = 'biolink:related_to'
     CORE_NODE_PROPERTIES = {'id'}
-    CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'type'}
+    CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
 
     def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         if source_graph:
@@ -155,7 +155,7 @@ class RdfGraphMixin(object):
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Optional[Dict[Any, Any]] = None) -> Dict:
         """
         This method should be used by all derived classes when adding an edge to the kgx.graph.base_graph.BaseGraph.
-        This method ensures that the `subject` and `object` identifiers are CURIEs, and that `edge_label`
+        This method ensures that the `subject` and `object` identifiers are CURIEs, and that `predicate`
         is in the correct form.
 
         Parameters
@@ -178,24 +178,24 @@ class RdfGraphMixin(object):
         (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(predicate_iri)
         subject_node = self.add_node(subject_iri)
         object_node = self.add_node(object_iri)
-        edge_label = element_uri if element_uri else predicate
-        if not edge_label:
-            edge_label = property_name
+        edge_predicate = element_uri if element_uri else predicate
+        if not edge_predicate:
+            edge_predicate = property_name
 
-        if ' ' in edge_label:
-            log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that not in snake_case form; replacing ' ' with '_'")
-        edge_label_prefix = self.prefix_manager.get_prefix(edge_label)
-        if edge_label_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
-            if PrefixManager.is_curie(edge_label):
-                # name = curie_lookup(edge_label)
+        if ' ' in edge_predicate:
+            log.debug(f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that not in snake_case form; replacing ' ' with '_'")
+        edge_predicate_prefix = self.prefix_manager.get_prefix(edge_predicate)
+        if edge_predicate_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
+            if PrefixManager.is_curie(edge_predicate):
+                # name = curie_lookup(edge_predicate)
                 # if name:
-                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; Using its mapping instead: {name}")
-                #     edge_label = f"{edge_label_prefix}:{name}"
+                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that is actually a CURIE; Using its mapping instead: {name}")
+                #     edge_predicate = f"{edge_predicate_prefix}:{name}"
                 # else:
-                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_label '{edge_label}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_LABEL}")
-                edge_label = self.DEFAULT_EDGE_LABEL
+                #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_PREDICATE}")
+                edge_predicate = self.DEFAULT_EDGE_PREDICATE
 
-        edge_key = generate_edge_key(subject_node['id'], edge_label, object_node['id'])
+        edge_key = generate_edge_key(subject_node['id'], edge_predicate, object_node['id'])
         if self.graph.has_edge(subject_node['id'], object_node['id'], edge_key=edge_key):
             # edge already exists; process kwargs and update the edge
             edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
@@ -204,7 +204,7 @@ class RdfGraphMixin(object):
             edge_data = data if data else {}
             edge_data.update({
                 'subject': subject_node['id'],
-                'edge_label': f"{edge_label}",
+                'predicate': f"{edge_predicate}",
                 'object': object_node['id']
             })
             if 'relation' not in edge_data:
@@ -287,7 +287,7 @@ class RdfGraphMixin(object):
             if isinstance(value, rdflib.term.URIRef):
                 value_curie = self.prefix_manager.contract(value)
                 # if self.prefix_manager.get_prefix(value_curie) not in {'biolink'} \
-                #         and mapped_key not in {'type', 'category', 'edge_label', 'relation', 'predicate'}:
+                #         and mapped_key not in {'type', 'category', 'predicate', 'relation', 'predicate'}:
                 #     d = self.add_node(value)
                 #     value = d['id']
                 # else:

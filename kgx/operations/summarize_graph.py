@@ -8,8 +8,8 @@ NODE_CATEGORIES = 'node_categories'
 COUNT_BY_CATEGORY = 'count_by_category'
 
 TOTAL_EDGES = 'total_edges'
-EDGE_LABELS = 'edge_labels'
-COUNT_BY_EDGE_LABEL = 'count_by_edge_label'
+EDGE_PREDICATES = 'predicates'
+COUNT_BY_EDGE_PREDICATES = 'count_by_predicates'
 COUNT_BY_SPO = 'count_by_spo'
 
 # Note: the format of the stats generated might change in the future
@@ -139,8 +139,8 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
     """
     stats: Dict = {
         TOTAL_EDGES: 0,
-        EDGE_LABELS: set(),
-        COUNT_BY_EDGE_LABEL: {'unknown': {'count': 0}},
+        EDGE_PREDICATES: set(),
+        COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
         COUNT_BY_SPO: {}
     }
 
@@ -150,20 +150,20 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
             stats[facet_property] = set()
 
     for u, v, k, data in graph.edges(keys=True, data=True):
-        if 'edge_label' not in data:
-            stats[COUNT_BY_EDGE_LABEL]['unknown']['count'] += 1
-            edge_label = "unknown"
+        if 'predicate' not in data:
+            stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] += 1
+            edge_predicate = "unknown"
         else:
-            edge_label = data['edge_label']
-            stats[EDGE_LABELS].add(edge_label)
-            if edge_label in stats[COUNT_BY_EDGE_LABEL]:
-                stats[COUNT_BY_EDGE_LABEL][edge_label]['count'] += 1
+            edge_predicate = data['predicate']
+            stats[EDGE_PREDICATES].add(edge_predicate)
+            if edge_predicate in stats[COUNT_BY_EDGE_PREDICATES]:
+                stats[COUNT_BY_EDGE_PREDICATES][edge_predicate]['count'] += 1
             else:
-                stats[COUNT_BY_EDGE_LABEL][edge_label] = {'count': 1}
+                stats[COUNT_BY_EDGE_PREDICATES][edge_predicate] = {'count': 1}
 
             if facet_properties:
                 for facet_property in facet_properties:
-                    stats = get_facet_counts(data, stats, COUNT_BY_EDGE_LABEL, edge_label, facet_property)
+                    stats = get_facet_counts(data, stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property)
 
         u_data = graph.nodes()[u]
         v_data = graph.nodes()[v]
@@ -178,7 +178,7 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
         else:
             v_category = "unknown"
 
-        key = f"{u_category}-{edge_label}-{v_category}"
+        key = f"{u_category}-{edge_predicate}-{v_category}"
         if key in stats[COUNT_BY_SPO]:
             stats[COUNT_BY_SPO][key]['count'] += 1
         else:
@@ -188,7 +188,7 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
             for facet_property in facet_properties:
                 stats = get_facet_counts(data, stats, COUNT_BY_SPO, key, facet_property)
 
-    stats[EDGE_LABELS] = sorted(list(stats[EDGE_LABELS]))
+    stats[EDGE_PREDICATES] = sorted(list(stats[EDGE_PREDICATES]))
     if facet_properties:
         for facet_property in facet_properties:
             stats[facet_property] = sorted(list(stats[facet_property]))

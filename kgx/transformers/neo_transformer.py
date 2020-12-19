@@ -96,8 +96,8 @@ class NeoTransformer(Transformer):
                 qs.append(f"({self.get_edge_filter('subject_category', 's', ':', 'OR')})")
             if 'object_category' in self.edge_filters:
                 qs.append(f"({self.get_edge_filter('object_category', 'o', ':', 'OR')})")
-            if 'edge_label' in self.edge_filters:
-                qs.append(f"({self.get_edge_filter('edge_label', 'p', '.')})")
+            if 'predicate' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('predicate', 'p', '.')})")
             if 'provided_by' in self.edge_filters:
                 qs.append(f"({self.get_edge_filter('provided_by', 'p', '.', 'OR')})")
             query = ' WHERE '
@@ -191,7 +191,7 @@ class NeoTransformer(Transformer):
             edge['provided_by'] = self.graph_metadata['provided_by']
         if 'id' not in edge.keys():
             edge['id'] = generate_uuid()
-        key = generate_edge_key(subject_node['id'], edge['edge_label'], object_node['id'])
+        key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
         self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
 
     def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:
@@ -312,8 +312,8 @@ class NeoTransformer(Transformer):
                 qs.append(f"({self.get_edge_filter('subject_category', 's', ':', 'OR')})")
             if 'object_category' in self.edge_filters:
                 qs.append(f"({self.get_edge_filter('object_category', 'o', ':', 'OR')})")
-            if 'edge_label' in self.edge_filters:
-                qs.append(f"({self.get_edge_filter('edge_label', 'p', '.')})")
+            if 'predicate' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('predicate', 'p', '.')})")
             if 'provided_by' in self.edge_filters:
                 qs.append(f"({self.get_edge_filter('provided_by', 'p', '.', 'OR')})")
             query += ' WHERE '
@@ -397,23 +397,23 @@ class NeoTransformer(Transformer):
 
         return query
 
-    def save_edge(self, edges_by_edge_label: Dict[str, list], batch_size: int = 10000) -> None:
+    def save_edge(self, edges_by_edge_predicate: Dict[str, list], batch_size: int = 10000) -> None:
         """
         Save all edges into Neo4j using the UNWIND cypher clause.
 
         Parameters
         ----------
-        edges_by_edge_label: dict
+        edges_by_edge_predicate: dict
             A dictionary where edge label is the key and the value is a list of edges with that edge label
         batch_size: int
             Size of batch per transaction (default: 10000)
 
         """
         log.info("Saving edges")
-        for predicate in edges_by_edge_label.keys():
+        for predicate in edges_by_edge_predicate.keys():
             query = self.generate_unwind_edge_query(predicate)
             log.info(query)
-            edges = edges_by_edge_label[predicate]
+            edges = edges_by_edge_predicate[predicate]
             time_start = current_time_in_millis()
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
@@ -428,7 +428,7 @@ class NeoTransformer(Transformer):
             log.debug(f"Time taken to load {predicate} edges: {time_end - time_start} ms")
 
     @staticmethod
-    def generate_unwind_edge_query(edge_label: str) -> str:
+    def generate_unwind_edge_query(edge_predicate: str) -> str:
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
 
@@ -436,7 +436,7 @@ class NeoTransformer(Transformer):
 
         Parameters
         ----------
-        edge_label: str
+        edge_predicate: str
             Edge label as string
 
         Returns
@@ -449,7 +449,7 @@ class NeoTransformer(Transformer):
         query = f"""
         UNWIND $edges AS edge
         MATCH (s:`{NeoTransformer.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
-        MERGE (s)-[r:`{edge_label}`]->(o)
+        MERGE (s)-[r:`{edge_predicate}`]->(o)
         SET r += edge
         """
         return query
@@ -473,21 +473,21 @@ class NeoTransformer(Transformer):
             else:
                 nodes_by_category[category].append(node_data)
 
-        edges_by_edge_label: Dict[str, List] = {}
+        edges_by_edge_predicate: Dict[str, List] = {}
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             self.validate_edge(data)
-            edge_label = data['edge_label']
-            if edge_label in edges_by_edge_label:
-                edges_by_edge_label[edge_label].append(data)
+            edge_predicate = data['predicate']
+            if edge_predicate in edges_by_edge_predicate:
+                edges_by_edge_predicate[edge_predicate].append(data)
             else:
-                edges_by_edge_label[edge_label] = [data]
+                edges_by_edge_predicate[edge_predicate] = [data]
 
         # create indexes
         self.create_constraints(set(nodes_by_category.keys()))
         # save all nodes
         self.save_node(nodes_by_category)
         # save all edges
-        self.save_edge(edges_by_edge_label)
+        self.save_edge(edges_by_edge_predicate)
 
     def neo4j_report(self) -> None:
         """
@@ -603,8 +603,8 @@ class NeoTransformer(Transformer):
                 if key in {'subject_category', 'object_category'}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in self.edge_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key == 'edge_label':
-                    formatted = [f"'{x}'" for x in self.edge_filters['edge_label']]
+                elif key == 'predicate':
+                    formatted = [f"'{x}'" for x in self.edge_filters['predicate']]
                     value = f"type({variable}) IN [{', '.join(formatted)}]"
                 elif key == 'provided_by':
                     formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in self.edge_filters['provided_by']]

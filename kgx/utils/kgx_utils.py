@@ -22,7 +22,7 @@ is_property_multivalued = {
     'id': False,
     'subject': False,
     'object': False,
-    'edge_label': False,
+    'predicate': False,
     'description': False,
     'synonym': True,
     'in_taxon': False,
@@ -37,7 +37,7 @@ is_property_multivalued = {
 }
 
 CORE_NODE_PROPERTIES = {'id', 'name'}
-CORE_EDGE_PROPERTIES = {'id', 'subject', 'edge_label', 'object', 'relation'}
+CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'relation'}
 
 
 def camelcase_to_sentencecase(s: str) -> str:
@@ -232,15 +232,15 @@ def get_toolkit(schema: Optional[str] = None) -> Toolkit:
     return toolkit
 
 
-def generate_edge_key(s: str, edge_label: str, o: str) -> str:
+def generate_edge_key(s: str, edge_predicate: str, o: str) -> str:
     """
-    Generates an edge key based on a given subject, edge_label and object.
+    Generates an edge key based on a given subject, predicate, and object.
 
     Parameters
     ----------
     s: str
         Subject
-    edge_label: str
+    edge_predicate: str
         Edge label
     o: str
         Object
@@ -251,7 +251,7 @@ def generate_edge_key(s: str, edge_label: str, o: str) -> str:
         Edge key as a string
 
     """
-    return '{}-{}-{}'.format(s, edge_label, o)
+    return '{}-{}-{}'.format(s, edge_predicate, o)
 
 
 def get_curie_lookup_service():
@@ -321,11 +321,10 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     descendants.append('named thing')
     for d in descendants:
         element = toolkit.get_element(d)
-        if element:
-            if 'id_prefixes' in element:
-                prefixes = element.id_prefixes
-                key = format_biolink_category(element.name)
-                prefix_prioritization_map[key] = prefixes
+        if element and 'id_prefixes' in element:
+            prefixes = element.id_prefixes
+            key = format_biolink_category(element.name)
+            prefix_prioritization_map[key] = prefixes
     return prefix_prioritization_map
 
 
@@ -365,36 +364,7 @@ def get_biolink_ancestors(name: str):
     """
     toolkit = get_toolkit()
     ancestors = toolkit.get_ancestors(name, formatted=True)
-    formatted_ancestors = [format_biolink_category(x) for x in ancestors]
-    return formatted_ancestors
-
-
-def get_biolink_node_properties() -> Set:
-    """
-    Get all Biolink node properties.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink node properties
-
-    """
-    toolkit = get_toolkit()
-    return set(toolkit.get_all_node_properties(formatted=True))
-
-
-def get_biolink_edge_properties() -> Set:
-    """
-    Get all Biolink edge properties.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink edge properties
-
-    """
-    toolkit = get_toolkit()
-    return set(toolkit.get_all_edge_properties(formatted=True))
+    return ancestors
 
 
 def get_biolink_property_types() -> Dict:
@@ -427,21 +397,6 @@ def get_biolink_property_types() -> Dict:
     return types
 
 
-def get_biolink_association_types() -> Set:
-    """
-    Get all Biolink association types.
-
-    Returns
-    -------
-    Set
-        A set containing all Biolink association types
-
-    """
-    toolkit = get_toolkit()
-    associations = toolkit.get_all_associations(formatted=True)
-    return set(associations)
-
-
 def get_type_for_property(p: str) -> str:
     """
     Get type for a property.
@@ -460,7 +415,7 @@ def get_type_for_property(p: str) -> str:
     """
     toolkit = get_toolkit()
     e = toolkit.get_element(p)
-    t = None
+    t = 'xsd:string'
     if e:
         if isinstance(e, ClassDefinition):
             t = "uriorcurie"
@@ -660,7 +615,7 @@ def apply_edge_filters(graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]
     for subject_node, object_node, key, data in graph.edges(keys=True, data=True):
         pass_filter = True
         for k, v in edge_filters.items():
-            if k == 'edge_label':
+            if k == 'predicate':
                 if data[k] not in v:
                     pass_filter = False
             elif k == 'relation':
