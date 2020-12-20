@@ -70,7 +70,7 @@ def get_file_types() -> Tuple:
     return tuple(_transformers.keys())
 
 
-def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str]) -> Dict:
+def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
 
@@ -84,6 +84,10 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         The input compression type
     output: Optional[str]
         Where to write the output (stdout, by default)
+    node_facet_properties: Optional[List]
+        A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+    edge_facet_properties: Optional[List]
+        A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
 
     Returns
     -------
@@ -95,7 +99,7 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
     for file in inputs:
         transformer.parse(file, input_format=input_format, compression=input_compression)
 
-    stats = summarize_graph(transformer.graph)
+    stats = summarize_graph(transformer.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
     if output:
         WH = open(output, 'w')
         WH.write(yaml.dump(stats))
