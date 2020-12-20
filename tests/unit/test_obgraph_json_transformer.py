@@ -67,7 +67,7 @@ def test_load_edge():
 
     e = next(iter(t.graph.edges(data=True)))
     assert e[2]['subject'] == 'GO:0003677'
-    assert e[2]['edge_label'] == 'biolink:subclass_of'
+    assert e[2]['predicate'] == 'biolink:subclass_of'
     assert e[2]['relation'] == 'rdfs:subClassOf'
     assert e[2]['object'] == 'GO:0003674'
 

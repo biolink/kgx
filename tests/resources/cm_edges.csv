@@ -1,4 +1,4 @@
-subject,predicate,object,relation,edge_label,provided_by
+subject,epredicate,object,relation,predicate,provided_by
 HGNC:7670,http://www.w3.org/2002/07/owl#equivalentClass,OMIM:601937,owl:equivalentClass,biolink:same_as,hgnc.ttl
 HGNC:7670,http://www.w3.org/2002/07/owl#equivalentClass,ENSEMBL:ENSG00000124151,owl:equivalentClass,biolink:same_as,hgnc.ttl
 HGNC:7670,http://www.w3.org/2002/07/owl#equivalentClass,NCBIGene:8202,owl:equivalentClass,biolink:same_as,hgnc.ttl

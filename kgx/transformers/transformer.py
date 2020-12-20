@@ -188,8 +188,8 @@ class Transformer(object):
 
         if 'subject' not in edge:
             raise KeyError("edge does not have 'subject' property: {}".format(edge))
-        if 'edge_label' not in edge:
-            raise KeyError("edge does not have 'edge_label' property: {}".format(edge))
+        if 'predicate' not in edge:
+            raise KeyError("edge does not have 'predicate' property: {}".format(edge))
         if 'object' not in edge:
             raise KeyError("edge does not have 'object' property: {}".format(edge))
 

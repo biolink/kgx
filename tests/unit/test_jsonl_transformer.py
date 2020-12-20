@@ -22,7 +22,7 @@ def test_jsonl_load():
     e1 = list(jlt.graph.get_edge('HGNC:11603', 'MONDO:0005002').values())[0]
     assert e1['subject'] == 'HGNC:11603'
     assert e1['object'] == 'MONDO:0005002'
-    assert e1['edge_label'] == 'biolink:related_to'
+    assert e1['predicate'] == 'biolink:related_to'
     assert e1['relation'] == 'RO:0003304'
 
 

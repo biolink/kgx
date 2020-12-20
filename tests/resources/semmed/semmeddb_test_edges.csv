@@ -1,4 +1,4 @@
-predicate,pmids,negated,edge_label,subject,object,n_pmids,is_defined_by,relation,provided_by
+epredicate,pmids,negated,predicate,subject,object,n_pmids,is_defined_by,relation,provided_by
 INTERACTS_WITH,11278902,False,interacts_with,UMLS:C0061133,UMLS:C0733413,1,semmeddb,semmeddb:interacts_with,semmeddb_sulab
 AFFECTS,28678789,False,affects,UMLS:C1414313,UMLS:C1523610,1,semmeddb,semmeddb:affects,semmeddb_sulab
 COEXISTS_WITH,23490383,False,coexists_with,UMLS:C0001899,UMLS:C0312636,1,semmeddb,semmeddb:coexists_with,semmeddb_sulab

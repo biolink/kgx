@@ -1,4 +1,4 @@
-subject	object	relation	edge_label	provided_by
+subject	object	relation	predicate	provided_by
 HGNC:7670	OMIM:601937	owl:equivalentClass	biolink:same_as	Test
 HGNC:7670	ENSEMBL:ENSG00000124151	owl:equivalentClass	biolink:same_as	Test
 HGNC:7670	NCBIGene:8202	owl:equivalentClass	biolink:same_as	Test
