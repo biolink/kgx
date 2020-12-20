@@ -313,7 +313,8 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         pool = Pool(processes=processes)
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
-            result = pool.apply_async(transform_source, (k, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint, False))
+            name = v['name'] if 'name' in v else k
+            result = pool.apply_async(transform_source, (name, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint, False))
             results.append(result)
         pool.close()
         pool.join()
@@ -330,7 +331,8 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
                 'filename': output
             }
         }
-        transform_source(None, source_dict, None)
+        name = os.path.basename(inputs[0])
+        transform_source(name, source_dict, None)
 
 
 def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> BaseGraph:
@@ -406,7 +408,8 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     pool = Pool(processes=processes)
     for k, v in sources_to_parse.items():
         log.info(f"Spawning process for '{k}'")
-        result = pool.apply_async(parse_source, (k, v, output_directory, curie_map, node_properties, predicate_mappings, checkpoint))
+        name = v['name'] if 'name' in v else k
+        result = pool.apply_async(parse_source, (name, v, output_directory, curie_map, node_properties, predicate_mappings, checkpoint))
         results.append(result)
     pool.close()
     pool.join()
@@ -491,13 +494,13 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     return transformer.graph
 
 
-def transform_source(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
+def transform_source(key: str, source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
     """
     Transform a source from a transform config YAML.
 
     Parameters
     ----------
-    key: Optional[str]
+    key: str
         Source key
     source: Dict
         Source configuration
@@ -523,8 +526,6 @@ def transform_source(key: Optional[str], source: Dict, output_directory: Optiona
         Returns an instance of BaseGraph corresponding to the source
 
     """
-    if not key:
-        key = os.path.basename(source['input']['filename'][0])
     log.info(f"Processing source '{key}'")
     output_format = source['output']['format']
     output_compression = source['output']['compression'] if 'compression' in source['output'] else None
