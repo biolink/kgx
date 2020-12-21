@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - (2020-12-21)
+
+- Added Graph API to KGX
+- Added compatibility to Biolink Model 1.4.0
+- Added the ability to facet on node and edge properties for graph-summary CLI operation
+- Fixed a bug where source name defined in YAML was not being used for graph name
+
+
 ## 0.2.4 - (2020-11-25)
 
 - Fixed bug when handling empty elements returned from bmt
