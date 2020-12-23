@@ -38,7 +38,7 @@ def get_parents(graph: BaseGraph, node: str, relations: List[str] = None) -> Lis
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
-            parents = [x[1] for x in out_edges if x[2]['predicate'] in relations]
+            parents = [x[1] for x in out_edges if x[2]['biolink:predicate'] in relations]
     return parents
 
 
@@ -97,7 +97,7 @@ def get_category_via_superclass(graph: BaseGraph, curie: str, load_ontology: boo
     new_categories = []
     toolkit = get_toolkit()
     if PrefixManager.is_curie(curie):
-        ancestors = get_ancestors(graph, curie, relations=['subclass_of'])
+        ancestors = get_ancestors(graph, curie, relations=['biolink:subclass_of'])
         if len(ancestors) == 0 and load_ontology:
             cls = get_curie_lookup_service()
             ontology_graph = cls.ontology_graph
@@ -110,7 +110,7 @@ def get_category_via_superclass(graph: BaseGraph, curie: str, load_ontology: boo
             if mapping:
                 # there is direct mapping to BioLink Model
                 log.debug("Ancestor {} mapped to {}".format(anc, mapping))
-                seen_labels = [graph.nodes()[x]['name'] for x in seen if 'name' in graph.nodes()[x]]
+                seen_labels = [graph.nodes()[x]['biolink:name'] for x in seen if 'biolink:name' in graph.nodes()[x]]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
                 break
@@ -144,7 +144,7 @@ def curie_lookup(curie: str) -> Optional[str]:
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = cls.ontology_graph.nodes()[curie]['name']
+        name = cls.ontology_graph.nodes()[curie]['biolink:name']
     return name
 
 
@@ -173,7 +173,7 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
     mapping: Dict = {}
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
-        if 'category' in node_data and category not in node_data['category']:
+        if 'biolink:category' in node_data and category not in node_data['biolink:category']:
             continue
 
         if alternative_property in node_data:
@@ -183,18 +183,18 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
                     for v in alternative_values:
                         if prefix in v:
                             # take the first occurring value that contains the given prefix
-                            mapping[nid] = {'id': v}
+                            mapping[nid] = {'biolink:id': v}
                             break
                 else:
                     # no prefix defined; pick the 1st one from list
-                    mapping[nid] = {'id': next(iter(alternative_values))}
+                    mapping[nid] = {'biolink:id': next(iter(alternative_values))}
             elif isinstance(alternative_values, str):
                 if prefix:
                     if alternative_values.startswith(prefix):
-                        mapping[nid] = {'id': alternative_values}
+                        mapping[nid] = {'biolink:id': alternative_values}
                 else:
                     # no prefix defined
-                    mapping[nid] = {'id': alternative_values}
+                    mapping[nid] = {'biolink:id': alternative_values}
             else:
                 log.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
 
@@ -206,12 +206,12 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
     updated_subject_values = {}
     updated_object_values = {}
     for u, v, k, edge_data in graph.edges(data=True, keys=True):
-        if u is not edge_data['subject']:
-            updated_subject_values[(u, v, k)] = {'subject': u}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
-        if v is not edge_data['object']:
-            updated_object_values[(u, v, k)] = {'object': v}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
+        if u is not edge_data['biolink:subject']:
+            updated_subject_values[(u, v, k)] = {'biolink:subject': u}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['biolink:predicate'], v)}
+        if v is not edge_data['biolink:object']:
+            updated_object_values[(u, v, k)] = {'biolink:object': v}
+            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['biolink:predicate'], v)}
 
     graph.set_edge_attributes(graph, attributes=updated_subject_values)
     graph.set_edge_attributes(graph, attributes=updated_object_values)
@@ -243,7 +243,7 @@ def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_
 
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
-        if category in node_data and category not in node_data['category']:
+        if category in node_data and category not in node_data['biolink:category']:
             continue
         if new_property in node_data:
             mapping[nid] = {old_property: node_data[new_property]}
@@ -272,7 +272,7 @@ def remap_edge_property(graph: BaseGraph, edge_predicate: str, old_property: str
         raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
     for u, v, k, data in graph.edges(data=True, keys=True):
         edge_data = data.copy()
-        if edge_predicate is not edge_data['predicate']:
+        if edge_predicate is not edge_data['biolink:predicate']:
             continue
         if new_property in edge_data:
             mapping[(u, v, k)] = {old_property: edge_data[new_property]}

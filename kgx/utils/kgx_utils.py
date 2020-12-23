@@ -19,25 +19,25 @@ cache = None
 log = get_logger()
 
 is_property_multivalued = {
-    'id': False,
-    'subject': False,
-    'object': False,
-    'predicate': False,
-    'description': False,
-    'synonym': True,
-    'in_taxon': False,
-    'same_as': True,
-    'name': False,
-    'has_evidence': False,
-    'provided_by': True,
-    'category': True,
-    'publications': True,
-    'type': False,
-    'relation': False
+    'biolink:id': False,
+    'biolink:subject': False,
+    'biolink:object': False,
+    'biolink:predicate': False,
+    'biolink:description': False,
+    'biolink:synonym': True,
+    'biolink:in_taxon': False,
+    'biolink:same_as': True,
+    'biolink:name': False,
+    'biolink:has_evidence': False,
+    'biolink:provided_by': True,
+    'biolink:category': True,
+    'biolink:publications': True,
+    'biolink:type': False,
+    'biolink:relation': False
 }
 
-CORE_NODE_PROPERTIES = {'id', 'name'}
-CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'relation'}
+CORE_NODE_PROPERTIES = {'biolink:id', 'biolink:name'}
+CORE_EDGE_PROPERTIES = {'biolink:id', 'biolink:subject', 'biolink:predicate', 'biolink:object', 'biolink:relation'}
 
 
 def camelcase_to_sentencecase(s: str) -> str:
@@ -587,7 +587,7 @@ def apply_node_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]
     for node, node_data in graph.nodes(data=True):
         pass_filter = True
         for k, v in node_filters.items():
-            if k == 'category':
+            if k == 'biolink:category':
                 if not any(x in node_data[k] for x in v):
                     pass_filter = False
         if not pass_filter:
@@ -615,10 +615,10 @@ def apply_edge_filters(graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]
     for subject_node, object_node, key, data in graph.edges(keys=True, data=True):
         pass_filter = True
         for k, v in edge_filters.items():
-            if k == 'predicate':
+            if k == 'biolink:predicate':
                 if data[k] not in v:
                     pass_filter = False
-            elif k == 'relation':
+            elif k == 'biolink:relation':
                 if data[k] not in v:
                     pass_filter = False
         if not pass_filter:
@@ -654,5 +654,73 @@ def generate_edge_identifiers(graph: BaseGraph):
 
     """
     for u, v, data in graph.edges(data=True):
-        if 'id' not in data:
-            data['id'] = generate_uuid()
+        if 'biolink:id' not in data:
+            data['biolink:id'] = generate_uuid()
+
+
+def is_curie(s: str) -> bool:
+    """
+    Check if a given string is a CURIE.
+
+    Parameters
+    ----------
+    s: str
+        A string
+
+    Returns
+    -------
+    bool
+        Whether or not the given string is a CURIE
+
+    """
+    if isinstance(s, str):
+        m = re.match(r"^[^ <()>:]*:[^/ :]+$", s)
+        return bool(m)
+    else:
+        return False
+
+
+def is_iri(s: str) -> bool:
+    """
+    Check if a given string as an IRI.
+
+    Parameters
+    ----------
+    s: str
+        A string
+
+    Returns
+    -------
+    bool
+        Whether or not the given string is an IRI.
+
+    """
+    if isinstance(s, str):
+        return s.startswith('http') or s.startswith('https')
+    else:
+        return False
+
+
+def curiefy(data: Dict, prefix: str = 'biolink'):
+    new_data = {}
+    toolkit = get_toolkit()
+
+    for k, v in data.items():
+        if is_curie(k):
+            new_data[k] = v
+        else:
+            if isa_biolink_property(k):
+                prop_curie = f"{prefix}:{k}"
+                new_data[prop_curie] = v
+            else:
+                new_data[k] = v
+    return new_data
+
+
+def isa_biolink_property(p):
+    toolkit = get_toolkit()
+    node_properties = [x.split(':', 1)[1] for x in toolkit.get_all_node_properties(formatted=True)]
+    edge_properties = [x.split(':', 1)[1] for x in toolkit.get_all_edge_properties(formatted=True)]
+    predicates = [x.split(':', 1)[1] for x in toolkit.get_descendants('related to', formatted=True)]
+    properties = set(node_properties + edge_properties + predicates)
+    return p in properties

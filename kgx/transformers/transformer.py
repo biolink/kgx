@@ -1,24 +1,10 @@
-import json
 from typing import Union, List, Dict, Tuple, Set, Any, Optional
 
 from kgx.config import get_logger, get_config, get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
-from kgx.graph.nx_graph import NxGraph
+from kgx.utils.kgx_utils import is_curie, isa_biolink_property
 
 log = get_logger()
-
-
-IGNORE_CLASSES = ['All', 'entity']
-
-ADDITIONAL_LABELS = {
-    'phenotypic_abnormality': 'phenotypic_feature',
-    'clinical_course': 'phenotypic_feature',
-    'blood_group': 'phenotypic_feature',
-    'clinical_modifier': 'phenotypic_feature',
-    'frequency': 'phenotypic_feature',
-    'mode_of_inheritance': 'phenotypic_feature',
-    'past_medical_history': 'phenotypic_feature'
-}
 
 
 class Transformer(object):
@@ -86,7 +72,11 @@ class Transformer(object):
             The value for the node filter. Can be either a string or a set.
 
         """
-        if key == 'category':
+        if not is_curie(key):
+            if isa_biolink_property(key):
+                key = f"biolink:{key}"
+
+        if key == 'biolink:category':
             if isinstance(value, set):
                 if 'subject_category' in self.edge_filters:
                     self.edge_filters['subject_category'].update(value)
@@ -126,12 +116,16 @@ class Transformer(object):
         """
         if key in {'subject_category', 'object_category'}:
             if isinstance(value, set):
-                if 'category' in self.node_filters:
-                    self.node_filters['category'].update(value)
+                if 'biolink:category' in self.node_filters:
+                    self.node_filters['biolink:category'].update(value)
                 else:
-                    self.node_filters['category'] = value
+                    self.node_filters['biolink:category'] = value
             else:
                 raise TypeError(f"'{key}' edge filter should have a value of type 'set'")
+        else:
+            if not is_curie(key):
+                if isa_biolink_property(key):
+                    key = f"biolink:{key}"
 
         if key in self.edge_filters:
             self.edge_filters[key].update(value)
@@ -159,13 +153,13 @@ class Transformer(object):
             log.debug("Empty node encountered: {}".format(node))
             return node
 
-        if 'id' not in node:
+        if 'biolink:id' not in node:
             raise KeyError("node does not have 'id' property: {}".format(node))
-        if 'name' not in node:
+        if 'biolink:name' not in node:
             log.debug("node does not have 'name' property: {}".format(node))
-        if 'category' not in node:
+        if 'biolink:category' not in node:
             log.debug("node does not have 'category' property: {}\nUsing {} as default".format(node, Transformer.DEFAULT_NODE_CATEGORY))
-            node['category'] = [Transformer.DEFAULT_NODE_CATEGORY]
+            node['biolink:category'] = [Transformer.DEFAULT_NODE_CATEGORY]
 
         return node
 
@@ -186,11 +180,11 @@ class Transformer(object):
             An edge represented as a dict, with default assumptions applied.
         """
 
-        if 'subject' not in edge:
+        if 'biolink:subject' not in edge:
             raise KeyError("edge does not have 'subject' property: {}".format(edge))
-        if 'predicate' not in edge:
+        if 'biolink:predicate' not in edge:
             raise KeyError("edge does not have 'predicate' property: {}".format(edge))
-        if 'object' not in edge:
+        if 'biolink:object' not in edge:
             raise KeyError("edge does not have 'object' property: {}".format(edge))
 
         return edge

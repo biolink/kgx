@@ -9,7 +9,7 @@ from kgx.graph.nx_graph import NxGraph
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.rdf_utils import property_mapping, is_property_multivalued, reverse_property_mapping
 from kgx.utils.kgx_utils import generate_edge_key, get_toolkit, sentencecase_to_camelcase, sentencecase_to_snakecase, \
-    get_biolink_ancestors
+    get_biolink_ancestors, curiefy
 from kgx.prefix_manager import PrefixManager
 
 log = get_logger()
@@ -27,8 +27,8 @@ class RdfGraphMixin(object):
     """
 
     DEFAULT_EDGE_PREDICATE = 'biolink:related_to'
-    CORE_NODE_PROPERTIES = {'id'}
-    CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
+    CORE_NODE_PROPERTIES = {'biolink:id'}
+    CORE_EDGE_PROPERTIES = {'biolink:id', 'biolink:subject', 'biolink:predicate', 'biolink:object', 'biolink:type'}
 
     def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         if source_graph:
@@ -116,16 +116,16 @@ class RdfGraphMixin(object):
                 node_data = data
             else:
                 node_data = {}
-            node_data['id'] = n
+            node_data['biolink:id'] = n
 
-            if 'category' in node_data:
-                if 'biolink:NamedThing' not in set(node_data['category']):
-                    node_data['category'].append('biolink:NamedThing')
+            if 'biolink:category' in node_data:
+                if 'biolink:NamedThing' not in set(node_data['biolink:category']):
+                    node_data['biolink:category'].append('biolink:NamedThing')
             else:
-                node_data['category'] = ["biolink:NamedThing"]
+                node_data['biolink:category'] = ["biolink:NamedThing"]
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+            if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in node_data:
+                node_data['biolink:provided_by'] = self.graph_metadata['provided_by']
             self.graph.add_node(n, **node_data)
         return node_data
 
@@ -149,6 +149,7 @@ class RdfGraphMixin(object):
         node_data = self.graph.nodes()[str(n)]
         if data:
             new_data = self._prepare_data_dict(node_data, data)
+            new_data = curiefy(new_data)
             node_data.update(new_data)
         return node_data
 
@@ -195,24 +196,24 @@ class RdfGraphMixin(object):
                 #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_PREDICATE}")
                 edge_predicate = self.DEFAULT_EDGE_PREDICATE
 
-        edge_key = generate_edge_key(subject_node['id'], edge_predicate, object_node['id'])
-        if self.graph.has_edge(subject_node['id'], object_node['id'], edge_key=edge_key):
+        edge_key = generate_edge_key(subject_node['biolink:id'], edge_predicate, object_node['biolink:id'])
+        if self.graph.has_edge(subject_node['biolink:id'], object_node['biolink:id'], edge_key=edge_key):
             # edge already exists; process kwargs and update the edge
-            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
+            edge_data = self.update_edge(subject_node['biolink:id'], object_node['biolink:id'], edge_key, data)
         else:
             # add a new edge
             edge_data = data if data else {}
             edge_data.update({
-                'subject': subject_node['id'],
-                'predicate': f"{edge_predicate}",
-                'object': object_node['id']
+                'biolink:subject': subject_node['biolink:id'],
+                'biolink:predicate': f"{edge_predicate}",
+                'biolink:object': object_node['biolink:id']
             })
-            if 'relation' not in edge_data:
-                edge_data['relation'] = predicate
+            if 'biolink:relation' not in edge_data:
+                edge_data['biolink:relation'] = predicate
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
-            self.graph.add_edge(subject_node['id'], object_node['id'], edge_key=edge_key, **edge_data)
+            if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in edge_data:
+                edge_data['biolink:provided_by'] = self.graph_metadata['provided_by']
+            self.graph.add_edge(subject_node['biolink:id'], object_node['biolink:id'], edge_key=edge_key, **edge_data)
 
         return edge_data
 
@@ -240,6 +241,7 @@ class RdfGraphMixin(object):
         edge_data = self.graph.get_edge(subject_curie, object_curie, edge_key=edge_key)
         if data:
             new_data = self._prepare_data_dict(edge_data, data)
+            new_data = curiefy(new_data)
             edge_data.update(new_data)
         return edge_data
 
@@ -277,11 +279,11 @@ class RdfGraphMixin(object):
         if c:
             key_curie = c
 
-        if self.prefix_manager.is_curie(key_curie):
-            # property names will always be just the reference
-            mapped_key = self.prefix_manager.get_reference(key_curie)
-        else:
-            mapped_key = key_curie
+        # if self.prefix_manager.is_curie(key_curie):
+        #     # property names will always be just the reference
+        #     mapped_key = self.prefix_manager.get_reference(key_curie)
+        # else:
+        #     mapped_key = key_curie
 
         if isinstance(value, rdflib.term.Identifier):
             if isinstance(value, rdflib.term.URIRef):
@@ -295,9 +297,9 @@ class RdfGraphMixin(object):
                 value = value_curie
             else:
                 value = value.toPython()
-        if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
+        if key_curie in is_property_multivalued and is_property_multivalued[key_curie]:
             value = [value]
-        node_data = self.add_node(iri, {mapped_key: value})
+        node_data = self.add_node(iri, {key_curie: value})
         return node_data
 
     def add_edge_attribute(self, subject_iri: Union[URIRef, str], object_iri: URIRef, predicate_iri: URIRef, key: str, value: str) -> Dict:
@@ -530,6 +532,6 @@ class RdfGraphMixin(object):
                 element_uri = None
                 if p in self.predicate_mapping:
                     property_name = self.predicate_mapping[p]
-                    predicate = f":{property_name}"
+                    predicate = f"{property_name}"
             self.cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
         return element_uri, canonical_uri, predicate, property_name

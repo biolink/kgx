@@ -171,6 +171,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         """
         self.count += 1
         (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
+        log.info(f"$$$ {element_uri} {canonical_uri} {predicate} {property_name}")
         if element_uri:
             prop_uri = element_uri
         elif predicate:
@@ -230,14 +231,19 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             n = nodes.pop()
             n_curie = self.prefix_manager.contract(str(n))
             node = self.graph.nodes()[n_curie]
-            if 'predicate' not in node:
+            log.info(f">>> {node}")
+            if 'biolink:predicate' not in node:
                 node['predicate'] = "biolink:related_to"
-            if 'relation' not in node:
-                node['relation'] = node['predicate']
-            if 'category' in node:
-                del node['category']
-            if 'subject' in node and 'object' in node:
-                self.add_edge(node['subject'], node['object'], node['predicate'], node)
+            if 'biolink:relation' not in node:
+                node['biolink:relation'] = node['biolink:predicate']
+            if 'biolink:category' in node:
+                c = set(node['biolink:category'])
+                if 'biolink:NamedThing' in c:
+                    c.remove('biolink:NamedThing')
+                    if c:
+                        node['biolink:category'] = list(c)
+            if 'biolink:subject' in node and 'biolink:object' in node:
+                self.add_edge(node['biolink:subject'], node['biolink:object'], node['biolink:predicate'], node)
                 self.graph.remove_node(n_curie)
             else:
                 log.warning(f"Cannot dereify node {n} {node}")
@@ -264,22 +270,22 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         s = self.uriref(u)
-        p = self.uriref(data['predicate'])
+        p = self.uriref(data['biolink:predicate'])
         o = self.uriref(v)
 
-        if 'id' in data:
-            node_id = self.uriref(data['id'])
+        if 'biolink:id' in data:
+            node_id = self.uriref(data['biolink:id'])
         else:
             # generate a UUID for the reified node
             node_id = self.uriref(generate_uuid())
         reified_node = data.copy()
-        if 'category' in reified_node:
-            del reified_node['category']
-        reified_node['id'] = node_id
-        reified_node['type'] = 'biolink:Association'
-        reified_node['subject'] = s
-        reified_node['predicate'] = p
-        reified_node['object'] = o
+        if 'biolink:category' in reified_node:
+            del reified_node['biolink:category']
+        reified_node['biolink:id'] = node_id
+        reified_node['biolink:category'] = 'biolink:Association'
+        reified_node['biolink:subject'] = s
+        reified_node['biolink:predicate'] = p
+        reified_node['biolink:object'] = o
         return reified_node
 
     def save(self, filename: str, output_format: str = "turtle", compression: Optional[str] = None, reify_all_edges: bool = False, **kwargs) -> None:
@@ -329,7 +335,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         for n, data in self.graph.nodes(data=True):
             s = self.uriref(n)
             for k, v in data.items():
-                if k in {'id', 'iri'}:
+                if k in {'biolink:id', 'biolink:iri'}:
                     continue
                 (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
                 if element_uri is None:
@@ -374,13 +380,13 @@ class RdfTransformer(RdfGraphMixin, Transformer):
         for u, v, k, data in self.graph.edges(data=True, keys=True):
             if reify_all_edges:
                 reified_node = self.reify(u, v, k, data)
-                s = reified_node['subject']
-                p = reified_node['predicate']
-                o = reified_node['object']
+                s = reified_node['biolink:subject']
+                p = reified_node['biolink:predicate']
+                o = reified_node['biolink:object']
                 ecache.append((s, p, o))
-                n = reified_node['id']
+                n = reified_node['biolink:id']
                 for prop, value in reified_node.items():
-                    if prop in {'id', 'association_id', 'edge_key'}:
+                    if prop in {'biolink:id', 'biolink:association_id', 'biolink:edge_key'}:
                         continue
                     (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
                     if element_uri:
@@ -402,17 +408,17 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                         value_uri = self._prepare_object(prop, prop_type, value)
                         yield (n, prop_uri, value_uri)
             else:
-                if ('type' in data and data['type'] in associations) or \
-                        ('association_type' in data and data['association_type'] in associations) or \
-                        ('category' in data and any(data['category']) in associations):
+                if ('biolink:type' in data and data['biolink:type'] in associations) or \
+                        ('biolink:association_type' in data and data['biolink:association_type'] in associations) or \
+                        ('biolink:category' in data and any(data['biolink:category']) in associations):
                     reified_node = self.reify(u, v, k, data)
-                    s = reified_node['subject']
-                    p = reified_node['predicate']
-                    o = reified_node['object']
+                    s = reified_node['biolink:subject']
+                    p = reified_node['biolink:predicate']
+                    o = reified_node['biolink:object']
                     ecache.append((s, p, o))
-                    n = reified_node['id']
+                    n = reified_node['biolink:id']
                     for prop, value in reified_node.items():
-                        if prop in {'id', 'association_id', 'edge_key'}:
+                        if prop in {'biolink:id', 'biolink:association_id', 'biolink:edge_key'}:
                             continue
                         (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
                         if element_uri:
@@ -435,7 +441,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                             yield (n, prop_uri, value_uri)
                 else:
                     s = self.uriref(u)
-                    p = self.uriref(data['predicate'])
+                    p = self.uriref(data['biolink:predicate'])
                     o = self.uriref(v)
                     yield (s, p, o)
         for t in ecache:

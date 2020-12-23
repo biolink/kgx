@@ -98,7 +98,6 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
     transformer = get_transformer(input_format)()
     for file in inputs:
         transformer.parse(file, input_format=input_format, compression=input_compression)
-
     stats = summarize_graph(transformer.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
     if output:
         WH = open(output, 'w')

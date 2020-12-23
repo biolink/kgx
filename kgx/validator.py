@@ -133,14 +133,13 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        node_properties = toolkit.get_all_node_properties()
+        node_properties = toolkit.get_all_node_properties(formatted=True)
         required_properties = []
         for p in node_properties:
             element = toolkit.get_element(p)
             if element and element.deprecated is None:
                 if hasattr(element, 'required') and element.required:
-                    formatted_name = sentencecase_to_snakecase(element.name)
-                    required_properties.append(formatted_name)
+                    required_properties.append(p)
         return required_properties
 
     @staticmethod
@@ -155,14 +154,14 @@ class Validator(object):
 
         """
         toolkit = get_toolkit()
-        edge_properties = toolkit.get_all_edge_properties()
+        edge_properties = toolkit.get_all_edge_properties(formatted=True)
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
             if element and element.deprecated is None:
                 if hasattr(element, 'required') and element.required:
                     formatted_name = sentencecase_to_snakecase(element.name)
-                    required_properties.append(formatted_name)
+                    required_properties.append(p)
         print(required_properties)
         return required_properties
 
@@ -301,7 +300,7 @@ class Validator(object):
         errors = []
         for p in required_properties:
             if p not in data:
-                if p == 'association_id':
+                if p == 'biolink:association_id':
                     # check for 'id' property instead
                     if 'id' not in data:
                         error_type = ErrorType.MISSING_EDGE_PROPERTY
@@ -491,14 +490,14 @@ class Validator(object):
         else:
             message = f"Edge property 'object' has a value '{object}' which is not a proper CURIE"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
-        if 'relation' in data:
-            if PrefixManager.is_curie(data['relation']):
-                prefix = PrefixManager.get_prefix(data['relation'])
+        if 'biolink:relation' in data:
+            if PrefixManager.is_curie(data['biolink:relation']):
+                prefix = PrefixManager.get_prefix(data['biolink:relation'])
                 if prefix not in prefixes:
-                    message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                    message = f"Edge property 'relation' has a value '{data['biolink:relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
                     errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
             else:
-                message = f"Edge property 'relation' has a value '{data['relation']}' which is not a proper CURIE"
+                message = f"Edge property 'relation' has a value '{data['biolink:relation']}' which is not a proper CURIE"
                 errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))
         return errors
 
@@ -523,7 +522,7 @@ class Validator(object):
         toolkit = get_toolkit()
         error_type = ErrorType.INVALID_CATEGORY
         errors = []
-        categories = data.get('category')
+        categories = data.get('biolink:category')
         if categories is None:
             message = "Node does not have a 'category' property"
             errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
@@ -575,7 +574,7 @@ class Validator(object):
         toolkit = get_toolkit()
         error_type = ErrorType.INVALID_EDGE_PREDICATE
         errors = []
-        edge_predicate = data.get('predicate')
+        edge_predicate = data.get('biolink:predicate')
         if edge_predicate is None:
             message = "Edge does not have an 'predicate' property"
             errors.append(ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR))

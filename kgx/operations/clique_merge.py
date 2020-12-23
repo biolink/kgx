@@ -82,17 +82,17 @@ def build_cliques(target_graph: BaseGraph) -> nx.Graph:
     """
     clique_graph = nx.Graph()
     for n, data in target_graph.nodes(data=True):
-        if 'same_as' in data:
+        if 'biolink:same_as' in data:
             new_data = copy.deepcopy(data)
-            del new_data['same_as']
+            del new_data['biolink:same_as']
             clique_graph.add_node(n, **new_data)
-            for s in data['same_as']:
-                edge_data = {'subject': n, 'predicate': SAME_AS, 'object': s}
-                if 'provided_by' in data:
-                    edge_data['provided_by'] = data['provided_by']
+            for s in data['biolink:same_as']:
+                edge_data = {'biolink:subject': n, 'biolink:predicate': SAME_AS, 'biolink:object': s}
+                if 'biolink:provided_by' in data:
+                    edge_data['biolink:provided_by'] = data['biolink:provided_by']
                 clique_graph.add_edge(n, s, **edge_data)
     for u, v, data in target_graph.edges(data=True):
-        if 'predicate' in data and data['predicate'] == SAME_AS:
+        if 'biolink:predicate' in data and data['biolink:predicate'] == SAME_AS:
             # load all biolink:same_as edges to clique_graph
             clique_graph.add_node(u, **target_graph.nodes()[u])
             clique_graph.add_node(v, **target_graph.nodes()[v])
@@ -130,7 +130,7 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
     count = 0
     update_dict = {}
     for clique in cliques:
-        log.debug(f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}")
+        log.debug(f"Processing clique: {clique} with {[clique_graph.nodes()[x]['biolink:category'] if 'biolink:category' in clique_graph.nodes()[x] else None for x in clique]}")
         update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
         clique_category, clique_category_ancestors = get_clique_category(clique_graph, clique)
         log.debug(f"Clique category: {clique_category}")
@@ -141,8 +141,8 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
                 log.info(f"Removing invalid node {n} from clique graph; node marked to be excluded")
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
-            if data['category'][0] not in clique_category_ancestors:
-                log.info(f"Removing invalid node {n} from the clique graph; node category {data['category'][0]} not in CCA: {clique_category_ancestors}")
+            if data['biolink:category'][0] not in clique_category_ancestors:
+                log.info(f"Removing invalid node {n} from the clique graph; node category {data['biolink:category'][0]} not in CCA: {clique_category_ancestors}")
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
 
@@ -212,35 +212,35 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
                 continue
             log.info(f"Looking for in_edges for {node}")
             in_edges = target_graph.in_edges(node, keys=False, data=True)
-            filtered_in_edges = [x for x in in_edges if x[2]['predicate'] != SAME_AS]
-            equiv_in_edges = [x for x in in_edges if x[2]['predicate'] == SAME_AS]
+            filtered_in_edges = [x for x in in_edges if x[2]['biolink:predicate'] != SAME_AS]
+            equiv_in_edges = [x for x in in_edges if x[2]['biolink:predicate'] == SAME_AS]
             log.debug(f"Moving {len(in_edges)} in-edges from {node} to {leader}")
             for u, v, edge_data in filtered_in_edges:
-                key = generate_edge_key(u, edge_data['predicate'], v)
+                key = generate_edge_key(u, edge_data['biolink:predicate'], v)
                 target_graph.remove_edge(u, v, edge_key=key)
-                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
-                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
-                edge_data['object'] = leader
-                key = generate_edge_key(u, edge_data['predicate'], leader)
-                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
+                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['biolink:subject']
+                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['biolink:object']
+                edge_data['biolink:object'] = leader
+                key = generate_edge_key(u, edge_data['biolink:predicate'], leader)
+                if edge_data['biolink:subject'] == edge_data['biolink:object'] and edge_data['biolink:predicate'] == SUBCLASS_OF:
                     continue
-                target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
+                target_graph.add_edge(edge_data['biolink:subject'], edge_data['biolink:object'], key, **edge_data)
 
             log.info(f"Looking for out_edges for {node}")
             out_edges = target_graph.out_edges(node, keys=False, data=True)
-            filtered_out_edges = [x for x in out_edges if x[2]['predicate'] != SAME_AS]
-            equiv_out_edges = [x for x in out_edges if x[2]['predicate'] == SAME_AS]
+            filtered_out_edges = [x for x in out_edges if x[2]['biolink:predicate'] != SAME_AS]
+            equiv_out_edges = [x for x in out_edges if x[2]['biolink:predicate'] == SAME_AS]
             log.debug(f"Moving {len(out_edges)} out-edges from {node} to {leader}")
             for u, v, edge_data in filtered_out_edges:
-                key = generate_edge_key(u, edge_data['predicate'], v)
+                key = generate_edge_key(u, edge_data['biolink:predicate'], v)
                 target_graph.remove_edge(u, v, edge_key=key)
-                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
-                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
-                edge_data['subject'] = leader
-                key = generate_edge_key(leader, edge_data['predicate'], v)
-                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
+                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['biolink:subject']
+                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['biolink:object']
+                edge_data['biolink:subject'] = leader
+                key = generate_edge_key(leader, edge_data['biolink:predicate'], v)
+                if edge_data['biolink:subject'] == edge_data['biolink:object'] and edge_data['biolink:predicate'] == SUBCLASS_OF:
                     continue
-                target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
+                target_graph.add_edge(edge_data['biolink:subject'], edge_data['biolink:object'], key, **edge_data)
 
             log.debug(f"equiv out edges: {equiv_out_edges}")
             equivalent_identifiers = set()
@@ -264,7 +264,7 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
             leader_equivalent_identifiers.update(equivalent_identifiers)
 
         log.debug(f"setting same_as property to leader node with {leader_equivalent_identifiers}")
-        target_graph.set_node_attributes(target_graph, {leader: {'same_as': list(leader_equivalent_identifiers)}})
+        target_graph.set_node_attributes(target_graph, {leader: {'biolink:same_as': list(leader_equivalent_identifiers)}})
         log.debug(f"removing equivalent nodes of leader: {leader_equivalent_identifiers}")
         for n in leader_equivalent_identifiers:
             target_graph.remove_node(n)
@@ -302,8 +302,8 @@ def update_node_categories(target_graph: BaseGraph, clique_graph: nx.Graph, cliq
     for node in clique:
         # For each node in a clique, get its category property
         data = clique_graph.nodes()[node]
-        if 'category' in data:
-            categories = data['category']
+        if 'biolink:category' in data:
+            categories = data['biolink:category']
         else:
             categories = get_category_from_equivalence(target_graph, clique_graph, node, data)
 
@@ -317,7 +317,7 @@ def update_node_categories(target_graph: BaseGraph, clique_graph: nx.Graph, cliq
             if len(ancestors) > len(extended_categories):
                 extended_categories.extend(ancestors)
         log.debug(f"Extended categories: {extended_categories}")
-        clique_graph_update_dict: Dict = {'category': list(extended_categories)}
+        clique_graph_update_dict: Dict = {'biolink:category': list(extended_categories)}
         target_graph_update_dict: Dict = {}
 
         if invalid_biolink_categories:
@@ -356,7 +356,7 @@ def get_clique_category(clique_graph: nx.Graph, clique: List) -> Tuple[str, List
         A tuple of clique category and its ancestors
 
     """
-    l = [clique_graph.nodes()[x]['category'] for x in clique]
+    l = [clique_graph.nodes()[x]['biolink:category'] for x in clique]
     u = OrderedSet.union(*l)
     uo = sort_categories(u)
     log.debug(f"outcome of union (sorted): {uo}")
@@ -492,16 +492,16 @@ def get_category_from_equivalence(target_graph: BaseGraph, clique_graph: nx.Grap
     """
     category: List = []
     for u, v, data in clique_graph.edges(node, data=True):
-        if data['predicate'] == SAME_AS:
+        if data['biolink:predicate'] == SAME_AS:
             if u == node:
-                if 'category' in clique_graph.nodes()[v]:
-                    category = clique_graph.nodes()[v]['category']
+                if 'biolink:category' in clique_graph.nodes()[v]:
+                    category = clique_graph.nodes()[v]['biolink:category']
                     break
             elif v == node:
-                if 'category' in clique_graph.nodes()[u]:
-                    category = clique_graph.nodes()[u]['category']
+                if 'biolink:category' in clique_graph.nodes()[u]:
+                    category = clique_graph.nodes()[u]['biolink:category']
                     break
-            update = {node: {'category': category}}
+            update = {node: {'biolink:category': category}}
             nx.set_node_attributes(clique_graph, update)
     return category
 

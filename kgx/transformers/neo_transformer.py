@@ -5,7 +5,7 @@ from typing import Tuple, List, Dict, Union, Any, Iterator, Optional
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.transformer import Transformer
-from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis, generate_uuid
+from kgx.utils.kgx_utils import generate_edge_key, current_time_in_millis, generate_uuid, curiefy
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship, GraphDatabase
 from neo4jrestclient.query import CypherException
 
@@ -142,9 +142,10 @@ class NeoTransformer(Transformer):
             A node
 
         """
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in node.keys():
-            node['provided_by'] = self.graph_metadata['provided_by']
-        self.graph.add_node(node['id'], **node)
+        node = curiefy(node)
+        if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in node.keys():
+            node['biolink:provided_by'] = self.graph_metadata['provided_by']
+        self.graph.add_node(node['biolink:id'], **node)
 
     def load_edges(self, edges: List) -> None:
         """
@@ -176,23 +177,28 @@ class NeoTransformer(Transformer):
         edge = edge_record[1]
         object_node = edge_record[2]
 
-        if 'subject' not in edge:
-            edge['subject'] = subject_node['id']
-        if 'object' not in edge:
-            edge['object'] = object_node['id']
+        id_key = "biolink:id" if "biolink:id" in edge else "id"
+        subject_key = "biolink:subject" if "biolink:subject" in edge else "subject"
+        object_key = "biolink:object" if "biolink:object" in edge else "object"
+        if subject_key not in edge:
+            edge[subject_key] = subject_node[id_key]
+        if object_key not in edge:
+            edge[object_key] = object_node[id_key]
 
-        if not self.graph.has_node(subject_node['id']):
+        if not self.graph.has_node(subject_node[id_key]):
             self.load_node(subject_node)
 
-        if not self.graph.has_node(object_node['id']):
+        if not self.graph.has_node(object_node[id_key]):
             self.load_node(object_node)
 
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in edge.keys():
-            edge['provided_by'] = self.graph_metadata['provided_by']
-        if 'id' not in edge.keys():
-            edge['id'] = generate_uuid()
-        key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
-        self.graph.add_edge(subject_node['id'], object_node['id'], key, **edge)
+        edge = curiefy(edge)
+
+        if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in edge.keys():
+            edge['biolink:provided_by'] = self.graph_metadata['provided_by']
+        if 'biolink:id' not in edge.keys():
+            edge['biolink:id'] = generate_uuid()
+        key = generate_edge_key(subject_node[id_key], edge['biolink:predicate'], object_node[id_key])
+        self.graph.add_edge(subject_node[id_key], object_node[id_key], key, **edge)
 
     def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:
         """
@@ -261,10 +267,10 @@ class NeoTransformer(Transformer):
 
         if self.node_filters:
             qs = []
-            if 'category' in self.node_filters:
-                qs.append(f"({self.get_node_filter('category', 'n', ':', 'OR')})")
-            if 'provided_by' in self.node_filters:
-                qs.append(f"({self.get_node_filter('provided_by', 'n', '.', 'OR')})")
+            if 'biolink:category' in self.node_filters:
+                qs.append(f"({self.get_node_filter('biolink:category', 'n', ':', 'OR')})")
+            if 'biolink:provided_by' in self.node_filters:
+                qs.append(f"({self.get_node_filter('biolink:provided_by', 'n', '.', 'OR')})")
             query += ' WHERE '
             query += ' AND '.join(qs)
 
@@ -312,10 +318,10 @@ class NeoTransformer(Transformer):
                 qs.append(f"({self.get_edge_filter('subject_category', 's', ':', 'OR')})")
             if 'object_category' in self.edge_filters:
                 qs.append(f"({self.get_edge_filter('object_category', 'o', ':', 'OR')})")
-            if 'predicate' in self.edge_filters:
-                qs.append(f"({self.get_edge_filter('predicate', 'p', '.')})")
-            if 'provided_by' in self.edge_filters:
-                qs.append(f"({self.get_edge_filter('provided_by', 'p', '.', 'OR')})")
+            if 'biolink:predicate' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('biolink:predicate', 'p', '.')})")
+            if 'biolink:provided_by' in self.edge_filters:
+                qs.append(f"({self.get_edge_filter('biolink:provided_by', 'p', '.', 'OR')})")
             query += ' WHERE '
             query += ' AND '.join(qs)
         query += f" RETURN s, p, o SKIP {skip}"
@@ -390,7 +396,7 @@ class NeoTransformer(Transformer):
         """
         query = f"""
         UNWIND $nodes AS node
-        MERGE (n:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: node.id}})
+        MERGE (n:`{Transformer.DEFAULT_NODE_CATEGORY}` {{`biolink:id`: node.`biolink:id`}})
         ON CREATE SET n += node, n:{category}
         ON MATCH SET n += node, n:{category}
         """
@@ -412,7 +418,7 @@ class NeoTransformer(Transformer):
         log.info("Saving edges")
         for predicate in edges_by_edge_predicate.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.info(query)
+            log.debug(query)
             edges = edges_by_edge_predicate[predicate]
             time_start = current_time_in_millis()
             for x in range(0, len(edges), batch_size):
@@ -448,7 +454,7 @@ class NeoTransformer(Transformer):
 
         query = f"""
         UNWIND $edges AS edge
-        MATCH (s:`{NeoTransformer.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
+        MATCH (s:`{NeoTransformer.DEFAULT_NODE_CATEGORY}` {{`biolink:id`: edge.`biolink:subject`}}), (o:`{Transformer.DEFAULT_NODE_CATEGORY}` {{`biolink:id`: edge.`biolink:object`}})
         MERGE (s)-[r:`{edge_predicate}`]->(o)
         SET r += edge
         """
@@ -463,10 +469,10 @@ class NeoTransformer(Transformer):
         nodes_by_category = {}
 
         for n, node_data in self.graph.nodes(data=True):
-            if 'id' not in node_data:
-                node_data['id'] = n
+            if 'biolink:id' not in node_data:
+                node_data['biolink:id'] = n
             node_data = self.validate_node(node_data)
-            sanitized_category = self.sanitize_category(node_data['category'])
+            sanitized_category = self.sanitize_category(node_data['biolink:category'])
             category = self.CATEGORY_DELIMITER.join(sanitized_category)
             if category not in nodes_by_category:
                 nodes_by_category[category] = [node_data]
@@ -476,7 +482,7 @@ class NeoTransformer(Transformer):
         edges_by_edge_predicate: Dict[str, List] = {}
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             self.validate_edge(data)
-            edge_predicate = data['predicate']
+            edge_predicate = data['biolink:predicate']
             if edge_predicate in edges_by_edge_predicate:
                 edges_by_edge_predicate[edge_predicate].append(data)
             else:
@@ -558,19 +564,19 @@ class NeoTransformer(Transformer):
         value = ''
         if key in self.node_filters and self.node_filters[key]:
             if isinstance(self.node_filters[key], (list, set, tuple)):
-                if key in {'category'}:
+                if key in {'biolink:category'}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in self.node_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key in {'provided_by'}:
-                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in self.node_filters['provided_by']]
+                elif key in {'biolink:provided_by'}:
+                    formatted = [f"'{x}' IN {variable}{prefix}`{key}`" for x in self.node_filters['biolink:provided_by']]
                     value = f" {op} ".join(formatted)
                 else:
                     formatted = []
                     for v in self.node_filters[key]:
-                        formatted.append(f"{variable}{prefix}{key} = '{v}'")
+                        formatted.append(f"{variable}{prefix}`{key}` = '{v}'")
                     value = f" {op} ".join(formatted)
             elif isinstance(self.node_filters[key], str):
-                value = f"{variable}{prefix}{key} = '{self.node_filters[key]}'"
+                value = f"{variable}{prefix}`{key}` = '{self.node_filters[key]}'"
             else:
                 log.error(f"Unexpected {key} node filter of type {type(self.node_filters[key])}")
         return value
@@ -603,19 +609,19 @@ class NeoTransformer(Transformer):
                 if key in {'subject_category', 'object_category'}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in self.edge_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key == 'predicate':
-                    formatted = [f"'{x}'" for x in self.edge_filters['predicate']]
+                elif key == 'biolink:predicate':
+                    formatted = [f"'{x}'" for x in self.edge_filters['biolink:predicate']]
                     value = f"type({variable}) IN [{', '.join(formatted)}]"
-                elif key == 'provided_by':
-                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in self.edge_filters['provided_by']]
+                elif key == 'biolink:provided_by':
+                    formatted = [f"'{x}' IN {variable}{prefix}`{key}`" for x in self.edge_filters['biolink:provided_by']]
                     value = f" {op} ".join(formatted)
                 else:
                     formatted = []
                     for v in self.edge_filters[key]:
-                        formatted.append(f"{variable}{prefix}{key} = '{v}'")
+                        formatted.append(f"{variable}{prefix}`{key}` = '{v}'")
                     value = f" {op} ".join(formatted)
             elif isinstance(self.edge_filters[key], str):
-                value = f"{variable}{prefix}{key} = '{self.edge_filters[key]}'"
+                value = f"{variable}{prefix}`{key}` = '{self.edge_filters[key]}'"
             else:
                 log.error(f"Unexpected {key} edge filter of type {type(self.edge_filters[key])}")
         return value

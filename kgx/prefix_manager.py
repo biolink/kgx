@@ -172,6 +172,7 @@ class PrefixManager(object):
             return s.startswith('http') or s.startswith('https')
         else:
             return False
+
     @staticmethod
     @cached(LRUCache(maxsize=1024))
     def has_urlfragment(s: str) -> bool:

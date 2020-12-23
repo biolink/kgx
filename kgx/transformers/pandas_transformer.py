@@ -1,5 +1,7 @@
 import os
 import re
+from copy import deepcopy
+
 import pandas as pd
 import numpy as np
 import tarfile
@@ -7,7 +9,7 @@ from ordered_set import OrderedSet
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import generate_edge_key, generate_uuid
+from kgx.utils.kgx_utils import generate_edge_key, generate_uuid, curiefy, is_curie
 from kgx.transformers.transformer import Transformer
 
 from typing import List, Dict, Optional, Any, Set
@@ -15,14 +17,14 @@ from typing import List, Dict, Optional, Any, Set
 LIST_DELIMITER = '|'
 
 _column_types = {
-    'publications': list,
-    'qualifiers': list,
-    'category': list,
-    'synonym': list,
-    'provided_by': list,
-    'same_as': list,
-    'negated': bool,
-    'xrefs': list
+    'biolink:publications': list,
+    'biolink:qualifiers': list,
+    'biolink:category': list,
+    'biolink:synonym': list,
+    'biolink:provided_by': list,
+    'biolink:same_as': list,
+    'biolink:negated': bool,
+    'biolink:xref': list
 }
 
 _extension_types = {
@@ -197,15 +199,16 @@ class PandasTransformer(Transformer):
             A node
 
         """
-        if self.check_node_filter(node):
-            node = Transformer.validate_node(node)
-            kwargs = PandasTransformer._build_kwargs(node.copy())
-            if 'id' in kwargs:
-                n = kwargs['id']
-                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
-                    kwargs['provided_by'] = self.graph_metadata['provided_by']
-                self.graph.add_node(n, **kwargs)
-                self._node_properties.update(list(kwargs.keys()))
+        node_data = PandasTransformer._build_kwargs(node.copy())
+        node_data = curiefy(node_data)
+        if self.check_node_filter(node_data):
+            node_data = Transformer.validate_node(node_data)
+            if 'biolink:id' in node_data:
+                n = node_data['biolink:id']
+                if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in node_data.keys():
+                    node_data['biolink:provided_by'] = self.graph_metadata['provided_by']
+                self.graph.add_node(n, **node_data)
+                self._node_properties.update(list(node_data.keys()))
             else:
                 log.info("Ignoring node with no 'id': {}".format(node))
         else:
@@ -263,13 +266,13 @@ class PandasTransformer(Transformer):
                     return False
 
             # Check for subject and object filter
-            if self.graph.has_node(edge['subject']):
-                subject_node = self.graph.nodes()[edge['subject']]
+            if self.graph.has_node(edge['biolink:subject']):
+                subject_node = self.graph.nodes()[edge['biolink:subject']]
             else:
                 subject_node = None
 
-            if self.graph.has_node(edge['object']):
-                object_node = self.graph.nodes()[edge['object']]
+            if self.graph.has_node(edge['biolink:object']):
+                object_node = self.graph.nodes()[edge['biolink:object']]
             else:
                 object_node = None
 
@@ -277,7 +280,7 @@ class PandasTransformer(Transformer):
                 f = self.edge_filters['subject_category']
                 if subject_node:
                     # subject node exists in graph
-                    if any(x in subject_node['category'] for x in f):
+                    if any(x in subject_node['biolink:category'] for x in f):
                         pass_filter = True
                     else:
                         return False
@@ -289,7 +292,7 @@ class PandasTransformer(Transformer):
                 f = self.edge_filters['object_category']
                 if object_node:
                     # object node exists in graph
-                    if any(x in object_node['category'] for x in f):
+                    if any(x in object_node['biolink:category'] for x in f):
                         pass_filter = True
                     else:
                         return False
@@ -311,21 +314,22 @@ class PandasTransformer(Transformer):
             An edge
 
         """
-        if self.check_edge_filter(edge):
-            edge = Transformer.validate_edge(edge)
-            kwargs = PandasTransformer._build_kwargs(edge.copy())
-            if 'subject' in kwargs and 'object' in kwargs:
-                if 'id' not in kwargs:
-                    kwargs['id'] = generate_uuid()
-                s = kwargs['subject']
-                o = kwargs['object']
-                if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
-                    kwargs['provided_by'] = self.graph_metadata['provided_by']
-                key = generate_edge_key(s, kwargs['predicate'], o)
-                self.graph.add_edge(s, o, key, **kwargs)
-                self._edge_properties.update(list(kwargs.keys()))
+        edge_data = PandasTransformer._build_kwargs(edge.copy())
+        edge_data = curiefy(edge_data)
+        if self.check_edge_filter(edge_data):
+            edge_data = Transformer.validate_edge(edge_data)
+            if 'biolink:subject' in edge_data and 'biolink:object' in edge_data:
+                if 'biolink:id' not in edge_data:
+                    edge_data['biolink:id'] = generate_uuid()
+                s = edge_data['biolink:subject']
+                o = edge_data['biolink:object']
+                if 'provided_by' in self.graph_metadata and 'biolink:provided_by' not in edge_data.keys():
+                    edge_data['biolink:provided_by'] = self.graph_metadata['provided_by']
+                key = generate_edge_key(s, edge_data['biolink:predicate'], o)
+                self.graph.add_edge(s, o, key, **edge_data)
+                self._edge_properties.update(list(edge_data.keys()))
             else:
-                log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+                log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(edge))
         else:
             log.debug(f"Edge fails edge filters: {edge}")
 
@@ -377,8 +381,8 @@ class PandasTransformer(Transformer):
         for s, o, data in self.graph.edges(data=True):
             data = self.validate_edge(data)
             row = PandasTransformer._build_export_row(data)
-            row['subject'] = s
-            row['object'] = o
+            row['biolink:subject'] = s
+            row['biolink:object'] = o
             values = []
             for c in ordered_edge_columns:
                 if c in row:
@@ -467,20 +471,23 @@ class PandasTransformer(Transformer):
         ordered_node_columns = PandasTransformer._order_node_columns(self._node_properties)
         header = []
         for x in ordered_node_columns:
-            if x == 'id':
+            if x == 'biolink:id':
                 header.append(f"{x}:ID")
-            elif x == 'category':
+            elif x == 'biolink:category':
                 header.append(f"{x}:LABEL")
-            elif x in _column_types and _column_types[x] == list:
+            elif f"biolink:{x}" in _column_types and _column_types[x] == list:
+                # TODO: need to get reference!
+                #  Also need to support other properties that are not defined in _column_types
                 header.append(f"{x}:string[]")
             else:
+                # TODO: need to get reference!
                 header.append(x)
 
         FH = open(filename, 'w')
         FH.write(delimiter.join(header) + '\n')
         for n, data in self.graph.nodes(data=True):
             row = PandasTransformer._build_export_row(data)
-            row['id'] = n
+            row['biolink:id'] = n
             values = []
             for c in ordered_node_columns:
                 if c in row:
@@ -507,15 +514,17 @@ class PandasTransformer(Transformer):
         ordered_edge_columns = PandasTransformer._order_edge_columns(self._edge_properties)
         header = []
         for x in ordered_edge_columns:
-            if x == 'subject':
+            if x == 'biolink:subject':
                 header.append(f"{x}:START_ID")
-            elif x == 'object':
+            elif x == 'biolink:object':
                 header.append(f"{x}:END_ID")
-            elif x == 'predicate':
+            elif x == 'biolink:predicate':
                 header.append(f"{x}:TYPE")
-            elif x in _column_types and _column_types[x] == list:
+            elif f"biolink:{x}" in _column_types and _column_types[x] == list:
+                # TODO: need to get reference!
                 header.append(f"{x}:string[]")
             else:
+                # TODO: need to get reference!
                 header.append(x)
 
         FH = open(filename, 'w')
@@ -523,8 +532,8 @@ class PandasTransformer(Transformer):
         for s, o, data in self.graph.edges(data=True):
             data = self.validate_edge(data)
             row = PandasTransformer._build_export_row(data)
-            row['subject'] = s
-            row['object'] = o
+            row['biolink:subject'] = s
+            row['biolink:object'] = o
             values = []
             for c in ordered_edge_columns:
                 if c in row:
@@ -597,7 +606,7 @@ class PandasTransformer(Transformer):
 
         """
         node_columns = cols.copy()
-        core_columns = OrderedSet(['id', 'name', 'category', 'description', 'xref', 'provided_by', 'synonym'])
+        core_columns = OrderedSet(['biolink:id', 'biolink:name', 'biolink:category', 'biolink:description', 'biolink:xref', 'biolink:provided_by', 'biolink:synonym'])
         ordered_columns = OrderedSet()
         for c in core_columns:
             if c in node_columns:
@@ -630,7 +639,7 @@ class PandasTransformer(Transformer):
 
         """
         edge_columns = cols.copy()
-        core_columns = OrderedSet(['id', 'subject', 'predicate', 'object', 'relation', 'provided_by'])
+        core_columns = OrderedSet(['biolink:id', 'biolink:subject', 'biolink:predicate', 'biolink:object', 'biolink:relation', 'biolink:provided_by'])
         ordered_columns = OrderedSet()
         for c in core_columns:
             if c in edge_columns:
@@ -756,8 +765,9 @@ class PandasTransformer(Transformer):
 
         """
         new_value: Any
-        if key in _column_types:
-            if _column_types[key] == list:
+        key_curie = f"{key}" if key.startswith("biolink:") else f"biolink:{key}"
+        if key_curie in _column_types:
+            if _column_types[key_curie] == list:
                 if isinstance(value, (list, set, tuple)):
                     value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
                     new_value = list(value)
@@ -766,7 +776,7 @@ class PandasTransformer(Transformer):
                     new_value = [x for x in value.split(LIST_DELIMITER) if x]
                 else:
                     new_value = [str(value).replace('\n', ' ').replace('\t', ' ')]
-            elif _column_types[key] == bool:
+            elif _column_types[key_curie] == bool:
                 try:
                     new_value = bool(value)
                 except:

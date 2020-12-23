@@ -98,10 +98,10 @@ def summarize_nodes(graph: BaseGraph, facet_properties: Optional[List] = None) -
             stats[facet_property] = set()
 
     for n, data in graph.nodes(data=True):
-        if 'category' not in data:
+        if 'biolink:category' not in data:
             stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
             continue
-        categories = data['category']
+        categories = data['biolink:category']
         stats[NODE_CATEGORIES].update(categories)
         for category in categories:
             if category in stats[COUNT_BY_CATEGORY]:
@@ -150,11 +150,11 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
             stats[facet_property] = set()
 
     for u, v, k, data in graph.edges(keys=True, data=True):
-        if 'predicate' not in data:
+        if 'biolink:predicate' not in data:
             stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] += 1
             edge_predicate = "unknown"
         else:
-            edge_predicate = data['predicate']
+            edge_predicate = data['biolink:predicate']
             stats[EDGE_PREDICATES].add(edge_predicate)
             if edge_predicate in stats[COUNT_BY_EDGE_PREDICATES]:
                 stats[COUNT_BY_EDGE_PREDICATES][edge_predicate]['count'] += 1
@@ -168,13 +168,13 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
         u_data = graph.nodes()[u]
         v_data = graph.nodes()[v]
 
-        if 'category' in u_data:
-            u_category = u_data['category'][0]
+        if 'biolink:category' in u_data:
+            u_category = u_data['biolink:category'][0]
         else:
             u_category = "unknown"
 
-        if 'category' in v_data:
-            v_category = v_data['category'][0]
+        if 'biolink:category' in v_data:
+            v_category = v_data['biolink:category'][0]
         else:
             v_category = "unknown"
 

@@ -8,7 +8,7 @@ from kgx.prefix_manager import PrefixManager
 from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict, Any, Optional
 
-from kgx.utils.kgx_utils import get_toolkit, get_biolink_element, format_biolink_slots
+from kgx.utils.kgx_utils import get_toolkit, get_biolink_element, format_biolink_slots, curiefy
 
 log = get_logger()
 

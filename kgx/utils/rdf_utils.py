@@ -21,21 +21,21 @@ reverse_property_mapping: OrderedDict = OrderedDict()
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
-    'id': False,
-    'subject': False,
-    'object': False,
-    'predicate': False,
-    'description': False,
-    'synonym': True,
-    'in_taxon': False,
-    'same_as': True,
-    'name': False,
-    'has_evidence': False,
-    'provided_by': True,
-    'category': True,
-    'publications': True,
-    'type': False,
-    'relation': False
+    'biolink:id': False,
+    'biolink:subject': False,
+    'biolink:object': False,
+    'biolink:predicate': False,
+    'biolink:description': False,
+    'biolink:synonym': True,
+    'biolink:in_taxon': False,
+    'biolink:same_as': True,
+    'biolink:name': False,
+    'biolink:has_evidence': False,
+    'biolink:provided_by': True,
+    'biolink:category': True,
+    'biolink:publications': True,
+    'biolink:type': False,
+    'biolink:relation': False
 }
 
 
