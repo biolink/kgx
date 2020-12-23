@@ -41,13 +41,13 @@ def test_clique_merge():
     assert len(leader_list) == 2
     n1 = updated_graph.nodes()[leader_list[0]]
     assert n1['election_strategy'] == 'PREFIX_PRIORITIZATION'
-    assert 'NCBIGene:100302240' in n1['same_as']
-    assert 'ENSEMBL:ENSG00000284458' in n1['same_as']
+    assert 'NCBIGene:100302240' in n1['biolink:same_as']
+    assert 'ENSEMBL:ENSG00000284458' in n1['biolink:same_as']
     n2 = updated_graph.nodes()[leader_list[1]]
     assert n2['election_strategy'] == 'PREFIX_PRIORITIZATION'
-    assert 'NCBIGene:8202' in n2['same_as']
-    assert 'OMIM:601937' in n2['same_as']
-    assert 'ENSEMBL:ENSG00000124151' not in n2['same_as']
+    assert 'NCBIGene:8202' in n2['biolink:same_as']
+    assert 'OMIM:601937' in n2['biolink:same_as']
+    assert 'ENSEMBL:ENSG00000124151' not in n2['biolink:same_as']
 
 
 def test_clique_merge_edge_consolidation():
@@ -67,14 +67,14 @@ def test_clique_merge_edge_consolidation():
 
     n1 = updated_graph.nodes()[leader_list[0]]
     assert n1['election_strategy'] == 'LEADER_ANNOTATION'
-    assert 'NCBIGene:100302240' in n1['same_as']
-    assert 'ENSEMBL:ENSG00000284458' in n1['same_as']
+    assert 'NCBIGene:100302240' in n1['biolink:same_as']
+    assert 'ENSEMBL:ENSG00000284458' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()[leader_list[1]]
     assert n2['election_strategy'] == 'LEADER_ANNOTATION'
-    assert 'NCBIGene:8202' in n2['same_as']
-    assert 'OMIM:601937' in n2['same_as']
-    assert 'ENSEMBL:ENSG00000124151' not in n2['same_as']
+    assert 'NCBIGene:8202' in n2['biolink:same_as']
+    assert 'OMIM:601937' in n2['biolink:same_as']
+    assert 'ENSEMBL:ENSG00000124151' not in n2['biolink:same_as']
 
     e1_incoming = updated_graph.in_edges('HGNC:7670', data=True)
     assert len(e1_incoming) == 3

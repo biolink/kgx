@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from kgx import PandasTransformer
+from tests import print_graph
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 resource_dir = os.path.join(cwd, '../resources')
@@ -18,8 +19,8 @@ def test_load_csv():
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    assert t.graph.nodes()['CURIE:123']['description'] == 'Node of type Gene, CURIE:123'
-    assert t.graph.nodes()['CURIE:456']['description'] == 'Node of type Disease, CURIE:456'
+    assert t.graph.nodes()['CURIE:123']['biolink:description'] == 'Node of type Gene, CURIE:123'
+    assert t.graph.nodes()['CURIE:456']['biolink:description'] == 'Node of type Disease, CURIE:456'
 
 def test_load_tsv():
     t = PandasTransformer()
@@ -29,8 +30,8 @@ def test_load_tsv():
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    assert t.graph.nodes()['CURIE:123']['description'] == '"Node of type Gene, CURIE:123"'
-    assert t.graph.nodes()['CURIE:456']['description'] == '"Node of type Disease, CURIE:456"'
+    assert t.graph.nodes()['CURIE:123']['biolink:description'] == '"Node of type Gene, CURIE:123"'
+    assert t.graph.nodes()['CURIE:456']['biolink:description'] == '"Node of type Disease, CURIE:456"'
 
 
 @pytest.mark.parametrize('query', [
@@ -71,10 +72,10 @@ def test_load_compressed(query):
 
 
 @pytest.mark.parametrize('query', [
-    ({'id': 'A', 'name': 'Node A'}, {'id': 'A', 'name': 'Node A'}),
-    ({'id': 'A', 'name': 'Node A', 'description': None}, {'id': 'A', 'name': 'Node A'}),
-    ({'id': 'A', 'name': 'Node A', 'description': None, 'publications': 'PMID:1234|PMID:1456|PMID:3466'}, {'id': 'A', 'name': 'Node A', 'publications': ['PMID:1234', 'PMID:1456', 'PMID:3466']}),
-    ({'id': 'A', 'name': 'Node A', 'description': None, 'property': [pd.NA, 123, 'ABC']}, {'id': 'A', 'name': 'Node A', 'property': [123, 'ABC']})
+    ({'biolink:id': 'A', 'biolink:name': 'Node A'}, {'biolink:id': 'A', 'biolink:name': 'Node A'}),
+    ({'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:description': None}, {'biolink:id': 'A', 'biolink:name': 'Node A'}),
+    ({'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:description': None, 'biolink:publications': 'PMID:1234|PMID:1456|PMID:3466'}, {'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:publications': ['PMID:1234', 'PMID:1456', 'PMID:3466']}),
+    ({'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:description': None, 'biolink:property': [pd.NA, 123, 'ABC']}, {'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:property': [123, 'ABC']})
 ])
 def test_build_kwargs(query):
     d = PandasTransformer._build_kwargs(query[0])
@@ -84,8 +85,8 @@ def test_build_kwargs(query):
 
 
 @pytest.mark.parametrize('query', [
-    ({'id': 'A', 'name': 'Node A', 'category': ['biolink:NamedThing', 'biolink:Gene']}, {'id': 'A', 'name': 'Node A', 'category': 'biolink:NamedThing|biolink:Gene'}),
-    ({'id': 'A', 'name': 'Node A', 'category': ['biolink:NamedThing', 'biolink:Gene'], 'xrefs': [np.nan, 'UniProtKB:123', None, 'NCBIGene:456']}, {'id': 'A', 'name': 'Node A', 'category': 'biolink:NamedThing|biolink:Gene', 'xrefs': 'UniProtKB:123|NCBIGene:456'})
+    ({'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:category': ['biolink:NamedThing', 'biolink:Gene']}, {'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:category': 'biolink:NamedThing|biolink:Gene'}),
+    ({'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:category': ['biolink:NamedThing', 'biolink:Gene'], 'biolink:xref': [np.nan, 'UniProtKB:123', None, 'NCBIGene:456']}, {'biolink:id': 'A', 'biolink:name': 'Node A', 'biolink:category': 'biolink:NamedThing|biolink:Gene', 'biolink:xref': 'UniProtKB:123|NCBIGene:456'})
 ])
 def test_build_export_row(query):
     d = PandasTransformer._build_export_row(query[0])
@@ -95,17 +96,17 @@ def test_build_export_row(query):
 
 
 @pytest.mark.parametrize('query', [
-    (('category', 'biolink:Gene'), ['biolink:Gene']),
-    (('publications', 'PMID:123|PMID:456|PMID:789'), ['PMID:123', 'PMID:456', 'PMID:789']),
-    (('negated', 'True'), True),
-    (('negated', True), True),
-    (('negated', True), True),
-    (('xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
-    (('xref', 'a|b|c'), ['a', 'b', 'c']),
+    (('biolink:category', 'biolink:Gene'), ['biolink:Gene']),
+    (('biolink:publications', 'PMID:123|PMID:456|PMID:789'), ['PMID:123', 'PMID:456', 'PMID:789']),
+    (('biolink:negated', 'True'), True),
+    (('biolink:negated', True), True),
+    (('biolink:negated', True), True),
+    (('biolink:xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
+    (('biolink:xref', 'a|b|c'), ['a', 'b', 'c']),
     (('valid', 'True'), 'True'),
     (('valid', True), True),
     (('alias', 'xyz'), 'xyz'),
-    (('description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
+    (('biolink:description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
 ])
 def test_sanitize_import(query):
     value = PandasTransformer._sanitize_import(query[0][0], query[0][1])
@@ -121,17 +122,17 @@ def test_sanitize_import(query):
 
 
 @pytest.mark.parametrize('query', [
-    (('category', 'biolink:Gene'), ['biolink:Gene']),
-    (('publications', ['PMID:123', 'PMID:456', 'PMID:789']), 'PMID:123|PMID:456|PMID:789'),
-    (('negated', 'True'), True),
-    (('negated', True), True),
-    (('negated', True), True),
-    (('xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
-    (('xref', ['a', 'b', 'c']), 'a|b|c'),
+    (('biolink:category', 'biolink:Gene'), ['biolink:Gene']),
+    (('biolink:publications', ['PMID:123', 'PMID:456', 'PMID:789']), 'PMID:123|PMID:456|PMID:789'),
+    (('biolink:negated', 'True'), True),
+    (('biolink:negated', True), True),
+    (('biolink:negated', True), True),
+    (('biolink:xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
+    (('biolink:xref', ['a', 'b', 'c']), 'a|b|c'),
     (('valid', 'True'), 'True'),
     (('valid', True), True),
     (('alias', 'xyz'), 'xyz'),
-    (('description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
+    (('biolink:description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
 ])
 def test_sanitize_export(query):
     value = PandasTransformer._sanitize_export(query[0][0], query[0][1])

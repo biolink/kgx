@@ -28,22 +28,22 @@ def test_parse1():
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes()['HP:0000505']
-    assert len(n1['category']) == 1
-    assert 'biolink:NamedThing' in n1['category']
+    assert len(n1['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1['biolink:category']
 
     e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1['subject'] == 'OMIM:166400'
-    assert e1['object'] == 'HP:0000006'
-    assert e1['relation'] == 'RO:0000091'
-    assert e1['type'] == 'OBAN:association'
-    assert e1['has_evidence'] == 'ECO:0000501'
+    assert e1['biolink:subject'] == 'OMIM:166400'
+    assert e1['biolink:object'] == 'HP:0000006'
+    assert e1['biolink:relation'] == 'RO:0000091'
+    assert e1['biolink:type'] == 'OBAN:association'
+    assert e1['biolink:has_evidence'] == 'ECO:0000501'
 
     e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2['subject'] == 'ORPHA:93262'
-    assert e2['object'] == 'HP:0000505'
-    assert e2['relation'] == 'RO:0002200'
-    assert e2['type'] == 'OBAN:association'
-    assert e2['frequencyOfPhenotype'] == 'HP:0040283'
+    assert e2['biolink:subject'] == 'ORPHA:93262'
+    assert e2['biolink:object'] == 'HP:0000505'
+    assert e2['biolink:relation'] == 'RO:0002200'
+    assert e2['biolink:type'] == 'OBAN:association'
+    assert e2['MONARCH:frequencyOfPhenotype'] == 'HP:0040283'
 
 def test_parse2():
     np = {
@@ -52,8 +52,7 @@ def test_parse2():
         'https://monarchinitiative.org/frequencyOfPhenotype'
     }
     predicate_mapping = {
-        # 'http://purl.org/dc/elements/1.1/source': 'dc_source',
-        'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype': ':frequency_of_phenotype'
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_predicate_mapping(predicate_mapping)
@@ -63,23 +62,23 @@ def test_parse2():
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes()['HP:0000505']
-    assert len(n1['category']) == 1
-    assert 'biolink:NamedThing' in n1['category']
+    assert len(n1['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1['biolink:category']
 
     e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1['subject'] == 'OMIM:166400'
-    assert e1['object'] == 'HP:0000006'
-    assert e1['relation'] == 'RO:0000091'
-    assert e1['type'] == 'OBAN:association'
-    assert e1['has_evidence'] == 'ECO:0000501'
+    assert e1['biolink:subject'] == 'OMIM:166400'
+    assert e1['biolink:object'] == 'HP:0000006'
+    assert e1['biolink:relation'] == 'RO:0000091'
+    assert e1['biolink:type'] == 'OBAN:association'
+    assert e1['biolink:has_evidence'] == 'ECO:0000501'
     # assert e1['dc_source'] == 'OMIM:166400'
 
     e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2['subject'] == 'ORPHA:93262'
-    assert e2['object'] == 'HP:0000505'
-    assert e2['relation'] == 'RO:0002200'
-    assert e2['type'] == 'OBAN:association'
-    assert e2['frequency_of_phenotype'] == 'HP:0040283'
+    assert e2['biolink:subject'] == 'ORPHA:93262'
+    assert e2['biolink:object'] == 'HP:0000505'
+    assert e2['biolink:relation'] == 'RO:0002200'
+    assert e2['biolink:type'] == 'OBAN:association'
+    assert e2[':frequency_of_phenotype'] == 'HP:0040283'
     # assert e2['dc_source'] == 'ORPHA:93262'
 
 def test_save1():
@@ -95,22 +94,22 @@ def test_save1():
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes()['HP:0000505']
-    assert len(n1['category']) == 1
-    assert 'biolink:NamedThing' in n1['category']
+    assert len(n1['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1['biolink:category']
 
     e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1['subject'] == 'OMIM:166400'
-    assert e1['object'] == 'HP:0000006'
-    assert e1['relation'] == 'RO:0000091'
-    assert e1['type'] == 'OBAN:association'
-    assert e1['has_evidence'] == 'ECO:0000501'
+    assert e1['biolink:subject'] == 'OMIM:166400'
+    assert e1['biolink:object'] == 'HP:0000006'
+    assert e1['biolink:relation'] == 'RO:0000091'
+    assert e1['biolink:type'] == 'OBAN:association'
+    assert e1['biolink:has_evidence'] == 'ECO:0000501'
 
     e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2['subject'] == 'ORPHA:93262'
-    assert e2['object'] == 'HP:0000505'
-    assert e2['relation'] == 'RO:0002200'
-    assert e2['type'] == 'OBAN:association'
-    assert e2['frequencyOfPhenotype'] == 'HP:0040283'
+    assert e2['biolink:subject'] == 'ORPHA:93262'
+    assert e2['biolink:object'] == 'HP:0000505'
+    assert e2['biolink:relation'] == 'RO:0002200'
+    assert e2['biolink:type'] == 'OBAN:association'
+    assert e2['MONARCH:frequencyOfPhenotype'] == 'HP:0040283'
 
     t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
     t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
@@ -133,8 +132,7 @@ def test_save2():
         'https://monarchinitiative.org/frequencyOfPhenotype'
     }
     predicate_mapping = {
-        'http://purl.org/dc/elements/1.1/source': 'source',
-        'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype': ':frequency_of_phenotype'
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_predicate_mapping(predicate_mapping)
@@ -144,26 +142,26 @@ def test_save2():
     assert t1.graph.number_of_edges() == 7
 
     n1t1 = t1.graph.nodes()['HP:0000505']
-    assert len(n1t1['category']) == 1
-    assert 'biolink:NamedThing' in n1t1['category']
+    assert len(n1t1['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1t1['biolink:category']
 
     e1t1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1t1['subject'] == 'OMIM:166400'
-    assert e1t1['object'] == 'HP:0000006'
-    assert e1t1['relation'] == 'RO:0000091'
-    assert e1t1['type'] == 'OBAN:association'
-    assert e1t1['has_evidence'] == 'ECO:0000501'
-    assert e1t1['source'] == 'OMIM:166400'
+    assert e1t1['biolink:subject'] == 'OMIM:166400'
+    assert e1t1['biolink:object'] == 'HP:0000006'
+    assert e1t1['biolink:relation'] == 'RO:0000091'
+    assert e1t1['biolink:type'] == 'OBAN:association'
+    assert e1t1['biolink:has_evidence'] == 'ECO:0000501'
+    assert e1t1['biolink:source'] == 'OMIM:166400'
 
     e2t1 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2t1['subject'] == 'ORPHA:93262'
-    assert e2t1['object'] == 'HP:0000505'
-    assert e2t1['relation'] == 'RO:0002200'
-    assert e2t1['type'] == 'OBAN:association'
-    assert e2t1['frequency_of_phenotype'] == 'HP:0040283'
-    assert e2t1['source'] == 'ORPHA:93262'
+    assert e2t1['biolink:subject'] == 'ORPHA:93262'
+    assert e2t1['biolink:object'] == 'HP:0000505'
+    assert e2t1['biolink:relation'] == 'RO:0002200'
+    assert e2t1['biolink:type'] == 'OBAN:association'
+    assert e2t1[':frequency_of_phenotype'] == 'HP:0040283'
+    assert e2t1['biolink:source'] == 'ORPHA:93262'
 
-    t1.set_property_types({'frequency_of_phenotype': 'uriorcurie', 'source': 'uriorcurie'})
+    t1.set_property_types({':frequency_of_phenotype': 'uriorcurie', 'source': 'uriorcurie'})
     t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
     t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
 
@@ -175,24 +173,24 @@ def test_save2():
     assert t2.graph.number_of_edges() == 7
 
     n1t2 = t2.graph.nodes()['HP:0000505']
-    assert len(n1t2['category']) == 1
-    assert 'biolink:NamedThing' in n1t2['category']
-
+    assert len(n1t2['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1t2['biolink:category']
+    print(list(t2.graph.get_edge('OMIM:166400', 'HP:0000006').values()))
     e1t2 = list(t2.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1t2['subject'] == 'OMIM:166400'
-    assert e1t2['object'] == 'HP:0000006'
-    assert e1t2['relation'] == 'RO:0000091'
-    assert e1t2['type'] == 'biolink:Association'
-    assert e1t2['has_evidence'] == 'ECO:0000501'
-    assert e1t2['source'] == 'OMIM:166400'
+    assert e1t2['biolink:subject'] == 'OMIM:166400'
+    assert e1t2['biolink:object'] == 'HP:0000006'
+    assert e1t2['biolink:relation'] == 'RO:0000091'
+    assert 'biolink:Association' in e1t2['biolink:category']
+    assert e1t2['biolink:has_evidence'] == 'ECO:0000501'
+    assert e1t2['biolink:source'] == 'OMIM:166400'
 
     e2t2 = list(t2.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2t2['subject'] == 'ORPHA:93262'
-    assert e2t2['object'] == 'HP:0000505'
-    assert e2t2['relation'] == 'RO:0002200'
-    assert e2t2['type'] == 'biolink:Association'
-    assert e2t2['frequency_of_phenotype'] == 'HP:0040283'
-    assert e2t2['source'] == 'ORPHA:93262'
+    assert e2t2['biolink:subject'] == 'ORPHA:93262'
+    assert e2t2['biolink:object'] == 'HP:0000505'
+    assert e2t2['biolink:relation'] == 'RO:0002200'
+    assert 'biolink:Association' in e2t2['biolink:category']
+    assert e2t2[':frequency_of_phenotype'] == 'HP:0040283'
+    assert e2t2['biolink:source'] == 'ORPHA:93262'
 
     t3 = ObanRdfTransformer(curie_map=cmap)
     t3.set_predicate_mapping(predicate_mapping)
@@ -201,24 +199,24 @@ def test_save2():
     assert t3.graph.number_of_edges() == 7
 
     n1t3 = t1.graph.nodes()['HP:0000505']
-    assert len(n1t3['category']) == 1
-    assert 'biolink:NamedThing' in n1t3['category']
+    assert len(n1t3['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1t3['biolink:category']
 
     e1t3 = list(t3.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1t3['subject'] == 'OMIM:166400'
-    assert e1t3['object'] == 'HP:0000006'
-    assert e1t3['relation'] == 'RO:0000091'
-    assert e1t3['type'] == 'biolink:Association'
-    assert e1t3['has_evidence'] == 'ECO:0000501'
-    assert e1t3['source'] == 'OMIM:166400'
+    assert e1t3['biolink:subject'] == 'OMIM:166400'
+    assert e1t3['biolink:object'] == 'HP:0000006'
+    assert e1t3['biolink:relation'] == 'RO:0000091'
+    assert 'biolink:Association' in e1t3['biolink:category']
+    assert e1t3['biolink:has_evidence'] == 'ECO:0000501'
+    assert e1t3['biolink:source'] == 'OMIM:166400'
 
     e2t3 = list(t3.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2t3['subject'] == 'ORPHA:93262'
-    assert e2t3['object'] == 'HP:0000505'
-    assert e2t3['relation'] == 'RO:0002200'
-    assert e2t3['type'] == 'biolink:Association'
-    assert e2t3['frequency_of_phenotype'] == 'HP:0040283'
-    assert e2t3['source'] == 'ORPHA:93262'
+    assert e2t3['biolink:subject'] == 'ORPHA:93262'
+    assert e2t3['biolink:object'] == 'HP:0000505'
+    assert e2t3['biolink:relation'] == 'RO:0002200'
+    assert 'biolink:Association' in e2t3['biolink:category']
+    assert e2t3[':frequency_of_phenotype'] == 'HP:0040283'
+    assert e2t3['biolink:source'] == 'ORPHA:93262'
 
 
 def test_save3():
@@ -228,8 +226,7 @@ def test_save3():
         'https://monarchinitiative.org/frequencyOfPhenotype'
     }
     predicate_mapping = {
-        # 'http://purl.org/dc/elements/1.1/source': 'dc_source',
-        'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype': ':frequency_of_phenotype'
     }
     prop_types = {
         'http://purl.obolibrary.org/obo/RO_0002558': 'uriorcurie',
@@ -244,23 +241,23 @@ def test_save3():
     assert t1.graph.number_of_edges() == 7
 
     n1 = t1.graph.nodes()['HP:0000505']
-    assert len(n1['category']) == 1
-    assert 'biolink:NamedThing' in n1['category']
+    assert len(n1['biolink:category']) == 1
+    assert 'biolink:NamedThing' in n1['biolink:category']
 
     e1 = list(t1.graph.get_edge('OMIM:166400', 'HP:0000006').values())[0]
-    assert e1['subject'] == 'OMIM:166400'
-    assert e1['object'] == 'HP:0000006'
-    assert e1['relation'] == 'RO:0000091'
-    assert e1['type'] == 'OBAN:association'
-    assert e1['has_evidence'] == 'ECO:0000501'
+    assert e1['biolink:subject'] == 'OMIM:166400'
+    assert e1['biolink:object'] == 'HP:0000006'
+    assert e1['biolink:relation'] == 'RO:0000091'
+    assert e1['biolink:type'] == 'OBAN:association'
+    assert e1['biolink:has_evidence'] == 'ECO:0000501'
     # assert e1['dc_source'] == 'OMIM:166400'
 
     e2 = list(t1.graph.get_edge('ORPHA:93262', 'HP:0000505').values())[0]
-    assert e2['subject'] == 'ORPHA:93262'
-    assert e2['object'] == 'HP:0000505'
-    assert e2['relation'] == 'RO:0002200'
-    assert e2['type'] == 'OBAN:association'
-    assert e2['frequency_of_phenotype'] == 'HP:0040283'
+    assert e2['biolink:subject'] == 'ORPHA:93262'
+    assert e2['biolink:object'] == 'HP:0000505'
+    assert e2['biolink:relation'] == 'RO:0002200'
+    assert e2['biolink:type'] == 'OBAN:association'
+    assert e2[':frequency_of_phenotype'] == 'HP:0040283'
     # assert e2['dc_source'] == 'ORPHA:93262'
 
     t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')

@@ -13,8 +13,8 @@ def test_load():
     jt = JsonTransformer()
     jt.parse(json_file)
     edge_list = list(jt.graph.edges(data=True))
-    assert edge_list[0][-1]['subject'] == 'UMLS:C0948075'
-    assert edge_list[0][-1]['object'] == 'UMLS:C1290952'
+    assert edge_list[0][-1]['biolink:subject'] == 'UMLS:C0948075'
+    assert edge_list[0][-1]['biolink:object'] == 'UMLS:C1290952'
 
 def test_export():
     """

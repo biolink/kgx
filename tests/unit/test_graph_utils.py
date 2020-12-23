@@ -6,19 +6,19 @@ from kgx.utils.graph_utils import get_parents, get_ancestors, curie_lookup
 
 def get_graph():
     graph = NxGraph()
-    graph.add_edge('B', 'A', **{'predicate': 'biolink:sub_class_of'})
-    graph.add_edge('C', 'B', **{'predicate': 'biolink:sub_class_of'})
-    graph.add_edge('D', 'C', **{'predicate': 'biolink:sub_class_of'})
-    graph.add_edge('D', 'A', **{'predicate': 'biolink:related_to'})
-    graph.add_edge('E', 'D', **{'predicate': 'biolink:sub_class_of'})
-    graph.add_edge('F', 'D', **{'predicate': 'biolink:sub_class_of'})
+    graph.add_edge('B', 'A', **{'biolink:predicate': 'biolink:subclass_of'})
+    graph.add_edge('C', 'B', **{'biolink:predicate': 'biolink:subclass_of'})
+    graph.add_edge('D', 'C', **{'biolink:predicate': 'biolink:subclass_of'})
+    graph.add_edge('D', 'A', **{'biolink:predicate': 'biolink:related_to'})
+    graph.add_edge('E', 'D', **{'biolink:predicate': 'biolink:subclass_of'})
+    graph.add_edge('F', 'D', **{'biolink:predicate': 'biolink:subclass_of'})
     return graph
 
 
 def test_get_parents():
     query = ('E', ['D'])
     graph = get_graph()
-    parents = get_parents(graph, query[0], relations=['biolink:sub_class_of'])
+    parents = get_parents(graph, query[0], relations=['biolink:subclass_of'])
     assert len(parents) == len(query[1])
     assert parents == query[1]
 
@@ -26,7 +26,7 @@ def test_get_parents():
 def test_get_ancestors():
     query = ('E', ['D', 'C', 'B', 'A'])
     graph = get_graph()
-    parents = get_ancestors(graph, query[0], relations=['biolink:sub_class_of'])
+    parents = get_ancestors(graph, query[0], relations=['biolink:subclass_of'])
     assert len(parents) == len(query[1])
     assert parents == query[1]
 

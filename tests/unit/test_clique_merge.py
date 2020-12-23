@@ -66,21 +66,21 @@ def test_clique_merge1():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Gene']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:Gene']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:Gene']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'), **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
+    g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'), **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
+    g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'), **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
-    g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
-    g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'), **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+    g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'), **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
+    g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'), **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     print_graph(updated_graph)
@@ -90,13 +90,13 @@ def test_clique_merge1():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert not updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -112,26 +112,26 @@ def test_clique_merge2():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
 
@@ -141,13 +141,13 @@ def test_clique_merge2():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert not updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -162,26 +162,26 @@ def test_clique_merge3():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:NamedThing', 'Node']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:NamedThing', 'Node']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:NamedThing', 'Node']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:NamedThing', 'Node']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
 
@@ -191,13 +191,13 @@ def test_clique_merge3():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert not updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -213,26 +213,26 @@ def test_clique_merge4():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Gene', 'biolink:Disease']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Gene', 'biolink:Disease']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene', 'biolink:Disease']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene', 'biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     print("clique graph:")
@@ -245,12 +245,12 @@ def test_clique_merge4():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' not in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' not in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert len(n2['same_as']) == 0
+    assert len(n2['biolink:same_as']) == 0
 
     assert updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -266,26 +266,26 @@ def test_clique_merge5():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Gene', 'biolink:Disease']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Gene', 'biolink:Disease']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene', 'biolink:Disease']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene', 'biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm, strict=False)
     assert updated_graph.number_of_nodes() == 2
@@ -294,13 +294,13 @@ def test_clique_merge5():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert not updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -316,26 +316,26 @@ def test_clique_merge6():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Disease']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Disease']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:NamedThing']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Disease']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Disease']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 5
@@ -344,13 +344,13 @@ def test_clique_merge6():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
-    assert 'OMIM:2' not in n1['same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
+    assert 'OMIM:2' not in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' not in n2['same_as']
-    assert 'NCBIGene:8' not in n2['same_as']
+    assert 'ENSEMBL:6' not in n2['biolink:same_as']
+    assert 'NCBIGene:8' not in n2['biolink:same_as']
 
     assert updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -366,26 +366,26 @@ def test_clique_merge7():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Disease']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Disease']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:Disease']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:Disease']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene']})
 
     g1.add_edge('ENSEMBL:4', 'HGNC:1', edge_key=generate_edge_key('ENSEMBL:4', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('OMIM:2', 'HGNC:1', edge_key=generate_edge_key('OMIM:2', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 4
@@ -394,12 +394,12 @@ def test_clique_merge7():
     assert updated_graph.has_node('NCBIGene:8')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
-    assert 'OMIM:2' not in n1['same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
+    assert 'OMIM:2' not in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['NCBIGene:8']
-    assert 'ENSEMBL:6' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
 
     assert updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -413,22 +413,22 @@ def test_clique_merge8():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Gene'], 'same_as': ['HGNC:1']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene'], 'same_as': ['HGNC:1']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Gene'], 'biolink:same_as': ['HGNC:1']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene'], 'biolink:same_as': ['HGNC:1']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene'], 'same_as': ['NCBIGene:8']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:Gene']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene'], 'biolink:same_as': ['NCBIGene:8']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene']})
 
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 2
@@ -437,13 +437,13 @@ def test_clique_merge8():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert not updated_graph.has_node('OMIM:2')
     assert not updated_graph.has_node('NCBIGene:3')
@@ -459,24 +459,24 @@ def test_clique_merge9():
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
-    g1.add_node('HGNC:1', **{'category': ['biolink:Gene']})
-    g1.add_node('OMIM:2', **{'category': ['biolink:Disease'], 'same_as': ['HGNC:1']})
-    g1.add_node('NCBIGene:3', **{'category': ['biolink:NamedThing']})
-    g1.add_node('ENSEMBL:4', **{'category': ['biolink:Gene'], 'same_as': ['HGNC:1']})
+    g1.add_node('HGNC:1', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('OMIM:2', **{'biolink:category': ['biolink:Disease'], 'biolink:same_as': ['HGNC:1']})
+    g1.add_node('NCBIGene:3', **{'biolink:category': ['biolink:NamedThing']})
+    g1.add_node('ENSEMBL:4', **{'biolink:category': ['biolink:Gene'], 'biolink:same_as': ['HGNC:1']})
 
-    g1.add_node('ENSEMBL:6', **{'category': ['biolink:Gene'], 'same_as': ['NCBIGene:8']})
-    g1.add_node('HGNC:7', **{'category': ['biolink:Gene']})
-    g1.add_node('NCBIGene:8', **{'category': ['biolink:Gene']})
+    g1.add_node('ENSEMBL:6', **{'biolink:category': ['biolink:Gene'], 'biolink:same_as': ['NCBIGene:8']})
+    g1.add_node('HGNC:7', **{'biolink:category': ['biolink:Gene']})
+    g1.add_node('NCBIGene:8', **{'biolink:category': ['biolink:Gene']})
 
     g1.add_edge('X:00001', 'OMIM:2', edge_key=generate_edge_key('X:00001', 'biolink:same_as', 'OMIM:2'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('NCBIGene:3', 'HGNC:1', edge_key=generate_edge_key('NCBIGene:3', 'biolink:same_as', 'HGNC:1'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     g1.add_edge('ENSEMBL:6', 'NCBIGene:8', edge_key=generate_edge_key('ENSEMBL:6', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
     g1.add_edge('HGNC:7', 'NCBIGene:8', edge_key=generate_edge_key('HGNC:7', 'biolink:same_as', 'NCBIGene:8'),
-                **{'predicate': 'biolink:same_as', 'relation': 'owl:equivalentClass'})
+                **{'biolink:predicate': 'biolink:same_as', 'biolink:relation': 'owl:equivalentClass'})
 
     updated_graph, clique_graph = clique_merge(target_graph=g1, prefix_prioritization_map=ppm)
     assert updated_graph.number_of_nodes() == 4
@@ -485,12 +485,12 @@ def test_clique_merge9():
     assert updated_graph.has_node('HGNC:7')
 
     n1 = updated_graph.nodes()['HGNC:1']
-    assert 'OMIM:2' not in n1['same_as']
-    assert 'NCBIGene:3' in n1['same_as']
-    assert 'ENSEMBL:4' in n1['same_as']
+    assert 'OMIM:2' not in n1['biolink:same_as']
+    assert 'NCBIGene:3' in n1['biolink:same_as']
+    assert 'ENSEMBL:4' in n1['biolink:same_as']
 
     n2 = updated_graph.nodes()['HGNC:7']
-    assert 'ENSEMBL:6' in n2['same_as']
-    assert 'NCBIGene:8' in n2['same_as']
+    assert 'ENSEMBL:6' in n2['biolink:same_as']
+    assert 'NCBIGene:8' in n2['biolink:same_as']
 
     assert updated_graph.has_node('OMIM:2')

@@ -16,16 +16,15 @@ def test_load():
     assert t.graph.number_of_edges() == 3
 
     n = t.graph.nodes()['HGNC:11603']
-    assert n['id'] == 'HGNC:11603'
-    assert n['name'] == 'TBX4'
-    assert n['category'] == ['biolink:Gene']
+    assert n['biolink:id'] == 'HGNC:11603'
+    assert n['biolink:name'] == 'TBX4'
+    assert n['biolink:category'] == ['biolink:Gene']
 
     e = t.graph.get_edge('HGNC:11603', 'MONDO:0005002')
     data = e.popitem()[1]
-    print(data)
-    assert data['subject'] == 'HGNC:11603'
-    assert data['object'] == 'MONDO:0005002'
-    assert data['predicate'] == 'biolink:related_to'
+    assert data['biolink:subject'] == 'HGNC:11603'
+    assert data['biolink:object'] == 'MONDO:0005002'
+    assert data['biolink:predicate'] == 'biolink:related_to'
 
 
 @pytest.mark.skip('To be implemented')

@@ -16,21 +16,21 @@ def test_json_load():
     assert t.graph.number_of_edges() == 206
 
     n1 = t.graph.nodes(data=True)['GO:0003677']
-    assert n1['id'] == 'GO:0003677'
-    assert n1['name'] == 'DNA binding'
-    assert n1['description'] == 'Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).'
-    assert n1['category'] == ['biolink:MolecularActivity']
-    assert 'structure-specific DNA binding' in n1['synonym']
-    assert 'structure specific DNA binding' in n1['synonym']
-    assert 'microtubule/chromatin interaction' in n1['synonym']
-    assert 'plasmid binding' in n1['synonym']
+    assert n1['biolink:id'] == 'GO:0003677'
+    assert n1['biolink:name'] == 'DNA binding'
+    assert n1['biolink:description'] == 'Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).'
+    assert n1['biolink:category'] == ['biolink:MolecularActivity']
+    assert 'structure-specific DNA binding' in n1['biolink:synonym']
+    assert 'structure specific DNA binding' in n1['biolink:synonym']
+    assert 'microtubule/chromatin interaction' in n1['biolink:synonym']
+    assert 'plasmid binding' in n1['biolink:synonym']
 
     n2 = t.graph.nodes(data=True)['GO:0005575']
-    assert n2['id'] == 'GO:0005575'
-    assert n2['name'] == 'cellular_component'
-    assert n2['description'] == 'A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome).'
-    assert n2['category'] == ['biolink:CellularComponent']
-    assert n2['xref'] == ['NIF_Subcellular:sao1337158144']
+    assert n2['biolink:id'] == 'GO:0005575'
+    assert n2['biolink:name'] == 'cellular_component'
+    assert n2['biolink:description'] == 'A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome).'
+    assert n2['biolink:category'] == ['biolink:CellularComponent']
+    assert n2['biolink:xref'] == ['NIF_Subcellular:sao1337158144']
     assert 'goslim_chembl' in n2['subsets']
     assert 'goslim_generic' in n2['subsets']
 
@@ -51,9 +51,9 @@ def test_load_node():
     t.load_node(node)
 
     n = next(iter(t.graph.nodes(data=True)))
-    assert n[1]['id'] == 'GO:0005615'
-    assert n[1]['name'] == 'extracellular space'
-    assert n[1]['category'] == ['biolink:CellularComponent']
+    assert n[1]['biolink:id'] == 'GO:0005615'
+    assert n[1]['biolink:name'] == 'extracellular space'
+    assert n[1]['biolink:category'] == ['biolink:CellularComponent']
 
 
 def test_load_edge():
@@ -66,10 +66,10 @@ def test_load_edge():
     t.load_edge(edge)
 
     e = next(iter(t.graph.edges(data=True)))
-    assert e[2]['subject'] == 'GO:0003677'
-    assert e[2]['predicate'] == 'biolink:subclass_of'
-    assert e[2]['relation'] == 'rdfs:subClassOf'
-    assert e[2]['object'] == 'GO:0003674'
+    assert e[2]['biolink:subject'] == 'GO:0003677'
+    assert e[2]['biolink:predicate'] == 'biolink:subclass_of'
+    assert e[2]['biolink:relation'] == 'rdfs:subClassOf'
+    assert e[2]['biolink:object'] == 'GO:0003674'
 
 
 @pytest.mark.parametrize('query', [

@@ -18,30 +18,30 @@ def test_parse1():
     assert t1.graph.number_of_edges() == 1
 
     n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
-    assert n1['type'] == 'SO:0000704'
-    assert len(n1['category']) == 4
-    assert 'biolink:Gene' in n1['category']
-    assert 'biolink:GenomicEntity' in n1['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n1['name'] == 'Test Gene 123'
-    assert n1['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1['provided_by']
+    assert n1['biolink:type'] == 'SO:0000704'
+    assert len(n1['biolink:category']) == 4
+    assert 'biolink:Gene' in n1['biolink:category']
+    assert 'biolink:GenomicEntity' in n1['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n1['biolink:name'] == 'Test Gene 123'
+    assert n1['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1['biolink:provided_by']
 
     n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
-    assert n2['type'] == 'SO:0000704'
-    assert len(n2['category']) == 4
-    assert 'biolink:Gene' in n2['category']
-    assert 'biolink:GenomicEntity' in n2['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n2['name'] == 'Test Gene 456'
-    assert n2['description'] == 'This is a Test Gene 456'
-    assert 'Test Dataset' in n2['provided_by']
+    assert n2['biolink:type'] == 'SO:0000704'
+    assert len(n2['biolink:category']) == 4
+    assert 'biolink:Gene' in n2['biolink:category']
+    assert 'biolink:GenomicEntity' in n2['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n2['biolink:name'] == 'Test Gene 456'
+    assert n2['biolink:description'] == 'This is a Test Gene 456'
+    assert 'Test Dataset' in n2['biolink:provided_by']
 
     [(u, v, data)] = t1.graph.edges(data=True)
-    assert u == data['subject'] == 'ENSEMBL:ENSG0000000000001'
-    assert v == data['object'] == 'ENSEMBL:ENSG0000000000002'
-    assert data['predicate'] == 'biolink:interacts_with'
-    assert data['relation'] == 'biolink:interacts_with'
+    assert u == data['biolink:subject'] == 'ENSEMBL:ENSG0000000000001'
+    assert v == data['biolink:object'] == 'ENSEMBL:ENSG0000000000002'
+    assert data['biolink:predicate'] == 'biolink:interacts_with'
+    assert data['biolink:relation'] == 'biolink:interacts_with'
 
 
 def test_parse2():
@@ -53,37 +53,37 @@ def test_parse2():
     assert t1.graph.number_of_edges() == 3
 
     n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
-    assert n1['type'] == 'SO:0000704'
-    assert len(n1['category']) == 4
-    assert 'biolink:Gene' in n1['category']
-    assert 'biolink:GenomicEntity' in n1['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n1['name'] == 'Test Gene 123'
-    assert n1['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1['provided_by']
+    assert n1['biolink:type'] == 'SO:0000704'
+    assert len(n1['biolink:category']) == 4
+    assert 'biolink:Gene' in n1['biolink:category']
+    assert 'biolink:GenomicEntity' in n1['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n1['biolink:name'] == 'Test Gene 123'
+    assert n1['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1['biolink:provided_by']
 
     n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
-    assert n2['type'] == 'SO:0000704'
-    assert len(n2['category']) == 4
-    assert 'biolink:Gene' in n2['category']
-    assert 'biolink:GenomicEntity' in n2['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n2['name'] == 'Test Gene 456'
-    assert n2['description'] == 'This is a Test Gene 456'
-    assert 'Test Dataset' in n2['provided_by']
+    assert n2['biolink:type'] == 'SO:0000704'
+    assert len(n2['biolink:category']) == 4
+    assert 'biolink:Gene' in n2['biolink:category']
+    assert 'biolink:GenomicEntity' in n2['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n2['biolink:name'] == 'Test Gene 456'
+    assert n2['biolink:description'] == 'This is a Test Gene 456'
+    assert 'Test Dataset' in n2['biolink:provided_by']
 
     print(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002'))
     e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1['predicate'] == 'biolink:interacts_with'
-    assert e1['relation'] == 'biolink:interacts_with'
-    assert e1['type'] == 'biolink:Association'
-    assert e1['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
-    assert e1['fusion'] == '0'
-    assert e1['homology'] == '0.0'
-    assert e1['combined_score'] == '490.0'
-    assert e1['cooccurence'] == '332'
+    assert e1['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e1['biolink:object'] == 'ENSEMBL:ENSP0000000000002'
+    assert e1['biolink:predicate'] == 'biolink:interacts_with'
+    assert e1['biolink:relation'] == 'biolink:interacts_with'
+    assert e1['biolink:type'] == 'biolink:Association'
+    assert e1['biolink:id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert e1[':fusion'] == '0'
+    assert e1[':homology'] == '0.0'
+    assert e1[':combined_score'] == '490.0'
+    assert e1[':cooccurence'] == '332'
 
 
 def test_parse3():
@@ -95,48 +95,48 @@ def test_parse3():
     assert t1.graph.number_of_edges() == 6
 
     n1 = t1.graph.nodes()['ENSEMBL:ENSG0000000000001']
-    assert n1['type'] == 'SO:0000704'
-    assert len(n1['category']) == 4
-    assert 'biolink:Gene' in n1['category']
-    assert 'biolink:GenomicEntity' in n1['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n1['name'] == 'Test Gene 123'
-    assert n1['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1['provided_by']
+    assert n1['biolink:type'] == 'SO:0000704'
+    assert len(n1['biolink:category']) == 4
+    assert 'biolink:Gene' in n1['biolink:category']
+    assert 'biolink:GenomicEntity' in n1['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n1['biolink:name'] == 'Test Gene 123'
+    assert n1['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1['biolink:provided_by']
 
     n2 = t1.graph.nodes()['ENSEMBL:ENSG0000000000002']
-    assert n2['type'] == 'SO:0000704'
-    assert len(n2['category']) == 4
-    assert 'biolink:Gene' in n2['category']
-    assert 'biolink:GenomicEntity' in n2['category']
-    assert 'biolink:NamedThing' in n1['category']
-    assert n2['name'] == 'Test Gene 456'
-    assert n2['description'] == 'This is a Test Gene 456'
-    assert 'Test Dataset' in n2['provided_by']
+    assert n2['biolink:type'] == 'SO:0000704'
+    assert len(n2['biolink:category']) == 4
+    assert 'biolink:Gene' in n2['biolink:category']
+    assert 'biolink:GenomicEntity' in n2['biolink:category']
+    assert 'biolink:NamedThing' in n1['biolink:category']
+    assert n2['biolink:name'] == 'Test Gene 456'
+    assert n2['biolink:description'] == 'This is a Test Gene 456'
+    assert 'Test Dataset' in n2['biolink:provided_by']
 
     e1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    assert e1['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e1['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1['predicate'] == 'biolink:interacts_with'
-    assert e1['relation'] == 'biolink:interacts_with'
-    assert e1['type'] == 'biolink:Association'
-    assert e1['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
-    assert e1['fusion'] == '0'
-    assert e1['homology'] == '0.0'
-    assert e1['combined_score'] == '490.0'
-    assert e1['cooccurence'] == '332'
+    assert e1['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e1['biolink:object'] == 'ENSEMBL:ENSP0000000000002'
+    assert e1['biolink:predicate'] == 'biolink:interacts_with'
+    assert e1['biolink:relation'] == 'biolink:interacts_with'
+    assert e1['biolink:type'] == 'biolink:Association'
+    assert e1['biolink:id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert e1[':fusion'] == '0'
+    assert e1[':homology'] == '0.0'
+    assert e1[':combined_score'] == '490.0'
+    assert e1[':cooccurence'] == '332'
 
     e2 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'UniProtKB:X0000001').values())[0]
-    assert e2['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e2['object'] == 'UniProtKB:X0000001'
-    assert e2['predicate'] == 'biolink:same_as'
-    assert e2['relation'] == 'owl:equivalentClass'
+    assert e2['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e2['biolink:object'] == 'UniProtKB:X0000001'
+    assert e2['biolink:predicate'] == 'biolink:same_as'
+    assert e2['biolink:relation'] == 'owl:equivalentClass'
 
     e3 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'MONDO:0000001').values())[0]
-    assert e3['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e3['object'] == 'MONDO:0000001'
-    assert e3['predicate'] == 'biolink:treats'
-    assert e3['relation'] == 'RO:0002606'
+    assert e3['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e3['biolink:object'] == 'MONDO:0000001'
+    assert e3['biolink:predicate'] == 'biolink:treats'
+    assert e3['biolink:relation'] == 'RO:0002606'
 
 
 def test_save1():
@@ -162,14 +162,14 @@ def test_save1():
     n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
     n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
-    assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
-    assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
-    assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category'] and 'biolink:Gene' in n1t3['category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category'] and 'biolink:GenomicEntity' in n1t3['category']
-    assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category'] and 'biolink:NamedThing' in n1t3['category']
-    assert n1t1['name'] == n1t2['name'] == n1t3['name'] == 'Test Gene 123'
-    assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in n1t3['provided_by']
+    assert n1t1['biolink:type'] == n1t2['biolink:type'] == n1t3['biolink:type'] == 'SO:0000704'
+    assert len(n1t1['biolink:category']) == len(n1t2['biolink:category']) == len(n1t3['biolink:category']) == 4
+    assert 'biolink:Gene' in n1t1['biolink:category'] and 'biolink:Gene' in n1t2['biolink:category'] and 'biolink:Gene' in n1t3['biolink:category']
+    assert 'biolink:GenomicEntity' in n1t1['biolink:category'] and 'biolink:GenomicEntity' in n1t2['biolink:category'] and 'biolink:GenomicEntity' in n1t3['biolink:category']
+    assert 'biolink:NamedThing' in n1t1['biolink:category'] and 'biolink:NamedThing' in n1t2['biolink:category'] and 'biolink:NamedThing' in n1t3['biolink:category']
+    assert n1t1['biolink:name'] == n1t2['biolink:name'] == n1t3['biolink:name'] == 'Test Gene 123'
+    assert n1t1['biolink:description'] == n1t2['biolink:description'] == n1t3['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1t1['biolink:provided_by'] and 'Test Dataset' in n1t2['biolink:provided_by'] and 'Test Dataset' in n1t3['biolink:provided_by']
 
 
 def test_save2():
@@ -197,29 +197,29 @@ def test_save2():
     n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
     n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
-    assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
-    assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
-    assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category'] and 'biolink:Gene' in n1t3['category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category'] and 'biolink:GenomicEntity' in n1t3['category']
-    assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category'] and 'biolink:NamedThing' in n1t3['category']
-    assert n1t1['name'] == n1t2['name'] == n1t3['name'] == 'Test Gene 123'
-    assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in n1t3['provided_by']
+    assert n1t1['biolink:type'] == n1t2['biolink:type'] == n1t3['biolink:type'] == 'SO:0000704'
+    assert len(n1t1['biolink:category']) == len(n1t2['biolink:category']) == len(n1t3['biolink:category']) == 4
+    assert 'biolink:Gene' in n1t1['biolink:category'] and 'biolink:Gene' in n1t2['biolink:category'] and 'biolink:Gene' in n1t3['biolink:category']
+    assert 'biolink:GenomicEntity' in n1t1['biolink:category'] and 'biolink:GenomicEntity' in n1t2['biolink:category'] and 'biolink:GenomicEntity' in n1t3['biolink:category']
+    assert 'biolink:NamedThing' in n1t1['biolink:category'] and 'biolink:NamedThing' in n1t2['biolink:category'] and 'biolink:NamedThing' in n1t3['biolink:category']
+    assert n1t1['biolink:name'] == n1t2['biolink:name'] == n1t3['biolink:name'] == 'Test Gene 123'
+    assert n1t1['biolink:description'] == n1t2['biolink:description'] == n1t3['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1t1['biolink:provided_by'] and 'Test Dataset' in n1t2['biolink:provided_by'] and 'Test Dataset' in n1t3['biolink:provided_by']
 
     e1t1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     e1t2 = list(t2.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     e1t3 = list(t3.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
 
-    assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1t1['predicate'] == e1t2['predicate'] == e1t3['predicate'] == 'biolink:interacts_with'
-    assert e1t1['relation'] == e1t2['relation'] == e1t3['relation'] == 'biolink:interacts_with'
-    assert e1t1['type'] == e1t2['type'] == e1t3['type'] == 'biolink:Association'
-    assert e1t1['id'] == e1t2['id'] == e1t3['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
-    assert e1t1['fusion'] == e1t2['fusion'] == e1t3['fusion'] == '0'
-    assert e1t1['homology'] == e1t2['homology'] == e1t3['homology'] == '0.0'
-    assert e1t1['combined_score'] == e1t2['combined_score'] == e1t3['combined_score'] == '490.0'
-    assert e1t1['cooccurence'] == e1t2['cooccurence'] == e1t3['cooccurence'] == '332'
+    assert e1t1['biolink:subject'] == e1t2['biolink:subject'] == e1t3['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e1t1['biolink:object'] == e1t2['biolink:object'] == e1t3['biolink:object'] == 'ENSEMBL:ENSP0000000000002'
+    assert e1t1['biolink:predicate'] == e1t2['biolink:predicate'] == e1t3['biolink:predicate'] == 'biolink:interacts_with'
+    assert e1t1['biolink:relation'] == e1t2['biolink:relation'] == e1t3['biolink:relation'] == 'biolink:interacts_with'
+    assert e1t1['biolink:type'] == e1t2['biolink:type'] == e1t3['biolink:type'] == 'biolink:Association'
+    assert e1t1['biolink:id'] == e1t2['biolink:id'] == e1t3['biolink:id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert e1t1[':fusion'] == e1t2[':fusion'] == e1t3[':fusion'] == '0'
+    assert e1t1[':homology'] == e1t2[':homology'] == e1t3[':homology'] == '0.0'
+    assert e1t1[':combined_score'] == e1t2[':combined_score'] == e1t3[':combined_score'] == '490.0'
+    assert e1t1[':cooccurence'] == e1t2[':cooccurence'] == e1t3[':cooccurence'] == '332'
 
 
 def test_save3():
@@ -250,29 +250,29 @@ def test_save3():
     n1t2 = t2.graph.nodes()['ENSEMBL:ENSG0000000000001']
     n1t3 = t3.graph.nodes()['ENSEMBL:ENSG0000000000001']
 
-    assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
-    assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
-    assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category'] and 'biolink:Gene' in n1t3['category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category'] and 'biolink:GenomicEntity' in n1t3['category']
-    assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category'] and 'biolink:NamedThing' in n1t3['category']
-    assert n1t1['name'] == n1t2['name'] == n1t3['name'] == 'Test Gene 123'
-    assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in n1t3['provided_by']
+    assert n1t1['biolink:type'] == n1t2['biolink:type'] == n1t3['biolink:type'] == 'SO:0000704'
+    assert len(n1t1['biolink:category']) == len(n1t2['biolink:category']) == len(n1t3['biolink:category']) == 4
+    assert 'biolink:Gene' in n1t1['biolink:category'] and 'biolink:Gene' in n1t2['biolink:category'] and 'biolink:Gene' in n1t3['biolink:category']
+    assert 'biolink:GenomicEntity' in n1t1['biolink:category'] and 'biolink:GenomicEntity' in n1t2['biolink:category'] and 'biolink:GenomicEntity' in n1t3['biolink:category']
+    assert 'biolink:NamedThing' in n1t1['biolink:category'] and 'biolink:NamedThing' in n1t2['biolink:category'] and 'biolink:NamedThing' in n1t3['biolink:category']
+    assert n1t1['biolink:name'] == n1t2['biolink:name'] == n1t3['biolink:name'] == 'Test Gene 123'
+    assert n1t1['biolink:description'] == n1t2['biolink:description'] == n1t3['biolink:description'] == 'This is a Test Gene 123'
+    assert 'Test Dataset' in n1t1['biolink:provided_by'] and 'Test Dataset' in n1t2['biolink:provided_by'] and 'Test Dataset' in n1t3['biolink:provided_by']
 
     e1t1 = list(t1.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     e1t2 = list(t2.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     e1t3 = list(t3.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
 
-    assert e1t1['subject'] == e1t2['subject'] == e1t3['subject'] == 'ENSEMBL:ENSP0000000000001'
-    assert e1t1['object'] == e1t2['object'] == e1t3['object'] == 'ENSEMBL:ENSP0000000000002'
-    assert e1t1['predicate'] == e1t2['predicate'] == e1t3['predicate'] == 'biolink:interacts_with'
-    assert e1t1['relation'] == e1t2['relation'] == e1t3['relation'] == 'biolink:interacts_with'
-    assert e1t1['type'] == e1t2['type'] == e1t3['type'] == 'biolink:Association'
-    assert e1t1['id'] == e1t2['id'] == e1t3['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
-    assert e1t2['fusion'] == e1t3['fusion'] == 0.0
-    assert e1t2['homology'] == e1t3['homology'] == 0.0
-    assert e1t2['combined_score'] == e1t3['combined_score'] == 490.0
-    assert e1t2['cooccurence'] == e1t3['cooccurence'] == 332.0
+    assert e1t1['biolink:subject'] == e1t2['biolink:subject'] == e1t3['biolink:subject'] == 'ENSEMBL:ENSP0000000000001'
+    assert e1t1['biolink:object'] == e1t2['biolink:object'] == e1t3['biolink:object'] == 'ENSEMBL:ENSP0000000000002'
+    assert e1t1['biolink:predicate'] == e1t2['biolink:predicate'] == e1t3['biolink:predicate'] == 'biolink:interacts_with'
+    assert e1t1['biolink:relation'] == e1t2['biolink:relation'] == e1t3['biolink:relation'] == 'biolink:interacts_with'
+    assert e1t1['biolink:type'] == e1t2['biolink:type'] == e1t3['biolink:type'] == 'biolink:Association'
+    assert e1t1['biolink:id'] == e1t2['biolink:id'] == e1t3['biolink:id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert e1t2[':fusion'] == e1t3[':fusion'] == 0.0
+    assert e1t2[':homology'] == e1t3[':homology'] == 0.0
+    assert e1t2[':combined_score'] == e1t3[':combined_score'] == 490.0
+    assert e1t2[':cooccurence'] == e1t3[':cooccurence'] == 332.0
 
 
 @pytest.mark.parametrize("query", [
@@ -302,36 +302,36 @@ def test_filters(query):
 
 @pytest.mark.parametrize("query", [
     (
-        {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
+        {'biolink:id': 'ABC:123', 'biolink:category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
+        {'biolink:category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
+        {'biolink:category': ['biolink:NamedThing', 'biolink:Gene']},
         {'prop1': [1, 2, 3, 4]}
     ),
     (
-        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'prop1': 1},
-        {'category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
+        {'biolink:id': 'ABC:123', 'biolink:category': ['biolink:NamedThing'], 'prop1': 1},
+        {'biolink:category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
+        {'biolink:category': ['biolink:NamedThing', 'biolink:Gene']},
         {'prop1': [1, 2, 3]}
     ),
     (
-        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
-        {'id': 'DEF:456', 'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
-        {'provided_by': ['test']}
+        {'biolink:id': 'ABC:123', 'biolink:category': ['biolink:NamedThing'], 'biolink:provided_by': 'test'},
+        {'biolink:id': 'DEF:456', 'biolink:category': ('biolink:NamedThing', 'biolink:Gene'), 'biolink:provided_by': 'test'},
+        {'biolink:category': ['biolink:NamedThing', 'biolink:Gene']},
+        {'biolink:provided_by': ['test']}
     ),
     (
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
+        {'biolink:subject': 'Orphanet:331206', 'biolink:object': 'HP:0004429', 'biolink:relation': 'RO:0002200', 'biolink:predicate': 'biolink:has_phenotype', 'biolink:id': 'bfada868a8309f2b7849', 'biolink:type': 'OBAN:association'},
+        {'biolink:subject': 'Orphanet:331206', 'biolink:object': 'HP:0004429', 'biolink:relation': 'RO:0002200', 'biolink:predicate': 'biolink:has_phenotype', 'biolink:id': 'bfada868a8309f2b7849', 'biolink:type': 'OBAN:association'},
         {},
         {}
     ),
     (
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
+        {'biolink:subject': 'Orphanet:331206', 'biolink:object': 'HP:0004429', 'biolink:relation': 'RO:0002200',
+         'biolink:predicate': 'biolink:has_phenotype', 'biolink:id': 'bfada868a8309f2b7849', 'biolink:type': 'OBAN:association', 'biolink:source': 'Orphanet:331206'},
+        {'biolink:subject': 'Orphanet:331206', 'biolink:object': 'HP:0004429', 'biolink:relation': 'RO:0002200',
+         'biolink:predicate': 'biolink:has_phenotype', 'biolink:id': 'bfada868a8309f2b7849', 'biolink:type': 'OBAN:association', 'biolink:source': 'Orphanet:331206'},
         {},
-        {'source': ['Orphanet:331206', 'Orphanet:331206']}
+        {'biolink:source': ['Orphanet:331206', 'Orphanet:331206']}
     )
 ])
 def test_prepare_data_dict(query):

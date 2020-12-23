@@ -13,5 +13,5 @@ def test_load():
     rt = RsaTransformer()
     rt.parse(json_file)
     edge_list = list(rt.graph.edges(data=True))
-    assert edge_list[0][-1]['subject'] == 'HGNC:30922'
-    assert edge_list[0][-1]['object'] == 'MONDO:0000429'
+    assert edge_list[0][-1]['biolink:subject'] == 'HGNC:30922'
+    assert edge_list[0][-1]['biolink:object'] == 'MONDO:0000429'
