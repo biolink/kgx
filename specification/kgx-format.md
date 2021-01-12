@@ -136,8 +136,8 @@ An edge can also have other properties that are not from Biolink Model. While it
 The structure of the KGX JSON format is as follows:
 ```json
 {
-    'nodes': [],
-    'edges': []
+    "nodes": [],
+    "edges": []
 }
 ```
 
