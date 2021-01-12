@@ -9,17 +9,17 @@ Version: 0.0.1<br>
 
 ## Table of Contents
 
-- [Introduction](#Introduction)
-- [KGX format](#KGX-format)
-    - [Node Record](#Node-Record)
-        - [Core Node Record Elements](#Core-Node-Record-Elements)
-        - [Optional Node Record Elements](#Optional-Node-Record-Elements)
-    - [Edge Record](#Edge-Record)
-        - [Core Edge Record Elements](#Core-Edge-Record-Elements)
-        - [Optional Edge Record Elements](#Optional-Edge-Record-Elements)
-- [KGX format as JSON](#KGX-format-as-JSON)
-- [KGX format as TSV](#KGX-format-as-TSV)
-- [KGX format as RDF Turtle](#KGX-format-as-RDF-Turtle)
+- [Introduction](#introduction)
+- [KGX format](#kgx-format)
+    - [Node Record](#node-record)
+        - [Core Node Record Elements](#core-node-record-elements)
+        - [Optional Node Record Elements](#optional-node-record-elements)
+    - [Edge Record](#edge-record)
+        - [Core Edge Record Elements](#core-edge-record-elements)
+        - [Optional Edge Record Elements](#optional-edge-record-elements)
+- [KGX format as JSON](#kgx-format-as-json)
+- [KGX format as TSV](#kgx-format-as-tsv)
+- [KGX format as RDF Turtle](#kgx-format-as-rdf-turtle)
         
 ## Introduction
 
