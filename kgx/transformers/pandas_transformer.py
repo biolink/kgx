@@ -597,7 +597,7 @@ class PandasTransformer(Transformer):
 
         """
         node_columns = cols.copy()
-        core_columns = OrderedSet(['id', 'name', 'category', 'description', 'xref', 'provided_by', 'synonym'])
+        core_columns = OrderedSet(['id', 'category', 'name', 'description', 'xref', 'provided_by', 'synonym'])
         ordered_columns = OrderedSet()
         for c in core_columns:
             if c in node_columns:
@@ -630,7 +630,7 @@ class PandasTransformer(Transformer):
 
         """
         edge_columns = cols.copy()
-        core_columns = OrderedSet(['id', 'subject', 'predicate', 'object', 'relation', 'provided_by'])
+        core_columns = OrderedSet(['id', 'subject', 'predicate', 'object', 'category', 'relation', 'provided_by'])
         ordered_columns = OrderedSet()
         for c in core_columns:
             if c in edge_columns:
