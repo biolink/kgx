@@ -1,5 +1,4 @@
 import json
-import pprint
 from typing import Dict, List
 
 from kgx import PrefixManager
@@ -53,13 +52,15 @@ def summarize_graph(graph: BaseGraph, name: str = None) -> Dict:
     """
     node_stats = summarize_nodes(graph)
     edge_stats = summarize_edges(graph)
-    knowledge_map = {
-        'nodes': node_stats,
-        'edges': edge_stats
+    graph_stats = {
+        'knowledge_map': {
+            'nodes': node_stats,
+            'edges': edge_stats
+        }
     }
     if name:
-        knowledge_map['name'] = name
-    return knowledge_map
+        graph_stats['name'] = name
+    return graph_stats
 
 
 def summarize_nodes(graph: BaseGraph) -> Dict:
