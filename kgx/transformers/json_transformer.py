@@ -375,7 +375,7 @@ class ObographJsonTransformer(JsonTransformer):
             elif prefix == 'PR':
                 category = "biolink:Protein"
             elif prefix == 'NCBITaxon':
-                category = "biolink:OrganismalEntity"
+                category = "biolink:OrganismTaxon"
             else:
                 log.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
         return category
