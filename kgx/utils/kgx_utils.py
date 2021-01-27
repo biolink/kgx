@@ -6,6 +6,8 @@ import stringcase
 from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
 from bmt import Toolkit
 from cachetools import LRUCache
+import pandas as pd
+import numpy as np
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
@@ -17,6 +19,46 @@ curie_lookup_service = None
 cache = None
 
 log = get_logger()
+
+LIST_DELIMITER = '|'
+
+column_types = {
+    'publications': list,
+    'qualifiers': list,
+    'category': list,
+    'synonym': list,
+    'provided_by': list,
+    'same_as': list,
+    'negated': bool,
+    'xrefs': list
+}
+
+extension_types = {
+    'csv': ',',
+    'tsv': '\t',
+    'csv:neo4j': ',',
+    'tsv:neo4j': '\t'
+}
+
+archive_read_mode = {
+    'tar': 'r',
+    'tar.gz': 'r:gz',
+    'tar.bz2': 'r:bz2'
+}
+archive_write_mode = {
+    'tar': 'w',
+    'tar.gz': 'w:gz',
+    'tar.bz2': 'w:bz2'
+}
+
+archive_format = {
+    'r': 'tar',
+    'r:gz': 'tar.gz',
+    'r:bz2': 'tar.bz2',
+    'w': 'tar',
+    'w:gz': 'tar.gz',
+    'w:bz2': 'tar.bz2'
+}
 
 is_property_multivalued = {
     'id': False,
@@ -656,3 +698,192 @@ def generate_edge_identifiers(graph: BaseGraph):
     for u, v, data in graph.edges(data=True):
         if 'id' not in data:
             data['id'] = generate_uuid()
+
+
+def sanitize_import(key: str, value: Any) -> Any:
+    """
+    Sanitize value for a key for the purpose of import.
+
+    Parameters
+    ----------
+    key: str
+        Key corresponding to a node/edge property
+    value: Any
+        Value corresponding to the key
+
+    Returns
+    -------
+    value: Any
+        Sanitized value
+
+    """
+    new_value: Any
+    if key in column_types:
+        if column_types[key] == list:
+            if isinstance(value, (list, set, tuple)):
+                value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+                new_value = list(value)
+            elif isinstance(value, str):
+                value = value.replace('\n', ' ').replace('\t', ' ')
+                new_value = [x for x in value.split(LIST_DELIMITER) if x]
+            else:
+                new_value = [str(value).replace('\n', ' ').replace('\t', ' ')]
+        elif column_types[key] == bool:
+            try:
+                new_value = bool(value)
+            except:
+                new_value = False
+        else:
+            new_value = str(value).replace('\n', ' ').replace('\t', ' ')
+    else:
+        if isinstance(value, (list, set, tuple)):
+            value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+            new_value = list(value)
+        elif isinstance(value, str):
+            if LIST_DELIMITER in value:
+                value = value.replace('\n', ' ').replace('\t', ' ')
+                new_value = [x for x in value.split(LIST_DELIMITER) if x]
+            else:
+                new_value = value.replace('\n', ' ').replace('\t', ' ')
+        elif isinstance(value, bool):
+            try:
+                new_value = bool(value)
+            except:
+                new_value = False
+        else:
+            new_value = str(value).replace('\n', ' ').replace('\t', ' ')
+    return new_value
+
+
+def _sanitize_export(key: str, value: Any) -> Any:
+    """
+    Sanitize value for a key for the purpose of export.
+
+    Parameters
+    ----------
+    key: str
+        Key corresponding to a node/edge property
+    value: Any
+        Value corresponding to the key
+
+    Returns
+    -------
+    value: Any
+        Sanitized value
+
+    """
+    new_value: Any
+    if key in column_types:
+        if column_types[key] == list:
+            if isinstance(value, (list, set, tuple)):
+                value = [v.replace('\n', ' ').replace('\\"', '').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+                new_value = LIST_DELIMITER.join([str(x) for x in value])
+            else:
+                new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+        elif column_types[key] == bool:
+            try:
+                new_value = bool(value)
+            except:
+                new_value = False
+        else:
+            new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+    else:
+        if type(value) == list:
+            new_value = LIST_DELIMITER.join([str(x) for x in value])
+            new_value = new_value.replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+            column_types[key] = list
+        elif type(value) == bool:
+            try:
+                new_value = bool(value)
+                column_types[key] = bool
+            except:
+                new_value = False
+        else:
+            new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+    return new_value
+
+
+def _build_export_row(data: Dict) -> Dict:
+    """
+    Casts all values to primitive types like str or bool according to the
+    specified type in ``_column_types``. Lists become pipe delimited strings.
+
+    Parameters
+    ----------
+    data: Dict
+        A dictionary containing key-value pairs
+
+    Returns
+    -------
+    Dict
+        A dictionary containing processed key-value pairs
+
+    """
+    tidy_data = {}
+    for key, value in data.items():
+        new_value = remove_null(value)
+        if new_value:
+            tidy_data[key] = _sanitize_export(key, new_value)
+    return tidy_data
+
+
+def remove_null(input: Any) -> Any:
+    """
+    Remove any null values from input.
+
+    Parameters
+    ----------
+    input: Any
+        Can be a str, list or dict
+
+    Returns
+    -------
+    Any
+        The input without any null values
+
+    """
+    new_value: Any = None
+    if isinstance(input, (list, set, tuple)):
+        # value is a list, set or a tuple
+        new_value = []
+        for v in input:
+            x = remove_null(v)
+            if x:
+                new_value.append(x)
+    elif isinstance(input, dict):
+        # value is a dict
+        new_value = {}
+        for k, v in input.items():
+            x = remove_null(v)
+            if x:
+                new_value[k] = x
+    elif isinstance(input, str):
+        # value is a str
+        if not is_null(input):
+            new_value = input
+    else:
+        if not is_null(input):
+            new_value = input
+    return new_value
+
+
+def is_null(item: Any) -> bool:
+    """
+    Checks if a given item is null or correspond to null.
+
+    This method checks for: ``None``, ``numpy.nan``, ``pandas.NA``,
+    ``pandas.NaT``, and ` `
+
+    Parameters
+    ----------
+    item: Any
+        The item to check
+
+    Returns
+    -------
+    bool
+        Whether the given item is null or not
+
+    """
+    null_values = {np.nan, pd.NA, pd.NaT, None, "", " "}
+    return item in null_values
