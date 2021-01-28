@@ -1,6 +1,6 @@
 import gzip
 from itertools import chain
-from typing import Optional, Dict
+from typing import Optional, Dict, Generator, Any
 
 import ijson
 import stringcase
@@ -8,13 +8,17 @@ from bmt import Toolkit
 
 from kgx import PrefixManager
 from kgx.config import get_logger
-from kgx.source.tsv_source import TsvSource
+from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots
 
 log = get_logger()
 
 
-class ObojsonSource(TsvSource):
+class ObographSource(JsonSource):
+    """
+    ObographSource is responsible for reading data as records
+    from an OBO Graph JSON.
+    """
 
     HAS_OBO_NAMESPACE = 'http://www.geneontology.org/formats/oboInOwl#hasOBONamespace'
     SKOS_EXACT_MATCH = 'http://www.w3.org/2004/02/skos/core#exactMatch'
@@ -27,22 +31,74 @@ class ObojsonSource(TsvSource):
         self._node_properties = set()
         self._edge_properties = set()
 
-    def parse(self, filename, input_format, compression = None, provided_by = None, **kwargs):
+    def parse(self, filename: str, format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+        """
+        This method reads from JSON and yields records.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to parse
+        format: str
+            The format (``json``)
+        compression: Optional[str]
+            The compression type (``gz``)
+        provided_by: Optional[str]
+            The name of the source providing the input file
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for records
+
+        """
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         n = self.read_nodes(filename, compression)
         e = self.read_edges(filename, compression)
-        return chain(n, e)
+        yield from chain(n, e)
 
-    def read_nodes(self, filename, compression):
-        if compression == 'gz':
+    def read_nodes(self, filename: str, compression: Optional[str] = None) -> Generator:
+        """
+        Read node records from a JSON.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to read from
+        compression: Optional[str]
+            The compression type
+
+        Returns
+        -------
+        Generator
+            A generator for node records
+
+        """
+        if compression and compression == 'gz':
             FH = gzip.open(filename, 'rb')
         else:
             FH = open(filename, 'rb')
         for n in ijson.items(FH, 'graphs.item.nodes.item'):
             yield self.read_node(n)
 
-    def read_node(self, node):
+    def read_node(self, node: Dict) -> Dict:
+        """
+        Read and parse a node record.
+
+        Parameters
+        ----------
+        node: Dict
+            The node record
+
+        Returns
+        -------
+        Dict
+            The processed node
+
+        """
         curie = self.prefix_manager.contract(node['id'])
         node_properties = {}
         if 'meta' in node:
@@ -76,9 +132,25 @@ class ObojsonSource(TsvSource):
             #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
             #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
             #     self.graph.add_edge(fixed_node['id'], n, **data)
-        return super().load_node(fixed_node)
+        return super().read_node(fixed_node)
 
-    def read_edges(self, filename, compression):
+    def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:
+        """
+        Read edge records from a JSON.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to read from
+        compression: Optional[str]
+            The compression type
+
+        Returns
+        -------
+        Generator
+            A generator for edge records
+
+        """
         if compression == 'gz':
             FH = gzip.open(filename, 'rb')
         else:
@@ -86,7 +158,21 @@ class ObojsonSource(TsvSource):
         for e in ijson.items(FH, 'graphs.item.edges.item'):
             yield self.read_edge(e)
 
-    def read_edge(self, edge):
+    def read_edge(self, edge: Dict) -> Dict:
+        """
+        Read and parse an edge record.
+
+        Parameters
+        ----------
+        edge: Dict
+            The edge record
+
+        Returns
+        -------
+        Dict
+            The processed edge
+
+        """
         fixed_edge = dict()
         fixed_edge['subject'] = self.prefix_manager.contract(edge['sub'])
         if PrefixManager.is_iri(edge['pred']):
@@ -129,7 +215,7 @@ class ObojsonSource(TsvSource):
         for x in edge.keys():
             if x not in {'sub', 'pred', 'obj'}:
                 fixed_edge[x] = edge[x]
-        return super().load_edge(fixed_edge)
+        return super().read_edge(fixed_edge)
 
     def get_category(self, curie: str, node: dict) -> Optional[str]:
         """

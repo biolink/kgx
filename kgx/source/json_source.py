@@ -48,7 +48,7 @@ class JsonSource(TsvSource):
         self.compression = compression
         n = self.read_nodes(filename)
         e = self.read_edges(filename)
-        yield chain(n, e)
+        yield from chain(n, e)
 
     def read_nodes(self, filename: str) -> Generator:
         """
@@ -74,7 +74,7 @@ class JsonSource(TsvSource):
 
     def read_edges(self, filename: str) -> Generator:
         """
-        Read edge from a JSON.
+        Read edge records from a JSON.
 
         Parameters
         ----------

@@ -1,16 +1,14 @@
-import codecs
 import gzip
 import pprint
-import re
-from typing import Set, Dict, Union, Optional, Any, Tuple, List
+from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
-from rdflib.plugins.parsers.ntriples import NTriplesParser, ParseError
 
 from kgx import PrefixManager
 from kgx.config import get_logger
+from kgx.parsers.ntriples_parser import CustomNTriplesParser
 from kgx.source.source import Source
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_property_types, is_property_multivalued, generate_edge_key, \
@@ -20,6 +18,14 @@ log = get_logger()
 
 
 class RdfSource(Source):
+    """
+    RdfSource is responsible for reading data as records
+    from RDF.
+
+    .. note::
+        Currently only RDF N-Triples are supported.
+
+    """
 
     DEFAULT_EDGE_PREDICATE = 'biolink:related_to'
     CORE_NODE_PROPERTIES = {'id'}
@@ -85,7 +91,37 @@ class RdfSource(Source):
         #     self.predicate_mapping[URIRef(k)] = v
         #     self.reverse_predicate_mapping[v] = URIRef(k)
 
-    def parse(self, filename, input_format = 'nt', compression = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None):
+    def parse(self, filename: str, format: str = 'nt', compression: Optional[str] = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None, **kwargs: Any) -> Generator:
+        """
+        This method reads from RDF N-Triples and yields records.
+
+        .. note::
+            For a relatively low memory footprint, it is recommended that
+            the N-Triples be sorted based on the subject IRIs.
+
+            ```sort -k 1,2 -t ' ' data.nt > data_sorted.nt```
+
+        Parameters
+        ----------
+        filename: str
+            The filename to parse
+        format: str
+            The format (``nt``)
+        compression: Optional[str]
+            The compression type (``gz``)
+        provided_by: Optional[str]
+            The name of the source providing the input file
+        node_property_predicates: Optional[Set[str]]
+            Predicates that should be treated as node properties
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for records
+
+        """
         p = CustomNTriplesParser(self)
         if node_property_predicates:
             self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
@@ -95,7 +131,6 @@ class RdfSource(Source):
             yield from p.parse(gzip.open(filename, 'rb'))
         else:
             yield from p.parse(open(filename, 'rb'))
-        #self.dereify(self.reified_nodes)
         log.info(f"Done parsing {filename}")
         for k in self.node_cache.keys():
             if k in self.reified_nodes:
@@ -137,12 +172,6 @@ class RdfSource(Source):
             prop_uri = property_name
 
         s_curie = self.prefix_manager.contract(s)
-        # if s_curie != self.prev:
-        #     self.prev = s_curie
-        #     # write previous
-        #     print(f"Yielding {self.node_cache[s_curie]}")
-        #     yield self.node_cache[s_curie]
-
         if s_curie.startswith('biolink') or s_curie.startswith('OBAN'):
             log.warning(f"Skipping {s} {p} {o}")
         elif s_curie in self.reified_nodes:
@@ -173,8 +202,8 @@ class RdfSource(Source):
         else:
             # treating predicate as an edge
             self.add_edge(s, o, p)
+
         if len(self.edge_cache) >= self.CACHE_SIZE:
-            print("Clearing edge cache")
             to_remove = []
             for k in self.node_cache.keys():
                 if k in self.reified_nodes:
@@ -183,13 +212,25 @@ class RdfSource(Source):
             for k in to_remove:
                 del self.node_cache[k]
             for k in self.edge_cache.keys():
-                print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
+                if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache:
+                    edge_key = generate_edge_key(self.edge_cache[k]['subject'], self.edge_cache['predicate'], self.edge_cache['object'])
+                    self.edge_cache[k]['id'] = edge_key
                 yield k[0], k[1], k[2], self.edge_cache[k]
             self.edge_cache.clear()
         yield None
 
-    def dereify(self, n, node) -> None:
-        print(f"Dereifying {n} {node}")
+    def dereify(self, n: str, node: Dict) -> None:
+        """
+        Dereify a node to create a corresponding edge.
+
+        Parameters
+        ----------
+        n: str
+            Node identifier
+        node: Dict
+            Node data
+
+        """
         if 'predicate' not in node:
             node['predicate'] = "biolink:related_to"
         if 'relation' not in node:
@@ -201,16 +242,13 @@ class RdfSource(Source):
         else:
             log.warning(f"Cannot dereify node {n} {node}")
 
-    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: Union[str, List]) -> Dict:
+    def add_node_attribute(self, iri: Union[URIRef, str], key: str, value: Union[str, List]) -> None:
         """
-        Add an attribute to a node, while taking into account whether the attribute
+        Add an attribute to a node in cache, while taking into account whether the attribute
         should be multi-valued.
-        Multi-valued properties will not contain duplicates.
 
-        The ``key`` may be a rdflib.URIRef or a URI string that maps onto a property name
-        as defined in ``rdf_utils.property_mapping``.
-
-        If the node does not exist then it is created.
+        The ``key`` may be a rdflib.URIRef or an URI string that maps onto a
+        property name as defined in ``rdf_utils.property_mapping``.
 
         Parameters
         ----------
@@ -255,7 +293,6 @@ class RdfSource(Source):
                 value = value.toPython()
         if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
             value = [value]
-        #node_data = self.add_node(iri, {mapped_key: value})
         if mapped_key in self.node_record:
             if isinstance(self.node_record[mapped_key], str):
                 _ = self.node_record[mapped_key]
@@ -280,11 +317,7 @@ class RdfSource(Source):
 
     def add_node(self, iri: URIRef, data: Optional[Dict] = None) -> Dict:
         """
-        This method should be used by all derived classes when adding a node to
-        the kgx.graph.base_graph.BaseGraph. This ensures that a node's identifier is a CURIE,
-        and that it's `iri` property is set.
-
-        Returns the CURIE identifier for the node in the kgx.graph.base_graph.BaseGraph
+        Add a node to cache.
 
         Parameters
         ----------
@@ -323,16 +356,12 @@ class RdfSource(Source):
 
             if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
                 node_data['provided_by'] = self.graph_metadata['provided_by']
-            #self.graph.add_node(n, **node_data)
             self.node_cache[n] = node_data
         return node_data
 
-    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef,
-                 data: Optional[Dict[Any, Any]] = None) -> Dict:
+    def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Optional[Dict[Any, Any]] = None) -> Dict:
         """
-        This method should be used by all derived classes when adding an edge to the kgx.graph.base_graph.BaseGraph.
-        This method ensures that the `subject` and `object` identifiers are CURIEs, and that `predicate`
-        is in the correct form.
+        Add an edge to cache.
 
         Parameters
         ----------
@@ -653,56 +682,3 @@ class RdfSource(Source):
             except ValueError as e:
                 log.error(e)
         return element
-
-# CUSTOM PARSER
-uriref = r'<([^:]+:[^\s"<>]*)>'
-literal = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
-litinfo = r'(?:@([a-zA-Z]+(?:-[a-zA-Z0-9]+)*)|\^\^' + uriref + r')?'
-r_line = re.compile(r'([^\r\n]*)(?:\r\n|\r|\n)')
-r_wspace = re.compile(r'[ \t]*')
-r_wspaces = re.compile(r'[ \t]+')
-r_tail = re.compile(r'[ \t]*\.[ \t]*(#.*)?')
-r_uriref = re.compile(uriref)
-r_nodeid = re.compile(r'_:([A-Za-z0-9_:]([-A-Za-z0-9_:\.]*[-A-Za-z0-9_:])?)')
-r_literal = re.compile(literal + litinfo)
-
-class CustomNTriplesParser(NTriplesParser):
-    def parse(self, f):
-        """Parse f as an N-Triples file."""
-        print("In parse")
-        if not hasattr(f, 'read'):
-            raise ParseError("Item to parse must be a file-like object.")
-
-        # since N-Triples 1.1 files can and should be utf-8 encoded
-        f = codecs.getreader('utf-8')(f)
-
-        self.file = f
-        self.buffer = ''
-        while True:
-            self.line = self.readline()
-            if self.line is None:
-                break
-            try:
-                yield from self.parseline()
-            except ParseError:
-                raise ParseError("Invalid line: %r" % self.line)
-        return self.sink
-
-    def parseline(self):
-        self.eat(r_wspace)
-        if (not self.line) or self.line.startswith('#'):
-            print("EMPTY!")
-            return  # The line is empty or a comment
-
-        subject = self.subject()
-        self.eat(r_wspaces)
-
-        predicate = self.predicate()
-        self.eat(r_wspaces)
-
-        object = self.object()
-        self.eat(r_tail)
-
-        if self.line:
-            raise ParseError("Trailing garbage")
-        return self.sink.triple(subject, predicate, object)

@@ -1,24 +1,51 @@
 import gzip
 import re
-
 import jsonlines
+from typing import Optional, Any
 
 from kgx.source.json_source import JsonSource
 
 
 class JsonlSource(JsonSource):
+    """
+    JsonlSource is responsible for reading data as records
+    from JSON Lines.
+    """
+
     def __init__(self):
         super().__init__()
         self._node_properties = set()
         self._edge_properties = set()
 
-    def parse(self, filename, input_format, compression = None, provided_by = None, **kwargs):
+    def parse(self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any):
+        """
+        This method reads from JSON Lines and yields records.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to parse
+        format: str
+            The format (``json``)
+        compression: Optional[str]
+            The compression type (``gz``)
+        provided_by: Optional[str]
+            The name of the source providing the input file
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for records
+
+        """
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-        if re.search(f'nodes.{input_format}', filename):
-            m = self.load_node # type: ignore
-        elif re.search(f'edges.{input_format}', filename):
-            m = self.load_edge # type: ignore
+        if re.search(f'nodes.{format}', filename):
+            m = self.read_node
+        elif re.search(f'edges.{format}', filename):
+            m = self.read_edge
         else:
             raise TypeError(f"Unrecognized file: {filename}")
 

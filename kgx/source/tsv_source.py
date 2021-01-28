@@ -1,12 +1,12 @@
 import re
 import tarfile
-from typing import Dict, Tuple, Iterator, Any, Generator, Optional
+from typing import Dict, Tuple, Any, Generator, Optional
 import pandas as pd
 
 from kgx.config import get_logger
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import generate_uuid, generate_edge_key, extension_types, \
-    archive_read_mode, column_types, remove_null, sanitize_import
+    archive_read_mode, remove_null, sanitize_import, validate_edge, validate_node
 
 log = get_logger()
 
@@ -31,7 +31,7 @@ class TsvSource(Source):
         format: str
             The format (``tsv``, ``csv``)
         compression: Optional[str]
-            The compression type (``gz``, ``tar``, ``tar.gz``)
+            The compression type (``tar``, ``tar.gz``)
         provided_by: Optional[str]
             The name of the source providing the input file
         kwargs: Any
@@ -65,13 +65,11 @@ class TsvSource(Source):
                     if re.search(f'nodes.{format}', member.name):
                         for chunk in file_iter:
                             self._node_properties.update(chunk.columns)
-                            for obj in chunk.to_dict('records'):
-                                yield self.load_node(obj)
+                            yield from self.read_nodes(chunk)
                     elif re.search(f'edges.{format}', member.name):
                         for chunk in file_iter:
                             self._edge_properties.update(chunk.columns)
-                            for obj in chunk.to_dict('records'):
-                                yield self.load_edge(obj)
+                            yield from self.read_edges(chunk)
                     else:
                         raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
         else:
@@ -115,7 +113,7 @@ class TsvSource(Source):
             A node
 
         """
-        node = self.validate_node(node)
+        node = validate_node(node)
         kwargs = TsvSource._build_kwargs(node.copy())
         if 'id' in kwargs:
             n = kwargs['id']
@@ -154,7 +152,7 @@ class TsvSource(Source):
             An edge
 
         """
-        edge = self.validate_edge(edge)
+        edge = validate_edge(edge)
         kwargs = TsvSource._build_kwargs(edge.copy())
         if 'id' not in kwargs:
             kwargs['id'] = generate_uuid()
