@@ -1,3 +1,4 @@
+import gzip
 from typing import Any, Optional, Dict
 
 import jsonstreams
@@ -14,13 +15,24 @@ class JsonSink(Sink):
     JsonSink is responsible for writing data as records
     to a JSON.
 
+    Parameters
+    ----------
+    filename: str
+        The filename to write to
+    format: str
+        The file format (``json``)
+    compression: Optional[str]
+        The compression type (``gz``)
+    kwargs: Any
+        Any additional arguments
+
     """
 
     def __init__(self, filename: str, format: str = 'json', compression: Optional[str] = None, **kwargs: Any):
         super().__init__()
+        self.filename = filename
         if compression:
-            log.warning("Compression not supported")
-
+            self.compression = compression
         self.FH = jsonstreams.Stream(jsonstreams.Type.object, filename=filename)
         self.NH = None
         self.EH = None
@@ -31,7 +43,7 @@ class JsonSink(Sink):
 
         Parameters
         ----------
-        record: Any
+        record: Dict
             A node record
 
         """
@@ -45,7 +57,7 @@ class JsonSink(Sink):
 
         Parameters
         ----------
-        record: Any
+        record: Dict
             An edge record
 
         """
@@ -55,7 +67,11 @@ class JsonSink(Sink):
 
     def finalize(self) -> None:
         """
-        Finalize by closing the filehandle.
+        Finalize by creating a compressed file, if needed.
         """
-        pass
+        if self.compression:
+            WH = gzip.open(f"{self.filename}.gz", 'wb')
+            with open(self.filename, 'r') as FH:
+                for line in FH.buffer:
+                    WH.write(line)
 

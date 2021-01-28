@@ -9,7 +9,25 @@ from kgx.sink.sink import Sink
 
 log = get_logger()
 
+
 class NeoSink(Sink):
+    """
+    NeoSink is responsible for writing data as records
+    to a Neo4j instance.
+
+    Parameters
+    ----------
+    uri: str
+        The URI for the Neo4j instance.
+        For example, http://localhost:7474
+    username: str
+        The username
+    password: str
+        The password
+    kwargs: Any
+        Any additional arguments
+
+    """
 
     CACHE_SIZE = 100000
     node_cache = {}
@@ -20,15 +38,28 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ':'
     _seen_categories = set()
 
-    def __init__(self, uri, username, password, **kwargs):
+    def __init__(self, uri: str, username: str, password: str, **kwargs):
         super().__init__()
+        if 'cache_size' in kwargs:
+            self.CACHE_SIZE = kwargs['cache_size']
         self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
 
-    def write_node(self, record):
+    def write_node(self, record) -> None:
+        """
+        Cache a node record that is to be written to Neo4j.
+        This method writes a cache of node records when the
+        total number of records exceeds ``CACHE_SIZE``
+
+        Parameters
+        ----------
+        record: Dict
+            A node record
+
+        """
         sanitized_category = self.sanitize_category(record['category'])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
-            self._write_node()
+            self._write_node_cache()
             self.node_cache.clear()
             self.node_count = 0
         if category not in self.node_cache:
@@ -37,7 +68,10 @@ class NeoSink(Sink):
             self.node_cache[category].append(record)
         self.node_count += 1
 
-    def _write_node(self):
+    def _write_node_cache(self) -> None:
+        """
+        Write cached node records to Neo4j.
+        """
         batch_size = 10000
         categories = self.node_cache.keys()
         filtered_categories = [x for x in categories if x not in self._seen_categories]
@@ -57,9 +91,20 @@ class NeoSink(Sink):
                 except CypherException as ce:
                     log.error(ce)
 
-    def write_edge(self, record):
+    def write_edge(self, record) -> None:
+        """
+        Cache an edge record that is to be written to Neo4j.
+        This method writes a cache of edge records when the
+        total number of records exceeds ``CACHE_SIZE``
+
+        Parameters
+        ----------
+        record: Dict
+            An edge record
+
+        """
         if self.edge_count >= self.CACHE_SIZE:
-            self._write_edge()
+            self._write_edge_cache()
             self.edge_cache.clear()
             self.edge_count = 0
         #self.validate_edge(data)
@@ -70,7 +115,10 @@ class NeoSink(Sink):
             self.edge_cache[edge_predicate] = [record]
         self.edge_count += 1
 
-    def _write_edge(self):
+    def _write_edge_cache(self) -> None:
+        """
+        Write cached edge records to Neo4j.
+        """
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
@@ -156,7 +204,9 @@ class NeoSink(Sink):
                 except CypherException as ce:
                     log.error(ce)
 
-    def finalize(self):
-        # finish up any entries left in cache
-        self._write_node()
-        self._write_edge()
+    def finalize(self) -> None:
+        """
+        Write any remaining cached node and/or edge records.
+        """
+        self._write_node_cache()
+        self._write_edge_cache()

@@ -1,6 +1,6 @@
 import os
 import tarfile
-from typing import Optional, Dict, Set
+from typing import Optional, Dict, Set, Any
 from ordered_set import OrderedSet
 
 from kgx.sink.sink import Sink
@@ -9,15 +9,24 @@ from kgx.utils.kgx_utils import extension_types, archive_write_mode, archive_for
 
 class TsvSink(Sink):
     """
-    TsvSink is responsible for writing data as records
-    to a TSV/CSV.
+    TsvSink is responsible for writing data as records to a TSV/CSV.
+
+    Parameters
+    ----------
+    filename: str
+        The filename to write to
+    format: str
+        The file format (``tsv``, ``csv``)
+    compression: str
+        The compression type (``tar``, ``tar.gz``)
+    kwargs: Any
+        Any additional arguments
     """
 
-    def __init__(self, filename, format, compression = None, **kwargs):
+    def __init__(self, filename: str, format: str, compression: Optional[str] = None, **kwargs: Any):
         super().__init__()
         if format not in extension_types:
             raise Exception(f'Unsupported format: {format}')
-
         self.delimiter = extension_types[format]
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
@@ -40,17 +49,16 @@ class TsvSink(Sink):
         self.EFH = open(self.edges_file_name, 'w')
         self.EFH.write(self.delimiter.join(self.ordered_edge_columns) + '\n')
 
-    def write_node(self, record) -> None:
+    def write_node(self, record: Dict) -> None:
         """
         Write a node record to the underlying store.
 
         Parameters
         ----------
-        record: Any
+        record: Dict
             A node record
 
         """
-        print(record)
         row = self._build_export_row(record)
         row['id'] = record['id']
         values = []
@@ -61,13 +69,13 @@ class TsvSink(Sink):
                 values.append("")
         self.NFH.write(self.delimiter.join(values) + '\n')
 
-    def write_edge(self, record):
+    def write_edge(self, record: Dict) -> None:
         """
         Write an edge record to the underlying store.
 
         Parameters
         ----------
-        record: Any
+        record: Dict
             An edge record
 
         """
@@ -80,7 +88,7 @@ class TsvSink(Sink):
                 values.append("")
         self.EFH.write(self.delimiter.join(values) + '\n')
 
-    def finalize(self):
+    def finalize(self) -> None:
         """
         Create an archive if compression mode is defined.
         """

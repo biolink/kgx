@@ -1,5 +1,4 @@
 import gzip
-import itertools
 from collections import OrderedDict
 from typing import Optional, Union, Tuple, Any, Dict
 
@@ -21,9 +20,32 @@ reverse_property_mapping: OrderedDict = OrderedDict()
 
 
 class RdfSink(Sink):
+    """
+    RdfSink is responsible for writing data as records
+    to an RDF serialization.
 
-    def __init__(self, filename, output_format = 'nt', compression = None, reify_all_edges = False, **kwargs):
+    .. note::
+        Currently only RDF N-Triples serialization is supported.
+
+    Parameters
+    ----------
+    filename: str
+        The filename to write to
+    format: str
+        The file format (``nt``)
+    compression: str
+        The compression type (``gz``)
+    reify_all_edges: bool
+        Whether or not to reify all the edges
+    kwargs: Any
+        Any additional arguments
+
+    """
+
+    def __init__(self, filename: str, format: str = 'nt', compression: Optional[str] = None, reify_all_edges: bool = False, **kwargs: Any):
         super().__init__()
+        if format not in {'nt'}:
+            raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
         self.prefix_manager = PrefixManager()
         self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
@@ -37,10 +59,6 @@ class RdfSink(Sink):
         self.cache = {}
         self.reify_all_edges = reify_all_edges
         self.reification_types = {RDF.Statement, self.BIOLINK.Association, self.OBAN.association}
-
-        #nodes_generator = self.export_nodes()
-        #edges_generator = self.export_edges(reify_all_edges)
-        #generator = itertools.chain(nodes_generator, edges_generator)
         if compression == 'gz':
             f = gzip.open(filename, 'wb')
         else:
@@ -48,7 +66,16 @@ class RdfSink(Sink):
         self.FH = f
         self.encoding = 'ascii'
 
-    def write_node(self, record):
+    def write_node(self, record: Dict) -> None:
+        """
+        Write a node record as triples.
+
+        Parameters
+        ----------
+        record: Dict
+            A node record
+
+        """
         for k, v in record.items():
             if k in {'id', 'iri'}:
                 continue
@@ -73,11 +100,32 @@ class RdfSink(Sink):
                 value_uri = self._prepare_object(k, prop_type, v)
                 self._write_triple(URIRef(record['id']), prop_uri, value_uri)
 
-    def _write_triple(self, s, p, o):
-        #triple = (URIRef(s), URIRef(p), URIRef(o))
-        self.FH.write(_nt_row((s,p,o)).encode(self.encoding, "_rdflib_nt_escape"))
+    def _write_triple(self, s: URIRef, p: URIRef, o: Union[URIRef, Literal]):
+        """
+        Serialize a triple.
 
-    def write_edge(self, record):
+        Parameters
+        ----------
+        s: rdflib.URIRef
+            The subject
+        p: rdflib.URIRef
+            The predicate
+        o: Union[rdflib.URIRef, rdflib.Literal]
+            The object
+
+        """
+        self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
+
+    def write_edge(self, record: Dict) -> None:
+        """
+        Write an edge record as triples.
+
+        Parameters
+        ----------
+        record: Dict
+            An edge record
+
+        """
         ecache = []
         associations = set([self.prefix_manager.contract(x) for x in self.reification_types])
         associations.update([str(x) for x in set(self.toolkit.get_all_associations(formatted=True))])
@@ -133,7 +181,6 @@ class RdfSink(Sink):
                         else:
                             prop_uri = predicate
                     prop_type = self._get_property_type(prop)
-                    print(f">>> prop {prop} has prop_uri {prop_uri} and prop_type {prop_type}")
                     prop_uri = self.uriref(prop_uri)
                     if isinstance(value, list):
                         for x in value:
