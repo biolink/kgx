@@ -1,6 +1,8 @@
 import gzip
+import re
 from typing import Optional, Dict, Set
 import pandas as pd
+import yaml
 from bmt import Toolkit
 from rdflib import URIRef
 
@@ -15,15 +17,9 @@ log = get_logger()
 
 SSSOM_NODE_PROPERTY_MAPPING = {
     'subject_id': 'id',
-    'subject_label': 'name',
     'subject_category': 'category',
-    'subject_source': 'source',
-    'subject_source_version': 'source_version',
     'object_id': 'id',
-    'object_label': 'name',
-    'object_category': 'category',
-    'object_source': 'source',
-    'object_source_version': 'source_version',
+    'object_category': 'category'
 }
 
 
@@ -89,13 +85,44 @@ class SssomTransformer(RdfGraphMixin, Transformer):
             kwargs['delimiter'] = '\t'
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
+        self.parse_header(filename, compression)
         if compression:
             FH = gzip.open(filename, 'rb')
         else:
             FH = open(filename)
-        file_iter = pd.read_csv(FH, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
+        file_iter = pd.read_csv(FH, comment='#', dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
         for chunk in file_iter:
             self.load_edges(chunk)
+
+    def parse_header(self, filename: str, compression: Optional[str] = None) -> None:
+        """
+        Parse metadata from SSSOM headers.
+
+        Parameters
+        ----------
+        filename: str
+            Filename to parse
+        compression: Optional[str]
+            Compression type
+
+        """
+        yamlstr = ""
+        if compression:
+            FH = gzip.open(filename, 'rb')
+        else:
+            FH = open(filename)
+        for line in FH:
+            if line.startswith('#'):
+                yamlstr += re.sub('^#', '', line)
+            else:
+                break
+        if yamlstr:
+            metadata = yaml.safe_load(yamlstr)
+            log.info(f"Metadata: {metadata}")
+            if 'curie_map' in metadata:
+                self.prefix_manager.update_prefix_map(metadata['curie_map'])
+            for k, v in metadata.items():
+                self.graph_metadata[k] = v
 
     def load_node(self, node: Dict) -> None:
         """
@@ -174,6 +201,10 @@ class SssomTransformer(RdfGraphMixin, Transformer):
 
         self.load_node(subject_node)
         self.load_node(object_node)
+
+        for k, v in self.graph_metadata.items():
+            if k not in {'curie_map'}:
+                data[k] = v
 
         kwargs = PandasTransformer._build_kwargs(data.copy())
         if 'subject' in kwargs and 'object' in kwargs:
