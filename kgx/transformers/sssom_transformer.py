@@ -188,3 +188,6 @@ class SssomTransformer(RdfGraphMixin, Transformer):
             self._edge_properties.update(list(kwargs.keys()))
         else:
             log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(kwargs))
+
+    def save(self, filename: str, output_format: str = 'tsv', compression: Optional[str] = None, **kwargs: Dict) -> str:
+        raise NotImplementedError("Writing SSOM not yet implemented.")
