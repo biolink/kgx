@@ -39,9 +39,9 @@ def test_load2():
 
     e = list(dict(t.graph.get_edge('MP:0002152', 'HP:0012443')).values())[0]
     assert e['subject'] == 'MP:0002152'
-    assert n1['subject_label'] == 'abnormal brain morphology'
+    assert e['subject_label'] == 'abnormal brain morphology'
     assert e['object'] == 'HP:0012443'
-    assert n2['object_label'] == 'Abnormality of brain morphology'
+    assert e['object_label'] == 'Abnormality of brain morphology'
     assert e['predicate'] == 'biolink:exact_match'
     assert e['match_type'] == 'SSSOMC:Lexical'
     assert e['reviewer_id'] == 'orcid:0000-0000-0000-0000'
