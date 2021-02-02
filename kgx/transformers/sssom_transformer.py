@@ -3,10 +3,9 @@ import re
 from typing import Optional, Dict, Set
 import pandas as pd
 import yaml
-from bmt import Toolkit
 from rdflib import URIRef
 
-from kgx import Transformer, PandasTransformer, PrefixManager
+from kgx import Transformer, PandasTransformer
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
@@ -37,8 +36,6 @@ class SssomTransformer(RdfGraphMixin, Transformer):
 
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
-        self.prefix_manager = PrefixManager()
-        self.toolkit = Toolkit()
         self._node_properties: Set = set()
         self._edge_properties: Set = set()
 
@@ -83,9 +80,11 @@ class SssomTransformer(RdfGraphMixin, Transformer):
         """
         if 'delimiter' not in kwargs:
             kwargs['delimiter'] = '\t'
+        self.parse_header(filename, compression)
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-        self.parse_header(filename, compression)
+        if 'mapping_provider' in self.graph_metadata:
+            self.graph_metadata['provided_by'] = self.graph_metadata['mapping_provider']
         if compression:
             FH = gzip.open(filename, 'rb')
         else:
