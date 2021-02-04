@@ -63,12 +63,12 @@ class NtTransformer(RdfTransformer):
 
         try:
             p.parse(FH)
+            self.dereify(self.reified_nodes)
+            log.info(f"Done parsing {filename}")
+            apply_filters(self.graph, self.node_filters, self.edge_filters)
+            generate_edge_identifiers(self.graph)
         except ParseError as e:
-            raise e
-        self.dereify(self.reified_nodes)
-        log.info(f"Done parsing {filename}")
-        apply_filters(self.graph, self.node_filters, self.edge_filters)
-        generate_edge_identifiers(self.graph)
+            log.error(f"Failed parsing {filename}")
 
     def save(self, filename: str, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
