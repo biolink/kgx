@@ -4,7 +4,8 @@ from cachetools import cached
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
+from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, \
+    CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES, current_time_in_millis
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP: Dict = {}
@@ -277,3 +278,71 @@ def remap_edge_property(graph: BaseGraph, edge_predicate: str, old_property: str
         if new_property in edge_data:
             mapping[(u, v, k)] = {old_property: edge_data[new_property]}
     graph.set_edge_attributes(graph, attributes=mapping)
+
+
+def fold_predicate(graph: BaseGraph, predicate: str, remove_prefix: bool = False) -> None:
+    """
+    Fold predicate as node property where every edge with ``predicate``
+    will be folded as a node property.
+
+    Parameters
+    ----------
+    graph: kgx.graph.base_graph.BaseGraph
+        The graph
+    predicate: str
+        The predicate to fold
+    remove_prefix: bool
+        Whether or not to remove prefix from the predicate (``False``, by default)
+
+    """
+    node_cache = []
+    edge_cache = []
+    start = current_time_in_millis()
+    p = predicate.split(':', 1)[1] if remove_prefix else predicate
+    for u, v, k, data in graph.edges(keys=True, data=True):
+        if data['predicate'] == predicate:
+            node_cache.append((u, p, v))
+            edge_cache.append((u, v, k))
+    while node_cache:
+        n = node_cache.pop()
+        graph.add_node_attribute(*n)
+    while edge_cache:
+        e = edge_cache.pop()
+        graph.remove_edge(*e)
+    end = current_time_in_millis()
+    log.info(f"Time taken: {end - start} ms")
+
+
+def unfold_node_property(graph: BaseGraph, node_property: str, prefix: Optional[str] = None) -> None:
+    """
+    Unfold node property as a predicate where every node with ``node_property``
+    will be unfolded as an edge.
+
+    Parameters
+    ----------
+    graph: kgx.graph.base_graph.BaseGraph
+        The graph
+    node_property: str
+        The node property to unfold
+    prefix: Optional[str]
+        The prefix to use
+
+    """
+    node_cache = []
+    edge_cache = []
+    start = current_time_in_millis()
+    p = f"{prefix}:{node_property}" if prefix else node_property
+    for n, data in graph.nodes(data=True):
+        sub = n
+        if node_property in data:
+            obj = data[node_property]
+            edge_cache.append((sub, obj, p))
+            node_cache.append((n, node_property))
+    while edge_cache:
+        e = edge_cache.pop()
+        graph.add_edge(*e, **{'subject': e[0], 'object': e[1], 'predicate': e[2], 'relation': e[2]})
+    while node_cache:
+        n = node_cache.pop()
+        del graph.nodes()[n[0]][n[1]]
+    end = current_time_in_millis()
+    log.info(f"Time taken: {end - start} ms")
