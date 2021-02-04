@@ -40,14 +40,18 @@ jobs:
         with:
           image: neo4j:3.5.19
           options: -d --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test
-          run: |
-            make unit-tests
       - uses: addnab/docker-run-action@v1
         with:
           image: neo4j:3.5.19
           options: -d --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test
-          run: |
-            make integration-tests
+      - name: Run unit tests
+        run: |
+          docker ps
+          make unit-tests
+      - name: Run integration tests
+        run: |
+          docker ps
+          make integration-tests
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
