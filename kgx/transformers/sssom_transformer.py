@@ -5,11 +5,12 @@ import pandas as pd
 import yaml
 from rdflib import URIRef
 
-from kgx import Transformer, PandasTransformer
+from kgx import Transformer, PandasTransformer, PrefixManager
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
 from kgx.utils.kgx_utils import generate_uuid, generate_edge_key
+from kgx.utils.rdf_utils import process_predicate
 
 log = get_logger()
 
@@ -22,7 +23,7 @@ SSSOM_NODE_PROPERTY_MAPPING = {
 }
 
 
-class SssomTransformer(RdfGraphMixin, Transformer):
+class SssomTransformer(Transformer):
     """
     Transformer that parses a SSSOM TSV and loads nodes and edges
     into an instance of kgx.graph.base_graph.BaseGraph
@@ -38,6 +39,9 @@ class SssomTransformer(RdfGraphMixin, Transformer):
         super().__init__(source_graph)
         self._node_properties: Set = set()
         self._edge_properties: Set = set()
+        self.prefix_manager = PrefixManager()
+        self.predicate_mapping = {}
+        self.reverse_predicate_mapping = {}
 
     def set_predicate_mapping(self, m: Dict) -> None:
         """
@@ -155,7 +159,6 @@ class SssomTransformer(RdfGraphMixin, Transformer):
 
         """
         for obj in df.to_dict('records'):
-            log.info(obj)
             self.load_edge(obj)
 
     def load_edge(self, edge: Dict) -> None:
@@ -168,7 +171,7 @@ class SssomTransformer(RdfGraphMixin, Transformer):
             An edge
 
         """
-        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(edge['predicate_id'])
+        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, edge['predicate_id'], self.predicate_mapping)
         if element_uri:
             edge_predicate = element_uri
         elif predicate:
@@ -177,7 +180,6 @@ class SssomTransformer(RdfGraphMixin, Transformer):
             edge_predicate = property_name
         if canonical_uri:
             edge_predicate = element_uri
-        log.info(f"Predicate {edge['predicate_id']} mapped to {edge_predicate}")
         data = {
             'subject': edge['subject_id'],
             'predicate': edge_predicate,

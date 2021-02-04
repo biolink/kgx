@@ -9,7 +9,7 @@ from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping
+from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, process_predicate
 from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, \
     get_biolink_property_types, apply_filters, generate_edge_identifiers, generate_uuid
 
@@ -83,7 +83,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         for k, v in m.items():
-            (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
+            (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k, self.predicate_mapping)
             if element_uri:
                 key = element_uri
             elif predicate:
@@ -170,7 +170,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         self.count += 1
-        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
+        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, p, self.predicate_mapping)
         if element_uri:
             prop_uri = element_uri
         elif predicate:
@@ -331,7 +331,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
-                (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
+                (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k, self.predicate_mapping)
                 if element_uri is None:
                     # not a biolink predicate
                     if k in self.reverse_predicate_mapping:
@@ -382,7 +382,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                    (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, prop, self.predicate_mapping)
                     if element_uri:
                         prop_uri = canonical_uri if canonical_uri else element_uri
                     else:
@@ -414,7 +414,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     for prop, value in reified_node.items():
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
-                        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, prop, self.predicate_mapping)
                         if element_uri:
                             prop_uri = canonical_uri if canonical_uri else element_uri
                         else:
