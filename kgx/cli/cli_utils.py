@@ -608,7 +608,7 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
     filters = source['input']['filters'] if 'filters' in source['input'] and source['input']['filters'] is not None else {}
     node_filters = filters['node_filters'] if 'node_filters' in filters else {}
     edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
-    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['filters'] is not None else {}
+    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['operations'] is not None else {}
     source_curie_map = source['curie_map'] if 'curie_map' in source and source['curie_map'] is not None else {}
     if curie_map:
         source_curie_map.update(curie_map)
