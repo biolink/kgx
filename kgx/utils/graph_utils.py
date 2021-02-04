@@ -346,3 +346,26 @@ def unfold_node_property(graph: BaseGraph, node_property: str, prefix: Optional[
         del graph.nodes()[n[0]][n[1]]
     end = current_time_in_millis()
     log.info(f"Time taken: {end - start} ms")
+
+
+def remove_singleton_nodes(graph: BaseGraph) -> None:
+    """
+    Remove singleton nodes (nodes that have a degree of 0) from the graph.
+
+    Parameters
+    ----------
+    graph: kgx.graph.base_graph.BaseGraph
+        The graph
+
+    """
+    start = current_time_in_millis()
+    singleton = []
+    for n, d in graph.degree():
+        if d == 0:
+            singleton.append(n)
+    while singleton:
+        n = singleton.pop()
+        log.debug(f"Removing singleton node {n}")
+        graph.remove_node(n)
+    end = current_time_in_millis()
+    log.info(f"Time taken: {end - start} ms")

@@ -115,9 +115,7 @@ class NxGraph(BaseGraph):
 
         """
         node_data = self.graph.nodes[node]
-        print(node_data)
         updated = prepare_data_dict(node_data, {attr_key: attr_value}, preserve=preserve)
-        print(updated)
         self.graph.add_node(node, **updated)
         return updated
 
@@ -387,6 +385,18 @@ class NxGraph(BaseGraph):
 
         """
         return self.graph.number_of_edges()
+
+    def degree(self):
+        """
+        Get the degree of all the nodes in a graph.
+        """
+        return self.graph.degree()
+
+    def clear(self) -> None:
+        """
+        Remove all the nodes and edges in the graph.
+        """
+        self.graph.clear()
 
     @staticmethod
     def set_node_attributes(graph: BaseGraph, attributes: Dict) -> None:
