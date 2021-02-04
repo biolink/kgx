@@ -294,6 +294,9 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
                     # relative path
                     output_directory = f"{os.path.abspath(os.path.dirname(transform_config))}{os.path.sep}{output_directory}"
 
+        if not os.path.exists(output_directory):
+            os.mkdir(output_directory)
+
         if not source:
             source = cfg['transform']['source'].keys()
 
@@ -385,6 +388,9 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             if not output_directory.startswith(os.path.sep):
                 # relative path
                 output_directory = f"{os.path.abspath(os.path.dirname(merge_config))}{os.path.sep}{output_directory}"
+
+    if not os.path.exists(output_directory):
+        os.mkdir(output_directory)
 
     if not source:
         source = cfg['merged_graph']['source'].keys()
@@ -554,7 +560,8 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], cu
         if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
             if property_types:
                 output_transformer.set_property_types(property_types)
-        output_transformer.save(output, output_format=output_format, compression=output_compression) # type: ignore
+        reify_all_edges = source['output']['reify_all_edges'] if 'reify_all_edges' in source['output'] else False
+        output_transformer.save(output, output_format=output_format, compression=output_compression, reify_all_edges=reify_all_edges) # type: ignore
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
     if not preserve_graph:
