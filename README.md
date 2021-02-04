@@ -1,8 +1,7 @@
 # Knowledge Graph Exchange
 
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)]()
-[![Build Status](https://travis-ci.org/biolink/kgx.svg?branch=master)](https://travis-ci.org/biolink/kgx)
-[![Documentation Status](https://readthedocs.org/projects/kgx/badge/?version=latest)](https://kgx.readthedocs.io/en/latest/?badge=latest)
+![Run tests](https://github.com/biolink/kgx/workflows/Run%20tests/badge.svg)[![Documentation Status](https://readthedocs.org/projects/kgx/badge/?version=latest)](https://kgx.readthedocs.io/en/latest/?badge=latest)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=alert_status)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=NCATS-Tangerine_kgx&metric=coverage)](https://sonarcloud.io/dashboard?id=NCATS-Tangerine_kgx)
