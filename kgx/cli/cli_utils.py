@@ -323,6 +323,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
             results.append(result)
         pool.close()
         pool.join()
+        graphs = [r.get() for r in results]
     else:
         source_dict: Dict = {
             'input': {
