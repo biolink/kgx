@@ -69,6 +69,7 @@ class NtTransformer(RdfTransformer):
             generate_edge_identifiers(self.graph)
         except ParseError as e:
             log.error(f"Failed parsing {filename}")
+            raise e
 
     def save(self, filename: str, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """
