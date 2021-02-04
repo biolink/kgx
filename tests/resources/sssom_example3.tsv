@@ -1,0 +1,22 @@
+#creator_id: https://orcid.org/0000-0000-0000-0000
+#curie_map:
+#  HP: http://purl.obolibrary.org/obo/HP_
+#  MP: http://purl.obolibrary.org/obo/MP_
+#  skos: http://www.w3.org/2004/02/skos/core
+#license: https://creativecommons.org/publicdomain/zero/1.0/
+#mapping_provider: https://www.mousephenotype.org
+#mapping_set_group: impc_mouse_morphology
+#mapping_set_id: ma_uberon_impc_pat
+#mapping_set_title: 'The IMPC Mouse Morphology Mappings: Gross Pathology & Tissue Collection
+#  Test (Anatomy)'
+subject_id	subject_label	object_id	object_label	match_type	predicate_id
+MA:0000168	brain	UBERON:0000955	brain	SSSOMC:Lexical	skos:exactMatch
+MA:0000261	eye	UBERON:0000970	eye	SSSOMC:Lexical	skos:exactMatch
+MA:0001097	optic II nerve	UBERON:0000941	cranial nerve II	SSSOMC:Logical	skos:closeMatch
+MA:0000216	spinal cord	UBERON:0002240	spinal cord	SSSOMC:Lexical	skos:exactMatch
+MA:0000142	thymus	UBERON:0002370	thymus	SSSOMC:Lexical	skos:exactMatch
+MA:0000129	thyroid gland	UBERON:0002046	thyroid gland	SSSOMC:Lexical	skos:exactMatch
+MA:0000072	heart	UBERON:0000948	heart	SSSOMC:Lexical	skos:exactMatch
+MA:0000441	trachea	UBERON:0003126	trachea	SSSOMC:Lexical	skos:exactMatch
+MA:0000352	esophagus	UBERON:0001043	esophagus	SSSOMC:Lexical	skos:exactMatch
+MA:0000415	lung	UBERON:0002048	lung	SSSOMC:Lexical	skos:exactMatch

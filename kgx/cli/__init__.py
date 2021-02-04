@@ -190,8 +190,8 @@ def transform_wrapper(inputs: List[str], input_format: str, input_compression: s
         Node filters
     edge_filters: Tuple[str, str]
         Edge filters
-    merge_config: str
-        Merge config YAML
+    transform_config: str
+        Transform config YAML
     source: List
         A list of source(s) to load from the YAML
     processes: int

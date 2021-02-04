@@ -1,0 +1,10 @@
+subject_id	subject_label	object_id	object_label	match_type	predicate_id	reviewer_id
+MP:0002152	abnormal brain morphology	HP:0012443	Abnormality of brain morphology	SSSOMC:Lexical	skos:exactMatch	orcid:0000-0000-0000-0000
+MP:0001891	hydroencephaly	HP:0000238	Hydrocephalus	SSSOMC:Lexical	skos:closeMatch	
+MP:0000774	decreased brain size	HP:0007058	Generalized cerebral atrophy/hypoplasia	SSSOMC:Logical	skos:closeMatch	
+MP:0005238	increased brain size	HP:0001355	Megalencephaly	SSSOMC:Logical	skos:closeMatch	
+MP:0002092	abnormal eye morphology	HP:0012372	Abnormal eye morphology	SSSOMC:Lexical	skos:closeMatch	
+MP:0001293	anophthalmia	HP:0000528	Anophthalmia	SSSOMC:Lexical	skos:closeMatch	
+MP:0001297	microphthalmia	HP:0000568	Microphthalmia	SSSOMC:Lexical	skos:exactMatch	
+MP:0001296	macrophthalmia	HP:0001090	Abnormally large globe	SSSOMC:Logical	skos:closeMatch	
+MP:0001330	abnormal optic nerve morphology	HP:0000587	Abnormality of the optic nerve	SSSOMC:Logical	skos:closeMatch	

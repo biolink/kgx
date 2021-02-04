@@ -5,27 +5,29 @@ from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 
 import yaml
+from kgx.transformers.sssom_transformer import SssomTransformer
 
-import kgx
-from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer
+from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer, NtTransformer, RsaTransformer, \
+    RdfOwlTransformer, ObographJsonTransformer, JsonlTransformer, JsonTransformer, Transformer
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.operations.graph_merge import merge_all_graphs
 from kgx.operations.summarize_graph import summarize_graph
 
 _transformers = {
-    'tar': kgx.PandasTransformer,
-    'csv': kgx.PandasTransformer,
-    'tsv': kgx.PandasTransformer,
-    'tsv:neo4j': kgx.PandasTransformer,
-    'nt': kgx.NtTransformer,
-    'ttl': kgx.RdfTransformer,
-    'json': kgx.JsonTransformer,
-    'jsonl': kgx.JsonlTransformer,
-    'obojson': kgx.ObographJsonTransformer,
+    'tar': PandasTransformer,
+    'csv': PandasTransformer,
+    'tsv': PandasTransformer,
+    'tsv:neo4j': PandasTransformer,
+    'nt': NtTransformer,
+    'ttl': RdfTransformer,
+    'json': JsonTransformer,
+    'jsonl': JsonlTransformer,
+    'obojson': ObographJsonTransformer,
     # 'rq': kgx.SparqlTransformer,
-    'owl': kgx.RdfOwlTransformer,
-    'rsa': kgx.RsaTransformer
+    'owl': RdfOwlTransformer,
+    'rsa': RsaTransformer,
+    'sssom': SssomTransformer
 }
 
 log = get_logger()
@@ -142,7 +144,7 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
     return errors
 
 
-def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: Optional[str], node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
+def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: Optional[str], node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
     """
     Download nodes and edges from Neo4j database.
 
@@ -187,7 +189,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
     return output_transformer
 
 
-def neo4j_upload(inputs: List[str], input_format: str, input_compression: Optional[str], uri: str, username: str, password: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> kgx.Transformer:
+def neo4j_upload(inputs: List[str], input_format: str, input_compression: Optional[str], uri: str, username: str, password: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
     """
     Upload a set of nodes/edges to a Neo4j database.
 
@@ -292,6 +294,9 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
                     # relative path
                     output_directory = f"{os.path.abspath(os.path.dirname(transform_config))}{os.path.sep}{output_directory}"
 
+        if not os.path.exists(output_directory):
+            os.mkdir(output_directory)
+
         if not source:
             source = cfg['transform']['source'].keys()
 
@@ -383,6 +388,9 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             if not output_directory.startswith(os.path.sep):
                 # relative path
                 output_directory = f"{os.path.abspath(os.path.dirname(merge_config))}{os.path.sep}{output_directory}"
+
+    if not os.path.exists(output_directory):
+        os.mkdir(output_directory)
 
     if not source:
         source = cfg['merged_graph']['source'].keys()
@@ -552,7 +560,8 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], cu
         if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
             if property_types:
                 output_transformer.set_property_types(property_types)
-        output_transformer.save(output, output_format=output_format, compression=output_compression) # type: ignore
+        reify_all_edges = source['output']['reify_all_edges'] if 'reify_all_edges' in source['output'] else False
+        output_transformer.save(output, output_format=output_format, compression=output_compression, reify_all_edges=reify_all_edges) # type: ignore
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
     if not preserve_graph:
@@ -560,7 +569,7 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], cu
     return output_transformer.graph
 
 
-def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> kgx.Transformer:
+def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> Transformer:
     """
     Parse a source's input from a transform config YAML.
 
@@ -670,7 +679,7 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
     return transformer
 
 
-def apply_filters(transformer: kgx.Transformer, node_filters: Optional[Dict], edge_filters: Optional[Dict]) -> kgx.Transformer:
+def apply_filters(transformer: Transformer, node_filters: Optional[Dict], edge_filters: Optional[Dict]) -> Transformer:
     """
     Apply filters to the given transformer.
 
