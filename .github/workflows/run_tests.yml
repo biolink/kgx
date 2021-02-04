@@ -31,27 +31,31 @@ jobs:
         with:
           python-version: 3.7
 
-      # Runs a set of commands using the runners shell
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest
-      - uses: addnab/docker-run-action@v1
-        with:
-          image: neo4j:3.5.19
-          options: -d --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test
-      - uses: addnab/docker-run-action@v1
-        with:
-          image: neo4j:3.5.19
-          options: -d --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test
-      - name: Run unit tests
+          pip install pytest pytest-cov
+
+      - name: Setup Neo4j Docker
         run: |
-          docker ps
-          make unit-tests
-      - name: Run integration tests
+          docker run --detach --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test neo4j:3.5.19
+          docker run --detach --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:3.5.19
+          docker ps -a
+
+      - name: Wait
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '45s'
+
+      - name: Run tests
         run: |
-          docker ps
-          make integration-tests
+          coverage erase
+          pytest --cov=kgx --cov-report xml:coverage.xml tests/*
+          coverage combine --append || true
+          coverage report
+          coverage xml
+
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
