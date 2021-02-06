@@ -608,7 +608,7 @@ class RdfOwlTransformer(RdfTransformer):
     def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         self.imported: Set = set()
         super().__init__(source_graph, curie_map)
-        self.OS = Namespace('http://w3id.org/owlstar/')
+        self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
 
     def parse(self, filename: str, input_format: Optional[str] = None, compression: Optional[str] = None, provided_by: Optional[str]  = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
@@ -697,11 +697,11 @@ class RdfOwlTransformer(RdfTransformer):
                 # owl:someValuesFrom
                 for x in rdfgraph.objects(o, OWL.someValuesFrom):
                     # os:AllSomeInterpretation
-                    os_interpretation = self.OS.term('AllSomeInterpretation')
+                    os_interpretation = self.OWLSTAR.term('AllSomeInterpretation')
                     parent = x
                 # owl:allValuesFrom
                 for x in rdfgraph.objects(o, OWL.allValuesFrom):
-                    os_interpretation = self.OS.term("AllOnlyInterpretation")
+                    os_interpretation = self.OWLSTAR.term("AllOnlyInterpretation")
                     parent = x
                 if pred is None or parent is None:
                     log.warning(f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}")
