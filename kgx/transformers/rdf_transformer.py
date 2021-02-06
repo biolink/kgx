@@ -706,8 +706,6 @@ class RdfOwlTransformer(RdfTransformer):
                 if pred is None or parent is None:
                     log.warning(f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}")
                     log.warning("Do not know how to handle BNode: {}".format(o))
-                    for s1,p1,o1 in rdfgraph.triples((o, None, None)):
-                        log.warning(f"{s1} {p1} {o1}")
                     continue
             else:
                 # C SubClassOf D (C and D are named classes)
