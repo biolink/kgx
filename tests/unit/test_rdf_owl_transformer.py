@@ -89,3 +89,15 @@ def test_owl_parse2():
 def test_owl_save():
     pass
 
+
+def test_owl_parse3():
+    t = RdfOwlTransformer()
+    t.parse(os.path.join(resource_dir, 'goslim_generic.owl'))
+    e1 = list(t.graph.get_edge('GO:0031012', 'GO:0005576').values())[0]
+    assert e1['predicate'] == 'biolink:part_of'
+    assert e1['relation'] == 'BFO:0000050'
+    assert 'logical_interpretation' in e1 and e1['logical_interpretation'] == 'os:AllSomeInterpretation'
+    e2 = list(t.graph.get_edge('GO:0030705', 'GO:0005622').values())[0]
+    assert e2['predicate'] == 'biolink:occurs_in'
+    assert e2['relation'] == 'BFO:0000066'
+    assert 'logical_interpretation' in e2 and e2['logical_interpretation'] == 'os:AllSomeInterpretation'
