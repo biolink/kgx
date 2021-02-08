@@ -9,7 +9,7 @@ from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 from kgx.transformers.transformer import Transformer
 from kgx.transformers.rdf_graph_mixin import RdfGraphMixin
-from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping
+from kgx.utils.rdf_utils import property_mapping, reverse_property_mapping, process_predicate
 from kgx.utils.kgx_utils import get_toolkit, current_time_in_millis, \
     get_biolink_property_types, apply_filters, generate_edge_identifiers, generate_uuid
 
@@ -83,7 +83,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         for k, v in m.items():
-            (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
+            (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k, self.predicate_mapping)
             if element_uri:
                 key = element_uri
             elif predicate:
@@ -170,7 +170,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
         """
         self.count += 1
-        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
+        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, p, self.predicate_mapping)
         if element_uri:
             prop_uri = element_uri
         elif predicate:
@@ -331,7 +331,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
             for k, v in data.items():
                 if k in {'id', 'iri'}:
                     continue
-                (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(k)
+                (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k, self.predicate_mapping)
                 if element_uri is None:
                     # not a biolink predicate
                     if k in self.reverse_predicate_mapping:
@@ -382,7 +382,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                    (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, prop, self.predicate_mapping)
                     if element_uri:
                         prop_uri = canonical_uri if canonical_uri else element_uri
                     else:
@@ -414,7 +414,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
                     for prop, value in reified_node.items():
                         if prop in {'id', 'association_id', 'edge_key'}:
                             continue
-                        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, prop, self.predicate_mapping)
                         if element_uri:
                             prop_uri = canonical_uri if canonical_uri else element_uri
                         else:
@@ -608,6 +608,7 @@ class RdfOwlTransformer(RdfTransformer):
     def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         self.imported: Set = set()
         super().__init__(source_graph, curie_map)
+        self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
 
     def parse(self, filename: str, input_format: Optional[str] = None, compression: Optional[str] = None, provided_by: Optional[str]  = None, node_property_predicates: Optional[Set[str]] = None) -> None:
         """
@@ -681,17 +682,26 @@ class RdfOwlTransformer(RdfTransformer):
         """
         seen = set()
         seen.add(RDFS.subClassOf)
+        reified_nodes = set()
         for s, p, o in rdfgraph.triples((None, RDFS.subClassOf, None)):
             # ignoring blank nodes
             if isinstance(s, rdflib.term.BNode):
                 continue
             pred = None
             parent = None
+            os_interpretation = None
             if isinstance(o, rdflib.term.BNode):
                 # C SubClassOf R some D
                 for x in rdfgraph.objects(o, OWL.onProperty):
                     pred = x
+                # owl:someValuesFrom
                 for x in rdfgraph.objects(o, OWL.someValuesFrom):
+                    # os:AllSomeInterpretation
+                    os_interpretation = self.OWLSTAR.term('AllSomeInterpretation')
+                    parent = x
+                # owl:allValuesFrom
+                for x in rdfgraph.objects(o, OWL.allValuesFrom):
+                    os_interpretation = self.OWLSTAR.term("AllOnlyInterpretation")
                     parent = x
                 if pred is None or parent is None:
                     log.warning(f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}")
@@ -701,7 +711,16 @@ class RdfOwlTransformer(RdfTransformer):
                 # C SubClassOf D (C and D are named classes)
                 pred = p
                 parent = o
-            self.triple(s, pred, parent)
+            if os_interpretation:
+                eid = generate_uuid()
+                reified_nodes.add(eid)
+                self.triple(URIRef(eid), self.BIOLINK.term('category'), self.BIOLINK.Association)
+                self.triple(URIRef(eid), self.BIOLINK.term('subject'), s)
+                self.triple(URIRef(eid), self.BIOLINK.term('predicate'), pred)
+                self.triple(URIRef(eid), self.BIOLINK.term('object'), parent)
+                self.triple(URIRef(eid), self.BIOLINK.term('logical_interpretation'), os_interpretation)
+            else:
+                self.triple(s, pred, parent)
 
         seen.add(OWL.equivalentClass)
         for s, p, o in rdfgraph.triples((None, OWL.equivalentClass, None)):
@@ -722,5 +741,5 @@ class RdfOwlTransformer(RdfTransformer):
             if p in seen:
                 continue
             self.triple(s, p, o)
-
+        self.dereify(reified_nodes)
         generate_edge_identifiers(self.graph)

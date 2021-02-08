@@ -9,6 +9,7 @@ from kgx.transformers.pandas_transformer import PandasTransformer
 from typing import List, Dict, Any, Optional
 
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_element, format_biolink_slots
+from kgx.utils.rdf_utils import process_predicate
 
 log = get_logger()
 
@@ -315,7 +316,16 @@ class ObographJsonTransformer(JsonTransformer):
                 fixed_edge['predicate'] = 'biolink:part_of'
                 fixed_edge['relation'] = "BFO:0000050"
             else:
-                fixed_edge['predicate'] = f"biolink:{edge['pred'].replace(' ', '_')}"
+                #fixed_edge['predicate'] = f"biolink:{edge['pred'].replace(' ', '_')}"
+                #fixed_edge['relation'] = edge['pred']
+                element_uri, canonical_uri, predicate, property_name = process_predicate(self.prefix_manager, edge['pred'])
+                if element_uri:
+                    pred = element_uri
+                elif predicate:
+                    pred = predicate
+                else:
+                    pred = edge['pred']
+                fixed_edge['predicate'] = pred
                 fixed_edge['relation'] = edge['pred']
 
         fixed_edge['object'] = self.prefix_manager.contract(edge['obj'])
@@ -375,7 +385,7 @@ class ObographJsonTransformer(JsonTransformer):
             elif prefix == 'PR':
                 category = "biolink:Protein"
             elif prefix == 'NCBITaxon':
-                category = "biolink:OrganismalEntity"
+                category = "biolink:OrganismTaxon"
             else:
                 log.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
         return category

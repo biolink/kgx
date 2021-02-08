@@ -1,12 +1,16 @@
 from collections import OrderedDict
-from typing import List, Optional
+from typing import List, Optional, Any, Union, Dict, Tuple
 import rdflib
+from biolinkml.meta import Element, SlotDefinition, ClassDefinition
+from cachetools import cached, LRUCache
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
 
 from kgx.config import get_logger
+from kgx.prefix_manager import PrefixManager
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, contract
+from kgx.utils.kgx_utils import get_curie_lookup_service, contract, get_cache, get_toolkit, sentencecase_to_snakecase, \
+    sentencecase_to_camelcase, get_biolink_ancestors
 import uuid
 
 log = get_logger()
@@ -16,8 +20,8 @@ BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 
-property_mapping: OrderedDict = OrderedDict()
-reverse_property_mapping: OrderedDict = OrderedDict()
+property_mapping: Dict = dict()
+reverse_property_mapping: Dict = dict()
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
@@ -110,3 +114,107 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> Optional[List]:
         cls = get_curie_lookup_service()
         category = list(get_category_via_superclass(cls.ontology_graph, subject_curie))
     return category
+
+
+@cached(LRUCache(maxsize=1024))
+def get_biolink_element(prefix_manager: PrefixManager, predicate: Any) -> Optional[Element]:
+    """
+    Returns a Biolink Model element for a given predicate.
+
+    Parameters
+    ----------
+    prefix_manager: PrefixManager
+        An instance of prefix manager
+    predicate: Any
+        The CURIE of a predicate
+
+    Returns
+    -------
+    Optional[Element]
+        The corresponding Biolink Model element
+
+    """
+    toolkit = get_toolkit()
+    if prefix_manager.is_iri(predicate):
+        predicate_curie = prefix_manager.contract(predicate)
+    else:
+        predicate_curie = predicate
+    if prefix_manager.is_curie(predicate_curie):
+        reference = prefix_manager.get_reference(predicate_curie)
+    else:
+        reference = predicate_curie
+    element = toolkit.get_element(reference)
+    if not element:
+        try:
+            mapping = toolkit.get_element_by_mapping(predicate)
+            if mapping:
+                element = toolkit.get_element(mapping)
+        except ValueError as e:
+            log.error(e)
+    return element
+
+
+def process_predicate(prefix_manager: PrefixManager, p: Union[URIRef, str], predicate_mapping: Optional[Dict] = None) -> Tuple:
+    """
+    Process a predicate where the method checks if there is a mapping in Biolink Model.
+
+    Parameters
+    ----------
+    prefix_manager: PrefixManager
+        An instance of prefix manager
+    p: Union[URIRef, str]
+        The predicate
+    predicate_mapping: Optional[Dict]
+        Predicate mappings
+
+    Returns
+    -------
+    Tuple[str, str, str, str]
+        A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
+        the CURIE form of p, the reference of p
+
+    """
+    if prefix_manager.is_iri(p):
+        predicate = prefix_manager.contract(str(p))
+    else:
+        predicate = None
+    if prefix_manager.is_curie(p):
+        property_name = prefix_manager.get_reference(p)
+        predicate = p
+    else:
+        if predicate and prefix_manager.is_curie(predicate):
+            property_name = prefix_manager.get_reference(predicate)
+        else:
+            property_name = p
+            predicate = f":{p}"
+    element = get_biolink_element(prefix_manager, p)
+    canonical_uri = None
+    if element:
+        if isinstance(element, SlotDefinition):
+            # predicate corresponds to a biolink slot
+            if element.definition_uri:
+                element_uri = prefix_manager.contract(element.definition_uri)
+            else:
+                element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+            if element.slot_uri:
+                canonical_uri = element.slot_uri
+        elif isinstance(element, ClassDefinition):
+            # this will happen only when the IRI is actually
+            # a reference to a class
+            element_uri = prefix_manager.contract(element.class_uri)
+        else:
+            element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
+        if 'biolink:Attribute' in get_biolink_ancestors(element.name):
+            element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+        if not predicate:
+            predicate = element_uri
+    else:
+        # no mapping to biolink model;
+        # look at predicate mappings
+        element_uri = None
+        if predicate_mapping:
+            if p in predicate_mapping:
+                property_name = predicate_mapping[p]
+                predicate = f":{property_name}"
+        #cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+    return element_uri, canonical_uri, predicate, property_name

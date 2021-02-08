@@ -375,6 +375,18 @@ class BaseGraph(object):
         """
         pass
 
+    def degree(self):
+        """
+        Get the degree of all the nodes in a graph.
+        """
+        pass
+
+    def clear(self) -> None:
+        """
+        Remove all the nodes and edges in the graph.
+        """
+        pass
+
     @staticmethod
     def set_node_attributes(graph: Any, attributes: Dict) -> Any:
         """

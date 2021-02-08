@@ -2,7 +2,7 @@ import gzip
 import itertools
 from typing import Set, Optional, Dict
 
-from rdflib.plugins.parsers.ntriples import NTriplesParser
+from rdflib.plugins.parsers.ntriples import NTriplesParser, ParseError
 from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
 
@@ -57,14 +57,19 @@ class NtTransformer(RdfTransformer):
 
         self.start = current_time_in_millis()
         if compression == 'gz':
-            p.parse(gzip.open(filename, 'rb'))
+            FH = gzip.open(filename, 'rb')
         else:
-            p.parse(open(filename, 'rb'))
+            FH = open(filename, 'rb')
 
-        self.dereify(self.reified_nodes)
-        log.info(f"Done parsing {filename}")
-        apply_filters(self.graph, self.node_filters, self.edge_filters)
-        generate_edge_identifiers(self.graph)
+        try:
+            p.parse(FH)
+            self.dereify(self.reified_nodes)
+            log.info(f"Done parsing {filename}")
+            apply_filters(self.graph, self.node_filters, self.edge_filters)
+            generate_edge_identifiers(self.graph)
+        except ParseError as e:
+            log.error(f"Failed parsing {filename}")
+            raise e
 
     def save(self, filename: str, output_format: str = 'nt', compression: str = None, reify_all_edges = False, **kwargs) -> None:
         """

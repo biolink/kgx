@@ -90,6 +90,7 @@ def test_remap_node_property_fail():
         remap_node_property(graphs[0], category='biolink:NamedThing', old_property='id', new_property='alias')
 
 
+@pytest.mark.skip()
 def test_remap_edge_property():
     graphs = get_graphs()
     remap_edge_property(graphs[0], edge_predicate='biolink:subclass_of', old_property='publications', new_property='pubs')

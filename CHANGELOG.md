@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 - (2021-01-20)
+
+- Fixed a bug that led to import errors
+- Fixed column ordering when exporting CSV/TSV
+- Added ability to generate a TRAPI knowledge map for a graph
+- Fixed bug in ObographJsonTransformer when inferring node category
+
+
 ## 0.3.0 - (2020-12-21)
 
 - Added Graph API to KGX

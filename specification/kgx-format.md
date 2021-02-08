@@ -151,13 +151,13 @@ A sample KGX JSON that represents a graph with 2 nodes and 1 edge:
         "id": "HGNC:11603",
         "name": "TBX4",
         "category": ["biolink:Gene"],
-        "provided_by": "MonarchArchive:gwascatalog",
+        "provided_by": ["MonarchArchive:gwascatalog"],
       },
       {
         "id": "MONDO:0005002",
         "name": "chronic obstructive pulmonary disease",
         "category": ["biolink:Disease"],
-        "provided_by": "MonarchArchive:gwascatalog",
+        "provided_by": ["MonarchArchive:gwascatalog"],
       }
     ],
     "edges" : [
@@ -168,7 +168,7 @@ A sample KGX JSON that represents a graph with 2 nodes and 1 edge:
         "object": "MONDO:0005002",
         "relation": "RO:0003304",
         "category": ["biolink:GeneToDiseaseAssociation"],
-        "provided_by": "MonarchArchive:gwascatalog",
+        "provided_by": ["MonarchArchive:gwascatalog"],
         "publications": ["PMID:26634245", "PMID:26634244"]
       }
     ]
