@@ -1,6 +1,6 @@
 import re
 import tarfile
-from typing import Dict, Tuple, Any, Generator, Optional
+from typing import Dict, Tuple, Any, Generator, Optional, Union
 import pandas as pd
 
 from kgx.config import get_logger
@@ -103,7 +103,7 @@ class TsvSource(Source):
         for obj in df.to_dict('records'):
             yield self.read_node(obj)
 
-    def read_node(self, node: Dict) -> Tuple[str, Dict]:
+    def read_node(self, node: Dict) -> Optional[Tuple[str, Dict]]:
         """
         Prepare a node.
 
@@ -111,6 +111,11 @@ class TsvSource(Source):
         ----------
         node: Dict
             A node
+
+        Returns
+        -------
+        Optional[Tuple[str, Dict]]
+            A tuple that contains node id and node data
 
         """
         node = validate_node(node)
@@ -120,13 +125,14 @@ class TsvSource(Source):
             if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
                 kwargs['provided_by'] = self.graph_metadata['provided_by']
             self._node_properties.update(list(kwargs.keys()))
-            return n, kwargs
+            if self.check_node_filter(kwargs):
+                return n, kwargs
         else:
             log.info(f"Ignoring node with no 'id': {node}")
 
     def read_edges(self, df: pd.DataFrame) -> Generator:
         """
-        Load edges from pandas.DataFrame into an instance of BaseGraph
+        Load edges from pandas.DataFrame into an instance of BaseGraph.
 
         Parameters
         ----------
@@ -142,7 +148,7 @@ class TsvSource(Source):
         for obj in df.to_dict('records'):
             yield self.read_edge(obj)
 
-    def read_edge(self, edge: Dict) -> Tuple[str, str, str, Dict]:
+    def read_edge(self, edge: Dict) -> Optional[Tuple[str, str, str, Dict]]:
         """
         Load an edge into an instance of BaseGraph.
 
@@ -150,6 +156,11 @@ class TsvSource(Source):
         ----------
         edge: Dict
             An edge
+
+        Returns
+        -------
+        Optional[Tuple[str, str, str, Dict]]
+            A tuple that contains subject id, object id, edge key, and edge data
 
         """
         edge = validate_edge(edge)
@@ -162,7 +173,8 @@ class TsvSource(Source):
             kwargs['provided_by'] = self.graph_metadata['provided_by']
         key = generate_edge_key(s, kwargs['predicate'], o)
         self._edge_properties.update(list(kwargs.keys()))
-        return s, o, key, kwargs
+        if self.check_edge_filter(kwargs):
+            return s, o, key, kwargs
 
     @staticmethod
     def _build_kwargs(data: Dict) -> Dict:
@@ -186,4 +198,3 @@ class TsvSource(Source):
             if new_value:
                 tidy_data[key] = sanitize_import(key, new_value)
         return tidy_data
-

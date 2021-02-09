@@ -1,9 +1,8 @@
-from typing import Dict, Union
+from typing import Dict, Union, Generator
 
+from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
-from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, \
-    RdfSource
-from kgx.stream import Stream
+from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -29,6 +28,9 @@ SINK_MAP = {
 }
 
 
+log = get_logger()
+
+
 class Transformer(object):
     """
     The Transformer class is responsible for transforming data from one
@@ -38,21 +40,15 @@ class Transformer(object):
     ----------
     stream: bool
         Whether or not to stream
-    node_filters: Dict
-        Node filters
-    edge_filters: Dict
-        Edge filters
 
     """
 
-    def __init__(self, stream: bool = False, node_filters: Dict = None, edge_filters: Dict = None):
+    def __init__(self, stream: bool = False):
         self.stream = stream
-        self.node_filters = node_filters
-        self.edge_filters = edge_filters
-        if self.stream:
-            self.store = None
-        else:
-            self.store = self.get_source('graph')
+        self.node_filters = {}
+        self.edge_filters = {}
+        self.store = self.get_source('graph')
+        self._seen_nodes = set()
 
     def transform(self, input_args: Dict, output_args: Dict = None) -> None:
         """
@@ -71,27 +67,73 @@ class Transformer(object):
         """
         input_format = input_args['format']
         source = self.get_source(input_format)
+        if 'node_filters' in input_args:
+            source.set_node_filters(input_args['node_filters'])
+            self.node_filters = source.node_filters
+            self.edge_filters = source.edge_filters
+            del input_args['node_filters']
+        if 'edge_filters' in input_args:
+            source.set_edge_filters(input_args['edge_filters'])
+            self.node_filters = source.node_filters
+            self.edge_filters = source.edge_filters
+            del input_args['edge_filters']
         source_generator = source.parse(**input_args)
         if output_args:
             sink = self.get_sink(**output_args)
             if self.stream:
                 # stream from source to sink
-                stream = Stream()
-                stream.process(source_generator, sink)
+                self.process(source_generator, sink)
             else:
                 # stream from source to intermediate to output sink
                 intermediate_sink = GraphSink(self.store.graph)
-                input_stream = Stream()
-                input_stream.process(source_generator, intermediate_sink)
+                self.process(source_generator, intermediate_sink)
+                # self.apply_graph_operations
                 intermediate_source = self.get_source('graph')
                 intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
-                output_stream = Stream()
-                output_stream.process(intermediate_source_generator, sink)
+                self.process(intermediate_source_generator, sink)
         else:
             # stream from source to intermediate
             sink = GraphSink(self.store.graph)
-            input_stream = Stream()
-            input_stream.process(source_generator, sink)
+            self.process(source_generator, sink)
+        # self.node_filters.clear()
+        # self.edge_filters.clear()
+        # self._seen_nodes.clear()
+
+    def process(self, source: Generator, sink: Sink) -> None:
+        """
+        This method is responsible for reading from ``source``
+        and writing to ``sink`` by calling the relevant methods
+        based on the incoming data.
+
+        .. note::
+            The streamed data must not be mutated.
+
+        Parameters
+        ----------
+        source: Generator
+            A generator from a Source
+        sink: kgx.sink.sink.Sink
+            An instance of Sink
+
+        """
+        for rec in source:
+            if rec:
+                if len(rec) == 4:
+                    if 'subject_category' in self.edge_filters or 'object_category' in self.edge_filters:
+                        # The assumption here is that the relevant nodes have already
+                        # been seen and thus only load those edges for which both
+                        # nodes have been loaded
+                        if rec[0] in self._seen_nodes and rec[1] in self._seen_nodes:
+                            log.info(f"EDGE: {rec[-1]}")
+                            sink.write_edge(rec[-1])
+                    else:
+                        sink.write_edge(rec[-1])
+                    # self.apply_stream_operations
+                else:
+                    if 'category' in self.node_filters:
+                        self._seen_nodes.add(rec[0])
+                    sink.write_node(rec[-1])
+                    # self.apply_stream_operations
 
     def save(self, output_args: Dict) -> None:
         """
@@ -103,13 +145,12 @@ class Transformer(object):
             Arguments relevant to your output sink
 
         """
-        stream = Stream()
         if not self.store:
             raise Exception("self.store is empty.")
         source = self.get_source('graph')
         source_generator = source.parse(self.store.graph)
         sink = self.get_sink(**output_args)
-        stream.process(source_generator, sink)
+        self.process(source_generator, sink)
 
     def get_source(self, format: str) -> Source:
         """
@@ -152,76 +193,3 @@ class Transformer(object):
             return s(**kwargs)
         else:
             raise TypeError(f"{kwargs['format']} in an unrecognized format")
-
-    def set_node_filter(self, key: str, value: Union[str, set]) -> None:
-        """
-        Set a node filter, as defined by a key and value pair.
-        These filters are used to filter (or reduce) the
-        search space when fetching nodes from the underlying store.
-
-        .. note::
-            When defining the 'category' filter, the value should be of type ``set``.
-            This method also sets the 'subject_category' and 'object_category'
-            edge filters, to get a consistent set of nodes in the subgraph.
-
-        Parameters
-        ----------
-        key: str
-            The key for node filter
-        value: Union[str, set]
-            The value for the node filter.
-            Can be either a string or a set.
-
-        """
-        if key == 'category':
-            if isinstance(value, set):
-                if 'subject_category' in self.edge_filters:
-                    self.edge_filters['subject_category'].update(value)
-                else:
-                    self.edge_filters['subject_category'] = value
-                if 'object_category' in self.edge_filters:
-                    self.edge_filters['object_category'].update(value)
-                else:
-                    self.edge_filters['object_category'] = value
-            else:
-                raise TypeError("'category' node filter should have a value of type 'set'")
-
-        if key in self.node_filters:
-            self.node_filters[key].update(value)
-        else:
-            self.node_filters[key] = value
-
-    def set_edge_filter(self, key: str, value: set) -> None:
-        """
-        Set an edge filter, as defined by a key and value pair.
-        These filters are used to filter (or reduce) the
-        search space when fetching nodes from the underlying store.
-
-        .. note::
-            When defining the 'subject_category' or 'object_category' filter,
-            the value should be of type ``set``.
-            This method also sets the 'category' node filter, to get a
-            consistent set of nodes in the subgraph.
-
-        Parameters
-        ----------
-        key: str
-            The key for edge filter
-        value: Union[str, set]
-            The value for the edge filter.
-            Can be either a string or a set.
-
-        """
-        if key in {'subject_category', 'object_category'}:
-            if isinstance(value, set):
-                if 'category' in self.node_filters:
-                    self.node_filters['category'].update(value)
-                else:
-                    self.node_filters['category'] = value
-            else:
-                raise TypeError(f"'{key}' edge filter should have a value of type 'set'")
-
-        if key in self.edge_filters:
-            self.edge_filters[key].update(value)
-        else:
-            self.edge_filters[key] = value

@@ -38,11 +38,13 @@ class GraphSource(Source):
         Read nodes as records from the graph.
         """
         for n, data in self.graph.nodes(data=True):
-            yield n, data
+            if self.check_node_filter(data):
+                yield n, data
 
     def read_edges(self) -> Generator:
         """
         Read nodes as records from the graph.
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
-            yield u, v, k, data
+            if self.check_edge_filter(data):
+                yield u, v, k, data

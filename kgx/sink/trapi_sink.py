@@ -1,4 +1,4 @@
-from kgx.sink.tab_sink import TsvSink
+from kgx.sink.tsv_sink import TsvSink
 
 
 class TrapiSink(TsvSink):

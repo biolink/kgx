@@ -29,8 +29,8 @@ class JsonlSink(Sink):
         super().__init__()
         dirname = os.path.abspath(os.path.dirname(filename))
         basename = os.path.basename(filename)
-        nodes_filename = f"{basename}_nodes.{format}"
-        edges_filename = f"{basename}_edges.{format}"
+        nodes_filename = os.path.join(dirname if dirname else '', f"{basename}_nodes.{format}")
+        edges_filename = os.path.join(dirname if dirname else '', f"{basename}_edges.{format}")
         if dirname:
             os.makedirs(dirname, exist_ok=True)
         if compression == 'gz':

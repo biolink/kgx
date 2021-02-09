@@ -137,11 +137,15 @@ class RdfSource(Source):
                 self.dereify(k, self.node_cache[k])
             else:
                 print(f"Yielding {k} {self.node_cache[k]}")
-                yield k, self.node_cache[k]
+                data = self.node_cache[k]
+                if self.check_node_filter(data):
+                    yield k, data
         self.node_cache.clear()
         for k in self.edge_cache.keys():
             print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
-            yield k[0], k[1], k[2], self.edge_cache[k]
+            data = self.edge_cache[k]
+            if self.check_edge_filter(data):
+                yield k[0], k[1], k[2], data
         self.edge_cache.clear()
         pprint.pprint(self.node_cache)
         pprint.pprint(self.edge_cache)
@@ -215,7 +219,9 @@ class RdfSource(Source):
                 if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache:
                     edge_key = generate_edge_key(self.edge_cache[k]['subject'], self.edge_cache['predicate'], self.edge_cache['object'])
                     self.edge_cache[k]['id'] = edge_key
-                yield k[0], k[1], k[2], self.edge_cache[k]
+                data = self.edge_cache[k]
+                if self.check_edge_filter(data):
+                    yield k[0], k[1], k[2], data
             self.edge_cache.clear()
         yield None
 
