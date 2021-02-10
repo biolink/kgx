@@ -4,6 +4,7 @@ from typing import Dict, Union, Generator
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
 from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
+from kgx.source.owl_source import OwlSource
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -15,7 +16,8 @@ SOURCE_MAP = {
     'obo-json': ObographSource,
     'trapi-json': TrapiSource,
     'neo4j': NeoSource,
-    'nt': RdfSource
+    'nt': RdfSource,
+    'owl': OwlSource
 }
 
 SINK_MAP = {

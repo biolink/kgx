@@ -1,5 +1,4 @@
 import gzip
-import pprint
 from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
@@ -12,7 +11,8 @@ from kgx.parsers.ntriples_parser import CustomNTriplesParser
 from kgx.source.source import Source
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_property_types, is_property_multivalued, generate_edge_key, \
-    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors, validate_edge, validate_node, sanitize_import
+    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors, validate_edge, validate_node, \
+    sanitize_import, prepare_data_dict
 
 log = get_logger()
 
@@ -132,33 +132,30 @@ class RdfSource(Source):
         else:
             yield from p.parse(open(filename, 'rb'))
         log.info(f"Done parsing {filename}")
+
+        for n in self.reified_nodes:
+            data = self.node_cache.pop(n)
+            self.dereify(n, data)
+
         for k in self.node_cache.keys():
-            if k in self.reified_nodes:
-                self.dereify(k, self.node_cache[k])
-            else:
-                print(f"Yielding {k} {self.node_cache[k]}")
-                data = self.node_cache[k]
-                data = validate_node(data)
-                data = sanitize_import(data.copy())
-                if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                    data['provided_by'] = self.graph_metadata['provided_by']
-                if self.check_node_filter(data):
-                    yield k, data
+            data = self.node_cache[k]
+            data = validate_node(data)
+            data = sanitize_import(data)
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
+                data['provided_by'] = self.graph_metadata['provided_by']
+            if self.check_node_filter(data):
+                yield k, data
         self.node_cache.clear()
+
         for k in self.edge_cache.keys():
-            print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
             data = self.edge_cache[k]
             data = validate_edge(data)
-            data = sanitize_import(data.copy())
+            data = sanitize_import(data)
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(data):
                 yield k[0], k[1], k[2], data
         self.edge_cache.clear()
-        pprint.pprint(self.node_cache)
-        pprint.pprint(self.edge_cache)
-        #apply_filters(self.graph, self.node_filters, self.edge_filters)
-        #generate_edge_identifiers(self.graph)
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
         """
@@ -229,7 +226,7 @@ class RdfSource(Source):
                     self.edge_cache[k]['id'] = edge_key
                 data = self.edge_cache[k]
                 data = validate_edge(data)
-                data = sanitize_import(data.copy())
+                data = sanitize_import(data)
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                     data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_edge_filter(data):
@@ -321,13 +318,9 @@ class RdfSource(Source):
         curie = self.prefix_manager.contract(iri)
         if curie in self.node_cache:
             if mapped_key in self.node_cache[curie]:
-                if isinstance(self.node_cache[curie][mapped_key], str):
-                    _ = self.node_cache[curie][mapped_key]
-                    self.node_cache[curie][mapped_key] = [_]
-                if isinstance(value, (list, set, tuple)):
-                    self.node_cache[curie][mapped_key] += value
-                else:
-                    self.node_cache[curie][mapped_key].append(value)
+                node = self.node_cache[curie]
+                updated_node = prepare_data_dict(node, {mapped_key: value})
+                self.node_cache[curie] = updated_node
             else:
                 self.node_cache[curie][mapped_key] = value
         else:
