@@ -12,7 +12,7 @@ from kgx.parsers.ntriples_parser import CustomNTriplesParser
 from kgx.source.source import Source
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_property_types, is_property_multivalued, generate_edge_key, \
-    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors
+    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors, validate_edge, validate_node
 
 log = get_logger()
 
@@ -138,12 +138,14 @@ class RdfSource(Source):
             else:
                 print(f"Yielding {k} {self.node_cache[k]}")
                 data = self.node_cache[k]
+                data = validate_node(data)
                 if self.check_node_filter(data):
                     yield k, data
         self.node_cache.clear()
         for k in self.edge_cache.keys():
             print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
             data = self.edge_cache[k]
+            data = validate_edge(data)
             if self.check_edge_filter(data):
                 yield k[0], k[1], k[2], data
         self.edge_cache.clear()
@@ -220,6 +222,7 @@ class RdfSource(Source):
                     edge_key = generate_edge_key(self.edge_cache[k]['subject'], self.edge_cache['predicate'], self.edge_cache['object'])
                     self.edge_cache[k]['id'] = edge_key
                 data = self.edge_cache[k]
+                data = validate_edge(data)
                 if self.check_edge_filter(data):
                     yield k[0], k[1], k[2], data
             self.edge_cache.clear()

@@ -4,6 +4,7 @@ from typing import Generator
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.source.source import Source
+from kgx.utils.kgx_utils import validate_node, validate_edge
 
 
 class GraphSource(Source):
@@ -38,13 +39,15 @@ class GraphSource(Source):
         Read nodes as records from the graph.
         """
         for n, data in self.graph.nodes(data=True):
-            if self.check_node_filter(data):
-                yield n, data
+            node_data = validate_node(data)
+            if self.check_node_filter(node_data):
+                yield n, node_data
 
     def read_edges(self) -> Generator:
         """
         Read nodes as records from the graph.
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
-            if self.check_edge_filter(data):
-                yield u, v, k, data
+            edge_data = validate_edge(data)
+            if self.check_edge_filter(edge_data):
+                yield u, v, k, edge_data
