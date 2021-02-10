@@ -6,7 +6,7 @@ from neo4jrestclient.query import CypherException
 
 from kgx.config import get_logger
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import generate_uuid, generate_edge_key, validate_node, validate_edge
+from kgx.utils.kgx_utils import generate_uuid, generate_edge_key, validate_node, validate_edge, sanitize_import
 
 log = get_logger()
 
@@ -238,6 +238,7 @@ class NeoSource(Source):
         if 'provided_by' in self.graph_metadata and 'provided_by' not in node.keys():
             node['provided_by'] = self.graph_metadata['provided_by']
         node = validate_node(node)
+        node = sanitize_import(node.copy())
         return node['id'], node
 
     def load_edges(self, edges: List) -> None:
@@ -290,6 +291,7 @@ class NeoSource(Source):
             edge['id'] = generate_uuid()
         key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
         edge = validate_edge(edge)
+        edge = sanitize_import(edge.copy())
         return subject_node['id'], object_node['id'], key, edge
 
     def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:

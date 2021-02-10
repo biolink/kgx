@@ -12,7 +12,7 @@ from kgx.parsers.ntriples_parser import CustomNTriplesParser
 from kgx.source.source import Source
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import get_toolkit, get_biolink_property_types, is_property_multivalued, generate_edge_key, \
-    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors, validate_edge, validate_node
+    sentencecase_to_snakecase, sentencecase_to_camelcase, get_biolink_ancestors, validate_edge, validate_node, sanitize_import
 
 log = get_logger()
 
@@ -139,6 +139,7 @@ class RdfSource(Source):
                 print(f"Yielding {k} {self.node_cache[k]}")
                 data = self.node_cache[k]
                 data = validate_node(data)
+                data = sanitize_import(data.copy())
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                     data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_node_filter(data):
@@ -148,6 +149,7 @@ class RdfSource(Source):
             print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
             data = self.edge_cache[k]
             data = validate_edge(data)
+            data = sanitize_import(data.copy())
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(data):
@@ -227,6 +229,7 @@ class RdfSource(Source):
                     self.edge_cache[k]['id'] = edge_key
                 data = self.edge_cache[k]
                 data = validate_edge(data)
+                data = sanitize_import(data.copy())
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                     data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_edge_filter(data):

@@ -4,7 +4,7 @@ from typing import Generator
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import validate_node, validate_edge
+from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import
 
 
 class GraphSource(Source):
@@ -42,6 +42,7 @@ class GraphSource(Source):
         """
         for n, data in self.graph.nodes(data=True):
             node_data = validate_node(data)
+            node_data = sanitize_import(node_data.copy())
             if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
                 node_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_node_filter(node_data):
@@ -53,6 +54,7 @@ class GraphSource(Source):
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             edge_data = validate_edge(data)
+            edge_data = sanitize_import(edge_data.copy())
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(edge_data):

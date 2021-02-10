@@ -756,7 +756,30 @@ def generate_edge_identifiers(graph: BaseGraph):
             data['id'] = generate_uuid()
 
 
-def sanitize_import(key: str, value: Any) -> Any:
+def sanitize_import(data: Dict) -> Dict:
+    """
+    Sanitize key-value pairs in dictionary.
+
+    Parameters
+    ----------
+    data: Dict
+        A dictionary containing key-value pairs
+
+    Returns
+    -------
+    Dict
+        A dictionary containing processed key-value pairs
+
+    """
+    tidy_data = {}
+    for key, value in data.items():
+        new_value = remove_null(value)
+        if new_value:
+            tidy_data[key] = _sanitize_import(key, new_value)
+    return tidy_data
+
+
+def _sanitize_import(key: str, value: Any) -> Any:
     """
     Sanitize value for a key for the purpose of import.
 

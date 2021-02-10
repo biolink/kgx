@@ -119,7 +119,7 @@ class TsvSource(Source):
 
         """
         node = validate_node(node)
-        kwargs = TsvSource._build_kwargs(node.copy())
+        kwargs = sanitize_import(node.copy())
         if 'id' in kwargs:
             n = kwargs['id']
             if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
@@ -164,7 +164,7 @@ class TsvSource(Source):
 
         """
         edge = validate_edge(edge)
-        kwargs = TsvSource._build_kwargs(edge.copy())
+        kwargs = sanitize_import(edge.copy())
         if 'id' not in kwargs:
             kwargs['id'] = generate_uuid()
         s = kwargs['subject']
@@ -176,25 +176,3 @@ class TsvSource(Source):
         if self.check_edge_filter(kwargs):
             return s, o, key, kwargs
 
-    @staticmethod
-    def _build_kwargs(data: Dict) -> Dict:
-        """
-        Sanitize key-value pairs in dictionary.
-
-        Parameters
-        ----------
-        data: Dict
-            A dictionary containing key-value pairs
-
-        Returns
-        -------
-        Dict
-            A dictionary containing processed key-value pairs
-
-        """
-        tidy_data = {}
-        for key, value in data.items():
-            new_value = remove_null(value)
-            if new_value:
-                tidy_data[key] = sanitize_import(key, new_value)
-        return tidy_data
