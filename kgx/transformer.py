@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Union, Generator
 
 from kgx.config import get_logger
@@ -66,6 +67,13 @@ class Transformer(object):
 
         """
         input_format = input_args['format']
+        if 'provided_by' not in input_format:
+            if 'name' in input_args:
+                input_args['provided_by'] = input_args['name']
+            elif 'uri' in input_args:
+                input_args['provided_by'] = input_args['uri']
+            else:
+                input_args['provided_by'] = os.path.basename(input_args['filename'])
         source = self.get_source(input_format)
         if 'node_filters' in input_args:
             source.set_node_filters(input_args['node_filters'])

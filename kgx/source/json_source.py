@@ -42,7 +42,6 @@ class JsonSource(TsvSource):
             A generator for records
 
         """
-        # TODO: Handle provided_by
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         self.compression = compression

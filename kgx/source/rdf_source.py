@@ -91,7 +91,7 @@ class RdfSource(Source):
         #     self.predicate_mapping[URIRef(k)] = v
         #     self.reverse_predicate_mapping[v] = URIRef(k)
 
-    def parse(self, filename: str, format: str = 'nt', compression: Optional[str] = None, provided_by: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None, **kwargs: Any) -> Generator:
+    def parse(self, filename: str, format: str = 'nt', compression: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         """
         This method reads from RDF N-Triples and yields records.
 
@@ -109,10 +109,10 @@ class RdfSource(Source):
             The format (``nt``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         node_property_predicates: Optional[Set[str]]
             Predicates that should be treated as node properties
+        provided_by: Optional[str]
+            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -139,6 +139,8 @@ class RdfSource(Source):
                 print(f"Yielding {k} {self.node_cache[k]}")
                 data = self.node_cache[k]
                 data = validate_node(data)
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
+                    data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_node_filter(data):
                     yield k, data
         self.node_cache.clear()
@@ -146,6 +148,8 @@ class RdfSource(Source):
             print(f"Yielding {k[0]} {k[1]} {k[2]} {self.edge_cache[k]}")
             data = self.edge_cache[k]
             data = validate_edge(data)
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
+                data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(data):
                 yield k[0], k[1], k[2], data
         self.edge_cache.clear()
@@ -223,6 +227,8 @@ class RdfSource(Source):
                     self.edge_cache[k]['id'] = edge_key
                 data = self.edge_cache[k]
                 data = validate_edge(data)
+                if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
+                    data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_edge_filter(data):
                     yield k[0], k[1], k[2], data
             self.edge_cache.clear()

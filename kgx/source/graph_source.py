@@ -19,7 +19,7 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(self, graph: BaseGraph) -> Generator:
+    def parse(self, graph: BaseGraph, provided_by: str = None) -> Generator:
         """
         This method reads from a graph and yields records.
 
@@ -30,6 +30,8 @@ class GraphSource(Source):
 
         """
         self.graph = graph
+        if provided_by:
+            self.graph_metadata['provided_by'] = [provided_by]
         nodes = self.read_nodes()
         edges = self.read_edges()
         yield from chain(nodes, edges)
@@ -40,6 +42,8 @@ class GraphSource(Source):
         """
         for n, data in self.graph.nodes(data=True):
             node_data = validate_node(data)
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
+                node_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_node_filter(node_data):
                 yield n, node_data
 
@@ -49,5 +53,7 @@ class GraphSource(Source):
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             edge_data = validate_edge(data)
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
+                edge_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(edge_data):
                 yield u, v, k, edge_data
