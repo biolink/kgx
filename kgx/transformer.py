@@ -76,7 +76,15 @@ class Transformer(object):
                 input_args['provided_by'] = input_args['uri']
             else:
                 input_args['provided_by'] = os.path.basename(input_args['filename'])
+
         source = self.get_source(input_format)
+        if 'prefix_map' in input_args:
+            source.set_prefix_map(input_args['prefix_map'])
+        if isinstance(source, RdfSource):
+            if 'predicate_mappings' in input_args:
+                source.set_predicate_mapping(input_args['predicate_mappings'])
+            if 'node_property_predicates' in input_args:
+                source.set_node_property_predicates(input_args['node_property_predicates'])
         if 'node_filters' in input_args:
             source.set_node_filters(input_args['node_filters'])
             self.node_filters = source.node_filters
@@ -90,6 +98,14 @@ class Transformer(object):
         source_generator = source.parse(**input_args)
         if output_args:
             sink = self.get_sink(**output_args)
+            if 'reverse_prefix_map' in input_args:
+                source.set_reverse_prefix_map(input_args['reverse_prefix_map'])
+            if isinstance(source, RdfSource):
+                if 'reverse_predicate_mapping' in input_args:
+                    source.set_reverse_predicate_mapping(input_args['reverse_predicate_mapping'])
+            if 'property_types' in input_args:
+                source.set_property_types(input_args['property_types'])
+
             if self.stream:
                 # stream from source to sink
                 self.process(source_generator, sink)

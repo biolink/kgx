@@ -1,3 +1,7 @@
+from typing import Dict
+
+from kgx import PrefixManager
+
 
 class Sink(object):
     """
@@ -5,7 +9,21 @@ class Sink(object):
     to a store where the store is a file or a database.
     """
     def __init__(self):
-        pass
+        self.prefix_manager = PrefixManager()
+        self._node_properties = {}
+        self._edge_properties = {}
+
+    def set_reverse_prefix_map(self, m: Dict) -> None:
+        """
+        Update default reverse prefix map.
+
+        Parameters
+        ----------
+        m: Dict
+            A dictionary with IRI to prefix mappings
+
+        """
+        self.prefix_manager.update_reverse_prefix_map(m)
 
     def write_node(self, record) -> None:
         """

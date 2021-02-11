@@ -46,14 +46,12 @@ class RdfSink(Sink):
         super().__init__()
         if format not in {'nt'}:
             raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
-        self.prefix_manager = PrefixManager()
-        self.OBO = Namespace('http://purl.obolibrary.org/obo/')
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
+        #self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
         self.toolkit = get_toolkit()
-        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
-        self.predicate_mapping = {}
         self.reverse_predicate_mapping = {}
         self.property_types = get_biolink_property_types()
         self.cache = {}
@@ -65,6 +63,37 @@ class RdfSink(Sink):
             f = open(filename, 'wb')
         self.FH = f
         self.encoding = 'ascii'
+
+    def set_reverse_predicate_mapping(self, m: Dict) -> None:
+        """
+        Set reverse predicate mappings.
+
+        Use this method to update mappings for predicates that are
+        not in Biolink Model.
+
+        Parameters
+        ----------
+        m: Dict
+            A dictionary where the keys are property names and values
+            are their corresponding IRI.
+
+        """
+        for k, v in m.items():
+            self.reverse_predicate_mapping[v] = URIRef(k)
+
+    def set_property_types(self, m: Dict) -> None:
+        """
+        Set export type for properties that are not in
+        Biolink Model.
+
+        Parameters
+        ----------
+        m: Dict
+            A dictionary where the keys are property names and values
+            are their corresponding types.
+
+        """
+        self.property_types.update(m)
 
     def write_node(self, record: Dict) -> None:
         """
