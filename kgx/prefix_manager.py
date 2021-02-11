@@ -64,8 +64,7 @@ class PrefixManager(object):
             log.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
         else:
             self.prefix_map[''] = self.DEFAULT_NAMESPACE
-
-        self.reverse_prefix_map: Optional[Dict[str, Any]] = {y: x for x, y in self.prefix_map.items()}
+        self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
     def update_prefix_map(self, m: Dict[str, str]) -> None:
         """
@@ -79,7 +78,9 @@ class PrefixManager(object):
         """
         for k, v in m.items():
             self.prefix_map[k] = v
-            self.reverse_prefix_map[v] = k
+
+    def update_reverse_prefix_map(self, m: Dict[str, str]) -> None:
+        self.reverse_prefix_map.update(m)
 
     @cached(LRUCache(maxsize=1024))
     def expand(self, curie: str, fallback: bool = True) -> str:

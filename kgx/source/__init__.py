@@ -7,3 +7,4 @@ from .trapi_source import TrapiSource
 from .neo_source import NeoSource
 from .rdf_source import RdfSource
 from .graph_source import GraphSource
+from .owl_source import OwlSource

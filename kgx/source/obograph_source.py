@@ -25,11 +25,8 @@ class ObographSource(JsonSource):
 
     def __init__(self):
         super().__init__()
-        self.prefix_manager = PrefixManager()
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
-        self._node_properties = set()
-        self._edge_properties = set()
 
     def parse(self, filename: str, format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         """

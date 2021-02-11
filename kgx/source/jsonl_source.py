@@ -14,8 +14,6 @@ class JsonlSource(JsonSource):
 
     def __init__(self):
         super().__init__()
-        self._node_properties = set()
-        self._edge_properties = set()
 
     def parse(self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any):
         """

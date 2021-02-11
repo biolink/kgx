@@ -1,5 +1,6 @@
 from typing import Dict, Generator, Any, Union
 
+from kgx import PrefixManager
 from kgx.config import get_logger
 
 log = get_logger()
@@ -16,6 +17,19 @@ class Source(object):
         self.edge_filters = {}
         self._node_properties = set()
         self._edge_properties = set()
+        self.prefix_manager = PrefixManager()
+
+    def set_prefix_map(self, m: Dict) -> None:
+        """
+        Update default prefix map.
+
+        Parameters
+        ----------
+        m: Dict
+            A dictionary with prefix to IRI mappings
+
+        """
+        self.prefix_manager.update_prefix_map(m)
 
     def parse(self, **kwargs: Any) -> Generator:
         """

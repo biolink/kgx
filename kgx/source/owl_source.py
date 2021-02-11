@@ -26,11 +26,8 @@ class OwlSource(RdfSource):
         super().__init__()
         self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
 
-    def parse(self, filename: str, format: str = 'owl', compression: Optional[str] = None, node_property_predicates: Optional[Set[str]] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+    def parse(self, filename: str, format: str = 'owl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         rdfgraph = rdflib.Graph()
-        if node_property_predicates:
-            self.node_properties.update([URIRef(self.prefix_manager.expand(x)) for x in node_property_predicates])
-
         if compression:
             log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
         if format is None:
@@ -64,7 +61,7 @@ class OwlSource(RdfSource):
                     log.warning(f"Trying to import {o} but its already done")
         yield from self.load_graph(rdfgraph)
 
-    def load_graph(self, rdfgraph: rdflib.Graph, predicates: Optional[Set[URIRef]] = None, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, **kwargs: Dict) -> None:
         """
         Walk through the rdflib.Graph and load all triples into kgx.graph.base_graph.BaseGraph
 
@@ -72,8 +69,6 @@ class OwlSource(RdfSource):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        predicates: Optional[Set[URIRef]]
-            A list of rdflib.URIRef representing predicates to be loaded
         kwargs: Dict
             Any additional arguments
 

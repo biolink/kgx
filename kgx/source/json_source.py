@@ -16,8 +16,6 @@ class JsonSource(TsvSource):
     def __init__(self):
         super().__init__()
         self.compression = None
-        self._node_properties = set()
-        self._edge_properties = set()
 
     def parse(self, filename: str, format: str, compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         """

@@ -20,6 +20,30 @@ class TsvSource(Source):
     def __init__(self):
         super().__init__()
 
+    def set_prefix_map(self, m) -> None:
+        """
+        Add or override default prefix to IRI map.
+
+        Parameters
+        ----------
+        m: Dict
+            Prefix to IRI map
+
+        """
+        self.prefix_manager.set_prefix_map(m)
+
+    def set_reverse_prefix_map(self, m) -> None:
+        """
+        Add or override default IRI to prefix map.
+
+        Parameters
+        ----------
+        m: Dict
+            IRI to prefix map
+
+        """
+        self.prefix_manager.set_reverse_prefix_map(m)
+
     def parse(self, filename: str, format: str, compression: Optional[str] = None, provided_by: str = None, **kwargs: Any) -> Generator:
         """
         This method reads from a TSV/CSV and yields records.

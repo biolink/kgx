@@ -21,6 +21,10 @@ cache = None
 log = get_logger()
 
 DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
+DEFAULT_EDGE_PREDICATE = 'biolink:related_to'
+CORE_NODE_PROPERTIES = {'id'}
+CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
+
 LIST_DELIMITER = '|'
 
 column_types = {
