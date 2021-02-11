@@ -26,3 +26,4 @@ docker>=4.2.2
 pathlib>=1.0.0
 jsonlines>=1.2.0
 jsonstreams>=0.5.0
+ijson>=3.1.3
