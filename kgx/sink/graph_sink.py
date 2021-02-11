@@ -15,6 +15,11 @@ class GraphSink(Sink):
     The underlying store is determined by the graph store
     class defined in config (``kgx.graph.nx_graph.NxGraph``, by default).
 
+    Parameters
+    ----------
+    graph: kgx.graph.base_graph.BaseGraph
+        An instance of BaseGraph to read from
+
     """
 
     def __init__(self, graph: BaseGraph = None):

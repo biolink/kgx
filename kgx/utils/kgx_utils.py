@@ -83,9 +83,6 @@ is_property_multivalued = {
     'relation': False
 }
 
-CORE_NODE_PROPERTIES = {'id', 'name'}
-CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'relation'}
-
 
 def camelcase_to_sentencecase(s: str) -> str:
     """

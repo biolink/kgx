@@ -27,6 +27,8 @@ class GraphSource(Source):
         ----------
         graph: kgx.graph.base_graph.BaseGraph
             The graph to read from
+        provided_by: Optional[str]
+            The name of the source providing the graph
 
         """
         self.graph = graph
