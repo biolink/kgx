@@ -2,7 +2,7 @@
 
 Author: Deepak Unni<br>
 Date: 2021-01-12<br>
-Version: 0.0.1<br>
+Version: 0.0.2<br>
 
 
 > **Note:** This specification is constantly evolving based on the changes occuring in Biolink Model.
@@ -87,7 +87,6 @@ There are 4 required elements for an Edge record:
 - [predicate](https://biolink.github.io/biolink-model/docs/predicate)
 - [object](https://biolink.github.io/biolink-model/docs/object)
 - [relation](https://biolink.github.io/biolink-model/docs/relation)
-- [category](https://biolink.github.io/biolink-model/docs/category)
 
 ##### subject
 
@@ -111,11 +110,6 @@ The `relation` element is used to refer to a more specific relationship that fur
 Usually, this is a term from the [Relations Ontology](http://www.obofoundry.org/ontology/ro.html) but other ontologies,
 thesauri, and controlled vocabularies are allowed.
 
-##### category
-
-The category element is used to name the high level class in which this edge/statement/assertion is categorized.
-The element is a multivalued list which must have a value from the Biolink [Association](https://biolink.github.io/biolink-model/docs/Association) hierarchy.
-
 
 #### Optional Edge Record Elements
 
@@ -123,7 +117,7 @@ The element is a multivalued list which must have a value from the Biolink [Asso
 
 An edge can have additional properties, as defined in the Biolink Model.
 
-For example, [provided_by](https://biolink.github.io/biolink-model/docs/provided_by) and [publications](https://biolink.github.io/biolink-model/docs/publications).
+For example, [category](https://biolink.github.io/biolink-model/docs/category), [provided_by](https://biolink.github.io/biolink-model/docs/provided_by) and [publications](https://biolink.github.io/biolink-model/docs/publications).
 
 ##### Non-Biolink Model Elements
 
