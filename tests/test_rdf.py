@@ -5,23 +5,22 @@ from rdflib import Namespace
 from rdflib.namespace import RDF
 import rdflib
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
+from tests import RESOURCE_DIR, TARGET_DIR
+
 
 def test_load():
     """
     load TTL and save as CSV
     """
-    input_file = os.path.join(resource_dir, 'monarch/biogrid_test.ttl')
-    output_file = os.path.join(target_dir, 'test_output.ttl')
+    input_file = os.path.join(RESOURCE_DIR, 'monarch/biogrid_test.ttl')
+    output_file = os.path.join(TARGET_DIR, 'test_output.ttl')
 
     t = ObanRdfTransformer()
     t.parse(input_file, input_format="turtle")
     t.report()
     t.save(output_file, output_format="turtle")
 
-    output_archive_file = os.path.join(target_dir, 'biogrid_test')
+    output_archive_file = os.path.join(TARGET_DIR, 'biogrid_test')
     pt = PandasTransformer(t.graph)
     pt.save(output_archive_file)
 
@@ -47,15 +46,15 @@ def test_load():
     # w2 = GraphMLTransformer(t.graph)
     # w2.save(os.path.join(tpath, "x1n.graphml"))
     w3 = JsonTransformer(t.graph)
-    w3.save(os.path.join(target_dir, "biogrid_test.json"))
+    w3.save(os.path.join(TARGET_DIR, "biogrid_test.json"))
 
 def test_owl_load():
     """
     Load a test OWL and export as JSON
     """
-    input_file = os.path.join(resource_dir, 'mody.ttl')
-    output_archive_file = os.path.join(target_dir, 'mondo_test')
-    output_json_file = os.path.join(target_dir, 'mondo_test.json')
+    input_file = os.path.join(RESOURCE_DIR, 'mody.ttl')
+    output_archive_file = os.path.join(TARGET_DIR, 'mondo_test')
+    output_json_file = os.path.join(TARGET_DIR, 'mondo_test.json')
 
     t = RdfOwlTransformer()
     t.parse(input_file, input_format='ttl')

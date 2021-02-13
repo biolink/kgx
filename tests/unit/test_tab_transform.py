@@ -7,12 +7,8 @@ from kgx.source.graph_source import GraphSource
 from kgx.source.tsv_source import TsvSource
 from kgx.sink.tsv_sink import TsvSink
 from kgx.stream import Stream
-from kgx.new_transformer import Transformer
-from tests import print_graph
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from kgx.transformer import Transformer
+from tests import print_graph, TARGET_DIR, RESOURCE_DIR
 
 
 def test_tab_transform():
@@ -20,19 +16,19 @@ def test_tab_transform():
     # during stream, need to define ahead of time what the node properties
     # and edge properties are
     sink = TsvSink(
-        filename=os.path.join(target_dir, 'my_graph'),
+        filename=os.path.join(TARGET_DIR, 'my_graph'),
         format='tsv',
         node_properties=['id', 'name', 'category'],
         edge_properties=['subject', 'predicate', 'object', 'relation']
     )
     source = TsvSource()
     g = source.parse(
-        filename=os.path.join(resource_dir, 'graph_nodes.tsv'),
+        filename=os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         format='tsv'
     )
     tt.process(g, sink)
     g = source.parse(
-        filename=os.path.join(resource_dir, 'graph_edges.tsv'),
+        filename=os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
         format='tsv'
     )
     tt.process(g, sink)
@@ -41,18 +37,18 @@ def test_tab_transform():
 def test_json_transform():
     tt = Stream()
     sink = JsonSink(
-        filename=os.path.join(target_dir, 'my_graph.json'),
+        filename=os.path.join(TARGET_DIR, 'my_graph.json'),
         format='json',
         compression='gz'
     )
     source = TsvSource()
     g = source.parse(
-        filename=os.path.join(resource_dir, 'graph_nodes.tsv'),
+        filename=os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         format='tsv'
     )
     tt.process(g, sink)
     g = source.parse(
-        filename=os.path.join(resource_dir, 'graph_edges.tsv'),
+        filename=os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
         format='tsv'
     )
     tt.process(g, sink)
@@ -63,23 +59,23 @@ def test_nx_transform():
     input_channel = Stream()
     intermediate_sink = GraphSink()
     input_source = TsvSource()
-    input_source_generator = input_source.parse(os.path.join(resource_dir, 'graph_nodes.tsv'), 'tsv')
+    input_source_generator = input_source.parse(os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'), 'tsv')
     input_channel.process(input_source_generator, intermediate_sink)
-    input_source_generator = input_source.parse(os.path.join(resource_dir, 'graph_edges.tsv'), 'tsv')
+    input_source_generator = input_source.parse(os.path.join(RESOURCE_DIR, 'graph_edges.tsv'), 'tsv')
     input_channel.process(input_source_generator, intermediate_sink)
 
     intermediate_source = GraphSource()
     intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
 
-    output_sink = TsvSink(os.path.join(target_dir, 'my_graph'), 'tsv', None)
+    output_sink = TsvSink(os.path.join(TARGET_DIR, 'my_graph'), 'tsv', None)
     output_channel = Stream()
     output_channel.process(intermediate_source_generator, output_sink)
 
 
 def test_configurable_transformer1():
     input_files = [
-        os.path.join(resource_dir, 'graph_nodes.tsv'),
-       os.path.join(resource_dir, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+       os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     ]
     t = Transformer()
     for f in input_files:
@@ -90,36 +86,36 @@ def test_configurable_transformer1():
 
 def test_configurable_transformer2():
     input_files = [
-        os.path.join(resource_dir, 'graph_nodes.tsv'),
-       os.path.join(resource_dir, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+       os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     ]
     t = Transformer()
     for f in input_files:
         input_args = {'filename': f, 'format': 'tsv'}
         t.transform(input_args)
     print_graph(t.store.graph)
-    output_args = {'filename': os.path.join(target_dir, 'my_new_graph'), 'format': 'tsv'}
+    output_args = {'filename': os.path.join(TARGET_DIR, 'my_new_graph'), 'format': 'tsv'}
     # TODO: empty output due to node_properties and edge_properties being empty
     t.save(output_args)
 
 
 def test_configurable_transformer3():
     input_files = [
-        os.path.join(resource_dir, 'cm_nodes.csv'),
-       os.path.join(resource_dir, 'cm_edges.csv')
+        os.path.join(RESOURCE_DIR, 'cm_nodes.csv'),
+       os.path.join(RESOURCE_DIR, 'cm_edges.csv')
     ]
     t = Transformer()
     for f in input_files:
         input_args = {'filename': f, 'format': 'csv'}
         t.transform(input_args)
     print_graph(t.store.graph)
-    output_args = {'filename': os.path.join(target_dir, 'my_new_graph'), 'format': 'tsv'}
+    output_args = {'filename': os.path.join(TARGET_DIR, 'my_new_graph'), 'format': 'tsv'}
     t.save(output_args)
 
 
 def test_configurable_transformer4():
     input_files = [
-        os.path.join(resource_dir, 'test.tar.gz'),
+        os.path.join(RESOURCE_DIR, 'test.tar.gz'),
     ]
     t = Transformer()
     for f in input_files:
@@ -132,7 +128,7 @@ def test_configurable_transformer4():
 
 def test_json_source():
     input_files = [
-        os.path.join(resource_dir, '../../chebi_kgx.json.gz'),
+        os.path.join(RESOURCE_DIR, '../../chebi_kgx.json.gz'),
     ]
     js = JsonSource()
     for f in input_files:
@@ -143,7 +139,7 @@ def test_json_source():
 def test_configurable_transformer5():
     # Tough to implement a stream export of JSON
     input_files = [
-        os.path.join(resource_dir, 'valid.json'),
+        os.path.join(RESOURCE_DIR, 'valid.json'),
     ]
     t = Transformer()
     for f in input_files:
@@ -156,8 +152,8 @@ def test_configurable_transformer5():
 
 def test_configurable_transformer6():
     input_files = [
-        os.path.join(resource_dir, 'valid_nodes.jsonl'),
-        os.path.join(resource_dir, 'valid_edges.jsonl')
+        os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),
+        os.path.join(RESOURCE_DIR, 'valid_edges.jsonl')
     ]
     t = Transformer()
     for f in input_files:
@@ -170,8 +166,8 @@ def test_configurable_transformer6():
 
 def test_configurable_transformer7():
     input_files = [
-        os.path.join(resource_dir, 'valid_nodes.jsonl'),
-        os.path.join(resource_dir, 'valid_edges.jsonl')
+        os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),
+        os.path.join(RESOURCE_DIR, 'valid_edges.jsonl')
     ]
     t = Transformer()
     for f in input_files:
@@ -184,7 +180,7 @@ def test_configurable_transformer7():
 
 def test_configurable_transformer8():
     input_files = [
-        os.path.join(resource_dir, 'goslim_generic.json')
+        os.path.join(RESOURCE_DIR, 'goslim_generic.json')
     ]
     t = Transformer()
     for f in input_files:
@@ -197,7 +193,7 @@ def test_configurable_transformer8():
 
 def test_configurable_transformer9():
     input_files = [
-        os.path.join(resource_dir, 'rsa_sample.json')
+        os.path.join(RESOURCE_DIR, 'rsa_sample.json')
     ]
     t = Transformer()
     for f in input_files:
@@ -241,16 +237,15 @@ def test_configurable_transformer13():
 
 def test_configurable_transformer14():
     t = Transformer(stream=True)
-    input_args = {'filename': os.path.join(resource_dir, '../../', 'chebi_sorted.nt'), 'format': 'nt'}
+    input_args = {'filename': os.path.join(RESOURCE_DIR, '../../', 'chebi_sorted.nt'), 'format': 'nt'}
     output_args = {'filename': 'my_orpha_graph.nt', 'format': 'jsonl'}
     t.transform(input_args, output_args)
 
 
 def test_configurable_transformer15():
     t = Transformer(stream=True)
-    input_args = {'filename': os.path.join(resource_dir, '../../', 'orphanet-export.sorted.nt'), 'format': 'nt'}
+    input_args = {'filename': os.path.join(RESOURCE_DIR, '../../', 'orphanet-export.sorted.nt'), 'format': 'nt'}
     output_args = {'filename': 'my_orpha_graph.nt', 'format': 'nt'}
     t.transform(input_args, output_args)
-
 
 

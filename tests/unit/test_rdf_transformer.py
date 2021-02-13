@@ -3,16 +3,12 @@ import pytest
 import rdflib
 
 from kgx import RdfTransformer
-from tests import print_graph
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import print_graph, RESOURCE_DIR, TARGET_DIR
 
 
 def test_parse1():
     t1 = RdfTransformer()
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test1.nt'))
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'))
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 2
     assert t1.graph.number_of_edges() == 1
@@ -47,7 +43,7 @@ def test_parse1():
 def test_parse2():
     np = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
     t1 = RdfTransformer()
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test2.nt'), node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt'), node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 4
     assert t1.graph.number_of_edges() == 3
@@ -89,7 +85,7 @@ def test_parse2():
 def test_parse3():
     np = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
     t1 = RdfTransformer()
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test3.nt'), node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'), node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 7
     assert t1.graph.number_of_edges() == 6
@@ -141,20 +137,20 @@ def test_parse3():
 
 def test_save1():
     t1 = RdfTransformer()
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test1.nt'))
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'))
     assert t1.graph.number_of_nodes() == 2
     assert t1.graph.number_of_edges() == 1
 
-    t1.save(os.path.join(target_dir, 'test1-export.ttl'), output_format='turtle')
-    t1.save(os.path.join(target_dir, 'test1-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'test1-export.ttl'), output_format='turtle')
+    t1.save(os.path.join(TARGET_DIR, 'test1-export.nt'), output_format='nt')
 
     t2 = RdfTransformer()
-    t2.parse(os.path.join(target_dir, 'test1-export.ttl'))
+    t2.parse(os.path.join(TARGET_DIR, 'test1-export.ttl'))
     assert t2.graph.number_of_nodes() == 2
     assert t2.graph.number_of_edges() == 1
 
     t3 = RdfTransformer()
-    t3.parse(os.path.join(target_dir, 'test1-export.nt'))
+    t3.parse(os.path.join(TARGET_DIR, 'test1-export.nt'))
     assert t3.graph.number_of_nodes() == 2
     assert t3.graph.number_of_edges() == 1
 
@@ -175,21 +171,21 @@ def test_save1():
 def test_save2():
     np = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
     t1 = RdfTransformer()
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test2.nt'), node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt'), node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 4
     assert t1.graph.number_of_edges() == 3
-    t1.save(os.path.join(target_dir, 'test2-export.ttl'), output_format='turtle')
-    t1.save(os.path.join(target_dir, 'test2-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'test2-export.ttl'), output_format='turtle')
+    t1.save(os.path.join(TARGET_DIR, 'test2-export.nt'), output_format='nt')
 
     t2 = RdfTransformer()
-    t2.parse(os.path.join(target_dir, 'test2-export.ttl'), node_property_predicates=np)
+    t2.parse(os.path.join(TARGET_DIR, 'test2-export.ttl'), node_property_predicates=np)
     print_graph(t2.graph)
     assert t2.graph.number_of_nodes() == 4
     assert t2.graph.number_of_edges() == 3
 
     t3 = RdfTransformer()
-    t3.parse(os.path.join(target_dir, 'test2-export.nt'), node_property_predicates=np)
+    t3.parse(os.path.join(TARGET_DIR, 'test2-export.nt'), node_property_predicates=np)
     assert t3.graph.number_of_nodes() == 4
     assert t3.graph.number_of_edges() == 3
 
@@ -230,19 +226,19 @@ def test_save3():
 
     t1 = RdfTransformer()
     t1.set_property_types(property_types)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'test3.nt'), node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'), node_property_predicates=np)
     assert t1.graph.number_of_nodes() == 7
     assert t1.graph.number_of_edges() == 6
-    t1.save(os.path.join(target_dir, 'test3-export.ttl'), output_format='turtle')
-    t1.save(os.path.join(target_dir, 'test3-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'test3-export.ttl'), output_format='turtle')
+    t1.save(os.path.join(TARGET_DIR, 'test3-export.nt'), output_format='nt')
 
     t2 = RdfTransformer()
-    t2.parse(os.path.join(target_dir, 'test3-export.ttl'), node_property_predicates=np)
+    t2.parse(os.path.join(TARGET_DIR, 'test3-export.ttl'), node_property_predicates=np)
     assert t2.graph.number_of_nodes() == 7
     assert t2.graph.number_of_edges() == 6
 
     t3 = RdfTransformer()
-    t3.parse(os.path.join(target_dir, 'test3-export.nt'), node_property_predicates=np)
+    t3.parse(os.path.join(TARGET_DIR, 'test3-export.nt'), node_property_predicates=np)
     assert t3.graph.number_of_nodes() == 7
     assert t3.graph.number_of_edges() == 6
 
@@ -294,7 +290,7 @@ def test_filters(query):
     if query[1]:
         for k, v in query[1].items():
             rt.set_edge_filter(k, v)
-    rt.parse(os.path.join(resource_dir, 'rdf', 'test3.nt'))
+    rt.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'))
 
     assert rt.graph.number_of_nodes() == query[2]
     assert rt.graph.number_of_edges() == query[3]

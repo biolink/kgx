@@ -5,10 +5,6 @@ from kgx import Transformer
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph.nx_graph import NxGraph
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
-
 
 def get_graphs():
     g1 = NxGraph()

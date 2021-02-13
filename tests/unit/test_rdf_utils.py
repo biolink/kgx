@@ -4,10 +4,7 @@ from rdflib import URIRef, Graph
 
 from kgx import PrefixManager
 from kgx.utils.rdf_utils import infer_category, process_predicate
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR
 
 
 @pytest.mark.parametrize('query', [
@@ -17,7 +14,7 @@ target_dir = os.path.join(cwd, '../target')
 ])
 def test_infer_category(query):
     graph = Graph()
-    graph.parse(os.path.join(resource_dir, 'goslim_generic.owl'))
+    graph.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
     [c] = infer_category(query[0], graph)
     assert c == query[1]
 

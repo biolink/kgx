@@ -1,17 +1,13 @@
 import os
-
 import pytest
 
 from kgx import RsaTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR
 
 
 def test_load():
     t = RsaTransformer()
-    t.parse(os.path.join(resource_dir, 'rsa_sample.json'))
+    t.parse(os.path.join(RESOURCE_DIR, 'rsa_sample.json'))
     assert t.graph.number_of_nodes() == 4
     assert t.graph.number_of_edges() == 3
 
