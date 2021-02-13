@@ -28,6 +28,9 @@
       "type": [
         "biolink:Disease"
       ]
+    },
+    {
+     "id": "MONDO:0013329"
     }
     ],
     "edges": [
