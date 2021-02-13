@@ -350,14 +350,14 @@ class RdfSource(Source):
                 node_data = {}
             node_data['id'] = n
 
-            if 'category' in node_data:
-                if 'biolink:NamedThing' not in set(node_data['category']):
-                    node_data['category'].append('biolink:NamedThing')
-            else:
-                node_data['category'] = ["biolink:NamedThing"]
+        if 'category' in node_data:
+            if 'biolink:NamedThing' not in set(node_data['category']):
+                node_data['category'].append('biolink:NamedThing')
+        else:
+            node_data['category'] = ["biolink:NamedThing"]
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+        if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
+            node_data['provided_by'] = self.graph_metadata['provided_by']
             self.node_cache[n] = node_data
         return node_data
 

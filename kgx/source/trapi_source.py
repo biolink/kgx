@@ -19,7 +19,7 @@ class TrapiSource(JsonSource):
         self._node_properties = set()
         self._edge_properties = set()
 
-    def parse(self, filename: str, format: str, compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+    def parse(self, filename: str, format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         """
         This method reads from a JSON and yields records.
 

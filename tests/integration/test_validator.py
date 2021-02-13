@@ -3,10 +3,8 @@ import os
 from kgx import JsonTransformer
 from kgx import Validator
 from kgx.graph.nx_graph import NxGraph
+from tests import RESOURCE_DIR
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
 
 def test_validator_bad():
     """
@@ -20,6 +18,7 @@ def test_validator_bad():
     e = validator.validate(G)
     assert len(e) > 0
 
+
 def test_validator_good():
     """
     A fake test to establish a success condition for validation
@@ -32,14 +31,14 @@ def test_validator_good():
     validator = Validator(verbose=True)
     e = validator.validate(G)
     print(validator.report(e))
-
     assert len(e) == 0
+
 
 def test_validate_json():
     """
     Validate against a valid representative Biolink Model compliant JSON
     """
-    json_file = os.path.join(resource_dir, 'valid.json')
+    json_file = os.path.join(RESOURCE_DIR, 'valid.json')
     jt = JsonTransformer()
     jt.parse(json_file)
     validator = Validator()
