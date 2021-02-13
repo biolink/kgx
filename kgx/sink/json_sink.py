@@ -33,7 +33,9 @@ class JsonSink(Sink):
         self.filename = filename
         if compression:
             self.compression = compression
-        self.FH = jsonstreams.Stream(jsonstreams.Type.object, filename=filename)
+        else:
+            self.compression = None
+        self.FH = jsonstreams.Stream(jsonstreams.Type.object, filename=filename, pretty=True, indent=4)
         self.NH = None
         self.EH = None
 
@@ -47,6 +49,9 @@ class JsonSink(Sink):
             A node record
 
         """
+        if self.EH:
+            self.EH.close()
+            self.EH = None
         if not self.NH:
             self.NH = self.FH.subarray('nodes')
         self.NH.write(record)
@@ -61,6 +66,9 @@ class JsonSink(Sink):
             An edge record
 
         """
+        if self.NH:
+            self.NH.close()
+            self.NH = None
         if not self.EH:
             self.EH = self.FH.subarray('edges')
         self.EH.write(record)
@@ -69,6 +77,12 @@ class JsonSink(Sink):
         """
         Finalize by creating a compressed file, if needed.
         """
+        if self.NH:
+            self.NH.close()
+        if self.EH:
+            self.EH.close()
+        if self.FH:
+            self.FH.close()
         if self.compression:
             WH = gzip.open(f"{self.filename}.gz", 'wb')
             with open(self.filename, 'r') as FH:

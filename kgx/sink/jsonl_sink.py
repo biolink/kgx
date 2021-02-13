@@ -72,4 +72,5 @@ class JsonlSink(Sink):
         """
         Perform any operations after writing the file.
         """
-        pass
+        self.NFH.close()
+        self.EFH.close()

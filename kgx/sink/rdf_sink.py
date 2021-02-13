@@ -42,7 +42,7 @@ class RdfSink(Sink):
 
     """
 
-    def __init__(self, filename: str, format: str = 'nt', compression: Optional[str] = None, reify_all_edges: bool = False, **kwargs: Any):
+    def __init__(self, filename: str, format: str = 'nt', compression: Optional[bool] = None, reify_all_edges: bool = False, **kwargs: Any):
         super().__init__()
         if format not in {'nt'}:
             raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
@@ -124,10 +124,10 @@ class RdfSink(Sink):
             if isinstance(v, (list, set, tuple)):
                 for x in v:
                     value_uri = self._prepare_object(k, prop_type, x)
-                    self._write_triple(URIRef(record['id']), prop_uri, value_uri)
+                    self._write_triple(self.uriref(record['id']), prop_uri, value_uri)
             else:
                 value_uri = self._prepare_object(k, prop_type, v)
-                self._write_triple(URIRef(record['id']), prop_uri, value_uri)
+                self._write_triple(self.uriref(record['id']), prop_uri, value_uri)
 
     def _write_triple(self, s: URIRef, p: URIRef, o: Union[URIRef, Literal]):
         """
@@ -408,8 +408,8 @@ class RdfSink(Sink):
                 # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None
-                if p in self.predicate_mapping:
-                    property_name = self.predicate_mapping[p]
+                if p in self.reverse_predicate_mapping:
+                    property_name = self.reverse_predicate_mapping[p]
                     predicate = f":{property_name}"
             self.cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
         return element_uri, canonical_uri, predicate, property_name
@@ -487,3 +487,9 @@ class RdfSink(Sink):
         reified_node['predicate'] = p
         reified_node['object'] = o
         return reified_node
+
+    def finalize(self) -> None:
+        """
+        Perform any operations after writing the file.
+        """
+        self.FH.close()

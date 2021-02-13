@@ -37,9 +37,9 @@ class TsvSink(Sink):
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
 
-        self._node_properties = kwargs['node_properties'] if 'node_properties' in kwargs else set()
+        self._node_properties = set(kwargs['node_properties']) if 'node_properties' in kwargs else set()
         self.ordered_node_columns = TsvSink._order_node_columns(self._node_properties)
-        self._edge_properties = kwargs['edge_properties'] if 'edge_properties' in kwargs else set()
+        self._edge_properties = set(kwargs['edge_properties']) if 'edge_properties' in kwargs else set()
         self.ordered_edge_columns = TsvSink._order_edge_columns(self._edge_properties)
 
         self.nodes_file_name = os.path.join(self.dirname if self.dirname else '', self.nodes_file_basename)
@@ -90,8 +90,10 @@ class TsvSink(Sink):
 
     def finalize(self) -> None:
         """
-        Create an archive if compression mode is defined.
+        Close file handles and create an archive if compression mode is defined.
         """
+        self.NFH.close()
+        self.EFH.close()
         if self.mode:
             archive_basename = f"{self.basename}.{archive_format[self.mode]}"
             archive_name = os.path.join(self.dirname if self.dirname else '', archive_basename)
