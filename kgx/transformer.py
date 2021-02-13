@@ -98,13 +98,13 @@ class Transformer(object):
         source_generator = source.parse(**input_args)
         if output_args:
             sink = self.get_sink(**output_args)
-            if 'reverse_prefix_map' in input_args:
-                source.set_reverse_prefix_map(input_args['reverse_prefix_map'])
-            if isinstance(source, RdfSource):
-                if 'reverse_predicate_mapping' in input_args:
-                    source.set_reverse_predicate_mapping(input_args['reverse_predicate_mapping'])
-            if 'property_types' in input_args:
-                source.set_property_types(input_args['property_types'])
+            if 'reverse_prefix_map' in output_args:
+                sink.set_reverse_prefix_map(input_args['reverse_prefix_map'])
+            if isinstance(source, RdfSink):
+                if 'reverse_predicate_mapping' in output_args:
+                    sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+            if 'property_types' in output_args:
+                sink.set_property_types(output_args['property_types'])
 
             if self.stream:
                 # stream from source to sink
@@ -117,10 +117,12 @@ class Transformer(object):
                 intermediate_source = self.get_source('graph')
                 intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
                 self.process(intermediate_source_generator, sink)
+                sink.finalize()
         else:
             # stream from source to intermediate
             sink = GraphSink(self.store.graph)
             self.process(source_generator, sink)
+            sink.finalize()
         # self.node_filters.clear()
         # self.edge_filters.clear()
         # self._seen_nodes.clear()
@@ -177,6 +179,7 @@ class Transformer(object):
         source_generator = source.parse(self.store.graph)
         sink = self.get_sink(**output_args)
         self.process(source_generator, sink)
+        sink.finalize()
 
     def get_source(self, format: str) -> Source:
         """
