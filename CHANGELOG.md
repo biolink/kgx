@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 - (2021-02-08)
+
+- Fixed a bug in NtTransformer when parsing malformed triples
+- Added a transformer for parsing SSSOM
+- Added ability to fold predicates to node properties
+- Added ability to unfold node properties to predicates
+- Added ability to remove singleton nodes from a graph
+- Fixed bug in KGX CLI transform operation that prevented stack trace from showing up
+- Unified the way predicates are parsed across different transformers
+- Added ability to annotate edges with OWLStar vocabulary in RdfOwlTransformer
+
+
 ## 0.3.1 - (2021-01-20)
 
 - Fixed a bug that led to import errors
