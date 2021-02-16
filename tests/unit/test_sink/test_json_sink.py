@@ -18,7 +18,6 @@ def test_write_json1():
     for u, v, k, data in graph.edges(data=True, keys=True):
         s.write_edge(data)
     s.finalize()
-    del s
     assert os.path.exists(filename)
 
 
@@ -34,5 +33,4 @@ def test_write_json2():
     for u, v, k, data in graph.edges(data=True, keys=True):
         s.write_edge(data)
     s.finalize()
-    del s
     assert os.path.exists(f"{filename}.gz")

@@ -19,7 +19,7 @@ def test_read_trapi_json1():
             else:
                 nodes[rec[0]] = rec[1]
 
-    assert len(nodes.keys()) == 3
+    assert len(nodes.keys()) == 4
     assert len(edges.keys()) == 3
 
     n = nodes['HGNC:11603']
@@ -49,7 +49,7 @@ def test_read_trapi_json2():
             else:
                 nodes[rec[0]] = rec[1]
 
-    assert len(nodes.keys()) == 3
+    assert len(nodes.keys()) == 4
     assert len(edges.keys()) == 3
 
     n = nodes['HGNC:11603']

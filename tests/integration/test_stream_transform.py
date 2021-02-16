@@ -335,22 +335,22 @@ def test_stream2(clean_slate, query):
         7,
         6
     ),
-    (
-        [
-            {
-                'filename': os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'),
-                'format': 'nt'
-            }
-        ],
-        {
-            'uri': DEFAULT_NEO4J_URL,
-            'username': DEFAULT_NEO4J_USERNAME,
-            'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
-        },
-        7,
-        6
-    ),
+    # (
+    #     [
+    #         {
+    #             'filename': os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'),
+    #             'format': 'nt'
+    #         }
+    #     ],
+    #     {
+    #         'uri': DEFAULT_NEO4J_URL,
+    #         'username': DEFAULT_NEO4J_USERNAME,
+    #         'password': DEFAULT_NEO4J_PASSWORD,
+    #         'format': 'neo4j'
+    #     },
+    #     7,
+    #     6
+    # ),
     (
         [
             {
@@ -423,22 +423,22 @@ def test_stream3(clean_slate, query):
         176,
         206
     ),
-    (
-        [
-            {
-                'filename': os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
-                'format': 'obojson'
-            }
-        ],
-        {
-            'uri': DEFAULT_NEO4J_URL,
-            'username': DEFAULT_NEO4J_USERNAME,
-            'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
-        },
-        176,
-        206
-    ),
+    # (
+    #     [
+    #         {
+    #             'filename': os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
+    #             'format': 'obojson'
+    #         }
+    #     ],
+    #     {
+    #         'uri': DEFAULT_NEO4J_URL,
+    #         'username': DEFAULT_NEO4J_USERNAME,
+    #         'password': DEFAULT_NEO4J_PASSWORD,
+    #         'format': 'neo4j'
+    #     },
+    #     176,
+    #     206
+    # ),
     (
         [
             {
@@ -524,22 +524,22 @@ def test_stream4(clean_slate, query):
         220,
         1050
     ),
-    (
-        [
-            {
-                'filename': os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
-                'format': 'owl'
-            }
-        ],
-        {
-            'uri': DEFAULT_NEO4J_URL,
-            'username': DEFAULT_NEO4J_USERNAME,
-            'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
-        },
-        220,
-        1050
-    ),
+    # (
+    #     [
+    #         {
+    #             'filename': os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
+    #             'format': 'owl'
+    #         }
+    #     ],
+    #     {
+    #         'uri': DEFAULT_NEO4J_URL,
+    #         'username': DEFAULT_NEO4J_USERNAME,
+    #         'password': DEFAULT_NEO4J_PASSWORD,
+    #         'format': 'neo4j'
+    #     },
+    #     220,
+    #     1050
+    # ),
     # Filters not yet implemented in OwlSource
     # (
     #     [
@@ -626,22 +626,22 @@ def test_stream5(clean_slate, query):
         4,
         3
     ),
-    (
-        [
-            {
-                'filename': os.path.join(RESOURCE_DIR, 'rsa_sample.json'),
-                'format': 'trapi-json'
-            }
-        ],
-        {
-            'uri': DEFAULT_NEO4J_URL,
-            'username': DEFAULT_NEO4J_USERNAME,
-            'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
-        },
-        4,
-        3
-    ),
+    # (
+    #     [
+    #         {
+    #             'filename': os.path.join(RESOURCE_DIR, 'rsa_sample.json'),
+    #             'format': 'trapi-json'
+    #         }
+    #     ],
+    #     {
+    #         'uri': DEFAULT_NEO4J_URL,
+    #         'username': DEFAULT_NEO4J_USERNAME,
+    #         'password': DEFAULT_NEO4J_PASSWORD,
+    #         'format': 'neo4j'
+    #     },
+    #     4,
+    #     3
+    # ),
     (
         [
             {

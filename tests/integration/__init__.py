@@ -15,6 +15,5 @@ def clean_slate():
     print(q)
     try:
         http_driver.query(q)
-        #sleep(3)
     except CypherException as ce:
         print(ce)
