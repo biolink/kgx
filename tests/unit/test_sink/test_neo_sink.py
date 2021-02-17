@@ -1,3 +1,4 @@
+import pytest
 from neo4jrestclient.client import GraphDatabase
 from neo4jrestclient.query import CypherException
 
@@ -6,6 +7,7 @@ from tests import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, DEFAUL
 from tests.unit.test_sink import get_graph
 
 
+@pytest.mark.skip()
 def test_write_neo1(clean_slate):
     """
     Write a graph to a Neo4j instance using NeoSink.
