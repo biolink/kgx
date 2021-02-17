@@ -2,6 +2,8 @@ import itertools
 import click
 from typing import Tuple, List, Dict, Union, Any, Iterator, Optional
 
+from deprecation import deprecated
+
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.transformers.transformer import Transformer
@@ -32,6 +34,7 @@ class NeoTransformer(Transformer):
     CATEGORY_DELIMITER = '|'
     CYPHER_CATEGORY_DELIMITER = ':'
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None, uri: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None):
         super(NeoTransformer, self).__init__(source_graph)
         self.http_driver: GraphDatabase = http_gdb(uri, username=username, password=password)

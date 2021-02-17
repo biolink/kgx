@@ -1,6 +1,8 @@
 import json
 from typing import Union, List, Dict, Tuple, Set, Any, Optional
 
+from deprecation import deprecated
+
 from kgx.config import get_logger, get_config, get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph.nx_graph import NxGraph
@@ -38,6 +40,7 @@ class Transformer(object):
 
     DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         if source_graph:
             self.graph = source_graph
