@@ -6,6 +6,7 @@ import rdflib
 from biolinkml.meta import Element, ClassDefinition, SlotDefinition
 from rdflib import URIRef, Literal, Namespace, RDF
 from rdflib.plugins.serializers.nt import _nt_row
+from rdflib.term import _is_valid_uri
 
 from kgx import PrefixManager
 from kgx.config import get_logger
@@ -291,7 +292,10 @@ class RdfSink(Sink):
             if isinstance(value, str) and PrefixManager.is_curie(value):
                 o = self.uriref(value)
             elif isinstance(value, str) and PrefixManager.is_iri(value):
-                o = URIRef(value)
+                if _is_valid_uri(value):
+                    o = URIRef(value)
+                else:
+                    o = Literal(value)
             else:
                 o = Literal(value)
         elif prop_type.startswith('xsd'):
