@@ -1,40 +1,29 @@
 import json
 import os
 import pprint
-from time import sleep
-
 import pytest
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
 
-from kgx import PandasTransformer, JsonTransformer, RdfTransformer, NtTransformer
-from kgx.cli import get_transformer, get_file_types, graph_summary
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
+from kgx.cli import get_input_file_types, graph_summary
 from tests import clean_slate, check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, \
     DEFAULT_NEO4J_PASSWORD, RESOURCE_DIR, TARGET_DIR
 
 
-def test_get_transformer():
-    t = get_transformer('tsv')
-    assert t == PandasTransformer
-
-    t = get_transformer('json')
-    assert t == JsonTransformer
-
-    t = get_transformer('nt')
-    assert t == NtTransformer
-
-    t = get_transformer('ttl')
-    assert t == RdfTransformer
-
-
 def test_get_file_types():
-    file_types = get_file_types()
+    """
+    Test get_file_types method.
+    """
+    file_types = get_input_file_types()
     assert 'tsv' in file_types
     assert 'nt' in file_types
     assert 'json' in file_types
-    assert 'ttl' in file_types
+    assert 'obojson' in file_types
 
 
 def test_graph_summary():
+    """
+    Test graph summary.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
@@ -56,6 +45,9 @@ def test_graph_summary():
 
 
 def test_validate():
+    """
+    Test graph validation.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'valid.json'),
     ]
@@ -67,17 +59,24 @@ def test_validate():
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_neo4j_upload(clean_slate):
+    """
+    Test upload to Neo4j.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     ]
     # upload
     t = neo4j_upload(inputs, 'tsv', None, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
-    t.report()
+    assert t.store.graph.number_of_nodes() == 512
+    assert t.store.graph.number_of_edges() == 532
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_neo4j_download(clean_slate):
+    """
+    Test download from Neo4j.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
@@ -92,7 +91,6 @@ def test_neo4j_download(clean_slate):
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD
     )
-    t1.report()
     t2 = neo4j_download(
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
@@ -101,15 +99,16 @@ def test_neo4j_download(clean_slate):
         output_format='tsv',
         output_compression=None
     )
-    t2.report()
     assert os.path.exists(f"{output}_nodes.tsv")
     assert os.path.exists(f"{output}_edges.tsv")
-    assert t1.graph.number_of_nodes() == t2.graph.number_of_nodes()
-    assert t1.graph.number_of_edges() == t2.graph.number_of_edges()
+    assert t1.store.graph.number_of_nodes() == t2.store.graph.number_of_nodes()
+    assert t1.store.graph.number_of_edges() == t2.store.graph.number_of_edges()
 
 
 def test_transform1():
-    # transform graph from TSV to JSON
+    """
+    Transform graph from TSV to JSON.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
@@ -132,7 +131,9 @@ def test_transform1():
 
 
 def test_transform2():
-    # transform from a test transform yaml
+    """
+    Transform from a test transform YAML.
+    """
     transform_config = os.path.join(RESOURCE_DIR, 'test-transform.yaml')
     transform(None, transform_config=transform_config)
     assert os.path.exists(os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'))
@@ -140,7 +141,9 @@ def test_transform2():
 
 
 def test_merge1():
-    # transform from test merge yaml
+    """
+    Transform from test merge YAML.
+    """
     merge_config = os.path.join(RESOURCE_DIR, 'test-merge.yaml')
     merge(merge_config=merge_config)
     assert os.path.join(TARGET_DIR, 'merged-graph_nodes.tsv')
@@ -149,8 +152,10 @@ def test_merge1():
 
 
 def test_merge2():
-    # transform selected source from test merge yaml and
-    # write selected destinations
+    """
+    Transform selected source from test merge YAML and
+    write selected destinations.
+    """
     merge_config = os.path.join(RESOURCE_DIR, 'test-merge.yaml')
     merge(merge_config=merge_config, destination=['merged-graph-json'])
     assert os.path.join(TARGET_DIR, 'merged-graph.json')

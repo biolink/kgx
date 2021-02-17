@@ -163,7 +163,6 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
 
     if not output_format:
         output_format = 'tsv'
-    transformer = Transformer()
     transformer.save({
         'filename': output,
         'format': output_format,
@@ -401,11 +400,15 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     if destination_to_write:
         for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
-            output_args = {'format': destination_info['format'],
-                           'reverse_prefix_map': top_level_args['reverse_prefix_map']}
-            output_args['reverse_prefix_map'].update(destination_info['reverse_prefix_map'])
-            output_args['reverse_predicate_mappings'] = top_level_args['reverse_predicate_mappings']
-            output_args['reverse_predicate_mappings'].update(destination_info['reverse_predicate_mappings'])
+            output_args = {
+                'format': destination_info['format'],
+                'reverse_prefix_map': top_level_args['reverse_prefix_map'],
+                'reverse_predicate_mappings': top_level_args['reverse_predicate_mappings']
+            }
+            if 'reverse_prefix_map' in destination_info:
+                output_args['reverse_prefix_map'].update(destination_info['reverse_prefix_map'])
+            if 'reverse_predicate_mappings' in destination_info:
+                output_args['reverse_predicate_mappings'].update(destination_info['reverse_predicate_mappings'])
             if destination_info['format'] == 'neo4j':
                 output_args['uri'] = destination_info['uri']
                 output_args['username'] = destination_info['username']
@@ -419,7 +422,8 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
                 output_args['compression'] = destination_info['compression'] if 'compression' in destination_info else None
                 if destination_info['format'] == 'nt':
                     output_args['property_types'] = top_level_args['property_types']
-                    output_args['property_types'].update(destination_info['property_types'])
+                    if 'property_types' in top_level_args:
+                        output_args['property_types'].update(destination_info['property_types'])
             else:
                 raise TypeError(f"type {destination_info['format']} not yet supported for KGX merge operation.")
             transformer.save(output_args)
@@ -502,10 +506,9 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
         output = output_filename
 
     transformer = parse_source_input(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings, property_types, checkpoint)
-
     if output_directory and not output.startswith(output_directory):
         output = os.path.join(output_directory, output)
-    output_args = {'format': 'neo4j'}
+    output_args = {'format': output_format}
     if output_format == 'neo4j':
         output_args['uri'] = source['output']['uri']
         output_args['username'] = source['output']['username']
