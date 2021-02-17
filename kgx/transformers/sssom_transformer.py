@@ -3,6 +3,7 @@ import re
 from typing import Optional, Dict, Set
 import pandas as pd
 import yaml
+from deprecation import deprecated
 from rdflib import URIRef
 
 from kgx import Transformer, PandasTransformer, PrefixManager
@@ -35,6 +36,7 @@ class SssomTransformer(Transformer):
 
     """
 
+    @deprecated(deprecated_in="1.0.0a", removed_in="1.0.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
         self._node_properties: Set = set()

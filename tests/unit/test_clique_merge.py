@@ -5,10 +5,6 @@ from kgx.operations.clique_merge import check_categories, sort_categories, check
 from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key
 from tests import print_graph
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
-
 
 def test_check_categories():
     vbc, ibc, ic = check_categories(['biolink:Gene'], get_biolink_ancestors('biolink:Gene'), None)

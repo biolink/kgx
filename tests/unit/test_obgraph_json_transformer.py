@@ -3,15 +3,12 @@ import os
 import pytest
 
 from kgx import ObographJsonTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR
 
 
 def test_json_load():
     t = ObographJsonTransformer()
-    t.parse(os.path.join(resource_dir, 'goslim_generic.json'))
+    t.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.json'))
     assert t.graph.number_of_nodes() == 176
     assert t.graph.number_of_edges() == 206
 

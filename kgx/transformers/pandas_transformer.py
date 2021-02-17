@@ -3,6 +3,8 @@ import re
 import pandas as pd
 import numpy as np
 import tarfile
+
+from deprecation import deprecated
 from ordered_set import OrderedSet
 
 from kgx.config import get_logger
@@ -67,6 +69,7 @@ class PandasTransformer(Transformer):
 
     """
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
         self._node_properties: Set = set()

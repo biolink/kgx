@@ -8,16 +8,12 @@ from kgx import NeoTransformer, PandasTransformer, JsonTransformer
 from neo4jrestclient.client import GraphDatabase as http_gdb, Node, Relationship
 from neo4jrestclient.query import CypherException
 
-from tests import check_container
+from tests import check_container, RESOURCE_DIR, TARGET_DIR
 
 CONTAINER_NAME = 'kgx-neo4j-integration-test'
 DEFAULT_NEO4J_URL = 'http://localhost:7474'
 DEFAULT_NEO4J_USERNAME = 'neo4j'
 DEFAULT_NEO4J_PASSWORD = 'test'
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
@@ -26,8 +22,8 @@ def test_csv_to_neo_load():
     load csv to neo4j test
     """
     pt = PandasTransformer()
-    pt.parse(os.path.join(resource_dir, "cm_nodes.csv"), input_format='csv')
-    pt.parse(os.path.join(resource_dir, "cm_edges.csv"), input_format='csv')
+    pt.parse(os.path.join(RESOURCE_DIR, "cm_nodes.csv"), input_format='csv')
+    pt.parse(os.path.join(RESOURCE_DIR, "cm_edges.csv"), input_format='csv')
     nt = NeoTransformer(pt.graph, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     nt.save()
     nt.neo4j_report()
@@ -42,7 +38,7 @@ def test_neo_to_graph_transform():
     nt.load()
     nt.report()
     t = PandasTransformer(nt.graph)
-    t.save(os.path.join(target_dir, "neo_graph"), output_format='csv')
+    t.save(os.path.join(TARGET_DIR, "neo_graph"), output_format='csv')
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')

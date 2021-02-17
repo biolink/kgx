@@ -4,16 +4,13 @@ import pandas as pd
 import pytest
 
 from kgx import PandasTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import TARGET_DIR, RESOURCE_DIR
 
 
 def test_load_csv():
     t = PandasTransformer()
-    t.parse(os.path.join(resource_dir, 'test_nodes.csv'), input_format='csv')
-    t.parse(os.path.join(resource_dir, 'test_edges.csv'), input_format='csv')
+    t.parse(os.path.join(RESOURCE_DIR, 'test_nodes.csv'), input_format='csv')
+    t.parse(os.path.join(RESOURCE_DIR, 'test_edges.csv'), input_format='csv')
 
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
@@ -23,8 +20,8 @@ def test_load_csv():
 
 def test_load_tsv():
     t = PandasTransformer()
-    t.parse(os.path.join(resource_dir, 'test_nodes.tsv'), input_format='tsv')
-    t.parse(os.path.join(resource_dir, 'test_edges.tsv'), input_format='tsv')
+    t.parse(os.path.join(RESOURCE_DIR, 'test_nodes.tsv'), input_format='tsv')
+    t.parse(os.path.join(RESOURCE_DIR, 'test_edges.tsv'), input_format='tsv')
 
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
@@ -40,8 +37,8 @@ def test_load_tsv():
     ('export', 'tsv', 'tar.gz', 'export.tar.gz')
 ])
 def test_export(query):
-    nodes = os.path.join(resource_dir, 'test_nodes.tsv')
-    edges = os.path.join(resource_dir, 'test_edges.tsv')
+    nodes = os.path.join(RESOURCE_DIR, 'test_nodes.tsv')
+    edges = os.path.join(RESOURCE_DIR, 'test_edges.tsv')
     t = PandasTransformer()
     t.parse(nodes, input_format='tsv')
     t.parse(edges, input_format='tsv')
@@ -49,19 +46,19 @@ def test_export(query):
     assert t.graph.number_of_nodes() == 3
     assert t.graph.number_of_edges() == 1
 
-    output_filename = os.path.join(target_dir, query[0])
+    output_filename = os.path.join(TARGET_DIR, query[0])
     t.save(filename=output_filename, output_format=query[1], compression=query[2])
 
     if isinstance(query[3], str):
-        assert os.path.exists(os.path.join(target_dir, query[3]))
+        assert os.path.exists(os.path.join(TARGET_DIR, query[3]))
     else:
-        assert os.path.exists(os.path.join(target_dir, query[3][0]))
-        assert os.path.exists(os.path.join(target_dir, query[3][1]))
+        assert os.path.exists(os.path.join(TARGET_DIR, query[3][0]))
+        assert os.path.exists(os.path.join(TARGET_DIR, query[3][1]))
 
 
 @pytest.mark.parametrize('query', [
-    (os.path.join(resource_dir, 'test.tar'), 'tsv', 'tar', 3, 1),
-    (os.path.join(resource_dir, 'test.tar.gz'), 'tsv', 'tar.gz', 3, 1)
+    (os.path.join(RESOURCE_DIR, 'test.tar'), 'tsv', 'tar', 3, 1),
+    (os.path.join(RESOURCE_DIR, 'test.tar.gz'), 'tsv', 'tar.gz', 3, 1)
 ])
 def test_load_compressed(query):
     t = PandasTransformer()
@@ -167,8 +164,8 @@ def test_sanitize_export(query):
     ),
 ])
 def test_filters(query):
-    nodes = os.path.join(resource_dir, 'test2_nodes.tsv')
-    edges = os.path.join(resource_dir, 'test2_edges.tsv')
+    nodes = os.path.join(RESOURCE_DIR, 'test2_nodes.tsv')
+    edges = os.path.join(RESOURCE_DIR, 'test2_edges.tsv')
     t = PandasTransformer()
     for nf in query[0].keys():
         t.set_node_filter(nf, query[0][nf])
@@ -233,8 +230,8 @@ def test_filters(query):
     )
 ])
 def test_filters_graph(query):
-    nodes = os.path.join(resource_dir, 'graph_nodes.tsv')
-    edges = os.path.join(resource_dir, 'graph_edges.tsv')
+    nodes = os.path.join(RESOURCE_DIR, 'graph_nodes.tsv')
+    edges = os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     t = PandasTransformer()
     for nf in query[0].keys():
         t.set_node_filter(nf, query[0][nf])

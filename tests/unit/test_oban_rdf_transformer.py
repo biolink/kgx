@@ -2,11 +2,7 @@ import os
 import pprint
 
 from kgx import ObanRdfTransformer
-from tests import print_graph
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import print_graph, RESOURCE_DIR, TARGET_DIR
 
 cmap={
     'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
@@ -22,7 +18,7 @@ def test_parse1():
     }
 
     t1 = ObanRdfTransformer(curie_map=cmap)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
@@ -57,7 +53,7 @@ def test_parse2():
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_predicate_mapping(predicate_mapping)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
@@ -89,7 +85,7 @@ def test_save1():
         'https://monarchinitiative.org/frequencyOfPhenotype'
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
@@ -112,16 +108,16 @@ def test_save1():
     assert e2['type'] == 'OBAN:association'
     assert e2['frequencyOfPhenotype'] == 'HP:0040283'
 
-    t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
-    t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.ttl'), output_format='ttl')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.nt'), output_format='nt')
 
     t2 = ObanRdfTransformer(curie_map=cmap)
-    t2.parse(os.path.join(target_dir, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
+    t2.parse(os.path.join(TARGET_DIR, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
     assert t2.graph.number_of_nodes() == 14
     assert t2.graph.number_of_edges() == 7
 
     t3 = ObanRdfTransformer(curie_map=cmap)
-    t3.parse(os.path.join(target_dir, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
+    t3.parse(os.path.join(TARGET_DIR, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
     assert t3.graph.number_of_nodes() == 14
     assert t3.graph.number_of_edges() == 7
 
@@ -138,7 +134,7 @@ def test_save2():
     }
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_predicate_mapping(predicate_mapping)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
@@ -164,12 +160,12 @@ def test_save2():
     assert e2t1['source'] == 'ORPHA:93262'
 
     t1.set_property_types({'frequency_of_phenotype': 'uriorcurie', 'source': 'uriorcurie'})
-    t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
-    t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.ttl'), output_format='ttl')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.nt'), output_format='nt')
 
     t2 = ObanRdfTransformer(curie_map=cmap)
     t2.set_predicate_mapping(predicate_mapping)
-    t2.parse(os.path.join(target_dir, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
+    t2.parse(os.path.join(TARGET_DIR, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
     print_graph(t2.graph)
     assert t2.graph.number_of_nodes() == 14
     assert t2.graph.number_of_edges() == 7
@@ -196,7 +192,7 @@ def test_save2():
 
     t3 = ObanRdfTransformer(curie_map=cmap)
     t3.set_predicate_mapping(predicate_mapping)
-    t3.parse(os.path.join(target_dir, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
+    t3.parse(os.path.join(TARGET_DIR, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
     assert t3.graph.number_of_nodes() == 14
     assert t3.graph.number_of_edges() == 7
 
@@ -238,7 +234,7 @@ def test_save3():
     t1 = ObanRdfTransformer(curie_map=cmap)
     t1.set_predicate_mapping(predicate_mapping)
     t1.set_property_types(prop_types)
-    t1.parse(os.path.join(resource_dir, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
+    t1.parse(os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt'), input_format='nt', node_property_predicates=np)
     print_graph(t1.graph)
     assert t1.graph.number_of_nodes() == 14
     assert t1.graph.number_of_edges() == 7
@@ -263,15 +259,15 @@ def test_save3():
     assert e2['frequency_of_phenotype'] == 'HP:0040283'
     # assert e2['dc_source'] == 'ORPHA:93262'
 
-    t1.save(os.path.join(target_dir, 'oban-export.ttl'), output_format='ttl')
-    t1.save(os.path.join(target_dir, 'oban-export.nt'), output_format='nt')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.ttl'), output_format='ttl')
+    t1.save(os.path.join(TARGET_DIR, 'oban-export.nt'), output_format='nt')
 
     t2 = ObanRdfTransformer(curie_map=cmap)
-    t2.parse(os.path.join(target_dir, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
+    t2.parse(os.path.join(TARGET_DIR, 'oban-export.ttl'), input_format='ttl', node_property_predicates=np)
     assert t2.graph.number_of_nodes() == 14
     assert t2.graph.number_of_edges() == 7
 
     t3 = ObanRdfTransformer(curie_map=cmap)
-    t3.parse(os.path.join(target_dir, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
+    t3.parse(os.path.join(TARGET_DIR, 'oban-export.nt'), input_format='nt', node_property_predicates=np)
     assert t3.graph.number_of_nodes() == 14
     assert t3.graph.number_of_edges() == 7

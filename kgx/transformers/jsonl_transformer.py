@@ -2,6 +2,7 @@ import gzip
 import re
 from typing import Optional
 import jsonlines as jsonlines
+from deprecation import deprecated
 
 from kgx import JsonTransformer
 from kgx.config import get_logger
@@ -22,6 +23,7 @@ class JsonlTransformer(JsonTransformer):
         The source graph
 
     """
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
 

@@ -1,15 +1,12 @@
 import os
 
 from kgx.transformers.sssom_transformer import SssomTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR
 
 
 def test_load1():
     t = SssomTransformer()
-    t.parse(os.path.join(resource_dir, 'sssom_example1.tsv'))
+    t.parse(os.path.join(RESOURCE_DIR, 'sssom_example1.tsv'))
 
     assert t.graph.number_of_nodes() == 18
     assert t.graph.number_of_edges() == 9
@@ -26,7 +23,7 @@ def test_load1():
 
 def test_load2():
     t = SssomTransformer()
-    t.parse(os.path.join(resource_dir, 'sssom_example2.tsv'))
+    t.parse(os.path.join(RESOURCE_DIR, 'sssom_example2.tsv'))
 
     assert t.graph.number_of_nodes() == 18
     assert t.graph.number_of_edges() == 9
@@ -49,7 +46,7 @@ def test_load2():
 
 def test_load3():
     t = SssomTransformer()
-    t.parse(os.path.join(resource_dir, 'sssom_example3.tsv'))
+    t.parse(os.path.join(RESOURCE_DIR, 'sssom_example3.tsv'))
 
     assert t.graph.number_of_nodes() == 20
     assert t.graph.number_of_edges() == 10

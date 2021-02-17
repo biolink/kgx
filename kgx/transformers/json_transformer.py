@@ -1,6 +1,7 @@
 import gzip
 import json
 import stringcase
+from deprecation import deprecated
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
@@ -25,6 +26,7 @@ class JsonTransformer(PandasTransformer):
 
     """
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None):
         super().__init__(source_graph)
 

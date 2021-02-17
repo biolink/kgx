@@ -1,16 +1,13 @@
 import os
 
 from kgx import JsonlTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR, TARGET_DIR
 
 
 def test_jsonl_load():
     jlt = JsonlTransformer()
-    jlt.parse(os.path.join(resource_dir, 'valid_nodes.jsonl'), input_format='jsonl')
-    jlt.parse(os.path.join(resource_dir, 'valid_edges.jsonl'), input_format='jsonl')
+    jlt.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'), input_format='jsonl')
+    jlt.parse(os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'), input_format='jsonl')
 
     assert jlt.graph.number_of_nodes() == 6
     assert jlt.graph.number_of_edges() == 5
@@ -28,30 +25,30 @@ def test_jsonl_load():
 
 def test_jsonl_save1():
     jlt = JsonlTransformer()
-    jlt.parse(os.path.join(resource_dir, 'valid_nodes.jsonl'), input_format='jsonl')
-    jlt.parse(os.path.join(resource_dir, 'valid_edges.jsonl'), input_format='jsonl')
+    jlt.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'), input_format='jsonl')
+    jlt.parse(os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'), input_format='jsonl')
 
     assert jlt.graph.number_of_nodes() == 6
     assert jlt.graph.number_of_edges() == 5
 
-    jlt.save(os.path.join(target_dir, 'valid-export'))
-    assert os.path.exists(os.path.join(target_dir, 'valid-export_nodes.jsonl'))
-    assert os.path.exists(os.path.join(target_dir, 'valid-export_edges.jsonl'))
+    jlt.save(os.path.join(TARGET_DIR, 'valid-export'))
+    assert os.path.exists(os.path.join(TARGET_DIR, 'valid-export_nodes.jsonl'))
+    assert os.path.exists(os.path.join(TARGET_DIR, 'valid-export_edges.jsonl'))
 
-    jlt.save(os.path.join(target_dir, 'valid-export'), compression='gz')
-    assert os.path.exists(os.path.join(target_dir, 'valid-export_nodes.jsonl.gz'))
-    assert os.path.exists(os.path.join(target_dir, 'valid-export_edges.jsonl.gz'))
+    jlt.save(os.path.join(TARGET_DIR, 'valid-export'), compression='gz')
+    assert os.path.exists(os.path.join(TARGET_DIR, 'valid-export_nodes.jsonl.gz'))
+    assert os.path.exists(os.path.join(TARGET_DIR, 'valid-export_edges.jsonl.gz'))
 
     jlt2 = JsonlTransformer()
-    jlt2.parse(os.path.join(target_dir, 'valid-export_nodes.jsonl'))
-    jlt2.parse(os.path.join(target_dir, 'valid-export_edges.jsonl'))
+    jlt2.parse(os.path.join(TARGET_DIR, 'valid-export_nodes.jsonl'))
+    jlt2.parse(os.path.join(TARGET_DIR, 'valid-export_edges.jsonl'))
 
     assert jlt2.graph.number_of_nodes() == 6
     assert jlt2.graph.number_of_edges() == 5
 
     jlt3 = JsonlTransformer()
-    jlt3.parse(os.path.join(target_dir, 'valid-export_nodes.jsonl.gz'), compression='gz')
-    jlt3.parse(os.path.join(target_dir, 'valid-export_edges.jsonl.gz'), compression='gz')
+    jlt3.parse(os.path.join(TARGET_DIR, 'valid-export_nodes.jsonl.gz'), compression='gz')
+    jlt3.parse(os.path.join(TARGET_DIR, 'valid-export_edges.jsonl.gz'), compression='gz')
 
     assert jlt3.graph.number_of_nodes() == 6
     assert jlt3.graph.number_of_edges() == 5

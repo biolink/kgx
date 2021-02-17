@@ -1,15 +1,12 @@
 import os
 
 from kgx import JsonTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR, TARGET_DIR
 
 
 def test_json_load():
     t = JsonTransformer()
-    t.parse(os.path.join(resource_dir, 'valid.json'))
+    t.parse(os.path.join(RESOURCE_DIR, 'valid.json'))
     assert t.graph.number_of_nodes() == 6
     assert t.graph.number_of_edges() == 5
 
@@ -30,19 +27,19 @@ def test_json_load():
 
 def test_json_save():
     t = JsonTransformer()
-    t.parse(os.path.join(resource_dir, 'valid.json'))
+    t.parse(os.path.join(RESOURCE_DIR, 'valid.json'))
     assert t.graph.number_of_nodes() == 6
     assert t.graph.number_of_edges() == 5
 
-    t.save(os.path.join(target_dir, 'graph.json'))
-    assert os.path.exists(os.path.join(target_dir, 'graph.json'))
+    t.save(os.path.join(TARGET_DIR, 'graph.json'))
+    assert os.path.exists(os.path.join(TARGET_DIR, 'graph.json'))
 
 
 def test_filters():
     t = JsonTransformer()
     t.set_node_filter('category', {'biolink:Disease'})
     t.set_edge_filter('category', {'biolink:causes'})
-    t.parse(os.path.join(resource_dir, 'valid.json'))
+    t.parse(os.path.join(RESOURCE_DIR, 'valid.json'))
     assert t.graph.number_of_nodes() == 5
     assert t.graph.number_of_edges() == 0
 

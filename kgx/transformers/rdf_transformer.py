@@ -1,6 +1,8 @@
 import itertools
 import click, rdflib, os, uuid
 from typing import Tuple, Union, Set, List, Dict, Any, Iterator, Optional
+
+from deprecation import deprecated
 from rdflib import Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, OWL
 
@@ -32,6 +34,7 @@ class RdfTransformer(RdfGraphMixin, Transformer):
 
     """
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None, curie_map: Optional[Dict] = None):
         super().__init__(source_graph, curie_map)
         self.toolkit = get_toolkit()

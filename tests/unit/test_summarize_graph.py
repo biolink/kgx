@@ -3,10 +3,7 @@ import pytest
 
 from kgx.graph.nx_graph import NxGraph
 from kgx.operations.summarize_graph import summarize_graph, generate_graph_stats
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import TARGET_DIR
 
 
 def get_graphs():
@@ -39,7 +36,7 @@ def get_graphs():
 def test_generate_graph_stats():
     graphs = get_graphs()
     for g in graphs:
-        filename = os.path.join(target_dir, f"{g.name}_stats.yaml")
+        filename = os.path.join(TARGET_DIR, f"{g.name}_stats.yaml")
         generate_graph_stats(g, g.name, filename)
         assert os.path.exists(filename)
 

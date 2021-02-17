@@ -2,6 +2,7 @@ import gzip
 import itertools
 from typing import Set, Optional, Dict
 
+from deprecation import deprecated
 from rdflib.plugins.parsers.ntriples import NTriplesParser, ParseError
 from rdflib.plugins.serializers.nt import NT11Serializer
 from rdflib.term import URIRef, Literal
@@ -25,6 +26,7 @@ class NtTransformer(RdfTransformer):
 
     """
 
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: BaseGraph = None, curie_map: Dict = None):
         super().__init__(source_graph, curie_map)
 

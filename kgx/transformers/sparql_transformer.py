@@ -1,4 +1,5 @@
 import rdflib
+from deprecation import deprecated
 from rdflib import URIRef
 from typing import Set, List, Dict, Generator, Optional
 
@@ -51,6 +52,8 @@ class SparqlTransformer(RdfGraphMixin, Transformer):
 
     """
 
+
+    @deprecated(deprecated_in="1.0a", removed_in="1.0", details="Use kgx.transformer.Transformer instead.")
     def __init__(self, source_graph: Optional[BaseGraph] = None, url: Optional[str] = None):
         super().__init__(source_graph)
         self.url = url

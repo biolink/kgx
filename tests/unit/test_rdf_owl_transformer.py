@@ -4,15 +4,12 @@ import pprint
 import pytest
 
 from kgx import RdfOwlTransformer
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, '../resources')
-target_dir = os.path.join(cwd, '../target')
+from tests import RESOURCE_DIR
 
 
 def test_owl_parse1():
     t = RdfOwlTransformer()
-    t.parse(os.path.join(resource_dir, 'goslim_generic.owl'))
+    t.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
     n1 = t.graph.nodes()['GO:0008150']
     assert n1['name'] == 'biological_process'
     assert 'synonym' in n1 and 'biological process' in n1['synonym']
@@ -52,7 +49,7 @@ def test_owl_parse2():
     }
     t = RdfOwlTransformer()
     t.set_predicate_mapping(predicate_mapping)
-    t.parse(os.path.join(resource_dir, 'goslim_generic.owl'), node_property_predicates=np)
+    t.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'), node_property_predicates=np)
 
     n1 = t.graph.nodes()['GO:0008150']
     assert n1['name'] == 'biological_process'
@@ -92,7 +89,7 @@ def test_owl_save():
 
 def test_owl_parse3():
     t = RdfOwlTransformer()
-    t.parse(os.path.join(resource_dir, 'goslim_generic.owl'))
+    t.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
     e1 = list(t.graph.get_edge('GO:0031012', 'GO:0005576').values())[0]
     assert e1['predicate'] == 'biolink:part_of'
     assert e1['relation'] == 'BFO:0000050'

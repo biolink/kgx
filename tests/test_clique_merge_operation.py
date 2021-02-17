@@ -4,10 +4,7 @@ import networkx as nx
 from kgx import PandasTransformer
 from kgx.graph.nx_graph import NxGraph
 from kgx.operations.clique_merge import clique_merge
-
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
+from tests import TARGET_DIR, RESOURCE_DIR
 
 prefix_prioritization_map = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
 
@@ -17,8 +14,8 @@ def test_clique_generation():
     Test for generation of cliques
     """
     t = PandasTransformer()
-    t.parse(os.path.join(resource_dir, 'cm_nodes.csv'), input_format='csv')
-    t.parse(os.path.join(resource_dir, 'cm_edges.csv'), input_format='csv')
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_nodes.csv'), input_format='csv')
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_edges.csv'), input_format='csv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
     cliques = list(nx.connected_components(clique_graph))
@@ -30,9 +27,9 @@ def test_clique_merge():
     Test for clique merge (lenient)
     """
     t = PandasTransformer()
-    os.makedirs(target_dir, exist_ok=True)
-    t.parse(os.path.join(resource_dir, 'cm_nodes.csv'), input_format='csv')
-    t.parse(os.path.join(resource_dir, 'cm_edges.csv'), input_format='csv')
+    os.makedirs(TARGET_DIR, exist_ok=True)
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_nodes.csv'), input_format='csv')
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_edges.csv'), input_format='csv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
     leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
@@ -55,9 +52,9 @@ def test_clique_merge_edge_consolidation():
 
     """
     t = PandasTransformer()
-    os.makedirs(target_dir, exist_ok=True)
-    t.parse(os.path.join(resource_dir, 'cm_test2_nodes.tsv'), input_format='tsv')
-    t.parse(os.path.join(resource_dir, 'cm_test2_edges.tsv'), input_format='tsv')
+    os.makedirs(TARGET_DIR, exist_ok=True)
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_test2_nodes.tsv'), input_format='tsv')
+    t.parse(os.path.join(RESOURCE_DIR, 'cm_test2_edges.tsv'), input_format='tsv')
     t.report()
     updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
     leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
