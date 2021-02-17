@@ -11,6 +11,8 @@ def _stream_transform(query):
     t1 = Transformer(stream=True)
     for i in query[0]:
         t1.transform(i)
+        # TODO: Direct stream
+        #t1.transform(i, query[1])
     t1.save(query[1])
 
     if query[1]['format'] in {'tsv', 'csv', 'jsonl'}:

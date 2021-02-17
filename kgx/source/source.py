@@ -15,8 +15,8 @@ class Source(object):
         self.graph_metadata: Dict = {}
         self.node_filters = {}
         self.edge_filters = {}
-        self._node_properties = set()
-        self._edge_properties = set()
+        self.node_properties = set()
+        self.edge_properties = set()
         self.prefix_manager = PrefixManager()
 
     def set_prefix_map(self, m: Dict) -> None:

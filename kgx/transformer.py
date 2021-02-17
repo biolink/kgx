@@ -99,7 +99,14 @@ class Transformer(object):
             self.edge_filters = source.edge_filters
             del input_args['edge_filters']
         source_generator = source.parse(**input_args)
+
         if output_args:
+            if self.stream:
+                if output_args['format'] in {'tsv', 'csv'}:
+                    if 'node_properties' not in output_args:
+                        log.warning(f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
+                    if 'edge_properties' not in output_args:
+                        log.warning(f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
             sink = self.get_sink(**output_args)
             if 'reverse_prefix_map' in output_args:
                 sink.set_reverse_prefix_map(input_args['reverse_prefix_map'])
@@ -112,20 +119,37 @@ class Transformer(object):
             if self.stream:
                 # stream from source to sink
                 self.process(source_generator, sink)
+                sink.finalize()
             else:
-                # stream from source to intermediate to output sink
+                # stream from source to intermediate
                 intermediate_sink = GraphSink(self.store.graph)
+                intermediate_sink.node_properties.update(self.store.node_properties)
+                intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
+                intermediate_sink.node_properties.update(source.node_properties)
+                intermediate_sink.edge_properties.update(source.edge_properties)
+
                 # self.apply_graph_operations
+                # stream from intermediate to output sink
                 intermediate_source = self.get_source('graph')
+                intermediate_source.node_properties.update(intermediate_sink.node_properties)
+                intermediate_source.edge_properties.update(intermediate_sink.edge_properties)
                 intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
+                sink.node_properties.update(intermediate_source.node_properties)
+                sink.edge_properties.update(intermediate_source.edge_properties)
                 self.process(intermediate_source_generator, sink)
                 sink.finalize()
         else:
             # stream from source to intermediate
             sink = GraphSink(self.store.graph)
             self.process(source_generator, sink)
+            sink.node_properties.update(self.store.node_properties)
+            sink.edge_properties.update(self.store.edge_properties)
+            sink.node_properties.update(source.node_properties)
+            sink.edge_properties.update(source.edge_properties)
             sink.finalize()
+            self.store.node_properties.update(sink.node_properties)
+            self.store.edge_properties.update(sink.edge_properties)
         # self.node_filters.clear()
         # self.edge_filters.clear()
         # self._seen_nodes.clear()
@@ -178,8 +202,12 @@ class Transformer(object):
         """
         if not self.store:
             raise Exception("self.store is empty.")
-        source = self.get_source('graph')
+        source = self.store
         source_generator = source.parse(self.store.graph)
+        if 'node_properties' not in output_args:
+            output_args['node_properties'] = source.node_properties
+        if 'edge_properties' not in output_args:
+            output_args['edge_properties'] = source.edge_properties
         sink = self.get_sink(**output_args)
         self.process(source_generator, sink)
         sink.finalize()

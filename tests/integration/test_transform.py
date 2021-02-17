@@ -7,13 +7,48 @@ from tests.integration import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USER
 
 
 def _transform(query):
-    t = Transformer()
+    t1 = Transformer()
     for i in query[0]:
-        t.transform(i)
-    print_graph(t.store.graph)
-    t.save(query[1])
-    assert t.store.graph.number_of_nodes() == query[2]
-    assert t.store.graph.number_of_edges() == query[3]
+        t1.transform(i)
+    print_graph(t1.store.graph)
+    t1.save(query[1].copy())
+    assert t1.store.graph.number_of_nodes() == query[2]
+    assert t1.store.graph.number_of_edges() == query[3]
+
+    if query[1]['format'] in {'tsv', 'csv', 'jsonl'}:
+        input_args = []
+        ia1 = {
+            'filename': f"{query[1]['filename']}_nodes.{query[1]['format']}",
+            'format': query[1]['format']
+        }
+        ia2 = {
+            'filename': f"{query[1]['filename']}_edges.{query[1]['format']}",
+            'format': query[1]['format']
+        }
+        input_args.append(ia1)
+        input_args.append(ia2)
+    elif query[1]['format'] in {'neo4j'}:
+        input_args = [
+            {
+                'uri': DEFAULT_NEO4J_URL,
+                'username': DEFAULT_NEO4J_USERNAME,
+                'password': DEFAULT_NEO4J_PASSWORD,
+                'format': 'neo4j'
+            }
+        ]
+    else:
+        input_args = [
+            {
+                'filename': query[1]['filename'],
+                'format': query[1]['format']
+            }
+        ]
+
+    t2 = Transformer()
+    for i in input_args:
+        t2.transform(i)
+    assert t2.store.graph.number_of_nodes() == query[2]
+    assert t2.store.graph.number_of_edges() == query[3]
 
 
 @pytest.mark.parametrize('query', [
@@ -57,11 +92,13 @@ def _transform(query):
         [
             {
                 'filename': os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                'format': 'tsv'
+                'format': 'tsv',
+                'lineterminator': None
             },
             {
                 'filename': os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
-                'format': 'tsv'
+                'format': 'tsv',
+                'lineterminator': None
             },
         ],
         {
@@ -157,6 +194,24 @@ def _transform(query):
         },
         133,
         13
+    ),
+    (
+        [
+            {
+                'filename': os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+                'format': 'tsv'
+            },
+            {
+                'filename': os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+                'format': 'tsv'
+            },
+        ],
+        {
+            'filename': os.path.join(TARGET_DIR, 'graph1'),
+            'format': 'tsv'
+        },
+        512,
+        532
     ),
 ])
 def test_transform1(clean_slate, query):
