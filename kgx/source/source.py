@@ -214,11 +214,11 @@ class Source(object):
 
     def set_node_filters(self, filters: Dict) -> None:
         for k, v in filters.items():
-            self.set_node_filter(k, v)
+            self.set_node_filter(k, set(v))
 
     def set_edge_filters(self, filters: Dict) -> None:
         for k, v in filters.items():
-            self.set_edge_filter(k, v)
+            self.set_edge_filter(k, set(v))
 
     def set_edge_filter(self, key: str, value: set) -> None:
         """

@@ -80,11 +80,14 @@ class Transformer(object):
         source = self.get_source(input_format)
         if 'prefix_map' in input_args:
             source.set_prefix_map(input_args['prefix_map'])
+            del input_args['prefix_map']
         if isinstance(source, RdfSource):
             if 'predicate_mappings' in input_args:
                 source.set_predicate_mapping(input_args['predicate_mappings'])
+                del input_args['predicate_mappings']
             if 'node_property_predicates' in input_args:
                 source.set_node_property_predicates(input_args['node_property_predicates'])
+                del input_args['node_property_predicates']
         if 'node_filters' in input_args:
             source.set_node_filters(input_args['node_filters'])
             self.node_filters = source.node_filters

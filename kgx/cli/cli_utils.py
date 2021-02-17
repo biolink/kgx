@@ -3,65 +3,22 @@ import os
 import sys
 from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
-
 import yaml
-from kgx.transformers.sssom_transformer import SssomTransformer
 
-from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer, NtTransformer, RsaTransformer, \
-    RdfOwlTransformer, ObographJsonTransformer, JsonlTransformer, JsonTransformer, Transformer
+from kgx import Validator
+from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.operations.graph_merge import merge_all_graphs
 from kgx.operations.summarize_graph import summarize_graph
 
-_transformers = {
-    'tar': PandasTransformer,
-    'csv': PandasTransformer,
-    'tsv': PandasTransformer,
-    'tsv:neo4j': PandasTransformer,
-    'nt': NtTransformer,
-    'ttl': RdfTransformer,
-    'json': JsonTransformer,
-    'jsonl': JsonlTransformer,
-    'obojson': ObographJsonTransformer,
-    # 'rq': kgx.SparqlTransformer,
-    'owl': RdfOwlTransformer,
-    'rsa': RsaTransformer,
-    'sssom': SssomTransformer
-}
 
 log = get_logger()
 
 
-def get_transformer(file_format: str) -> Any:
+def get_input_file_types() -> Tuple:
     """
-    Get a Transformer corresponding to a given file format.
-
-    .. note::
-        This method returns a reference to kgx.Transformer class
-        and not an instance of kgx.Transformer class.
-        You will have to instantiate the class by calling its constructor.
-
-    Parameters
-    ----------
-    file_format: str
-        File format
-
-    Returns
-    -------
-    Any
-        Reference to kgx.Transformer class corresponding to ``file_format``
-
-    """
-    t = _transformers.get(file_format)
-    if not t:
-        raise TypeError(f"format '{file_format}' is not a supported file type.")
-    return t
-
-
-def get_file_types() -> Tuple:
-    """
-    Get all file formats supported by KGX.
+    Get all input file formats supported by KGX.
 
     Returns
     -------
@@ -69,7 +26,20 @@ def get_file_types() -> Tuple:
         A tuple of supported file formats
 
     """
-    return tuple(_transformers.keys())
+    return tuple(SOURCE_MAP.keys())
+
+
+def get_output_file_types() -> Tuple:
+    """
+    Get all output file formats supported by KGX.
+
+    Returns
+    -------
+    Tuple
+        A tuple of supported file formats
+
+    """
+    return tuple(SINK_MAP.keys())
 
 
 def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
@@ -97,11 +67,15 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         A dictionary with the graph stats
 
     """
-    transformer = get_transformer(input_format)()
+    transformer = Transformer()
     for file in inputs:
-        transformer.parse(file, input_format=input_format, compression=input_compression)
+        transformer.transform({
+            'filename': file,
+            'format': input_format,
+            'compression': input_compression
+        })
 
-    stats = summarize_graph(transformer.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
+    stats = summarize_graph(transformer.store.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
     if output:
         WH = open(output, 'w')
         WH.write(yaml.dump(stats))
@@ -131,12 +105,16 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
         Returns a list of errors, if any
 
     """
-    transformer = get_transformer(input_format)()
+    transformer = Transformer()
     for file in inputs:
-        transformer.parse(file, input_format=input_format, compression=input_compression)
+        transformer.transform({
+            'filename': file,
+            'format': input_format,
+            'compression': input_compression
+        })
 
     validator = Validator()
-    errors = validator.validate(transformer.graph)
+    errors = validator.validate(transformer.store.graph)
     if output:
         validator.write_report(errors, open(output, 'w'))
     else:
@@ -173,20 +151,25 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
         The NeoTransformer
 
     """
-    transformer = NeoTransformer(uri=uri, username=username, password=password)
-    if node_filters:
-        for n in node_filters:
-            transformer.set_node_filter(n[0], n[1])
-    if edge_filters:
-        for e in edge_filters:
-            transformer.set_edge_filter(e[0], e[1])
-    transformer.load()
+    transformer = Transformer()
+    transformer.transform({
+        'uri': uri,
+        'username': username,
+        'password': password,
+        'format': 'neo4j',
+        'node_filters': node_filters,
+        'edge_filters': edge_filters
+    })
 
     if not output_format:
         output_format = 'tsv'
-    output_transformer = get_transformer(output_format)(transformer.graph)
-    output_transformer.save(output, output_format=output_format)
-    return output_transformer
+    transformer = Transformer()
+    transformer.save({
+        'filename': output,
+        'format': output_format,
+        'compression': output_compression
+    })
+    return transformer
 
 
 def neo4j_upload(inputs: List[str], input_format: str, input_compression: Optional[str], uri: str, username: str, password: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
@@ -218,19 +201,22 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
         The NeoTransformer
 
     """
-    transformer = get_transformer(input_format)()
+    transformer = Transformer()
     for file in inputs:
-        transformer.parse(file, input_format=input_format, compression=input_compression)
-    if node_filters:
-        for n in node_filters:
-            transformer.set_node_filter(n[0], n[1])
-    if edge_filters:
-        for e in edge_filters:
-            transformer.set_edge_filter(e[0], e[1])
-
-    neo_transformer = NeoTransformer(transformer.graph, uri=uri, username=username, password=password)
-    neo_transformer.save()
-    return neo_transformer
+        transformer.transform({
+            'filename': file,
+            'format': input_format,
+            'compression': input_compression,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters
+        })
+    transformer.save({
+        'uri': uri,
+        'username': username,
+        'password': password,
+        'format': 'neo4j'
+    })
+    return transformer
 
 
 def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, input_compression: Optional[str] = None, output: Optional[str] = None, output_format: Optional[str] = None, output_compression: Optional[str] = None, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> None:
@@ -271,23 +257,10 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
     output_directory = 'output'
 
     if transform_config:
-        node_properties = []
-        predicate_mappings = {}
-        curie_map = {}
-        property_types = {}
-        checkpoint = False
         cfg = yaml.load(open(transform_config), Loader=yaml.FullLoader)
+        top_level_args = {}
         if 'configuration' in cfg:
-            if 'checkpoint' in cfg['configuration'] and cfg['configuration']['checkpoint'] is not None:
-                checkpoint = cfg['configuration']['checkpoint']
-            if 'node_properties' in cfg['configuration'] and cfg['configuration']['node_properties']:
-                node_properties = cfg['configuration']['node_properties']
-            if 'predicate_mappings' in cfg['configuration'] and cfg['configuration']['predicate_mappings']:
-                predicate_mappings = cfg['configuration']['predicate_mappings']
-            if 'curie_map' in cfg['configuration'] and cfg['configuration']['curie_map']:
-                curie_map = cfg['configuration']['curie_map']
-            if 'property_types' in cfg['configuration'] and cfg['configuration']['property_types']:
-                property_types = cfg['configuration']['property_types']
+            top_level_args = prepare_top_level_args(cfg['configuration'])
             if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
                 output_directory = cfg['configuration']['output_directory']
                 if not output_directory.startswith(os.path.sep):
@@ -299,10 +272,9 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
 
         if not source:
             source = cfg['transform']['source'].keys()
-
         for s in source:
             source_properties = cfg['transform']['source'][s]
-            if source_properties['input']['format'] in get_file_types():
+            if source_properties['input']['format'] in get_input_file_types():
                 for f in source_properties['input']['filename']:
                     if not os.path.exists(f):
                         raise FileNotFoundError(f"Filename '{f}' for source '{s}' does not exist!")
@@ -319,7 +291,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
             name = v['name'] if 'name' in v else k
-            result = pool.apply_async(transform_source, (name, v, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint, False))
+            result = pool.apply_async(transform_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['property_types'], top_level_args['checkpoint'], False))
             results.append(result)
         pool.close()
         pool.join()
@@ -366,24 +338,11 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     with open(merge_config, 'r') as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
-    node_properties = []
-    predicate_mappings = {}
-    curie_map = {}
-    property_types = {}
     output_directory = 'output'
-    checkpoint = False
 
+    top_level_args = {}
     if 'configuration' in cfg:
-        if 'checkpoint' in cfg['configuration'] and cfg['configuration']['checkpoint'] is not None:
-            checkpoint = cfg['configuration']['checkpoint']
-        if 'node_properties' in cfg['configuration'] and cfg['configuration']['node_properties']:
-            node_properties = cfg['configuration']['node_properties']
-        if 'predicate_mappings' in cfg['configuration'] and cfg['configuration']['predicate_mappings']:
-            predicate_mappings = cfg['configuration']['predicate_mappings']
-        if 'curie_map' in cfg['configuration'] and cfg['configuration']['curie_map']:
-            curie_map = cfg['configuration']['curie_map']
-        if 'property_types' in cfg['configuration'] and cfg['configuration']['property_types']:
-            property_types = cfg['configuration']['property_types']
+        top_level_args = prepare_top_level_args(cfg['configuration'])
         if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
             output_directory = cfg['configuration']['output_directory']
             if not output_directory.startswith(os.path.sep):
@@ -401,7 +360,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
 
     for s in source:
         source_properties = cfg['merged_graph']['source'][s]
-        if source_properties['input']['format'] in get_file_types():
+        if source_properties['input']['format'] in get_input_file_types():
             for f in source_properties['input']['filename']:
                 if not os.path.exists(f):
                     raise FileNotFoundError(f"Filename '{f}' for source '{s}' does not exist!")
@@ -418,7 +377,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     for k, v in sources_to_parse.items():
         log.info(f"Spawning process for '{k}'")
         name = v['name'] if 'name' in v else k
-        result = pool.apply_async(parse_source, (name, v, output_directory, curie_map, node_properties, predicate_mappings, checkpoint))
+        result = pool.apply_async(parse_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['checkpoint']))
         results.append(result)
     pool.close()
     pool.join()
@@ -438,34 +397,32 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             raise KeyError(f"Cannot find destination '{d}' in YAML")
 
     # write the merged graph
+    transformer = Transformer()
     if destination_to_write:
         for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
+            output_args = {'format': destination_info['format'],
+                           'reverse_prefix_map': top_level_args['reverse_prefix_map']}
+            output_args['reverse_prefix_map'].update(destination_info['reverse_prefix_map'])
+            output_args['reverse_predicate_mappings'] = top_level_args['reverse_predicate_mappings']
+            output_args['reverse_predicate_mappings'].update(destination_info['reverse_predicate_mappings'])
             if destination_info['format'] == 'neo4j':
-                destination_transformer = NeoTransformer(
-                    source_graph=merged_graph,
-                    uri=destination_info['uri'],
-                    username=destination_info['username'],
-                    password=destination_info['password']
-                )
-                destination_transformer.save()
-            elif destination_info['format'] in get_file_types():
-                destination_transformer = get_transformer(destination_info['format'])(merged_graph)
+                output_args['uri'] = destination_info['uri']
+                output_args['username'] = destination_info['username']
+                output_args['password'] = destination_info['password']
+            elif destination_info['format'] in get_input_file_types():
                 filename = destination_info['filename']
                 if isinstance(filename, list):
                     filename = filename[0]
                 destination_filename = f"{output_directory}/{filename}"
-                if destination_info['format'] == 'nt' and isinstance(destination_transformer, RdfTransformer):
-                    destination_transformer.set_predicate_mapping(predicate_mappings)
-                    destination_transformer.set_property_types(property_types)
-                compression = destination_info['compression'] if 'compression' in destination_info else None
-                destination_transformer.save(
-                    filename=destination_filename,
-                    output_format=destination_info['format'],
-                    compression=compression
-                ) # type: ignore
+                output_args['filename'] = destination_filename
+                output_args['compression'] = destination_info['compression'] if 'compression' in destination_info else None
+                if destination_info['format'] == 'nt':
+                    output_args['property_types'] = top_level_args['property_types']
+                    output_args['property_types'].update(destination_info['property_types'])
             else:
-                log.error(f"type {destination_info['format']} not yet supported for KGX merge operation.")
+                raise TypeError(f"type {destination_info['format']} not yet supported for KGX merge operation.")
+            transformer.save(output_args)
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
     return merged_graph
@@ -500,10 +457,10 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     """
     log.info(f"Processing source '{key}'")
     transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint)
-    return transformer.graph
+    return transformer.store.graph
 
 
-def transform_source(key: str, source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
+def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
     """
     Transform a source from a transform config YAML.
 
@@ -515,9 +472,9 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], cu
         Source configuration
     output_directory: Optional[str]
         Location to write output to
-    curie_map: Dict[str, str]
+    prefix_map: Dict[str, str]
         Non-canonical CURIE mappings
-    node_properties: Set[str]
+    node_property_predicates: Set[str]
         A set of predicates that ought to be treated as node properties (This is applicable for RDF)
     predicate_mappings: Dict[str, str]
         A mapping of predicate IRIs to property names (This is applicable for RDF)
@@ -544,33 +501,32 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], cu
     else:
         output = output_filename
 
-    transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, property_types, checkpoint)
+    transformer = parse_source_input(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings, property_types, checkpoint)
 
     if output_directory and not output.startswith(output_directory):
         output = os.path.join(output_directory, output)
+    output_args = {'format': 'neo4j'}
     if output_format == 'neo4j':
-        output_transformer = NeoTransformer(
-            source_graph=transformer.graph,
-            uri=source['output']['uri'],
-            username=source['output']['username'],
-            password=source['output']['password']
-        )
-        output_transformer.save()
-    elif output_format in get_file_types():
-        output_transformer = get_transformer(output_format)(transformer.graph)
-        if output_format == 'nt' and isinstance(output_transformer, RdfTransformer):
+        output_args['uri'] = source['output']['uri']
+        output_args['username'] = source['output']['username']
+        output_args['password'] = source['output']['password']
+    elif output_format in get_input_file_types():
+        output_args['filename'] = output
+        output_args['compression'] = output_compression
+        if output_format == 'nt':
+            output_args['reify_all_edges'] = source['output']['reify_all_edges'] if 'reify_all_edges' in source['output'] else False
             if property_types:
-                output_transformer.set_property_types(property_types)
-        reify_all_edges = source['output']['reify_all_edges'] if 'reify_all_edges' in source['output'] else False
-        output_transformer.save(output, output_format=output_format, compression=output_compression, reify_all_edges=reify_all_edges) # type: ignore
+                output_args['property_types'] = property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
+    transformer.save(output_args)
+
     if not preserve_graph:
-        output_transformer.graph.clear()
-    return output_transformer.graph
+        transformer.store.graph.clear()
+    return transformer.store.graph
 
 
-def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False) -> Transformer:
+def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict[str, str] = None, checkpoint: bool = False) -> Transformer:
     """
     Parse a source's input from a transform config YAML.
 
@@ -582,9 +538,9 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
         Source configuration
     output_directory: Optional[str]
         Location to write output to
-    curie_map: Dict[str, str]
+    prefix_map: Dict[str, str]
         Non-canonical CURIE mappings
-    node_properties: Set[str]
+    node_property_predicates: Set[str]
         A set of predicates that ought to be treated as node properties (This is applicable for RDF)
     predicate_mappings: Dict[str, str]
         A mapping of predicate IRIs to property names (This is applicable for RDF)
@@ -610,103 +566,65 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
     node_filters = filters['node_filters'] if 'node_filters' in filters else {}
     edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
     operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['operations'] is not None else {}
-    source_curie_map = source['curie_map'] if 'curie_map' in source and source['curie_map'] is not None else {}
-    if curie_map:
-        source_curie_map.update(curie_map)
-    source_predicate_mappings = source['predicate_mappings'] if 'predicate_mappings' in source and source['predicate_mappings'] is not None else {}
-    if predicate_mappings:
-        source_predicate_mappings.update(predicate_mappings)
-    source_node_properties = source['node_properties'] if 'node_properties' in source and source['node_properties'] is not None else []
-    if node_properties:
-        source_node_properties.extend(node_properties)
+    source_prefix_map = prefix_map.copy() if prefix_map else {}
+    source_prefix_map.update(source['prefix_map'] if 'prefix_map' in source and source['prefix_map'] else {})
+    source_predicate_mappings = predicate_mappings.copy() if predicate_mappings else {}
+    source_predicate_mappings.update(source['predicate_mappings'] if 'predicate_mappings' in source and source['predicate_mappings'] is not None else {})
+    source_node_property_predicates = node_property_predicates if node_property_predicates else set()
+    source_node_property_predicates.update(source['node_property_predicates'] if 'node_property_predicates' in source and source['node_property_predicates'] is not None else set())
 
+    transformer = Transformer()
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
-        transformer = get_transformer(input_format)(curie_map=source_curie_map)
-        if predicate_mappings:
-            transformer.set_predicate_mapping(predicate_mappings)
-        transformer.graph.name = key
-        if filters:
-            apply_filters(transformer, node_filters, edge_filters)
         for f in inputs:
-            transformer.parse(
-                filename=f,
-                input_format=input_format,
-                compression=input_compression,
-                node_property_predicates=source_node_properties,
-                provided_by=source_name
-            )
-        if operations:
-            apply_operations(source['input'], transformer.graph)
-    elif input_format in get_file_types():
-        # Parse other supported file types
-        transformer = get_transformer(input_format)()
-        transformer.graph.name = key
-        if filters:
-            apply_filters(transformer, node_filters, edge_filters)
+            transformer.transform({
+                'filename': f,
+                'format': input_format,
+                'compression': input_compression,
+                'provided_by': source_name,
+                'node_filters': node_filters,
+                'edge_filters': edge_filters,
+                'prefix_map': source_prefix_map,
+                'predicate_mappings': source_predicate_mappings,
+                'node_property_predicates': source_node_property_predicates,
+            })
+    elif input_format in get_input_file_types():
         for f in inputs:
-            transformer.parse(
-                filename=f,
-                input_format=input_format,
-                compression=input_compression,
-                provided_by=source_name
-            )
-        if operations:
-            apply_operations(source['input'], transformer.graph)
+            transformer.transform({
+                'filename': f,
+                'format': input_format,
+                'compression': input_compression,
+                'provided_by': source_name,
+                'node_filters': node_filters,
+                'edge_filters': edge_filters,
+                'prefix_map': source_prefix_map,
+            })
     elif input_format == 'neo4j':
         # Parse Neo4j
-        transformer = NeoTransformer(
-            source_graph=None,
-            uri=source['uri'],
-            username=source['username'],
-            password=source['password']
-        )
-        transformer.graph.name = key
-        if filters:
-            apply_filters(transformer, node_filters, edge_filters)
-        transformer.load(provided_by=source_name)
-        if operations:
-            apply_operations(source['input'], transformer.graph)
-        transformer.graph.name = key
+        transformer.transform({
+            'uri': source['uri'],
+            'username': source['username'],
+            'password': source['password'],
+            'format': input_format,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': prefix_map
+        })
     else:
-        raise TypeError(f"type {input_format} not yet supported")
-
+        raise TypeError(f"Type {input_format} not yet supported")
+    transformer.store.graph.name = key
+    if operations:
+        apply_operations(source['input'], transformer.store.graph)
     if checkpoint:
         log.info(f"Writing checkpoint for source '{key}'")
-        pt = PandasTransformer(transformer.graph)
         checkpoint_output = f"{output_directory}/{key}" if output_directory else key
-        pt.save(filename=checkpoint_output, output_format='tsv', compression=None)
-
-    return transformer
-
-
-def apply_filters(transformer: Transformer, node_filters: Optional[Dict], edge_filters: Optional[Dict]) -> Transformer:
-    """
-    Apply filters to the given transformer.
-
-    Parameters
-    ----------
-    transformer: kgx.Transformer
-        The transformer corresponding to the source
-    node_filters: Optional[Dict]
-        Node filters
-    edge_filters: Optional[Dict]
-        Edge filters
-
-    Returns
-    -------
-    transformer: kgx.Transformer
-        The transformer with filters applied
-
-    """
-    if node_filters:
-        for k, v in node_filters.items():
-            transformer.set_node_filter(k, set(v))
-    if edge_filters:
-        for k, v in edge_filters.items():
-            transformer.set_edge_filter(k, set(v))
-    log.info(f"with node filters: {node_filters}")
-    log.info(f"with edge filters: {edge_filters}")
+        ct = Transformer()
+        ct.store = transformer.store
+        ct.save({
+            'filename': checkpoint_output,
+            'format': 'tsv'
+        })
     return transformer
 
 
@@ -737,3 +655,50 @@ def apply_operations(source: dict, graph: BaseGraph) -> BaseGraph:
         log.info(f"Applying operation {op_name} with args: {op_args}")
         f(graph, **op_args)
     return graph
+
+
+def prepare_top_level_args(d: Dict) -> Dict:
+    """
+    Parse top-level configuration.
+
+    Parameters
+    ----------
+    d: Dict
+        The configuration section from the transform/merge YAML
+
+    Returns
+    -------
+    Dict
+        A parsed dictionary with parameters from configuration
+
+    """
+    args = {}
+    if 'checkpoint' in d and d['checkpoint'] is not None:
+        args['checkpoint'] = d['checkpoint']
+    else:
+        args['checkpoint'] = False
+    if 'node_property_predicates' in d and d['node_property_predicates']:
+        args['node_property_predicates'] = set(d['node_property_predicates'])
+    else:
+        args['node_property_predicates'] = set()
+    if 'predicate_mappings' in d and d['predicate_mappings']:
+        args['predicate_mappings'] = d['predicate_mappings']
+    else:
+        args['predicate_mappings'] = {}
+    if 'prefix_map' in d and d['prefix_map']:
+        args['prefix_map'] = d['prefix_map']
+    else:
+        args['prefix_map'] = {}
+    if 'reverse_prefix_map' in d and d['reverse_prefix_map'] is not None:
+        args['reverse_prefix_map'] = d['reverse_prefix_map']
+    else:
+        args['reverse_prefix_map'] = {}
+    if 'reverse_predicate_mappings' in d and d['reverse_predicate_mappings'] is not None:
+        args['reverse_predicate_mappings'] = d['reverse_predicate_mappings']
+    else:
+        args['reverse_predicate_mappings'] = {}
+    if 'property_types' in d and d['property_types']:
+        args['property_types'] = d['property_types']
+    else:
+        args['property_types'] = {}
+    return args
