@@ -207,10 +207,10 @@ class RdfSource(Source):
             to_remove = []
             for k in self.node_cache.keys():
                 if k in self.reified_nodes:
-                    to_remove.append(k)
                     self.dereify(k, self.node_cache[k])
             for k in to_remove:
                 del self.node_cache[k]
+                self.reified_nodes.remove(k)
             for k in self.edge_cache.keys():
                 if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache:
                     edge_key = generate_edge_key(self.edge_cache[k]['subject'], self.edge_cache['predicate'], self.edge_cache['object'])
