@@ -88,11 +88,11 @@ class TsvSource(Source):
                     file_iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
                     if re.search(f'nodes.{format}', member.name):
                         for chunk in file_iter:
-                            self._node_properties.update(chunk.columns)
+                            self.node_properties.update(chunk.columns)
                             yield from self.read_nodes(chunk)
                     elif re.search(f'edges.{format}', member.name):
                         for chunk in file_iter:
-                            self._edge_properties.update(chunk.columns)
+                            self.edge_properties.update(chunk.columns)
                             yield from self.read_edges(chunk)
                     else:
                         raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
@@ -100,11 +100,11 @@ class TsvSource(Source):
             file_iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
             if re.search(f'nodes.{format}', filename):
                 for chunk in file_iter:
-                    self._node_properties.update(chunk.columns)
+                    self.node_properties.update(chunk.columns)
                     yield from self.read_nodes(chunk)
             elif re.search(f'edges.{format}', filename):
                 for chunk in file_iter:
-                    self._edge_properties.update(chunk.columns)
+                    self.edge_properties.update(chunk.columns)
                     yield from self.read_edges(chunk)
             else:
                 raise Exception(f'Unrecognized file: {filename}')
@@ -143,14 +143,15 @@ class TsvSource(Source):
 
         """
         node = validate_node(node)
-        kwargs = sanitize_import(node.copy())
-        if 'id' in kwargs:
-            n = kwargs['id']
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
-                kwargs['provided_by'] = self.graph_metadata['provided_by']
-            self._node_properties.update(list(kwargs.keys()))
-            if self.check_node_filter(kwargs):
-                return n, kwargs
+        node_data = sanitize_import(node.copy())
+        if 'id' in node_data:
+            n = node_data['id']
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
+                node_data['provided_by'] = self.graph_metadata['provided_by']
+            self.node_properties.update(list(node_data.keys()))
+            if self.check_node_filter(node_data):
+                self.node_properties.update(node_data.keys())
+                return n, node_data
         else:
             log.info(f"Ignoring node with no 'id': {node}")
 
@@ -188,15 +189,16 @@ class TsvSource(Source):
 
         """
         edge = validate_edge(edge)
-        kwargs = sanitize_import(edge.copy())
-        if 'id' not in kwargs:
-            kwargs['id'] = generate_uuid()
-        s = kwargs['subject']
-        o = kwargs['object']
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in kwargs.keys():
-            kwargs['provided_by'] = self.graph_metadata['provided_by']
-        key = generate_edge_key(s, kwargs['predicate'], o)
-        self._edge_properties.update(list(kwargs.keys()))
-        if self.check_edge_filter(kwargs):
-            return s, o, key, kwargs
+        edge_data = sanitize_import(edge.copy())
+        if 'id' not in edge_data:
+            edge_data['id'] = generate_uuid()
+        s = edge_data['subject']
+        o = edge_data['object']
+        if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
+            edge_data['provided_by'] = self.graph_metadata['provided_by']
+        key = generate_edge_key(s, edge_data['predicate'], o)
+        self.edge_properties.update(list(edge_data.keys()))
+        if self.check_edge_filter(edge_data):
+            self.node_properties.update(edge_data.keys())
+            return s, o, key, edge_data
 

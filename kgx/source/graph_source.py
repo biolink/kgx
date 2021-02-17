@@ -48,6 +48,7 @@ class GraphSource(Source):
             if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
                 node_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_node_filter(node_data):
+                self.node_properties.update(node_data.keys())
                 yield n, node_data
 
     def read_edges(self) -> Generator:
@@ -60,4 +61,5 @@ class GraphSource(Source):
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(edge_data):
+                self.node_properties.update(edge_data.keys())
                 yield u, v, k, edge_data

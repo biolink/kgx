@@ -239,6 +239,7 @@ class NeoSource(Source):
             node['provided_by'] = self.graph_metadata['provided_by']
         node = validate_node(node)
         node = sanitize_import(node.copy())
+        self.node_properties.update(node.keys())
         return node['id'], node
 
     def load_edges(self, edges: List) -> None:
@@ -292,6 +293,7 @@ class NeoSource(Source):
         key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
         edge = validate_edge(edge)
         edge = sanitize_import(edge.copy())
+        self.edge_properties.update(edge.keys())
         return subject_node['id'], object_node['id'], key, edge
 
     def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:

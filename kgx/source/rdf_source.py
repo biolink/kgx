@@ -135,6 +135,7 @@ class RdfSource(Source):
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_node_filter(data):
+                self.node_properties.update(data.keys())
                 yield k, data
         self.node_cache.clear()
 
@@ -145,6 +146,7 @@ class RdfSource(Source):
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
             if self.check_edge_filter(data):
+                self.edge_properties.update(data.keys())
                 yield k[0], k[1], k[2], data
         self.edge_cache.clear()
 
@@ -221,6 +223,7 @@ class RdfSource(Source):
                 if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                     data['provided_by'] = self.graph_metadata['provided_by']
                 if self.check_edge_filter(data):
+                    self.edge_properties.update(data.keys())
                     yield k[0], k[1], k[2], data
             self.edge_cache.clear()
         yield None

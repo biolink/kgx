@@ -7,6 +7,10 @@ from kgx.sink.sink import Sink
 from kgx.utils.kgx_utils import extension_types, archive_write_mode, archive_format, remove_null, _sanitize_export
 
 
+DEFAULT_NODE_COLUMNS = {'id', 'name', 'category', 'description', 'provided_by'}
+DEFAULT_EDGE_COLUMNS = {'id', 'subject', 'predicate', 'object', 'relation', 'category', 'provided_by'}
+
+
 class TsvSink(Sink):
     """
     TsvSink is responsible for writing data as records to a TSV/CSV.
@@ -37,9 +41,9 @@ class TsvSink(Sink):
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
 
-        self._node_properties = set(kwargs['node_properties']) if 'node_properties' in kwargs else set()
+        self._node_properties = set(kwargs['node_properties']) if 'node_properties' in kwargs else DEFAULT_NODE_COLUMNS
         self.ordered_node_columns = TsvSink._order_node_columns(self._node_properties)
-        self._edge_properties = set(kwargs['edge_properties']) if 'edge_properties' in kwargs else set()
+        self._edge_properties = set(kwargs['edge_properties']) if 'edge_properties' in kwargs else DEFAULT_EDGE_COLUMNS
         self.ordered_edge_columns = TsvSink._order_edge_columns(self._edge_properties)
 
         self.nodes_file_name = os.path.join(self.dirname if self.dirname else '', self.nodes_file_basename)
@@ -194,3 +198,11 @@ class TsvSink(Sink):
         ordered_columns.update(sorted(remaining_columns))
         ordered_columns.update(sorted(internal_columns))
         return ordered_columns
+
+    def set_node_properties(self, np):
+        self._node_properties.update(np)
+        self.ordered_node_columns = TsvSink._order_node_columns(self._node_properties)
+
+    def set_edge_properties(self, ep):
+        self._edge_properties = ep
+        self.ordered_edge_columns = TsvSink._order_edge_columns(self._edge_properties)

@@ -10,8 +10,8 @@ class Sink(object):
     """
     def __init__(self):
         self.prefix_manager = PrefixManager()
-        self._node_properties = {}
-        self._edge_properties = {}
+        self.node_properties = set()
+        self.edge_properties = set()
 
     def set_reverse_prefix_map(self, m: Dict) -> None:
         """
