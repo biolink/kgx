@@ -109,6 +109,7 @@ class Source(object):
         if self.edge_filters:
             for k, v in self.edge_filters.items():
                 if k in {'subject_category', 'object_category'}:
+                    pass_filter = True
                     continue
                 if k in edge:
                     # filter key exists in edge
@@ -128,47 +129,6 @@ class Source(object):
                 else:
                     # filter does not exist in edge
                     return False
-
-            # # Check for subject and object filter
-            # if self.store.has_node(edge['subject']):
-            #     subject_node = self.store.nodes()[edge['subject']]
-            # else:
-            #     subject_node = None
-            #
-            # if self.store.has_node(edge['object']):
-            #     object_node = self.store.nodes()[edge['object']]
-            # else:
-            #     object_node = None
-            #
-            # if 'subject_category' in self.edge_filters:
-            #     if self.stream:
-            #         log.warning("Cannot filter for subject_category while streaming")
-            #     else:
-            #         f = self.edge_filters['subject_category']
-            #         if subject_node:
-            #             # subject node exists in graph
-            #             if any(x in subject_node['category'] for x in f):
-            #                 pass_filter = True
-            #             else:
-            #                 return False
-            #         else:
-            #             # subject node does not exist in graph
-            #             return False
-            #
-            # if 'object_category' in self.edge_filters:
-            #     if self.stream:
-            #         log.warning("Cannot filter for object_category while streaming")
-            #     else:
-            #         f = self.edge_filters['object_category']
-            #         if object_node:
-            #             # object node exists in graph
-            #             if any(x in object_node['category'] for x in f):
-            #                 pass_filter = True
-            #             else:
-            #                 return False
-            #         else:
-            #             # object node does not exist in graph
-            #             return False
         else:
             # no edge filters defined
             pass_filter = True

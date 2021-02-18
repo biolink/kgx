@@ -68,12 +68,11 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
 
     """
     transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression
-        })
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression
+    })
 
     stats = summarize_graph(transformer.store.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
     if output:
@@ -106,12 +105,11 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
 
     """
     transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression
-        })
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression
+    })
 
     validator = Validator()
     errors = validator.validate(transformer.store.graph)
@@ -201,14 +199,13 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
 
     """
     transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters
-        })
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression,
+        'node_filters': node_filters,
+        'edge_filters': edge_filters
+    })
     transformer.save({
         'uri': uri,
         'username': username,
@@ -579,29 +576,27 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
     transformer = Transformer()
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
-        for f in inputs:
-            transformer.transform({
-                'filename': f,
-                'format': input_format,
-                'compression': input_compression,
-                'provided_by': source_name,
-                'node_filters': node_filters,
-                'edge_filters': edge_filters,
-                'prefix_map': source_prefix_map,
-                'predicate_mappings': source_predicate_mappings,
-                'node_property_predicates': source_node_property_predicates,
-            })
+        transformer.transform({
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+            'predicate_mappings': source_predicate_mappings,
+            'node_property_predicates': source_node_property_predicates,
+        })
     elif input_format in get_input_file_types():
-        for f in inputs:
-            transformer.transform({
-                'filename': f,
-                'format': input_format,
-                'compression': input_compression,
-                'provided_by': source_name,
-                'node_filters': node_filters,
-                'edge_filters': edge_filters,
-                'prefix_map': source_prefix_map,
-            })
+        transformer.transform({
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+        })
     elif input_format == 'neo4j':
         # Parse Neo4j
         transformer.transform({

@@ -1,5 +1,6 @@
+import itertools
 import os
-from typing import Dict, Union, Generator
+from typing import Dict, Union, Generator, List
 
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
@@ -68,37 +69,59 @@ class Transformer(object):
             Arguments relevant to your output sink
 
         """
+        sources = []
+        generators = []
         input_format = input_args['format']
-        if 'provided_by' not in input_format:
-            if 'name' in input_args:
-                input_args['provided_by'] = input_args['name']
-            elif 'uri' in input_args:
-                input_args['provided_by'] = input_args['uri']
-            else:
-                input_args['provided_by'] = os.path.basename(input_args['filename'])
+        prefix_map = input_args.pop('prefix_map', {})
+        predicate_mappings = input_args.pop('predicate_mappings', {})
+        node_property_predicates = input_args.pop('node_property_predicates', {})
+        node_filters = input_args.pop('node_filters', {})
+        edge_filters = input_args.pop('edge_filters', {})
 
-        source = self.get_source(input_format)
-        if 'prefix_map' in input_args:
-            source.set_prefix_map(input_args['prefix_map'])
-            del input_args['prefix_map']
-        if isinstance(source, RdfSource):
-            if 'predicate_mappings' in input_args:
-                source.set_predicate_mapping(input_args['predicate_mappings'])
-                del input_args['predicate_mappings']
-            if 'node_property_predicates' in input_args:
-                source.set_node_property_predicates(input_args['node_property_predicates'])
-                del input_args['node_property_predicates']
-        if 'node_filters' in input_args:
-            source.set_node_filters(input_args['node_filters'])
+        if input_format in {'neo4j'}:
+            source = self.get_source(input_format)
+            source.set_prefix_map(prefix_map)
+            source.set_node_filters(node_filters)
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
-            del input_args['node_filters']
-        if 'edge_filters' in input_args:
-            source.set_edge_filters(input_args['edge_filters'])
+            source.set_edge_filters(edge_filters)
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
-            del input_args['edge_filters']
-        source_generator = source.parse(**input_args)
+            if 'provided_by' not in input_args:
+                if 'name' in input_args:
+                    input_args['provided_by'] = input_args['name']
+                else:
+                    input_args['provided_by'] = input_args['uri']
+            g = source.parse(**input_args)
+            sources.append(source)
+            generators.append(g)
+        else:
+            filename = input_args.pop('filename', {})
+            provided_by = input_args.pop('provided_by', None)
+            for f in filename:
+                source = self.get_source(input_format)
+                source.set_prefix_map(prefix_map)
+                if isinstance(source, RdfSource):
+                    source.set_predicate_mapping(predicate_mappings)
+                    source.set_node_property_predicates(node_property_predicates)
+                source.set_node_filters(node_filters)
+                self.node_filters = source.node_filters
+                self.edge_filters = source.edge_filters
+                source.set_edge_filters(edge_filters)
+                self.node_filters = source.node_filters
+                self.edge_filters = source.edge_filters
+                if not provided_by:
+                    if 'name' in input_args:
+                        provided_by = input_args.pop('name')
+                    elif 'uri' in input_args:
+                        provided_by = input_args['uri']
+                    else:
+                        provided_by = os.path.basename(f)
+                g = source.parse(f, **input_args)
+                sources.append(source)
+                generators.append(g)
+
+        source_generator = itertools.chain(*generators)
 
         if output_args:
             if self.stream:
@@ -110,7 +133,7 @@ class Transformer(object):
             sink = self.get_sink(**output_args)
             if 'reverse_prefix_map' in output_args:
                 sink.set_reverse_prefix_map(input_args['reverse_prefix_map'])
-            if isinstance(source, RdfSink):
+            if isinstance(sink, RdfSink):
                 if 'reverse_predicate_mapping' in output_args:
                     sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
             if 'property_types' in output_args:
@@ -126,8 +149,9 @@ class Transformer(object):
                 intermediate_sink.node_properties.update(self.store.node_properties)
                 intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
-                intermediate_sink.node_properties.update(source.node_properties)
-                intermediate_sink.edge_properties.update(source.edge_properties)
+                for s in sources:
+                    intermediate_sink.node_properties.update(s.node_properties)
+                    intermediate_sink.edge_properties.update(s.edge_properties)
 
                 # self.apply_graph_operations
                 # stream from intermediate to output sink
@@ -139,14 +163,17 @@ class Transformer(object):
                 sink.edge_properties.update(intermediate_source.edge_properties)
                 self.process(intermediate_source_generator, sink)
                 sink.finalize()
+                self.store.node_properties.update(sink.node_properties)
+                self.store.edge_properties.update(sink.edge_properties)
         else:
             # stream from source to intermediate
             sink = GraphSink(self.store.graph)
             self.process(source_generator, sink)
             sink.node_properties.update(self.store.node_properties)
             sink.edge_properties.update(self.store.edge_properties)
-            sink.node_properties.update(source.node_properties)
-            sink.edge_properties.update(source.edge_properties)
+            for s in sources:
+                sink.node_properties.update(s.node_properties)
+                sink.edge_properties.update(s.edge_properties)
             sink.finalize()
             self.store.node_properties.update(sink.node_properties)
             self.store.edge_properties.update(sink.edge_properties)
@@ -179,7 +206,6 @@ class Transformer(object):
                         # been seen and thus only load those edges for which both
                         # nodes have been loaded
                         if rec[0] in self._seen_nodes and rec[1] in self._seen_nodes:
-                            log.info(f"EDGE: {rec[-1]}")
                             sink.write_edge(rec[-1])
                     else:
                         sink.write_edge(rec[-1])
@@ -203,12 +229,16 @@ class Transformer(object):
         if not self.store:
             raise Exception("self.store is empty.")
         source = self.store
+        source.node_properties.update(self.store.node_properties)
+        source.edge_properties.update(self.store.edge_properties)
         source_generator = source.parse(self.store.graph)
         if 'node_properties' not in output_args:
             output_args['node_properties'] = source.node_properties
         if 'edge_properties' not in output_args:
             output_args['edge_properties'] = source.edge_properties
         sink = self.get_sink(**output_args)
+        sink.node_properties.update(source.node_properties)
+        sink.edge_properties.update(source.edge_properties)
         self.process(source_generator, sink)
         sink.finalize()
 
