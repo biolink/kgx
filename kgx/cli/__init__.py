@@ -31,9 +31,10 @@ def cli():
 @click.option('--input-format', required=True, help=f'The input format. Can be one of {get_input_file_types()}')
 @click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=True, type=click.Path(exists=False))
+@click.option('--stream', is_flag=True, help='Parse input as a stream')
 @click.option('--node-facet-properties', required=False, multiple=True, help='A list of node properties from which to generate counts per value for those properties')
 @click.option('--edge-facet-properties', required=False, multiple=True, help='A list of edge properties from which to generate counts per value for those properties')
-def graph_summary_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, node_facet_properties: Optional[Set], edge_facet_properties: Optional[Set]):
+def graph_summary_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, stream: bool, node_facet_properties: Optional[Set], edge_facet_properties: Optional[Set]):
     """
     Loads and summarizes a knowledge graph from a set of input files.
     \f
@@ -48,12 +49,14 @@ def graph_summary_wrapper(inputs: List[str], input_format: str, input_compressio
         The input compression type
     output: str
         Where to write the output (stdout, by default)
+    stream: bool
+        Whether to parse input as a stream
     node_facet_properties: Optional[Set]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[Set]
         A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     """
-    graph_summary(inputs, input_format, input_compression, output, node_facet_properties=list(node_facet_properties), edge_facet_properties=list(edge_facet_properties))
+    graph_summary(inputs, input_format, input_compression, output, stream, node_facet_properties=list(node_facet_properties), edge_facet_properties=list(edge_facet_properties))
 
 
 @cli.command('validate')
@@ -61,7 +64,8 @@ def graph_summary_wrapper(inputs: List[str], input_format: str, input_compressio
 @click.option('--input-format', required=True, help=f'The input format. Can be one of {get_input_file_types()}')
 @click.option('--input-compression', required=False, help='The input compression type')
 @click.option('--output', required=False, type=click.Path(exists=False), help='File to write validation reports to')
-def validate_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str):
+@click.option('--stream', is_flag=True, help='Parse input as a stream')
+def validate_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, stream: bool):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
     \f
@@ -76,9 +80,11 @@ def validate_wrapper(inputs: List[str], input_format: str, input_compression: st
         The input compression type
     output: str
         Path to output file
+    stream: bool
+        Whether to parse input as a stream
 
     """
-    validate(inputs, input_format, input_compression, output)
+    validate(inputs, input_format, input_compression, output, stream)
 
 
 @cli.command(name='neo4j-download')
@@ -88,9 +94,10 @@ def validate_wrapper(inputs: List[str], input_format: str, input_compression: st
 @click.option('--output', required=True, type=click.Path(exists=False), help='Output')
 @click.option('--output-format', required=True, help=f'The output format. Can be one of {get_input_file_types()}')
 @click.option('--output-compression', required=False, help='The output compression type')
+@click.option('--stream', is_flag=True, help='Parse input as a stream')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def neo4j_download_wrapper(uri: str, username: str, password: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple):
+def neo4j_download_wrapper(uri: str, username: str, password: str, output: str, output_format: str, output_compression: str, stream: bool, node_filters: Tuple, edge_filters: Tuple):
     """
     Download nodes and edges from Neo4j database.
     \f
@@ -109,13 +116,15 @@ def neo4j_download_wrapper(uri: str, username: str, password: str, output: str, 
         The output type (``tsv``, by default)
     output_compression: str
         The output compression type
+    stream: bool
+        Whether to parse input as a stream
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
         Edge filters
 
     """
-    neo4j_download(uri, username, password, output, output_format, output_compression, node_filters, edge_filters)
+    neo4j_download(uri, username, password, output, output_format, output_compression, stream, node_filters, edge_filters)
 
 
 @cli.command(name='neo4j-upload')
@@ -125,9 +134,10 @@ def neo4j_download_wrapper(uri: str, username: str, password: str, output: str, 
 @click.option('--uri', required=True, type=str, help='Neo4j URI to upload to. For example, https://localhost:7474')
 @click.option('--username', required=True, type=str, help='Neo4j username')
 @click.option('--password', required=True, type=str, help='Neo4j password')
+@click.option('--stream', is_flag=True, help='Parse input as a stream')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
-def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression: str, uri: str, username: str, password: str, node_filters: Tuple[str, str], edge_filters: Tuple[str, str]):
+def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression: str, uri: str, username: str, password: str, stream: bool, node_filters: Tuple[str, str], edge_filters: Tuple[str, str]):
     """
     Upload a set of nodes/edges to a Neo4j database.
     \f
@@ -146,13 +156,15 @@ def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression
         Username for authentication
     password: str
         Password for authentication
+    stream: bool
+        Whether to parse input as a stream
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
         Edge filters
 
     """
-    neo4j_upload(inputs, input_format, input_compression, uri, username, password, node_filters, edge_filters)
+    neo4j_upload(inputs, input_format, input_compression, uri, username, password, stream, node_filters, edge_filters)
 
 
 @cli.command('transform')
@@ -162,12 +174,13 @@ def neo4j_upload_wrapper(inputs: List[str], input_format: str, input_compression
 @click.option('--output', required=False, type=click.Path(exists=False), help='Output')
 @click.option('--output-format', required=False, help=f'The output format. Can be one of {get_input_file_types()}')
 @click.option('--output-compression', required=False, help='The output compression type')
+@click.option('--stream', is_flag=True, help='Parse input as a stream')
 @click.option('--node-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering nodes from the input graph')
 @click.option('--edge-filters', required=False, type=click.Tuple([str, str]), multiple=True, help=f'Filters for filtering edges from the input graph')
 @click.option('--transform-config', required=False, type=str, help=f'Transform config YAML')
 @click.option('--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process')
 @click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
-def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, node_filters: Tuple, edge_filters: Tuple, transform_config: str, source: List, processes: int):
+def transform_wrapper(inputs: List[str], input_format: str, input_compression: str, output: str, output_format: str, output_compression: str, stream: bool, node_filters: Tuple, edge_filters: Tuple, transform_config: str, source: List, processes: int):
     """
     Transform a Knowledge Graph from one serialization form to another.
     \f
@@ -198,7 +211,7 @@ def transform_wrapper(inputs: List[str], input_format: str, input_compression: s
         Number of processes to use
 
     """
-    transform(inputs, input_format, input_compression, output, output_format, output_compression, node_filters, edge_filters, transform_config, source, processes=processes)
+    transform(inputs, input_format, input_compression, output, output_format, output_compression, stream, node_filters, edge_filters, transform_config, source, processes=processes)
 
 
 @cli.command(name='merge')
