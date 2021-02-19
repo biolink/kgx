@@ -400,6 +400,7 @@ def test_stream4(clean_slate, query):
     _stream_transform(query)
 
 
+@pytest.mark.skip('Test is non-deterministic')
 @pytest.mark.parametrize('query', [
     (
         {
