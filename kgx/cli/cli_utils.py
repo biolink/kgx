@@ -42,7 +42,7 @@ def get_output_file_types() -> Tuple:
     return tuple(SINK_MAP.keys())
 
 
-def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
+def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], stream: bool = False, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
 
@@ -56,6 +56,8 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         The input compression type
     output: Optional[str]
         Where to write the output (stdout, by default)
+    stream: bool
+        Whether to parse input as a stream
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
@@ -67,13 +69,15 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         A dictionary with the graph stats
 
     """
-    transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression
-        })
+    if stream:
+        log.info("stream processing not supported. Setting stream to 'False'")
+        stream = False
+    transformer = Transformer(stream=stream)
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression
+    })
 
     stats = summarize_graph(transformer.store.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
     if output:
@@ -84,7 +88,7 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
     return stats
 
 
-def validate(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str]) -> List:
+def validate(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], stream: bool) -> List:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
 
@@ -98,20 +102,23 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
         The input compression type
     output: Optional[str]
         Path to output file (stdout, by default)
-
+    stream: bool
+        Whether to parse input as a stream
     Returns
     -------
     List
         Returns a list of errors, if any
 
     """
-    transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression
-        })
+    if stream:
+        log.info("stream processing not supported. Setting stream to 'False'")
+        stream = False
+    transformer = Transformer(stream=stream)
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression
+    })
 
     validator = Validator()
     errors = validator.validate(transformer.store.graph)
@@ -122,7 +129,7 @@ def validate(inputs: List[str], input_format: str, input_compression: Optional[s
     return errors
 
 
-def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: Optional[str], node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
+def neo4j_download(uri: str, username: str, password: str, output: str, output_format: str, output_compression: Optional[str], stream: bool, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
     """
     Download nodes and edges from Neo4j database.
 
@@ -140,6 +147,8 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
         The output type (``tsv``, by default)
     output_compression: Optional[str]
         The output compression type
+    stream: bool
+        Whether to parse input as a stream
     node_filters: Optional[Tuple]
         Node filters
     edge_filters: Optional[Tuple]
@@ -151,7 +160,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
         The NeoTransformer
 
     """
-    transformer = Transformer()
+    transformer = Transformer(stream=stream)
     transformer.transform({
         'uri': uri,
         'username': username,
@@ -171,7 +180,7 @@ def neo4j_download(uri: str, username: str, password: str, output: str, output_f
     return transformer
 
 
-def neo4j_upload(inputs: List[str], input_format: str, input_compression: Optional[str], uri: str, username: str, password: str, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
+def neo4j_upload(inputs: List[str], input_format: str, input_compression: Optional[str], uri: str, username: str, password: str, stream: bool, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None) -> Transformer:
     """
     Upload a set of nodes/edges to a Neo4j database.
 
@@ -189,6 +198,8 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
         Username for authentication
     password: str
         Password for authentication
+    stream: bool
+        Whether to parse input as a stream
     node_filters: Optional[Tuple]
         Node filters
     edge_filters: Optional[Tuple]
@@ -200,15 +211,14 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
         The NeoTransformer
 
     """
-    transformer = Transformer()
-    for file in inputs:
-        transformer.transform({
-            'filename': file,
-            'format': input_format,
-            'compression': input_compression,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters
-        })
+    transformer = Transformer(stream=stream)
+    transformer.transform({
+        'filename': inputs,
+        'format': input_format,
+        'compression': input_compression,
+        'node_filters': node_filters,
+        'edge_filters': edge_filters
+    })
     transformer.save({
         'uri': uri,
         'username': username,
@@ -218,7 +228,7 @@ def neo4j_upload(inputs: List[str], input_format: str, input_compression: Option
     return transformer
 
 
-def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, input_compression: Optional[str] = None, output: Optional[str] = None, output_format: Optional[str] = None, output_compression: Optional[str] = None, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> None:
+def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, input_compression: Optional[str] = None, output: Optional[str] = None, output_format: Optional[str] = None, output_compression: Optional[str] = None, stream: bool = False, node_filters: Optional[Tuple] = None, edge_filters: Optional[Tuple] = None, transform_config: str = None, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> None:
     """
     Transform a Knowledge Graph from one serialization form to another.
 
@@ -236,6 +246,8 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         The output format
     output_compression: Optional[str]
         The output compression type
+    stream: bool
+        Whether to parse input as a stream
     node_filters: Optional[Tuple]
         Node filters
     edge_filters: Optional[Tuple]
@@ -290,7 +302,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
             name = v['name'] if 'name' in v else k
-            result = pool.apply_async(transform_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['property_types'], top_level_args['checkpoint'], False))
+            result = pool.apply_async(transform_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['property_types'], top_level_args['checkpoint'], False, stream))
             results.append(result)
         pool.close()
         pool.join()
@@ -309,7 +321,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
             }
         }
         name = os.path.basename(inputs[0])
-        transform_source(name, source_dict, None)
+        transform_source(name, source_dict, None, stream=stream)
 
 
 def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> BaseGraph:
@@ -380,9 +392,9 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
         results.append(result)
     pool.close()
     pool.join()
-    graphs = [r.get() for r in results]
-    merged_graph = merge_all_graphs(graphs)
-
+    stores = [r.get() for r in results]
+    merged_graph = merge_all_graphs([x.graph for x in stores])
+    log.info(f"Merged graph has {merged_graph.number_of_nodes()} nodes and {merged_graph.number_of_edges()} edges")
     if 'name' in cfg['merged_graph']:
         merged_graph.name = cfg['merged_graph']['name']
     if 'operations' in cfg['merged_graph']:
@@ -396,7 +408,13 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             raise KeyError(f"Cannot find destination '{d}' in YAML")
 
     # write the merged graph
-    transformer = Transformer()
+    node_properties = set()
+    edge_properties = set()
+    for s in stores:
+        node_properties.update(s.node_properties)
+        edge_properties.update(s.edge_properties)
+
+    input_args = {'graph': merged_graph, 'format': 'graph'}
     if destination_to_write:
         for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
@@ -424,9 +442,13 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
                     output_args['property_types'] = top_level_args['property_types']
                     if 'property_types' in top_level_args:
                         output_args['property_types'].update(destination_info['property_types'])
+                if destination_info['format'] in {'csv', 'tsv'}:
+                    output_args['node_properties'] = node_properties
+                    output_args['edge_properties'] = edge_properties
             else:
                 raise TypeError(f"type {destination_info['format']} not yet supported for KGX merge operation.")
-            transformer.save(output_args)
+            transformer = Transformer()
+            transformer.transform(input_args, output_args)
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
     return merged_graph
@@ -460,11 +482,11 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
 
     """
     log.info(f"Processing source '{key}'")
-    transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint)
-    return transformer.store.graph
+    transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint=checkpoint)
+    return transformer.store
 
 
-def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types = None, checkpoint: bool = False, preserve_graph: bool = True) -> BaseGraph:
+def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict = None, checkpoint: bool = False, preserve_graph: bool = True, stream: bool = False) -> BaseGraph:
     """
     Transform a source from a transform config YAML.
 
@@ -489,6 +511,8 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
         Whether to serialize each individual source to a TSV
     preserve_graph: true
         Whether or not to preserve the graph corresponding to the source
+    stream: bool
+        Whether to parse input as a stream
 
     Returns
     -------
@@ -505,7 +529,59 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
     else:
         output = output_filename
 
-    transformer = parse_source_input(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings, property_types, checkpoint)
+    if not key:
+        key = os.path.basename(source['input']['filename'][0])
+    source_name = source['input']['name'] if 'name' in source['input'] else key
+    input_format = source['input']['format']
+    input_compression = source['input']['compression'] if 'compression' in source['input'] else None
+    inputs = source['input']['filename']
+    filters = source['input']['filters'] if 'filters' in source['input'] and source['input']['filters'] is not None else {}
+    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
+    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['operations'] is not None else {}
+    source_prefix_map = prefix_map.copy() if prefix_map else {}
+    source_prefix_map.update(source['prefix_map'] if 'prefix_map' in source and source['prefix_map'] else {})
+    source_predicate_mappings = predicate_mappings.copy() if predicate_mappings else {}
+    source_predicate_mappings.update(source['predicate_mappings'] if 'predicate_mappings' in source and source['predicate_mappings'] is not None else {})
+    source_node_property_predicates = node_property_predicates if node_property_predicates else set()
+    source_node_property_predicates.update(source['node_property_predicates'] if 'node_property_predicates' in source and source['node_property_predicates'] is not None else set())
+
+    if input_format in {'nt', 'ttl'}:
+        input_args = {
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+            'predicate_mappings': source_predicate_mappings,
+            'node_property_predicates': source_node_property_predicates,
+        }
+    elif input_format in get_input_file_types():
+        input_args = {
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+        }
+    elif input_format == 'neo4j':
+        input_args = {
+            'uri': source['uri'],
+            'username': source['username'],
+            'password': source['password'],
+            'format': input_format,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': prefix_map
+        }
+    else:
+        raise TypeError(f"Type {input_format} not yet supported")
+
     if output_directory and not output.startswith(output_directory):
         output = os.path.join(output_directory, output)
     output_args = {'format': output_format}
@@ -522,14 +598,16 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
                 output_args['property_types'] = property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
-    transformer.save(output_args)
+
+    transformer = Transformer(stream=stream)
+    transformer.transform(input_args, output_args)
 
     if not preserve_graph:
         transformer.store.graph.clear()
     return transformer.store.graph
 
 
-def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict[str, str] = None, checkpoint: bool = False) -> Transformer:
+def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict[str, str] = None, checkpoint: bool = False, stream: bool = False) -> Transformer:
     """
     Parse a source's input from a transform config YAML.
 
@@ -552,6 +630,8 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
         Relevant for RDF export.
     checkpoint: bool
         Whether to serialize each individual source to a TSV
+    stream: bool
+        Whether to parse input as a stream
 
     Returns
     -------
@@ -576,32 +656,30 @@ def parse_source_input(key: Optional[str], source: Dict, output_directory: Optio
     source_node_property_predicates = node_property_predicates if node_property_predicates else set()
     source_node_property_predicates.update(source['node_property_predicates'] if 'node_property_predicates' in source and source['node_property_predicates'] is not None else set())
 
-    transformer = Transformer()
+    transformer = Transformer(stream=stream)
     if input_format in {'nt', 'ttl'}:
         # Parse RDF file types
-        for f in inputs:
-            transformer.transform({
-                'filename': f,
-                'format': input_format,
-                'compression': input_compression,
-                'provided_by': source_name,
-                'node_filters': node_filters,
-                'edge_filters': edge_filters,
-                'prefix_map': source_prefix_map,
-                'predicate_mappings': source_predicate_mappings,
-                'node_property_predicates': source_node_property_predicates,
-            })
+        transformer.transform({
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+            'predicate_mappings': source_predicate_mappings,
+            'node_property_predicates': source_node_property_predicates,
+        })
     elif input_format in get_input_file_types():
-        for f in inputs:
-            transformer.transform({
-                'filename': f,
-                'format': input_format,
-                'compression': input_compression,
-                'provided_by': source_name,
-                'node_filters': node_filters,
-                'edge_filters': edge_filters,
-                'prefix_map': source_prefix_map,
-            })
+        transformer.transform({
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression,
+            'provided_by': source_name,
+            'node_filters': node_filters,
+            'edge_filters': edge_filters,
+            'prefix_map': source_prefix_map,
+        })
     elif input_format == 'neo4j':
         # Parse Neo4j
         transformer.transform({

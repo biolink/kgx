@@ -40,11 +40,18 @@ class TsvSink(Sink):
         self.edges_file_basename = f"{self.basename}_edges.{self.extension}"
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
-
-        self._node_properties = set(kwargs['node_properties']) if 'node_properties' in kwargs else DEFAULT_NODE_COLUMNS
-        self.ordered_node_columns = TsvSink._order_node_columns(self._node_properties)
-        self._edge_properties = set(kwargs['edge_properties']) if 'edge_properties' in kwargs else DEFAULT_EDGE_COLUMNS
-        self.ordered_edge_columns = TsvSink._order_edge_columns(self._edge_properties)
+        if 'node_properties' in kwargs:
+            if kwargs['node_properties']:
+                self.node_properties = set(kwargs['node_properties'])
+            else:
+                self.node_properties = DEFAULT_NODE_COLUMNS
+        if 'edge_properties' in kwargs:
+            if kwargs['edge_properties']:
+                self.edge_properties = set(kwargs['edge_properties'])
+            else:
+                self.edge_properties = DEFAULT_EDGE_COLUMNS
+        self.ordered_node_columns = TsvSink._order_node_columns(self.node_properties)
+        self.ordered_edge_columns = TsvSink._order_edge_columns(self.edge_properties)
 
         self.nodes_file_name = os.path.join(self.dirname if self.dirname else '', self.nodes_file_basename)
         self.NFH = open(self.nodes_file_name, 'w')

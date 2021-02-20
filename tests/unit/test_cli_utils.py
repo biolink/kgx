@@ -52,7 +52,7 @@ def test_validate():
         os.path.join(RESOURCE_DIR, 'valid.json'),
     ]
     output = os.path.join(TARGET_DIR, 'validation.log')
-    errors = validate(inputs, 'json', None, output)
+    errors = validate(inputs, 'json', None, output, False)
     assert os.path.exists(output)
     assert len(errors) == 0
 
@@ -67,7 +67,7 @@ def test_neo4j_upload(clean_slate):
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     ]
     # upload
-    t = neo4j_upload(inputs, 'tsv', None, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    t = neo4j_upload(inputs, 'tsv', None, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD, stream=False)
     assert t.store.graph.number_of_nodes() == 512
     assert t.store.graph.number_of_edges() == 532
 
@@ -89,7 +89,8 @@ def test_neo4j_download(clean_slate):
         input_compression=None,
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
-        password=DEFAULT_NEO4J_PASSWORD
+        password=DEFAULT_NEO4J_PASSWORD,
+        stream=False
     )
     t2 = neo4j_download(
         uri=DEFAULT_NEO4J_URL,
@@ -97,7 +98,8 @@ def test_neo4j_download(clean_slate):
         password=DEFAULT_NEO4J_PASSWORD,
         output=output,
         output_format='tsv',
-        output_compression=None
+        output_compression=None,
+        stream = False
     )
     assert os.path.exists(f"{output}_nodes.tsv")
     assert os.path.exists(f"{output}_edges.tsv")
