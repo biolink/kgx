@@ -392,9 +392,9 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
         results.append(result)
     pool.close()
     pool.join()
-    graphs = [r.get() for r in results]
-    merged_graph = merge_all_graphs(graphs)
-
+    stores = [r.get() for r in results]
+    merged_graph = merge_all_graphs([x.graph for x in stores])
+    log.info(f"Merged graph has {merged_graph.number_of_nodes()} nodes and {merged_graph.number_of_edges()} edges")
     if 'name' in cfg['merged_graph']:
         merged_graph.name = cfg['merged_graph']['name']
     if 'operations' in cfg['merged_graph']:
@@ -408,7 +408,13 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
             raise KeyError(f"Cannot find destination '{d}' in YAML")
 
     # write the merged graph
-    transformer = Transformer()
+    node_properties = set()
+    edge_properties = set()
+    for s in stores:
+        node_properties.update(s.node_properties)
+        edge_properties.update(s.edge_properties)
+
+    input_args = {'graph': merged_graph, 'format': 'graph'}
     if destination_to_write:
         for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
@@ -436,9 +442,13 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
                     output_args['property_types'] = top_level_args['property_types']
                     if 'property_types' in top_level_args:
                         output_args['property_types'].update(destination_info['property_types'])
+                if destination_info['format'] in {'csv', 'tsv'}:
+                    output_args['node_properties'] = node_properties
+                    output_args['edge_properties'] = edge_properties
             else:
                 raise TypeError(f"type {destination_info['format']} not yet supported for KGX merge operation.")
-            transformer.save(output_args)
+            transformer = Transformer()
+            transformer.transform(input_args, output_args)
     else:
         log.warning(f"No destination provided in {merge_config}. The merged graph will not be persisted.")
     return merged_graph
@@ -473,7 +483,7 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
     """
     log.info(f"Processing source '{key}'")
     transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint=checkpoint)
-    return transformer.store.graph
+    return transformer.store
 
 
 def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict = None, checkpoint: bool = False, preserve_graph: bool = True, stream: bool = False) -> BaseGraph:

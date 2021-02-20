@@ -19,7 +19,7 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(self, graph: BaseGraph, provided_by: str = None) -> Generator:
+    def parse(self, graph: BaseGraph, provided_by: str = None, **kwargs) -> Generator:
         """
         This method reads from a graph and yields records.
 

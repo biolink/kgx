@@ -78,7 +78,7 @@ class Transformer(object):
         node_filters = input_args.pop('node_filters', {})
         edge_filters = input_args.pop('edge_filters', {})
 
-        if input_format in {'neo4j'}:
+        if input_format in {'neo4j', 'graph'}:
             source = self.get_source(input_format)
             source.set_prefix_map(prefix_map)
             source.set_node_filters(node_filters)
@@ -91,7 +91,8 @@ class Transformer(object):
                 if 'name' in input_args:
                     input_args['provided_by'] = input_args['name']
                 else:
-                    input_args['provided_by'] = input_args['uri']
+                    if 'uri' in input_args:
+                        input_args['provided_by'] = input_args['uri']
             g = source.parse(**input_args)
             sources.append(source)
             generators.append(g)
@@ -113,8 +114,6 @@ class Transformer(object):
                 if not provided_by:
                     if 'name' in input_args:
                         provided_by = input_args.pop('name')
-                    elif 'uri' in input_args:
-                        provided_by = input_args['uri']
                     else:
                         provided_by = os.path.basename(f)
                 g = source.parse(f, **input_args)
@@ -132,7 +131,7 @@ class Transformer(object):
                         log.warning(f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
             sink = self.get_sink(**output_args)
             if 'reverse_prefix_map' in output_args:
-                sink.set_reverse_prefix_map(input_args['reverse_prefix_map'])
+                sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
             if isinstance(sink, RdfSink):
                 if 'reverse_predicate_mapping' in output_args:
                     sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
