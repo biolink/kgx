@@ -5,6 +5,7 @@ from typing import Dict, Union, Generator, List
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
 from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
+from kgx.source.SssomSource import SssomSource
 from kgx.source.owl_source import OwlSource
 
 SOURCE_MAP = {
@@ -18,7 +19,8 @@ SOURCE_MAP = {
     'trapi-json': TrapiSource,
     'neo4j': NeoSource,
     'nt': RdfSource,
-    'owl': OwlSource
+    'owl': OwlSource,
+    'sssom': SssomSource,
 }
 
 SINK_MAP = {
@@ -129,16 +131,16 @@ class Transformer(object):
                         log.warning(f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
                     if 'edge_properties' not in output_args:
                         log.warning(f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
-            sink = self.get_sink(**output_args)
-            if 'reverse_prefix_map' in output_args:
-                sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
-            if isinstance(sink, RdfSink):
-                if 'reverse_predicate_mapping' in output_args:
-                    sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
-            if 'property_types' in output_args:
-                sink.set_property_types(output_args['property_types'])
-
-            if self.stream:
+                    sink = self.get_sink(**output_args)
+                    if 'reverse_prefix_map' in output_args:
+                        sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+                    if isinstance(sink, RdfSink):
+                        if 'reverse_predicate_mapping' in output_args:
+                            sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+                    if 'property_types' in output_args:
+                        sink.set_property_types(output_args['property_types'])
+                else:
+                    sink = self.get_sink(**output_args)
                 # stream from source to sink
                 self.process(source_generator, sink)
                 sink.finalize()
@@ -158,8 +160,25 @@ class Transformer(object):
                 intermediate_source.node_properties.update(intermediate_sink.node_properties)
                 intermediate_source.edge_properties.update(intermediate_sink.edge_properties)
                 intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
-                sink.node_properties.update(intermediate_source.node_properties)
-                sink.edge_properties.update(intermediate_source.edge_properties)
+
+                if output_args['format'] in {'tsv', 'csv'}:
+                    if 'node_properties' not in output_args:
+                        output_args['node_properties'] = intermediate_source.node_properties
+                    if 'edge_properties' not in output_args:
+                        output_args['edge_properties'] = intermediate_source.edge_properties
+                    sink = self.get_sink(**output_args)
+                    if 'reverse_prefix_map' in output_args:
+                        sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+                    if isinstance(sink, RdfSink):
+                        if 'reverse_predicate_mapping' in output_args:
+                            sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+                    if 'property_types' in output_args:
+                        sink.set_property_types(output_args['property_types'])
+                else:
+                    sink = self.get_sink(**output_args)
+                    sink.node_properties.update(intermediate_source.node_properties)
+                    sink.edge_properties.update(intermediate_source.edge_properties)
+
                 self.process(intermediate_source_generator, sink)
                 sink.finalize()
                 self.store.node_properties.update(sink.node_properties)

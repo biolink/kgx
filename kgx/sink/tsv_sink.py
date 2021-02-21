@@ -41,15 +41,13 @@ class TsvSink(Sink):
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
         if 'node_properties' in kwargs:
-            if kwargs['node_properties']:
-                self.node_properties = set(kwargs['node_properties'])
-            else:
-                self.node_properties = DEFAULT_NODE_COLUMNS
+            self.node_properties.update(set(kwargs['node_properties']))
+        else:
+            self.node_properties.update(DEFAULT_NODE_COLUMNS)
         if 'edge_properties' in kwargs:
-            if kwargs['edge_properties']:
-                self.edge_properties = set(kwargs['edge_properties'])
-            else:
-                self.edge_properties = DEFAULT_EDGE_COLUMNS
+            self.edge_properties.update(set(kwargs['edge_properties']))
+        else:
+            self.edge_properties.update(DEFAULT_EDGE_COLUMNS)
         self.ordered_node_columns = TsvSink._order_node_columns(self.node_properties)
         self.ordered_edge_columns = TsvSink._order_edge_columns(self.edge_properties)
 
