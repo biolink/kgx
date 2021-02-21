@@ -131,16 +131,14 @@ class Transformer(object):
                         log.warning(f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
                     if 'edge_properties' not in output_args:
                         log.warning(f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
-                    sink = self.get_sink(**output_args)
-                    if 'reverse_prefix_map' in output_args:
-                        sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
-                    if isinstance(sink, RdfSink):
-                        if 'reverse_predicate_mapping' in output_args:
-                            sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+                sink = self.get_sink(**output_args)
+                if 'reverse_prefix_map' in output_args:
+                    sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+                if isinstance(sink, RdfSink):
+                    if 'reverse_predicate_mapping' in output_args:
+                        sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
                     if 'property_types' in output_args:
                         sink.set_property_types(output_args['property_types'])
-                else:
-                    sink = self.get_sink(**output_args)
                 # stream from source to sink
                 self.process(source_generator, sink)
                 sink.finalize()
