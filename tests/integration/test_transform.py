@@ -183,3 +183,23 @@ def test_transform1(clean_slate, query):
     Test loading data from a TSV source and writing to various sinks.
     """
     _transform(query)
+
+
+@pytest.mark.parametrize('query', [
+    (
+        {
+            'filename': [os.path.join(RESOURCE_DIR, 'goslim_generic.owl')],
+            'format': 'owl',
+        },
+        {
+            'uri': DEFAULT_NEO4J_URL,
+            'username': DEFAULT_NEO4J_USERNAME,
+            'password': DEFAULT_NEO4J_PASSWORD,
+            'format': 'neo4j'
+        },
+        220,
+        1050
+    ),
+])
+def test_transform2(clean_slate, query):
+    _transform(query)

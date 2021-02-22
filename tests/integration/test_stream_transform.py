@@ -1,4 +1,5 @@
 import os
+import pprint
 
 import pytest
 
@@ -35,7 +36,6 @@ def _stream_transform(query):
 
     t2 = Transformer()
     t2.transform(input_args)
-    print_graph(t2.store.graph)
 
     assert t2.store.graph.number_of_nodes() == query[2]
     assert t2.store.graph.number_of_edges() == query[3]
@@ -400,12 +400,11 @@ def test_stream4(clean_slate, query):
     _stream_transform(query)
 
 
-@pytest.mark.skip('Test is non-deterministic')
 @pytest.mark.parametrize('query', [
     (
         {
             'filename': [os.path.join(RESOURCE_DIR, 'goslim_generic.owl')],
-            'format': 'owl'
+            'format': 'owl',
         },
         {
             'filename': os.path.join(TARGET_DIR, 'graph1s5'),
