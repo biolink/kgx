@@ -130,6 +130,11 @@ class RdfSource(Source):
 
         for k in self.node_cache.keys():
             data = self.node_cache[k]
+            if 'category' in data:
+                if 'biolink:NamedThing' not in set(data['category']):
+                    data['category'].append('biolink:NamedThing')
+            else:
+                data['category'] = ["biolink:NamedThing"]
             data = validate_node(data)
             data = sanitize_import(data)
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
