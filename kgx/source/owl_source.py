@@ -25,6 +25,7 @@ class OwlSource(RdfSource):
         self.imported: Set = set()
         super().__init__()
         self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
+        self.excluded_predicates = {URIRef('http://www.geneontology.org/formats/oboInOwl#id')}
 
     def parse(self, filename: str, format: str = 'owl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         rdfgraph = rdflib.Graph()
@@ -123,15 +124,16 @@ class OwlSource(RdfSource):
         for relation in rdfgraph.subjects(RDF.type, OWL.ObjectProperty):
             seen.add(relation)
             for s, p, o in rdfgraph.triples((relation, None, None)):
-                if o.startswith('http://purl.obolibrary.org/obo/RO_'):
-                    yield from self.triple(s, p, o)
-                elif not isinstance(o, rdflib.term.BNode):
-                    yield from self.triple(s, p, o)
+                if not isinstance(o, rdflib.term.BNode):
+                    if p not in self.excluded_predicates:
+                        yield from self.triple(s, p, o)
 
         for s, p, o in rdfgraph.triples((None, None, None)):
             if isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode):
                 continue
             if p in seen:
+                continue
+            if p in self.excluded_predicates:
                 continue
             yield from self.triple(s, p, o)
 

@@ -361,7 +361,7 @@ class RdfSource(Source):
 
         if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
             node_data['provided_by'] = self.graph_metadata['provided_by']
-            self.node_cache[n] = node_data
+        self.node_cache[n] = node_data
         return node_data
 
     def add_edge(self, subject_iri: URIRef, object_iri: URIRef, predicate_iri: URIRef, data: Optional[Dict[Any, Any]] = None) -> Dict:
@@ -386,13 +386,15 @@ class RdfSource(Source):
 
         """
         (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(predicate_iri)
-        if subject_iri in self.node_cache:
-            subject_node = self.node_cache[self.prefix_manager.contract(subject_iri)]
+        subject_curie = self.prefix_manager.contract(subject_iri)
+        object_curie = self.prefix_manager.contract(object_iri)
+        if subject_curie in self.node_cache:
+            subject_node = self.node_cache[subject_curie]
         else:
             subject_node = self.add_node(subject_iri)
 
-        if object_iri in self.node_cache:
-            object_node = self.node_cache[self.prefix_manager.contract(object_iri)]
+        if object_curie in self.node_cache:
+            object_node = self.node_cache[object_curie]
         else:
             object_node = self.add_node(object_iri)
         edge_predicate = element_uri if element_uri else predicate
