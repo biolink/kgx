@@ -192,9 +192,15 @@ class SssomTransformer(Transformer):
         for k, v in edge.items():
             if k in SSSOM_NODE_PROPERTY_MAPPING:
                 if k.startswith('subject'):
-                    subject_node[SSSOM_NODE_PROPERTY_MAPPING[k]] = v
+                    mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
+                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                        v = f"biolink:OntologyClass"
+                    subject_node[mapped_k] = v
                 elif k.startswith('object'):
-                    object_node[SSSOM_NODE_PROPERTY_MAPPING[k]] = v
+                    mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
+                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                        v = f"biolink:OntologyClass"
+                    object_node[mapped_k] = v
                 else:
                     log.info(f"Ignoring {k} {v}")
             else:
