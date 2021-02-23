@@ -5,6 +5,8 @@ from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 
 import yaml
+
+from kgx.operations import knowledge_map
 from kgx.transformers.sssom_transformer import SssomTransformer
 
 from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer, NtTransformer, RsaTransformer, \
@@ -12,7 +14,7 @@ from kgx import PandasTransformer, NeoTransformer, Validator, RdfTransformer, Nt
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.operations.graph_merge import merge_all_graphs
-from kgx.operations.summarize_graph import summarize_graph
+from kgx.operations import summarize_graph
 
 _transformers = {
     'tar': PandasTransformer,
@@ -28,6 +30,11 @@ _transformers = {
     'owl': RdfOwlTransformer,
     'rsa': RsaTransformer,
     'sssom': SssomTransformer
+}
+
+summary_report_types = {
+    'kgx-map': summarize_graph.summarize_graph,
+    'knowledge-map': knowledge_map.summarize_graph
 }
 
 log = get_logger()
@@ -72,7 +79,7 @@ def get_file_types() -> Tuple:
     return tuple(_transformers.keys())
 
 
-def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
+def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], report_type: str, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
 
@@ -86,6 +93,8 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         The input compression type
     output: Optional[str]
         Where to write the output (stdout, by default)
+    report_type: str
+        The summary report type
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
@@ -101,7 +110,10 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
     for file in inputs:
         transformer.parse(file, input_format=input_format, compression=input_compression)
 
-    stats = summarize_graph(transformer.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
+    if report_type in summary_report_types:
+        stats = summary_report_types[report_type](graph=transformer.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
+    else:
+        raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
     if output:
         WH = open(output, 'w')
         WH.write(yaml.dump(stats))
