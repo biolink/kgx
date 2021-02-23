@@ -11,5 +11,5 @@ from kgx.validator import Validator
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_config
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 

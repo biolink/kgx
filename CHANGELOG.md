@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - (2021-02-23)
+
+- This is the final release on the 0.x.x
+- Added ability to assign a default category in SssomTransformer when the incoming category is invalid
+- Added the ability to generate different types of graph summary reports
+
+
 ## 0.4.0 - (2021-02-08)
 
 - Fixed a bug in NtTransformer when parsing malformed triples
