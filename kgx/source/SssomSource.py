@@ -6,6 +6,7 @@ from typing import Optional, Generator, Any, Dict, Tuple
 
 import yaml
 
+from kgx import PrefixManager
 from kgx.config import get_logger
 from kgx.source import Source
 from kgx.utils.kgx_utils import validate_node, sanitize_import, validate_edge, generate_uuid, generate_edge_key
@@ -203,9 +204,15 @@ class SssomSource(Source):
         for k, v in edge.items():
             if k in SSSOM_NODE_PROPERTY_MAPPING:
                 if k.startswith('subject'):
-                    subject_node[SSSOM_NODE_PROPERTY_MAPPING[k]] = v
+                    mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
+                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                        v = f"biolink:OntologyClass"
+                    subject_node[mapped_k] = v
                 elif k.startswith('object'):
-                    object_node[SSSOM_NODE_PROPERTY_MAPPING[k]] = v
+                    mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
+                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                        v = f"biolink:OntologyClass"
+                    object_node[mapped_k] = v
                 else:
                     log.info(f"Ignoring {k} {v}")
             else:
