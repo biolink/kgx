@@ -20,7 +20,7 @@ def test_get_file_types():
     assert 'obojson' in file_types
 
 
-def test_graph_summary():
+def test_graph_summary1():
     """
     Test graph summary.
     """
@@ -28,9 +28,8 @@ def test_graph_summary():
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
     ]
-    output = os.path.join(TARGET_DIR, 'graph_stats.yaml')
-    summary_stats = graph_summary(inputs, 'tsv', None, output)
-    pprint.pprint(summary_stats)
+    output = os.path.join(TARGET_DIR, 'graph_stats1.yaml')
+    summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='kgx-map')
 
     assert os.path.exists(output)
     assert summary_stats
@@ -42,6 +41,21 @@ def test_graph_summary():
     assert summary_stats['edge_stats']['total_edges'] == 532
     assert 'biolink:has_phenotype' in summary_stats['edge_stats']['predicates']
     assert 'biolink:interacts_with' in summary_stats['edge_stats']['predicates']
+
+
+def test_graph_summary2():
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+    ]
+    output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
+    summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='knowledge-map')
+
+    assert os.path.exists(output)
+    assert summary_stats
+    assert 'knowledge_map' in summary_stats
+    assert 'nodes' in summary_stats['knowledge_map']
+    assert 'edges' in summary_stats['knowledge_map']
 
 
 def test_validate():

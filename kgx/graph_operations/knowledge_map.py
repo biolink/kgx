@@ -31,7 +31,7 @@ def generate_knowledge_map(graph: BaseGraph, name: str, filename: str) -> None:
     json.dump(knowledge_map, WH, indent=4)
 
 
-def summarize_graph(graph: BaseGraph, name: str = None) -> Dict:
+def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     """
     Generate a knowlege map that describes the composition of the graph.
 
@@ -41,8 +41,8 @@ def summarize_graph(graph: BaseGraph, name: str = None) -> Dict:
         The graph
     name: Optional[str]
         Name for the graph
-    filename: str
-        The file to write the knowledge map to
+    kwargs: Dict
+        Any additional arguments
 
     Returns
     -------

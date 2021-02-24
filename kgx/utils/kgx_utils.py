@@ -1,3 +1,4 @@
+import importlib
 import re
 import time
 import uuid
@@ -967,3 +968,24 @@ def is_null(item: Any) -> bool:
     """
     null_values = {np.nan, pd.NA, pd.NaT, None, "", " "}
     return item in null_values
+
+
+def apply_graph_operations(graph: BaseGraph, operations: List) -> None:
+    """
+    Apply graph operations to a given graph.
+
+    Parameters
+    ----------
+    graph: kgx.graph.base_graph.BaseGraph
+        An instance of BaseGraph
+    operations: List
+        A list of graph operations with configuration
+
+    """
+    for operation in operations:
+        op_name = operation['name']
+        op_args = operation['args']
+        module_name = '.'.join(op_name.split('.')[0:-1])
+        function_name = op_name.split('.')[-1]
+        f = getattr(importlib.import_module(module_name), function_name)
+        f(graph, **op_args)

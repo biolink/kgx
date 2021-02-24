@@ -5,8 +5,9 @@ from typing import Dict, Union, Generator, List
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
 from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
-from kgx.source.SssomSource import SssomSource
+from kgx.source.sssom_source import SssomSource
 from kgx.source.owl_source import OwlSource
+from kgx.utils.kgx_utils import apply_graph_operations
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -79,6 +80,7 @@ class Transformer(object):
         node_property_predicates = input_args.pop('node_property_predicates', {})
         node_filters = input_args.pop('node_filters', {})
         edge_filters = input_args.pop('edge_filters', {})
+        operations = input_args.pop('operations', [])
 
         if input_format in {'neo4j', 'graph'}:
             source = self.get_source(input_format)
@@ -151,8 +153,7 @@ class Transformer(object):
                 for s in sources:
                     intermediate_sink.node_properties.update(s.node_properties)
                     intermediate_sink.edge_properties.update(s.edge_properties)
-
-                # self.apply_graph_operations
+                apply_graph_operations(intermediate_sink.graph, operations)
                 # stream from intermediate to output sink
                 intermediate_source = self.get_source('graph')
                 intermediate_source.node_properties.update(intermediate_sink.node_properties)
@@ -193,9 +194,7 @@ class Transformer(object):
             sink.finalize()
             self.store.node_properties.update(sink.node_properties)
             self.store.edge_properties.update(sink.edge_properties)
-        # self.node_filters.clear()
-        # self.edge_filters.clear()
-        # self._seen_nodes.clear()
+            apply_graph_operations(sink.graph, operations)
 
     def process(self, source: Generator, sink: Sink) -> None:
         """
@@ -230,7 +229,6 @@ class Transformer(object):
                     if 'category' in self.node_filters:
                         self._seen_nodes.add(rec[0])
                     sink.write_node(rec[-1])
-                    # self.apply_stream_operations
 
     def save(self, output_args: Dict) -> None:
         """

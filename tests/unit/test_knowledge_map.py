@@ -1,7 +1,7 @@
 import json
 import os
 
-from kgx.operations.knowledge_map import generate_knowledge_map
+from kgx.graph_operations.knowledge_map import generate_knowledge_map
 
 from kgx import PandasTransformer
 from tests import RESOURCE_DIR, TARGET_DIR
