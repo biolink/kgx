@@ -6,6 +6,7 @@ from typing import List, Tuple, Any, Optional, Dict, Set
 import yaml
 
 from kgx import Validator
+from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
@@ -302,7 +303,15 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
             name = v['name'] if 'name' in v else k
-            result = pool.apply_async(transform_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['property_types'], top_level_args['checkpoint'], False, stream))
+            result = pool.apply_async(
+                transform_source,
+                (
+                    name, v, output_directory,
+                    top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'],
+                    top_level_args['reverse_prefix_map'], top_level_args['reverse_predicate_mappings'], top_level_args['property_types'],
+                    top_level_args['checkpoint'], False, stream
+                )
+            )
             results.append(result)
         pool.close()
         pool.join()
@@ -321,7 +330,7 @@ def transform(inputs: Optional[List[str]], input_format: Optional[str] = None, i
             }
         }
         name = os.path.basename(inputs[0])
-        transform_source(name, source_dict, None, stream=stream)
+        transform_source(key=name, source=source_dict, output_directory=None, stream=stream)
 
 
 def merge(merge_config: str, source: Optional[List] = None, destination: Optional[List] = None, processes: int = 1) -> BaseGraph:
@@ -388,7 +397,14 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     for k, v in sources_to_parse.items():
         log.info(f"Spawning process for '{k}'")
         name = v['name'] if 'name' in v else k
-        result = pool.apply_async(parse_source, (name, v, output_directory, top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'], top_level_args['checkpoint']))
+        result = pool.apply_async(
+            parse_source,
+            (
+                name, v, output_directory,
+                top_level_args['prefix_map'], top_level_args['node_property_predicates'], top_level_args['predicate_mappings'],
+                top_level_args['checkpoint']
+            )
+        )
         results.append(result)
     pool.close()
     pool.join()
@@ -454,7 +470,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     return merged_graph
 
 
-def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, checkpoint: bool = False):
+def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, checkpoint: bool = False) -> Sink:
     """
     Parse a source from a merge config YAML.
 
@@ -466,9 +482,9 @@ def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict
         Source configuration
     output_directory: str
         Location to write output to
-    curie_map: Dict[str, str]
+    prefix_map: Dict[str, str]
         Non-canonical CURIE mappings
-    node_properties: Set[str]
+    node_property_predicates: Set[str]
         A set of predicates that ought to be treated as node properties (This is applicable for RDF)
     predicate_mappings: Dict[str, str]
         A mapping of predicate IRIs to property names (This is applicable for RDF)
@@ -477,8 +493,8 @@ def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict
 
     Returns
     -------
-    kgx.graph.base_graph.BaseGraph
-        Returns an instance of BaseGraph corresponding to the source
+    kgx.sink.sink.Sink
+        Returns an instance of Sink
 
     """
     log.info(f"Processing source '{key}'")
@@ -495,10 +511,10 @@ def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict
             'filename': checkpoint_output,
             'format': 'tsv'
         })
-    return transformer.store.graph
+    return transformer.store
 
 
-def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict = None, checkpoint: bool = False, preserve_graph: bool = True, stream: bool = False) -> BaseGraph:
+def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, reverse_prefix_map: Dict = None, reverse_predicate_mappings: Dict = None, property_types: Dict = None, checkpoint: bool = False, preserve_graph: bool = True, stream: bool = False) -> Sink:
     """
     Transform a source from a transform config YAML.
 
@@ -516,6 +532,10 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
         A set of predicates that ought to be treated as node properties (This is applicable for RDF)
     predicate_mappings: Dict[str, str]
         A mapping of predicate IRIs to property names (This is applicable for RDF)
+    reverse_prefix_map: Dict[str, str]
+        Non-canonical CURIE mappings for export
+    reverse_predicate_mappings: Dict[str, str]
+        A mapping of property names to predicate IRIs (This is applicable for RDF)
     property_types: Dict[str, str]
         The xml property type for properties that are other than ``xsd:string``.
         Relevant for RDF export.
@@ -528,18 +548,18 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
 
     Returns
     -------
-    kgx.graph.base_graph.BaseGraph
-        Returns an instance of BaseGraph corresponding to the source
+    kgx.sink.sink.Sink
+        Returns an instance of Sink
 
     """
     log.info(f"Processing source '{key}'")
     input_args = prepare_input_args(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings)
-    output_args = prepare_output_args(key, source, output_directory, property_types)
+    output_args = prepare_output_args(key, source, output_directory, reverse_prefix_map, reverse_predicate_mappings, property_types)
     transformer = Transformer(stream=stream)
     transformer.transform(input_args, output_args)
     if not preserve_graph:
         transformer.store.graph.clear()
-    return transformer.store.graph
+    return transformer.store
 
 
 def prepare_input_args(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None) -> Dict:
@@ -626,11 +646,10 @@ def prepare_input_args(key: str, source: Dict, output_directory: Optional[str], 
             filename = args['filename']
             if not filename.startswith(output_directory):
                 o['args'] = os.path.join(output_directory, filename)
-    input_args['output_directory'] = output_directory
     return input_args
 
 
-def prepare_output_args(key: str, source: Dict, output_directory: Optional[str], property_types: Dict = None) -> Dict:
+def prepare_output_args(key: str, source: Dict, output_directory: Optional[str], reverse_prefix_map: Dict = None, reverse_predicate_mappings: Dict = None, property_types: Dict = None) -> Dict:
     """
     Prepare output arguments for Transformer.
 
@@ -642,7 +661,11 @@ def prepare_output_args(key: str, source: Dict, output_directory: Optional[str],
         Source configuration
     output_directory: str
         Location to write output to
-    property_types
+    reverse_prefix_map: Dict[str, str]
+        Non-canonical CURIE mappings for export
+    reverse_predicate_mappings: Dict[str, str]
+        A mapping of property names to predicate IRIs (This is applicable for RDF)
+    property_types: Dict[str, str]
         The xml property type for properties that are other than ``xsd:string``.
         Relevant for RDF export.
 
@@ -655,6 +678,13 @@ def prepare_output_args(key: str, source: Dict, output_directory: Optional[str],
     output_format = source['output']['format']
     output_compression = source['output']['compression'] if 'compression' in source['output'] else None
     output_filename = source['output']['filename'] if 'filename' in source['output'] else key
+    source_reverse_prefix_map = reverse_prefix_map.copy() if reverse_prefix_map else {}
+    source_reverse_prefix_map.update(source['reverse_prefix_map'] if 'reverse_prefix_map' in source and source['reverse_prefix_map'] else {})
+    source_reverse_predicate_mappings = reverse_predicate_mappings.copy() if reverse_predicate_mappings else {}
+    source_reverse_predicate_mappings.update(source['reverse_predicate_mappings'] if 'reverse_predicate_mappings' in source and source['reverse_predicate_mappings'] is not None else {})
+    source_property_types = property_types.copy() if property_types else {}
+    source_property_types.update(source['property_types']) if 'property_types' in source and source['property_types'] is not None else {}
+
     if isinstance(output_filename, list):
         output = output_filename[0]
     else:
@@ -671,8 +701,9 @@ def prepare_output_args(key: str, source: Dict, output_directory: Optional[str],
         output_args['compression'] = output_compression
         if output_format == 'nt':
             output_args['reify_all_edges'] = source['output']['reify_all_edges'] if 'reify_all_edges' in source['output'] else False
-            if property_types:
-                output_args['property_types'] = property_types
+            output_args['reverse_prefix_map'] = source_reverse_prefix_map
+            output_args['reverse_predicate_mappings'] = source_reverse_predicate_mappings
+            output_args['property_types'] = source_property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
     return output_args
