@@ -9,9 +9,9 @@ from kgx import Validator
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.operations.graph_merge import merge_all_graphs
-from kgx.operations.summarize_graph import summarize_graph
-
+from kgx.graph_operations.graph_merge import merge_all_graphs
+from kgx.graph_operations.summarize_graph import summarize_graph
+from kgx.utils.kgx_utils import apply_graph_operations
 
 log = get_logger()
 
@@ -398,7 +398,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     if 'name' in cfg['merged_graph']:
         merged_graph.name = cfg['merged_graph']['name']
     if 'operations' in cfg['merged_graph']:
-        apply_operations(cfg['merged_graph'], merged_graph)
+        apply_graph_operations(merged_graph, cfg['merged_graph']['operations'])
 
     destination_to_write: Dict[str, Dict] = {}
     for d in destination:
@@ -454,7 +454,7 @@ def merge(merge_config: str, source: Optional[List] = None, destination: Optiona
     return merged_graph
 
 
-def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[str, str] = None, node_properties: Set[str] = None, predicate_mappings: Dict[str, str] = None, checkpoint: bool = False):
+def parse_source(key: str, source: dict, output_directory: str, prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, checkpoint: bool = False):
     """
     Parse a source from a merge config YAML.
 
@@ -482,8 +482,20 @@ def parse_source(key: str, source: dict, output_directory: str, curie_map: Dict[
 
     """
     log.info(f"Processing source '{key}'")
-    transformer = parse_source_input(key, source, output_directory, curie_map, node_properties, predicate_mappings, None, checkpoint=checkpoint)
-    return transformer.store
+    if not key:
+        key = os.path.basename(source['input']['filename'][0])
+    input_args = prepare_input_args(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings)
+    transformer = Transformer()
+    transformer.transform(input_args)
+    transformer.store.graph.name = key
+    if checkpoint:
+        log.info(f"Writing checkpoint for source '{key}'")
+        checkpoint_output = f"{output_directory}/{key}" if output_directory else key
+        transformer.save({
+            'filename': checkpoint_output,
+            'format': 'tsv'
+        })
+    return transformer.store.graph
 
 
 def transform_source(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict = None, checkpoint: bool = False, preserve_graph: bool = True, stream: bool = False) -> BaseGraph:
@@ -521,14 +533,40 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
 
     """
     log.info(f"Processing source '{key}'")
-    output_format = source['output']['format']
-    output_compression = source['output']['compression'] if 'compression' in source['output'] else None
-    output_filename = source['output']['filename'] if 'filename' in source['output'] else key
-    if isinstance(output_filename, list):
-        output = output_filename[0]
-    else:
-        output = output_filename
+    input_args = prepare_input_args(key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings)
+    output_args = prepare_output_args(key, source, output_directory, property_types)
+    transformer = Transformer(stream=stream)
+    transformer.transform(input_args, output_args)
+    if not preserve_graph:
+        transformer.store.graph.clear()
+    return transformer.store.graph
 
+
+def prepare_input_args(key: str, source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None) -> Dict:
+    """
+    Prepare input arguments for Transformer.
+
+    Parameters
+    ----------
+    key: str
+        Source key
+    source: Dict
+        Source configuration
+    output_directory: str
+        Location to write output to
+    prefix_map: Dict[str, str]
+        Non-canonical CURIE mappings
+    node_property_predicates: Set[str]
+        A set of predicates that ought to be treated as node properties (This is applicable for RDF)
+    predicate_mappings: Dict[str, str]
+        A mapping of predicate IRIs to property names (This is applicable for RDF)
+
+    Returns
+    -------
+    Dict
+        Input arguments as dictionary
+
+    """
     if not key:
         key = os.path.basename(source['input']['filename'][0])
     source_name = source['input']['name'] if 'name' in source['input'] else key
@@ -538,7 +576,6 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
     filters = source['input']['filters'] if 'filters' in source['input'] and source['input']['filters'] is not None else {}
     node_filters = filters['node_filters'] if 'node_filters' in filters else {}
     edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
-    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['operations'] is not None else {}
     source_prefix_map = prefix_map.copy() if prefix_map else {}
     source_prefix_map.update(source['prefix_map'] if 'prefix_map' in source and source['prefix_map'] else {})
     source_predicate_mappings = predicate_mappings.copy() if predicate_mappings else {}
@@ -582,6 +619,46 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
     else:
         raise TypeError(f"Type {input_format} not yet supported")
 
+    input_args['operations'] = source['input'].get('operations', [])
+    for o in input_args['operations']:
+        args = o['args']
+        if 'filename' in args:
+            filename = args['filename']
+            if not filename.startswith(output_directory):
+                o['args'] = os.path.join(output_directory, filename)
+    input_args['output_directory'] = output_directory
+    return input_args
+
+
+def prepare_output_args(key: str, source: Dict, output_directory: Optional[str], property_types: Dict = None) -> Dict:
+    """
+    Prepare output arguments for Transformer.
+
+    Parameters
+    ----------
+    key: str
+        Source key
+    source: Dict
+        Source configuration
+    output_directory: str
+        Location to write output to
+    property_types
+        The xml property type for properties that are other than ``xsd:string``.
+        Relevant for RDF export.
+
+    Returns
+    -------
+    Dict
+        Output arguments as dictionary
+
+    """
+    output_format = source['output']['format']
+    output_compression = source['output']['compression'] if 'compression' in source['output'] else None
+    output_filename = source['output']['filename'] if 'filename' in source['output'] else key
+    if isinstance(output_filename, list):
+        output = output_filename[0]
+    else:
+        output = output_filename
     if output_directory and not output.startswith(output_directory):
         output = os.path.join(output_directory, output)
     output_args = {'format': output_format}
@@ -598,115 +675,7 @@ def transform_source(key: str, source: Dict, output_directory: Optional[str], pr
                 output_args['property_types'] = property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
-
-    transformer = Transformer(stream=stream)
-    transformer.transform(input_args, output_args)
-
-    if not preserve_graph:
-        transformer.store.graph.clear()
-    return transformer.store.graph
-
-
-def parse_source_input(key: Optional[str], source: Dict, output_directory: Optional[str], prefix_map: Dict[str, str] = None, node_property_predicates: Set[str] = None, predicate_mappings: Dict[str, str] = None, property_types: Dict[str, str] = None, checkpoint: bool = False, stream: bool = False) -> Transformer:
-    """
-    Parse a source's input from a transform config YAML.
-
-    Parameters
-    ----------
-    key: Optional[str]
-        Source key
-    source: Dict
-        Source configuration
-    output_directory: Optional[str]
-        Location to write output to
-    prefix_map: Dict[str, str]
-        Non-canonical CURIE mappings
-    node_property_predicates: Set[str]
-        A set of predicates that ought to be treated as node properties (This is applicable for RDF)
-    predicate_mappings: Dict[str, str]
-        A mapping of predicate IRIs to property names (This is applicable for RDF)
-    property_types: Dict[str, str]
-        The xml property type for properties that are other than ``xsd:string``.
-        Relevant for RDF export.
-    checkpoint: bool
-        Whether to serialize each individual source to a TSV
-    stream: bool
-        Whether to parse input as a stream
-
-    Returns
-    -------
-    kgx.Transformer
-        An instance of kgx.Transformer corresponding to the source format
-
-    """
-    if not key:
-        key = os.path.basename(source['input']['filename'][0])
-    source_name = source['input']['name'] if 'name' in source['input'] else key
-    input_format = source['input']['format']
-    input_compression = source['input']['compression'] if 'compression' in source['input'] else None
-    inputs = source['input']['filename']
-    filters = source['input']['filters'] if 'filters' in source['input'] and source['input']['filters'] is not None else {}
-    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
-    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
-    operations = source['input']['operations'] if 'operations' in source['input'] and source['input']['operations'] is not None else {}
-    source_prefix_map = prefix_map.copy() if prefix_map else {}
-    source_prefix_map.update(source['prefix_map'] if 'prefix_map' in source and source['prefix_map'] else {})
-    source_predicate_mappings = predicate_mappings.copy() if predicate_mappings else {}
-    source_predicate_mappings.update(source['predicate_mappings'] if 'predicate_mappings' in source and source['predicate_mappings'] is not None else {})
-    source_node_property_predicates = node_property_predicates if node_property_predicates else set()
-    source_node_property_predicates.update(source['node_property_predicates'] if 'node_property_predicates' in source and source['node_property_predicates'] is not None else set())
-
-    transformer = Transformer(stream=stream)
-    if input_format in {'nt', 'ttl'}:
-        # Parse RDF file types
-        transformer.transform({
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression,
-            'provided_by': source_name,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': source_prefix_map,
-            'predicate_mappings': source_predicate_mappings,
-            'node_property_predicates': source_node_property_predicates,
-        })
-    elif input_format in get_input_file_types():
-        transformer.transform({
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression,
-            'provided_by': source_name,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': source_prefix_map,
-        })
-    elif input_format == 'neo4j':
-        # Parse Neo4j
-        transformer.transform({
-            'uri': source['uri'],
-            'username': source['username'],
-            'password': source['password'],
-            'format': input_format,
-            'provided_by': source_name,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': prefix_map
-        })
-    else:
-        raise TypeError(f"Type {input_format} not yet supported")
-    transformer.store.graph.name = key
-    if operations:
-        apply_operations(source['input'], transformer.store.graph)
-    if checkpoint:
-        log.info(f"Writing checkpoint for source '{key}'")
-        checkpoint_output = f"{output_directory}/{key}" if output_directory else key
-        ct = Transformer()
-        ct.store = transformer.store
-        ct.save({
-            'filename': checkpoint_output,
-            'format': 'tsv'
-        })
-    return transformer
+    return output_args
 
 
 def apply_operations(source: dict, graph: BaseGraph) -> BaseGraph:
