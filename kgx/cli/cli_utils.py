@@ -11,8 +11,14 @@ from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
-from kgx.graph_operations.summarize_graph import summarize_graph
+from kgx.graph_operations import summarize_graph, knowledge_map
 from kgx.utils.kgx_utils import apply_graph_operations
+
+
+summary_report_types = {
+    'kgx-map': summarize_graph.summarize_graph,
+    'knowledge-map': knowledge_map.summarize_graph
+}
 
 log = get_logger()
 
@@ -43,7 +49,7 @@ def get_output_file_types() -> Tuple:
     return tuple(SINK_MAP.keys())
 
 
-def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], stream: bool = False, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
+def graph_summary(inputs: List[str], input_format: str, input_compression: Optional[str], output: Optional[str], report_type: str, stream: bool = False, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
 
@@ -57,6 +63,8 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         The input compression type
     output: Optional[str]
         Where to write the output (stdout, by default)
+    report_type: str
+        The summary report type
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[List]
@@ -79,8 +87,10 @@ def graph_summary(inputs: List[str], input_format: str, input_compression: Optio
         'format': input_format,
         'compression': input_compression
     })
-
-    stats = summarize_graph(transformer.store.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
+    if report_type in summary_report_types:
+        stats = summary_report_types[report_type](graph=transformer.store.graph, name='Graph', node_facet_properties=node_facet_properties, edge_facet_properties=edge_facet_properties)
+    else:
+        raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
     if output:
         WH = open(output, 'w')
         WH.write(yaml.dump(stats))
