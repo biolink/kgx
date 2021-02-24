@@ -2,7 +2,7 @@ import pprint
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.utils.graph_utils import remap_node_identifier, remap_node_property, remap_edge_property
+from kgx.graph_operations import remap_node_identifier, remap_node_property, remap_edge_property
 
 
 def get_graphs():

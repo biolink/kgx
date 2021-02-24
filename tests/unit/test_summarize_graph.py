@@ -2,7 +2,7 @@ import os
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.operations.summarize_graph import summarize_graph, generate_graph_stats
+from kgx.graph_operations.summarize_graph import summarize_graph, generate_graph_stats
 from tests import TARGET_DIR
 
 

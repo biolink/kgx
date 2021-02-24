@@ -1,7 +1,7 @@
 import os
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.operations.clique_merge import check_categories, sort_categories, check_all_categories, clique_merge
+from kgx.graph_operations.clique_merge import check_categories, sort_categories, check_all_categories, clique_merge
 from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key
 from tests import print_graph
 

@@ -3,7 +3,7 @@ import os
 import networkx as nx
 from kgx import PandasTransformer
 from kgx.graph.nx_graph import NxGraph
-from kgx.operations.clique_merge import clique_merge
+from kgx.graph_operations.clique_merge import clique_merge
 from tests import TARGET_DIR, RESOURCE_DIR
 
 prefix_prioritization_map = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}

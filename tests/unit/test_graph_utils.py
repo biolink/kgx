@@ -1,8 +1,8 @@
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.utils.graph_utils import get_parents, get_ancestors, curie_lookup, fold_predicate, unfold_node_property, \
-    remove_singleton_nodes
+from kgx.utils.graph_utils import get_parents, get_ancestors, curie_lookup
+from kgx.graph_operations import fold_predicate, unfold_node_property, remove_singleton_nodes
 
 
 def get_graphs():

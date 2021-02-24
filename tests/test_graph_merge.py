@@ -1,6 +1,6 @@
 import os
 from kgx import PandasTransformer
-from kgx.operations.graph_merge import merge_all_graphs
+from kgx.graph_operations.graph_merge import merge_all_graphs
 from tests import RESOURCE_DIR
 
 
