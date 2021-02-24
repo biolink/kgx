@@ -5,7 +5,7 @@ from typing import Dict, Union, Generator, List
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
 from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
-from kgx.source.SssomSource import SssomSource
+from kgx.source.sssom_source import SssomSource
 from kgx.source.owl_source import OwlSource
 from kgx.utils.kgx_utils import apply_graph_operations
 
