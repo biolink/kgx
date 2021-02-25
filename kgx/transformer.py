@@ -216,15 +216,23 @@ class Transformer(object):
         for rec in source:
             if rec:
                 if len(rec) == 4:
-                    if 'subject_category' in self.edge_filters or 'object_category' in self.edge_filters:
-                        # The assumption here is that the relevant nodes have already
-                        # been seen and thus only load those edges for which both
-                        # nodes have been loaded
-                        if rec[0] in self._seen_nodes and rec[1] in self._seen_nodes:
-                            sink.write_edge(rec[-1])
-                    else:
+                    write_edge = True
+                    if 'subject_category' in self.edge_filters:
+                        if rec[0] in self._seen_nodes:
+                            write_edge = True
+                        else:
+                            write_edge = False
+                    if 'object_category' in self.edge_filters:
+                        if rec[1] in self._seen_nodes:
+                            if 'subject_category' in self.edge_filters:
+                                if write_edge:
+                                    write_edge = True
+                            else:
+                                write_edge = True
+                        else:
+                            write_edge = False
+                    if write_edge:
                         sink.write_edge(rec[-1])
-                    # self.apply_stream_operations
                 else:
                     if 'category' in self.node_filters:
                         self._seen_nodes.add(rec[0])
@@ -253,6 +261,13 @@ class Transformer(object):
         sink = self.get_sink(**output_args)
         sink.node_properties.update(source.node_properties)
         sink.edge_properties.update(source.edge_properties)
+        if 'reverse_prefix_map' in output_args:
+            sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+        if isinstance(sink, RdfSink):
+            if 'reverse_predicate_mapping' in output_args:
+                sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+            if 'property_types' in output_args:
+                sink.set_property_types(output_args['property_types'])
         self.process(source_generator, sink)
         sink.finalize()
 
