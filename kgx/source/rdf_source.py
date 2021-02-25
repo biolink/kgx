@@ -84,7 +84,8 @@ class RdfSource(Source):
             Set of predicates
 
         """
-        self.node_property_predicates.update(predicates)
+        for p in predicates:
+            self.node_property_predicates.add(URIRef(p))
 
     def parse(self, filename: str, format: str = 'nt', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
         """
@@ -435,7 +436,7 @@ class RdfSource(Source):
 
             if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
                 edge_data['provided_by'] = self.graph_metadata['provided_by']
-            self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
+        self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
         return edge_data
 
     def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple[str, str, str, str]:
@@ -550,8 +551,9 @@ class RdfSource(Source):
             The edge data
 
         """
-        if (subject_curie, object_curie, edge_key) in self.edge_cache:
-            edge_data = self.edge_cache[(subject_curie, object_curie, edge_key)]
+        key = (subject_curie, object_curie, edge_key)
+        if key in self.edge_cache:
+            edge_data = self.edge_cache[key]
         else:
             edge_data = {}
         if data:
