@@ -198,7 +198,7 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
     cliques = list(nx.connected_components(clique_graph))
     log.info(f"Consolidating edges in {len(cliques)} cliques")
     for clique in cliques:
-        log.info(f"Processing clique: {clique}")
+        log.debug(f"Processing clique: {clique}")
         leaders: List = [x for x in clique if leader_annotation in clique_graph.nodes()[x] and clique_graph.nodes()[x][leader_annotation]]
         if len(leaders) == 0:
             log.debug("No leader elected for clique {}; skipping".format(clique))
@@ -210,7 +210,7 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
         for node in clique:
             if node == leader:
                 continue
-            log.info(f"Looking for in_edges for {node}")
+            log.debug(f"Looking for in_edges for {node}")
             in_edges = target_graph.in_edges(node, keys=False, data=True)
             filtered_in_edges = [x for x in in_edges if x[2]['predicate'] != SAME_AS]
             equiv_in_edges = [x for x in in_edges if x[2]['predicate'] == SAME_AS]
@@ -226,7 +226,7 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
                     continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
-            log.info(f"Looking for out_edges for {node}")
+            log.debug(f"Looking for out_edges for {node}")
             out_edges = target_graph.out_edges(node, keys=False, data=True)
             filtered_out_edges = [x for x in out_edges if x[2]['predicate'] != SAME_AS]
             equiv_out_edges = [x for x in out_edges if x[2]['predicate'] == SAME_AS]
