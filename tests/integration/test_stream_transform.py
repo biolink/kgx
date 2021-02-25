@@ -9,6 +9,9 @@ from tests.integration import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USER
 
 
 def _stream_transform(query):
+    """
+    Transform an input to an output via Transformer where streaming is enabled.
+    """
     t1 = Transformer(stream=True)
     t1.transform(query[0], query[1])
 
@@ -88,23 +91,23 @@ def _stream_transform(query):
         512,
         532,
     ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-        },
-        {
-            'uri': DEFAULT_NEO4J_URL,
-            'username': DEFAULT_NEO4J_USERNAME,
-            'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
-        },
-        512,
-        532
-    ),
+    # (
+    #     {
+    #         'filename': [
+    #             os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+    #             os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+    #         ],
+    #         'format': 'tsv',
+    #     },
+    #     {
+    #         'uri': DEFAULT_NEO4J_URL,
+    #         'username': DEFAULT_NEO4J_USERNAME,
+    #         'password': DEFAULT_NEO4J_PASSWORD,
+    #         'format': 'neo4j'
+    #     },
+    #     512,
+    #     532
+    # ),
     (
         {
             'filename': [
@@ -473,7 +476,7 @@ def test_stream4(clean_slate, query):
 ])
 def test_stream5(clean_slate, query):
     """
-    Test streaming data from RDF source and writing to various sinks.
+    Test streaming data from an OWL source and writing to various sinks.
     """
     _stream_transform(query)
 

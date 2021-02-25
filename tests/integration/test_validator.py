@@ -8,7 +8,7 @@ from tests import RESOURCE_DIR
 
 def test_validator_bad():
     """
-    A fake test to establish a fail condition for validation
+    A fake test to establish a fail condition for validation.
     """
     G = NxGraph()
     G.add_node('x', foo=3)
@@ -21,7 +21,7 @@ def test_validator_bad():
 
 def test_validator_good():
     """
-    A fake test to establish a success condition for validation
+    A fake test to establish a success condition for validation.
     """
     G = NxGraph()
     G.add_node('UniProtKB:P123456', id='UniProtKB:P123456', name='fake', category=['Protein'])
@@ -36,7 +36,7 @@ def test_validator_good():
 
 def test_validate_json():
     """
-    Validate against a valid representative Biolink Model compliant JSON
+    Validate against a valid representative Biolink Model compliant JSON.
     """
     json_file = os.path.join(RESOURCE_DIR, 'valid.json')
     jt = JsonTransformer()
