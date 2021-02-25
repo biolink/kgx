@@ -133,6 +133,13 @@ class NeoSink(Sink):
                 except CypherException as ce:
                     log.error(ce)
 
+    def finalize(self) -> None:
+        """
+        Write any remaining cached node and/or edge records.
+        """
+        self._write_node_cache()
+        self._write_edge_cache()
+
     @staticmethod
     def sanitize_category(category: List) -> List:
         """
@@ -197,16 +204,29 @@ class NeoSink(Sink):
                 subcategories = category.split(self.CATEGORY_DELIMITER)
                 self.create_constraints(subcategories)
             else:
-                query = NeoTransformer.create_constraint_query(category)
+                query = NeoSink.create_constraint_query(category)
                 try:
                     self.http_driver.query(query)
                     self._seen_categories.add(category)
                 except CypherException as ce:
                     log.error(ce)
 
-    def finalize(self) -> None:
+    @staticmethod
+    def create_constraint_query(category: str) -> str:
         """
-        Write any remaining cached node and/or edge records.
+        Create a Cypher CONSTRAINT query
+
+        Parameters
+        ----------
+        category: str
+            The category to create a constraint on
+
+        Returns
+        -------
+        str
+            The Cypher CONSTRAINT query
+
         """
-        self._write_node_cache()
-        self._write_edge_cache()
+        query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
+        return query
+
