@@ -776,7 +776,7 @@ def sanitize_import(data: Dict) -> Dict:
     tidy_data = {}
     for key, value in data.items():
         new_value = remove_null(value)
-        if new_value:
+        if new_value is not None:
             tidy_data[key] = _sanitize_import(key, new_value)
     return tidy_data
 
@@ -814,6 +814,8 @@ def _sanitize_import(key: str, value: Any) -> Any:
                 new_value = bool(value)
             except:
                 new_value = False
+        elif isinstance(value, (str, float)):
+            new_value = value
         else:
             new_value = str(value).replace('\n', ' ').replace('\t', ' ')
     else:
@@ -831,6 +833,8 @@ def _sanitize_import(key: str, value: Any) -> Any:
                 new_value = bool(value)
             except:
                 new_value = False
+        elif isinstance(value, (str, float)):
+            new_value = value
         else:
             new_value = str(value).replace('\n', ' ').replace('\t', ' ')
     return new_value
