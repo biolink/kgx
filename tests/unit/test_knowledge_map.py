@@ -8,6 +8,9 @@ from tests import RESOURCE_DIR, TARGET_DIR
 
 
 def test_generate_knowledge_map():
+    """
+    Test generate knowledge map operation.
+    """
     t = PandasTransformer()
     t.parse(os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'))
     t.parse(os.path.join(RESOURCE_DIR, 'graph_edges.tsv'))

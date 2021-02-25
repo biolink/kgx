@@ -10,6 +10,9 @@ from kgx import PrefixManager
     ('GO:0008150', False)
 ])
 def test_is_iri(query):
+    """
+    Test to check behavior of is_iri method in PrefixManager.
+    """
     assert PrefixManager.is_iri(query[0]) == query[1]
 
 
@@ -22,6 +25,9 @@ def test_is_iri(query):
     (':12345', True)
 ])
 def test_is_curie(query):
+    """
+    Test to check behavior of is_curie method in PrefixManager.
+    """
     assert PrefixManager.is_curie(query[0]) == query[1]
 
 
@@ -34,6 +40,9 @@ def test_is_curie(query):
     (':12345', '')
 ])
 def test_get_prefix(query):
+    """
+    Test to check behavior of test_get_prefix method in PrefixManager.
+    """
     assert PrefixManager.get_prefix(query[0]) == query[1]
 
 
@@ -46,10 +55,16 @@ def test_get_prefix(query):
     (':12345', '12345')
 ])
 def test_get_reference(query):
+    """
+    Test to check behavior of get_reference method in PrefixManager.
+    """
     assert PrefixManager.get_reference(query[0]) == query[1]
 
 
 def test_prefix_manager():
+    """
+    Test to get an instance of PrefixManager.
+    """
     pm = PrefixManager()
     assert pm.prefix_map
     assert pm.reverse_prefix_map
@@ -66,9 +81,11 @@ def test_prefix_manager():
     ('HGNC:1103', 'http://identifiers.org/hgnc/1103')
 ])
 def test_prefix_manager_expand(query):
+    """
+    Test to check the expand method in PrefixManager.
+    """
     pm = PrefixManager()
     assert pm.expand(query[0]) == query[1]
-
 
 
 @pytest.mark.parametrize('query', [
@@ -80,6 +97,9 @@ def test_prefix_manager_expand(query):
     ('http://identifiers.org/hgnc/1103', 'HGNC:1103')
 ])
 def test_prefix_manager_contract(query):
+    """
+    Test to check the contract method in PrefixManager.
+    """
     pm = PrefixManager()
     assert pm.contract(query[0]) == query[1]
 
