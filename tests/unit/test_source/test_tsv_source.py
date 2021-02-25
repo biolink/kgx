@@ -1,11 +1,13 @@
 import os
 import pprint
 
+import pytest
+
 from kgx.source import TsvSource
 from tests import RESOURCE_DIR
 
 
-def read_tsv1():
+def test_read_tsv():
     """
     Read a TSV using TsvSource.
     """
