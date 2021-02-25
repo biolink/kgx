@@ -1,6 +1,4 @@
 import os
-import pprint
-
 import pytest
 
 from kgx.transformer import Transformer

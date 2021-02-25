@@ -3,9 +3,9 @@ from typing import List, Union
 from neo4jrestclient.client import GraphDatabase
 from neo4jrestclient.query import CypherException
 
-from kgx import NeoTransformer, Transformer
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
+from kgx.utils.kgx_utils import DEFAULT_NODE_CATEGORY
 
 log = get_logger()
 
@@ -79,7 +79,7 @@ class NeoSink(Sink):
         for category in self.node_cache.keys():
             log.debug("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
-            query = NeoTransformer.generate_unwind_node_query(cypher_category)
+            query = self.generate_unwind_node_query(cypher_category)
             log.debug(query)
             nodes = self.node_cache[category]
             for x in range(0, len(nodes), batch_size):
@@ -161,6 +161,35 @@ class NeoSink(Sink):
         return [f"`{x}`" for x in category]
 
     @staticmethod
+    def generate_unwind_node_query(category: str) -> str:
+        """
+        Generate UNWIND cypher query for saving nodes into Neo4j.
+
+        There should be a CONSTRAINT in Neo4j for ``self.DEFAULT_NODE_CATEGORY``.
+        The query uses ``self.DEFAULT_NODE_CATEGORY`` as the node label to increase speed for adding nodes.
+        The query also sets label to ``self.DEFAULT_NODE_CATEGORY`` for any node to make sure that the CONSTRAINT applies.
+
+        Parameters
+        ----------
+        category: str
+            Node category
+
+        Returns
+        -------
+        str
+            The UNWIND cypher query
+
+        """
+        query = f"""
+        UNWIND $nodes AS node
+        MERGE (n:`{DEFAULT_NODE_CATEGORY}` {{id: node.id}})
+        ON CREATE SET n += node, n:{category}
+        ON MATCH SET n += node, n:{category}
+        """
+
+        return query
+
+    @staticmethod
     def generate_unwind_edge_query(edge_predicate: str) -> str:
         """
         Generate UNWIND cypher query for saving edges into Neo4j.
@@ -181,7 +210,7 @@ class NeoSink(Sink):
 
         query = f"""
         UNWIND $edges AS edge
-        MATCH (s:`{NeoTransformer.DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{Transformer.DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
+        MATCH (s:`{DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
         MERGE (s)-[r:`{edge_predicate}`]->(o)
         SET r += edge
         """
@@ -198,7 +227,7 @@ class NeoSink(Sink):
 
         """
         categories_set = set(categories)
-        categories_set.add(f"`{Transformer.DEFAULT_NODE_CATEGORY}`")
+        categories_set.add(f"`{DEFAULT_NODE_CATEGORY}`")
         for category in categories_set:
             if self.CATEGORY_DELIMITER in category:
                 subcategories = category.split(self.CATEGORY_DELIMITER)

@@ -2,8 +2,8 @@ import json
 import os
 
 from kgx.graph_operations.knowledge_map import generate_knowledge_map
+from kgx.transformer import Transformer
 
-from kgx import PandasTransformer
 from tests import RESOURCE_DIR, TARGET_DIR
 
 
@@ -11,11 +11,17 @@ def test_generate_knowledge_map():
     """
     Test generate knowledge map operation.
     """
-    t = PandasTransformer()
-    t.parse(os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'))
-    t.parse(os.path.join(RESOURCE_DIR, 'graph_edges.tsv'))
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        ],
+        'format': 'tsv'
+    }
+    t = Transformer()
+    t.transform(input_args)
     output = os.path.join(TARGET_DIR, 'test_graph_knowledge_map.json')
-    generate_knowledge_map(t.graph, 'Test Graph', output)
+    generate_knowledge_map(t.store.graph, 'Test Graph', output)
 
     data = json.load(open(output))
     assert data['name'] == 'Test Graph'

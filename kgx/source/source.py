@@ -1,6 +1,6 @@
 from typing import Dict, Generator, Any, Union
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
 log = get_logger()

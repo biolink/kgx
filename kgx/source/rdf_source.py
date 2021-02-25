@@ -5,7 +5,7 @@ import rdflib
 from biolinkml.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.parsers.ntriples_parser import CustomNTriplesParser
 from kgx.source.source import Source

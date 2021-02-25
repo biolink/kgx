@@ -1,12 +1,11 @@
 import gzip
 from itertools import chain
 from typing import Optional, Dict, Generator, Any
-
 import ijson
 import stringcase
 from bmt import Toolkit
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots

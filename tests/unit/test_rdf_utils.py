@@ -2,7 +2,7 @@ import os
 import pytest
 from rdflib import URIRef, Graph
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.utils.rdf_utils import infer_category, process_predicate
 from tests import RESOURCE_DIR
 

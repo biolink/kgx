@@ -1,6 +1,6 @@
 import pytest
 
-from kgx import Validator
+from kgx.validator import Validator
 
 
 @pytest.mark.parametrize('prefix', [

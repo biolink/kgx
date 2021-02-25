@@ -1,8 +1,8 @@
 import os
 
-from kgx import JsonTransformer
-from kgx import Validator
+from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -38,9 +38,12 @@ def test_validate_json():
     """
     Validate against a valid representative Biolink Model compliant JSON.
     """
-    json_file = os.path.join(RESOURCE_DIR, 'valid.json')
-    jt = JsonTransformer()
-    jt.parse(json_file)
+    input_args = {
+        'filename': [os.path.join(RESOURCE_DIR, 'valid.json')],
+        'format': 'json'
+    }
+    t = Transformer()
+    t.transform(input_args)
     validator = Validator()
-    e = validator.validate(jt.graph)
+    e = validator.validate(t.store.graph)
     assert len(e) == 0

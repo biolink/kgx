@@ -1,6 +1,6 @@
 import pytest
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 
 
 @pytest.mark.parametrize('query', [

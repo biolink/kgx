@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 import yaml
 
-from kgx import Validator
+from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger

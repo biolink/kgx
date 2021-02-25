@@ -89,6 +89,7 @@ def test_neo4j_upload(clean_slate):
     assert t.store.graph.number_of_edges() == 532
 
 
+@pytest.mark.skip()
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_neo4j_download(clean_slate):
     """
