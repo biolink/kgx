@@ -25,11 +25,9 @@ def check_container():
             c = client.containers.get(CONTAINER_NAME)
             if c.status == 'running':
                 status = True
-        except ConnectionError as e:
+        except:
             status = False
-    except ConnectionError as e:
-        print("Could not connect to local Docker daemon")
-        print(e)
+    except:
         status = False
     return status
 
