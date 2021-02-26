@@ -62,7 +62,7 @@ class NeoSource(Source):
         self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
-        kwargs = {'is_directed': is_directed}
+        kwargs['is_directed'] = is_directed
         self.node_filters = node_filters
         self.edge_filters = edge_filters
         for page in self.get_pages(self.get_nodes, start, end, page_size=page_size, **kwargs):
