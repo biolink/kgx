@@ -1,14 +1,18 @@
 configuration:
   output_directory: output_data
   checkpoint: false
-  curie_map:
-    # define non-canonical CURIE to IRI mappings (for RDF)
-  node_properties:
+  prefix_map:
+    # define non-canonical CURIE to IRI mappings
+  node_property_predicates:
     # define predicates that are to be treated as direct node properties (for RDF)
   predicate_mappings:
     # map non-canonical predicates to a property name (for RDF)
   property_types:
     # define the type for non-canonical properties for RDF export
+  reverse_prefix_map:
+    # define IRI to CURIE mappings
+  reverse_predicate_mappings:
+    # map property names to non-canonical predicates (for RDF)
 merged_graph:
   name: Merged Graph
   source:
@@ -19,14 +23,18 @@ merged_graph:
         filename:
           - data/so.owl
     hgnc-dataset:
-      curie_map:
-        # define non-canonical CURIE to IRI mappings (for RDF), specifically for this source
-      node_properties:
+      prefix_map:
+        # define non-canonical CURIE to IRI mappings, specifically for this source
+      node_property_predicates:
         # define predicates that are to be treated as direct node properties (for RDF), specifically for this source
       predicate_mappings:
         # map non-canonical predicates to a property name (for RDF), specifically for this source
       property_types:
-        # define the type for non-canonical properties for RDF export,  specifically for this source
+        # define the type for non-canonical properties for RDF export, specifically for this source
+      reverse_prefix_map:
+        # define IRI to CURIE mappings, specifically for this source
+      reverse_predicate_mappings:
+        # map property names to non-canonical predicates (for RDF), specifically for this source
       input:
         name: "HGNC"
         format: nt

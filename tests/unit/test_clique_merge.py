@@ -1,16 +1,13 @@
-import os
-
 from kgx.graph.nx_graph import NxGraph
-from kgx.operations.clique_merge import check_categories, sort_categories, check_all_categories, clique_merge
+from kgx.graph_operations.clique_merge import check_categories, sort_categories, check_all_categories, clique_merge
 from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key
 from tests import print_graph
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-resource_dir = os.path.join(cwd, 'resources')
-target_dir = os.path.join(cwd, 'target')
-
 
 def test_check_categories():
+    """
+    Test check_categories method.
+    """
     vbc, ibc, ic = check_categories(['biolink:Gene'], get_biolink_ancestors('biolink:Gene'), None)
     assert 'biolink:Gene' in vbc
     assert len(ibc) == 0
@@ -25,6 +22,9 @@ def test_check_categories():
 
 
 def test_check_all_categories1():
+    """
+    Test check_all_categories method.
+    """
     categories = ['biolink:Disease', 'biolink:Gene', 'biolink:NamedThing']
     vbc, ibc, ic = check_all_categories(categories)
     assert len(vbc) == 2
@@ -33,6 +33,9 @@ def test_check_all_categories1():
 
 
 def test_check_all_categories2():
+    """
+    Test check_all_categories method.
+    """
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
     assert len(vbc) == 8
@@ -53,6 +56,9 @@ def test_check_all_categories2():
 
 
 def test_sort_categories():
+    """
+    Test sort_categories method.
+    """
     categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
     sorted_categories = sort_categories(categories)
     assert sorted_categories.index('biolink:Gene') == 0
@@ -62,7 +68,7 @@ def test_sort_categories():
 
 def test_clique_merge1():
     """
-    Clique merge where all nodes in a clique are valid.
+    Test to perform a clique merge where all nodes in a clique are valid.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -107,8 +113,8 @@ def test_clique_merge1():
 
 def test_clique_merge2():
     """
-    Clique merge where all nodes in a clique are valid but one node
-    has a less specific category.
+    Test to perform clique merge where all nodes in a clique are
+    valid but one node has a less specific category.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -158,7 +164,8 @@ def test_clique_merge2():
 
 def test_clique_merge3():
     """
-    Clique merge where each clique has a node that has a non-biolink category.
+    Test for clique merge where each clique has a node that
+    has a non-biolink category.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -208,8 +215,8 @@ def test_clique_merge3():
 
 def test_clique_merge4():
     """
-    Clique merge where each clique has a node that has disjoint category
-    from other nodes in a clique. (strict)
+    Test for clique merge where each clique has a node that has
+    a disjoint category from other nodes in a clique. (strict)
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -261,8 +268,8 @@ def test_clique_merge4():
 
 def test_clique_merge5():
     """
-    Clique merge where each clique has a node that has disjoint category
-    from other nodes in a clique. (non-strict)
+    Test for clique merge where each clique has a node that has
+    a disjoint category from other nodes in a clique. (lenient)
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -311,8 +318,9 @@ def test_clique_merge5():
 
 def test_clique_merge6():
     """
-    Clique merge where each clique has a node that has disjoint category
-    from other nodes in a clique and is a participant in same_as edges.
+    Test for clique merge where each clique has a node that has
+    a disjoint category from other nodes in a clique and the node is a
+    participant in same_as edges.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -361,8 +369,9 @@ def test_clique_merge6():
 
 def test_clique_merge7():
     """
-    Clique merge where each clique has a node that has disjoint category
-    from other nodes in a clique and is not a participant in same_as edges.
+    Test for clique merge where each clique has a node that has
+    a disjoint category from other nodes in a clique and the node is
+    not a participant in same_as edges.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -409,7 +418,7 @@ def test_clique_merge7():
 
 def test_clique_merge8():
     """
-    Clique merge where same_as appear as both node and edge properties.
+    Test for clique merge where same_as appear as both node and edge properties.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
     g1 = NxGraph()
@@ -454,7 +463,7 @@ def test_clique_merge8():
 
 def test_clique_merge9():
     """
-    Clique merge where same_as appear as both node and edge properties,
+    Test for clique merge where same_as appear as both node and edge properties,
     but an invalid node also has a same_as property and participates in same_as edge.
     """
     ppm = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}

@@ -1,8 +1,11 @@
 from kgx.graph.nx_graph import NxGraph
-from kgx.operations.graph_merge import merge_all_graphs, merge_graphs, add_all_nodes, merge_node, merge_edge
+from kgx.graph_operations.graph_merge import merge_all_graphs, merge_graphs, add_all_nodes, merge_node, merge_edge
 
 
 def get_graphs():
+    """
+    Returns instances of defined graphs.
+    """
     g1 = NxGraph()
     g1.name = 'Graph 1'
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'])
@@ -31,7 +34,10 @@ def get_graphs():
 
 
 def test_merge_all_graphs():
-    # TODO: Make a random graph generator
+    """
+    Test for merging three graphs into one,
+    while preserving conflicting node and edge properties.
+    """
     graphs = get_graphs()
     # merge while preserving conflicting nodes and edges
     merged_graph = merge_all_graphs(graphs, preserve=True)
@@ -49,7 +55,6 @@ def test_merge_all_graphs():
     data = list(edges.values())[0]
     assert len(data['provided_by']) == 2
     assert data['provided_by'] == ['Graph 2', 'Graph 1']
-
 
     graphs = get_graphs()
     # merge while not preserving conflicting nodes and edges
@@ -72,6 +77,10 @@ def test_merge_all_graphs():
 
 
 def test_merge_graphs():
+    """
+    Test for merging 3 graphs into one,
+    while not preserving conflicting node and edge properties.
+    """
     graphs = get_graphs()
     merged_graph = merge_graphs(NxGraph(), graphs)
     assert merged_graph.number_of_nodes() == 6
@@ -80,6 +89,9 @@ def test_merge_graphs():
 
 
 def test_merge_node():
+    """
+    Test merging of a node into a graph.
+    """
     graphs = get_graphs()
     g = graphs[0]
     node = g.nodes()['A']
@@ -98,6 +110,9 @@ def test_merge_node():
 
 
 def test_merge_edge():
+    """
+    Test merging of an edge into a graph.
+    """
     graphs = get_graphs()
     g = graphs[1]
     edge = g.get_edge('E', 'A')
