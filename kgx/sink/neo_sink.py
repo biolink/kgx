@@ -122,7 +122,7 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.info(query)
+            log.debug(query)
             edges = self.edge_cache[predicate]
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))

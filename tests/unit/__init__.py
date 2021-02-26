@@ -39,7 +39,6 @@ def clean_slate():
     """
     http_driver = GraphDatabase(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
     q = "MATCH (n) DETACH DELETE (n)"
-    print(q)
     try:
         http_driver.query(q)
     except CypherException as ce:
