@@ -27,7 +27,16 @@ def test_validator_good():
     G.add_node('UniProtKB:P123456', id='UniProtKB:P123456', name='fake', category=['Protein'])
     G.add_node('UBERON:0000001', id='UBERON:0000001', name='fake', category=['NamedThing'])
     G.add_node('UBERON:0000002', id='UBERON:0000002', name='fake', category=['NamedThing'])
-    G.add_edge('UBERON:0000001', 'UBERON:0000002', id='UBERON:0000001-part_of-UBERON:0000002', relation='RO:1', predicate='part_of', subject='UBERON:0000001', object='UBERON:0000002',  category=['biolink:Association'])
+    G.add_edge(
+        'UBERON:0000001',
+        'UBERON:0000002',
+        id='UBERON:0000001-part_of-UBERON:0000002',
+        relation='RO:1',
+        predicate='part_of',
+        subject='UBERON:0000001',
+        object='UBERON:0000002',
+        category=['biolink:Association'],
+    )
     validator = Validator(verbose=True)
     e = validator.validate(G)
     print(validator.report(e))
@@ -38,10 +47,7 @@ def test_validate_json():
     """
     Validate against a valid representative Biolink Model compliant JSON.
     """
-    input_args = {
-        'filename': [os.path.join(RESOURCE_DIR, 'valid.json')],
-        'format': 'json'
-    }
+    input_args = {'filename': [os.path.join(RESOURCE_DIR, 'valid.json')], 'format': 'json'}
     t = Transformer()
     t.transform(input_args)
     validator = Validator()

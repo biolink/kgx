@@ -15,7 +15,14 @@ class JsonlSource(JsonSource):
     def __init__(self):
         super().__init__()
 
-    def parse(self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any):
+    def parse(
+        self,
+        filename: str,
+        format: str = 'jsonl',
+        compression: Optional[str] = None,
+        provided_by: Optional[str] = None,
+        **kwargs: Any,
+    ):
         """
         This method reads from JSON Lines and yields records.
 
@@ -56,4 +63,3 @@ class JsonlSource(JsonSource):
             with jsonlines.open(filename) as FH:
                 for obj in FH:
                     yield m(obj)
-

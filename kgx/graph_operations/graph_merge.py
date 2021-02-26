@@ -49,7 +49,9 @@ def merge_all_graphs(graphs: List[BaseGraph], preserve: bool = True) -> BaseGrap
     """
     graph_size = [len(x.edges()) for x in graphs]
     largest = graphs.pop(graph_size.index(max(graph_size)))
-    log.debug(f"Largest graph {largest.name} has {len(largest.nodes())} nodes and {len(largest.edges())} edges")
+    log.debug(
+        f"Largest graph {largest.name} has {len(largest.nodes())} nodes and {len(largest.edges())} edges"
+    )
     merged_graph = merge_graphs(largest, graphs, preserve)
     return merged_graph
 

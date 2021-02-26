@@ -10,6 +10,7 @@ class CustomNTriplesParser(NTriplesParser):
     This class is an extension to ``rdflib.plugins.parsers.ntriples.NTriplesParser``
     that parses N-Triples and yields triples.
     """
+
     def parse(self, filename: str) -> Generator:
         """
         Parses an N-Triples file and yields triples.

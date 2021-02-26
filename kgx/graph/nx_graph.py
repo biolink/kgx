@@ -1,8 +1,14 @@
 from typing import Dict, Any, Optional, List, Generator
 
 from kgx.graph.base_graph import BaseGraph
-from networkx import MultiDiGraph, set_node_attributes, relabel_nodes, set_edge_attributes, get_node_attributes, \
-    get_edge_attributes
+from networkx import (
+    MultiDiGraph,
+    set_node_attributes,
+    relabel_nodes,
+    set_edge_attributes,
+    get_node_attributes,
+    get_edge_attributes,
+)
 
 from kgx.utils.kgx_utils import prepare_data_dict
 
@@ -37,7 +43,9 @@ class NxGraph(BaseGraph):
             data = kwargs
         self.graph.add_node(node, **data)
 
-    def add_edge(self, subject_node: str, object_node: str, edge_key: str = None, **kwargs: Any) -> None:
+    def add_edge(
+        self, subject_node: str, object_node: str, edge_key: str = None, **kwargs: Any
+    ) -> None:
         """
         Add an edge to the graph.
 
@@ -75,7 +83,14 @@ class NxGraph(BaseGraph):
         """
         self.graph.add_node(node, **{attr_key: attr_value})
 
-    def add_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any) -> None:
+    def add_edge_attribute(
+        self,
+        subject_node: str,
+        object_node: str,
+        edge_key: Optional[str],
+        attr_key: str,
+        attr_value: Any,
+    ) -> None:
         """
         Add an attribute to a given edge.
 
@@ -95,7 +110,9 @@ class NxGraph(BaseGraph):
         """
         self.graph.add_edge(subject_node, object_node, key=edge_key, **{attr_key: attr_value})
 
-    def update_node_attribute(self, node: str, attr_key: str, attr_value: Any, preserve: bool = False) -> Dict:
+    def update_node_attribute(
+        self, node: str, attr_key: str, attr_value: Any, preserve: bool = False
+    ) -> Dict:
         """
         Update an attribute of a given node.
 
@@ -119,7 +136,15 @@ class NxGraph(BaseGraph):
         self.graph.add_node(node, **updated)
         return updated
 
-    def update_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any, preserve: bool = False) -> Dict:
+    def update_edge_attribute(
+        self,
+        subject_node: str,
+        object_node: str,
+        edge_key: Optional[str],
+        attr_key: str,
+        attr_value: Any,
+        preserve: bool = False,
+    ) -> Dict:
         """
         Update an attribute of a given edge.
 
@@ -310,7 +335,9 @@ class NxGraph(BaseGraph):
         """
         self.graph.remove_node(node)
 
-    def remove_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None) -> None:
+    def remove_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None
+    ) -> None:
         """
         Remove a given edge from the graph.
 

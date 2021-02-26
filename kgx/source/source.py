@@ -11,6 +11,7 @@ class Source(object):
     A Source is responsible for reading data as records
     from a store where the store is a file or a database.
     """
+
     def __init__(self):
         self.graph_metadata: Dict = {}
         self.node_filters = {}

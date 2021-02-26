@@ -1,8 +1,14 @@
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.graph_operations import remove_singleton_nodes, fold_predicate, unfold_node_property, remap_edge_property, \
-    remap_node_property, remap_node_identifier
+from kgx.graph_operations import (
+    remove_singleton_nodes,
+    fold_predicate,
+    unfold_node_property,
+    remap_edge_property,
+    remap_node_property,
+    remap_node_identifier,
+)
 
 
 def get_graphs1():
@@ -19,12 +25,48 @@ def get_graphs1():
 
     g2 = NxGraph()
     g2.name = 'Graph 1'
-    g2.add_node('HGNC:12345', id='HGNC:12345', name='Test Gene', category=['biolink:NamedThing'], alias='NCBIGene:54321', same_as='UniProtKB:54321')
+    g2.add_node(
+        'HGNC:12345',
+        id='HGNC:12345',
+        name='Test Gene',
+        category=['biolink:NamedThing'],
+        alias='NCBIGene:54321',
+        same_as='UniProtKB:54321',
+    )
     g2.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'], alias='Z')
     g2.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g2.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', subject='C', object='B', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1', publications=[1], pubs=['PMID:123456'])
-    g2.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', subject='B', object='A', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1')
-    g2.add_edge('C', 'c', edge_key='C-biolink:exact_match-B', subject='C', object='c', predicate='biolink:exact_match', relation='skos:exactMatch', provided_by='Graph 1')
+    g2.add_edge(
+        'C',
+        'B',
+        edge_key='C-biolink:subclass_of-B',
+        subject='C',
+        object='B',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+        publications=[1],
+        pubs=['PMID:123456'],
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        subject='B',
+        object='A',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+    )
+    g2.add_edge(
+        'C',
+        'c',
+        edge_key='C-biolink:exact_match-B',
+        subject='C',
+        object='c',
+        predicate='biolink:exact_match',
+        relation='skos:exactMatch',
+        provided_by='Graph 1',
+    )
 
     return [g1, g2]
 
@@ -35,25 +77,135 @@ def get_graphs2():
     """
     g1 = NxGraph()
     g1.name = 'Graph 1'
-    g1.add_node('HGNC:12345', id='HGNC:12345', name='Test Gene', category=['biolink:NamedThing'], alias='NCBIGene:54321', same_as='UniProtKB:54321')
+    g1.add_node(
+        'HGNC:12345',
+        id='HGNC:12345',
+        name='Test Gene',
+        category=['biolink:NamedThing'],
+        alias='NCBIGene:54321',
+        same_as='UniProtKB:54321',
+    )
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'], alias='Z')
     g1.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g1.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', subject='C', object='B', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1', publications=[1], pubs=['PMID:123456'])
-    g1.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', subject='B', object='A', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1')
+    g1.add_edge(
+        'C',
+        'B',
+        edge_key='C-biolink:subclass_of-B',
+        subject='C',
+        object='B',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+        publications=[1],
+        pubs=['PMID:123456'],
+    )
+    g1.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        subject='B',
+        object='A',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+    )
 
     g2 = NxGraph()
     g2.name = 'Graph 2'
-    g2.add_node('A', id='A', name='Node A', description='Node A in Graph 2', category=['biolink:Gene'], xref=['NCBIGene:12345', 'HGNC:001033'])
-    g2.add_node('B', id='B', name='Node B', description='Node B in Graph 2', category=['biolink:Gene'], xref=['NCBIGene:56463', 'HGNC:012901'])
-    g2.add_node('C', id='C', name='Node C', description='Node C in Graph 2', category=['biolink:Gene', 'biolink:NamedThing'], xref=['NCBIGene:08239', 'HGNC:103431'])
-    g2.add_node('D', id='D', name='Node D', description='Node D in Graph 2', category=['biolink:Gene'], xref=['HGNC:394233'])
-    g2.add_node('E', id='E', name='Node E', description='Node E in Graph 2', category=['biolink:NamedThing'], xref=['NCBIGene:X', 'HGNC:X'])
-    g2.add_node('F', id='F', name='Node F', description='Node F in Graph 2', category=['biolink:NamedThing'], xref=['HGNC:Y'])
-    g2.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', subject='B', object='A', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 2')
-    g2.add_edge('B', 'A', edge_key='B-biolink:related_to-A', subject='B', object='A', predicate='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('D', 'A', edge_key='D-biolink:related_to-A', subject='D', object='A', predicate='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('E', 'A', edge_key='E-biolink:related_to-A', subject='E', object='A', predicate='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('E', 'F', edge_key='F-biolink:related_to-A', subject='E', object='F', predicate='biolink:related_to', relation='biolink:related_to')
+    g2.add_node(
+        'A',
+        id='A',
+        name='Node A',
+        description='Node A in Graph 2',
+        category=['biolink:Gene'],
+        xref=['NCBIGene:12345', 'HGNC:001033'],
+    )
+    g2.add_node(
+        'B',
+        id='B',
+        name='Node B',
+        description='Node B in Graph 2',
+        category=['biolink:Gene'],
+        xref=['NCBIGene:56463', 'HGNC:012901'],
+    )
+    g2.add_node(
+        'C',
+        id='C',
+        name='Node C',
+        description='Node C in Graph 2',
+        category=['biolink:Gene', 'biolink:NamedThing'],
+        xref=['NCBIGene:08239', 'HGNC:103431'],
+    )
+    g2.add_node(
+        'D',
+        id='D',
+        name='Node D',
+        description='Node D in Graph 2',
+        category=['biolink:Gene'],
+        xref=['HGNC:394233'],
+    )
+    g2.add_node(
+        'E',
+        id='E',
+        name='Node E',
+        description='Node E in Graph 2',
+        category=['biolink:NamedThing'],
+        xref=['NCBIGene:X', 'HGNC:X'],
+    )
+    g2.add_node(
+        'F',
+        id='F',
+        name='Node F',
+        description='Node F in Graph 2',
+        category=['biolink:NamedThing'],
+        xref=['HGNC:Y'],
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        subject='B',
+        object='A',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 2',
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:related_to-A',
+        subject='B',
+        object='A',
+        predicate='biolink:related_to',
+        relation='biolink:related_to',
+    )
+    g2.add_edge(
+        'D',
+        'A',
+        edge_key='D-biolink:related_to-A',
+        subject='D',
+        object='A',
+        predicate='biolink:related_to',
+        relation='biolink:related_to',
+    )
+    g2.add_edge(
+        'E',
+        'A',
+        edge_key='E-biolink:related_to-A',
+        subject='E',
+        object='A',
+        predicate='biolink:related_to',
+        relation='biolink:related_to',
+    )
+    g2.add_edge(
+        'E',
+        'F',
+        edge_key='F-biolink:related_to-A',
+        subject='E',
+        object='F',
+        predicate='biolink:related_to',
+        relation='biolink:related_to',
+    )
 
     return [g1, g2]
 
@@ -154,7 +306,9 @@ def test_remap_node_identifier_xref():
     Test remap node identifier operation.
     """
     graphs = get_graphs2()
-    g = remap_node_identifier(graphs[1], 'biolink:Gene', alternative_property='xref', prefix='NCBIGene')
+    g = remap_node_identifier(
+        graphs[1], 'biolink:Gene', alternative_property='xref', prefix='NCBIGene'
+    )
     assert g.has_node('NCBIGene:12345')
     assert g.has_node('NCBIGene:56463')
     assert g.has_node('NCBIGene:08239')
@@ -183,7 +337,9 @@ def test_remap_node_property():
     Test remap node property operation.
     """
     graphs = get_graphs2()
-    remap_node_property(graphs[0], category='biolink:NamedThing', old_property='alias', new_property='same_as')
+    remap_node_property(
+        graphs[0], category='biolink:NamedThing', old_property='alias', new_property='same_as'
+    )
     assert graphs[0].nodes()['HGNC:12345']['alias'] == 'UniProtKB:54321'
 
 
@@ -194,7 +350,9 @@ def test_remap_node_property_fail():
     """
     graphs = get_graphs2()
     with pytest.raises(AttributeError):
-        remap_node_property(graphs[0], category='biolink:NamedThing', old_property='id', new_property='alias')
+        remap_node_property(
+            graphs[0], category='biolink:NamedThing', old_property='id', new_property='alias'
+        )
 
 
 @pytest.mark.skip()
@@ -203,7 +361,12 @@ def test_remap_edge_property():
     Test remap edge property operation.
     """
     graphs = get_graphs2()
-    remap_edge_property(graphs[0], edge_predicate='biolink:subclass_of', old_property='publications', new_property='pubs')
+    remap_edge_property(
+        graphs[0],
+        edge_predicate='biolink:subclass_of',
+        old_property='publications',
+        new_property='pubs',
+    )
     e = list(graphs[0].get_edge('C', 'B').values())[0]
     assert e['publications'] == ['PMID:123456']
 
@@ -215,10 +378,25 @@ def test_remap_edge_property_fail():
     """
     graphs = get_graphs2()
     with pytest.raises(AttributeError):
-        remap_edge_property(graphs[0], edge_predicate='biolink:subclass_of', old_property='subject', new_property='pubs')
+        remap_edge_property(
+            graphs[0],
+            edge_predicate='biolink:subclass_of',
+            old_property='subject',
+            new_property='pubs',
+        )
 
     with pytest.raises(AttributeError):
-        remap_edge_property(graphs[0], edge_predicate='biolink:subclass_of', old_property='object', new_property='pubs')
+        remap_edge_property(
+            graphs[0],
+            edge_predicate='biolink:subclass_of',
+            old_property='object',
+            new_property='pubs',
+        )
 
     with pytest.raises(AttributeError):
-        remap_edge_property(graphs[0], edge_predicate='biolink:subclass_of', old_property='predicate', new_property='pubs')
+        remap_edge_property(
+            graphs[0],
+            edge_predicate='biolink:subclass_of',
+            old_property='predicate',
+            new_property='pubs',
+        )

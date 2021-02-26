@@ -1,5 +1,11 @@
 from kgx.graph.nx_graph import NxGraph
-from kgx.graph_operations.graph_merge import merge_all_graphs, merge_graphs, add_all_nodes, merge_node, merge_edge
+from kgx.graph_operations.graph_merge import (
+    merge_all_graphs,
+    merge_graphs,
+    add_all_nodes,
+    merge_node,
+    merge_edge,
+)
 
 
 def get_graphs():
@@ -11,24 +17,78 @@ def get_graphs():
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'])
     g1.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'])
     g1.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g1.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf')
-    g1.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', edge_label='biolink:sub_class_of', relation='rdfs:subClassOf', provided_by='Graph 1')
+    g1.add_edge(
+        'C',
+        'B',
+        edge_key='C-biolink:subclass_of-B',
+        edge_label='biolink:sub_class_of',
+        relation='rdfs:subClassOf',
+    )
+    g1.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        edge_label='biolink:sub_class_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+    )
 
     g2 = NxGraph()
     g2.name = 'Graph 2'
-    g2.add_node('A', id='A', name='Node A', description='Node A in Graph 2', category=['biolink:NamedThing'])
-    g2.add_node('B', id='B', name='Node B', description='Node B in Graph 2', category=['biolink:NamedThing'])
-    g2.add_node('C', id='C', name='Node C', description='Node C in Graph 2', category=['biolink:NamedThing'])
-    g2.add_node('D', id='D', name='Node D', description='Node D in Graph 2', category=['biolink:NamedThing'])
-    g2.add_node('E', id='E', name='Node E', description='Node E in Graph 2', category=['biolink:NamedThing'])
-    g2.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', edge_label='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 2')
-    g2.add_edge('B', 'A', edge_key='B-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('D', 'A', edge_key='D-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
-    g2.add_edge('E', 'A', edge_key='E-biolink:related_to-A', edge_label='biolink:related_to', relation='biolink:related_to')
+    g2.add_node(
+        'A', id='A', name='Node A', description='Node A in Graph 2', category=['biolink:NamedThing']
+    )
+    g2.add_node(
+        'B', id='B', name='Node B', description='Node B in Graph 2', category=['biolink:NamedThing']
+    )
+    g2.add_node(
+        'C', id='C', name='Node C', description='Node C in Graph 2', category=['biolink:NamedThing']
+    )
+    g2.add_node(
+        'D', id='D', name='Node D', description='Node D in Graph 2', category=['biolink:NamedThing']
+    )
+    g2.add_node(
+        'E', id='E', name='Node E', description='Node E in Graph 2', category=['biolink:NamedThing']
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        edge_label='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 2',
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:related_to-A',
+        edge_label='biolink:related_to',
+        relation='biolink:related_to',
+    )
+    g2.add_edge(
+        'D',
+        'A',
+        edge_key='D-biolink:related_to-A',
+        edge_label='biolink:related_to',
+        relation='biolink:related_to',
+    )
+    g2.add_edge(
+        'E',
+        'A',
+        edge_key='E-biolink:related_to-A',
+        edge_label='biolink:related_to',
+        relation='biolink:related_to',
+    )
 
     g3 = NxGraph()
     g3.name = 'Graph 3'
-    g3.add_edge('F', 'E', edge_key='F-biolink:same_as-E', edge_label='biolink:same_as', relation='OWL:same_as')
+    g3.add_edge(
+        'F',
+        'E',
+        edge_key='F-biolink:same_as-E',
+        edge_label='biolink:same_as',
+        relation='OWL:same_as',
+    )
 
     return [g1, g2, g3]
 

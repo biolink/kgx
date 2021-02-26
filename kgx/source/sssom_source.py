@@ -9,7 +9,13 @@ import yaml
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source import Source
-from kgx.utils.kgx_utils import validate_node, sanitize_import, validate_edge, generate_uuid, generate_edge_key
+from kgx.utils.kgx_utils import (
+    validate_node,
+    sanitize_import,
+    validate_edge,
+    generate_uuid,
+    generate_edge_key,
+)
 from kgx.utils.rdf_utils import process_predicate
 
 log = get_logger()
@@ -18,7 +24,7 @@ SSSOM_NODE_PROPERTY_MAPPING = {
     'subject_id': 'id',
     'subject_category': 'category',
     'object_id': 'id',
-    'object_category': 'category'
+    'object_category': 'category',
 }
 
 
@@ -56,7 +62,14 @@ class SssomSource(Source):
         """
         self.prefix_manager.set_reverse_prefix_map(m)
 
-    def parse(self, filename: str, format: str, compression: Optional[str] = None, provided_by: str = None, **kwargs: Any) -> Generator:
+    def parse(
+        self,
+        filename: str,
+        format: str,
+        compression: Optional[str] = None,
+        provided_by: str = None,
+        **kwargs: Any,
+    ) -> Generator:
         """
         Parse a SSSOM TSV
 
@@ -90,7 +103,15 @@ class SssomSource(Source):
             FH = gzip.open(filename, 'rb')
         else:
             FH = open(filename)
-        file_iter = pd.read_csv(FH, comment='#', dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
+        file_iter = pd.read_csv(
+            FH,
+            comment='#',
+            dtype=str,
+            chunksize=10000,
+            low_memory=False,
+            keep_default_na=False,
+            **kwargs,
+        )
         for chunk in file_iter:
             yield from self.load_edges(chunk)
 
@@ -183,7 +204,9 @@ class SssomSource(Source):
             A generator for node and edge records
 
         """
-        (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, edge['predicate_id'], self.predicate_mapping)
+        (element_uri, canonical_uri, predicate, property_name) = process_predicate(
+            self.prefix_manager, edge['predicate_id'], self.predicate_mapping
+        )
         if element_uri:
             edge_predicate = element_uri
         elif predicate:
@@ -195,7 +218,7 @@ class SssomSource(Source):
         data = {
             'subject': edge['subject_id'],
             'predicate': edge_predicate,
-            'object': edge['object_id']
+            'object': edge['object_id'],
         }
         del edge['predicate_id']
         data = validate_edge(data)
@@ -236,7 +259,9 @@ class SssomSource(Source):
             self.edge_properties.update(list(edge_data.keys()))
             objs.append((s, o, key, edge_data))
         else:
-            log.info("Ignoring edge with either a missing 'subject' or 'object': {}".format(edge_data))
+            log.info(
+                "Ignoring edge with either a missing 'subject' or 'object': {}".format(edge_data)
+            )
 
         for o in objs:
             yield o

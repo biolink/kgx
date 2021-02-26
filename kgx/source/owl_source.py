@@ -5,8 +5,14 @@ from rdflib import Namespace, URIRef, OWL, RDFS, RDF
 
 from kgx.config import get_logger
 from kgx.source import RdfSource
-from kgx.utils.kgx_utils import current_time_in_millis, generate_uuid, generate_edge_identifiers, validate_node, \
-    sanitize_import, validate_edge
+from kgx.utils.kgx_utils import (
+    current_time_in_millis,
+    generate_uuid,
+    generate_edge_identifiers,
+    validate_node,
+    sanitize_import,
+    validate_edge,
+)
 
 log = get_logger()
 
@@ -27,7 +33,14 @@ class OwlSource(RdfSource):
         self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
         self.excluded_predicates = {URIRef('http://www.geneontology.org/formats/oboInOwl#id')}
 
-    def parse(self, filename: str, format: str = 'owl', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+    def parse(
+        self,
+        filename: str,
+        format: str = 'owl',
+        compression: Optional[str] = None,
+        provided_by: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Generator:
         rdfgraph = rdflib.Graph()
         if compression:
             log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
@@ -96,7 +109,9 @@ class OwlSource(RdfSource):
                     os_interpretation = self.OWLSTAR.term("AllOnlyInterpretation")
                     parent = x
                 if pred is None or parent is None:
-                    log.warning(f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}")
+                    log.warning(
+                        f"{s} {p} {o} has OWL.onProperty {pred} and OWL.someValuesFrom {parent}"
+                    )
                     log.warning("Do not know how to handle BNode: {}".format(o))
                     continue
             else:
@@ -107,11 +122,15 @@ class OwlSource(RdfSource):
                 # reify edges that have logical interpretation
                 eid = generate_uuid()
                 self.reified_nodes.add(eid)
-                yield from self.triple(URIRef(eid), self.BIOLINK.term('category'), self.BIOLINK.Association)
+                yield from self.triple(
+                    URIRef(eid), self.BIOLINK.term('category'), self.BIOLINK.Association
+                )
                 yield from self.triple(URIRef(eid), self.BIOLINK.term('subject'), s)
                 yield from self.triple(URIRef(eid), self.BIOLINK.term('predicate'), pred)
                 yield from self.triple(URIRef(eid), self.BIOLINK.term('object'), parent)
-                yield from self.triple(URIRef(eid), self.BIOLINK.term('logical_interpretation'), os_interpretation)
+                yield from self.triple(
+                    URIRef(eid), self.BIOLINK.term('logical_interpretation'), os_interpretation
+                )
             else:
                 yield from self.triple(s, pred, parent)
 

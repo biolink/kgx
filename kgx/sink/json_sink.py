@@ -28,14 +28,18 @@ class JsonSink(Sink):
 
     """
 
-    def __init__(self, filename: str, format: str = 'json', compression: Optional[str] = None, **kwargs: Any):
+    def __init__(
+        self, filename: str, format: str = 'json', compression: Optional[str] = None, **kwargs: Any
+    ):
         super().__init__()
         self.filename = filename
         if compression:
             self.compression = compression
         else:
             self.compression = None
-        self.FH = jsonstreams.Stream(jsonstreams.Type.object, filename=filename, pretty=True, indent=4)
+        self.FH = jsonstreams.Stream(
+            jsonstreams.Type.object, filename=filename, pretty=True, indent=4
+        )
         self.NH = None
         self.EH = None
 
@@ -88,4 +92,3 @@ class JsonSink(Sink):
             with open(self.filename, 'r') as FH:
                 for line in FH.buffer:
                     WH.write(line)
-

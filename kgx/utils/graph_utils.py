@@ -4,8 +4,15 @@ from cachetools import cached
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key, \
-    CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES, current_time_in_millis
+from kgx.utils.kgx_utils import (
+    get_toolkit,
+    get_cache,
+    get_curie_lookup_service,
+    generate_edge_key,
+    CORE_NODE_PROPERTIES,
+    CORE_EDGE_PROPERTIES,
+    current_time_in_millis,
+)
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP: Dict = {}
@@ -72,8 +79,11 @@ def get_ancestors(graph: BaseGraph, node: str, relations: List[str] = None) -> L
     seen.remove(node)
     return seen
 
+
 @cached(get_cache())
-def get_category_via_superclass(graph: BaseGraph, curie: str, load_ontology: bool = True) -> Set[str]:
+def get_category_via_superclass(
+    graph: BaseGraph, curie: str, load_ontology: bool = True
+) -> Set[str]:
     """
     Get category for a given CURIE by tracing its superclass, via ``subclass_of`` hierarchy,
     and getting the most appropriate category based on the superclass.

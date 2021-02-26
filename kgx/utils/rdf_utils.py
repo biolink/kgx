@@ -9,8 +9,15 @@ from rdflib.namespace import RDF, RDFS, OWL, SKOS
 from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_curie_lookup_service, contract, get_cache, get_toolkit, sentencecase_to_snakecase, \
-    sentencecase_to_camelcase, get_biolink_ancestors
+from kgx.utils.kgx_utils import (
+    get_curie_lookup_service,
+    contract,
+    get_cache,
+    get_toolkit,
+    sentencecase_to_snakecase,
+    sentencecase_to_camelcase,
+    get_biolink_ancestors,
+)
 import uuid
 
 log = get_logger()
@@ -39,7 +46,7 @@ is_property_multivalued = {
     'category': True,
     'publications': True,
     'type': False,
-    'relation': False
+    'relation': False,
 }
 
 
@@ -77,11 +84,11 @@ top_level_terms = {
     OBO.term('HP_0000118'): 'phenotypic_abnormality',
     OBO.term('HP_0032443'): 'past_medical_history',
     OBO.term('HP_0000005'): 'mode_of_inheritance',
-    OBO.term('HP_0012823'): 'clinical_modifier'
+    OBO.term('HP_0012823'): 'clinical_modifier',
 }
 
 
-def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> Optional[List]:
+def infer_category(iri: URIRef, rdfgraph: rdflib.Graph) -> Optional[List]:
     """
     Infer category for a given iri by traversing rdfgraph.
 
@@ -101,7 +108,11 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> Optional[List]:
     closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
     category = [top_level_terms[x] for x in closure if x in top_level_terms.keys()]
     if category:
-        log.debug("Inferred category as {} based on transitive closure over 'subClassOf' relation".format(category))
+        log.debug(
+            "Inferred category as {} based on transitive closure over 'subClassOf' relation".format(
+                category
+            )
+        )
     else:
         subj = closure[-1]
         if subj == iri:
@@ -154,7 +165,9 @@ def get_biolink_element(prefix_manager: PrefixManager, predicate: Any) -> Option
     return element
 
 
-def process_predicate(prefix_manager: PrefixManager, p: Union[URIRef, str], predicate_mapping: Optional[Dict] = None) -> Tuple:
+def process_predicate(
+    prefix_manager: PrefixManager, p: Union[URIRef, str], predicate_mapping: Optional[Dict] = None
+) -> Tuple:
     """
     Process a predicate where the method checks if there is a mapping in Biolink Model.
 
@@ -216,5 +229,5 @@ def process_predicate(prefix_manager: PrefixManager, p: Union[URIRef, str], pred
             if p in predicate_mapping:
                 property_name = predicate_mapping[p]
                 predicate = f":{property_name}"
-        #cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+        # cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
     return element_uri, canonical_uri, predicate, property_name

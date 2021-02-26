@@ -68,14 +68,29 @@ def test_write_rdf3():
     assert len(lines) == 42
 
 
-@pytest.mark.parametrize("query", [
-    ('id', 'uriorcurie', 'MONDO:000001', 'URIRef', None),
-    ('name', 'xsd:string', 'Test concept name', 'Literal', rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#string')),
-    ('predicate', 'uriorcurie', 'biolink:related_to', 'URIRef', None),
-    ('relation', 'uriorcurie', 'RO:000000', 'URIRef', None),
-    ('custom_property1', 'uriorcurie', 'X:123', 'URIRef', None),
-    ('custom_property2', 'xsd:float', '480.213', 'Literal', rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#float')),
-])
+@pytest.mark.parametrize(
+    "query",
+    [
+        ('id', 'uriorcurie', 'MONDO:000001', 'URIRef', None),
+        (
+            'name',
+            'xsd:string',
+            'Test concept name',
+            'Literal',
+            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#string'),
+        ),
+        ('predicate', 'uriorcurie', 'biolink:related_to', 'URIRef', None),
+        ('relation', 'uriorcurie', 'RO:000000', 'URIRef', None),
+        ('custom_property1', 'uriorcurie', 'X:123', 'URIRef', None),
+        (
+            'custom_property2',
+            'xsd:float',
+            '480.213',
+            'Literal',
+            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#float'),
+        ),
+    ],
+)
 def test_prepare_object(query):
     """
     Test internal _prepare_object method.
@@ -87,11 +102,9 @@ def test_prepare_object(query):
         assert o.datatype == query[4]
 
 
-@pytest.mark.parametrize("query", [
-    ('name', 'xsd:string'),
-    ('predicate', 'uriorcurie'),
-    ('xyz', 'xsd:string')
-])
+@pytest.mark.parametrize(
+    "query", [('name', 'xsd:string'), ('predicate', 'uriorcurie'), ('xyz', 'xsd:string')]
+)
 def test_get_property_type(query):
     """
     Test to ensure that get_property_type returns the appropriate type
@@ -101,11 +114,14 @@ def test_get_property_type(query):
     assert sink._get_property_type(query[0]) == query[1]
 
 
-@pytest.mark.parametrize("query", [
-    ('MONDO:000001', 'URIRef', 'http://purl.obolibrary.org/obo/MONDO_000001'),
-    ('urn:uuid:12345', 'URIRef', 'urn:uuid:12345'),
-    (':new_prop', 'URIRef', 'https://www.example.org/UNKNOWN/new_prop'),
-])
+@pytest.mark.parametrize(
+    "query",
+    [
+        ('MONDO:000001', 'URIRef', 'http://purl.obolibrary.org/obo/MONDO_000001'),
+        ('urn:uuid:12345', 'URIRef', 'urn:uuid:12345'),
+        (':new_prop', 'URIRef', 'https://www.example.org/UNKNOWN/new_prop'),
+    ],
+)
 def test_uriref(query):
     """
     Test for uriref method.
@@ -114,4 +130,3 @@ def test_uriref(query):
     x = sink.uriref(query[0])
     assert type(x).__name__ == query[1]
     assert str(x) == query[2]
-

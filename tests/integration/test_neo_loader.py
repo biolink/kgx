@@ -3,7 +3,13 @@ import pytest
 
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
-from tests.integration import check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD
+from tests.integration import (
+    check_container,
+    CONTAINER_NAME,
+    DEFAULT_NEO4J_URL,
+    DEFAULT_NEO4J_USERNAME,
+    DEFAULT_NEO4J_PASSWORD,
+)
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
@@ -16,7 +22,7 @@ def test_csv_to_neo_load():
             os.path.join(RESOURCE_DIR, 'cm_nodes.csv'),
             os.path.join(RESOURCE_DIR, 'cm_edges.csv'),
         ],
-        'format': 'csv'
+        'format': 'csv',
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -25,7 +31,7 @@ def test_csv_to_neo_load():
         'uri': DEFAULT_NEO4J_URL,
         'username': DEFAULT_NEO4J_USERNAME,
         'password': DEFAULT_NEO4J_PASSWORD,
-        'format': 'neo4j'
+        'format': 'neo4j',
     }
     t1.save(output_args)
 
@@ -39,18 +45,13 @@ def test_neo_to_graph_transform():
         'uri': DEFAULT_NEO4J_URL,
         'username': DEFAULT_NEO4J_USERNAME,
         'password': DEFAULT_NEO4J_PASSWORD,
-        'format': 'neo4j'
+        'format': 'neo4j',
     }
     output_filename = os.path.join(TARGET_DIR, 'neo_graph')
-    output_args = {
-        'filename': output_filename,
-        'format': 'csv'
-    }
+    output_args = {'filename': output_filename, 'format': 'csv'}
     t = Transformer()
     t.transform(input_args, output_args)
     assert t.store.graph.number_of_nodes() == 10
     assert t.store.graph.number_of_edges() == 11
     assert os.path.exists(f"{output_filename}_nodes.csv")
     assert os.path.exists(f"{output_filename}_edges.csv")
-
-

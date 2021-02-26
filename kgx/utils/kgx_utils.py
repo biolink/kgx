@@ -4,7 +4,14 @@ import time
 import uuid
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
-from biolinkml.meta import TypeDefinitionName, ElementName, SlotDefinition, ClassDefinition, TypeDefinition, Element
+from biolinkml.meta import (
+    TypeDefinitionName,
+    ElementName,
+    SlotDefinition,
+    ClassDefinition,
+    TypeDefinition,
+    Element,
+)
 from bmt import Toolkit
 from cachetools import LRUCache
 import pandas as pd
@@ -36,26 +43,13 @@ column_types = {
     'provided_by': list,
     'same_as': list,
     'negated': bool,
-    'xrefs': list
+    'xrefs': list,
 }
 
-extension_types = {
-    'csv': ',',
-    'tsv': '\t',
-    'csv:neo4j': ',',
-    'tsv:neo4j': '\t'
-}
+extension_types = {'csv': ',', 'tsv': '\t', 'csv:neo4j': ',', 'tsv:neo4j': '\t'}
 
-archive_read_mode = {
-    'tar': 'r',
-    'tar.gz': 'r:gz',
-    'tar.bz2': 'r:bz2'
-}
-archive_write_mode = {
-    'tar': 'w',
-    'tar.gz': 'w:gz',
-    'tar.bz2': 'w:bz2'
-}
+archive_read_mode = {'tar': 'r', 'tar.gz': 'r:gz', 'tar.bz2': 'r:bz2'}
+archive_write_mode = {'tar': 'w', 'tar.gz': 'w:gz', 'tar.bz2': 'w:bz2'}
 
 archive_format = {
     'r': 'tar',
@@ -63,7 +57,7 @@ archive_format = {
     'r:bz2': 'tar.bz2',
     'w': 'tar',
     'w:gz': 'tar.gz',
-    'w:bz2': 'tar.bz2'
+    'w:bz2': 'tar.bz2',
 }
 
 is_property_multivalued = {
@@ -81,7 +75,7 @@ is_property_multivalued = {
     'category': True,
     'publications': True,
     'type': False,
-    'relation': False
+    'relation': False,
 }
 
 
@@ -312,6 +306,7 @@ def get_curie_lookup_service():
     global curie_lookup_service
     if curie_lookup_service is None:
         from kgx.curie_lookup_service import CurieLookupService
+
         curie_lookup_service = CurieLookupService()
     return curie_lookup_service
 
@@ -526,7 +521,9 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                                 new_data[key].append(new_value)
                     else:
                         if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
-                            log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            log.debug(
+                                f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
+                            )
                         else:
                             # existing key does not have value type list; converting to list
                             new_data[key] = [d1[key]]
@@ -552,12 +549,16 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                             new_data[key].append(new_value)
                     else:
                         if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
-                            log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                            log.debug(
+                                f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
+                            )
                         else:
                             if preserve:
                                 new_data[key] = [d1[key]]
                                 if isinstance(new_value, (list, set, tuple)):
-                                    new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                    new_data[key] += [
+                                        x for x in new_value if x not in new_data[key]
+                                    ]
                                 else:
                                     new_data[key].append(new_value)
                             else:
@@ -597,7 +598,11 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
     return new_data
 
 
-def apply_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]], edge_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_filters(
+    graph: BaseGraph,
+    node_filters: Dict[str, Union[str, Set]],
+    edge_filters: Dict[str, Union[str, Set]],
+) -> None:
     """
     Apply filters to graph and remove nodes and edges that
     do not pass given filters.
@@ -700,7 +705,9 @@ def validate_node(node: Dict) -> Dict:
         if 'name' not in node:
             log.debug(f"node does not have 'name' property: {node}")
         if 'category' not in node:
-            log.debug(f"node does not have 'category' property: {node}\nUsing {DEFAULT_NODE_CATEGORY} as default")
+            log.debug(
+                f"node does not have 'category' property: {node}\nUsing {DEFAULT_NODE_CATEGORY} as default"
+            )
             node['category'] = [DEFAULT_NODE_CATEGORY]
     return node
 
@@ -802,7 +809,10 @@ def _sanitize_import(key: str, value: Any) -> Any:
     if key in column_types:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
-                value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+                value = [
+                    v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v
+                    for v in value
+                ]
                 new_value = list(value)
             elif isinstance(value, str):
                 value = value.replace('\n', ' ').replace('\t', ' ')
@@ -820,7 +830,9 @@ def _sanitize_import(key: str, value: Any) -> Any:
             new_value = str(value).replace('\n', ' ').replace('\t', ' ')
     else:
         if isinstance(value, (list, set, tuple)):
-            value = [v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+            value = [
+                v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value
+            ]
             new_value = list(value)
         elif isinstance(value, str):
             if LIST_DELIMITER in value:
@@ -861,7 +873,12 @@ def _sanitize_export(key: str, value: Any) -> Any:
     if key in column_types:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
-                value = [v.replace('\n', ' ').replace('\\"', '').replace('\t', ' ') if isinstance(v, str) else v for v in value]
+                value = [
+                    v.replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+                    if isinstance(v, str)
+                    else v
+                    for v in value
+                ]
                 new_value = LIST_DELIMITER.join([str(x) for x in value])
             else:
                 new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')

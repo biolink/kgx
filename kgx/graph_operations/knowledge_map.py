@@ -52,12 +52,7 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     """
     node_stats = summarize_nodes(graph)
     edge_stats = summarize_edges(graph)
-    graph_stats = {
-        'knowledge_map': {
-            'nodes': node_stats,
-            'edges': edge_stats
-        }
-    }
+    graph_stats = {'knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
     if name:
         graph_stats['name'] = name
     return graph_stats
@@ -80,9 +75,7 @@ def summarize_nodes(graph: BaseGraph) -> Dict:
     """
     id_prefixes = set()
     count = 0
-    count_by_source = {
-        'unknown': 0
-    }
+    count_by_source = {'unknown': 0}
 
     for n, data in graph.nodes(data=True):
         prefix = PrefixManager.get_prefix(n)
@@ -101,7 +94,7 @@ def summarize_nodes(graph: BaseGraph) -> Dict:
     node_stats = {
         'id_prefixes': list(id_prefixes),
         'count': count,
-        'count_by_source': count_by_source
+        'count_by_source': count_by_source,
     }
     return node_stats
 
@@ -142,9 +135,7 @@ def summarize_edges(graph: BaseGraph) -> List[Dict]:
                 'object': triple[2],
                 'relations': set(),
                 'count': 0,
-                'count_by_source': {
-                    'unknown': 0
-                }
+                'count_by_source': {'unknown': 0},
             }
 
         if data['relation'] not in association_map[triple]['relations']:

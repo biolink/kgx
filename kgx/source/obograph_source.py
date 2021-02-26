@@ -27,7 +27,14 @@ class ObographSource(JsonSource):
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
 
-    def parse(self, filename: str, format: str = 'json', compression: Optional[str] = None, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+    def parse(
+        self,
+        filename: str,
+        format: str = 'json',
+        compression: Optional[str] = None,
+        provided_by: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Generator:
         """
         This method reads from JSON and yields records.
 
@@ -238,7 +245,9 @@ class ObographSource(JsonSource):
                     category = p['val']
                     element = self.toolkit.get_element(category)
                     if element:
-                        category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
+                        category = (
+                            f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
+                        )
                     else:
                         element = self.toolkit.get_element_by_mapping(category)
                         if element:
@@ -266,7 +275,9 @@ class ObographSource(JsonSource):
             elif prefix == 'NCBITaxon':
                 category = "biolink:OrganismalEntity"
             else:
-                log.debug(f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'")
+                log.debug(
+                    f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'"
+                )
         return category
 
     def parse_meta(self, node: str, meta: dict):

@@ -25,7 +25,9 @@ class JsonlSink(Sink):
 
     """
 
-    def __init__(self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, **kwargs: Any):
+    def __init__(
+        self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, **kwargs: Any
+    ):
         super().__init__()
         dirname = os.path.abspath(os.path.dirname(filename))
         basename = os.path.basename(filename)

@@ -6,8 +6,14 @@ from ordered_set import OrderedSet
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import get_prefix_prioritization_map, get_biolink_element, get_biolink_ancestors, \
-    current_time_in_millis, format_biolink_category, generate_edge_key
+from kgx.utils.kgx_utils import (
+    get_prefix_prioritization_map,
+    get_biolink_element,
+    get_biolink_ancestors,
+    current_time_in_millis,
+    format_biolink_category,
+    generate_edge_key,
+)
 
 log = get_logger()
 
@@ -18,7 +24,13 @@ ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
 ORIGINAL_OBJECT_PROPERTY = '_original_object'
 
 
-def clique_merge(target_graph: BaseGraph, leader_annotation: str = None, prefix_prioritization_map: Optional[Dict[str, List[str]]] = None, category_mapping: Optional[Dict[str, str]] = None, strict: bool = True) -> Tuple[BaseGraph, nx.Graph]:
+def clique_merge(
+    target_graph: BaseGraph,
+    leader_annotation: str = None,
+    prefix_prioritization_map: Optional[Dict[str, List[str]]] = None,
+    category_mapping: Optional[Dict[str, str]] = None,
+    strict: bool = True,
+) -> Tuple[BaseGraph, nx.Graph]:
     """
 
     Parameters
@@ -54,7 +66,14 @@ def clique_merge(target_graph: BaseGraph, leader_annotation: str = None, prefix_
     log.info(f"Total time taken to build cliques: {end - start} ms")
 
     start = current_time_in_millis()
-    elect_leader(target_graph, clique_graph, leader_annotation, prefix_prioritization_map, category_mapping, strict)
+    elect_leader(
+        target_graph,
+        clique_graph,
+        leader_annotation,
+        prefix_prioritization_map,
+        category_mapping,
+        strict,
+    )
     end = current_time_in_millis()
     log.info(f"Total time taken to elect leaders for all cliques: {end - start} ms")
 
@@ -100,7 +119,14 @@ def build_cliques(target_graph: BaseGraph) -> nx.Graph:
     return clique_graph
 
 
-def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotation: str, prefix_prioritization_map: Optional[Dict[str, List[str]]], category_mapping: Optional[Dict[str, str]], strict: bool = True) -> BaseGraph:
+def elect_leader(
+    target_graph: BaseGraph,
+    clique_graph: nx.Graph,
+    leader_annotation: str,
+    prefix_prioritization_map: Optional[Dict[str, List[str]]],
+    category_mapping: Optional[Dict[str, str]],
+    strict: bool = True,
+) -> BaseGraph:
     """
     Elect leader for each clique in a graph.
 
@@ -130,7 +156,9 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
     count = 0
     update_dict = {}
     for clique in cliques:
-        log.debug(f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}")
+        log.debug(
+            f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}"
+        )
         update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
         clique_category, clique_category_ancestors = get_clique_category(clique_graph, clique)
         log.debug(f"Clique category: {clique_category}")
@@ -142,7 +170,9 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
             if data['category'][0] not in clique_category_ancestors:
-                log.info(f"Removing invalid node {n} from the clique graph; node category {data['category'][0]} not in CCA: {clique_category_ancestors}")
+                log.info(
+                    f"Removing invalid node {n} from the clique graph; node category {data['category'][0]} not in CCA: {clique_category_ancestors}"
+                )
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
 
@@ -150,22 +180,45 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
         if filtered_clique:
             if clique_category:
                 # First check for LEADER_ANNOTATION property
-                leader, election_strategy = get_leader_by_annotation(target_graph, clique_graph, filtered_clique, leader_annotation)
+                leader, election_strategy = get_leader_by_annotation(
+                    target_graph, clique_graph, filtered_clique, leader_annotation
+                )
                 if not leader:
                     # Leader is None; use prefix prioritization strategy
-                    log.debug("Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead")
-                    if prefix_prioritization_map and clique_category in prefix_prioritization_map.keys():
-                        leader, election_strategy = get_leader_by_prefix_priority(target_graph, clique_graph, filtered_clique, prefix_prioritization_map[clique_category])
+                    log.debug(
+                        "Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead"
+                    )
+                    if (
+                        prefix_prioritization_map
+                        and clique_category in prefix_prioritization_map.keys()
+                    ):
+                        leader, election_strategy = get_leader_by_prefix_priority(
+                            target_graph,
+                            clique_graph,
+                            filtered_clique,
+                            prefix_prioritization_map[clique_category],
+                        )
                     else:
-                        log.debug(f"No prefix order found for category '{clique_category}' in PREFIX_PRIORITIZATION_MAP")
+                        log.debug(
+                            f"No prefix order found for category '{clique_category}' in PREFIX_PRIORITIZATION_MAP"
+                        )
 
                 if not leader:
                     # Leader is None; fall back to alphabetical sort on prefixes
-                    log.debug("Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes")
-                    leader, election_strategy = get_leader_by_sort(target_graph, clique_graph, filtered_clique)
+                    log.debug(
+                        "Could not elect clique leader by PREFIX_PRIORITIZATION; Using alphabetical sort on prefixes"
+                    )
+                    leader, election_strategy = get_leader_by_sort(
+                        target_graph, clique_graph, filtered_clique
+                    )
 
-                log.debug(f"Elected {leader} as leader via {election_strategy} for clique {filtered_clique}")
-                update_dict[leader] = {LEADER_ANNOTATION: True, 'election_strategy': election_strategy}
+                log.debug(
+                    f"Elected {leader} as leader via {election_strategy} for clique {filtered_clique}"
+                )
+                update_dict[leader] = {
+                    LEADER_ANNOTATION: True,
+                    'election_strategy': election_strategy,
+                }
                 count += 1
 
     nx.set_node_attributes(clique_graph, update_dict)
@@ -174,7 +227,9 @@ def elect_leader(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotat
     return target_graph
 
 
-def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotation: str) -> BaseGraph:
+def consolidate_edges(
+    target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotation: str
+) -> BaseGraph:
     """
     Move all edges from nodes in a clique to the clique leader.
 
@@ -199,13 +254,26 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
     log.info(f"Consolidating edges in {len(cliques)} cliques")
     for clique in cliques:
         log.debug(f"Processing clique: {clique}")
-        leaders: List = [x for x in clique if leader_annotation in clique_graph.nodes()[x] and clique_graph.nodes()[x][leader_annotation]]
+        leaders: List = [
+            x
+            for x in clique
+            if leader_annotation in clique_graph.nodes()[x]
+            and clique_graph.nodes()[x][leader_annotation]
+        ]
         if len(leaders) == 0:
             log.debug("No leader elected for clique {}; skipping".format(clique))
             continue
         leader: str = leaders[0]
         # update nodes in target graph
-        target_graph.set_node_attributes(target_graph, {leader: {leader_annotation: clique_graph.nodes()[leader].get(leader_annotation), 'election_strategy': clique_graph.nodes()[leader].get('election_strategy')}})
+        target_graph.set_node_attributes(
+            target_graph,
+            {
+                leader: {
+                    leader_annotation: clique_graph.nodes()[leader].get(leader_annotation),
+                    'election_strategy': clique_graph.nodes()[leader].get('election_strategy'),
+                }
+            },
+        )
         leader_equivalent_identifiers = set([x for x in clique_graph.neighbors(leader)])
         for node in clique:
             if node == leader:
@@ -222,7 +290,10 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['object'] = leader
                 key = generate_edge_key(u, edge_data['predicate'], leader)
-                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
+                if (
+                    edge_data['subject'] == edge_data['object']
+                    and edge_data['predicate'] == SUBCLASS_OF
+                ):
                     continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
@@ -238,7 +309,10 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
                 edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
                 edge_data['subject'] = leader
                 key = generate_edge_key(leader, edge_data['predicate'], v)
-                if edge_data['subject'] == edge_data['object'] and edge_data['predicate'] == SUBCLASS_OF:
+                if (
+                    edge_data['subject'] == edge_data['object']
+                    and edge_data['predicate'] == SUBCLASS_OF
+                ):
                     continue
                 target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
 
@@ -264,14 +338,22 @@ def consolidate_edges(target_graph: BaseGraph, clique_graph: nx.Graph, leader_an
             leader_equivalent_identifiers.update(equivalent_identifiers)
 
         log.debug(f"setting same_as property to leader node with {leader_equivalent_identifiers}")
-        target_graph.set_node_attributes(target_graph, {leader: {'same_as': list(leader_equivalent_identifiers)}})
+        target_graph.set_node_attributes(
+            target_graph, {leader: {'same_as': list(leader_equivalent_identifiers)}}
+        )
         log.debug(f"removing equivalent nodes of leader: {leader_equivalent_identifiers}")
         for n in leader_equivalent_identifiers:
             target_graph.remove_node(n)
     return target_graph
 
 
-def update_node_categories(target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, category_mapping: Optional[Dict[str, str]], strict: bool = True) -> List:
+def update_node_categories(
+    target_graph: BaseGraph,
+    clique_graph: nx.Graph,
+    clique: List,
+    category_mapping: Optional[Dict[str, str]],
+    strict: bool = True,
+) -> List:
     """
     For a given clique, get category for each node in clique and validate against Biolink Model,
     mapping to Biolink Model category where needed.
@@ -308,8 +390,14 @@ def update_node_categories(target_graph: BaseGraph, clique_graph: nx.Graph, cliq
             categories = get_category_from_equivalence(target_graph, clique_graph, node, data)
 
         # differentiate between valid and invalid categories
-        valid_biolink_categories, invalid_biolink_categories, invalid_categories = check_all_categories(categories)
-        log.debug(f"valid biolink categories: {valid_biolink_categories} invalid biolink categories: {invalid_biolink_categories} invalid_categories: {invalid_categories}")
+        (
+            valid_biolink_categories,
+            invalid_biolink_categories,
+            invalid_categories,
+        ) = check_all_categories(categories)
+        log.debug(
+            f"valid biolink categories: {valid_biolink_categories} invalid biolink categories: {invalid_biolink_categories} invalid_categories: {invalid_categories}"
+        )
         # extend categories to have the longest list of ancestors
         extended_categories: List = []
         for x in valid_biolink_categories:
@@ -365,7 +453,9 @@ def get_clique_category(clique_graph: nx.Graph, clique: List) -> Tuple[str, List
     return clique_category, clique_category_ancestors
 
 
-def check_categories(categories: List, closure: List, category_mapping: Optional[Dict[str, str]] = None) -> Tuple[List, List, List]:
+def check_categories(
+    categories: List, closure: List, category_mapping: Optional[Dict[str, str]] = None
+) -> Tuple[List, List, List]:
     """
     Check categories to ensure whether values in ``categories`` are valid biolink categories.
 
@@ -469,7 +559,9 @@ def sort_categories(categories: Union[List, Set, OrderedSet]) -> List:
     return [x[1] for x in sorted_categories]
 
 
-def get_category_from_equivalence(target_graph: BaseGraph, clique_graph: nx.Graph, node: str, attributes: Dict) -> List:
+def get_category_from_equivalence(
+    target_graph: BaseGraph, clique_graph: nx.Graph, node: str, attributes: Dict
+) -> List:
     """
     Get category for a node based on its equivalent nodes in a graph.
 
@@ -506,7 +598,9 @@ def get_category_from_equivalence(target_graph: BaseGraph, clique_graph: nx.Grap
     return category
 
 
-def get_leader_by_annotation(target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, leader_annotation: str) -> Tuple[Optional[str], Optional[str]]:
+def get_leader_by_annotation(
+    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, leader_annotation: str
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader by searching for leader annotation property in any of the nodes in a given clique.
 
@@ -555,7 +649,9 @@ def get_leader_by_annotation(target_graph: BaseGraph, clique_graph: nx.Graph, cl
     return leader, election_strategy
 
 
-def get_leader_by_prefix_priority(target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, prefix_priority_list: List) -> Tuple[Optional[str], Optional[str]]:
+def get_leader_by_prefix_priority(
+    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, prefix_priority_list: List
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader from clique based on a given prefix priority.
 
@@ -588,7 +684,9 @@ def get_leader_by_prefix_priority(target_graph: BaseGraph, clique_graph: nx.Grap
     return leader, election_strategy
 
 
-def get_leader_by_sort(target_graph: BaseGraph, clique_graph: nx.Graph, clique: List) -> Tuple[Optional[str], Optional[str]]:
+def get_leader_by_sort(
+    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader from clique based on the first selection from an alphabetical sort of the node id prefixes.
 

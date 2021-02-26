@@ -89,7 +89,9 @@ def test_read_tsv_compressed():
     assert len(nodes) == 3
     assert len(edges) == 1
 
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'), format='tsv', compression='tar.gz')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'), format='tsv', compression='tar.gz'
+    )
     nodes = []
     edges = []
     for rec in g:
@@ -100,4 +102,3 @@ def test_read_tsv_compressed():
                 nodes.append(nodes)
     assert len(nodes) == 3
     assert len(edges) == 1
-

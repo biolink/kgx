@@ -8,6 +8,7 @@ class Sink(object):
     A Sink is responsible for writing data as records
     to a store where the store is a file or a database.
     """
+
     def __init__(self):
         self.prefix_manager = PrefixManager()
         self.node_properties = set()

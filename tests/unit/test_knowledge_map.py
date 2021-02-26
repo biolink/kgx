@@ -14,9 +14,9 @@ def test_generate_knowledge_map():
     input_args = {
         'filename': [
             os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
         ],
-        'format': 'tsv'
+        'format': 'tsv',
     }
     t = Transformer()
     t.transform(input_args)

@@ -5,8 +5,16 @@ import pandas as pd
 
 from kgx.config import get_logger
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import generate_uuid, generate_edge_key, extension_types, \
-    archive_read_mode, remove_null, sanitize_import, validate_edge, validate_node
+from kgx.utils.kgx_utils import (
+    generate_uuid,
+    generate_edge_key,
+    extension_types,
+    archive_read_mode,
+    remove_null,
+    sanitize_import,
+    validate_edge,
+    validate_node,
+)
 
 log = get_logger()
 
@@ -44,7 +52,14 @@ class TsvSource(Source):
         """
         self.prefix_manager.set_reverse_prefix_map(m)
 
-    def parse(self, filename: str, format: str, compression: Optional[str] = None, provided_by: str = None, **kwargs: Any) -> Generator:
+    def parse(
+        self,
+        filename: str,
+        format: str,
+        compression: Optional[str] = None,
+        provided_by: str = None,
+        **kwargs: Any,
+    ) -> Generator:
         """
         This method reads from a TSV/CSV and yields records.
 
@@ -69,23 +84,30 @@ class TsvSource(Source):
         """
         if 'delimiter' not in kwargs:
             # infer delimiter from file format
-            kwargs['delimiter'] = extension_types[format] # type: ignore
+            kwargs['delimiter'] = extension_types[format]  # type: ignore
         if 'lineterminator' not in kwargs:
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
-            kwargs['lineterminator'] = '\n' # type: ignore
+            kwargs['lineterminator'] = '\n'  # type: ignore
 
         mode = archive_read_mode[compression] if compression in archive_read_mode else None
 
         if provided_by:
             self.graph_metadata['provided_by'] = [provided_by]
         if format == 'tsv':
-            kwargs['quoting'] = 3 # type: ignore
+            kwargs['quoting'] = 3  # type: ignore
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
-                    file_iter = pd.read_csv(f, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
+                    file_iter = pd.read_csv(
+                        f,
+                        dtype=str,
+                        chunksize=10000,
+                        low_memory=False,
+                        keep_default_na=False,
+                        **kwargs,
+                    )
                     if re.search(f'nodes.{format}', member.name):
                         for chunk in file_iter:
                             self.node_properties.update(chunk.columns)
@@ -97,7 +119,14 @@ class TsvSource(Source):
                     else:
                         raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
         else:
-            file_iter = pd.read_csv(filename, dtype=str, chunksize=10000, low_memory=False, keep_default_na=False, **kwargs)
+            file_iter = pd.read_csv(
+                filename,
+                dtype=str,
+                chunksize=10000,
+                low_memory=False,
+                keep_default_na=False,
+                **kwargs,
+            )
             if re.search(f'nodes.{format}', filename):
                 for chunk in file_iter:
                     self.node_properties.update(chunk.columns)
@@ -201,4 +230,3 @@ class TsvSource(Source):
         if self.check_edge_filter(edge_data):
             self.node_properties.update(edge_data.keys())
             return s, o, key, edge_data
-

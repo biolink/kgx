@@ -6,7 +6,13 @@ from neo4jrestclient.query import CypherException
 
 from kgx.config import get_logger
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import generate_uuid, generate_edge_key, validate_node, validate_edge, sanitize_import
+from kgx.utils.kgx_utils import (
+    generate_uuid,
+    generate_edge_key,
+    validate_node,
+    validate_edge,
+    sanitize_import,
+)
 
 log = get_logger()
 
@@ -16,6 +22,7 @@ class NeoSource(Source):
     NeoSource is responsible for reading data as records
     from a Neo4j instance.
     """
+
     def __init__(self):
         super().__init__()
         self.http_driver = None
@@ -23,7 +30,20 @@ class NeoSource(Source):
         self.edge_count = 0
         self.seen_nodes = set()
 
-    def parse(self, uri: str, username: str, password: str, node_filters: Dict = None, edge_filters: Dict = None, start: int = 0, end: int = None, is_directed: bool = True, page_size: int = 50000, provided_by: Optional[str] = None, **kwargs: Any) -> Generator:
+    def parse(
+        self,
+        uri: str,
+        username: str,
+        password: str,
+        node_filters: Dict = None,
+        edge_filters: Dict = None,
+        start: int = 0,
+        end: int = None,
+        is_directed: bool = True,
+        page_size: int = 50000,
+        provided_by: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Generator:
         """
         This method reads from Neo4j instance and yields records
 
@@ -92,13 +112,19 @@ class NeoSource(Source):
         if self.edge_filters:
             qs = []
             if 'subject_category' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})"
+                )
             if 'object_category' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})"
+                )
             if 'predicate' in self.edge_filters:
                 qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
             if 'provided_by' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})"
+                )
             query = ' WHERE '
             query += ' AND '.join(qs)
         query += f" RETURN COUNT(*) AS count"
@@ -137,9 +163,13 @@ class NeoSource(Source):
         if self.node_filters:
             qs = []
             if 'category' in self.node_filters:
-                qs.append(f"({self.format_node_filter(self.node_filters, 'category', 'n', ':', 'OR')})")
+                qs.append(
+                    f"({self.format_node_filter(self.node_filters, 'category', 'n', ':', 'OR')})"
+                )
             if 'provided_by' in self.node_filters:
-                qs.append(f"({self.format_node_filter(self.node_filters, 'provided_by', 'n', '.', 'OR')})")
+                qs.append(
+                    f"({self.format_node_filter(self.node_filters, 'provided_by', 'n', '.', 'OR')})"
+                )
             query += ' WHERE '
             query += ' AND '.join(qs)
 
@@ -183,13 +213,19 @@ class NeoSource(Source):
         if self.edge_filters:
             qs = []
             if 'subject_category' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})"
+                )
             if 'object_category' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})"
+                )
             if 'predicate' in self.edge_filters:
                 qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
             if 'provided_by' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})")
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})"
+                )
             query += ' WHERE '
             query += ' AND '.join(qs)
         query += f" RETURN s, p, o SKIP {skip}"
@@ -200,7 +236,9 @@ class NeoSource(Source):
         log.debug(query)
         edges = []
         try:
-            results = self.http_driver.query(query, returns=(Node, Relationship, Node), data_contents=True)
+            results = self.http_driver.query(
+                query, returns=(Node, Relationship, Node), data_contents=True
+            )
             if results:
                 edges = [x for x in results.rows]
         except CypherException as ce:
@@ -295,7 +333,14 @@ class NeoSource(Source):
         self.edge_properties.update(edge.keys())
         return subject_node['id'], object_node['id'], key, edge
 
-    def get_pages(self, query_function, start: int = 0, end: Optional[int] = None, page_size: int = 50000, **kwargs: Any) -> Iterator:
+    def get_pages(
+        self,
+        query_function,
+        start: int = 0,
+        end: Optional[int] = None,
+        page_size: int = 50000,
+        **kwargs: Any,
+    ) -> Iterator:
         """
         Get pages of size ``page_size`` from Neo4j.
         Returns an iterator of pages where number of pages is (``end`` - ``start``)/``page_size``
@@ -342,7 +387,13 @@ class NeoSource(Source):
                 return
 
     @staticmethod
-    def format_node_filter(node_filters: Dict, key: str, variable: Optional[str] = None, prefix: Optional[str] = None, op: Optional[str] = None) -> str:
+    def format_node_filter(
+        node_filters: Dict,
+        key: str,
+        variable: Optional[str] = None,
+        prefix: Optional[str] = None,
+        op: Optional[str] = None,
+    ) -> str:
         """
         Get the value for node filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
@@ -373,7 +424,9 @@ class NeoSource(Source):
                     formatted = [f"{variable}{prefix}`{x}`" for x in node_filters[key]]
                     value = f" {op} ".join(formatted)
                 elif key in {'provided_by'}:
-                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in node_filters['provided_by']]
+                    formatted = [
+                        f"'{x}' IN {variable}{prefix}{key}" for x in node_filters['provided_by']
+                    ]
                     value = f" {op} ".join(formatted)
                 else:
                     formatted = []
@@ -387,7 +440,13 @@ class NeoSource(Source):
         return value
 
     @staticmethod
-    def format_edge_filter(edge_filters: Dict, key: str, variable: Optional[str] = None, prefix: Optional[str] = None, op: Optional[str] = None) -> str:
+    def format_edge_filter(
+        edge_filters: Dict,
+        key: str,
+        variable: Optional[str] = None,
+        prefix: Optional[str] = None,
+        op: Optional[str] = None,
+    ) -> str:
         """
         Get the value for edge filter as defined by ``key``.
         This is used as a convenience method for generating cypher queries.
@@ -421,7 +480,9 @@ class NeoSource(Source):
                     formatted = [f"'{x}'" for x in edge_filters['predicate']]
                     value = f"type({variable}) IN [{', '.join(formatted)}]"
                 elif key == 'provided_by':
-                    formatted = [f"'{x}' IN {variable}{prefix}{key}" for x in edge_filters['provided_by']]
+                    formatted = [
+                        f"'{x}' IN {variable}{prefix}{key}" for x in edge_filters['provided_by']
+                    ]
                     value = f" {op} ".join(formatted)
                 else:
                     formatted = []

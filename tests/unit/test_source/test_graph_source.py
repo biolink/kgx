@@ -10,7 +10,16 @@ def test_read_graph1():
     graph.add_node('A', **{'id': 'A', 'name': 'node A'})
     graph.add_node('B', **{'id': 'B', 'name': 'node B'})
     graph.add_node('C', **{'id': 'C', 'name': 'node C'})
-    graph.add_edge('A', 'C', **{'subject': 'A', 'predicate': 'biolink:related_to', 'object': 'C', 'relation': 'biolink:related_to'})
+    graph.add_edge(
+        'A',
+        'C',
+        **{
+            'subject': 'A',
+            'predicate': 'biolink:related_to',
+            'object': 'C',
+            'relation': 'biolink:related_to',
+        }
+    )
     s = GraphSource()
     g = s.parse(graph=graph)
     nodes = {}
@@ -44,7 +53,16 @@ def test_read_graph2():
     graph.add_node('A', **{'id': 'A', 'name': 'node A'})
     graph.add_node('B', **{'id': 'B', 'name': 'node B'})
     graph.add_node('C', **{'id': 'C', 'name': 'node C'})
-    graph.add_edge('A', 'C', **{'subject': 'A', 'predicate': 'biolink:related_to', 'object': 'C', 'relation': 'biolink:related_to'})
+    graph.add_edge(
+        'A',
+        'C',
+        **{
+            'subject': 'A',
+            'predicate': 'biolink:related_to',
+            'object': 'C',
+            'relation': 'biolink:related_to',
+        }
+    )
     s = GraphSource()
     g = s.parse(graph=graph, provided_by='Test Graph')
     nodes = {}
@@ -69,4 +87,3 @@ def test_read_graph2():
     assert e1['object'] == 'C'
     assert e1['relation'] == 'biolink:related_to'
     assert 'Test Graph' in e1['provided_by']
-

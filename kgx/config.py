@@ -53,7 +53,7 @@ def get_jsonld_context(name: str = "biolink"):
     if name in jsonld_context_map:
         content = jsonld_context_map[name]
     else:
-        filepath = config['jsonld-context'][name] # type: ignore
+        filepath = config['jsonld-context'][name]  # type: ignore
         if filepath.startswith('http'):
             try:
                 content = requests.get(filepath).json()

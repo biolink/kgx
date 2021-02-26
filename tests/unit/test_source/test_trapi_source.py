@@ -63,4 +63,3 @@ def test_read_trapi_json2():
     assert e['object'] == 'MONDO:0005002'
     assert e['predicate'] == 'biolink:related_to'
     assert 'Test TRAPI JSON' in e['provided_by']
-

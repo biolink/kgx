@@ -11,8 +11,14 @@ from rdflib.term import _is_valid_uri
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
-from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_camelcase, get_biolink_ancestors, \
-    sentencecase_to_snakecase, generate_uuid, get_biolink_property_types
+from kgx.utils.kgx_utils import (
+    get_toolkit,
+    sentencecase_to_camelcase,
+    get_biolink_ancestors,
+    sentencecase_to_snakecase,
+    generate_uuid,
+    get_biolink_property_types,
+)
 from kgx.utils.rdf_utils import process_predicate
 
 log = get_logger()
@@ -44,12 +50,19 @@ class RdfSink(Sink):
 
     """
 
-    def __init__(self, filename: str, format: str = 'nt', compression: Optional[bool] = None, reify_all_edges: bool = False, **kwargs: Any):
+    def __init__(
+        self,
+        filename: str,
+        format: str = 'nt',
+        compression: Optional[bool] = None,
+        reify_all_edges: bool = False,
+        **kwargs: Any,
+    ):
         super().__init__()
         if format not in {'nt'}:
             raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
-        #self.OBO = Namespace('http://purl.obolibrary.org/obo/')
+        # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
@@ -96,7 +109,9 @@ class RdfSink(Sink):
 
         """
         for k, v in m.items():
-            (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k)
+            (element_uri, canonical_uri, predicate, property_name) = process_predicate(
+                self.prefix_manager, k
+            )
             if element_uri:
                 key = element_uri
             elif predicate:
@@ -167,7 +182,9 @@ class RdfSink(Sink):
         """
         ecache = []
         associations = set([self.prefix_manager.contract(x) for x in self.reification_types])
-        associations.update([str(x) for x in set(self.toolkit.get_all_associations(formatted=True))])
+        associations.update(
+            [str(x) for x in set(self.toolkit.get_all_associations(formatted=True))]
+        )
         if self.reify_all_edges:
             reified_node = self.reify(record['subject'], record['object'], record)
             s = reified_node['subject']
@@ -178,13 +195,15 @@ class RdfSink(Sink):
             for prop, value in reified_node.items():
                 if prop in {'id', 'association_id', 'edge_key'}:
                     continue
-                (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(
+                    prop
+                )
                 if element_uri:
                     prop_uri = canonical_uri if canonical_uri else element_uri
                 else:
                     if prop in self.reverse_predicate_mapping:
                         prop_uri = self.reverse_predicate_mapping[prop]
-                        #prop_uri = self.prefix_manager.contract(prop_uri)
+                        # prop_uri = self.prefix_manager.contract(prop_uri)
                     else:
                         prop_uri = predicate
                 prop_type = self._get_property_type(prop)
@@ -198,9 +217,11 @@ class RdfSink(Sink):
                     value_uri = self._prepare_object(prop, prop_type, value)
                     self._write_triple(URIRef(n), prop_uri, value_uri)
         else:
-            if ('type' in record and record['type'] in associations) or \
-                    ('association_type' in record and record['association_type'] in associations) or \
-                    ('category' in record and any(record['category']) in associations):
+            if (
+                ('type' in record and record['type'] in associations)
+                or ('association_type' in record and record['association_type'] in associations)
+                or ('category' in record and any(record['category']) in associations)
+            ):
                 reified_node = self.reify(record['subject'], record['object'], record)
                 s = reified_node['subject']
                 p = reified_node['predicate']
@@ -210,13 +231,15 @@ class RdfSink(Sink):
                 for prop, value in reified_node.items():
                     if prop in {'id', 'association_id', 'edge_key'}:
                         continue
-                    (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(prop)
+                    (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(
+                        prop
+                    )
                     if element_uri:
                         prop_uri = canonical_uri if canonical_uri else element_uri
                     else:
                         if prop in self.reverse_predicate_mapping:
                             prop_uri = self.reverse_predicate_mapping[prop]
-                            #prop_uri = self.prefix_manager.contract(prop_uri)
+                            # prop_uri = self.prefix_manager.contract(prop_uri)
                         else:
                             prop_uri = predicate
                     prop_type = self._get_property_type(prop)
@@ -330,9 +353,16 @@ class RdfSink(Sink):
         """
         # TODO: this should be properly defined in the model
         default_uri_types = {
-            'biolink:type', 'biolink:category', 'biolink:subject',
-            'biolink:object', 'biolink:relation', 'biolink:predicate',
-            'rdf:type', 'rdf:subject', 'rdf:predicate', 'rdf:object'
+            'biolink:type',
+            'biolink:category',
+            'biolink:subject',
+            'biolink:object',
+            'biolink:relation',
+            'biolink:predicate',
+            'rdf:type',
+            'rdf:subject',
+            'rdf:predicate',
+            'rdf:object',
         }
         if p in default_uri_types:
             t = 'uriorcurie'
@@ -424,7 +454,12 @@ class RdfSink(Sink):
                 if p in self.reverse_predicate_mapping:
                     property_name = self.reverse_predicate_mapping[p]
                     predicate = f":{property_name}"
-            self.cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+            self.cache[p] = {
+                'element_uri': element_uri,
+                'canonical_uri': canonical_uri,
+                'predicate': predicate,
+                'property_name': property_name,
+            }
         return element_uri, canonical_uri, predicate, property_name
 
     def get_biolink_element(self, predicate: Any) -> Optional[Element]:
