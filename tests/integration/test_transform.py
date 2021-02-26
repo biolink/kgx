@@ -12,7 +12,6 @@ def _transform(query):
     """
     t1 = Transformer()
     t1.transform(query[0])
-    print_graph(t1.store.graph)
     t1.save(query[1].copy())
 
     assert t1.store.graph.number_of_nodes() == query[2]
@@ -42,7 +41,6 @@ def _transform(query):
 
     t2 = Transformer()
     t2.transform(input_args)
-    print_graph(t2.store.graph)
 
     assert t2.store.graph.number_of_nodes() == query[2]
     assert t2.store.graph.number_of_edges() == query[3]
@@ -153,7 +151,7 @@ def test_transform_filters2(query):
     }
     t = Transformer()
     t.transform(input_args)
-    print_graph(t.store.graph)
+
     assert t.store.graph.number_of_nodes() == query[2]
     assert t.store.graph.number_of_edges() == query[3]
 
@@ -190,7 +188,6 @@ def test_rdf_transform_with_filters1(query):
     }
     t = Transformer()
     t.transform(input_args)
-    print_graph(t.store.graph)
 
     assert t.store.graph.number_of_nodes() == query[2]
     assert t.store.graph.number_of_edges() == query[3]
@@ -534,8 +531,7 @@ def test_rdf_transform5():
 
     e1t1 = list(t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
     e1t2 = list(t2.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    print(e1t1)
-    print(e1t2)
+
     assert e1t1['subject'] == e1t2['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == 'ENSEMBL:ENSP0000000000002'
     assert e1t1['predicate'] == e1t2['predicate'] == 'biolink:interacts_with'

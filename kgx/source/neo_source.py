@@ -253,7 +253,6 @@ class NeoSource(Source):
 
         """
         for record in edges:
-            print(record)
             self.edge_count += 1
             subject_node = record[0]
             edge = record[1]

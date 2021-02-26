@@ -525,6 +525,7 @@ def test_transform6(clean_slate, query):
     run_transform(query)
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize('query', [
     (
             {
