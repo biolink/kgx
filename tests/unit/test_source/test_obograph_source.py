@@ -129,6 +129,9 @@ def test_read_jsonl2():
     }, 'biolink:BiologicalProcess')
 ])
 def test_get_category(query):
+    """
+    Test to guess the appropriate category for a sample OBO Graph JSON.
+    """
     node = query[0]
     s = ObographSource()
     c = s.get_category(node['id'], node)

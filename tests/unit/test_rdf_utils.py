@@ -2,7 +2,7 @@ import os
 import pytest
 from rdflib import URIRef, Graph
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.utils.rdf_utils import infer_category, process_predicate
 from tests import RESOURCE_DIR
 
@@ -13,6 +13,9 @@ from tests import RESOURCE_DIR
     (URIRef('http://purl.obolibrary.org/obo/GO_0005739'), 'cellular_component')
 ])
 def test_infer_category(query):
+    """
+    Test inferring of biolink category for a given IRI.
+    """
     graph = Graph()
     graph.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
     [c] = infer_category(query[0], graph)
@@ -34,6 +37,9 @@ def test_infer_category(query):
     ('name', 'biolink:name', 'rdfs:label', ':name', 'name'),
 ])
 def test_process_predicate(query):
+    """
+    Test behavior of process_predicate method.
+    """
     pm = PrefixManager()
     x = process_predicate(pm, query[0])
     assert x[0] == query[1]

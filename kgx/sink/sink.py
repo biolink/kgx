@@ -1,6 +1,6 @@
 from typing import Dict
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 
 
 class Sink(object):

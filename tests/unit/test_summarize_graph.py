@@ -7,6 +7,9 @@ from tests import TARGET_DIR
 
 
 def get_graphs():
+    """
+    Returns instances of defined graphs.
+    """
     g1 = NxGraph()
     g1.name = 'Graph 1'
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'])
@@ -34,6 +37,9 @@ def get_graphs():
 
 
 def test_generate_graph_stats():
+    """
+    Test for generating graph stats.
+    """
     graphs = get_graphs()
     for g in graphs:
         filename = os.path.join(TARGET_DIR, f"{g.name}_stats.yaml")
@@ -112,6 +118,9 @@ def test_generate_graph_stats():
      ),
 ])
 def test_summarize_graph(query):
+    """
+    Test for generating graph stats, and comparing the resulting stats.
+    """
     stats = summarize_graph(query[0])
     for k, v in query[1]['node_stats'].items():
         assert v == stats['node_stats'][k]

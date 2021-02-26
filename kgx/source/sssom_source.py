@@ -6,7 +6,7 @@ from typing import Optional, Generator, Any, Dict, Tuple
 
 import yaml
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source import Source
 from kgx.utils.kgx_utils import validate_node, sanitize_import, validate_edge, generate_uuid, generate_edge_key

@@ -1,9 +1,9 @@
 import os
 
 import networkx as nx
-from kgx import PandasTransformer
 from kgx.graph.nx_graph import NxGraph
 from kgx.graph_operations.clique_merge import clique_merge
+from kgx.transformer import Transformer
 from tests import TARGET_DIR, RESOURCE_DIR
 
 prefix_prioritization_map = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OMIM']}
@@ -11,27 +11,36 @@ prefix_prioritization_map = {'biolink:Gene': ['HGNC', 'NCBIGene', 'ENSEMBL', 'OM
 
 def test_clique_generation():
     """
-    Test for generation of cliques
+    Test for generation of cliques.
     """
-    t = PandasTransformer()
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_nodes.csv'), input_format='csv')
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_edges.csv'), input_format='csv')
-    t.report()
-    updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'cm_nodes.csv'),
+            os.path.join(RESOURCE_DIR, 'cm_edges.csv'),
+        ],
+        'format': 'csv'
+    }
+    t = Transformer()
+    t.transform(input_args)
+    updated_graph, clique_graph = clique_merge(target_graph=t.store.graph, prefix_prioritization_map=prefix_prioritization_map)
     cliques = list(nx.connected_components(clique_graph))
     assert len(cliques) == 2
 
 
 def test_clique_merge():
     """
-    Test for clique merge (lenient)
+    Test for clique merge.
     """
-    t = PandasTransformer()
-    os.makedirs(TARGET_DIR, exist_ok=True)
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_nodes.csv'), input_format='csv')
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_edges.csv'), input_format='csv')
-    t.report()
-    updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'cm_nodes.csv'),
+            os.path.join(RESOURCE_DIR, 'cm_edges.csv'),
+        ],
+        'format': 'csv'
+    }
+    t = Transformer()
+    t.transform(input_args)
+    updated_graph, clique_graph = clique_merge(target_graph=t.store.graph, prefix_prioritization_map=prefix_prioritization_map)
     leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()
@@ -49,14 +58,18 @@ def test_clique_merge():
 
 def test_clique_merge_edge_consolidation():
     """
-
+    Test for clique merge, with edge consolidation.
     """
-    t = PandasTransformer()
-    os.makedirs(TARGET_DIR, exist_ok=True)
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_test2_nodes.tsv'), input_format='tsv')
-    t.parse(os.path.join(RESOURCE_DIR, 'cm_test2_edges.tsv'), input_format='tsv')
-    t.report()
-    updated_graph, clique_graph = clique_merge(target_graph=t.graph, prefix_prioritization_map=prefix_prioritization_map)
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'cm_test2_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'cm_test2_edges.tsv'),
+        ],
+        'format': 'tsv'
+    }
+    t = Transformer()
+    t.transform(input_args)
+    updated_graph, clique_graph = clique_merge(target_graph=t.store.graph, prefix_prioritization_map=prefix_prioritization_map)
     leaders = NxGraph.get_node_attributes(updated_graph, 'clique_leader')
     leader_list = list(leaders.keys())
     leader_list.sort()

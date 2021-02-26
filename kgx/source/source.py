@@ -1,6 +1,6 @@
 from typing import Dict, Generator, Any, Union
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
 log = get_logger()
@@ -175,12 +175,18 @@ class Source(object):
     def set_node_filters(self, filters: Dict) -> None:
         if filters:
             for k, v in filters.items():
-                self.set_node_filter(k, set(v))
+                if isinstance(v, (list, set, tuple)):
+                    self.set_node_filter(k, set(v))
+                else:
+                    self.set_node_filter(k, v)
 
     def set_edge_filters(self, filters: Dict) -> None:
         if filters:
             for k, v in filters.items():
-                self.set_edge_filter(k, set(v))
+                if isinstance(v, (list, set, tuple)):
+                    self.set_edge_filter(k, set(v))
+                else:
+                    self.set_edge_filter(k, v)
 
     def set_edge_filter(self, key: str, value: set) -> None:
         """

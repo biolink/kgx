@@ -8,11 +8,12 @@ from rdflib import URIRef, Literal, Namespace, RDF
 from rdflib.plugins.serializers.nt import _nt_row
 from rdflib.term import _is_valid_uri
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
 from kgx.utils.kgx_utils import get_toolkit, sentencecase_to_camelcase, get_biolink_ancestors, \
     sentencecase_to_snakecase, generate_uuid, get_biolink_property_types
+from kgx.utils.rdf_utils import process_predicate
 
 log = get_logger()
 
@@ -94,7 +95,15 @@ class RdfSink(Sink):
             are their corresponding types.
 
         """
-        self.property_types.update(m)
+        for k, v in m.items():
+            (element_uri, canonical_uri, predicate, property_name) = process_predicate(self.prefix_manager, k)
+            if element_uri:
+                key = element_uri
+            elif predicate:
+                key = predicate
+            else:
+                key = property_name
+            self.property_types[key] = v
 
     def write_node(self, record: Dict) -> None:
         """

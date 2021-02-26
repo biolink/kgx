@@ -1,12 +1,12 @@
 import json
 import os
-import pprint
 import pytest
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
 from kgx.cli import get_input_file_types, graph_summary
-from tests import clean_slate, check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, \
-    DEFAULT_NEO4J_PASSWORD, RESOURCE_DIR, TARGET_DIR
+from tests import RESOURCE_DIR, TARGET_DIR
+from tests.unit import clean_slate, check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, \
+    DEFAULT_NEO4J_PASSWORD
 
 
 def test_get_file_types():
@@ -22,7 +22,7 @@ def test_get_file_types():
 
 def test_graph_summary1():
     """
-    Test graph summary.
+    Test graph summary, where the output report type is kgx-map.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
@@ -44,6 +44,9 @@ def test_graph_summary1():
 
 
 def test_graph_summary2():
+    """
+    Test graph summary, where the output report type is knowledge-map.
+    """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
@@ -86,6 +89,7 @@ def test_neo4j_upload(clean_slate):
     assert t.store.graph.number_of_edges() == 532
 
 
+@pytest.mark.skip()
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_neo4j_download(clean_slate):
     """
@@ -113,7 +117,7 @@ def test_neo4j_download(clean_slate):
         output=output,
         output_format='tsv',
         output_compression=None,
-        stream = False
+        stream=False
     )
     assert os.path.exists(f"{output}_nodes.tsv")
     assert os.path.exists(f"{output}_edges.tsv")

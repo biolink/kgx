@@ -2,6 +2,9 @@ from kgx.graph.nx_graph import NxGraph
 
 
 def get_graphs():
+    """
+    Returns instances of defined graphs.
+    """
     g1 = NxGraph()
     g1.name = 'Graph 1'
     g1.add_node('A', id='A', name='Node A', category=['biolink:NamedThing'])
@@ -29,6 +32,9 @@ def get_graphs():
 
 
 def test_add_node():
+    """
+    Test adding a node to an NxGraph.
+    """
     g = NxGraph()
     g.add_node('A')
     g.add_node('A', name='Node A', description='Node A')
@@ -36,6 +42,9 @@ def test_add_node():
 
 
 def test_add_edge():
+    """
+    Test adding an edge to an NxGraph.
+    """
     g = NxGraph()
     g.add_node('A')
     g.add_node('B')
@@ -46,6 +55,9 @@ def test_add_edge():
 
 
 def test_add_node_attribute():
+    """
+    Test adding a node attribute to an NxGraph.
+    """
     g = NxGraph()
     g.add_node('A')
     g.add_node_attribute('A', 'provided_by', 'test')
@@ -54,12 +66,18 @@ def test_add_node_attribute():
 
 
 def test_add_edge_attribute():
+    """
+    Test adding an edge attribute to an NxGraph.
+    """
     g = NxGraph()
     g.add_edge('A', 'B')
     g.add_edge_attribute('A', 'B', 'edge_ab', 'predicate', 'biolink:related_to')
 
 
 def test_update_node_attribute():
+    """
+    Test updating a node attribute for a node in an NxGraph.
+    """
     g = NxGraph()
     g.add_node('A', name='A', description='Node A')
     g.update_node_attribute('A', 'description', 'Modified description')
@@ -69,6 +87,9 @@ def test_update_node_attribute():
 
 
 def test_update_edge_attribute():
+    """
+    Test updating an edge attribute for an edge in an NxGraph.
+    """
     g = NxGraph()
     g.add_edge('A', 'B', 'edge_ab')
     g.update_edge_attribute('A', 'B', 'edge_ab', 'source', 'test')
@@ -77,6 +98,9 @@ def test_update_edge_attribute():
 
 
 def test_nodes():
+    """
+    Test fetching of nodes from an NxGraph.
+    """
     g = get_graphs()[0]
     nodes = list(g.nodes(data=False))
     assert len(nodes) == 3
@@ -88,6 +112,9 @@ def test_nodes():
 
 
 def test_edges():
+    """
+    Test fetching of edges from an NxGraph.
+    """
     g = get_graphs()[0]
     edges = list(g.edges(keys=False, data=False))
     assert len(edges) == 2
@@ -108,6 +135,9 @@ def test_edges():
 
 
 def test_in_edges():
+    """
+    Test fetching of incoming edges for a node in an NxGraph.
+    """
     g = get_graphs()[1]
     in_edges = list(g.in_edges('A', keys=False, data=False))
     assert len(in_edges) == 3
@@ -123,6 +153,9 @@ def test_in_edges():
 
 
 def test_out_edges():
+    """
+    Test fetching of outgoing edges for a node in an NxGraph.
+    """
     g = get_graphs()[1]
     out_edges = list(g.out_edges('B', keys=False, data=False))
     assert len(out_edges) == 1
@@ -138,6 +171,9 @@ def test_out_edges():
 
 
 def test_nodes_iter():
+    """
+    Test fetching all nodes in an NxGraph via an iterator.
+    """
     g = get_graphs()[1]
     n_iter = g.nodes_iter()
     n = next(n_iter)
@@ -146,6 +182,9 @@ def test_nodes_iter():
 
 
 def test_edges_iter():
+    """
+    Test fetching all edges in an NxGraph via an iterator.
+    """
     g = get_graphs()[1]
     e_iter = g.edges_iter()
     e = next(e_iter)
@@ -157,24 +196,36 @@ def test_edges_iter():
 
 
 def test_remove_node():
+    """
+    Test removing a node from an NxGraph.
+    """
     g = get_graphs()[1]
     g.remove_node('A')
     assert not g.has_node('A')
 
 
 def test_remove_edge():
+    """
+    Test removing an edge from an NxGraph.
+    """
     g = get_graphs()[1]
     g.remove_edge('B', 'A')
     assert not g.has_edge('B', 'A')
 
 
 def test_number_of_nodes_edges():
+    """
+    Test getting number of nodes and edges in an NxGraph.
+    """
     g = get_graphs()[1]
     assert g.number_of_nodes() == 5
     assert g.number_of_edges() == 3
 
 
 def test_set_node_attributes():
+    """
+    Test setting node attributes in bulk.
+    """
     g = NxGraph()
     g.add_node("X:1", alias="A:1")
     g.add_node("X:2", alias="B:2")
@@ -190,6 +241,9 @@ def test_set_node_attributes():
 
 
 def test_set_edge_attributes():
+    """
+    Test setting edge attributes in bulk.
+    """
     g = NxGraph()
     g.add_node("X:1", alias="A:1")
     g.add_node("X:2", alias="B:2")
@@ -205,6 +259,9 @@ def test_set_edge_attributes():
 
 
 def test_get_node_attributes():
+    """
+    Test getting node attributes in bulk.
+    """
     g = get_graphs()[1]
     d = NxGraph.get_node_attributes(g, 'name')
     assert 'A' in d and d['A'] == 'Node A'
@@ -212,6 +269,9 @@ def test_get_node_attributes():
 
 
 def test_get_edge_attributes():
+    """
+    Test getting edge attributes in bulk.
+    """
     g = get_graphs()[1]
     d = NxGraph.get_edge_attributes(g, 'relation')
     assert ('B', 'A', 'B-biolink:related_to-A') in d
@@ -219,6 +279,9 @@ def test_get_edge_attributes():
 
 
 def test_relabel_nodes():
+    """
+    Test relabelling of nodes in an NxGraph.
+    """
     g = get_graphs()[1]
     m = {
         'A': 'A:1',

@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List
 
-from kgx import PrefixManager
+from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
 """
