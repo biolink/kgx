@@ -18,7 +18,6 @@ def _transform(query):
     """
     t1 = Transformer()
     t1.transform(query[0])
-    print_graph(t1.store.graph)
     t1.save(query[1].copy())
 
     assert t1.store.graph.number_of_nodes() == query[2]
@@ -48,7 +47,6 @@ def _transform(query):
 
     t2 = Transformer()
     t2.transform(input_args)
-    print_graph(t2.store.graph)
 
     assert t2.store.graph.number_of_nodes() == query[2]
     assert t2.store.graph.number_of_edges() == query[3]
