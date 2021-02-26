@@ -50,166 +50,6 @@ def _transform(query):
 
 @pytest.mark.parametrize('query', [
     (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv'
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph1'),
-            'format': 'json'
-        },
-        512,
-        532
-    ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv'
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph2'),
-            'format': 'jsonl'
-        },
-        512,
-        532
-    ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-            'lineterminator': None,
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph3.nt'),
-            'format': 'nt'
-        },
-        512,
-        532
-    ),
-    # (
-    #     {
-    #         'filename': [
-    #             os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-    #             os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-    #         ],
-    #         'format': 'tsv'
-    #     },
-    #     {
-    #         'uri': DEFAULT_NEO4J_URL,
-    #         'username': DEFAULT_NEO4J_USERNAME,
-    #         'password': DEFAULT_NEO4J_PASSWORD,
-    #         'format': 'neo4j'
-    #     },
-    #     512,
-    #     532
-    # ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-            'node_filters': {'category': {'biolink:Gene'}}
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph2'),
-            'format': 'jsonl'
-        },
-        178,
-        178
-    ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-            'node_filters': {'category': {'biolink:Gene'}},
-            'edge_filters': {'predicate': {'biolink:interacts_with'}}
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph3'),
-            'format': 'jsonl'
-        },
-        178,
-        165
-    ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-            'edge_filters': {
-                'subject_category': {'biolink:Disease'},
-                'object_category': {'biolink:PhenotypicFeature'},
-                'predicate': {'biolink:has_phenotype'}
-            }
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph4'),
-            'format': 'jsonl'
-        },
-        133,
-        13
-    ),
-    (
-        {
-            'filename': [
-                os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-                os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
-            ],
-            'format': 'tsv',
-        },
-        {
-            'filename': os.path.join(TARGET_DIR, 'graph5'),
-            'format': 'tsv'
-        },
-        512,
-        532
-    ),
-])
-def test_transform1(clean_slate, query):
-    """
-    Test loading data from a TSV source and writing to various sinks.
-    """
-    _transform(query)
-
-
-# @pytest.mark.parametrize('query', [
-#     (
-#         {
-#             'filename': [os.path.join(RESOURCE_DIR, 'goslim_generic.owl')],
-#             'format': 'owl',
-#         },
-#         {
-#             'uri': DEFAULT_NEO4J_URL,
-#             'username': DEFAULT_NEO4J_USERNAME,
-#             'password': DEFAULT_NEO4J_PASSWORD,
-#             'format': 'neo4j'
-#         },
-#         220,
-#         1050
-#     ),
-# ])
-# def test_transform2(clean_slate, query):
-#     _transform(query)
-
-
-@pytest.mark.parametrize('query', [
-    (
         {'category': {'biolink:Gene', 'biolink:Disease'}},
         {},
         2,
@@ -318,7 +158,49 @@ def test_transform_filters2(query):
     assert t.store.graph.number_of_edges() == query[3]
 
 
+@pytest.mark.parametrize("query", [
+    (
+        {'category': {'biolink:Gene'}},
+        {},
+        2,
+        0
+    ),
+    (
+        {'category': {'biolink:Protein'}},
+        {},
+        4,
+        3
+    ),
+    (
+        {'category': {'biolink:Protein'}},
+        {'predicate': {'biolink:interacts_with'}},
+        4,
+        1
+    ),
+])
+def test_rdf_transform_with_filters1(query):
+    """
+    Test RDF transform with filters.
+    """
+    input_args = {
+        'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt')],
+        'format': 'nt',
+        'node_filters': query[0],
+        'edge_filters': query[1]
+    }
+    t = Transformer()
+    t.transform(input_args)
+    print_graph(t.store.graph)
+
+    assert t.store.graph.number_of_nodes() == query[2]
+    assert t.store.graph.number_of_edges() == query[3]
+
+
 def test_rdf_transform1():
+    """
+    Test parsing an RDF N-triple, with user defined prefix map,
+    and node property predicates.
+    """
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
         'OMIM': 'http://omim.org/entry/'
@@ -377,6 +259,10 @@ def test_rdf_transform1():
 
 
 def test_rdf_transform2():
+    """
+    Test parsing an RDF N-triple, with user defined prefix map,
+    node property predicates, and predicate mappings.
+    """
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
         'OMIM': 'http://omim.org/entry/'
@@ -494,6 +380,9 @@ def test_rdf_transform2():
 
 
 def test_rdf_transform3():
+    """
+    Test parsing an RDF N-triple and round-trip.
+    """
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')],
         'format': 'nt'
@@ -537,6 +426,9 @@ def test_rdf_transform3():
 
 
 def test_rdf_transform4():
+    """
+    Test parsing an RDF N-triple and round-trip, with user defined node property predicates.
+    """
     node_property_predicates = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt')],
@@ -590,10 +482,9 @@ def test_rdf_transform4():
     assert e1t1['cooccurence'] == e1t2['cooccurence'] == '332'
 
 
-# Test failing at the moment;
 def test_rdf_transform5():
     """
-    Read an RDF N-Triple file, with user defined node property predicates
+    Parse an RDF N-Triple and round-trip, with user defined node property predicates
     and export property types.
     """
     node_property_predicates = {
@@ -655,31 +546,3 @@ def test_rdf_transform5():
     assert e1t2['homology'] == 0.0
     assert e1t2['combined_score'] == 490.0
     assert e1t2['cooccurence'] == 332.0
-
-
-@pytest.mark.parametrize("query", [
-    (
-            {'category': {'biolink:Gene'}}, {}, 2, 0
-    ),
-    (
-            {'category': {'biolink:Protein'}}, {}, 4, 3
-    ),
-    (
-            {'category': {'biolink:Protein'}}, {'predicate': {'biolink:interacts_with'}}, 4, 1
-    ),
-])
-def test_rdf_transform_with_filters1(query):
-    input_args = {
-        'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt')],
-        'format': 'nt',
-        'node_filters': query[0],
-        'edge_filters': query[1]
-    }
-    t = Transformer()
-    t.transform(input_args)
-    print_graph(t.store.graph)
-
-    assert t.store.graph.number_of_nodes() == query[2]
-    assert t.store.graph.number_of_edges() == query[3]
-
-
