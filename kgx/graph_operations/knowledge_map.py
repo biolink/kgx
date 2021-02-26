@@ -97,7 +97,6 @@ def summarize_nodes(graph: BaseGraph) -> Dict:
                     count_by_source[s] = 1
         else:
             count_by_source['unknown'] += 1
-            continue
 
     node_stats = {
         'id_prefixes': list(id_prefixes),
@@ -137,7 +136,6 @@ def summarize_edges(graph: BaseGraph) -> List[Dict]:
 
         triple = (subject_category, data['predicate'], object_category)
         if triple not in association_map:
-            association_map[triple] = {}
             association_map[triple] = {
                 'subject': triple[0],
                 'predicate': triple[1],
