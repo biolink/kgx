@@ -197,6 +197,7 @@ def test_remap_node_property_fail():
         remap_node_property(graphs[0], category='biolink:NamedThing', old_property='id', new_property='alias')
 
 
+@pytest.mark.skip()
 def test_remap_edge_property():
     """
     Test remap edge property operation.

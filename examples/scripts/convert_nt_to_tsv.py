@@ -1,18 +1,19 @@
 import sys
-
 import argparse
 
-from kgx import NtTransformer, PandasTransformer
+from kgx.transformer import Transformer
 
 """
 A loader script that demonstrates how to convert an RDF N-Triple (*.nt) 
 to TSV format.
 """
 
+
 def usage():
     print("""
 usage: convert_nt_to_tsv.py --input triples.nt --output output 
     """)
+
 
 parser = argparse.ArgumentParser(description='Load edges and nodes into Neo4j')
 parser.add_argument('--input', help='RDF N-Triple file')
@@ -23,12 +24,18 @@ if args.input is None or args.output is None:
     usage()
     exit()
 
+input_args = {
+    'filename': [args.input],
+    'format': 'nt'
+}
+
+output_args = {
+    'filename': args.output,
+    'format': 'tsv'
+}
+
 # Initialize NtTransformer
-t = NtTransformer()
+t = Transformer()
 
-# Load the nt
-t.parse(args.input)
-
-# Initialize PandasTransformer
-pt = PandasTransformer(t.graph)
-pt.save(args.output, output_format='tsv')
+# Transform NT
+t.transform(input_args, output_args)
