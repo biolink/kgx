@@ -17,6 +17,7 @@ class PrefixManager(object):
     These include mappings for CURIEs such as GO:0008150, as well as shortforms such as
     biolink types such as Disease
     """
+
     DEFAULT_NAMESPACE = 'https://www.example.org/UNKNOWN/'
     prefix_map: Dict[str, str]
     reverse_prefix_map: Dict[str, str]
@@ -52,7 +53,11 @@ class PrefixManager(object):
             if isinstance(v, str):
                 self.prefix_map[k] = v
         if 'biolink' not in self.prefix_map:
-            self.prefix_map['biolink'] = self.prefix_map['@vocab'] if '@vocab' in self.prefix_map else 'https://w3id.org/biolink/vocab/'
+            self.prefix_map['biolink'] = (
+                self.prefix_map['@vocab']
+                if '@vocab' in self.prefix_map
+                else 'https://w3id.org/biolink/vocab/'
+            )
         if 'owlstar' not in self.prefix_map:
             self.prefix_map['owlstar'] = 'http://w3id.org/owlstar/'
         if '@vocab' in self.prefix_map:
@@ -61,7 +66,9 @@ class PrefixManager(object):
             self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
             self.prefix_map['MONARCH_NODE'] = 'https://monarchinitiative.org/MONARCH_'
         if '' in self.prefix_map:
-            log.info(f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'")
+            log.info(
+                f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'"
+            )
         else:
             self.prefix_map[''] = self.DEFAULT_NAMESPACE
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
@@ -80,6 +87,15 @@ class PrefixManager(object):
             self.prefix_map[k] = v
 
     def update_reverse_prefix_map(self, m: Dict[str, str]) -> None:
+        """
+        Update reverse prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New IRI to prefix mappings
+
+        """
         self.reverse_prefix_map.update(m)
 
     @cached(LRUCache(maxsize=1024))
@@ -175,6 +191,7 @@ class PrefixManager(object):
             return s.startswith('http') or s.startswith('https')
         else:
             return False
+
     @staticmethod
     @cached(LRUCache(maxsize=1024))
     def has_urlfragment(s: str) -> bool:

@@ -13,7 +13,7 @@ def test_merge():
             os.path.join(RESOURCE_DIR, 'merge', 'test1_nodes.tsv'),
             os.path.join(RESOURCE_DIR, 'merge', 'test1_edges.tsv'),
         ],
-        'format': 'tsv'
+        'format': 'tsv',
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -23,7 +23,7 @@ def test_merge():
             os.path.join(RESOURCE_DIR, 'merge', 'test2_nodes.tsv'),
             os.path.join(RESOURCE_DIR, 'merge', 'test2_edges.tsv'),
         ],
-        'format': 'tsv'
+        'format': 'tsv',
     }
     t2 = Transformer()
     t2.transform(input_args2)
@@ -53,7 +53,7 @@ def test_merge_no_preserve():
             os.path.join(RESOURCE_DIR, 'merge', 'test1_nodes.tsv'),
             os.path.join(RESOURCE_DIR, 'merge', 'test1_edges.tsv'),
         ],
-        'format': 'tsv'
+        'format': 'tsv',
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -63,7 +63,7 @@ def test_merge_no_preserve():
             os.path.join(RESOURCE_DIR, 'merge', 'test2_nodes.tsv'),
             os.path.join(RESOURCE_DIR, 'merge', 'test2_edges.tsv'),
         ],
-        'format': 'tsv'
+        'format': 'tsv',
     }
     t2 = Transformer()
     t2.transform(input_args2)
@@ -78,4 +78,3 @@ def test_merge_no_preserve():
     assert list(t1.store.graph.nodes()['x1']['category'])[0] in x1['category']
     assert list(t2.store.graph.nodes()['x1']['category'])[0] in x1['category']
     assert x1['p1'] == 'a'
-

@@ -27,7 +27,7 @@ def test_write_tsv1():
         filename=os.path.join(TARGET_DIR, 'test_graph'),
         format='tsv',
         node_properties={'id', 'name'},
-        edge_properties={'subject', 'predicate', 'object', 'relation'}
+        edge_properties={'subject', 'predicate', 'object', 'relation'},
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -69,7 +69,7 @@ def test_write_tsv2():
         format='tsv',
         compression='tar',
         node_properties={'id', 'name'},
-        edge_properties={'subject', 'predicate', 'object', 'relation'}
+        edge_properties={'subject', 'predicate', 'object', 'relation'},
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -84,7 +84,7 @@ def test_write_tsv2():
         format='tsv',
         compression='tar.gz',
         node_properties={'id', 'name'},
-        edge_properties={'subject', 'predicate', 'object', 'relation'}
+        edge_properties={'subject', 'predicate', 'object', 'relation'},
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)

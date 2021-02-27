@@ -26,7 +26,9 @@ class BaseGraph(object):
         """
         pass
 
-    def add_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None, **kwargs: Any) -> Any:
+    def add_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None, **kwargs: Any
+    ) -> Any:
         """
         Add an edge to the graph.
 
@@ -68,7 +70,14 @@ class BaseGraph(object):
         """
         pass
 
-    def add_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any) -> Any:
+    def add_edge_attribute(
+        self,
+        subject_node: str,
+        object_node: str,
+        edge_key: Optional[str],
+        attr_key: str,
+        attr_value: Any,
+    ) -> Any:
         """
         Add an attribute to a given edge.
 
@@ -113,7 +122,14 @@ class BaseGraph(object):
         """
         pass
 
-    def update_edge_attribute(self, subject_node: str, object_node: str, edge_key: Optional[str], attr_key: str, attr_value: Any) -> Dict:
+    def update_edge_attribute(
+        self,
+        subject_node: str,
+        object_node: str,
+        edge_key: Optional[str],
+        attr_key: str,
+        attr_value: Any,
+    ) -> Dict:
         """
         Update an attribute of a given edge.
 
@@ -295,7 +311,9 @@ class BaseGraph(object):
         """
         pass
 
-    def remove_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None) -> Any:
+    def remove_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None
+    ) -> Any:
         """
         Remove a given edge from the graph.
 

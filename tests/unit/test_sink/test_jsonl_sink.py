@@ -49,4 +49,3 @@ def test_write_jsonl2():
 
     assert len(node_lines) == 6
     assert len(edge_lines) == 6
-

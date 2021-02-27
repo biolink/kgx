@@ -6,8 +6,14 @@ from neo4jrestclient.query import CypherException
 
 from kgx.sink import NeoSink
 from tests import print_graph
-from tests.unit import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD, check_container, \
-    CONTAINER_NAME
+from tests.unit import (
+    clean_slate,
+    DEFAULT_NEO4J_URL,
+    DEFAULT_NEO4J_USERNAME,
+    DEFAULT_NEO4J_PASSWORD,
+    check_container,
+    CONTAINER_NAME,
+)
 from tests.unit import get_graph
 
 
@@ -20,11 +26,9 @@ def test_sanitize_category():
     assert s == ['`biolink:Gene`', '`biolink:GeneOrGeneProduct`']
 
 
-@pytest.mark.parametrize('category', [
-    'biolink:Gene',
-    'biolink:GeneOrGeneProduct',
-    'biolink:NamedThing'
-])
+@pytest.mark.parametrize(
+    'category', ['biolink:Gene', 'biolink:GeneOrGeneProduct', 'biolink:NamedThing']
+)
 def test_create_constraint_query(category):
     """
     Test to ensure that a CONSTRAINT cypher query is generated as expected.
@@ -42,9 +46,7 @@ def test_write_neo1(clean_slate):
     """
     graph = get_graph('test')[0]
     s = NeoSink(
-        uri=DEFAULT_NEO4J_URL,
-        username=DEFAULT_NEO4J_USERNAME,
-        password=DEFAULT_NEO4J_PASSWORD
+        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -52,7 +54,9 @@ def test_write_neo1(clean_slate):
         s.write_edge(data)
     s.finalize()
 
-    d = GraphDatabase(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    d = GraphDatabase(
+        DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+    )
 
     try:
         results = d.query('MATCH (n) RETURN COUNT(*)')
@@ -70,16 +74,17 @@ def test_write_neo1(clean_slate):
 
 
 @pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
-@pytest.mark.parametrize('query', [
-    (get_graph('kgx-unit-test')[0], 3, 1),
-    (get_graph('kgx-unit-test')[1], 6, 6)
-])
+@pytest.mark.parametrize(
+    'query', [(get_graph('kgx-unit-test')[0], 3, 1), (get_graph('kgx-unit-test')[1], 6, 6)]
+)
 def test_write_neo2(clean_slate, query):
     """
     Test writing a graph to a Neo4j instance.
     """
     graph = query[0]
-    sink = NeoSink(uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    sink = NeoSink(
+        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+    )
     for n, data in graph.nodes(data=True):
         sink.write_node(data)
     for u, v, k, data in graph.edges(data=True, keys=True):
@@ -103,7 +108,9 @@ def test_write_neo3(clean_slate):
     modified version of the graph to the same Neo4j instance.
     """
     graph = get_graph('kgx-unit-test')[2]
-    sink = NeoSink(uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    sink = NeoSink(
+        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+    )
     for n, data in graph.nodes(data=True):
         sink.write_node(data)
     for u, v, k, data in graph.edges(data=True, keys=True):
@@ -131,6 +138,8 @@ def test_write_neo3(clean_slate):
         nodes.append(node)
 
     edges = []
-    er = sink.http_driver.query("MATCH ()-[p]-() RETURN p", data_contents=True, returns=(Node, Relationship, Node))
+    er = sink.http_driver.query(
+        "MATCH ()-[p]-() RETURN p", data_contents=True, returns=(Node, Relationship, Node)
+    )
     for edge in er:
         edges.append(edge)

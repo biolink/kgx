@@ -5,8 +5,14 @@ import pytest
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
 from kgx.cli import get_input_file_types, graph_summary
 from tests import RESOURCE_DIR, TARGET_DIR
-from tests.unit import clean_slate, check_container, CONTAINER_NAME, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, \
-    DEFAULT_NEO4J_PASSWORD
+from tests.unit import (
+    clean_slate,
+    check_container,
+    CONTAINER_NAME,
+    DEFAULT_NEO4J_URL,
+    DEFAULT_NEO4J_USERNAME,
+    DEFAULT_NEO4J_PASSWORD,
+)
 
 
 def test_get_file_types():
@@ -26,7 +32,7 @@ def test_graph_summary1():
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph_stats1.yaml')
     summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='kgx-map')
@@ -49,7 +55,7 @@ def test_graph_summary2():
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
     summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='knowledge-map')
@@ -81,10 +87,18 @@ def test_neo4j_upload(clean_slate):
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     # upload
-    t = neo4j_upload(inputs, 'tsv', None, uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD, stream=False)
+    t = neo4j_upload(
+        inputs,
+        'tsv',
+        None,
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
+        stream=False,
+    )
     assert t.store.graph.number_of_nodes() == 512
     assert t.store.graph.number_of_edges() == 532
 
@@ -97,7 +111,7 @@ def test_neo4j_download(clean_slate):
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'neo_download')
     # upload
@@ -108,7 +122,7 @@ def test_neo4j_download(clean_slate):
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
-        stream=False
+        stream=False,
     )
     t2 = neo4j_download(
         uri=DEFAULT_NEO4J_URL,
@@ -117,7 +131,7 @@ def test_neo4j_download(clean_slate):
         output=output,
         output_format='tsv',
         output_compression=None,
-        stream=False
+        stream=False,
     )
     assert os.path.exists(f"{output}_nodes.tsv")
     assert os.path.exists(f"{output}_edges.tsv")
@@ -131,7 +145,7 @@ def test_transform1():
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph.json')
     transform(
@@ -140,7 +154,7 @@ def test_transform1():
         input_compression=None,
         output=output,
         output_format='json',
-        output_compression=None
+        output_compression=None,
     )
     assert os.path.exists(output)
     data = json.load(open(output, 'r'))
@@ -179,4 +193,3 @@ def test_merge2():
     merge_config = os.path.join(RESOURCE_DIR, 'test-merge.yaml')
     merge(merge_config=merge_config, destination=['merged-graph-json'])
     assert os.path.join(TARGET_DIR, 'merged-graph.json')
-

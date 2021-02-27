@@ -15,7 +15,13 @@ COUNT_BY_SPO = 'count_by_spo'
 # Note: the format of the stats generated might change in the future
 
 
-def generate_graph_stats(graph: BaseGraph, graph_name: str, filename: str, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> None:
+def generate_graph_stats(
+    graph: BaseGraph,
+    graph_name: str,
+    filename: str,
+    node_facet_properties: Optional[List] = None,
+    edge_facet_properties: Optional[List] = None,
+) -> None:
     """
     Generate stats from Graph.
 
@@ -38,7 +44,12 @@ def generate_graph_stats(graph: BaseGraph, graph_name: str, filename: str, node_
     yaml.dump(stats, WH)
 
 
-def summarize_graph(graph: BaseGraph, name: str = None, node_facet_properties: Optional[List] = None, edge_facet_properties: Optional[List] = None) -> Dict:
+def summarize_graph(
+    graph: BaseGraph,
+    name: str = None,
+    node_facet_properties: Optional[List] = None,
+    edge_facet_properties: Optional[List] = None,
+) -> Dict:
     """
     Summarize the entire graph.
 
@@ -64,7 +75,7 @@ def summarize_graph(graph: BaseGraph, name: str = None, node_facet_properties: O
     stats = {
         'graph_name': name if name else graph.name,
         'node_stats': node_stats,
-        'edge_stats': edge_stats
+        'edge_stats': edge_stats,
     }
     return stats
 
@@ -89,7 +100,7 @@ def summarize_nodes(graph: BaseGraph, facet_properties: Optional[List] = None) -
     stats: Dict = {
         TOTAL_NODES: 0,
         NODE_CATEGORIES: set(),
-        COUNT_BY_CATEGORY: {'unknown': {'count': 0}}
+        COUNT_BY_CATEGORY: {'unknown': {'count': 0}},
     }
 
     stats[TOTAL_NODES] = len(graph.nodes())
@@ -111,7 +122,9 @@ def summarize_nodes(graph: BaseGraph, facet_properties: Optional[List] = None) -
 
             if facet_properties:
                 for facet_property in facet_properties:
-                    stats = get_facet_counts(data, stats, COUNT_BY_CATEGORY, category, facet_property)
+                    stats = get_facet_counts(
+                        data, stats, COUNT_BY_CATEGORY, category, facet_property
+                    )
 
     stats[NODE_CATEGORIES] = sorted(list(stats[NODE_CATEGORIES]))
     if facet_properties:
@@ -141,7 +154,7 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
         TOTAL_EDGES: 0,
         EDGE_PREDICATES: set(),
         COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
-        COUNT_BY_SPO: {}
+        COUNT_BY_SPO: {},
     }
 
     stats[TOTAL_EDGES] = len(graph.edges())
@@ -163,7 +176,9 @@ def summarize_edges(graph: BaseGraph, facet_properties: Optional[List] = None) -
 
             if facet_properties:
                 for facet_property in facet_properties:
-                    stats = get_facet_counts(data, stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property)
+                    stats = get_facet_counts(
+                        data, stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property
+                    )
 
         u_data = graph.nodes()[u]
         v_data = graph.nodes()[v]

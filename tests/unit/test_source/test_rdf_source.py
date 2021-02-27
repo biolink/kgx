@@ -90,14 +90,12 @@ def test_read_nt3():
     node property predicates.
     """
     node_property_predicates = {
-        f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
+        f"https://www.example.org/UNKNOWN/{x}"
+        for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
     }
     source = RdfSource()
     source.set_node_property_predicates(node_property_predicates)
-    g = source.parse(
-        filename=os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt'),
-        format='nt'
-    )
+    g = source.parse(filename=os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt'), format='nt')
     nodes, edges = process_stream(g)
     assert len(nodes) == 4
     assert len(edges) == 3
@@ -141,14 +139,12 @@ def test_read_nt4():
     node property predicates.
     """
     node_property_predicates = {
-        f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
+        f"https://www.example.org/UNKNOWN/{x}"
+        for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
     }
     source = RdfSource()
     source.set_node_property_predicates(node_property_predicates)
-    g = source.parse(
-        filename=os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'),
-        format='nt'
-    )
+    g = source.parse(filename=os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt'), format='nt')
     nodes, edges = process_stream(g)
     assert len(nodes.keys()) == 7
     assert len(edges.keys()) == 6
@@ -204,12 +200,12 @@ def test_read_nt5():
     """
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
-        'OMIM': 'http://omim.org/entry/'
+        'OMIM': 'http://omim.org/entry/',
     }
     node_property_predicates = {
         'http://purl.obolibrary.org/obo/RO_0002558',
         'http://purl.org/dc/elements/1.1/source',
-        'https://monarchinitiative.org/frequencyOfPhenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype',
     }
     filename = os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt')
     source = RdfSource()
@@ -243,12 +239,12 @@ def test_read_nt5():
 def test_read_nt6():
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
-        'OMIM': 'http://omim.org/entry/'
+        'OMIM': 'http://omim.org/entry/',
     }
     node_property_predicates = {
         'http://purl.obolibrary.org/obo/RO_0002558',
         'http://purl.org/dc/elements/1.1/source',
-        'https://monarchinitiative.org/frequencyOfPhenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype',
     }
     predicate_mapping = {
         'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype'
@@ -285,40 +281,75 @@ def test_read_nt6():
     assert e2['frequency_of_phenotype'] == 'HP:0040283'
 
 
-@pytest.mark.parametrize("query", [
-    (
-        {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
-        {'prop1': [1, 2, 3, 4]}
-    ),
-    (
-        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'prop1': 1},
-        {'category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
-        {'prop1': [1, 2, 3]}
-    ),
-    (
-        {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
-        {'id': 'DEF:456', 'category': ('biolink:NamedThing', 'biolink:Gene'), 'provided_by': 'test'},
-        {'category': ['biolink:NamedThing', 'biolink:Gene']},
-        {'provided_by': ['test']}
-    ),
-    (
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200', 'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association'},
-        {},
-        {}
-    ),
-    (
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
-        {'subject': 'Orphanet:331206', 'object': 'HP:0004429', 'relation': 'RO:0002200',
-         'predicate': 'biolink:has_phenotype', 'id': 'bfada868a8309f2b7849', 'type': 'OBAN:association', 'source': 'Orphanet:331206'},
-        {},
-        {'source': ['Orphanet:331206', 'Orphanet:331206']}
-    )
-])
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+            {'id': 'ABC:123', 'category': 'biolink:NamedThing', 'prop1': [1, 2, 3]},
+            {'category': ['biolink:NamedThing', 'biolink:Gene'], 'prop1': [4]},
+            {'category': ['biolink:NamedThing', 'biolink:Gene']},
+            {'prop1': [1, 2, 3, 4]},
+        ),
+        (
+            {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'prop1': 1},
+            {'category': {'biolink:NamedThing', 'biolink:Gene'}, 'prop1': [2, 3]},
+            {'category': ['biolink:NamedThing', 'biolink:Gene']},
+            {'prop1': [1, 2, 3]},
+        ),
+        (
+            {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
+            {
+                'id': 'DEF:456',
+                'category': ('biolink:NamedThing', 'biolink:Gene'),
+                'provided_by': 'test',
+            },
+            {'category': ['biolink:NamedThing', 'biolink:Gene']},
+            {'provided_by': ['test']},
+        ),
+        (
+            {
+                'subject': 'Orphanet:331206',
+                'object': 'HP:0004429',
+                'relation': 'RO:0002200',
+                'predicate': 'biolink:has_phenotype',
+                'id': 'bfada868a8309f2b7849',
+                'type': 'OBAN:association',
+            },
+            {
+                'subject': 'Orphanet:331206',
+                'object': 'HP:0004429',
+                'relation': 'RO:0002200',
+                'predicate': 'biolink:has_phenotype',
+                'id': 'bfada868a8309f2b7849',
+                'type': 'OBAN:association',
+            },
+            {},
+            {},
+        ),
+        (
+            {
+                'subject': 'Orphanet:331206',
+                'object': 'HP:0004429',
+                'relation': 'RO:0002200',
+                'predicate': 'biolink:has_phenotype',
+                'id': 'bfada868a8309f2b7849',
+                'type': 'OBAN:association',
+                'source': 'Orphanet:331206',
+            },
+            {
+                'subject': 'Orphanet:331206',
+                'object': 'HP:0004429',
+                'relation': 'RO:0002200',
+                'predicate': 'biolink:has_phenotype',
+                'id': 'bfada868a8309f2b7849',
+                'type': 'OBAN:association',
+                'source': 'Orphanet:331206',
+            },
+            {},
+            {'source': ['Orphanet:331206', 'Orphanet:331206']},
+        ),
+    ],
+)
 def test_prepare_data_dict(query):
     """
     Test for internal _prepare_data_dict method in RdfSource.

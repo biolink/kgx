@@ -18,12 +18,48 @@ def get_graphs():
 
     g2 = NxGraph()
     g2.name = 'Graph 1'
-    g2.add_node('HGNC:12345', id='HGNC:12345', name='Test Gene', category=['biolink:NamedThing'], alias='NCBIGene:54321', same_as='UniProtKB:54321')
+    g2.add_node(
+        'HGNC:12345',
+        id='HGNC:12345',
+        name='Test Gene',
+        category=['biolink:NamedThing'],
+        alias='NCBIGene:54321',
+        same_as='UniProtKB:54321',
+    )
     g2.add_node('B', id='B', name='Node B', category=['biolink:NamedThing'], alias='Z')
     g2.add_node('C', id='C', name='Node C', category=['biolink:NamedThing'])
-    g2.add_edge('C', 'B', edge_key='C-biolink:subclass_of-B', subject='C', object='B', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1', publications=[1], pubs=['PMID:123456'])
-    g2.add_edge('B', 'A', edge_key='B-biolink:subclass_of-A', subject='B', object='A', predicate='biolink:subclass_of', relation='rdfs:subClassOf', provided_by='Graph 1')
-    g2.add_edge('C', 'c', edge_key='C-biolink:exact_match-B', subject='C', object='c', predicate='biolink:exact_match', relation='skos:exactMatch', provided_by='Graph 1')
+    g2.add_edge(
+        'C',
+        'B',
+        edge_key='C-biolink:subclass_of-B',
+        subject='C',
+        object='B',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+        publications=[1],
+        pubs=['PMID:123456'],
+    )
+    g2.add_edge(
+        'B',
+        'A',
+        edge_key='B-biolink:subclass_of-A',
+        subject='B',
+        object='A',
+        predicate='biolink:subclass_of',
+        relation='rdfs:subClassOf',
+        provided_by='Graph 1',
+    )
+    g2.add_edge(
+        'C',
+        'c',
+        edge_key='C-biolink:exact_match-B',
+        subject='C',
+        object='c',
+        predicate='biolink:exact_match',
+        relation='skos:exactMatch',
+        provided_by='Graph 1',
+    )
 
     return [g1, g2]
 
@@ -58,11 +94,14 @@ def test_get_category_via_superclass():
     pass
 
 
-@pytest.mark.parametrize('query', [
-    ('rdfs:subClassOf', 'sub_class_of'),
-    ('owl:equivalentClass', 'equivalent_class'),
-    ('RO:0000091', 'has_disposition')
-])
+@pytest.mark.parametrize(
+    'query',
+    [
+        ('rdfs:subClassOf', 'sub_class_of'),
+        ('owl:equivalentClass', 'equivalent_class'),
+        ('RO:0000091', 'has_disposition'),
+    ],
+)
 def test_curie_lookup(query):
     """
     Test look up of a CURIE.

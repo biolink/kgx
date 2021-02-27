@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Any
 
 from neo4jrestclient.client import GraphDatabase
 from neo4jrestclient.query import CypherException
@@ -38,7 +38,7 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ':'
     _seen_categories = set()
 
-    def __init__(self, uri: str, username: str, password: str, **kwargs):
+    def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
         super().__init__()
         if 'cache_size' in kwargs:
             self.CACHE_SIZE = kwargs['cache_size']
@@ -78,7 +78,9 @@ class NeoSink(Sink):
         self.create_constraints(filtered_categories)
         for category in self.node_cache.keys():
             log.debug("Generating UNWIND for category: {}".format(category))
-            cypher_category = category.replace(self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER)
+            cypher_category = category.replace(
+                self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
+            )
             query = self.generate_unwind_node_query(cypher_category)
             log.debug(query)
             nodes = self.node_cache[category]
@@ -107,7 +109,7 @@ class NeoSink(Sink):
             self._write_edge_cache()
             self.edge_cache.clear()
             self.edge_count = 0
-        #self.validate_edge(data)
+        # self.validate_edge(data)
         edge_predicate = record['predicate']
         if edge_predicate in self.edge_cache:
             self.edge_cache[edge_predicate].append(record)
@@ -129,7 +131,9 @@ class NeoSink(Sink):
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
                 try:
-                    self.http_driver.query(query, params={"relationship": predicate, "edges": batch})
+                    self.http_driver.query(
+                        query, params={"relationship": predicate, "edges": batch}
+                    )
                 except CypherException as ce:
                     log.error(ce)
 
@@ -222,7 +226,7 @@ class NeoSink(Sink):
 
         Parameters
         ----------
-        categories: set
+        categories: Union[set, list]
             Set of categories
 
         """
@@ -258,4 +262,3 @@ class NeoSink(Sink):
         """
         query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
         return query
-

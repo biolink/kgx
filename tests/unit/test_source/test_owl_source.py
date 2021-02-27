@@ -101,9 +101,7 @@ def test_read_owl3():
     Read an OWL ontology, with user defined
     node property predicates and predicate mappings.
     """
-    node_property_predicates = {
-        'http://www.geneontology.org/formats/oboInOwl#inSubset'
-    }
+    node_property_predicates = {'http://www.geneontology.org/formats/oboInOwl#inSubset'}
     predicate_mappings = {
         'http://www.geneontology.org/formats/oboInOwl#inSubset': 'subsets',
         'http://www.geneontology.org/formats/oboInOwl#hasOBONamespace': 'namespace',
@@ -163,10 +161,7 @@ def test_read_owl4():
     Read an OWL and ensure that logical axioms are annotated with Owlstar vocabulary.
     """
     source = OwlSource()
-    g = source.parse(
-        filename=os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
-        format='owl'
-    )
+    g = source.parse(filename=os.path.join(RESOURCE_DIR, 'goslim_generic.owl'), format='owl')
     nodes = {}
     edges = {}
     for rec in g:
@@ -183,8 +178,14 @@ def test_read_owl4():
     e1 = edges['GO:0031012', 'GO:0005576'][0]
     assert e1['predicate'] == 'biolink:part_of'
     assert e1['relation'] == 'BFO:0000050'
-    assert 'logical_interpretation' in e1 and e1['logical_interpretation'] == 'owlstar:AllSomeInterpretation'
+    assert (
+        'logical_interpretation' in e1
+        and e1['logical_interpretation'] == 'owlstar:AllSomeInterpretation'
+    )
     e2 = edges['GO:0030705', 'GO:0005622'][0]
     assert e2['predicate'] == 'biolink:occurs_in'
     assert e2['relation'] == 'BFO:0000066'
-    assert 'logical_interpretation' in e2 and e2['logical_interpretation'] == 'owlstar:AllSomeInterpretation'
+    assert (
+        'logical_interpretation' in e2
+        and e2['logical_interpretation'] == 'owlstar:AllSomeInterpretation'
+    )

@@ -3,10 +3,7 @@ import rdflib
 from kgx.config import get_logger, get_config
 from kgx.utils.kgx_utils import generate_edge_key, contract
 
-CURIE_MAP = {
-    'BFO:0000054': 'realized_in',
-    'RO:0000091': 'has_disposition'
-}
+CURIE_MAP = {'BFO:0000054': 'realized_in', 'RO:0000091': 'has_disposition'}
 
 log = get_logger()
 
@@ -15,6 +12,7 @@ class CurieLookupService(object):
     """
     A service to lookup label for a given CURIE.
     """
+
     config = get_config()
     ontologies = config['ontologies']
     ontology_graph = None
@@ -36,7 +34,7 @@ class CurieLookupService(object):
             rdfgraph = rdflib.Graph()
             input_format = rdflib.util.guess_format(ontology)
             rdfgraph.parse(ontology, format=input_format)
-            #triples = rdfgraph.triples((None, rdflib.RDFS.subClassOf, None))
+            # triples = rdfgraph.triples((None, rdflib.RDFS.subClassOf, None))
             # for s,p,o in triples:
             #     subject_curie = contract(s)
             #     object_curie = contract(o)

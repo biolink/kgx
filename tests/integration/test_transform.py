@@ -3,7 +3,12 @@ import pytest
 
 from kgx.transformer import Transformer
 from tests import print_graph, RESOURCE_DIR, TARGET_DIR
-from tests.integration import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD
+from tests.integration import (
+    clean_slate,
+    DEFAULT_NEO4J_URL,
+    DEFAULT_NEO4J_USERNAME,
+    DEFAULT_NEO4J_PASSWORD,
+)
 
 
 def _transform(query):
@@ -22,22 +27,19 @@ def _transform(query):
         input_args = {
             'filename': [
                 f"{output['filename']}_nodes.{output['format']}",
-                f"{output['filename']}_edges.{output['format']}"
+                f"{output['filename']}_edges.{output['format']}",
             ],
-            'format': output['format']
+            'format': output['format'],
         }
     elif output['format'] in {'neo4j'}:
         input_args = {
             'uri': DEFAULT_NEO4J_URL,
             'username': DEFAULT_NEO4J_USERNAME,
             'password': DEFAULT_NEO4J_PASSWORD,
-            'format': 'neo4j'
+            'format': 'neo4j',
         }
     else:
-        input_args = {
-            'filename': [f"{output['filename']}"],
-            'format': output['format']
-        }
+        input_args = {'filename': [f"{output['filename']}"], 'format': output['format']}
 
     t2 = Transformer()
     t2.transform(input_args)
@@ -46,26 +48,28 @@ def _transform(query):
     assert t2.store.graph.number_of_edges() == query[3]
 
 
-@pytest.mark.parametrize('query', [
-    (
-        {'category': {'biolink:Gene', 'biolink:Disease'}},
-        {},
-        2,
-        1
-    ),
-    (
-        {'category': {'biolink:Gene', 'biolink:Disease', 'biolink:PhenotypicFeature'}},
-        {'validated': 'true'},
-        3,
-        2
-    ),
-    (
-        {'category': {'biolink:Gene', 'biolink:PhenotypicFeature'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:PhenotypicFeature'}, 'predicate': {'biolink:related_to'}},
-        2,
-        1
-    ),
-])
+@pytest.mark.parametrize(
+    'query',
+    [
+        ({'category': {'biolink:Gene', 'biolink:Disease'}}, {}, 2, 1),
+        (
+            {'category': {'biolink:Gene', 'biolink:Disease', 'biolink:PhenotypicFeature'}},
+            {'validated': 'true'},
+            3,
+            2,
+        ),
+        (
+            {'category': {'biolink:Gene', 'biolink:PhenotypicFeature'}},
+            {
+                'subject_category': {'biolink:Gene'},
+                'object_category': {'biolink:PhenotypicFeature'},
+                'predicate': {'biolink:related_to'},
+            },
+            2,
+            1,
+        ),
+    ],
+)
 def test_transform_filters1(query):
     """
     Test transform with filters.
@@ -73,11 +77,11 @@ def test_transform_filters1(query):
     input_args = {
         'filename': [
             os.path.join(RESOURCE_DIR, 'test2_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'test2_edges.tsv')
+            os.path.join(RESOURCE_DIR, 'test2_edges.tsv'),
         ],
         'format': 'tsv',
         'node_filters': query[0],
-        'edge_filters': query[1]
+        'edge_filters': query[1],
     }
     t = Transformer()
     t.transform(input_args)
@@ -85,56 +89,33 @@ def test_transform_filters1(query):
     assert t.store.graph.number_of_edges() == query[3]
 
 
-@pytest.mark.parametrize('query', [
-    (
-        {},
-        {},
-        512,
-        532
-    ),
-    (
-        {'category': {'biolink:Gene'}},
-        {},
-        178,
-        178
-    ),
-    (
-        {'category': {'biolink:Gene'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}},
-        178,
-        178
-    ),
-    (
-        {'category': {'biolink:Gene'}},
-        {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}, 'predicate': {'biolink:orthologous_to'}},
-        178,
-        13
-    ),
-    (
-        {'category': {'biolink:Gene'}},
-        {'predicate': {'biolink:interacts_with'}},
-        178,
-        165
-    ),
-    (
-        {},
-        {'provided_by': {'omim', 'hpoa', 'orphanet'}},
-        512,
-        166
-    ),
-    (
-        {},
-        {'subject_category': {'biolink:Disease'}},
-        56,
-        35
-    ),
-    (
-        {},
-        {'object_category': {'biolink:Disease'}},
-        22,
-        20
-    )
-])
+@pytest.mark.parametrize(
+    'query',
+    [
+        ({}, {}, 512, 532),
+        ({'category': {'biolink:Gene'}}, {}, 178, 178),
+        (
+            {'category': {'biolink:Gene'}},
+            {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}},
+            178,
+            178,
+        ),
+        (
+            {'category': {'biolink:Gene'}},
+            {
+                'subject_category': {'biolink:Gene'},
+                'object_category': {'biolink:Gene'},
+                'predicate': {'biolink:orthologous_to'},
+            },
+            178,
+            13,
+        ),
+        ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
+        ({}, {'provided_by': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
+        ({}, {'subject_category': {'biolink:Disease'}}, 56, 35),
+        ({}, {'object_category': {'biolink:Disease'}}, 22, 20),
+    ],
+)
 def test_transform_filters2(query):
     """
     Test transform with filters.
@@ -142,12 +123,12 @@ def test_transform_filters2(query):
     input_args = {
         'filename': [
             os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_edges.tsv')
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
         ],
         'format': 'tsv',
         'node_filters': query[0],
         'edge_filters': query[1],
-        'lineterminator': None
+        'lineterminator': None,
     }
     t = Transformer()
     t.transform(input_args)
@@ -156,26 +137,14 @@ def test_transform_filters2(query):
     assert t.store.graph.number_of_edges() == query[3]
 
 
-@pytest.mark.parametrize("query", [
-    (
-        {'category': {'biolink:Gene'}},
-        {},
-        2,
-        0
-    ),
-    (
-        {'category': {'biolink:Protein'}},
-        {},
-        4,
-        3
-    ),
-    (
-        {'category': {'biolink:Protein'}},
-        {'predicate': {'biolink:interacts_with'}},
-        4,
-        1
-    ),
-])
+@pytest.mark.parametrize(
+    "query",
+    [
+        ({'category': {'biolink:Gene'}}, {}, 2, 0),
+        ({'category': {'biolink:Protein'}}, {}, 4, 3),
+        ({'category': {'biolink:Protein'}}, {'predicate': {'biolink:interacts_with'}}, 4, 1),
+    ],
+)
 def test_rdf_transform_with_filters1(query):
     """
     Test RDF transform with filters.
@@ -184,7 +153,7 @@ def test_rdf_transform_with_filters1(query):
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt')],
         'format': 'nt',
         'node_filters': query[0],
-        'edge_filters': query[1]
+        'edge_filters': query[1],
     }
     t = Transformer()
     t.transform(input_args)
@@ -200,19 +169,19 @@ def test_rdf_transform1():
     """
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
-        'OMIM': 'http://omim.org/entry/'
+        'OMIM': 'http://omim.org/entry/',
     }
 
     node_property_predicates = {
         'http://purl.obolibrary.org/obo/RO_0002558',
         'http://purl.org/dc/elements/1.1/source',
-        'https://monarchinitiative.org/frequencyOfPhenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype',
     }
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt')],
         'format': 'nt',
         'prefix_map': prefix_map,
-        'node_property_predicates': node_property_predicates
+        'node_property_predicates': node_property_predicates,
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -237,16 +206,13 @@ def test_rdf_transform1():
     assert e2['type'] == 'OBAN:association'
     assert e2['frequencyOfPhenotype'] == 'HP:0040283'
 
-    output_args = {
-        'filename': os.path.join(TARGET_DIR, 'oban-export.nt'),
-        'format': 'nt'
-    }
+    output_args = {'filename': os.path.join(TARGET_DIR, 'oban-export.nt'), 'format': 'nt'}
     t1.save(output_args)
 
     input_args2 = {
         'filename': [os.path.join(TARGET_DIR, 'oban-export.nt')],
         'format': 'nt',
-        'prefix_map': prefix_map
+        'prefix_map': prefix_map,
     }
     t2 = Transformer()
     t2.transform(input_args2)
@@ -262,23 +228,23 @@ def test_rdf_transform2():
     """
     prefix_map = {
         'HGNC': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/',
-        'OMIM': 'http://omim.org/entry/'
+        'OMIM': 'http://omim.org/entry/',
     }
     node_property_predicates = {
         'http://purl.obolibrary.org/obo/RO_0002558',
         'http://purl.org/dc/elements/1.1/source',
-        'https://monarchinitiative.org/frequencyOfPhenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype',
     }
     predicate_mappings = {
         'http://purl.org/dc/elements/1.1/source': 'source',
-        'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype'
+        'https://monarchinitiative.org/frequencyOfPhenotype': 'frequency_of_phenotype',
     }
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'oban-test.nt')],
         'format': 'nt',
         'prefix_map': prefix_map,
         'node_property_predicates': node_property_predicates,
-        'predicate_mappings': predicate_mappings
+        'predicate_mappings': predicate_mappings,
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -306,21 +272,15 @@ def test_rdf_transform2():
     assert e2t1['frequency_of_phenotype'] == 'HP:0040283'
     assert e2t1['source'] == 'ORPHA:93262'
 
-    property_types = {
-        'frequency_of_phenotype': 'uriorcurie',
-        'source': 'uriorcurie'
-    }
+    property_types = {'frequency_of_phenotype': 'uriorcurie', 'source': 'uriorcurie'}
     output_args1 = {
         'filename': os.path.join(TARGET_DIR, 'oban-export.nt'),
         'format': 'nt',
-        'property_types': property_types
+        'property_types': property_types,
     }
     t1.save(output_args1)
 
-    input_args2 = {
-        'filename': [os.path.join(TARGET_DIR, 'oban-export.nt')],
-        'format': 'nt'
-    }
+    input_args2 = {'filename': [os.path.join(TARGET_DIR, 'oban-export.nt')], 'format': 'nt'}
     t2 = Transformer()
     t2.transform(input_args2)
     assert t2.store.graph.number_of_nodes() == 14
@@ -346,10 +306,7 @@ def test_rdf_transform2():
     assert e2t2['frequency_of_phenotype'] == 'HP:0040283'
     assert e2t2['source'] == 'ORPHA:93262'
 
-    input_args3 = {
-        'filename': [os.path.join(TARGET_DIR, 'oban-export.nt')],
-        'format': 'nt'
-    }
+    input_args3 = {'filename': [os.path.join(TARGET_DIR, 'oban-export.nt')], 'format': 'nt'}
     t3 = Transformer()
     t3.transform(input_args3)
     assert t3.store.graph.number_of_nodes() == 14
@@ -380,25 +337,16 @@ def test_rdf_transform3():
     """
     Test parsing an RDF N-triple and round-trip.
     """
-    input_args1 = {
-        'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')],
-        'format': 'nt'
-    }
+    input_args1 = {'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')], 'format': 'nt'}
     t1 = Transformer()
     t1.transform(input_args1)
     assert t1.store.graph.number_of_nodes() == 2
     assert t1.store.graph.number_of_edges() == 1
 
-    output_args1 = {
-        'filename': os.path.join(TARGET_DIR, 'test1-export.nt'),
-        'format': 'nt'
-    }
+    output_args1 = {'filename': os.path.join(TARGET_DIR, 'test1-export.nt'), 'format': 'nt'}
     t1.save(output_args1)
 
-    input_args2 = {
-        'filename': [os.path.join(TARGET_DIR, 'test1-export.nt')],
-        'format': 'nt'
-    }
+    input_args2 = {'filename': [os.path.join(TARGET_DIR, 'test1-export.nt')], 'format': 'nt'}
     t2 = Transformer()
     t2.transform(input_args2)
     assert t2.store.graph.number_of_nodes() == 2
@@ -410,44 +358,58 @@ def test_rdf_transform3():
 
     assert n1t1['type'] == n1t2['type'] == n1t3['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == len(n1t3['category']) == 4
-    assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category'] and 'biolink:Gene' in n1t3[
-        'category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2[
-        'category'] and 'biolink:GenomicEntity' in n1t3['category']
-    assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2[
-        'category'] and 'biolink:NamedThing' in n1t3['category']
+    assert (
+        'biolink:Gene' in n1t1['category']
+        and 'biolink:Gene' in n1t2['category']
+        and 'biolink:Gene' in n1t3['category']
+    )
+    assert (
+        'biolink:GenomicEntity' in n1t1['category']
+        and 'biolink:GenomicEntity' in n1t2['category']
+        and 'biolink:GenomicEntity' in n1t3['category']
+    )
+    assert (
+        'biolink:NamedThing' in n1t1['category']
+        and 'biolink:NamedThing' in n1t2['category']
+        and 'biolink:NamedThing' in n1t3['category']
+    )
     assert n1t1['name'] == n1t2['name'] == n1t3['name'] == 'Test Gene 123'
-    assert n1t1['description'] == n1t2['description'] == n1t3['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by'] and 'Test Dataset' in \
-           n1t3['provided_by']
+    assert (
+        n1t1['description']
+        == n1t2['description']
+        == n1t3['description']
+        == 'This is a Test Gene 123'
+    )
+    assert (
+        'Test Dataset' in n1t1['provided_by']
+        and 'Test Dataset' in n1t2['provided_by']
+        and 'Test Dataset' in n1t3['provided_by']
+    )
 
 
 def test_rdf_transform4():
     """
     Test parsing an RDF N-triple and round-trip, with user defined node property predicates.
     """
-    node_property_predicates = {f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']}
+    node_property_predicates = {
+        f"https://www.example.org/UNKNOWN/{x}"
+        for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
+    }
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt')],
         'format': 'nt',
-        'node_property_predicates': node_property_predicates
+        'node_property_predicates': node_property_predicates,
     }
     t1 = Transformer()
     t1.transform(input_args1)
     assert t1.store.graph.number_of_nodes() == 4
     assert t1.store.graph.number_of_edges() == 3
 
-    output_args2 = {
-        'filename': os.path.join(TARGET_DIR, 'test2-export.nt'),
-        'format': 'nt'
-    }
+    output_args2 = {'filename': os.path.join(TARGET_DIR, 'test2-export.nt'), 'format': 'nt'}
     t1.save(output_args2)
 
     t2 = Transformer()
-    input_args2 = {
-        'filename': [os.path.join(TARGET_DIR, 'test2-export.nt')],
-        'format': 'nt'
-    }
+    input_args2 = {'filename': [os.path.join(TARGET_DIR, 'test2-export.nt')], 'format': 'nt'}
     t2.transform(input_args2)
     assert t2.store.graph.number_of_nodes() == 4
     assert t2.store.graph.number_of_edges() == 3
@@ -458,14 +420,20 @@ def test_rdf_transform4():
     assert n1t1['type'] == n1t2['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == 4
     assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category']
+    assert (
+        'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category']
+    )
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
 
-    e1t1 = list(t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t2 = list(t2.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t1 = list(
+        t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
+    )[0]
+    e1t2 = list(
+        t2.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
+    )[0]
 
     assert e1t1['subject'] == e1t2['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == 'ENSEMBL:ENSP0000000000002'
@@ -485,7 +453,8 @@ def test_rdf_transform5():
     and export property types.
     """
     node_property_predicates = {
-        f"https://www.example.org/UNKNOWN/{x}" for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
+        f"https://www.example.org/UNKNOWN/{x}"
+        for x in ['fusion', 'homology', 'combined_score', 'cooccurence']
     }
     property_types = {}
     for k in node_property_predicates:
@@ -494,7 +463,7 @@ def test_rdf_transform5():
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt')],
         'format': 'nt',
-        'node_property_predicates': node_property_predicates
+        'node_property_predicates': node_property_predicates,
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -504,14 +473,11 @@ def test_rdf_transform5():
     output_args2 = {
         'filename': os.path.join(TARGET_DIR, 'test3-export.nt'),
         'format': 'nt',
-        'property_types': property_types
+        'property_types': property_types,
     }
     t1.save(output_args2)
 
-    input_args2 = {
-        'filename': [os.path.join(TARGET_DIR, 'test3-export.nt')],
-        'format': 'nt'
-    }
+    input_args2 = {'filename': [os.path.join(TARGET_DIR, 'test3-export.nt')], 'format': 'nt'}
     t2 = Transformer()
     t2.transform(input_args2)
     assert t2.store.graph.number_of_nodes() == 7
@@ -523,14 +489,20 @@ def test_rdf_transform5():
     assert n1t1['type'] == n1t2['type'] == 'SO:0000704'
     assert len(n1t1['category']) == len(n1t2['category']) == 4
     assert 'biolink:Gene' in n1t1['category'] and 'biolink:Gene' in n1t2['category']
-    assert 'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category']
+    assert (
+        'biolink:GenomicEntity' in n1t1['category'] and 'biolink:GenomicEntity' in n1t2['category']
+    )
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
     assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
 
-    e1t1 = list(t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
-    e1t2 = list(t2.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values())[0]
+    e1t1 = list(
+        t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
+    )[0]
+    e1t2 = list(
+        t2.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
+    )[0]
 
     assert e1t1['subject'] == e1t2['subject'] == 'ENSEMBL:ENSP0000000000001'
     assert e1t1['object'] == e1t2['object'] == 'ENSEMBL:ENSP0000000000002'

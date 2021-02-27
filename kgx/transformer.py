@@ -4,7 +4,17 @@ from typing import Dict, Union, Generator, List
 
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
-from kgx.source import GraphSource, Source, TsvSource, JsonSource, JsonlSource, ObographSource, TrapiSource, NeoSource, RdfSource
+from kgx.source import (
+    GraphSource,
+    Source,
+    TsvSource,
+    JsonSource,
+    JsonlSource,
+    ObographSource,
+    TrapiSource,
+    NeoSource,
+    RdfSource,
+)
 from kgx.source.sssom_source import SssomSource
 from kgx.source.owl_source import OwlSource
 from kgx.utils.kgx_utils import apply_graph_operations
@@ -31,7 +41,7 @@ SINK_MAP = {
     'json': JsonSink,
     'jsonl': JsonlSink,
     'neo4j': NeoSink,
-    'nt': RdfSink
+    'nt': RdfSink,
 }
 
 
@@ -130,9 +140,13 @@ class Transformer(object):
             if self.stream:
                 if output_args['format'] in {'tsv', 'csv'}:
                     if 'node_properties' not in output_args:
-                        log.warning(f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
+                        log.warning(
+                            f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                        )
                     if 'edge_properties' not in output_args:
-                        log.warning(f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns.")
+                        log.warning(
+                            f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                        )
                 sink = self.get_sink(**output_args)
                 if 'reverse_prefix_map' in output_args:
                     sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
@@ -170,7 +184,9 @@ class Transformer(object):
                         sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
                     if isinstance(sink, RdfSink):
                         if 'reverse_predicate_mapping' in output_args:
-                            sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
+                            sink.set_reverse_predicate_mapping(
+                                output_args['reverse_predicate_mapping']
+                            )
                     if 'property_types' in output_args:
                         sink.set_property_types(output_args['property_types'])
                 else:

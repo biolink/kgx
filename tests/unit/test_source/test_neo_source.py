@@ -1,7 +1,13 @@
 from neo4jrestclient.client import GraphDatabase
 
 from kgx.source import NeoSource
-from tests.unit import clean_slate, DEFAULT_NEO4J_URL, DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD, process_stream
+from tests.unit import (
+    clean_slate,
+    DEFAULT_NEO4J_URL,
+    DEFAULT_NEO4J_USERNAME,
+    DEFAULT_NEO4J_PASSWORD,
+    process_stream,
+)
 
 
 queries = [
@@ -19,7 +25,7 @@ queries = [
     WHERE s.id = 'A' AND o.id = 'C'
     CREATE (s)-[p:`biolink:related_to` {subject: s.id, object: o.id, predicate: 'biolink:related_to', relation: 'biolink:related_to'}]->(o)
     RETURN p
-    """
+    """,
 ]
 
 
@@ -27,11 +33,15 @@ def test_read_neo(clean_slate):
     """
     Read a graph from a Neo4j instance.
     """
-    driver = GraphDatabase(DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    driver = GraphDatabase(
+        DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+    )
     for q in queries:
         driver.query(q)
     s = NeoSource()
-    g = s.parse(uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD)
+    g = s.parse(
+        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+    )
     nodes, edges = process_stream(g)
     assert len(nodes.keys()) == 3
     assert len(edges.keys()) == 2

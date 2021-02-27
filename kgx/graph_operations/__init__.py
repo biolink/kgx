@@ -2,12 +2,19 @@ from typing import Dict, Optional
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES, generate_edge_key, current_time_in_millis
+from kgx.utils.kgx_utils import (
+    CORE_NODE_PROPERTIES,
+    CORE_EDGE_PROPERTIES,
+    generate_edge_key,
+    current_time_in_millis,
+)
 
 log = get_logger()
 
 
-def remap_node_identifier(graph: BaseGraph, category: str, alternative_property: str, prefix=None) -> BaseGraph:
+def remap_node_identifier(
+    graph: BaseGraph, category: str, alternative_property: str, prefix=None
+) -> BaseGraph:
     """
     Remap a node's 'id' attribute with value from a node's ``alternative_property`` attribute.
 
@@ -55,7 +62,9 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
                     # no prefix defined
                     mapping[nid] = {'id': alternative_values}
             else:
-                log.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
+                log.error(
+                    f"Cannot use {alternative_values} from alternative_property {alternative_property}"
+                )
 
     graph.set_node_attributes(graph, attributes=mapping)
     graph.relabel_nodes(graph, {k: list(v.values())[0] for k, v in mapping.items()})
@@ -67,19 +76,24 @@ def remap_node_identifier(graph: BaseGraph, category: str, alternative_property:
     for u, v, k, edge_data in graph.edges(data=True, keys=True):
         if u is not edge_data['subject']:
             updated_subject_values[(u, v, k)] = {'subject': u}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
+            update_edge_keys[(u, v, k)] = {
+                'edge_key': generate_edge_key(u, edge_data['predicate'], v)
+            }
         if v is not edge_data['object']:
             updated_object_values[(u, v, k)] = {'object': v}
-            update_edge_keys[(u, v, k)] = {'edge_key': generate_edge_key(u, edge_data['predicate'], v)}
+            update_edge_keys[(u, v, k)] = {
+                'edge_key': generate_edge_key(u, edge_data['predicate'], v)
+            }
 
     graph.set_edge_attributes(graph, attributes=updated_subject_values)
     graph.set_edge_attributes(graph, attributes=updated_object_values)
     graph.set_edge_attributes(graph, attributes=update_edge_keys)
-
     return graph
 
 
-def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_property: str) -> None:
+def remap_node_property(
+    graph: BaseGraph, category: str, old_property: str, new_property: str
+) -> None:
     """
     Remap the value in node ``old_property`` attribute with value
     from node ``new_property`` attribute.
@@ -98,7 +112,9 @@ def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_
     """
     mapping = {}
     if old_property in CORE_NODE_PROPERTIES:
-        raise AttributeError(f"node property {old_property} cannot be modified as it is a core property.")
+        raise AttributeError(
+            f"node property {old_property} cannot be modified as it is a core property."
+        )
 
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
@@ -109,7 +125,9 @@ def remap_node_property(graph: BaseGraph, category: str, old_property: str, new_
     graph.set_node_attributes(graph, attributes=mapping)
 
 
-def remap_edge_property(graph: BaseGraph, edge_predicate: str, old_property: str, new_property: str) -> None:
+def remap_edge_property(
+    graph: BaseGraph, edge_predicate: str, old_property: str, new_property: str
+) -> None:
     """
     Remap the value in an edge ``old_property`` attribute with value
     from edge ``new_property`` attribute.
@@ -128,7 +146,9 @@ def remap_edge_property(graph: BaseGraph, edge_predicate: str, old_property: str
     """
     mapping = {}
     if old_property in CORE_EDGE_PROPERTIES:
-        raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
+        raise AttributeError(
+            f"edge property {old_property} cannot be modified as it is a core property."
+        )
     for u, v, k, data in graph.edges(data=True, keys=True):
         edge_data = data.copy()
         if edge_predicate is not edge_data['predicate']:
@@ -171,7 +191,9 @@ def fold_predicate(graph: BaseGraph, predicate: str, remove_prefix: bool = False
     log.info(f"Time taken: {end - start} ms")
 
 
-def unfold_node_property(graph: BaseGraph, node_property: str, prefix: Optional[str] = None) -> None:
+def unfold_node_property(
+    graph: BaseGraph, node_property: str, prefix: Optional[str] = None
+) -> None:
     """
     Unfold node property as a predicate where every node with ``node_property``
     will be unfolded as an edge.

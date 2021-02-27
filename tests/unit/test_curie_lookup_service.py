@@ -3,11 +3,14 @@ import pytest
 from kgx.curie_lookup_service import CurieLookupService
 
 
-@pytest.mark.parametrize('query', [
-    ('RO:0002410', 'causally_related_to'),
-    ('RO:0002334', 'regulated_by'),
-    ('BFO:0000003', 'occurrent')
-])
+@pytest.mark.parametrize(
+    'query',
+    [
+        ('RO:0002410', 'causally_related_to'),
+        ('RO:0002334', 'regulated_by'),
+        ('BFO:0000003', 'occurrent'),
+    ],
+)
 def test_curie_lookup(query):
     """
     Test lookup for a given CURIE via CurieLookupService.
