@@ -186,7 +186,8 @@ def elect_leader(
                 if not leader:
                     # Leader is None; use prefix prioritization strategy
                     log.debug(
-                        "Could not elect clique leader by looking for LEADER_ANNOTATION property; Using prefix prioritization instead"
+                        "Could not elect clique leader by looking for LEADER_ANNOTATION property; "
+                        "Using prefix prioritization instead"
                     )
                     if (
                         prefix_prioritization_map

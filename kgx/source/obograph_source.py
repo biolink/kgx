@@ -280,7 +280,7 @@ class ObographSource(JsonSource):
                 )
         return category
 
-    def parse_meta(self, node: str, meta: dict):
+    def parse_meta(self, node: str, meta: Dict) -> Dict:
         """
         Parse 'meta' field of a node.
 
@@ -288,12 +288,12 @@ class ObographSource(JsonSource):
         ----------
         node: str
             Node identifier
-        meta: dict
+        meta: Dict
             meta dictionary for the node
 
         Returns
         -------
-        dict
+        Dict
             A dictionary that contains 'description', 'synonyms',
             'xrefs', and 'equivalent_nodes'.
 

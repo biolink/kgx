@@ -87,6 +87,15 @@ class PrefixManager(object):
             self.prefix_map[k] = v
 
     def update_reverse_prefix_map(self, m: Dict[str, str]) -> None:
+        """
+        Update reverse prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New IRI to prefix mappings
+
+        """
         self.reverse_prefix_map.update(m)
 
     @cached(LRUCache(maxsize=1024))

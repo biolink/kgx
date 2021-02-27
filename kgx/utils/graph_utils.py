@@ -7,11 +7,7 @@ from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
     get_toolkit,
     get_cache,
-    get_curie_lookup_service,
-    generate_edge_key,
-    CORE_NODE_PROPERTIES,
-    CORE_EDGE_PROPERTIES,
-    current_time_in_millis,
+    get_curie_lookup_service
 )
 from kgx.prefix_manager import PrefixManager
 

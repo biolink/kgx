@@ -94,9 +94,11 @@ def graph_summary_wrapper(
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[Set]
-        A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+        A list of node properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
     edge_facet_properties: Optional[Set]
-        A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+        A list of edge properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
     """
     graph_summary(
         inputs,

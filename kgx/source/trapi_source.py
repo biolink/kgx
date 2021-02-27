@@ -47,7 +47,7 @@ class TrapiSource(JsonSource):
         Returns
         -------
         Generator
-            A generator for records
+            A generator for node and edge records
 
         """
         if provided_by:

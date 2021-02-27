@@ -93,8 +93,6 @@ class Source(object):
         """
         Check if an edge passes defined edge filters.
 
-        TODO: test filtering behavior
-
         Parameters
         ----------
         edge: Dict
@@ -174,6 +172,15 @@ class Source(object):
             self.node_filters[key] = value
 
     def set_node_filters(self, filters: Dict) -> None:
+        """
+        Set node filters.
+
+        Parameters
+        ----------
+        filters: Dict
+            Node filters
+
+        """
         if filters:
             for k, v in filters.items():
                 if isinstance(v, (list, set, tuple)):
@@ -182,6 +189,15 @@ class Source(object):
                     self.set_node_filter(k, v)
 
     def set_edge_filters(self, filters: Dict) -> None:
+        """
+        Set edge filters.
+
+        Parameters
+        ----------
+        filters: Dict
+            Edge filters
+
+        """
         if filters:
             for k, v in filters.items():
                 if isinstance(v, (list, set, tuple)):

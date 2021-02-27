@@ -18,9 +18,9 @@ jsonld_context_map: Dict = {}
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
 
 
-def get_config(filename: str = CONFIG_FILENAME) -> dict:
+def get_config(filename: str = CONFIG_FILENAME) -> Dict:
     """
-    Get config as a dictionary
+    Get config as a Dictionary
 
     Parameters
     ----------
@@ -29,8 +29,8 @@ def get_config(filename: str = CONFIG_FILENAME) -> dict:
 
     Returns
     -------
-    dict
-        A dictionary containing all the entries from the config YAML
+    Dict
+        A Dictionary containing all the entries from the config YAML
 
     """
     global config
@@ -45,7 +45,7 @@ def get_jsonld_context(name: str = "biolink"):
 
     Returns
     -------
-    dict
+    Dict
         the contents of the JSON-LD context
 
     """

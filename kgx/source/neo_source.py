@@ -154,7 +154,7 @@ class NeoSource(Source):
 
         Returns
         -------
-        list
+        List
             A list of nodes
 
         """
@@ -188,7 +188,7 @@ class NeoSource(Source):
             log.error(ce)
         return nodes
 
-    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True, **kwargs) -> List:
+    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True, **kwargs: Any) -> List:
         """
         Get a page of edges from the Neo4j database.
 
@@ -200,10 +200,12 @@ class NeoSource(Source):
             Total number of records to query for
         is_directed: bool
             Are edges directed or undirected (``True``, by default, since edges in most cases are directed)
+        kwargs: Any
+            Any additional arguments
 
         Returns
         -------
-        list
+        List
             A list of 3-tuples
 
         """
@@ -269,6 +271,11 @@ class NeoSource(Source):
         node: Dict
             A node
 
+        Returns
+        -------
+        Tuple
+            A tuple with node ID and node data
+
         """
         self.node_count += 1
         # TODO: remove the seen_nodes
@@ -315,7 +322,12 @@ class NeoSource(Source):
         Parameters
         ----------
         edge_record: List
-            A 3-tuple edge record
+            A 4-tuple edge record
+
+        Returns
+        -------
+        Tuple
+            A tuple with subject ID, object ID, edge key, and edge data
 
         """
 

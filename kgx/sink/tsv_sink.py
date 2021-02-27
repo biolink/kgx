@@ -1,6 +1,6 @@
 import os
 import tarfile
-from typing import Optional, Dict, Set, Any
+from typing import Optional, Dict, Set, Any, List
 from ordered_set import OrderedSet
 
 from kgx.sink.sink import Sink
@@ -228,10 +228,28 @@ class TsvSink(Sink):
         ordered_columns.update(sorted(internal_columns))
         return ordered_columns
 
-    def set_node_properties(self, np):
-        self._node_properties.update(np)
+    def set_node_properties(self, node_properties: List) -> None:
+        """
+        Update node properties index with a given list.
+
+        Parameters
+        ----------
+        node_properties: List
+            A list of node properties
+
+        """
+        self._node_properties.update(node_properties)
         self.ordered_node_columns = TsvSink._order_node_columns(self._node_properties)
 
-    def set_edge_properties(self, ep):
-        self._edge_properties = ep
+    def set_edge_properties(self, edge_properties: List) -> None:
+        """
+        Update edge properties index with a given list.
+
+        Parameters
+        ----------
+        edge_properties: List
+            A list of edge properties
+
+        """
+        self._edge_properties.update(edge_properties)
         self.ordered_edge_columns = TsvSink._order_edge_columns(self._edge_properties)

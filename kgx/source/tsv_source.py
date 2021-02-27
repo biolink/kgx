@@ -28,7 +28,7 @@ class TsvSource(Source):
     def __init__(self):
         super().__init__()
 
-    def set_prefix_map(self, m) -> None:
+    def set_prefix_map(self, m: Dict) -> None:
         """
         Add or override default prefix to IRI map.
 
@@ -40,7 +40,7 @@ class TsvSource(Source):
         """
         self.prefix_manager.set_prefix_map(m)
 
-    def set_reverse_prefix_map(self, m) -> None:
+    def set_reverse_prefix_map(self, m: Dict) -> None:
         """
         Add or override default IRI to prefix map.
 
@@ -79,7 +79,7 @@ class TsvSource(Source):
         Returns
         -------
         Generator
-            A generator for records
+            A generator for node and edge records
 
         """
         if 'delimiter' not in kwargs:
@@ -202,7 +202,7 @@ class TsvSource(Source):
         for obj in df.to_dict('records'):
             yield self.read_edge(obj)
 
-    def read_edge(self, edge: Dict) -> Optional[Tuple[str, str, str, Dict]]:
+    def read_edge(self, edge: Dict) -> Optional[Tuple]:
         """
         Load an edge into an instance of BaseGraph.
 
@@ -213,7 +213,7 @@ class TsvSource(Source):
 
         Returns
         -------
-        Optional[Tuple[str, str, str, Dict]]
+        Optional[Tuple]
             A tuple that contains subject id, object id, edge key, and edge data
 
         """

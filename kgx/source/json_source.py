@@ -44,7 +44,7 @@ class JsonSource(TsvSource):
         Returns
         -------
         Generator
-            A generator for records
+            A generator for node and edge records read from the file
 
         """
         if provided_by:

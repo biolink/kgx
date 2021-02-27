@@ -493,7 +493,7 @@ class RdfSource(Source):
         self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
         return edge_data
 
-    def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple[str, str, str, str]:
+    def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple:
         """
         Process a predicate where the method checks if there is a mapping in Biolink Model.
 
@@ -504,7 +504,7 @@ class RdfSource(Source):
 
         Returns
         -------
-        Tuple[str, str, str, str]
+        Tuple
             A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
             the CURIE form of p, the reference of p
 

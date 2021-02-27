@@ -124,6 +124,8 @@ class NxGraph(BaseGraph):
             The key for an attribute
         attr_value: Any
             The value corresponding to the key
+        preserve: bool
+            Whether or not to preserve existing values for the given attr_key
 
         Returns
         -------
@@ -160,6 +162,8 @@ class NxGraph(BaseGraph):
             The attribute key
         attr_value: Any
             The attribute value
+        preserve: bool
+            Whether or not to preserve existing values for the given attr_key
 
         Returns
         -------

@@ -1,7 +1,7 @@
 import gzip
 import re
 import jsonlines
-from typing import Optional, Any
+from typing import Optional, Any, Generator
 
 from kgx.source.json_source import JsonSource
 
@@ -22,7 +22,7 @@ class JsonlSource(JsonSource):
         compression: Optional[str] = None,
         provided_by: Optional[str] = None,
         **kwargs: Any,
-    ):
+    ) -> Generator:
         """
         This method reads from JSON Lines and yields records.
 

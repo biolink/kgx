@@ -41,9 +41,31 @@ class OwlSource(RdfSource):
         provided_by: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
+        """
+        This method reads from an OWL and yields records.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to parse
+        format: str
+            The format (``owl``)
+        compression: Optional[str]
+            The compression type (``gz``)
+        provided_by: Optional[str]
+            The name of the source providing the input file
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for node and edge records read from the file
+
+        """
         rdfgraph = rdflib.Graph()
         if compression:
-            log.warning(f"compression mode '{compression}' not supported by RdfTransformer")
+            log.warning(f"compression mode '{compression}' not supported by OwlSource")
         if format is None:
             format = rdflib.util.guess_format(filename)
 
@@ -75,7 +97,7 @@ class OwlSource(RdfSource):
                     log.warning(f"Trying to import {o} but its already done")
         yield from self.load_graph(rdfgraph)
 
-    def load_graph(self, rdfgraph: rdflib.Graph, **kwargs: Dict) -> None:
+    def load_graph(self, rdfgraph: rdflib.Graph, **kwargs: Any) -> None:
         """
         Walk through the rdflib.Graph and load all triples into kgx.graph.base_graph.BaseGraph
 
@@ -83,7 +105,7 @@ class OwlSource(RdfSource):
         ----------
         rdfgraph: rdflib.Graph
             Graph containing nodes and edges
-        kwargs: Dict
+        kwargs: Any
             Any additional arguments
 
         """

@@ -154,7 +154,7 @@ class RdfSink(Sink):
                 value_uri = self._prepare_object(k, prop_type, v)
                 self._write_triple(self.uriref(record['id']), prop_uri, value_uri)
 
-    def _write_triple(self, s: URIRef, p: URIRef, o: Union[URIRef, Literal]):
+    def _write_triple(self, s: URIRef, p: URIRef, o: Union[URIRef, Literal]) -> None:
         """
         Serialize a triple.
 
@@ -389,7 +389,7 @@ class RdfSink(Sink):
             #             t = 'xsd:string'
         return t
 
-    def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple[str, str, str, str]:
+    def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple:
         """
         Process a predicate where the method checks if there is a mapping in Biolink Model.
 
@@ -400,7 +400,7 @@ class RdfSink(Sink):
 
         Returns
         -------
-        Tuple[str, str, str, str]
+        Tuple
             A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
             the CURIE form of p, the reference of p
 

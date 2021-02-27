@@ -38,7 +38,7 @@ class SssomSource(Source):
         super().__init__()
         self.predicate_mapping = {}
 
-    def set_prefix_map(self, m) -> None:
+    def set_prefix_map(self, m: Dict) -> None:
         """
         Add or override default prefix to IRI map.
 
@@ -50,7 +50,7 @@ class SssomSource(Source):
         """
         self.prefix_manager.set_prefix_map(m)
 
-    def set_reverse_prefix_map(self, m) -> None:
+    def set_reverse_prefix_map(self, m: Dict) -> None:
         """
         Add or override default IRI to prefix map.
 
@@ -77,7 +77,7 @@ class SssomSource(Source):
         ----------
         filename: str
             File to read from
-        input_format: str
+        format: str
             The input file format (``tsv``, by default)
         compression: Optional[str]
             The compression (``gz``)
@@ -89,7 +89,7 @@ class SssomSource(Source):
         Returns
         -------
         Generator
-            A generator for records
+            A generator for node and edge records
 
         """
         if 'delimiter' not in kwargs:

@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Generator
+from typing import Generator, Any
 
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
@@ -19,7 +19,7 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(self, graph: BaseGraph, provided_by: str = None, **kwargs) -> Generator:
+    def parse(self, graph: BaseGraph, provided_by: str = None, **kwargs: Any) -> Generator:
         """
         This method reads from a graph and yields records.
 
@@ -29,6 +29,13 @@ class GraphSource(Source):
             The graph to read from
         provided_by: Optional[str]
             The name of the source providing the graph
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for node and edge records read from the graph
 
         """
         self.graph = graph
@@ -41,6 +48,12 @@ class GraphSource(Source):
     def read_nodes(self) -> Generator:
         """
         Read nodes as records from the graph.
+
+        Returns
+        -------
+        Generator
+            A generator for nodes
+
         """
         for n, data in self.graph.nodes(data=True):
             if 'id' not in data:
@@ -55,7 +68,13 @@ class GraphSource(Source):
 
     def read_edges(self) -> Generator:
         """
-        Read nodes as records from the graph.
+        Read edges as records from the graph.
+
+        Returns
+        -------
+        Generator
+            A generator for edges
+
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             edge_data = validate_edge(data)

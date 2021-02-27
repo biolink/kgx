@@ -88,7 +88,6 @@ def remap_node_identifier(
     graph.set_edge_attributes(graph, attributes=updated_subject_values)
     graph.set_edge_attributes(graph, attributes=updated_object_values)
     graph.set_edge_attributes(graph, attributes=update_edge_keys)
-
     return graph
 
 

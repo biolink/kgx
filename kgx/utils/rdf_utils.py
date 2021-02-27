@@ -18,7 +18,6 @@ from kgx.utils.kgx_utils import (
     sentencecase_to_camelcase,
     get_biolink_ancestors,
 )
-import uuid
 
 log = get_logger()
 

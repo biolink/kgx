@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Any
 
 from neo4jrestclient.client import GraphDatabase
 from neo4jrestclient.query import CypherException
@@ -38,7 +38,7 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ':'
     _seen_categories = set()
 
-    def __init__(self, uri: str, username: str, password: str, **kwargs):
+    def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
         super().__init__()
         if 'cache_size' in kwargs:
             self.CACHE_SIZE = kwargs['cache_size']
@@ -226,7 +226,7 @@ class NeoSink(Sink):
 
         Parameters
         ----------
-        categories: set
+        categories: Union[set, list]
             Set of categories
 
         """
