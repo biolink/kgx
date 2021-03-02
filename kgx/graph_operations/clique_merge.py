@@ -30,7 +30,7 @@ def clique_merge(
     prefix_prioritization_map: Optional[Dict[str, List[str]]] = None,
     category_mapping: Optional[Dict[str, str]] = None,
     strict: bool = True,
-) -> Tuple[BaseGraph, nx.Graph]:
+) -> Tuple[BaseGraph, nx.MultiDiGraph]:
     """
 
     Parameters
@@ -48,7 +48,7 @@ def clique_merge(
 
     Returns
     -------
-    Tuple[kgx.graph.base_graph.BaseGraph, networkx.Graph]
+    Tuple[kgx.graph.base_graph.BaseGraph, networkx.MultiDiGraph]
         A tuple containing the updated target graph, and the clique graph
 
     """
@@ -84,7 +84,7 @@ def clique_merge(
     return graph, clique_graph
 
 
-def build_cliques(target_graph: BaseGraph) -> nx.Graph:
+def build_cliques(target_graph: BaseGraph) -> nx.MultiDiGraph:
     """
     Builds a clique graph from ``same_as`` edges in ``target_graph``.
 
@@ -95,33 +95,43 @@ def build_cliques(target_graph: BaseGraph) -> nx.Graph:
 
     Returns
     -------
-    networkx.Graph
+    networkx.MultiDiGraph
         The clique graph with only ``same_as`` edges
 
     """
-    clique_graph = nx.Graph()
+    clique_graph = nx.MultiDiGraph()
     for n, data in target_graph.nodes(data=True):
         if 'same_as' in data:
             new_data = copy.deepcopy(data)
             del new_data['same_as']
             clique_graph.add_node(n, **new_data)
             for s in data['same_as']:
-                edge_data = {'subject': n, 'predicate': SAME_AS, 'object': s}
+                edge_data1 = {'subject': n, 'predicate': SAME_AS, 'object': s}
                 if 'provided_by' in data:
-                    edge_data['provided_by'] = data['provided_by']
-                clique_graph.add_edge(n, s, **edge_data)
+                    edge_data1['provided_by'] = data['provided_by']
+                clique_graph.add_edge(n, s, **edge_data1)
+                edge_data2 = {'subject': s, 'predicate': SAME_AS, 'object': n}
+                if 'provided_by' in data:
+                    edge_data2['provided_by'] = data['provided_by']
+                clique_graph.add_edge(s, n, **edge_data2)
     for u, v, data in target_graph.edges(data=True):
         if 'predicate' in data and data['predicate'] == SAME_AS:
             # load all biolink:same_as edges to clique_graph
             clique_graph.add_node(u, **target_graph.nodes()[u])
             clique_graph.add_node(v, **target_graph.nodes()[v])
             clique_graph.add_edge(u, v, **data)
+            clique_graph.add_edge(v, u, **{
+                'subject': v,
+                'predicate': data['predicate'],
+                'object': v,
+                'relation': data['relation']
+            })
     return clique_graph
 
 
 def elect_leader(
     target_graph: BaseGraph,
-    clique_graph: nx.Graph,
+    clique_graph: nx.MultiDiGraph,
     leader_annotation: str,
     prefix_prioritization_map: Optional[Dict[str, List[str]]],
     category_mapping: Optional[Dict[str, str]],
@@ -151,7 +161,7 @@ def elect_leader(
         The updated target graph
 
     """
-    cliques = list(nx.connected_components(clique_graph))
+    cliques = list(nx.strongly_connected_components(clique_graph))
     log.info(f"Total cliques in clique graph: {len(cliques)}")
     count = 0
     update_dict = {}
@@ -229,7 +239,7 @@ def elect_leader(
 
 
 def consolidate_edges(
-    target_graph: BaseGraph, clique_graph: nx.Graph, leader_annotation: str
+    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, leader_annotation: str
 ) -> BaseGraph:
     """
     Move all edges from nodes in a clique to the clique leader.
@@ -240,7 +250,7 @@ def consolidate_edges(
     ----------
     target_graph: kgx.graph.base_graph.BaseGraph
         The original graph
-    clique_graph: networkx.Graph
+    clique_graph: networkx.MultiDiGraph
         The clique graph
     leader_annotation: str
         The field on a node that signifies that the node is the leader of a clique
@@ -251,7 +261,7 @@ def consolidate_edges(
         The target graph where all edges from nodes in a clique are moved to clique leader
 
     """
-    cliques = list(nx.connected_components(clique_graph))
+    cliques = list(nx.strongly_connected_components(clique_graph))
     log.info(f"Consolidating edges in {len(cliques)} cliques")
     for clique in cliques:
         log.debug(f"Processing clique: {clique}")
@@ -350,7 +360,7 @@ def consolidate_edges(
 
 def update_node_categories(
     target_graph: BaseGraph,
-    clique_graph: nx.Graph,
+    clique_graph: nx.MultiDiGraph,
     clique: List,
     category_mapping: Optional[Dict[str, str]],
     strict: bool = True,
@@ -428,13 +438,13 @@ def update_node_categories(
     return clique
 
 
-def get_clique_category(clique_graph: nx.Graph, clique: List) -> Tuple[str, List]:
+def get_clique_category(clique_graph: nx.MultiDiGraph, clique: List) -> Tuple[str, List]:
     """
     Given a clique, identify the category of the clique.
 
     Parameters
     ----------
-    clique_graph: nx.Graph
+    clique_graph: nx.MultiDiGraph
         Clique graph
     clique: List
         A list of nodes in clique
@@ -561,7 +571,7 @@ def sort_categories(categories: Union[List, Set, OrderedSet]) -> List:
 
 
 def get_category_from_equivalence(
-    target_graph: BaseGraph, clique_graph: nx.Graph, node: str, attributes: Dict
+    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, node: str, attributes: Dict
 ) -> List:
     """
     Get category for a node based on its equivalent nodes in a graph.
@@ -570,7 +580,7 @@ def get_category_from_equivalence(
     ----------
     target_graph: kgx.graph.base_graph.BaseGraph
         The original graph
-    clique_graph: networkx.Graph
+    clique_graph: networkx.MultiDiGraph
         The clique graph
     node: str
         Node identifier
@@ -600,7 +610,7 @@ def get_category_from_equivalence(
 
 
 def get_leader_by_annotation(
-    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, leader_annotation: str
+    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, clique: List, leader_annotation: str
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader by searching for leader annotation property in any of the nodes in a given clique.
@@ -609,7 +619,7 @@ def get_leader_by_annotation(
     ----------
     target_graph: kgx.graph.base_graph.BaseGraph
         The original graph
-    clique_graph: networkx.Graph
+    clique_graph: networkx.MultiDiGraph
         The clique graph
     clique: List
         A list of nodes from a clique
@@ -651,7 +661,7 @@ def get_leader_by_annotation(
 
 
 def get_leader_by_prefix_priority(
-    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List, prefix_priority_list: List
+    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, clique: List, prefix_priority_list: List
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader from clique based on a given prefix priority.
@@ -660,7 +670,7 @@ def get_leader_by_prefix_priority(
     ----------
     target_graph: kgx.graph.base_graph.BaseGraph
         The original graph
-    clique_graph: networkx.Graph
+    clique_graph: networkx.MultiDiGraph
         The clique graph
     clique: List
         A list of nodes that correspond to a clique
@@ -686,7 +696,7 @@ def get_leader_by_prefix_priority(
 
 
 def get_leader_by_sort(
-    target_graph: BaseGraph, clique_graph: nx.Graph, clique: List
+    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, clique: List
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader from clique based on the first selection from an alphabetical sort of the node id prefixes.
@@ -695,7 +705,7 @@ def get_leader_by_sort(
     ----------
     target_graph: kgx.graph.base_graph.BaseGraph
         The original graph
-    clique_graph: networkx.Graph
+    clique_graph: networkx.MultiDiGraph
         The clique graph
     clique: List
         A list of nodes that correspond to a clique
