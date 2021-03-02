@@ -25,7 +25,7 @@ def test_clique_generation():
     updated_graph, clique_graph = clique_merge(
         target_graph=t.store.graph, prefix_prioritization_map=prefix_prioritization_map
     )
-    cliques = list(nx.connected_components(clique_graph))
+    cliques = list(nx.strongly_connected_components(clique_graph))
     assert len(cliques) == 2
 
 
