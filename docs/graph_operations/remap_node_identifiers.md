@@ -8,7 +8,9 @@ takes an instance of `kgx.graph.base_graph.BaseGraph` along with a `category`,
 `alternative_property`, and `prefix` as arguments.
 
 
-### kgx.graph_operations.remap_node_identifier
+---
+
+#### kgx.graph_operations.remap_node_identifier
 
 ```eval_rst
 .. autofunction:: kgx.graph_operations.remap_node_identifier

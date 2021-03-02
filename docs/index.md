@@ -22,8 +22,10 @@ TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.
    installation
    examples
    cli/index.md
+   transformer
    source
    sink
+   validator
    graph_operations/index.md
    utilities/index.md
 ```
