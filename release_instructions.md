@@ -21,6 +21,12 @@ Now update Changelog.md and add the changes that this new release has.
 Now update Dockerfile to use the new tag.
 
 
+### Update Documentation
+
+Update KGX documentation to be consistent with any changes or new additions to the codebase.
+
+Also be sure to update the version in [docs/conf.py]() to ensure that the right version is being displayed when the documentation is rendered.
+
 ### Make a new release tag
 
 Commiting changes and making a new release tag.
@@ -41,7 +47,7 @@ git push --tags
 
 To ensure this is successful, make sure you have relevant permissions to KGX package on [PyPI](https://pypi.org/project/kgx/).
 
-Also, be sure to install [twine](https://pypi.org/project/twine/) and [wheel](https://pypi.org/project/wheel/)
+Also, be sure to install [twine](https://pypi.org/project/twine/) and [wheel](https://pypi.org/project/wheel/).
 
 Now, run the following commands:
 
@@ -51,3 +57,28 @@ python setup.py sdist bdist_wheel bdist_egg
 twine upload --repository-url https://upload.pypi.org/legacy/ --username PYPI_USERNAME dist/*
 ```
 
+### Release on GitHub
+
+Go to [https://github.com/biolink/kgx/releases/](), edit the latest release and add the contents from [CHANGELOG.md]() corresponding to that release.
+
+
+### Build Docker container
+
+Build and push the Docker image for the new version of KGX.
+
+First have a fresh clone of the KGX GitHub repository, and then build the Docker image:
+```sh
+git clone https://github.com/biolink/kgx
+cd kgx
+docker docker build --no-cache -f Dockerfile --tag biolink/kgx:latest .
+docker docker build --no-cache -f Dockerfile --tag biolink/kgx:$TAG .
+```
+
+Once the image is built, be sure to push to Dockerhub:
+
+```sh
+docker push biolink/kgx:latest
+docker push biolink/kgx:$TAG
+```
+
+**Note:** It is important to have a fresh clone of the repository to avoid unnecessary files being included in the new Docker image.
