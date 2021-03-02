@@ -13,7 +13,9 @@ The main entry point is the `kgx.graph_operations.summarize_graph.generate_graph
 standards, refer to [Knowledge Map operation](knowledge_map.md).
 
 
-### kgx.graph_operations.summarize_graph module
+---
+
+#### kgx.graph_operations.summarize_graph
 
 ```eval_rst
 .. automodule:: kgx.graph_operations.summarize_graph
