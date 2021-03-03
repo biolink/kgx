@@ -28,121 +28,107 @@ categorized using Biolink classes, edges are labeled using valid Biolink relatio
 
 Internal representation is a property graph, specifically a networkx MultiDiGraph.
 
-The structure of this graph is expected to conform to the Biolink Model standard, briefly summarized here:
-
- * [Nodes](https://biolink.github.io/biolink-model/docs/NamedThing.html)
-    * `id`: CURIE; required
-    * `name`: string; recommended
-    * `category`: string; broad high level type. Corresponds to node label in Neo4j
-    * other properties 
- * [Edges](https://biolink.github.io/biolink-model/docs/related_to.html)
-    * `subject`: CURIE; required
-    * `edge_label`: CURIE; required; Corresponds to edge label in Neo4j
-    * `object`: CURIE, required
-    * `relation`: CURIE; required
-    * other properties
-
+The structure of this graph is expected to conform to the Biolink Model standard, as specified in the [KGX format specification](specification/kgx-format.md).
 
 In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 
 
-## Installation for Users
+## Installation
 
-KGX is available on [PyPI](https://pypi.org/project/kgx/) and you can install KGX via `python pip`.
+The installation for KGX requires Python 3.7 or greater.
 
-> **Note:** the installation of KGX requires Python 3.7+
+
+### Installation for users
+
+
+#### Installing from PyPI
+
+KGX is available on PyPI and can be installed using
+[pip](https://pip.pypa.io/en/stable/installing/) as follows,
 
 ```bash
 pip install kgx
 ```
 
-
-## Installation for Developers
-
-
-### Python 3.7+ and Core Tool Dependencies
-
-> **Note:** the installation of KGX requires Python 3.7+
-
-You should first confirm what version of Python 
-you have running and upgrade to v3.7 as necessary, following best practices of your operating system. 
-It is also assumed that the common development tools are installed including git, pip, and all necessary
-development libraries for your operating system.
-
-
-### Getting the repository
-
-Go to where you wish to host your local project repository and clone the repository:
+To install a particular version of KGX, be sure to specify the version number,
 
 ```bash
-cd /path/to/your/local/git/project/folder
-git clone https://github.com/NCATS-Tangerine/kgx.git
+pip install kgx==0.5.0
+```
 
-# then enter into the cloned project repository
+
+#### Installing from GitHub
+
+Clone the GitHub repository and then install,
+
+```bash
+git clone https://github.com/biolink/kgx
+cd kgx
+python setup.py install
+```
+
+
+### Installation for developers
+
+#### Setting up a development environment
+
+To build directly from source, first clone the GitHub repository,
+
+```bash
+git clone https://github.com/biolink/kgx
 cd kgx
 ```
 
-
-### Configuring a virtual environment for KGX
-
-For convenience, make use of the Python `venv` module to create a lightweight virtual environment. 
-
-> Note that you may also have to install the appropriate `venv` package for Python 3.7. 
-> 
-> For example, under Ubuntu Linux, you might 
-> 
-> ```bash
-> sudo apt-get install python3.7-venv  
-> ```
-
-
-Once `venv` is available, type:
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-
-### Installing Python Dependencies 
-
-The Python dependencies of the application need to be installed into the local environment using a version
-of `pip` matched to your Python 3.7+ installation (assumed here to be called `pip3`).
-
-> Again, follow the specific directives of your operating system for the installation.
-> 
-> For example, under Ubuntu Linux, to install the Python 3.7 matched version of pip, type the following:
-> 
-> ```bash
-> sudo apt-get install python3-pip
-> ```
-> 
-> which will install the `pip3` command.
-
-At this point, it is advisable to separately install the `wheel` package dependency before proceeding further 
-(Note: it is  assumed here that your `venv` is activated)
-
-
-```bash
-pip3 install wheel
-```
- 
-After installation of the `wheel` package, install KGX:
+Then install the necessary dependencies listed in ``requirements.txt``,
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-To install KGX,
 
-```bash
-python3 setup.py install
+For convenience, make use of the `venv` module in Python3 to create a
+lightweight virtual environment,
+
+```
+python3 -m venv env
+source env/bin/activate
+
+pip install -r requirements.txt
 ```
 
-To test installation was successful, run the following:
+To install KGX you can do one of the following,
+
 ```bash
-kgx --help
+pip install .
+
+# OR 
+
+python setup.py install
 ```
 
-which invokes the KGX CLI tool.
+### Setting up a testing environment
 
+KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.
+
+To set up the required containers, first install [Docker](https://docs.docker.com/get-docker/)
+on your local machine.
+
+Once Docker is up and running, run the following commands:
+
+```bash
+docker run -d --name kgx-neo4j-integration-test
+            -p 7474:7474 -p 7687:7687
+            --env NEO4J_AUTH=neo4j/test
+            neo4j:3.5.25
+```
+
+```bash
+docker run -d --name kgx-neo4j-unit-test
+            -p 8484:7474 -p 8888:7687
+            --env NEO4J_AUTH=neo4j/test
+            neo4j:3.5.25
+```
+
+
+**Note:** Setting up the Neo4j container is optional. If there is no container set up
+then the tests that rely on them are skipped.
