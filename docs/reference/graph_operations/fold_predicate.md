@@ -6,9 +6,8 @@ to a node property such that if `S - P -> O`,
 - `O` becomes the value for the node property `P` on node `S`
 
 
----
 
-#### kgx.graph_operations.fold_predicate
+## kgx.graph_operations.fold_predicate
 
 ```eval_rst
 .. autofunction:: kgx.graph_operations.fold_predicate

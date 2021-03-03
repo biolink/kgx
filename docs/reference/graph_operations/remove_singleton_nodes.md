@@ -7,9 +7,7 @@ This operation is typically useful for pruning graphs with isolated nodes before
 using them in machine learning workflows.
 
 
----
-
-#### kgx.graph_operations.remove_singleton_nodes
+## kgx.graph_operations.remove_singleton_nodes
 
 ```eval_rst
 .. autofunction:: kgx.graph_operations.remove_singleton_nodes

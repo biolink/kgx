@@ -20,13 +20,8 @@ TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.
    :maxdepth: 1
 
    installation
+   kgx_format
    examples
-   cli/index.md
-   transformer
-   source
-   sink
-   validator
-   graph_operations/index.md
-   utilities/index.md
+   reference/index.md
 ```
 

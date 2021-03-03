@@ -13,9 +13,7 @@ The main entry point is the `kgx.graph_operations.knowledge_map.generate_knowled
 refer to [Summarize Graph operation](summarize_graph.md).
 
 
----
-
-#### kgx.graph_operations.knowledge_map
+## kgx.graph_operations.knowledge_map
 
 ```eval_rst
 .. automodule:: kgx.graph_operations.knowledge_map

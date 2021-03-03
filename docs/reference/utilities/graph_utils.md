@@ -2,7 +2,8 @@
 
 Utility methods for working with graphs.
 
-#### kgx.utils.graph_utils
+
+## kgx.utils.graph_utils
 
 ```eval_rst
 .. automodule:: kgx.utils.graph_utils
