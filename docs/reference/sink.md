@@ -1,12 +1,40 @@
 # Sink
 
-A Sink is responsible for writing data as records to a store where the store is either
-a file, local or remote database.
+A Sink can be implemented for any file, local, and/or remote store to which a graph can be written to. A Sink is responsible for writing nodes and edges from a graph.
 
-Every sink must subclass `kgx.sink.sink.Sink` and implement the following methods:
-- `write_node`
-- `write_edge`
+A Sink must subclass `kgx.sink.sink.Sink` class and must implement the following methods:
+- `__init__`
+- `write_nodes`
+- `write_edges`
 - `finalize`
+
+
+#### `__init__` method
+
+The `__init__` method is used to instantiate a Sink with configurations required for writing to a store.
+- In the case of files, the `__init__` method will take the `filename` and `format` as arguments
+- In the case of a graph store like Neo4j, the `__init__` method will take the `uri`, `username`, and `password` as arguments.
+
+The `__init__` method also has an optional `kwargs` argument which can be used to supply variable number of arguments to this method, depending on the requirements for the store for which the Sink is being implemented.
+
+
+### `write_nodes` method
+
+- Responsible for receiving a node record and writing to a file/store
+
+
+### `write_edges` method
+
+- Responsible for receiving an edge record and writing to a file/store
+
+
+### `finalize` method
+
+Any operation that needs to be performed after writing all the nodes and edges to a file/store must be defined in this method.
+
+For example,
+- `kgx.source.tsv_source.TsvSource` has a `finalize` method that closes the file handles and creates an archive, if compression is desired
+- `kgx.source.neo_sink.NeoSink` has a `finalize` method that writes any cached node and edge records
 
 
 ## kgx.sink.sink

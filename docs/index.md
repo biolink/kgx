@@ -20,8 +20,8 @@ TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.
    :maxdepth: 1
 
    installation
+   reference/index.md
    kgx_format
    examples
-   reference/index.md
 ```
 
