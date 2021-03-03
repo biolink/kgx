@@ -3,6 +3,16 @@
 This guide can be considered as a reference for developers keen on contributing to KGX.
 
 
+## Contents
+
+- [Architecture](#architecture)
+- [Design Principles](#design-principles)
+- [Conventions](#conventions)
+- [Continuous Integration](#continuous-integration)
+- [Releases](#releases)
+- [Roadmap](#roadmap)
+
+
 ## Architecture
 
 The current [1.x.x](https://github.com/biolink/kgx/tree/master) architecture is a major rewrite from KGX [0.x.x](https://github.com/biolink/kgx/tree/0.x.x). The main motivation for this rewrite was to,
