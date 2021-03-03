@@ -7,7 +7,7 @@ The Transformer supports two modes:
 - No streaming
 - Streaming
 
-## No streaming
+**No streaming**
 
 In this mode, records are read from a source and written to an intermediate graph. This
 intermediate graph can then be used as a substrate for various graph operations.
@@ -30,7 +30,7 @@ t.transform(input_args=input_args)
 t.save(output_args=output_args)
 ```
 
-## Streaming
+**Streaming**
 
 In this mode, records are read from a source and written to sink, on-the-fly.
 
@@ -49,9 +49,9 @@ t = Transformer(stream=True)
 t.transform(input_args=input_args, output_args=output_args)
 ```
 
----
 
-#### kgx.transformer
+## kgx.transformer
+
 
 ```eval_rst
 .. automodule:: kgx.transformer

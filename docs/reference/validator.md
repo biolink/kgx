@@ -11,9 +11,8 @@ v.validate(graph)
 ```
 
 
----
+## kgx.validator
 
-#### kgx.validator
 
 ```eval_rst
 .. automodule:: kgx.validator

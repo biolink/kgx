@@ -9,7 +9,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
 - `finalize`
 
 
-#### kgx.sink.sink
+## kgx.sink.sink
 
 ```eval_rst
 .. automodule:: kgx.sink.sink
@@ -18,7 +18,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.graph_sink
+## kgx.sink.graph_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.graph_sink
@@ -27,7 +27,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.tsv_sink
+## kgx.sink.tsv_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.tsv_sink
@@ -36,7 +36,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.json_sink
+## kgx.sink.json_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.json_sink
@@ -45,7 +45,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.jsonl_sink
+## kgx.sink.jsonl_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.jsonl_sink
@@ -54,7 +54,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.trapi_sink
+## kgx.sink.trapi_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.trapi_sink
@@ -63,7 +63,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.neo_sink
+## kgx.sink.neo_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.neo_sink
@@ -72,7 +72,7 @@ Every sink must subclass `kgx.sink.sink.Sink` and implement the following method
    :show-inheritance:
 ```
 
-#### kgx.sink.rdf_sink
+## kgx.sink.rdf_sink
 
 ```eval_rst
 .. automodule:: kgx.sink.rdf_sink
