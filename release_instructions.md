@@ -52,7 +52,7 @@ Also, be sure to install [twine](https://pypi.org/project/twine/) and [wheel](ht
 Now, run the following commands:
 
 ```sh
-make cleandist
+rm -rf dist/
 python setup.py sdist bdist_wheel bdist_egg
 twine upload --repository-url https://upload.pypi.org/legacy/ --username PYPI_USERNAME dist/*
 ```
