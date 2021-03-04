@@ -8,6 +8,7 @@ from all the submodules in KGX.
    :maxdepth: 1
 
    cli/index.md
+   graph
    transformer
    source
    sink
