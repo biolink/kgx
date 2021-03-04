@@ -37,6 +37,7 @@ git add kgx/__init__.py
 git add setup.py
 git add CHANGELOG.md
 git add Dockerfile
+git add docs/conf.py
 git commit --message="Bump version to $TAG in preparation of a release"
 git push
 git tag --annotate $TAG --message="Release $TAG"
