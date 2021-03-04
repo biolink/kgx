@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0a0 - (2021-03-04)
+
+- Added Source implementation for reading from various data stores
+- Added Sink implementation for writing to various data stores
+- Added a simplified Transformer that is agnostic
+- Refactor KGX to make use of Sources and Sinks
+- Added ability to stream graphs (Thanks to @gregr for the inspiration)
+
+
 ## 0.5.0 - (2021-02-23)
 
 - This is the final release on the 0.x.x
