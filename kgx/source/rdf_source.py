@@ -255,11 +255,12 @@ class RdfSource(Source):
                 self.dereify(n, data)
 
             for k in self.edge_cache.keys():
-                if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache:
+                log.info(self.edge_cache[k])
+                if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache[k]:
                     edge_key = generate_edge_key(
                         self.edge_cache[k]['subject'],
-                        self.edge_cache['predicate'],
-                        self.edge_cache['object'],
+                        self.edge_cache[k]['predicate'],
+                        self.edge_cache[k]['object'],
                     )
                     self.edge_cache[k]['id'] = edge_key
                 data = self.edge_cache[k]
