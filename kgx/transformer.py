@@ -112,7 +112,6 @@ class Transformer(object):
             generators.append(g)
         else:
             filename = input_args.pop('filename', {})
-            provided_by = input_args.pop('provided_by', None)
             for f in filename:
                 source = self.get_source(input_format)
                 source.set_prefix_map(prefix_map)
@@ -125,11 +124,11 @@ class Transformer(object):
                 source.set_edge_filters(edge_filters)
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
-                if not provided_by:
+                if 'provided_by' not in input_args:
                     if 'name' in input_args:
-                        provided_by = input_args.pop('name')
+                        input_args['provided_by'] = input_args.pop('name')
                     else:
-                        provided_by = os.path.basename(f)
+                        input_args['provided_by'] = os.path.basename(f)
                 g = source.parse(f, **input_args)
                 sources.append(source)
                 generators.append(g)

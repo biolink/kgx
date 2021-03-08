@@ -362,11 +362,10 @@ def transform(
         pool = Pool(processes=processes)
         for k, v in source_to_parse.items():
             log.info(f"Spawning process for '{k}'")
-            name = v['name'] if 'name' in v else k
             result = pool.apply_async(
                 transform_source,
                 (
-                    name,
+                    k,
                     v,
                     output_directory,
                     top_level_args['prefix_map'],
@@ -469,11 +468,10 @@ def merge(
     pool = Pool(processes=processes)
     for k, v in sources_to_parse.items():
         log.info(f"Spawning process for '{k}'")
-        name = v['name'] if 'name' in v else k
         result = pool.apply_async(
             parse_source,
             (
-                name,
+                k,
                 v,
                 output_directory,
                 top_level_args['prefix_map'],
@@ -712,7 +710,7 @@ def prepare_input_args(
     """
     if not key:
         key = os.path.basename(source['input']['filename'][0])
-    source_name = source['input']['name'] if 'name' in source['input'] else key
+    source_name = source['name'] if 'name' in source else key
     input_format = source['input']['format']
     input_compression = source['input']['compression'] if 'compression' in source['input'] else None
     inputs = source['input']['filename']
