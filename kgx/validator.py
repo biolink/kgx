@@ -150,6 +150,9 @@ class Validator(object):
                 if hasattr(element, 'required') and element.required:
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
+                elif element.name == 'category':
+                    formatted_name = sentencecase_to_snakecase(element.name)
+                    required_properties.append(formatted_name)
         return required_properties
 
     @staticmethod
@@ -172,7 +175,6 @@ class Validator(object):
                 if hasattr(element, 'required') and element.required:
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
-        print(required_properties)
         return required_properties
 
     def validate(self, graph: BaseGraph) -> list:
