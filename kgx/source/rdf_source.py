@@ -127,8 +127,8 @@ class RdfSource(Source):
         This method reads from RDF N-Triples and yields records.
 
         .. note::
-            For a relatively low memory footprint, it is recommended that
-            the N-Triples be sorted based on the subject IRIs.
+            To ensure proper parsing of N-Triples and a relatively low memory footprint,
+            it is recommended that the N-Triples be sorted based on the subject IRIs.
 
             ```sort -k 1,2 -t ' ' data.nt > data_sorted.nt```
 

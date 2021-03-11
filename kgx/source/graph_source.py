@@ -9,7 +9,7 @@ from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import
 
 class GraphSource(Source):
     """
-    A Source is responsible for reading data as records
+    GraphSource is responsible for reading data as records
     from an in memory graph representation.
 
     The underlying store must be an instance of ``kgx.graph.base_graph.BaseGraph``

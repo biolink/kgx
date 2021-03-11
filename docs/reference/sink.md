@@ -39,6 +39,9 @@ For example,
 
 ## kgx.sink.sink
 
+Base class for all Sinks in KGX.
+
+
 ```eval_rst
 .. automodule:: kgx.sink.sink
    :members:
@@ -47,6 +50,10 @@ For example,
 ```
 
 ## kgx.sink.graph_sink
+
+`GraphSink` is responsible for writing to an instance of `kgx.graph.base_graph.BaseGraph` and must use only
+the methods exposed by `BaseGraph` to access the graph.
+
 
 ```eval_rst
 .. automodule:: kgx.sink.graph_sink
@@ -57,6 +64,11 @@ For example,
 
 ## kgx.sink.tsv_sink
 
+`TsvSink` is responsible for writing a KGX formatted CSV or TSV using Pandas.
+
+KGX writes two separate files - one for nodes and another for edges.
+
+
 ```eval_rst
 .. automodule:: kgx.sink.tsv_sink
    :members:
@@ -65,6 +77,10 @@ For example,
 ```
 
 ## kgx.sink.json_sink
+
+`JsonSink` is responsible for writing a KGX formatted JSON using the [jsonstreams](https://pypi.org/project/jsonstreams/)
+library, which allows for streaming records to the file.
+
 
 ```eval_rst
 .. automodule:: kgx.sink.json_sink
@@ -75,6 +91,12 @@ For example,
 
 ## kgx.sink.jsonl_sink
 
+`JsonlSink` is responsible for writing a KGX formatted JSON Lines using the
+[jsonlines](https://jsonlines.readthedocs.io/en/latest/) library. 
+
+KGX writes two separate JSON Lines files - one for nodes and another for edges.
+
+
 ```eval_rst
 .. automodule:: kgx.sink.jsonl_sink
    :members:
@@ -83,6 +105,12 @@ For example,
 ```
 
 ## kgx.sink.trapi_sink
+
+`TrapiSink` has yet to be implemented.
+
+In principle, `TrapiSink` is responsible for writing a [Translator Reasoner API](https://github.com/NCATSTranslator/ReasonerAPI)
+formatted JSON.
+
 
 ```eval_rst
 .. automodule:: kgx.sink.trapi_sink
@@ -93,6 +121,9 @@ For example,
 
 ## kgx.sink.neo_sink
 
+`NeoSink` is responsible for writing data to a local or remote Neo4j instance.
+
+
 ```eval_rst
 .. automodule:: kgx.sink.neo_sink
    :members:
@@ -101,6 +132,9 @@ For example,
 ```
 
 ## kgx.sink.rdf_sink
+
+`RdfSink` is responsible for writing data as RDF N-Triples.
+
 
 ```eval_rst
 .. automodule:: kgx.sink.rdf_sink
