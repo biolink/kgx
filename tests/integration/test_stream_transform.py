@@ -173,7 +173,7 @@ def _stream_transform(query):
         ),
     ],
 )
-def test_transform1(clean_slate, query):
+def test_transform1(query):
     """
     Test loading data from a TSV source and writing to various sinks.
     """
@@ -222,7 +222,7 @@ def test_transform1(clean_slate, query):
         ),
     ],
 )
-def test_transform2(clean_slate, query):
+def test_transform2(query):
     """
     Test loading data from JSON source and writing to various sinks.
     """
@@ -281,7 +281,7 @@ def test_transform2(clean_slate, query):
         ),
     ],
 )
-def test_transform3(clean_slate, query):
+def test_transform3(query):
     """
     Test loading data from RDF source and writing to various sinks.
     """
@@ -335,7 +335,7 @@ def test_transform3(clean_slate, query):
         ),
     ],
 )
-def test_transform4(clean_slate, query):
+def test_transform4(query):
     """
     Test loading data from RDF source and writing to various sinks.
     """
@@ -389,7 +389,7 @@ def test_transform4(clean_slate, query):
         # )
     ],
 )
-def test_transform5(clean_slate, query):
+def test_transform5(query):
     """
     Test transforming data from an OWL source and writing to various sinks.
     """
@@ -451,7 +451,7 @@ def test_transform5(clean_slate, query):
         ),
     ],
 )
-def test_transform6(clean_slate, query):
+def test_transform6(query):
     """
     Test transforming data from RDF source and writing to various sinks.
     """

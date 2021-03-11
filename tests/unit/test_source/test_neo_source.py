@@ -1,3 +1,4 @@
+import pytest
 from neo4jrestclient.client import GraphDatabase
 
 from kgx.source import NeoSource
@@ -6,7 +7,7 @@ from tests.unit import (
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
-    process_stream,
+    process_stream, check_container, CONTAINER_NAME,
 )
 
 
@@ -29,6 +30,7 @@ queries = [
 ]
 
 
+@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
 def test_read_neo(clean_slate):
     """
     Read a graph from a Neo4j instance.

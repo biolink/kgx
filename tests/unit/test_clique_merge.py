@@ -47,20 +47,20 @@ def test_check_all_categories2():
     """
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 8
+    assert len(vbc) == 6
     assert len(ibc) == 0
     assert len(ic) == 0
 
     categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 3
-    assert len(ibc) == 0
+    assert len(vbc) == 2
+    assert len(ibc) == 1
     assert len(ic) == 0
 
     categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'Node']
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 2
-    assert len(ibc) == 0
+    assert len(vbc) == 1
+    assert len(ibc) == 1
     assert len(ic) == 1
 
 
@@ -68,10 +68,10 @@ def test_sort_categories():
     """
     Test sort_categories method.
     """
-    categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
+    categories = ['biolink:NamedThing', 'biolink:GenomicEntity', 'biolink:Gene']
     sorted_categories = sort_categories(categories)
     assert sorted_categories.index('biolink:Gene') == 0
-    assert sorted_categories.index('biolink:GeneOrGeneProduct') == 1
+    assert sorted_categories.index('biolink:GenomicEntity') == 1
     assert sorted_categories.index('biolink:NamedThing') == 2
 
 
