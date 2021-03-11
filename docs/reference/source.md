@@ -36,6 +36,9 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.source
 
+Base class for all Sources in KGX.
+
+
 ```eval_rst
 .. automodule:: kgx.source.source
    :members:
@@ -44,6 +47,10 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.graph_source
+
+`GraphSource` is responsible for reading from an instance of `kgx.graph.base_graph.BaseGraph` and must use only
+the methods exposed by `BaseGraph` to access the graph.
+
 
 ```eval_rst
 .. automodule:: kgx.source.graph_source
@@ -54,6 +61,12 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.tsv_source
 
+`TsvSource` is responsible for reading from KGX formatted CSV or TSV using Pandas where every flat file is treated as a
+Pandas DataFrame and from which data are read in chunks.
+
+KGX expects two separate files - one for nodes and another for edges.  
+
+
 ```eval_rst
 .. automodule:: kgx.source.tsv_source
    :members:
@@ -62,6 +75,10 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.json_source
+
+`JsonSource` is responsible for reading data from a KGX formatted JSON using the [ijson](https://pypi.org/project/ijson/)
+library, which allows for streaming data from the file.
+
 
 ```eval_rst
 .. automodule:: kgx.source.json_source
@@ -72,6 +89,12 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.jsonl_source
 
+`JsonlSource` is responsible for reading data from a KGX formatted JSON Lines using the
+[jsonlines](https://jsonlines.readthedocs.io/en/latest/) library.
+
+KGX expects two separate JSON Lines files - one for nodes and another for edges.  
+
+
 ```eval_rst
 .. automodule:: kgx.source.jsonl_source
    :members:
@@ -80,6 +103,10 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.trapi_source
+
+`TrapiSource` is responsible for reading data from a [Translator Reasoner API](https://github.com/NCATSTranslator/ReasonerAPI)
+formatted JSON.
+
 
 ```eval_rst
 .. automodule:: kgx.source.trapi_source
@@ -90,6 +117,9 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.obograph_source
 
+`ObographSource` is responsible for reading data from [OBOGraphs](https://github.com/geneontology/obographs) in JSON.
+
+
 ```eval_rst
 .. automodule:: kgx.source.obograph_source
    :members:
@@ -98,6 +128,10 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.sssom_source
+
+`SssomSource` is responsible for reading data from an [SSSOM](https://github.com/mapping-commons/SSSOM)
+formatted files.
+
 
 ```eval_rst
 .. automodule:: kgx.source.sssom_source
@@ -108,6 +142,9 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.neo_source
 
+`NeoSource` is responsible for reading data from a local or remote Neo4j instance.
+
+
 ```eval_rst
 .. automodule:: kgx.source.neo_source
    :members:
@@ -116,6 +153,19 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.rdf_source
+
+`RdfSource` is responsible for reading data from RDF N-Triples.
+
+This source makes use of a custom `kgx.parsers.ntriples_parser.CustomNTriplesParser` for parsing N-Triples,
+which extends `rdflib.plugins.parsers.ntriples.NTriplesParser`.
+
+To ensure proper parsing of N-Triples and a relatively low memory footprint, it is recommended that the N-Triples
+be sorted based on the subject IRIs.
+
+```sh
+sort -k 1,2 -t ' ' data.nt > data_sorted.nt
+```
+
 
 ```eval_rst
 .. automodule:: kgx.source.rdf_source
@@ -126,6 +176,12 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 
 ## kgx.source.owl_source
 
+`OwlSource` is responsible for parsing an [OWL](https://www.w3.org/TR/owl-features/) ontology.
+
+When parsing an OWL, this source also adds [OwlStar](https://github.com/cmungall/owlstar) annotations
+to certain OWL axioms. 
+
+
 ```eval_rst
 .. automodule:: kgx.source.owl_source
    :members:
@@ -134,6 +190,11 @@ A source must subclass `kgx.source.source.Source` class and must implement the f
 ```
 
 ## kgx.source.sparql_source
+
+`SparqlSource` has yet to be implemented.
+
+In principle, `SparqlSource` should be able to read data from a local or remote SPARQL endpoint. 
+
 
 ```eval_rst
 .. automodule:: kgx.source.sparql_source
