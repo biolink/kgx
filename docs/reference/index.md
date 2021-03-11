@@ -15,4 +15,6 @@ from all the submodules in KGX.
    validator
    graph_operations/index.md
    utilities/index.md
+   prefix_manager
+   curie_lookup_service
 ```
