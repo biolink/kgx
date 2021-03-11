@@ -17,7 +17,7 @@ logging:
   level: INFO
   format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
-biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/1.4.0/biolink-model.yaml
+biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/1.6.0/biolink-model.yaml
 
 jsonld-context:
   biolink: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld
