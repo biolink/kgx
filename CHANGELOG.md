@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0b0 - (2021-03-11)
+
+- Fixed caching bug in RdfSource
+- Fixed bug when setting 'provided_by' for a source
+
+
 ## 1.0.0a0 - (2021-03-04)
 
 - Added Source implementation for reading from various data stores

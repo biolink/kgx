@@ -6,7 +6,7 @@ URL = 'https://github.com/NCATS-Tangerine/kgx'
 AUTHOR = 'Deepak Unni'
 EMAIL = 'deepak.unni3@gmail.com'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '1.0.0a0'
+VERSION = '1.0.0b0'
 LICENSE = 'BSD'
 
 with open("requirements.txt", "r") as FH:
