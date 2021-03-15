@@ -38,6 +38,8 @@ class CustomNTriplesParser(NTriplesParser):
             self.line = self.readline()
             if self.line is None:
                 break
+            if self.line == '':
+                break
             try:
                 yield from self.parseline()
             except ParseError:
@@ -53,6 +55,7 @@ class CustomNTriplesParser(NTriplesParser):
             A generator
 
         """
+        print(self.line)
         self.eat(r_wspace)
         if self.line or not self.line.startswith('#'):
             subject = self.subject()
