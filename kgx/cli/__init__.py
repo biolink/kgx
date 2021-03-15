@@ -49,7 +49,7 @@ def cli():
     '--report-type',
     required=False,
     type=str,
-    help=f'The summary report type. Can be one of {summary_report_types.keys()}',
+    help=f'The summary report type. Must be one of {tuple(summary_report_types.keys())}',
     default='kgx-map',
 )
 @click.option('--stream', is_flag=True, help='Parse input as a stream')
@@ -379,7 +379,9 @@ def transform_wrapper(
     output_format: str
         The output format
     output_compression: str
-        The output compression type
+        The output compression typ
+    stream: bool
+        Wheter or not to stream
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
