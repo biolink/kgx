@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 - (2021-03-16)
+
+- Fix bug with caching records in RdfSource
+- Add shortcuts for arguments in all CLI operations
+- Fix usage in CLI
+
+
 ## 1.0.0b0 - (2021-03-11)
 
 - Fixed caching bug in RdfSource
