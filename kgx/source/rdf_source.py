@@ -79,11 +79,12 @@ class RdfSource(Source):
         self.reified_nodes: Set = set()
         self.start: int = 0
         self.count: int = 0
-        self.CACHE_SIZE = 100000
+        self.CACHE_SIZE = 10000
         self.node_record = {}
         self.edge_record = {}
         self.node_cache = {}
         self.edge_cache = {}
+        self._incomplete_nodes = {}
 
     def set_predicate_mapping(self, m: Dict) -> None:
         """
@@ -252,7 +253,16 @@ class RdfSource(Source):
             while self.reified_nodes:
                 n = self.reified_nodes.pop()
                 data = self.node_cache.pop(n)
-                self.dereify(n, data)
+                try:
+                    self.dereify(n, data)
+                except ValueError as e:
+                    log.info(e)
+                    self._incomplete_nodes[n] = data
+
+            for n in self._incomplete_nodes.keys():
+                self.node_cache[n] = self._incomplete_nodes[n]
+                self.reified_nodes.add(n)
+            self._incomplete_nodes.clear()
 
             for k in self.edge_cache.keys():
                 if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache[k]:
@@ -294,7 +304,7 @@ class RdfSource(Source):
         if 'subject' in node and 'object' in node:
             self.add_edge(node['subject'], node['object'], node['predicate'], node)
         else:
-            log.warning(f"Cannot dereify node {n} {node}")
+            raise ValueError(f"Incomplete node {n} {node}")
 
     def add_node_attribute(
         self, iri: Union[URIRef, str], key: str, value: Union[str, List]

@@ -40,19 +40,21 @@ def cli():
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
+    '-i',
     required=True,
     help=f'The input format. Can be one of {get_input_file_types()}',
 )
-@click.option('--input-compression', required=False, help='The input compression type')
-@click.option('--output', required=True, type=click.Path(exists=False))
+@click.option('--input-compression', '-c', required=False, help='The input compression type')
+@click.option('--output', '-o', required=True, type=click.Path(exists=False))
 @click.option(
     '--report-type',
+    '-r',
     required=False,
     type=str,
-    help=f'The summary report type. Can be one of {summary_report_types.keys()}',
+    help=f'The summary report type. Must be one of {tuple(summary_report_types.keys())}',
     default='kgx-map',
 )
-@click.option('--stream', is_flag=True, help='Parse input as a stream')
+@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-facet-properties',
     required=False,
@@ -116,17 +118,19 @@ def graph_summary_wrapper(
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
+    '-i',
     required=True,
     help=f'The input format. Can be one of {get_input_file_types()}',
 )
-@click.option('--input-compression', required=False, help='The input compression type')
+@click.option('--input-compression', '-c', required=False, help='The input compression type')
 @click.option(
     '--output',
+    '-o',
     required=False,
     type=click.Path(exists=False),
     help='File to write validation reports to',
 )
-@click.option('--stream', is_flag=True, help='Parse input as a stream')
+@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 def validate_wrapper(
     inputs: List[str], input_format: str, input_compression: str, output: str, stream: bool
 ):
@@ -154,22 +158,25 @@ def validate_wrapper(
 @cli.command(name='neo4j-download')
 @click.option(
     '--uri',
+    '-l',
     required=True,
     type=str,
     help='Neo4j URI to download from. For example, https://localhost:7474',
 )
-@click.option('--username', required=True, type=str, help='Neo4j username')
-@click.option('--password', required=True, type=str, help='Neo4j password')
-@click.option('--output', required=True, type=click.Path(exists=False), help='Output')
+@click.option('--username', '-u', required=True, type=str, help='Neo4j username')
+@click.option('--password', '-p', required=True, type=str, help='Neo4j password')
+@click.option('--output', '-o', required=True, type=click.Path(exists=False), help='Output')
 @click.option(
     '--output-format',
+    '-f',
     required=True,
     help=f'The output format. Can be one of {get_input_file_types()}',
 )
-@click.option('--output-compression', required=False, help='The output compression type')
-@click.option('--stream', is_flag=True, help='Parse input as a stream')
+@click.option('--output-compression', '-d', required=False, help='The output compression type')
+@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-filters',
+    '-n',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -177,6 +184,7 @@ def validate_wrapper(
 )
 @click.option(
     '--edge-filters',
+    '-e',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -236,21 +244,24 @@ def neo4j_download_wrapper(
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
+    '-i',
     required=True,
     help=f'The input format. Can be one of {get_input_file_types()}',
 )
-@click.option('--input-compression', required=False, help='The input compression type')
+@click.option('--input-compression', '-c', required=False, help='The input compression type')
 @click.option(
     '--uri',
+    '-l',
     required=True,
     type=str,
     help='Neo4j URI to upload to. For example, https://localhost:7474',
 )
-@click.option('--username', required=True, type=str, help='Neo4j username')
-@click.option('--password', required=True, type=str, help='Neo4j password')
-@click.option('--stream', is_flag=True, help='Parse input as a stream')
+@click.option('--username', '-u', required=True, type=str, help='Neo4j username')
+@click.option('--password', '-p', required=True, type=str, help='Neo4j password')
+@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-filters',
+    '-n',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -258,6 +269,7 @@ def neo4j_download_wrapper(
 )
 @click.option(
     '--edge-filters',
+    '-e',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -317,20 +329,23 @@ def neo4j_upload_wrapper(
 @click.argument('inputs', required=False, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
+    '-i',
     required=False,
     help=f'The input format. Can be one of {get_input_file_types()}',
 )
-@click.option('--input-compression', required=False, help='The input compression type')
-@click.option('--output', required=False, type=click.Path(exists=False), help='Output')
+@click.option('--input-compression', '-c', required=False, help='The input compression type')
+@click.option('--output', '-o', required=False, type=click.Path(exists=False), help='Output')
 @click.option(
     '--output-format',
+    '-f',
     required=False,
     help=f'The output format. Can be one of {get_input_file_types()}',
 )
-@click.option('--output-compression', required=False, help='The output compression type')
+@click.option('--output-compression', '-d', required=False, help='The output compression type')
 @click.option('--stream', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-filters',
+    '-n',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -338,6 +353,7 @@ def neo4j_upload_wrapper(
 )
 @click.option(
     '--edge-filters',
+    '-e',
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
@@ -347,7 +363,7 @@ def neo4j_upload_wrapper(
 @click.option(
     '--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process'
 )
-@click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
+@click.option('--processes', '-p', required=False, type=int, default=1, help='Number of processes to use')
 def transform_wrapper(
     inputs: List[str],
     input_format: str,
@@ -379,7 +395,9 @@ def transform_wrapper(
     output_format: str
         The output format
     output_compression: str
-        The output compression type
+        The output compression typ
+    stream: bool
+        Wheter or not to stream
     node_filters: Tuple[str, str]
         Node filters
     edge_filters: Tuple[str, str]
@@ -420,7 +438,7 @@ def transform_wrapper(
     multiple=True,
     help='Destination(s) from the YAML to process',
 )
-@click.option('--processes', required=False, type=int, default=1, help='Number of processes to use')
+@click.option('--processes', '-p', required=False, type=int, default=1, help='Number of processes to use')
 def merge_wrapper(merge_config: str, source: List, destination: List, processes: int):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.
