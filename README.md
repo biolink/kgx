@@ -14,7 +14,7 @@ Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](htt
 The core datamodel is a [Property Graph](https://neo4j.com/developer/graph-database/) (PG), represented
 internally in Python using a [networkx MultiDiGraph model](https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.MultiDiGraph.edges.html).
 
-KGX allows conversion to and from:
+KGX allows conversion to and from different formats:
 
  * RDF serializations (read/write) and SPARQL endpoints (read)
  * Neo4j endpoints (read) or Neo4j dumps (write)
