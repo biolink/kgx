@@ -9,7 +9,7 @@
 [![Docker](https://img.shields.io/static/v1?label=Docker&message=biolink/kgx:latest&color=orange&logo=docker)](https://hub.docker.com/r/biolink/kgx)
 
 KGX (Knowledge Graph Exchange) is a Python library and set of command line utilities for exchanging
-Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](https://biolink.github.io/biolink-model/).
+Knowledge Graphs (KGs) that conform to or are aligned to the [Biolink Model](https://biolink.github.io/biolink-model/)
 
 The core datamodel is a [Property Graph](https://neo4j.com/developer/graph-database/) (PG), represented
 internally in Python using a [networkx MultiDiGraph model](https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.MultiDiGraph.edges.html).
