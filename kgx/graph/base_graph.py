@@ -204,7 +204,7 @@ class BaseGraph(object):
         Returns
         -------
         Dict
-            A dictionary of edges
+            A dictionary of nodes
 
         """
         pass
