@@ -95,5 +95,10 @@ docker run -d --name kgx-neo4j-unit-test \
 ```
 
 
-**Note:** Setting up the Neo4j container is optional. If there is no container set up
-then the tests that rely on them are skipped.
+**Note:** Setting up the Neo4j container is optional. If there is no container set up then the tests that rely on them are skipped.
+
+KGX tests are simply run using `make`:
+
+```bash
+make tests
+```
