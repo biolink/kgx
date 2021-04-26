@@ -20,13 +20,13 @@ def test_generate_knowledge_map():
     }
     t = Transformer()
     t.transform(input_args)
-    output = os.path.join(TARGET_DIR, 'test_graph_knowledge_map.json')
+    output = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph.json')
     generate_knowledge_map(t.store.graph, 'Test Graph', output)
 
     data = json.load(open(output))
     assert data['name'] == 'Test Graph'
-    assert 'NCBIGene' in data['knowledge_map']['nodes']['id_prefixes']
-    assert 'REACT' in data['knowledge_map']['nodes']['id_prefixes']
-    assert 'HP' in data['knowledge_map']['nodes']['id_prefixes']
-    assert data['knowledge_map']['nodes']['count'] == 512
-    assert len(data['knowledge_map']['edges']) == 13
+    assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
+    assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
+    assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
+    assert data['nodes']['biolink:Gene']['count'] == 178
+    assert len(data['edges']) == 13
