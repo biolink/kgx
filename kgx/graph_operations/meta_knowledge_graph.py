@@ -52,7 +52,9 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     """
     node_stats = summarize_nodes(graph)
     edge_stats = summarize_edges(graph)
-    graph_stats = {'meta_knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
+    # graph_stats = {'knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
+    # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
+    graph_stats = {'nodes': node_stats, 'edges': edge_stats}
     if name:
         graph_stats['name'] = name
     return graph_stats
