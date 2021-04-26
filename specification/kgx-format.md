@@ -196,7 +196,7 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 
 Few noted caveats of the TSV serialization:
 - If you have a large graph where some nodes have certain specialized properties but most of them do not, then you end up with a sparse TSV for nodes with several columns that have no value.
-- The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expecation on the ordering of columns in the TSV for nodes and/or edges.
+- The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.
 
 
 
