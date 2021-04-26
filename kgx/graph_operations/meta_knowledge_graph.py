@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
@@ -13,7 +13,7 @@ Specification based on TRAPI Draft PR: https://github.com/NCATSTranslator/Reason
 
 def generate_knowledge_map(graph: BaseGraph, name: str, filename: str) -> None:
     """
-    Generate a knowlege map that describes the composition of the graph
+    Generate a knowledge map that describes the composition of the graph
     and write to ``filename``.
 
     Parameters
@@ -33,7 +33,7 @@ def generate_knowledge_map(graph: BaseGraph, name: str, filename: str) -> None:
 
 def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     """
-    Generate a knowlege map that describes the composition of the graph.
+    Generate a meta knowledge graph that describes the composition of the graph.
 
     Parameters
     ----------
@@ -52,7 +52,7 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     """
     node_stats = summarize_nodes(graph)
     edge_stats = summarize_edges(graph)
-    graph_stats = {'knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
+    graph_stats = {'meta_knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
     if name:
         graph_stats['name'] = name
     return graph_stats
@@ -71,31 +71,30 @@ def summarize_nodes(graph: BaseGraph) -> Dict:
     -------
     Dict
         The node stats
-
     """
-    id_prefixes = set()
-    count = 0
-    count_by_source = {'unknown': 0}
+    node_stats: Dict[str, Dict[str, Any]] = dict()
 
+    # The TRAPI release 1.1 meta_knowledge_graph format
+    # indexes nodes by biolink:Category
     for n, data in graph.nodes(data=True):
+        category = data['category']
+        if category not in node_stats:
+            node_stats[category] = dict()
+            node_stats[category]['id_prefixes'] = set()
+            node_stats[category]['count'] = 0
+            node_stats[category]['count_by_source'] = {'unknown': 0}
         prefix = PrefixManager.get_prefix(n)
-        count += 1
-        if prefix not in id_prefixes:
-            id_prefixes.add(prefix)
+        node_stats[category]['count'] += 1
+        if prefix not in node_stats[category]['id_prefixes']:
+            node_stats[category]['id_prefixes'].add(prefix)
         if 'provided_by' in data:
             for s in data['provided_by']:
-                if s in count_by_source:
-                    count_by_source[s] += 1
+                if s in node_stats[category]['count_by_source']:
+                    node_stats[category]['count_by_source'][s] += 1
                 else:
-                    count_by_source[s] = 1
+                    node_stats[category]['count_by_source'][s] = 1
         else:
-            count_by_source['unknown'] += 1
-
-    node_stats = {
-        'id_prefixes': list(id_prefixes),
-        'count': count,
-        'count_by_source': count_by_source,
-    }
+            node_stats[category]['count_by_source']['unknown'] += 1
     return node_stats
 
 
