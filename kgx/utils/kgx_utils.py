@@ -4,7 +4,7 @@ import time
 import uuid
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
-from biolinkml.meta import (
+from linkml_model.meta import (
     TypeDefinitionName,
     ElementName,
     SlotDefinition,
@@ -379,8 +379,8 @@ def get_biolink_element(name) -> Optional[Element]:
 
     Returns
     -------
-    Optional[biolinkml.meta.Element]
-        An instance of biolinkml.meta.Element
+    Optional[linkml_model.meta.Element]
+        An instance of linkml_model.meta.Element
 
     """
     toolkit = get_toolkit()

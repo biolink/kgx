@@ -100,6 +100,7 @@ class TsvSource(Source):
             with tarfile.open(filename, mode=mode) as tar:
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
+                    # TODO: can this somehow be streamed here?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,

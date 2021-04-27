@@ -11,13 +11,13 @@ from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
-from kgx.graph_operations import summarize_graph, knowledge_map
+from kgx.graph_operations import summarize_graph, meta_knowledge_graph
 from kgx.utils.kgx_utils import apply_graph_operations
 
 
 summary_report_types = {
     'kgx-map': summarize_graph.summarize_graph,
-    'knowledge-map': knowledge_map.summarize_graph,
+    'meta-knowledge-graph': meta_knowledge_graph.summarize_graph,
 }
 
 log = get_logger()

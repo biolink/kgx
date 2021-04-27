@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import List, Optional, Any, Union, Dict, Tuple
 import rdflib
-from biolinkml.meta import Element, SlotDefinition, ClassDefinition
+from linkml_model.meta import Element, SlotDefinition, ClassDefinition
 from cachetools import cached, LRUCache
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
@@ -228,5 +228,6 @@ def process_predicate(
             if p in predicate_mapping:
                 property_name = predicate_mapping[p]
                 predicate = f":{property_name}"
-        # cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+        # cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri,
+        # 'predicate': predicate, 'property_name': property_name}
     return element_uri, canonical_uri, predicate, property_name
