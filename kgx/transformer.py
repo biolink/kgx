@@ -1,6 +1,6 @@
 import itertools
 import os
-from typing import Dict, Union, Generator, List
+from typing import Dict, Generator, List, Optional, Callable
 
 from kgx.config import get_logger
 from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
@@ -18,6 +18,7 @@ from kgx.source import (
 from kgx.source.sssom_source import SssomSource
 from kgx.source.owl_source import OwlSource
 from kgx.utils.kgx_utils import apply_graph_operations
+
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -64,10 +65,18 @@ class Transformer(object):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
+        # The 'inspector' is an optional callable by which the transformer.process() can 'inspect' source records
+        # prior to writing them out to the sink.  This callable is strictly procedural and should not mutate the record.
+        self.inspector: Optional[Callable[[List], None]] = None
         self.store = self.get_source('graph')
         self._seen_nodes = set()
 
-    def transform(self, input_args: Dict, output_args: Dict = None) -> None:
+    def transform(
+            self,
+            input_args: Dict,
+            output_args: Optional[Dict] = None,
+            inspector: Optional[Callable[[List], None]] = None
+    ) -> None:
         """
         Transform an input source and write to an output sink.
 
@@ -78,8 +87,10 @@ class Transformer(object):
         ----------
         input_args: Dict
             Arguments relevant to your input source
-        output_args: Dict
-            Arguments relevant to your output sink
+        output_args: Optional[Dict]
+            Arguments relevant to your output sink (
+        inspector: Optional[Callable[[List], None]]
+            Transformer.process() data inspector
 
         """
         sources = []
@@ -91,6 +102,9 @@ class Transformer(object):
         node_filters = input_args.pop('node_filters', {})
         edge_filters = input_args.pop('edge_filters', {})
         operations = input_args.pop('operations', [])
+
+        # Optional process data stream inspector
+        self.inspector = inspector
 
         if input_format in {'neo4j', 'graph'}:
             source = self.get_source(input_format)
@@ -211,7 +225,11 @@ class Transformer(object):
             self.store.edge_properties.update(sink.edge_properties)
             apply_graph_operations(sink.graph, operations)
 
-    def process(self, source: Generator, sink: Sink) -> None:
+    def process(
+            self,
+            source: Generator,
+            sink: Sink
+    ) -> None:
         """
         This method is responsible for reading from ``source``
         and writing to ``sink`` by calling the relevant methods
@@ -230,7 +248,7 @@ class Transformer(object):
         """
         for rec in source:
             if rec:
-                if len(rec) == 4:
+                if len(rec) == 4:  # infer an edge record
                     write_edge = True
                     if 'subject_category' in self.edge_filters:
                         if rec[0] in self._seen_nodes:
@@ -247,10 +265,14 @@ class Transformer(object):
                         else:
                             write_edge = False
                     if write_edge:
+                        if self.inspector:
+                            self.inspector(rec)
                         sink.write_edge(rec[-1])
-                else:
+                else:  # infer a node record
                     if 'category' in self.node_filters:
                         self._seen_nodes.add(rec[0])
+                    if self.inspector:
+                        self.inspector(rec)
                     sink.write_node(rec[-1])
 
     def save(self, output_args: Dict) -> None:
