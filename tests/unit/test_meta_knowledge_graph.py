@@ -31,6 +31,7 @@ def test_generate_classical_meta_knowledge_graph():
     assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
     assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
     assert data['nodes']['biolink:Gene']['count'] == 178
+    assert len(data['nodes']) == 8
     assert len(data['edges']) == 13
 
 
@@ -49,25 +50,25 @@ def test_generate_streaming_meta_knowledge_graph_direct():
 
     t = Transformer(stream=True)
 
-    inspector = MetaKnowledgeGraph('Test Graph - Streamed')
+    mkg = MetaKnowledgeGraph('Test Graph - Streamed')
 
-    t.transform(input_args=input_args, inspector=inspector)
+    t.transform(input_args=input_args, inspector=mkg)
 
-    assert inspector.get_name() == 'Test Graph - Streamed'
-    assert inspector.get_node_count() == 534
-    assert inspector.get_edge_count() == 540
-    assert 'NCBIGene' in inspector.get_category('biolink:Gene').get_id_prefixes()
-    assert 'REACT' in inspector.get_category('biolink:Pathway').get_id_prefixes()
-    assert 'HP' in inspector.get_category('biolink:PhenotypicFeature').get_id_prefixes()
-    assert inspector.get_category('biolink:Gene').get_count() == 178
+    assert mkg.get_name() == 'Test Graph - Streamed'
+    assert mkg.get_total_nodes_count() == 534
+    assert mkg.get_category_count() == 8
+    assert mkg.get_total_edges_count() == 540
+    assert mkg.get_edge_map_count() == 13
+    assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
+    assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()
+    assert 'HP' in mkg.get_category('biolink:PhenotypicFeature').get_id_prefixes()
+    assert mkg.get_category('biolink:Gene').get_count() == 178
 
 
 #
 # Testing alternate approach of generating and using a meta knowledge graph
 #
-# output = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph.json')
-# inspector.save('Test Graph 2', output)
-def test_generate_streaming_meta_knowledge_graph_via_file():
+def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     """
     Test generate meta knowledge graph operation...
     MetaKnowledgeGraph as streaming Transformer.transform Inspector
@@ -81,7 +82,7 @@ def test_generate_streaming_meta_knowledge_graph_via_file():
     }
     t = Transformer(stream=True)
 
-    inspector = MetaKnowledgeGraph('Test Graph - Streamed into File')
+    inspector = MetaKnowledgeGraph('Test Graph - Streamed, Stats accessed via File')
 
     t.transform(input_args=input_args, inspector=inspector)
 
@@ -89,9 +90,10 @@ def test_generate_streaming_meta_knowledge_graph_via_file():
     inspector.save(output_filename)
 
     data = json.load(open(output_filename))
-    assert data['name'] == 'Test Graph - Streamed into File'
+    assert data['name'] == 'Test Graph - Streamed, Stats accessed via File'
     assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
     assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
     assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
     assert data['nodes']['biolink:Gene']['count'] == 178
+    assert len(data['nodes']) == 8
     assert len(data['edges']) == 13

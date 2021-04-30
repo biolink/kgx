@@ -170,6 +170,9 @@ class MetaKnowledgeGraph:
     def get_node_stats(self) -> Dict[str, Category]:
         return self.node_stats
 
+    def get_category_count(self) -> int:
+        return len(self.node_stats)
+
     def get_edge_stats(self) -> List:
         # Not sure if this is "safe" but assume
         # that edge_stats may be cached once computed?
@@ -181,13 +184,16 @@ class MetaKnowledgeGraph:
                 self.edge_stats.append(kedge)
         return self.edge_stats
 
-    def get_node_count(self):
+    def get_edge_map_count(self) -> int:
+        return len(self.edge_stats)
+
+    def get_total_nodes_count(self) -> int:
         count = 0
         for category in self.node_stats.values():
             count += category.get_count()
         return count
 
-    def get_edge_count(self):
+    def get_total_edges_count(self) -> int:
         count = 0
         for edge in self.get_edge_stats():
             count += edge['count']
@@ -264,7 +270,7 @@ class MetaKnowledgeGraph:
                 self.graph_stats['name'] = self.name
         return self.graph_stats
     
-    def summarize(self, name: str = None, **kwargs) -> Dict:
+    def get_graph_summary(self, name: str = None, **kwargs) -> Dict:
         """
         Similar to summarize_graph except that the node and edge statistics are already captured
         in the MetaKnowledgeGraph class instance (perhaps by Transformer.process() stream inspection)
@@ -300,7 +306,7 @@ class MetaKnowledgeGraph:
         """
         Save the current MetaKnowledgeGraph to a specified file
         """
-        graph_stats = self.summarize(name)
+        graph_stats = self.get_graph_summary(name)
         with open(filename, 'w') as mkgh:
             dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
