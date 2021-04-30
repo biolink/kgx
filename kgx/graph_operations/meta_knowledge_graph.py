@@ -175,6 +175,70 @@ class MetaKnowledgeGraph:
             count += edge['count']
         return count
 
+    def summarize_nodes(self, graph: BaseGraph) -> Dict:
+        """
+        Summarize the nodes in a graph.
+
+        Parameters
+        ----------
+        graph: kgx.graph.base_graph.BaseGraph
+            The graph
+
+        Returns
+        -------
+        Dict
+            The node stats
+        """
+        for n, data in graph.nodes(data=True):
+            self.analyse_node(n, data)
+        return self.get_node_stats()
+
+    def summarize_edges(self, graph: BaseGraph) -> List[Dict]:
+        """
+        Summarize the edges in a graph.
+
+        Parameters
+        ----------
+        graph: kgx.graph.base_graph.BaseGraph
+            The graph
+
+        Returns
+        -------
+        List[Dict]
+            The edge stats
+
+        """
+        for u, v, k, data in graph.edges(keys=True, data=True):
+            self.analyse_edge(u, v, k, data)
+        return self.get_edge_stats()
+
+    def summarize_graph(self, graph: BaseGraph, name: str = None, **kwargs) -> Dict:
+        """
+        Generate a meta knowledge graph that describes the composition of the graph.
+
+        Parameters
+        ----------
+        graph: kgx.graph.base_graph.BaseGraph
+            The graph
+        name: Optional[str]
+            Name for the graph
+        kwargs: Dict
+            Any additional arguments
+
+        Returns
+        -------
+        Dict
+            A knowledge map dictionary corresponding to the graph
+
+        """
+        node_stats = self.summarize_nodes(graph)
+        edge_stats = self.summarize_edges(graph)
+        # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
+        graph_stats = {'nodes': node_stats, 'edges': edge_stats}
+        if name:
+            graph_stats['name'] = name
+        return graph_stats
+
 
 def mkg_default(o):
     """
@@ -209,9 +273,9 @@ def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) ->
         The file to write the knowledge map to
 
     """
-    meta_knowledge_graph = summarize_graph(graph, name)
+    graph_stats = summarize_graph(graph, name)
     WH = open(filename, 'w')
-    dump(meta_knowledge_graph, WH, indent=4, default=mkg_default)
+    dump(graph_stats, WH, indent=4, default=mkg_default)
 
 
 def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
@@ -234,54 +298,4 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
 
     """
     mkg = MetaKnowledgeGraph()
-    node_stats = summarize_nodes(graph, mkg)
-    edge_stats = summarize_edges(graph, mkg)
-    # graph_stats = {'knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
-    # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
-    graph_stats = {'nodes': node_stats, 'edges': edge_stats}
-    if name:
-        graph_stats['name'] = name
-    return graph_stats
-
-
-def summarize_nodes(graph: BaseGraph, mkg: MetaKnowledgeGraph) -> Dict:
-    """
-    Summarize the nodes in a graph.
-
-    Parameters
-    ----------
-    graph: kgx.graph.base_graph.BaseGraph
-        The graph
-    mkg: kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph
-        The meta knowledge graph summary being compiled
-
-    Returns
-    -------
-    Dict
-        The node stats
-    """
-    for n, data in graph.nodes(data=True):
-        mkg.analyse_node(n, data)
-    return mkg.get_node_stats()
-
-
-def summarize_edges(graph: BaseGraph, mkg: MetaKnowledgeGraph) -> List[Dict]:
-    """
-    Summarize the edges in a graph.
-
-    Parameters
-    ----------
-    graph: kgx.graph.base_graph.BaseGraph
-        The graph
-    mkg: kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph
-        The meta knowledge graph summary being compiled
-
-    Returns
-    -------
-    List[Dict]
-        The edge stats
-
-    """
-    for u, v, k, data in graph.edges(keys=True, data=True):
-        mkg.analyse_edge(u, v, k, data)
-    return mkg.get_edge_stats()
+    return mkg.summarize_graph(graph, name)
