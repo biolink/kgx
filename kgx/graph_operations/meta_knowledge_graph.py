@@ -1,6 +1,6 @@
 from json import dump
 from json.encoder import JSONEncoder
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
@@ -8,8 +8,172 @@ from kgx.graph.base_graph import BaseGraph
 """
 Generate a knowledge map that corresponds to TRAPI KnowledgeMap.
 Specification based on TRAPI Draft PR: https://github.com/NCATSTranslator/ReasonerAPI/pull/171
-
 """
+
+
+####################################################################
+# Next Generation Implementation of Graph Summary coding which
+# leverages the new "Transformer.process()" data stream "Inspector"
+# design pattern, implemented here as a "Callable" inspection class.
+####################################################################
+
+
+class MetaKnowledgeGraph:
+
+    class Category:
+
+        # this 'category map' just associates a unique int catalog
+        # index ('cid') value as a proxy for the full curie string,
+        # to reduce storage in the main node catalog
+        _category_curie_map: List[str] = list()
+
+        def __init__(self, category=''):
+            self.category = category
+            if category not in self._category_curie_map:
+                self._category_curie_map.append(category)
+            self.category_stats: Dict[str, Any] = dict()
+            self.category_stats['id_prefixes'] = set()
+            self.category_stats['count'] = 0
+            self.category_stats['count_by_source'] = {'unknown': 0}
+
+        def get_cid(self):
+            return self._category_curie_map.index(self.category)
+
+        @classmethod
+        def get_category_curie(cls, cid: int):
+            return cls._category_curie_map[cid]
+
+        def get_id_prefixes(self):
+            return self.category_stats['id_prefixes']
+
+        def get_count(self):
+            return self.category_stats['count']
+
+        def get_count_by_source(self, source: str = None) -> Dict:
+            if source:
+                return {source: self.category_stats['count_by_source'][source]}
+            return self.category_stats['count_by_source']
+
+        def analyse_node_category(self, n, data):
+            prefix = PrefixManager.get_prefix(n)
+            self.category_stats['count'] += 1
+            if prefix not in self.category_stats['id_prefixes']:
+                self.category_stats['id_prefixes'].add(prefix)
+            if 'provided_by' in data:
+                for s in data['provided_by']:
+                    if s in self.category_stats['count_by_source']:
+                        self.category_stats['count_by_source'][s] += 1
+                    else:
+                        self.category_stats['count_by_source'][s] = 1
+            else:
+                self.category_stats['count_by_source']['unknown'] += 1
+
+        def json_object(self):
+            return {
+                'id_prefixes': list(self.category_stats['id_prefixes']),
+                'count': self.category_stats['count'],
+                'count_by_source': self.category_stats['count_by_source']
+            }
+
+    def __init__(self, name=''):
+        self.name = name
+        self.node_catalog: Dict[str, List[int]] = dict()
+        self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
+        self.association_map: Dict = dict()
+        self.edge_stats = []
+
+    def __call__(self, rec: List):
+        if len(rec) == 4:  # infer an edge record
+            self.analyse_edge(*rec)
+        else:  # infer an node record
+            self.analyse_node(*rec)
+
+    def analyse_node(self, n, data):
+        # The TRAPI release 1.1 meta_knowledge_graph format indexes nodes by biolink:Category
+        # the node 'category' field is a list of assigned categories (usually just one...).
+        # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
+        if n not in self.node_catalog:
+            self.node_catalog[n] = list()
+        for category_curie in data['category']:
+            if category_curie not in self.node_stats:
+                self.node_stats[category_curie] = self.Category(category_curie)
+            category = self.node_stats[category_curie]
+            category_idx: int = category.get_cid()
+            if category_idx not in self.node_catalog[n]:
+                self.node_catalog[n].append(category_idx)
+            category.analyse_node_category(n, data)
+
+    def analyse_edge(self, u, v, k, data):
+        # we blissfully assume that all the nodes of a
+        # graph stream were analysed first by the MetaKnowledgeGraph
+        # before the edges are analysed, thus we can test for
+        # node 'n' existence internally, by identifier.
+        if u in self.node_catalog:
+            subject_category = \
+                MetaKnowledgeGraph.Category.get_category_curie(self.node_catalog[u][0])
+        else:
+            subject_category = 'unknown'
+        if v in self.node_catalog:
+            object_category = \
+                MetaKnowledgeGraph.Category.get_category_curie(self.node_catalog[v][0])
+        else:
+            object_category = 'unknown'
+
+        triple = (subject_category, data['predicate'], object_category)
+        if triple not in self.association_map:
+            self.association_map[triple] = {
+                'subject': triple[0],
+                'predicate': triple[1],
+                'object': triple[2],
+                'relations': set(),
+                'count': 0,
+                'count_by_source': {'unknown': 0},
+            }
+
+        if data['relation'] not in self.association_map[triple]['relations']:
+            self.association_map[triple]['relations'].add(data['relation'])
+
+        self.association_map[triple]['count'] += 1
+        if 'provided_by' in data:
+            for s in data['provided_by']:
+                if s not in self.association_map[triple]['count_by_source']:
+                    self.association_map[triple]['count_by_source'][s] = 1
+                else:
+                    self.association_map[triple]['count_by_source'][s] += 1
+        else:
+            self.association_map[triple]['count_by_source']['unknown'] += 1
+
+    def get_name(self):
+        return self.name
+
+    def get_category(self, category: str) -> Category:
+        return self.node_stats[category]
+
+    def get_node_stats(self) -> Dict[str, Category]:
+        return self.node_stats
+
+    def get_edge_stats(self) -> List:
+        # Not sure if this is "safe" but assume
+        # that edge_stats may be cached once computed?
+        if not self.edge_stats:
+            for k, v in self.association_map.items():
+                kedge = v
+                relations = list(v['relations'])
+                kedge['relations'] = relations
+                self.edge_stats.append(kedge)
+        return self.edge_stats
+
+    def get_node_count(self):
+        count = 0
+        for category in self.node_stats.values():
+            count += category.get_count()
+        return count
+
+    def get_edge_count(self):
+        count = 0
+        for edge in self.get_edge_stats():
+            count += edge['count']
+        return count
 
 
 def mkg_default(o):
@@ -17,17 +181,20 @@ def mkg_default(o):
     JSONEncoder 'default' function override to
     properly serialize 'Set' objects (into 'List')
     """
-    try:
-        iterable = iter(o)
-    except TypeError:
-        pass
+    if isinstance(o, MetaKnowledgeGraph.Category):
+        return o.json_object()
     else:
-        return list(iterable)
-    # Let the base class default method raise the TypeError
-    return JSONEncoder.default(o)
+        try:
+            iterable = iter(o)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        # Let the base class default method raise the TypeError
+        return JSONEncoder.default(o)
 
 
-def generate_knowledge_map(graph: BaseGraph, name: str, filename: str) -> None:
+def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
     """
     Generate a knowledge map that describes the composition of the graph
     and write to ``filename``.
@@ -66,8 +233,9 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
         A knowledge map dictionary corresponding to the graph
 
     """
-    node_stats = summarize_nodes(graph)
-    edge_stats = summarize_edges(graph)
+    mkg = MetaKnowledgeGraph()
+    node_stats = summarize_nodes(graph, mkg)
+    edge_stats = summarize_edges(graph, mkg)
     # graph_stats = {'knowledge_map': {'nodes': node_stats, 'edges': edge_stats}}
     # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
     graph_stats = {'nodes': node_stats, 'edges': edge_stats}
@@ -76,7 +244,7 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     return graph_stats
 
 
-def summarize_nodes(graph: BaseGraph) -> Dict:
+def summarize_nodes(graph: BaseGraph, mkg: MetaKnowledgeGraph) -> Dict:
     """
     Summarize the nodes in a graph.
 
@@ -84,42 +252,20 @@ def summarize_nodes(graph: BaseGraph) -> Dict:
     ----------
     graph: kgx.graph.base_graph.BaseGraph
         The graph
+    mkg: kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph
+        The meta knowledge graph summary being compiled
 
     Returns
     -------
     Dict
         The node stats
     """
-    node_stats: Dict[str, Dict[str, Any]] = dict()
-
-    # The TRAPI release 1.1 meta_knowledge_graph format
-    # indexes nodes by biolink:Category
     for n, data in graph.nodes(data=True):
-        # the node 'category' field is a list of assigned categories (usually just one...)
-        # this may result in duplicate counting and conflation of prefixes(?)
-        for category in data['category']:
-            if category not in node_stats:
-                node_stats[category] = dict()
-                node_stats[category]['id_prefixes'] = set()
-                node_stats[category]['count'] = 0
-                node_stats[category]['count_by_source'] = {'unknown': 0}
-            prefix = PrefixManager.get_prefix(n)
-            node_stats[category]['count'] += 1
-            if prefix not in node_stats[category]['id_prefixes']:
-                node_stats[category]['id_prefixes'].add(prefix)
-            if 'provided_by' in data:
-                for s in data['provided_by']:
-                    if s in node_stats[category]['count_by_source']:
-                        node_stats[category]['count_by_source'][s] += 1
-                    else:
-                        node_stats[category]['count_by_source'][s] = 1
-            else:
-                node_stats[category]['count_by_source']['unknown'] += 1
-            
-    return node_stats
+        mkg.analyse_node(n, data)
+    return mkg.get_node_stats()
 
 
-def summarize_edges(graph: BaseGraph) -> List[Dict]:
+def summarize_edges(graph: BaseGraph, mkg: MetaKnowledgeGraph) -> List[Dict]:
     """
     Summarize the edges in a graph.
 
@@ -127,6 +273,8 @@ def summarize_edges(graph: BaseGraph) -> List[Dict]:
     ----------
     graph: kgx.graph.base_graph.BaseGraph
         The graph
+    mkg: kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph
+        The meta knowledge graph summary being compiled
 
     Returns
     -------
@@ -134,47 +282,6 @@ def summarize_edges(graph: BaseGraph) -> List[Dict]:
         The edge stats
 
     """
-    association_map = {}
     for u, v, k, data in graph.edges(keys=True, data=True):
-        if graph.has_node(u):
-            subject_node = graph.nodes()[u]
-            subject_category = subject_node['category'][0]
-        else:
-            subject_category = 'unknown'
-        if graph.has_node(v):
-            object_node = graph.nodes()[v]
-            object_category = object_node['category'][0]
-        else:
-            object_category = 'unknown'
-
-        triple = (subject_category, data['predicate'], object_category)
-        if triple not in association_map:
-            association_map[triple] = {
-                'subject': triple[0],
-                'predicate': triple[1],
-                'object': triple[2],
-                'relations': set(),
-                'count': 0,
-                'count_by_source': {'unknown': 0},
-            }
-
-        if data['relation'] not in association_map[triple]['relations']:
-            association_map[triple]['relations'].add(data['relation'])
-
-        association_map[triple]['count'] += 1
-        if 'provided_by' in data:
-            for s in data['provided_by']:
-                if s not in association_map[triple]['count_by_source']:
-                    association_map[triple]['count_by_source'][s] = 1
-                else:
-                    association_map[triple]['count_by_source'][s] += 1
-        else:
-            association_map[triple]['count_by_source']['unknown'] += 1
-
-    edge_stats = []
-    for k, v in association_map.items():
-        kedge = v
-        relations = list(v['relations'])
-        kedge['relations'] = relations
-        edge_stats.append(kedge)
-    return edge_stats
+        mkg.analyse_edge(u, v, k, data)
+    return mkg.get_edge_stats()

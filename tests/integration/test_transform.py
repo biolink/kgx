@@ -548,6 +548,7 @@ def test_transform_inspector():
             return self._edge_count
 
     inspector = TestInspector()
+
     t.transform(input_args=input_args, inspector=inspector)
 
     assert inspector.get_node_count() == 4
