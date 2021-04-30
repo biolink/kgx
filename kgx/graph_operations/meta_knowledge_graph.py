@@ -81,6 +81,7 @@ class MetaKnowledgeGraph:
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
         self.association_map: Dict = dict()
         self.edge_stats = []
+        self.graph_stats: Dict[str, Dict] = dict()
 
     def __call__(self, rec: List):
         if len(rec) == 4:  # infer an edge record
@@ -223,7 +224,7 @@ class MetaKnowledgeGraph:
         name: Optional[str]
             Name for the graph
         kwargs: Dict
-            Any additional arguments
+            Any additional arguments (ignored in this method at present)
 
         Returns
         -------
@@ -231,13 +232,14 @@ class MetaKnowledgeGraph:
             A knowledge map dictionary corresponding to the graph
 
         """
-        node_stats = self.summarize_nodes(graph)
-        edge_stats = self.summarize_edges(graph)
-        # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
-        graph_stats = {'nodes': node_stats, 'edges': edge_stats}
-        if name:
-            graph_stats['name'] = name
-        return graph_stats
+        if not self.graph_stats:
+            node_stats = self.summarize_nodes(graph)
+            edge_stats = self.summarize_edges(graph)
+            # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
+            self.graph_stats = {'nodes': node_stats, 'edges': edge_stats}
+            if name:
+                self.graph_stats['name'] = name
+        return self.graph_stats
 
 
 def mkg_default(o):
