@@ -5,6 +5,7 @@ from typing import Dict, List, Any, Optional
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
+
 """
 Generate a knowledge map that corresponds to TRAPI KnowledgeMap.
 Specification based on TRAPI Draft PR: https://github.com/NCATSTranslator/ReasonerAPI/pull/171
@@ -16,6 +17,22 @@ Specification based on TRAPI Draft PR: https://github.com/NCATSTranslator/Reason
 # leverages the new "Transformer.process()" data stream "Inspector"
 # design pattern, implemented here as a "Callable" inspection class.
 ####################################################################
+def mkg_default(o):
+    """
+    JSONEncoder 'default' function override to
+    properly serialize 'Set' objects (into 'List')
+    """
+    if isinstance(o, MetaKnowledgeGraph.Category):
+        return o.json_object()
+    else:
+        try:
+            iterable = iter(o)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        # Let the base class default method raise the TypeError
+        return JSONEncoder.default(o)
 
 
 class MetaKnowledgeGraph:
@@ -176,7 +193,7 @@ class MetaKnowledgeGraph:
             count += edge['count']
         return count
 
-    def summarize_nodes(self, graph: BaseGraph) -> Dict:
+    def summarize_graph_nodes(self, graph: BaseGraph) -> Dict:
         """
         Summarize the nodes in a graph.
 
@@ -194,7 +211,7 @@ class MetaKnowledgeGraph:
             self.analyse_node(n, data)
         return self.get_node_stats()
 
-    def summarize_edges(self, graph: BaseGraph) -> List[Dict]:
+    def summarize_graph_edges(self, graph: BaseGraph) -> List[Dict]:
         """
         Summarize the edges in a graph.
 
@@ -233,31 +250,59 @@ class MetaKnowledgeGraph:
 
         """
         if not self.graph_stats:
-            node_stats = self.summarize_nodes(graph)
-            edge_stats = self.summarize_edges(graph)
-            # JSON sent back as TRAPI 1.1 version, without the global 'knowledge_map' object tag
-            self.graph_stats = {'nodes': node_stats, 'edges': edge_stats}
+            node_stats = self.summarize_graph_nodes(graph)
+            edge_stats = self.summarize_graph_edges(graph)
+            # JSON sent back as TRAPI 1.1 version,
+            # without the global 'knowledge_map' object tag
+            self.graph_stats = {
+                'nodes': node_stats,
+                'edges': edge_stats
+            }
             if name:
                 self.graph_stats['name'] = name
+            else:
+                self.graph_stats['name'] = self.name
+        return self.graph_stats
+    
+    def summarize(self, name: str = None, **kwargs) -> Dict:
+        """
+        Similar to summarize_graph except that the node and edge statistics are already captured
+        in the MetaKnowledgeGraph class instance (perhaps by Transformer.process() stream inspection)
+        and therefore, the data structure simply needs to be 'finalized' for saving or similar use.
+
+        Parameters
+        ----------
+        name: Optional[str]
+            Name for the graph (if being renamed)
+        kwargs: Dict
+            Any additional arguments (ignored in this method at present)
+
+        Returns
+        -------
+        Dict
+            A knowledge map dictionary corresponding to the graph
+
+        """
+        if not self.graph_stats:
+            # JSON sent back as TRAPI 1.1 version,
+            # without the global 'knowledge_map' object tag
+            self.graph_stats = {
+                'nodes': self.get_node_stats(),
+                'edges': self.get_edge_stats()
+            }
+            if name:
+                self.graph_stats['name'] = name
+            else:
+                self.graph_stats['name'] = self.name
         return self.graph_stats
 
-
-def mkg_default(o):
-    """
-    JSONEncoder 'default' function override to
-    properly serialize 'Set' objects (into 'List')
-    """
-    if isinstance(o, MetaKnowledgeGraph.Category):
-        return o.json_object()
-    else:
-        try:
-            iterable = iter(o)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        # Let the base class default method raise the TypeError
-        return JSONEncoder.default(o)
+    def save(self, filename: str, name: str = None):
+        """
+        Save the current MetaKnowledgeGraph to a specified file
+        """
+        graph_stats = self.summarize(name)
+        with open(filename, 'w') as mkgh:
+            dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
@@ -276,8 +321,8 @@ def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) ->
 
     """
     graph_stats = summarize_graph(graph, name)
-    WH = open(filename, 'w')
-    dump(graph_stats, WH, indent=4, default=mkg_default)
+    with open(filename, 'w') as mkgh:
+        dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
 
 def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
@@ -299,5 +344,5 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
         A knowledge map dictionary corresponding to the graph
 
     """
-    mkg = MetaKnowledgeGraph()
-    return mkg.summarize_graph(graph, name)
+    mkg = MetaKnowledgeGraph(name)
+    return mkg.summarize_graph(graph)

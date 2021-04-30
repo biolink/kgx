@@ -22,10 +22,10 @@ def test_generate_classical_meta_knowledge_graph():
 
     t.transform(input_args)
 
-    output = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph.json')
-    generate_meta_knowledge_graph(t.store.graph, 'Test Graph', output)
+    output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-1.json')
+    generate_meta_knowledge_graph(t.store.graph, 'Test Graph', output_filename)
 
-    data = json.load(open(output))
+    data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph'
     assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
     assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
@@ -81,14 +81,14 @@ def test_generate_streaming_meta_knowledge_graph_via_file():
     }
     t = Transformer(stream=True)
 
-    inspector = MetaKnowledgeGraph('Test Graph - Streamed')
+    inspector = MetaKnowledgeGraph('Test Graph - Streamed into File')
 
     t.transform(input_args=input_args, inspector=inspector)
 
-    output = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph.json')
-    generate_meta_knowledge_graph(t.store.graph, 'Test Graph - Streamed into File', output)
+    output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-2.json')
+    inspector.save(output_filename)
 
-    data = json.load(open(output))
+    data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph - Streamed into File'
     assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
     assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
