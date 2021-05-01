@@ -1,9 +1,13 @@
+import json
 import os
+from json import JSONEncoder
+
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.graph_operations.summarize_graph import summarize_graph, generate_graph_stats
-from tests import TARGET_DIR
+from kgx.graph_operations.summarize_graph import summarize_graph, generate_graph_stats, GraphSummary
+from kgx.transformer import Transformer
+from tests import RESOURCE_DIR, TARGET_DIR
 
 
 def get_graphs():
@@ -173,3 +177,56 @@ def test_summarize_graph(query):
         assert v == stats['node_stats'][k]
     for k, v in query[1]['edge_stats'].items():
         assert v == stats['edge_stats'][k]
+
+
+####################################################################################
+# New "Inspector Class" design pattern for KGX stream data processing
+####################################################################################
+def mkg_default(o):
+    """
+    JSONEncoder 'default' function override to
+    properly serialize 'Set' objects (into 'List')
+    """
+    if isinstance(o, GraphSummary.Category):
+        return o.json_object()
+    else:
+        try:
+            iterable = iter(o)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        # Let the base class default method raise the TypeError
+        return JSONEncoder.default(o)
+
+
+def test_summarize_graph_inspector():
+    """
+    Test for Inspector sourced graph stats, and comparing the resulting stats.
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+    
+    transformer = Transformer(stream=True)
+
+    gs = GraphSummary('Test Graph Summary - Streamed')
+
+    transformer.transform(input_args=input_args, inspector=gs)
+    
+    output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.json')
+    
+    gs.save(output_filename)
+
+    data = json.load(open(output_filename))
+    assert data['name'] == 'Test Graph Summary - Streamed'
+    assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
+    assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
+    assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
+    assert data['nodes']['biolink:Gene']['count'] == 178
+    assert len(data['nodes']) == 8
+    assert len(data['edges']) == 13

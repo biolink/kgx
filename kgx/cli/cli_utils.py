@@ -1,10 +1,12 @@
 import importlib
+import json
 import os
 import sys
 from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 import yaml
 
+from kgx.graph_operations.meta_knowledge_graph import MetaKnowledgeGraph
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
@@ -16,8 +18,8 @@ from kgx.utils.kgx_utils import apply_graph_operations
 
 
 summary_report_types = {
-    'kgx-map': summarize_graph.summarize_graph,
-    'meta-knowledge-graph': meta_knowledge_graph.summarize_graph,
+    'kgx-map': summarize_graph.GraphSummary,
+    'meta-knowledge-graph': meta_knowledge_graph.MetaKnowledgeGraph,
 }
 
 log = get_logger()
@@ -49,12 +51,26 @@ def get_output_file_types() -> Tuple:
     return tuple(SINK_MAP.keys())
 
 
+def get_report_format_types() -> Tuple:
+    """
+    Get all graph summary report formats supported by KGX.
+
+    Returns
+    -------
+    Tuple
+        A tuple of supported file formats
+
+    """
+    return 'yaml', 'json'
+
+
 def graph_summary(
     inputs: List[str],
     input_format: str,
     input_compression: Optional[str],
     output: Optional[str],
     report_type: str,
+    report_format: Optional[str] = 'yaml',
     stream: bool = False,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
@@ -74,6 +90,8 @@ def graph_summary(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
+    report_format: str
+        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[List]
@@ -87,27 +105,47 @@ def graph_summary(
         A dictionary with the graph stats
 
     """
-    if stream:
-        log.info("stream processing not supported. Setting stream to 'False'")
-        stream = False
-    transformer = Transformer(stream=stream)
-    transformer.transform(
-        {'filename': inputs, 'format': input_format, 'compression': input_compression}
-    )
     if report_type in summary_report_types:
-        stats = summary_report_types[report_type](
-            graph=transformer.store.graph,
+        # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+        # by injecting an inspector in the Transformer.process() source-to-sink data flow.
+        #
+        # First, we instantiate the Inspector (generally, a Callable class)...
+        #
+        inspector = summary_report_types[report_type](
+            # ...thus, there is no need to hand the Inspector the graph;
+            # rather, the inspector will see the graph data after
+            # being injected into the Transformer.transform() workflow
+            # graph=transformer.store.graph,
             name='Graph',
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
+    
+    transformer = Transformer(stream=stream)
+    transformer.transform(
+        input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+        #... Second, we inject the Inspector into
+        # the transform() call, for the underlying
+        # Transformer.process() to use...
+        inspector=inspector
+    )
+
+    # ... Third, we retrieve the harvested graph statistics from the Inspector.
+    stats = inspector.get_graph_summary()
+
     if output:
-        WH = open(output, 'w')
-        WH.write(yaml.dump(stats))
+        with open(output, 'w') as gsh:
+            if report_format == 'json':
+                json.dump(stats, gsh)
+            else:
+                gsh.write(yaml.dump(stats))
     else:
-        print(yaml.dump(stats))
+        if report_format == 'json':
+            print(json.dumps(stats))
+        else:
+            print(yaml.dump(stats))
     return stats
 
 

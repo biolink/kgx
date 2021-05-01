@@ -58,13 +58,12 @@ def test_graph_summary2():
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
-    summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='knowledge-map')
+    summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='meta-knowledge-graph')
 
     assert os.path.exists(output)
     assert summary_stats
-    assert 'knowledge_map' in summary_stats
-    assert 'nodes' in summary_stats['knowledge_map']
-    assert 'edges' in summary_stats['knowledge_map']
+    assert 'nodes' in summary_stats
+    assert 'edges' in summary_stats
 
 
 def test_validate():

@@ -1,6 +1,7 @@
+from typing import Dict, List, Any, Optional
+
 from json import dump
 from json.encoder import JSONEncoder
-from typing import Dict, List, Any, Optional
 
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
@@ -38,7 +39,6 @@ def mkg_default(o):
 class MetaKnowledgeGraph:
 
     class Category:
-
         # this 'category map' just associates a unique int catalog
         # index ('cid') value as a proxy for the full curie string,
         # to reduce storage in the main node catalog
@@ -92,7 +92,12 @@ class MetaKnowledgeGraph:
                 'count_by_source': self.category_stats['count_by_source']
             }
 
-    def __init__(self, name=''):
+    def __init__(self, name='', **kwargs):
+        """
+         MetaKnowledgeGraph constructor
+         (at this point, it doesn't expect further
+          keyword args other than an optional graph 'name')
+        """
         self.name = name
         self.node_catalog: Dict[str, List[int]] = dict()
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
@@ -236,7 +241,12 @@ class MetaKnowledgeGraph:
             self.analyse_edge(u, v, k, data)
         return self.get_edge_stats()
 
-    def summarize_graph(self, graph: BaseGraph, name: str = None, **kwargs) -> Dict:
+    def summarize_graph(
+            self,
+            graph: BaseGraph,
+            name: str = None,
+            **kwargs
+    ) -> Dict:
         """
         Generate a meta knowledge graph that describes the composition of the graph.
 
@@ -306,9 +316,9 @@ class MetaKnowledgeGraph:
         """
         Save the current MetaKnowledgeGraph to a specified file
         """
-        graph_stats = self.get_graph_summary(name)
+        stats = self.get_graph_summary(name)
         with open(filename, 'w') as mkgh:
-            dump(graph_stats, mkgh, indent=4, default=mkg_default)
+            dump(stats, mkgh, indent=4, default=mkg_default)
 
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:

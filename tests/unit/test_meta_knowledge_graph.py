@@ -18,12 +18,14 @@ def test_generate_classical_meta_knowledge_graph():
         ],
         'format': 'tsv',
     }
-    t = Transformer()
+    
+    transformer = Transformer()
 
-    t.transform(input_args)
+    transformer.transform(input_args)
 
     output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-1.json')
-    generate_meta_knowledge_graph(t.store.graph, 'Test Graph', output_filename)
+    
+    generate_meta_knowledge_graph(transformer.store.graph, 'Test Graph', output_filename)
 
     data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph'
@@ -48,11 +50,11 @@ def test_generate_streaming_meta_knowledge_graph_direct():
         'format': 'tsv',
     }
 
-    t = Transformer(stream=True)
+    transformer = Transformer(stream=True)
 
     mkg = MetaKnowledgeGraph('Test Graph - Streamed')
 
-    t.transform(input_args=input_args, inspector=mkg)
+    transformer.transform(input_args=input_args, inspector=mkg)
 
     assert mkg.get_name() == 'Test Graph - Streamed'
     assert mkg.get_total_nodes_count() == 534
