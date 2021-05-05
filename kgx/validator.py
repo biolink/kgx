@@ -108,18 +108,26 @@ class Validator(object):
 
     def __call__(self, rec: List):
         if len(rec) == 4:  # infer an edge record
-            self.analyse_edge(*rec)
+            self.errors += self.analyse_edge(*rec)
         else:  # infer an node record
-            self.analyse_node(*rec)
+            self.errors += self.analyse_node(*rec)
 
     def get_errors(self):
         return self.errors
 
     def analyse_node(self, n, data):
-        pass
+        e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
+        e2 = Validator.validate_node_property_types(n, data)
+        e3 = Validator.validate_node_property_values(n, data)
+        e4 = Validator.validate_categories(n, data)
+        return e1 + e2 + e3 + e4
 
-    def analyse_edge(self, u, v, k, data):
-        pass
+    def analyse_edge(self, u, v, data):
+        e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
+        e2 = Validator.validate_edge_property_types(u, v, data)
+        e3 = Validator.validate_edge_property_values(u, v, data)
+        e4 = Validator.validate_edge_predicate(u, v, data)
+        return e1 + e2 + e3 + e4
 
     @staticmethod
     def get_all_prefixes(jsonld: Optional[Dict] = None) -> set:
@@ -211,7 +219,8 @@ class Validator(object):
         """
         node_errors = self.validate_nodes(graph)
         edge_errors = self.validate_edges(graph)
-        return node_errors + edge_errors
+        self.errors = node_errors + edge_errors
+        return self.errors
 
     def validate_nodes(self, graph: BaseGraph) -> list:
         """
@@ -237,11 +246,7 @@ class Validator(object):
         errors = []
         with click.progressbar(graph.nodes(data=True), label='Validating nodes in graph') as bar:
             for n, data in bar:
-                e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
-                e2 = Validator.validate_node_property_types(n, data)
-                e3 = Validator.validate_node_property_values(n, data)
-                e4 = Validator.validate_categories(n, data)
-                errors += e1 + e2 + e3 + e4
+                errors += self.analyse_node(n, data)
         return errors
 
     def validate_edges(self, graph: BaseGraph) -> list:
@@ -268,11 +273,7 @@ class Validator(object):
         errors = []
         with click.progressbar(graph.edges(data=True), label='Validate edges in graph') as bar:
             for u, v, data in bar:
-                e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
-                e2 = Validator.validate_edge_property_types(u, v, data)
-                e3 = Validator.validate_edge_property_values(u, v, data)
-                e4 = Validator.validate_edge_predicate(u, v, data)
-                errors += e1 + e2 + e3 + e4
+                errors += self.analyse_edge(u, v, data)
         return errors
 
     @staticmethod

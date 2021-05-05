@@ -178,20 +178,27 @@ def validate(
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
-    validator = Validator()
-    
-    transformer = Transformer(stream=stream)
-    transformer.transform(
-        {'filename': inputs, 'format': input_format, 'compression': input_compression},
-        # ... Second, we inject the Inspector into the transform() call,
-        # for the underlying Transformer.process() to use...
-        inspector=validator
-    )
-
-    # validator = Validator()
-    # ...thus, there is no need to hand the Validator the graph here; rather, the Inspector
-    # will see the graph data flow after being injected. above, into the Transformer.transform() workflow
-    # errors = validator.validate(transformer.store.graph)
+    if stream:
+        validator = Validator()
+        
+        transformer = Transformer(stream=stream)
+        transformer.transform(
+            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+            # ... Second, we inject the Inspector into the transform() call,
+            # for the underlying Transformer.process() to use...
+            inspector=validator
+        )
+    else:
+        # "Classical" non-streaming mode, with click.progressbar
+        # but an unfriendly large memory footprint for large graphs
+        transformer = Transformer()
+        transformer.transform(
+            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+        )
+        validator = Validator()
+        # Slight tweak of classical 'validate' function: that the
+        # list of errors are cached internally in the Validator object
+        validator.validate(transformer.store.graph)
     
     if output:
         validator.write_report(open(output, 'w'))
