@@ -14,6 +14,7 @@ from kgx.cli.cli_utils import (
     transform,
     merge,
     summary_report_types,
+    get_report_format_types,
 )
 
 log = get_logger()
@@ -54,6 +55,12 @@ def cli():
     help=f'The summary report type. Must be one of {tuple(summary_report_types.keys())}',
     default='kgx-map',
 )
+@click.option(
+    '--report-format',
+    '-f',
+    required=True,
+    help=f'The input format. Can be one of {get_report_format_types()}',
+)
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-facet-properties',
@@ -73,13 +80,13 @@ def graph_summary_wrapper(
     input_compression: str,
     output: str,
     report_type: str,
+    report_format: str,
     stream: bool,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
 ):
     """
     Loads and summarizes a knowledge graph from a set of input files.
-    \f
 
     Parameters
     ----------
@@ -93,6 +100,8 @@ def graph_summary_wrapper(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
+    report_format: str
+        The summary report format file types: 'yaml' or 'json'
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[Set]
@@ -108,6 +117,7 @@ def graph_summary_wrapper(
         input_compression,
         output,
         report_type,
+        report_format,
         stream,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),

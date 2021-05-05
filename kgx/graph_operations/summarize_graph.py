@@ -1,6 +1,7 @@
-import yaml
 from typing import Dict, List, Optional, Any
+from sys import stdout
 
+import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
@@ -423,13 +424,15 @@ class GraphSummary:
                 stats[facet_property].update(['unknown'])
         return stats
     
-    def save(self, filename: str, name: str = None):
+    def save(self, file, name: str = None, file_format: str = 'yaml'):
         """
-        Save the current GraphSummary to a specified file
+        Save the current GraphSummary to a specified (open) file (device)
         """
         stats = self.get_graph_summary(name)
-        with open(filename, 'w') as gsh:
-            yaml.dump(stats, gsh)
+        if file_format == 'yaml':
+            yaml.dump(stats, file)
+        else:
+            dump(stats, file, indent=4, default=gs_default)
 
 
 def generate_graph_stats(

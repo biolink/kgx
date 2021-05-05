@@ -1,5 +1,7 @@
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional, Any
+from sys import stdout
 
+import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
@@ -318,13 +320,16 @@ class MetaKnowledgeGraph:
                 self.graph_stats['name'] = self.name
         return self.graph_stats
 
-    def save(self, filename: str, name: str = None):
+    def save(self, file, name: str = None, file_format: str = 'json'):
         """
-        Save the current MetaKnowledgeGraph to a specified file
+        Save the current MetaKnowledgeGraph to a specified (open) file (device)
         """
         stats = self.get_graph_summary(name)
-        with open(filename, 'w') as mkgh:
-            dump(stats, mkgh, indent=4, default=mkg_default)
+        if file_format == 'json':
+            dump(stats, file, indent=4, default=mkg_default)
+        else:
+            yaml.dump(stats, file)
+
 
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:

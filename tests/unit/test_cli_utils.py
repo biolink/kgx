@@ -3,7 +3,11 @@ import os
 import pytest
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import get_input_file_types, graph_summary
+from kgx.cli import (
+    get_input_file_types,
+    graph_summary,
+    get_report_format_types
+)
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     clean_slate,
@@ -24,6 +28,15 @@ def test_get_file_types():
     assert 'nt' in file_types
     assert 'json' in file_types
     assert 'obojson' in file_types
+
+
+def test_get_report_format_types():
+    """
+    Test get_report_format_types method.
+    """
+    format_types = get_report_format_types()
+    assert 'yaml' in format_types
+    assert 'json' in format_types
 
 
 def test_graph_summary1():
@@ -49,9 +62,9 @@ def test_graph_summary1():
     assert 'biolink:interacts_with' in summary_stats['edge_stats']['predicates']
 
 
-def test_graph_summary2():
+def test_graph_summary2a():
     """
-    Test graph summary, where the output report type is knowledge-map.
+    Test graph summary, where the output report type is meta-knowledge-graph, default YAML report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
@@ -59,6 +72,30 @@ def test_graph_summary2():
     ]
     output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
     summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='meta-knowledge-graph')
+
+    assert os.path.exists(output)
+    assert summary_stats
+    assert 'nodes' in summary_stats
+    assert 'edges' in summary_stats
+
+
+def test_graph_summary2b():
+    """
+    Test graph summary, where the output report type is meta-knowledge-graph, JSON report format type.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph_stats2.json')
+    summary_stats = graph_summary(
+        inputs,
+        'tsv',
+        None,
+        output,
+        report_type='meta-knowledge-graph',
+        report_format='json',
+    )
 
     assert os.path.exists(output)
     assert summary_stats
