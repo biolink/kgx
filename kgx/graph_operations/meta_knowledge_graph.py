@@ -117,6 +117,12 @@ class MetaKnowledgeGraph:
         # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
         if n not in self.node_catalog:
             self.node_catalog[n] = list()
+            
+        if 'category' not in data:
+            # TODO: perhaps need to count missing categories here?
+            # self.node_stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
+            return
+        
         for category_curie in data['category']:
             if category_curie not in self.node_stats:
                 self.node_stats[category_curie] = self.Category(category_curie)
