@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Tuple, List, TextIO, Optional, Dict, Set
+from typing import List, TextIO, Optional, Dict, Set
 
 import click
 import validators
@@ -15,7 +15,7 @@ from kgx.utils.kgx_utils import (
 )
 from kgx.prefix_manager import PrefixManager
 
-log = get_logger()
+logger = get_logger()
 
 
 class ErrorType(Enum):
@@ -104,6 +104,22 @@ class Validator(object):
         self.required_node_properties = Validator.get_required_node_properties()
         self.required_edge_properties = Validator.get_required_edge_properties()
         self.verbose = verbose
+        self.errors: List[ValidationError] = list()
+
+    def __call__(self, rec: List):
+        if len(rec) == 4:  # infer an edge record
+            self.analyse_edge(*rec)
+        else:  # infer an node record
+            self.analyse_node(*rec)
+
+    def get_errors(self):
+        return self.errors
+
+    def analyse_node(self, n, data):
+        pass
+
+    def analyse_edge(self, u, v, k, data):
+        pass
 
     @staticmethod
     def get_all_prefixes(jsonld: Optional[Dict] = None) -> set:
@@ -383,7 +399,7 @@ class Validator(object):
                             ValidationError(node, error_type, message, MessageLevel.ERROR)
                         )
                     else:
-                        log.warning(
+                        logger.warning(
                             "Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(
                                 key, element.typeof, type(value)
                             )
@@ -467,7 +483,7 @@ class Validator(object):
                             )
                         )
                     else:
-                        log.warning(
+                        logger.warning(
                             "Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(
                                 key, element.typeof, type(value)
                             )
@@ -722,18 +738,15 @@ class Validator(object):
         """
         return [str(x) for x in errors]
 
-    @staticmethod
-    def write_report(errors: List[ValidationError], outstream: TextIO) -> None:
+    def write_report(self, outstream: TextIO) -> None:
         """
         Write error report to a file
 
         Parameters
         ----------
-        errors: List[ValidationError]
-            List of kgx.validator.ValidationError
         outstream: TextIO
             The stream to write to
 
         """
-        for x in Validator.report(errors):
+        for x in Validator.report(self.errors):
             outstream.write(f"{x}\n")

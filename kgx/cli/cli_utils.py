@@ -129,14 +129,10 @@ def graph_summary(
     transformer = Transformer(stream=stream)
     transformer.transform(
         input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
-        #... Second, we inject the Inspector into
-        # the transform() call, for the underlying
-        # Transformer.process() to use...
+        #... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
         inspector=inspector
     )
-
-    # ... Third, we retrieve the harvested graph statistics from the Inspector.
-    stats = inspector.get_graph_summary()
 
     if output:
         with open(output, 'w') as gsr:
@@ -144,7 +140,8 @@ def graph_summary(
     else:
         inspector.save(sys.stdout, file_format=report_format)
 
-    return stats
+    # ... Third, we directly return the graph statistics to the caller.
+    return inspector.get_graph_summary()
 
 
 def validate(
@@ -175,59 +172,34 @@ def validate(
         Returns a list of errors, if any
 
     """
-    if stream:
-        log.info("stream processing not supported. Setting stream to 'False'")
-        stream = False
+    # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+    # by injecting an inspector in the Transformer.process() source-to-sink data flow.
+    #
+    # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
+    # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
+    #
+    validator = Validator()
+    
     transformer = Transformer(stream=stream)
     transformer.transform(
-        {'filename': inputs, 'format': input_format, 'compression': input_compression}
+        {'filename': inputs, 'format': input_format, 'compression': input_compression},
+        # ... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=validator
     )
 
-    validator = Validator()
-    errors = validator.validate(transformer.store.graph)
+    # validator = Validator()
+    # ...thus, there is no need to hand the Validator the graph here; rather, the Inspector
+    # will see the graph data flow after being injected. above, into the Transformer.transform() workflow
+    # errors = validator.validate(transformer.store.graph)
+    
     if output:
-        validator.write_report(errors, open(output, 'w'))
+        validator.write_report(open(output, 'w'))
     else:
-        validator.write_report(errors, sys.stdout)
-    return errors
+        validator.write_report(sys.stdout)
 
-    #     if report_format not in get_report_format_types():
-    #         raise ValueError(f"report_format must be one of {get_report_format_types()}")
-    #
-    #     if report_type in summary_report_types:
-    #         # New design pattern enabling 'stream' processing of statistics on a small memory footprint
-    #         # by injecting an inspector in the Transformer.process() source-to-sink data flow.
-    #         #
-    #         # First, we instantiate the Inspector (generally, a Callable class)...
-    #         #
-    #         inspector = summary_report_types[report_type](
-    #             # ...thus, there is no need to hand the Inspector the graph;
-    #             # rather, the inspector will see the graph data after
-    #             # being injected into the Transformer.transform() workflow
-    #             # graph=transformer.store.graph,
-    #             name='Graph',
-    #             node_facet_properties=node_facet_properties,
-    #             edge_facet_properties=edge_facet_properties,
-    #         )
-    #     else:
-    #         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
-    #
-    #     transformer = Transformer(stream=stream)
-    #     transformer.transform(
-    #         input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
-    #         #... Second, we inject the Inspector into
-    #         # the transform() call, for the underlying
-    #         # Transformer.process() to use...
-    #         inspector=inspector
-    #     )
-    #
-    #     # ... Third, we retrieve the harvested graph statistics from the Inspector.
-    #     stats = inspector.get_graph_summary()
-    #
-    #     # Note: if filename is None or empty string, then 'save()' should default to stdout
-    #     inspector.save(filename=output, file_format=report_format)
-    #
-    #     return stats
+    # ... Third, we return directly any validation errors to the caller
+    return validator.get_errors()
 
 
 def neo4j_download(
