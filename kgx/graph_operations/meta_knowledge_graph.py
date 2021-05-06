@@ -325,11 +325,10 @@ class MetaKnowledgeGraph:
         Save the current MetaKnowledgeGraph to a specified (open) file (device)
         """
         stats = self.get_graph_summary(name)
-        if file_format == 'json':
+        if not file_format or file_format == 'json':
             dump(stats, file, indent=4, default=mkg_default)
         else:
             yaml.dump(stats, file)
-
 
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:

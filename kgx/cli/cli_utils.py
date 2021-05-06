@@ -70,7 +70,7 @@ def graph_summary(
     input_compression: Optional[str],
     output: Optional[str],
     report_type: str,
-    report_format: Optional[str] = 'yaml',
+    report_format: Optional[str] = None,
     stream: bool = False,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,

@@ -214,13 +214,14 @@ def test_summarize_graph_inspector():
     
     transformer = Transformer(stream=True)
 
-    gs = GraphSummary('Test Graph Summary - Streamed')
+    inspector = GraphSummary('Test Graph Summary - Streamed')
 
-    transformer.transform(input_args=input_args, inspector=gs)
+    transformer.transform(input_args=input_args, inspector=inspector)
     
     output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.json')
-    
-    gs.save(output_filename)
+
+    with open(output_filename, 'w') as gsh:
+        inspector.save(output_filename)
 
     data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph Summary - Streamed'

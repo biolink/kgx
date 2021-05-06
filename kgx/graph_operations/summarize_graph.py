@@ -429,7 +429,7 @@ class GraphSummary:
         Save the current GraphSummary to a specified (open) file (device)
         """
         stats = self.get_graph_summary(name)
-        if file_format == 'yaml':
+        if not file_format or file_format == 'yaml':
             yaml.dump(stats, file)
         else:
             dump(stats, file, indent=4, default=gs_default)

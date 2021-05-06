@@ -89,7 +89,8 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     t.transform(input_args=input_args, inspector=inspector)
 
     output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-2.json')
-    inspector.save(output_filename)
+    with open(output_filename, 'w') as mkgh:
+        inspector.save(mkgh)
 
     data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph - Streamed, Stats accessed via File'
