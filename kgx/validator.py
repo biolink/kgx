@@ -125,7 +125,11 @@ class Validator(object):
         """
         if not jsonld:
             jsonld = get_jsonld_context()
-        prefixes: Set = set(k for k, v in jsonld.items() if isinstance(v, str))  # type: ignore
+        prefixes: Set = set(
+                k for k, v in jsonld.items()
+                if isinstance(v, str) or
+                  (isinstance(v, dict) and v.setdefault('@prefix', False))
+        )  # @type: ignored
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes
