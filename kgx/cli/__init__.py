@@ -58,7 +58,6 @@ def cli():
 @click.option(
     '--report-format',
     '-f',
-    required=True,
     help=f'The input format. Can be one of {get_report_format_types()}',
 )
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
