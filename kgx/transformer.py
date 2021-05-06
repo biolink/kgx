@@ -3,7 +3,6 @@ import os
 from typing import Dict, Generator, List, Optional, Callable
 
 from kgx.config import get_logger
-from kgx.sink import GraphSink, Sink, TsvSink, JsonSink, JsonlSink, NeoSink, RdfSink
 from kgx.source import (
     GraphSource,
     Source,
@@ -14,11 +13,21 @@ from kgx.source import (
     TrapiSource,
     NeoSource,
     RdfSource,
+    OwlSource,
+    SssomSource
 )
-from kgx.source.sssom_source import SssomSource
-from kgx.source.owl_source import OwlSource
-from kgx.utils.kgx_utils import apply_graph_operations
+from kgx.sink import (
+    Sink,
+    GraphSink,
+    TsvSink,
+    JsonSink,
+    JsonlSink,
+    NeoSink,
+    RdfSink,
+    NullSink
+)
 
+from kgx.utils.kgx_utils import apply_graph_operations
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -43,10 +52,7 @@ SINK_MAP = {
     'jsonl': JsonlSink,
     'neo4j': NeoSink,
     'nt': RdfSink,
-    # specially "black hole" Sink when sink graph
-    # doesn't need to be persisted,
-    # i.e. if its contents are merely inspected
-    'null': Sink
+    'null': NullSink
 }
 
 

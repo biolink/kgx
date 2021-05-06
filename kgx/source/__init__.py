@@ -8,3 +8,4 @@ from .neo_source import NeoSource
 from .rdf_source import RdfSource
 from .graph_source import GraphSource
 from .owl_source import OwlSource
+from .sssom_source import SssomSource

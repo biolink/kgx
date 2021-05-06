@@ -127,7 +127,7 @@ def graph_summary(
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
     
     if stream:
-        output_args = {'format': 'null'},  # streaming processing throws the graph data away
+        output_args = {'format': 'null'}  # streaming processing throws the graph data away
     else:
         output_args = None
     

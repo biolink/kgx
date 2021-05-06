@@ -109,6 +109,30 @@ def test_graph_summary2b():
     assert summary_stats
     assert 'nodes' in summary_stats
     assert 'edges' in summary_stats
+    
+def test_graph_summary2c():
+    """
+     Test graph summary, where the output report type
+     is meta-knowledge-graph, set as YAML report format type.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph_stats2c.json')
+    summary_stats = graph_summary(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        report_type='meta-knowledge-graph',
+        stream=True
+    )
+
+    assert os.path.exists(output)
+    assert summary_stats
+    assert 'nodes' in summary_stats
+    assert 'edges' in summary_stats
 
 
 def test_validate_non_streaming():
