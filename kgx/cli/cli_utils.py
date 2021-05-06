@@ -280,8 +280,6 @@ def transform(
     output_format: Optional[str] = None,
     output_compression: Optional[str] = None,
     stream: bool = False,
-    node_filters: Optional[Tuple] = None,
-    edge_filters: Optional[Tuple] = None,
     transform_config: str = None,
     source: Optional[List] = None,
     destination: Optional[List] = None,
@@ -306,10 +304,6 @@ def transform(
         The output compression type
     stream: bool
         Whether to parse input as a stream
-    node_filters: Optional[Tuple]
-        Node filters
-    edge_filters: Optional[Tuple]
-        Edge filters
     transform_config: Optional[str]
         The transform config YAML
     source: Optional[List]
