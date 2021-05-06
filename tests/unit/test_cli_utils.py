@@ -64,24 +64,8 @@ def test_graph_summary1():
 
 def test_graph_summary2a():
     """
-    Test graph summary, where the output report type is meta-knowledge-graph, default YAML report format type.
-    """
-    inputs = [
-        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
-    ]
-    output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
-    summary_stats = graph_summary(inputs, 'tsv', None, output, report_type='meta-knowledge-graph')
-
-    assert os.path.exists(output)
-    assert summary_stats
-    assert 'nodes' in summary_stats
-    assert 'edges' in summary_stats
-
-
-def test_graph_summary2b():
-    """
-    Test graph summary, where the output report type is meta-knowledge-graph, JSON report format type.
+     Test graph summary, where the output report type
+     is meta-knowledge-graph, default JSON report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
@@ -93,8 +77,32 @@ def test_graph_summary2b():
         'tsv',
         None,
         output,
+        report_type='meta-knowledge-graph'
+    )
+
+    assert os.path.exists(output)
+    assert summary_stats
+    assert 'nodes' in summary_stats
+    assert 'edges' in summary_stats
+
+
+def test_graph_summary2b():
+    """
+     Test graph summary, where the output report type
+     is meta-knowledge-graph, set as YAML report format type.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph_stats2.yaml')
+    summary_stats = graph_summary(
+        inputs,
+        'tsv',
+        None,
+        output,
         report_type='meta-knowledge-graph',
-        report_format='json',
+        report_format='yaml'
     )
 
     assert os.path.exists(output)

@@ -103,6 +103,7 @@ class MetaKnowledgeGraph:
         self.name = name
         self.node_catalog: Dict[str, List[int]] = dict()
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
+        self.node_stats['unknown'] = self.Category('unknown')
         self.association_map: Dict = dict()
         self.edge_stats = []
         self.graph_stats: Dict[str, Dict] = dict()
@@ -121,8 +122,8 @@ class MetaKnowledgeGraph:
             self.node_catalog[n] = list()
             
         if 'category' not in data:
-            # TODO: perhaps need to count missing categories here?
-            # self.node_stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
+            category = self.node_stats['unknown']
+            category.analyse_node_category(n, data)
             return
         
         for category_curie in data['category']:
@@ -181,6 +182,8 @@ class MetaKnowledgeGraph:
         return self.node_stats[category]
 
     def get_node_stats(self) -> Dict[str, Category]:
+        if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
+            self.node_stats.pop('unknown')
         return self.node_stats
 
     def get_category_count(self) -> int:
@@ -271,7 +274,6 @@ class MetaKnowledgeGraph:
         -------
         Dict
             A knowledge map dictionary corresponding to the graph
-
         """
         if not self.graph_stats:
             node_stats = self.summarize_graph_nodes(graph)
