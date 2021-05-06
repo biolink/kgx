@@ -43,6 +43,10 @@ SINK_MAP = {
     'jsonl': JsonlSink,
     'neo4j': NeoSink,
     'nt': RdfSink,
+    # specially "black hole" Sink when sink graph
+    # doesn't need to be persisted,
+    # i.e. if its contents are merely inspected
+    'null': Sink
 }
 
 

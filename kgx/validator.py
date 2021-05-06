@@ -651,8 +651,11 @@ class Validator(object):
                     message = f"Category '{category}' is not in CamelCase form"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 formatted_category = camelcase_to_sentencecase(category)
-                if not toolkit.is_category(formatted_category):
-                    message = f"Category '{category}' not in Biolink Model"
+                if toolkit.is_mixin(formatted_category):
+                    message = f"Category '{category}' is a mixin in the Biolink Model"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                elif not toolkit.is_category(formatted_category):
+                    message = f"Category '{category}' unknown in the current Biolink Model"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
                     c = toolkit.get_element(formatted_category.lower())

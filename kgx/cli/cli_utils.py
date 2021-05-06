@@ -126,9 +126,15 @@ def graph_summary(
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
     
+    if stream:
+        output_args = {'format': 'null'},  # streaming processing throws the graph data away
+    else:
+        output_args = None
+    
     transformer = Transformer(stream=stream)
     transformer.transform(
         input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+        output_args=output_args,
         #... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
         inspector=inspector
@@ -165,7 +171,7 @@ def validate(
     output: Optional[str]
         Path to output file (stdout, by default)
     stream: bool
-        Whether to parse input as a stream
+         Whether to parse input as a stream.
     Returns
     -------
     List
@@ -182,8 +188,10 @@ def validate(
         validator = Validator()
         
         transformer = Transformer(stream=stream)
+        
         transformer.transform(
-            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+            input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+            output_args={'format': 'null'},  # streaming processing throws the graph data away
             # ... Second, we inject the Inspector into the transform() call,
             # for the underlying Transformer.process() to use...
             inspector=validator
@@ -191,11 +199,14 @@ def validate(
     else:
         # "Classical" non-streaming mode, with click.progressbar
         # but an unfriendly large memory footprint for large graphs
+        
         transformer = Transformer()
+        
         transformer.transform(
             {'filename': inputs, 'format': input_format, 'compression': input_compression},
         )
         validator = Validator()
+        
         # Slight tweak of classical 'validate' function: that the
         # list of errors are cached internally in the Validator object
         validator.validate(transformer.store.graph)
