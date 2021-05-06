@@ -103,7 +103,7 @@ def test_graph_summary2b():
     assert 'edges' in summary_stats
 
 
-def test_validate():
+def test_validate_non_streaming():
     """
     Test graph validation.
     """
@@ -111,7 +111,32 @@ def test_validate():
         os.path.join(RESOURCE_DIR, 'valid.json'),
     ]
     output = os.path.join(TARGET_DIR, 'validation.log')
-    errors = validate(inputs, 'json', None, output, False)
+    errors = validate(
+        inputs=inputs,
+        input_format='json',
+        input_compression=None,
+        output=output,
+        stream=False
+    )
+    assert os.path.exists(output)
+    assert len(errors) == 0
+
+
+def test_validate_streaming():
+    """
+    Test graph validation.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'valid.json'),
+    ]
+    output = os.path.join(TARGET_DIR, 'validation.log')
+    errors = validate(
+        inputs=inputs,
+        input_format='json',
+        input_compression=None,
+        output=output,
+        stream=True
+    )
     assert os.path.exists(output)
     assert len(errors) == 0
 

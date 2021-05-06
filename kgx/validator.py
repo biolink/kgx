@@ -122,7 +122,7 @@ class Validator(object):
         e4 = Validator.validate_categories(n, data)
         return e1 + e2 + e3 + e4
 
-    def analyse_edge(self, u, v, data):
+    def analyse_edge(self, u, v, k, data):
         e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
         e2 = Validator.validate_edge_property_types(u, v, data)
         e3 = Validator.validate_edge_property_values(u, v, data)
@@ -277,7 +277,7 @@ class Validator(object):
         errors = []
         with click.progressbar(graph.edges(data=True), label='Validate edges in graph') as bar:
             for u, v, data in bar:
-                errors += self.analyse_edge(u, v, data)
+                errors += self.analyse_edge(u, v, None, data)
         return errors
     
     @staticmethod

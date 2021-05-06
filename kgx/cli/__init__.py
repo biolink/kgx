@@ -146,7 +146,6 @@ def validate_wrapper(
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
-    \f
 
     Parameters
     ----------
