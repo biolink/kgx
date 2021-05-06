@@ -105,7 +105,7 @@ def graph_summary(
         A dictionary with the graph stats
 
     """
-    if report_format not in get_report_format_types():
+    if report_format and report_format not in get_report_format_types():
         raise ValueError(f"report_format must be one of {get_report_format_types()}")
     
     if report_type in summary_report_types:
