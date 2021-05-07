@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Callable
 from sys import stdout
 
 import yaml
@@ -42,6 +42,7 @@ def gs_default(o):
 
 
 class GraphSummary:
+
     class Category:
         
         # this 'category map' just associates a unique int catalog
@@ -101,7 +102,9 @@ class GraphSummary:
             self,
             name='',
             node_facet_properties: Optional[List] = None,
-            edge_facet_properties: Optional[List] = None
+            edge_facet_properties: Optional[List] = None,
+            progress_monitor: Optional[Callable[[], None]] = None
+
     ):
         """
         Graph Summary constructor
@@ -141,8 +144,15 @@ class GraphSummary:
         }
         self.edges_processed: bool = False
         self.graph_stats: Dict[str, Dict] = dict()
+
+        # a progress monitor for the validator should be a lightweight callable
+        # that simply tallies up the number of times it is called, and perhaps
+        # have some lightweight reporting of that count back to the caller
+        self.progress_monitor: Optional[Callable[[], None]] = progress_monitor
     
     def __call__(self, rec: List):
+        if self.progress_monitor:
+            self.progress_monitor()
         if len(rec) == 4:  # infer an edge record
             self.analyse_edge(*rec)
         else:  # infer an node record

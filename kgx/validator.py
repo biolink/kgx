@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import List, TextIO, Optional, Dict, Set
+from typing import List, TextIO, Optional, Dict, Set, Callable
 
 import click
 import validators
@@ -96,7 +96,11 @@ class Validator(object):
 
     """
     
-    def __init__(self, verbose: bool = False):
+    def __init__(
+            self,
+            verbose: bool = False,
+            progress_monitor: Optional[Callable[[], None]] = None
+    ):
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
         self.jsonld = get_jsonld_context()
@@ -106,7 +110,14 @@ class Validator(object):
         self.verbose = verbose
         self.errors: List[ValidationError] = list()
 
+        # a progress monitor for the validator should be a lightweight callable
+        # that simply tallies up the number of times it is called, and perhaps
+        # have some lightweight reporting of that count back to the caller
+        self.progress_monitor: Optional[Callable[[], None]] = progress_monitor
+
     def __call__(self, rec: List):
+        if self.progress_monitor:
+            self.progress_monitor()
         if len(rec) == 4:  # infer an edge record
             self.errors += self.analyse_edge(*rec)
         else:  # infer an node record

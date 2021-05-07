@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Callable
 from sys import stdout
 
 import yaml
@@ -94,7 +94,12 @@ class MetaKnowledgeGraph:
                 'count_by_source': self.category_stats['count_by_source']
             }
 
-    def __init__(self, name='', **kwargs):
+    def __init__(
+            self,
+            name='',
+            progress_monitor: Optional[Callable[[], None]] = None,
+            **kwargs
+    ):
         """
          MetaKnowledgeGraph constructor
          (at this point, it doesn't expect further
@@ -108,7 +113,14 @@ class MetaKnowledgeGraph:
         self.edge_stats = []
         self.graph_stats: Dict[str, Dict] = dict()
 
+        # a progress monitor for the validator should be a lightweight callable
+        # that simply tallies up the number of times it is called, and perhaps
+        # have some lightweight reporting of that count back to the caller
+        self.progress_monitor: Optional[Callable[[], None]] = progress_monitor
+
     def __call__(self, rec: List):
+        if self.progress_monitor:
+            self.progress_monitor()
         if len(rec) == 4:  # infer an edge record
             self.analyse_edge(*rec)
         else:  # infer an node record
