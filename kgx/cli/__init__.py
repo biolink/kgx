@@ -36,7 +36,7 @@ def cli():
     pass
 
 
-@cli.command('graph-summary')
+@cli.command(name='graph-summary')
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
@@ -114,7 +114,7 @@ def graph_summary_wrapper(
     )
 
 
-@cli.command('validate')
+@cli.command(name='validate')
 @click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
@@ -325,7 +325,7 @@ def neo4j_upload_wrapper(
     )
 
 
-@cli.command('transform')
+@cli.command(name='transform')
 @click.argument('inputs', required=False, type=click.Path(exists=True), nargs=-1)
 @click.option(
     '--input-format',
