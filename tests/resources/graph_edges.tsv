@@ -1,4 +1,4 @@
-subject	object	edge_label	relation	provided_by
+subject	object	predicate	relation	provided_by
 HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	biogrid
 HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434	string
 HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string

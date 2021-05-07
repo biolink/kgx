@@ -1,0 +1,46 @@
+configuration:
+  output_directory: ../target
+  checkpoint: true
+merged_graph:
+  source:
+    test_graph:
+      name: "Test Graph"
+      input:
+        format: tsv
+        filename:
+          - tests/resources/graph_nodes.tsv
+          - tests/resources/graph_edges.tsv
+      filters:
+        node_filters:
+          category:
+            - biolink:Gene
+            - biolink:Disease
+        edge_filters:
+          edge_label:
+            - biolink:interacts_with
+            - biolink:related_to
+    valid_graph:
+      name: "Valid JSON Graph"
+      input:
+        format: json
+        filename:
+          - tests/resources/valid.json
+  operations:
+    - name: kgx.graph_operations.summarize_graph.generate_graph_stats
+      args:
+        graph_name: Merged Graph
+        filename: merged-kg_stats.yaml
+        node_facet_properties:
+          - provided_by
+        edge_facet_properties:
+          - provided_by
+  destination:
+    merged-graph-tsv:
+      format: tsv
+      compression: None
+      filename:
+        - merged-graph
+    merged-graph-json:
+      format: json
+      filename:
+        - merged-graph.json

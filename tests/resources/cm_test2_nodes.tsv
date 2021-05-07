@@ -1,0 +1,19 @@
+id	name	category	clique_leader
+HGNC:7670		biolink:Gene|Node|biolink:NamedThing	True
+OMIM:601937		biolink:Gene	
+ENSEMBL:ENSG00000124151		biolink:Disease	
+NCBIGene:8202		biolink:Gene	
+HGNC:35302		biolink:Gene	True
+ENSEMBL:ENSG00000284458		biolink:NamedThing	
+NCBIGene:100302240		biolink:Gene	
+SO:0001217		biolink:NamedThing	
+SO:0001265		biolink:NamedThing	
+NCBIGene:100302240		biolink:Gene	
+HGNC:3121		biolink:Gene	
+PMID:1		biolink:Publication	
+PMID:2		biolink:Publication	
+PMID:3		biolink:Publication	
+UniProt:1		biolink:Protein	
+UniProt:2		biolink:Protein	
+UniProt:3		biolink:Protein	
+UniProt:4		biolink:Protein	

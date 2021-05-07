@@ -1,156 +1,40 @@
-import logging
 from collections import OrderedDict
-from typing import List, Union
+from typing import List, Optional, Any, Union, Dict, Tuple
 import rdflib
+from biolinkml.meta import Element, SlotDefinition, ClassDefinition
+from cachetools import cached, LRUCache
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS
-from prefixcommons.curie_util import expand_uri
+
+from kgx.config import get_logger
+from kgx.prefix_manager import PrefixManager
 from kgx.utils.graph_utils import get_category_via_superclass
-from kgx.utils.kgx_utils import get_toolkit, get_curie_lookup_service, contract
-import uuid
+from kgx.utils.kgx_utils import (
+    get_curie_lookup_service,
+    contract,
+    get_cache,
+    get_toolkit,
+    sentencecase_to_snakecase,
+    sentencecase_to_camelcase,
+    get_biolink_ancestors,
+)
 
-toolkit = get_toolkit()
-m = toolkit.generator.mappings
-x = set()
-mapping = {}
-for key, value in m.items():
-    k = expand_uri(key)
-    v = toolkit.get_by_mapping(key)
-    if k == key:
-        x.add(key)
-    else:
-        mapping[k] = v
-
+log = get_logger()
 
 OBAN = Namespace('http://purl.org/oban/')
 BIOLINK = Namespace('https://w3id.org/biolink/vocab/')
 OIO = Namespace('http://www.geneontology.org/formats/oboInOwl#')
+OBO = Namespace('http://purl.obolibrary.org/obo/')
 
-predicate_mapping = {
-    'http://purl.obolibrary.org/obo/RO_0002200': 'has_phenotype',
-    'http://purl.obolibrary.org/obo/RO_0000091': 'has_disposition',
-    'http://purl.obolibrary.org/obo/RO_0003303': 'causes_condition',
-    'http://purl.obolibrary.org/obo/RO_0002525': 'is_subsequence_of',
-    'http://purl.obolibrary.org/obo/RO_0002524': 'has_subsequence',
-    OWL.sameAs.lower(): 'same_as',
-    OWL.equivalentClass.lower(): 'same_as',
-    OWL.inverseOf.lower(): 'inverse_of',
-    RDFS.subClassOf.lower(): 'subclass_of',
-    RDFS.subPropertyOf.lower(): 'subproperty_of',
-}
-
-predicate_mapping.update(
-    {
-        '{}{}'.format(BIOLINK, n) : n
-            for n in
-        [x.replace(',', '').replace(' ', '_') for x in toolkit.descendents('related to')]
-    }
-)
-
-predicate_mapping.update(mapping)
-
-# TODO: consolidate
-category_mapping = {
-# subclasses mapped onto their superclasses:
-    "http://purl.obolibrary.org/obo/SO_0000405": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000001": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000100": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000336": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000340": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000404": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000460": "sequence_feature",
-    "http://purl.obolibrary.org/obo/SO_0000651": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0000655": "transcript",
-    "http://purl.obolibrary.org/obo/SO_0001217": "gene",
-    "http://purl.obolibrary.org/obo/GENO_0000002": "sequence_variant",
-    'http://purl.obolibrary.org/obo/UPHENO_0001002': 'phenotypic_feature',
-    "http://purl.obolibrary.org/obo/CL_0000000": "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0001062": "anatomical_entity",
-    "http://purl.obolibrary.org/obo/ZFA_0009000": "cell",
-    "http://purl.obolibrary.org/obo/UBERON_0004529": "anatomical_projection",
-    "http://purl.obolibrary.org/obo/UBERON_0000468": "multi_cellular_organism",
-    "http://purl.obolibrary.org/obo/UBERON_0000955": "brain",
-    "http://purl.obolibrary.org/obo/PATO_0000001": "quality",
-    "http://purl.obolibrary.org/obo/GO_0005623": "cell",
-    "http://purl.obolibrary.org/obo/WBbt_0007833": "organism",
-    "http://purl.obolibrary.org/obo/WBbt_0004017": "cell",
-    "http://purl.obolibrary.org/obo/MONDO_0000001": "disease",
-    "http://purl.obolibrary.org/obo/PATO_0000003": "assay",
-    "http://purl.obolibrary.org/obo/PATO_0000006": "process",
-    "http://purl.obolibrary.org/obo/PATO_0000011": "age",
-    "http://purl.obolibrary.org/obo/ZFA_0000008": "brain",
-    "http://purl.obolibrary.org/obo/ZFA_0001637": "bony_projection",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000061": "extended_life_span",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0000039": "life_span_variant",
-    "http://purl.obolibrary.org/obo/WBPhenotype_0001171": "shortened_life_span",
-    "http://purl.obolibrary.org/obo/CHEBI_23367": "molecular_entity",
-    "http://purl.obolibrary.org/obo/CHEBI_23888": "drug",
-    "http://purl.obolibrary.org/obo/CHEBI_51086": "chemical_role",
-    "http://purl.obolibrary.org/obo/UPHENO_0001001": "phenotypic_feature",
-    "http://purl.obolibrary.org/obo/GO_0008150": "biological_process",
-    "http://purl.obolibrary.org/obo/GO_0005575": "cellular_component",
-    "http://purl.obolibrary.org/obo/SO_0000704": "gene",
-    "http://purl.obolibrary.org/obo/SO_0000110": "sequence_feature",
-    "http://purl.obolibrary.org/obo/GENO_0000536": "genotype",
-}
-
-category_mapping.update(mapping)
-category_mapping.update(
-    {
-        '{}{}'.format(BIOLINK, n.replace(',', '').title().replace(' ', '')): n for n in toolkit.descendents('named thing')
-    }
-)
-
-# TODO: any biolink model property should be accounted for
-property_mapping = OrderedDict({
-    OBAN.association_has_subject: 'subject',
-    BIOLINK.subject: 'subject',
-    OBAN.association_has_object: 'object',
-    BIOLINK.object: 'object',
-    OBAN.association_has_predicate: 'predicate',
-    BIOLINK.predicate: 'predicate',
-    BIOLINK.edge_label: 'edge_label',
-    BIOLINK.category: 'category',
-    BIOLINK.relation: 'relation',
-    BIOLINK.name: 'name',
-    RDFS.label: 'name',
-    RDFS.comment: 'comment',
-    RDF.type: 'type',
-    URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): 'type',
-    URIRef('http://purl.obolibrary.org/obo/IAO_0000115'): 'description',
-    URIRef('http://purl.org/dc/elements/1.1/description'): 'description',
-    BIOLINK.description: 'description',
-    BIOLINK.has_evidence: 'has_evidence',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002558'): 'has_evidence',
-    URIRef('http://www.geneontology.org/formats/oboInOwl#hasExactSynonym'): 'synonym',
-    BIOLINK.synonym: 'synonym',
-    OWL.sameAs: 'same_as',
-    OWL.equivalentClass: 'same_as',
-    URIRef('http://purl.obolibrary.org/obo/RO_0002162'): 'in_taxon',
-    BIOLINK.in_taxon: 'in_taxon',
-    BIOLINK.provided_by: 'provided_by',
-    OIO.source: 'source',
-    OIO.inSubset: 'subsets',
-    OIO.hasDbXref: 'xrefs',
-    OIO.hasAlternativeId: 'xrefs',
-    OIO.hasNarrowSynonym: 'synonym',
-    OIO.hasBroadSynonym: 'synonym',
-    OIO.hasRelatedSynonym: 'synonym',
-    SKOS.narrowMatch: 'same_as',
-    SKOS.broadMatch: 'same_as',
-    SKOS.exactMatch: 'same_as',
-    SKOS.closeMatch: 'same_as'
-})
-
-reverse_property_mapping = {}
-for k, v in property_mapping.items():
-    reverse_property_mapping[v] = k
+property_mapping: Dict = dict()
+reverse_property_mapping: Dict = dict()
 
 # TODO: this should be populated via bmt
 is_property_multivalued = {
+    'id': False,
     'subject': False,
     'object': False,
-    'edge_label': False,
+    'predicate': False,
     'description': False,
     'synonym': True,
     'in_taxon': False,
@@ -161,40 +45,9 @@ is_property_multivalued = {
     'category': True,
     'publications': True,
     'type': False,
-    'relation': False
+    'relation': False,
 }
 
-def process_iri(iri:Union[str, URIRef]) -> str:
-    """
-    Casts iri to a string, and then checks whether it maps to any pre-defined
-    values. If so returns that value, otherwise converts that iri to a curie
-    and returns.
-
-    Parameters
-    ----------
-    iri: Union[str, URIRef]
-        IRI to process; can be a string or a rdflib.term.URIRef
-
-    Returns
-    -------
-    str
-        A string corresponding to the IRI
-
-    """
-    mappings = [
-        predicate_mapping,
-        category_mapping,
-        property_mapping,
-    ]
-
-    for mapping in mappings:
-        for key, value in mapping.items():
-            if iri.lower() == key.lower():
-                return value
-
-    return contract(iri)
-
-OBO = Namespace('http://purl.obolibrary.org/obo/')
 
 top_level_terms = {
     OBO.term('CL_0000000'): 'cell',
@@ -230,13 +83,11 @@ top_level_terms = {
     OBO.term('HP_0000118'): 'phenotypic_abnormality',
     OBO.term('HP_0032443'): 'past_medical_history',
     OBO.term('HP_0000005'): 'mode_of_inheritance',
-    OBO.term('HP_0012823'): 'clinical_modifier'
-
-
+    OBO.term('HP_0012823'): 'clinical_modifier',
 }
 
 
-def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
+def infer_category(iri: URIRef, rdfgraph: rdflib.Graph) -> Optional[List]:
     """
     Infer category for a given iri by traversing rdfgraph.
 
@@ -249,28 +100,133 @@ def infer_category(iri: URIRef, rdfgraph:rdflib.Graph) -> List[str]:
 
     Returns
     -------
-    List[str]
+    Optional[List]
         A list of category corresponding to the given IRI
 
     """
-    category = None
-    subj = None
     closure = list(rdfgraph.transitive_objects(iri, URIRef(RDFS.subClassOf)))
     category = [top_level_terms[x] for x in closure if x in top_level_terms.keys()]
     if category:
-        logging.debug("Inferred category as {} based on transitive closure over 'subClassOf' relation".format(category))
+        log.debug(
+            "Inferred category as {} based on transitive closure over 'subClassOf' relation".format(
+                category
+            )
+        )
     else:
         subj = closure[-1]
         if subj == iri:
             return category
-        subject_curie = contract(subj)
-        if '_' in subject_curie:
+        subject_curie: Optional[str] = contract(subj)
+        if subject_curie and '_' in subject_curie:
             fixed_curie = subject_curie.split(':', 1)[1].split('_', 1)[1]
-            logging.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
+            log.warning("Malformed CURIE {} will be fixed to {}".format(subject_curie, fixed_curie))
             subject_curie = fixed_curie
         cls = get_curie_lookup_service()
-        category = get_category_via_superclass(cls.ontology_graph, subject_curie)
+        category = list(get_category_via_superclass(cls.ontology_graph, subject_curie))
     return category
 
-def generate_uuid():
-    return f"urn:uuid:{uuid.uuid4()}"
+
+@cached(LRUCache(maxsize=1024))
+def get_biolink_element(prefix_manager: PrefixManager, predicate: Any) -> Optional[Element]:
+    """
+    Returns a Biolink Model element for a given predicate.
+
+    Parameters
+    ----------
+    prefix_manager: PrefixManager
+        An instance of prefix manager
+    predicate: Any
+        The CURIE of a predicate
+
+    Returns
+    -------
+    Optional[Element]
+        The corresponding Biolink Model element
+
+    """
+    toolkit = get_toolkit()
+    if prefix_manager.is_iri(predicate):
+        predicate_curie = prefix_manager.contract(predicate)
+    else:
+        predicate_curie = predicate
+    if prefix_manager.is_curie(predicate_curie):
+        reference = prefix_manager.get_reference(predicate_curie)
+    else:
+        reference = predicate_curie
+    element = toolkit.get_element(reference)
+    if not element:
+        try:
+            mapping = toolkit.get_element_by_mapping(predicate)
+            if mapping:
+                element = toolkit.get_element(mapping)
+        except ValueError as e:
+            log.error(e)
+    return element
+
+
+def process_predicate(
+    prefix_manager: PrefixManager, p: Union[URIRef, str], predicate_mapping: Optional[Dict] = None
+) -> Tuple:
+    """
+    Process a predicate where the method checks if there is a mapping in Biolink Model.
+
+    Parameters
+    ----------
+    prefix_manager: PrefixManager
+        An instance of prefix manager
+    p: Union[URIRef, str]
+        The predicate
+    predicate_mapping: Optional[Dict]
+        Predicate mappings
+
+    Returns
+    -------
+    Tuple[str, str, str, str]
+        A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
+        the CURIE form of p, the reference of p
+
+    """
+    if prefix_manager.is_iri(p):
+        predicate = prefix_manager.contract(str(p))
+    else:
+        predicate = None
+    if prefix_manager.is_curie(p):
+        property_name = prefix_manager.get_reference(p)
+        predicate = p
+    else:
+        if predicate and prefix_manager.is_curie(predicate):
+            property_name = prefix_manager.get_reference(predicate)
+        else:
+            property_name = p
+            predicate = f":{p}"
+    element = get_biolink_element(prefix_manager, p)
+    canonical_uri = None
+    if element:
+        if isinstance(element, SlotDefinition):
+            # predicate corresponds to a biolink slot
+            if element.definition_uri:
+                element_uri = prefix_manager.contract(element.definition_uri)
+            else:
+                element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+            if element.slot_uri:
+                canonical_uri = element.slot_uri
+        elif isinstance(element, ClassDefinition):
+            # this will happen only when the IRI is actually
+            # a reference to a class
+            element_uri = prefix_manager.contract(element.class_uri)
+        else:
+            element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
+        if 'biolink:Attribute' in get_biolink_ancestors(element.name):
+            element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+        if not predicate:
+            predicate = element_uri
+    else:
+        # no mapping to biolink model;
+        # look at predicate mappings
+        element_uri = None
+        if predicate_mapping:
+            if p in predicate_mapping:
+                property_name = predicate_mapping[p]
+                predicate = f":{property_name}"
+        # cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri, 'predicate': predicate, 'property_name': property_name}
+    return element_uri, canonical_uri, predicate, property_name

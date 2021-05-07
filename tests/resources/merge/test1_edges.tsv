@@ -1,0 +1,6 @@
+subject	predicate	object	relation	p1	p2	p3
+x1	related_to	x2	RO:000000	1	1	1
+x2	related_to	x3	RO:000000	2	2	2
+x3	related_to	x4	RO:000000	3	3	3
+x4	related_to	x5	RO:000000	4	4	4
+x5	related_to	x1	RO:000000	5	5	5

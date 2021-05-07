@@ -1,19 +1,11 @@
-examples/monarch-build-workflow/data/
-
-venv/
+env/
 py*/
 __pycache__
-.pytest_cache/
-tests/target/
-/target/*
-docker_test_*/
 *.pyc
 *.egg-info
-_build
-_static
-_templates
-.idea/
 tests/logs/*.log
+build
+dist
 
 /build
 /dist
@@ -26,3 +18,4 @@ venv
 docker_test_*
 target
 tests/logs
+

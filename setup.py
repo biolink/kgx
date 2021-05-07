@@ -1,69 +1,43 @@
 from setuptools import setup, find_packages
 
-NAME = 'Knowledge Graph Exchange'
-DESCRIPTION = 'Knowledge Graph Exchange tools for BioLink model-compliant graphs.'
+NAME = 'kgx'
+DESCRIPTION = 'A Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the Biolink Model.'
 URL = 'https://github.com/NCATS-Tangerine/kgx'
 AUTHOR = 'Deepak Unni'
 EMAIL = 'deepak.unni3@gmail.com'
-REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.0.1'
+REQUIRES_PYTHON = '>=3.7.0'
+VERSION = '1.0.0'
 LICENSE = 'BSD'
 
-REQUIRED = [
-    "prefixcommons>=0.1.4",
-    "pip>=9.0.1",
-    "networkx>=2.2",
-    "SPARQLWrapper>=1.8.2",
-    "pandas>=0.24.2",
-    "pytest>=0.0",
-    "mypy>=0.0",
-    "pystache>=0.0",
-    "rdflib>=0.0",
-    "Click>=7.0",
-    "neo4j>=1.7.4",
-    "neo4jrestclient>=0.0",
-    "pyyaml>=0.0",
-    "biolinkml>=0.0",
-    "bmt>=0.1.0",
-    "prologterms>=0.0.5",
-    "shexjsg>=0.6.5",
-    "terminaltables>=3.1.0",
-    "stringcase>=1.2.0",
-    "validators>=0.13.0",
-    "cachetools>-4.0.0",
-    "ordered-set>=4.0.2"
-]
+with open("requirements.txt", "r") as FH:
+    REQUIREMENTS = FH.readlines()
 
 EXTRAS = {}
 
-
 setup(
     name=NAME,
-    version=VERSION,
     author=AUTHOR,
+    version=VERSION,
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
     description=DESCRIPTION,
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license=LICENSE,
-    packages=find_packages(),
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'kgx': ["config.yml"]},
-    keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator',
+    keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator Biolink-Model',
     classifiers=[
         'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Bioinformatics',
-        'Topic :: Scientific/Engineering :: Knowledge Graphs',
-        'Topic :: Scientific/Engineering :: Translational Research',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3'
     ],
-    install_requires=REQUIRED,
+    install_requires=[r for r in REQUIREMENTS if not r.startswith("#")],
     extras_require=EXTRAS,
     include_package_data=True,
-    entry_points="""
-        [console_scripts]
-        kgx=translator_kgx:cli
-    """,
-    scripts=['bin/translator_kgx.py']
+    entry_points={
+        'console_scripts': ['kgx=kgx.cli:cli']
+    }
 )

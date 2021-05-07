@@ -1,12 +1,13 @@
-import logging
 import re
-from typing import Dict
+from typing import Dict, Optional, Any
 
 import prefixcommons.curie_util as cu
 from cachetools import LRUCache, cached
 
-from kgx.config import get_jsonld_context
+from kgx.config import get_jsonld_context, get_logger
 from kgx.utils.kgx_utils import contract, expand
+
+log = get_logger()
 
 
 class PrefixManager(object):
@@ -16,9 +17,10 @@ class PrefixManager(object):
     These include mappings for CURIEs such as GO:0008150, as well as shortforms such as
     biolink types such as Disease
     """
+
     DEFAULT_NAMESPACE = 'https://www.example.org/UNKNOWN/'
-    prefix_map = None
-    reverse_prefix_map = None
+    prefix_map: Dict[str, str]
+    reverse_prefix_map: Dict[str, str]
 
     def __init__(self, url: str = None):
         """
@@ -51,14 +53,50 @@ class PrefixManager(object):
             if isinstance(v, str):
                 self.prefix_map[k] = v
         if 'biolink' not in self.prefix_map:
-            self.prefix_map['biolink'] = self.prefix_map['@vocab']
+            self.prefix_map['biolink'] = (
+                self.prefix_map['@vocab']
+                if '@vocab' in self.prefix_map
+                else 'https://w3id.org/biolink/vocab/'
+            )
+        if 'owlstar' not in self.prefix_map:
+            self.prefix_map['owlstar'] = 'http://w3id.org/owlstar/'
+        if '@vocab' in self.prefix_map:
             del self.prefix_map['@vocab']
-        if ':' in self.prefix_map:
-            logging.info(f"Replacing default prefix mapping from {self.prefix_map[':']} to 'www.example.org/UNKNOWN/'")
+        if 'MONARCH' not in self.prefix_map:
+            self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
+            self.prefix_map['MONARCH_NODE'] = 'https://monarchinitiative.org/MONARCH_'
+        if '' in self.prefix_map:
+            log.info(
+                f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'"
+            )
         else:
-            self.prefix_map[':'] = self.DEFAULT_NAMESPACE
-
+            self.prefix_map[''] = self.DEFAULT_NAMESPACE
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
+
+    def update_prefix_map(self, m: Dict[str, str]) -> None:
+        """
+        Update prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New prefix to IRI mappings
+
+        """
+        for k, v in m.items():
+            self.prefix_map[k] = v
+
+    def update_reverse_prefix_map(self, m: Dict[str, str]) -> None:
+        """
+        Update reverse prefix maps with new mappings.
+
+        Parameters
+        ----------
+        m: Dict
+            New IRI to prefix mappings
+
+        """
+        self.reverse_prefix_map.update(m)
 
     @cached(LRUCache(maxsize=1024))
     def expand(self, curie: str, fallback: bool = True) -> str:
@@ -83,7 +121,7 @@ class PrefixManager(object):
         return uri
 
     @cached(LRUCache(maxsize=1024))
-    def contract(self, uri: str, fallback: bool = True) -> str:
+    def contract(self, uri: str, fallback: bool = True) -> Optional[str]:
         """
         Contract a given URI to a CURIE, based on mappings from `prefix_map`.
 
@@ -98,12 +136,12 @@ class PrefixManager(object):
 
         Returns
         -------
-        str
+        Optional[str]
             A CURIE corresponding to the URI
 
         """
         # always prioritize non-CURIE shortform
-        if uri in self.reverse_prefix_map:
+        if self.reverse_prefix_map and uri in self.reverse_prefix_map:
             curie = self.reverse_prefix_map[uri]
         else:
             curie = contract(uri, [self.prefix_map], fallback)
@@ -156,7 +194,15 @@ class PrefixManager(object):
 
     @staticmethod
     @cached(LRUCache(maxsize=1024))
-    def get_prefix(curie: str) -> str:
+    def has_urlfragment(s: str) -> bool:
+        if '#' in s:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    @cached(LRUCache(maxsize=1024))
+    def get_prefix(curie: str) -> Optional[str]:
         """
         Get the prefix from a given CURIE.
 
@@ -171,14 +217,14 @@ class PrefixManager(object):
             The CURIE prefix
 
         """
-        prefix = None
+        prefix: Optional[str] = None
         if PrefixManager.is_curie(curie):
             prefix = curie.split(':', 1)[0]
         return prefix
 
     @staticmethod
     @cached(LRUCache(maxsize=1024))
-    def get_reference(curie: str) -> str:
+    def get_reference(curie: str) -> Optional[str]:
         """
         Get the reference of a given CURIE.
 
@@ -189,11 +235,11 @@ class PrefixManager(object):
 
         Returns
         -------
-        str
+        Optional[str]
             The reference of a CURIE
 
         """
-        reference = None
+        reference: Optional[str] = None
         if PrefixManager.is_curie(curie):
             reference = curie.split(':', 1)[1]
         return reference

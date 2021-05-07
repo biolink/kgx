@@ -1,0 +1,89 @@
+configuration:
+  output_directory: output_data
+  checkpoint: false
+  prefix_map:
+    # define non-canonical CURIE to IRI mappings
+  node_property_predicates:
+    # define predicates that are to be treated as direct node properties (for RDF)
+  predicate_mappings:
+    # map non-canonical predicates to a property name (for RDF)
+  property_types:
+    # define the type for non-canonical properties for RDF export
+  reverse_prefix_map:
+    # define IRI to CURIE mappings
+  reverse_predicate_mappings:
+    # map property names to non-canonical predicates (for RDF)
+transform:
+  source:
+    hgnc-dataset:
+      prefix_map:
+        # define non-canonical CURIE to IRI mappings, specifically for this source
+      node_property_predicates:
+        # define predicates that are to be treated as direct node properties (for RDF), specifically for this source
+      predicate_mappings:
+        # map non-canonical predicates to a property name (for RDF), specifically for this source
+      property_types:
+        # define the type for non-canonical properties for RDF export, specifically for this source
+      reverse_prefix_map:
+        # define IRI to CURIE mappings, specifically for this source
+      reverse_predicate_mappings:
+        # map property names to non-canonical predicates (for RDF), specifically for this source
+      input:
+        name: "HGNC"
+        format: nt
+        filename:
+          - data/hgnc.nt
+      output:
+        format: tsv
+        compression: tar.gz
+        filename:
+          - hgnc_output
+    gene-ontology:
+      name: "Gene Ontology"
+      input:
+        format: obojson
+        compression: None
+        filename:
+          - data/go.json
+      operations:
+        - name: kgx.operations.summarize_graph.generate_graph_stats
+          args:
+            graph_name: GO graph
+            filename: go_graph_stats.yaml
+            node_facet_properties:
+              - provided_by
+            edge_facet_properties:
+              - provided_by
+      output:
+        format: tsv
+        compression: None
+        filename:
+          - monarch-ontologies-output
+    test-dataset:
+      input:
+        format: tsv
+        compression: tar.gz
+        filename:
+          - data/test_dataset.tar.gz
+        filters:
+          node_filters:
+            category:
+              - biolink:Gene
+              - biolink:Disease
+          edge_filters:
+            predicate:
+              - biolink:contributes_to
+      operations:
+        - name: kgx.operations.summarize_graph.generate_graph_stats
+          args:
+            graph_name: Test Dataset
+            filename: test_dataset_stats.yaml
+            node_facet_properties:
+              - provided_by
+            edge_facet_properties:
+              - provided_by
+      output:
+        format: tsv
+        compression: None
+        filename:
+          - test-dataset-output

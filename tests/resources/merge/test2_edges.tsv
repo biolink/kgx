@@ -1,0 +1,5 @@
+subject	predicate	object	relation	p1	p2	p3	note
+x2	related_to	x1	RO:000000	a	a	a	
+x3	related_to	x2	RO:000000	b	b	b
+x4	related_to	x3	RO:000000	c	c	c
+x1	related_to	x2	RO:000000	f	f	f	repeating edge

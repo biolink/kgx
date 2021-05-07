@@ -1,24 +1,29 @@
-import logging
-from typing import List, Set
-import networkx as nx
+from typing import List, Set, Dict, Optional
 import stringcase
 from cachetools import cached
 
-from kgx.operations.graph_merge import CORE_NODE_PROPERTIES, CORE_EDGE_PROPERTIES
-from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service, generate_edge_key
+from kgx.config import get_logger
+from kgx.graph.base_graph import BaseGraph
+from kgx.utils.kgx_utils import (
+    get_toolkit,
+    get_cache,
+    get_curie_lookup_service
+)
 from kgx.prefix_manager import PrefixManager
 
-ONTOLOGY_PREFIX_MAP = {}
-ONTOLOGY_GRAPH_CACHE = {}
+ONTOLOGY_PREFIX_MAP: Dict = {}
+ONTOLOGY_GRAPH_CACHE: Dict = {}
+
+log = get_logger()
 
 
-def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
+def get_parents(graph: BaseGraph, node: str, relations: List[str] = None) -> List[str]:
     """
     Return all direct `parents` of a specified node, filtered by ``relations``.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     node: str
         node identifier
@@ -32,22 +37,22 @@ def get_parents(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) 
 
     """
     parents = []
-    if node in graph:
-        out_edges = [x for x in graph.out_edges(node, data=True)]
+    if graph.has_node(node):
+        out_edges = [x for x in graph.out_edges(node, keys=False, data=True)]
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
-            parents = [x[1] for x in out_edges if x[2]['edge_label'] in relations]
+            parents = [x[1] for x in out_edges if x[2]['predicate'] in relations]
     return parents
 
 
-def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None) -> List[str]:
+def get_ancestors(graph: BaseGraph, node: str, relations: List[str] = None) -> List[str]:
     """
     Return all `ancestors` of specified node, filtered by ``relations``.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     node: str
         node identifier
@@ -70,15 +75,18 @@ def get_ancestors(graph: nx.MultiDiGraph, node: str, relations: List[str] = None
     seen.remove(node)
     return seen
 
+
 @cached(get_cache())
-def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontology: bool = True) -> Set[str]:
+def get_category_via_superclass(
+    graph: BaseGraph, curie: str, load_ontology: bool = True
+) -> Set[str]:
     """
     Get category for a given CURIE by tracing its superclass, via ``subclass_of`` hierarchy,
     and getting the most appropriate category based on the superclass.
 
     Parameters
     ----------
-    graph: networkx.MultiDiGraph
+    graph: kgx.graph.base_graph.BaseGraph
         Graph to traverse
     curie: str
         Input CURIE
@@ -92,7 +100,7 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
         A set containing one (or more) category for the given CURIE
 
     """
-    logging.debug("curie: {}".format(curie))
+    log.debug("curie: {}".format(curie))
     new_categories = []
     toolkit = get_toolkit()
     if PrefixManager.is_curie(curie):
@@ -101,22 +109,22 @@ def get_category_via_superclass(graph: nx.MultiDiGraph, curie: str, load_ontolog
             cls = get_curie_lookup_service()
             ontology_graph = cls.ontology_graph
             new_categories += [x for x in get_category_via_superclass(ontology_graph, curie, False)]
-        logging.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
+        log.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
         seen = []
         for anc in ancestors:
             mapping = toolkit.get_by_mapping(anc)
             seen.append(anc)
             if mapping:
                 # there is direct mapping to BioLink Model
-                logging.debug("Ancestor {} mapped to {}".format(anc, mapping))
-                seen_labels = [graph.nodes[x]['name'] for x in seen if 'name' in graph.nodes[x]]
+                log.debug("Ancestor {} mapped to {}".format(anc, mapping))
+                seen_labels = [graph.nodes()[x]['name'] for x in seen if 'name' in graph.nodes()[x]]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
                 break
     return set(new_categories)
 
 
-def curie_lookup(curie: str) -> str:
+def curie_lookup(curie: str) -> Optional[str]:
     """
     Given a CURIE, find its label.
 
@@ -131,148 +139,17 @@ def curie_lookup(curie: str) -> str:
 
     Returns
     -------
-    str
+    Optional[str]
         The label corresponding to the given CURIE
 
     """
     cls = get_curie_lookup_service()
-    name = None
+    name: Optional[str] = None
     prefix = PrefixManager.get_prefix(curie)
     if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
         name = stringcase.snakecase(curie.split(':', 1)[1])
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = cls.ontology_graph.nodes[curie]['name']
+        name = cls.ontology_graph.nodes()[curie]['name']
     return name
-
-
-def remap_node_identifier(graph: nx.MultiDiGraph, category: str, alternative_property: str, prefix=None) -> nx.MultiDiGraph:
-    """
-    Remap a node's 'id' attribute with value from a node's ``alternative_property`` attribute.
-
-    Parameters
-    ----------
-    graph: networkx.MultiDiGraph
-        The graph
-    category: string
-        category referring to nodes whose 'id' needs to be remapped
-    alternative_property: string
-        property name from which the new value is pulled from
-    prefix: string
-        signifies that the value for ``alternative_property`` is a list
-        and the ``prefix`` indicates which value to pick from the list
-
-    Returns
-    -------
-    networkx.MultiDiGraph
-        The modified graph
-
-    """
-    mapping = {}
-    for nid, data in graph.nodes(data=True):
-        node_data = data.copy()
-        if 'category' in node_data and category not in node_data['category']:
-            continue
-
-        if alternative_property in node_data:
-            alternative_values = node_data[alternative_property]
-            if isinstance(alternative_values, (list, set, tuple)):
-                if prefix:
-                    for v in alternative_values:
-                        if prefix in v:
-                            # take the first occurring value that contains the given prefix
-                            mapping[nid] = v
-                            break
-                else:
-                    # no prefix defined; pick the 1st one from list
-                    mapping[nid] = alternative_values[0]
-            elif isinstance(alternative_values, str):
-                if prefix:
-                    if alternative_values.startswith(prefix):
-                        mapping[nid] = alternative_values
-                else:
-                    # no prefix defined
-                    mapping[nid] = alternative_values
-            else:
-                logging.error(f"Cannot use {alternative_values} from alternative_property {alternative_property}")
-
-    nx.set_node_attributes(graph, values=mapping, name='id')
-    nx.relabel_nodes(graph, mapping, copy=False)
-
-    # update 'subject' of all outgoing edges
-    update_edge_keys = {}
-    updated_subject_values = {}
-    updated_object_values = {}
-    for u, v, k, edge_data in graph.edges(keys=True, data=True):
-        if u is not edge_data['subject']:
-            updated_subject_values[(u, v, k)] = u
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
-        if v is not edge_data['object']:
-            updated_object_values[(u, v, k)] = v
-            update_edge_keys[(u, v, k)] = generate_edge_key(u, edge_data['edge_label'], v)
-
-    nx.set_edge_attributes(graph, values=updated_subject_values, name='subject')
-    nx.set_edge_attributes(graph, values=updated_object_values, name='object')
-    nx.set_edge_attributes(graph, values=update_edge_keys, name='edge_key')
-
-    return graph
-
-
-def remap_node_property(graph: nx.MultiDiGraph, category: str, old_property: str, new_property: str) -> None:
-    """
-    Remap the value in node ``old_property`` attribute with value
-    from node ``new_property`` attribute.
-
-    Parameters
-    ----------
-    graph: networkx.MultiDiGraph
-        The graph
-    category: string
-        Category referring to nodes whose property needs to be remapped
-    old_property: string
-        old property name whose value needs to be replaced
-    new_property: string
-        new property name from which the value is pulled from
-
-    """
-    mapping = {}
-    if old_property in CORE_NODE_PROPERTIES:
-        raise AttributeError(f"node property {old_property} cannot be modified as it is a core property.")
-
-    for nid, data in graph.nodes(data=True):
-        node_data = data.copy()
-        if category in node_data and category not in node_data['category']:
-            continue
-        if new_property in node_data:
-            mapping[nid] = node_data[new_property]
-    nx.set_node_attributes(graph, values=mapping, name=old_property)
-
-
-def remap_edge_property(graph: nx.MultiDiGraph, edge_label: str, old_property: str, new_property: str) -> None:
-    """
-    Remap the value in an edge ``old_property`` attribute with value
-    from edge ``new_property`` attribute.
-
-    Parameters
-    ----------
-    graph: networkx.MultiDiGraph
-        The graph
-    edge_label: string
-        edge_label referring to edges whose property needs to be remapped
-    old_property: string
-        Old property name whose value needs to be replaced
-    new_property: string
-        New property name from which the value is pulled from
-
-    """
-    mapping = {}
-    if old_property in CORE_EDGE_PROPERTIES:
-        raise AttributeError(f"edge property {old_property} cannot be modified as it is a core property.")
-    for u, v, k, data in graph.edges(data=True, keys=True):
-        edge_data = data.copy()
-        if edge_label is not edge_data['edge_label']:
-            continue
-        if new_property in edge_data:
-            mapping[(u, v, k)] = edge_data[new_property]
-    nx.set_edge_attributes(graph, values=mapping, name=old_property)

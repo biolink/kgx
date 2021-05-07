@@ -1,2 +1,2 @@
-subject,edge_label,object,relation,publications,provided_by
-CURIE:123,biolink:related_to,CURIE:456,biolink:related_to,PMID:1|PMID:2,test
+id,subject,predicate,object,relation,provided_by,publications
+urn:uuid:67ecd2a6-1af0-416e-a6ac-31dd2c3f48c1,CURIE:123,biolink:related_to,CURIE:456,biolink:related_to,test,PMID:1|PMID:2

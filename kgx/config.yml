@@ -1,3 +1,5 @@
+graph_store: kgx.graph.nx_graph.NxGraph
+
 neo4j:
   username: neo4j
   password: neo4j
@@ -9,25 +11,15 @@ neo4j:
 ontologies:
   RO: http://purl.obolibrary.org/obo/ro.owl
   BFO: http://purl.obolibrary.org/obo/bfo.owl
-#  HP: http://purl.obolibrary.org/obo/hp.owl
-#  GO: http://purl.obolibrary.org/obo/go.owl
-#  SO: http://purl.obolibrary.org/obo/so.owl
+  SEPIO: http://purl.obolibrary.org/obo/sepio.owl
 
 logging:
   level: INFO
-  format: '[%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
+  format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
-biolink-model:
-  local: biolink-model.yaml
-  remote: https://biolink.github.io/biolink-model/biolink-model.yaml
+biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/1.6.0/biolink-model.yaml
 
 jsonld-context:
-  biolink:
-    local: context.jsonld
-    remote: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld
-  monarch_context:
-    local: monarch_context.jsonld
-    remote: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/monarch_context.jsonld
-  obo_context:
-    local: obo_context.jsonld
-    remote: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/obo_context.jsonld
+  biolink: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld
+  monarch_context: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/monarch_context.jsonld
+  obo_context: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/obo_context.jsonld
