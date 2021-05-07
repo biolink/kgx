@@ -17,3 +17,12 @@ tests/logs/*.log
 
 /build
 /dist
+
+# local IDE files
+venv
+.idea/
+
+# test directories
+docker_test_*
+target
+tests/logs
