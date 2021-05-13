@@ -3,8 +3,9 @@ from enum import Enum
 from typing import Tuple, List, TextIO, Optional, Dict, Set
 
 import click
+import functools
 import validators
-
+from pprint import pprint
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
@@ -125,7 +126,8 @@ class Validator(object):
         """
         if not jsonld:
             jsonld = get_jsonld_context()
-        prefixes: Set = set(k for k, v in jsonld.items() if isinstance(v, str))  # type: ignore
+        prefixes = set(jsonld.keys())
+        print(prefixes)
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes
