@@ -355,5 +355,5 @@ def test_validate_edge_label(query):
     """
     Test validate_edge_predicate in Validator.
     """
-    e = Validator.validate_edge_predicate(query[0], query[1], query[2])
+    e = Validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
     assert (len(e) == 0) == query[3]

@@ -161,14 +161,19 @@ class MetaKnowledgeGraph:
             category.analyse_node_category(n, data)
             return
         
-        for category_curie in data['category']:
-            if category_curie not in self.node_stats:
-                self.node_stats[category_curie] = self.Category(category_curie)
-            category = self.node_stats[category_curie]
-            category_idx: int = category.get_cid()
-            if category_idx not in self.node_catalog[n]:
-                self.node_catalog[n].append(category_idx)
-            category.analyse_node_category(n, data)
+        for category_data in data['category']:
+            # we note here that category_curie may be
+            # a piped '|' set of Biolink category CURIE values
+            categories = category_data.split("|")
+            # analyse them each independently...
+            for category_curie in categories:
+                if category_curie not in self.node_stats:
+                    self.node_stats[category_curie] = self.Category(category_curie)
+                category = self.node_stats[category_curie]
+                category_idx: int = category.get_cid()
+                if category_idx not in self.node_catalog[n]:
+                    self.node_catalog[n].append(category_idx)
+                category.analyse_node_category(n, data)
 
     def analyse_edge(self, u, v, k, data):
         # we blissfully assume that all the nodes of a

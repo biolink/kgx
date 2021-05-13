@@ -1,0 +1,6 @@
+id	name	category	taxon
+HGNC:10848	SHH (human)	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+NCBIGene:6469	SHH	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:9398	OLIG2	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:9399	PRKCD	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:16265	WNT5B	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
