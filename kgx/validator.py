@@ -127,7 +127,6 @@ class Validator(object):
         if not jsonld:
             jsonld = get_jsonld_context()
         prefixes = set(jsonld.keys())
-        print(prefixes)
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes

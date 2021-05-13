@@ -50,8 +50,12 @@ class PrefixManager(object):
         """
         self.prefix_map = {}
         for k, v in m.items():
+            print(k, v)
             if isinstance(v, str):
                 self.prefix_map[k] = v
+            else:
+                self.prefix_map[k] = v.get('@id')
+
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = (
                 self.prefix_map['@vocab']
@@ -142,6 +146,7 @@ class PrefixManager(object):
         """
         # always prioritize non-CURIE shortform
         if self.reverse_prefix_map and uri in self.reverse_prefix_map:
+            print(self.reverse_prefix_map)
             curie = self.reverse_prefix_map[uri]
         else:
             curie = contract(uri, [self.prefix_map], fallback)
