@@ -1,6 +1,9 @@
 import json
 import os
+from sys import stderr
+from typing import List, Dict
 
+from kgx import GraphEntityType
 from kgx.graph_operations.meta_knowledge_graph import generate_meta_knowledge_graph, MetaKnowledgeGraph
 from kgx.transformer import Transformer
 
@@ -84,7 +87,32 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     }
     t = Transformer(stream=True)
 
-    inspector = MetaKnowledgeGraph('Test Graph - Streamed, Stats accessed via File')
+    class ProgressMonitor:
+
+        def __init__(self):
+            self.count: Dict[GraphEntityType, int] = {
+                GraphEntityType.GRAPH: 0,
+                GraphEntityType.NODE: 0,
+                GraphEntityType.EDGE: 0
+            }
+
+        def __call__(self, entity_type: GraphEntityType, rec: List):
+            self.count[GraphEntityType.GRAPH] += 1
+            self.count[entity_type] += 1
+            if not (self.count[GraphEntityType.GRAPH] % 100):
+                print(str(self.count[GraphEntityType.GRAPH]) + " records processed...", file=stderr)
+
+        def summary(self):
+            print(str(self.count[GraphEntityType.NODE]) + " nodes seen.", file=stderr)
+            print(str(self.count[GraphEntityType.EDGE]) + " edges seen.", file=stderr)
+            print(str(self.count[GraphEntityType.GRAPH]) + " total records processed...", file=stderr)
+
+    monitor = ProgressMonitor()
+
+    inspector = MetaKnowledgeGraph(
+        name='Test Graph - Streamed, Stats accessed via File',
+        progress_monitor=monitor
+    )
 
     t.transform(input_args=input_args, inspector=inspector)
 
@@ -100,3 +128,5 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     assert data['nodes']['biolink:Gene']['count'] == 178
     assert len(data['nodes']) == 8
     assert len(data['edges']) == 13
+
+    monitor.summary()

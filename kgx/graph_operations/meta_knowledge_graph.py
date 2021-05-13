@@ -5,6 +5,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from kgx import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
@@ -39,9 +40,63 @@ def mkg_default(o):
 
 
 class MetaKnowledgeGraph:
+    """
+    Class for generating a TRAPI 1.1 style of "meta knowledge graph" summary.
+
+    The optional 'progress_monitor' for the validator should be a lightweight Callable
+    which is injected into the class 'inspector' Callable, designed to intercepts
+    node and edge records streaming through the Validator (inside a Transformer.process() call.
+    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
+    The second argument given to the Callable is the current record itself.
+    This Callable is strictly meant to be procedural and should *not* mutate the record.
+    The intent of this Callable is to provide a hook to KGX applications wanting the
+    namesake function of passively monitoring the graph data stream. As such, the Callable
+    could simply tally up the number of times it is called with a NODE or an EDGE, then
+    provide a suitable (quick!) report of that count back to the KGX application. The
+    Callable (function/callable class) should not modify the record and should be of low
+    complexity, so as not to introduce a large computational overhead to validation!
+
+    Parameters
+    ----------
+    name: str
+        (Graph) name assigned to the summary.
+    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
+        Function given a peek at the current record being processed by the class wrapped Callable.
+    """
+
+    def __init__(
+            self,
+            name='',
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            **kwargs
+    ):
+        # formal args
+        self.name = name
+        self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
+
+        # internal attributes
+        self.node_catalog: Dict[str, List[int]] = dict()
+        self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
+        self.node_stats['unknown'] = self.Category('unknown')
+        self.association_map: Dict = dict()
+        self.edge_stats = []
+        self.graph_stats: Dict[str, Dict] = dict()
+
+    def __call__(self, entity_type: GraphEntityType, rec: List):
+        """
+        Transformer 'inspector' Callable
+        """
+        if self.progress_monitor:
+            self.progress_monitor(entity_type, rec)
+        if entity_type == GraphEntityType.EDGE:
+            self.analyse_edge(*rec)
+        elif entity_type == GraphEntityType.NODE:
+            self.analyse_node(*rec)
+        else:
+            raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
     class Category:
-        # this 'category map' just associates a unique int catalog
+        # The 'category map' just associates a unique int catalog
         # index ('cid') value as a proxy for the full curie string,
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
@@ -93,38 +148,6 @@ class MetaKnowledgeGraph:
                 'count': self.category_stats['count'],
                 'count_by_source': self.category_stats['count_by_source']
             }
-
-    def __init__(
-            self,
-            name='',
-            progress_monitor: Optional[Callable[[], None]] = None,
-            **kwargs
-    ):
-        """
-         MetaKnowledgeGraph constructor
-         (at this point, it doesn't expect further
-          keyword args other than an optional graph 'name')
-        """
-        self.name = name
-        self.node_catalog: Dict[str, List[int]] = dict()
-        self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
-        self.node_stats['unknown'] = self.Category('unknown')
-        self.association_map: Dict = dict()
-        self.edge_stats = []
-        self.graph_stats: Dict[str, Dict] = dict()
-
-        # a progress monitor for the validator should be a lightweight callable
-        # that simply tallies up the number of times it is called, and perhaps
-        # have some lightweight reporting of that count back to the caller
-        self.progress_monitor: Optional[Callable[[], None]] = progress_monitor
-
-    def __call__(self, rec: List):
-        if self.progress_monitor:
-            self.progress_monitor()
-        if len(rec) == 4:  # infer an edge record
-            self.analyse_edge(*rec)
-        else:  # infer an node record
-            self.analyse_node(*rec)
 
     def analyse_node(self, n, data):
         # The TRAPI release 1.1 meta_knowledge_graph format indexes nodes by biolink:Category

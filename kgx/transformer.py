@@ -2,6 +2,7 @@ import itertools
 import os
 from typing import Dict, Generator, List, Optional, Callable
 
+from kgx import GraphEntityType
 from kgx.config import get_logger
 from kgx.source import (
     GraphSource,
@@ -75,9 +76,8 @@ class Transformer(object):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
-        # The 'inspector' is an optional callable by which the transformer.process() can 'inspect' source records
-        # prior to writing them out to the sink.  This callable is strictly procedural and should not mutate the record.
-        self.inspector: Optional[Callable[[List], None]] = None
+        self.inspector: Optional[Callable[[GraphEntityType, List], None]] = None
+
         self.store = self.get_source('graph')
         self._seen_nodes = set()
 
@@ -85,7 +85,7 @@ class Transformer(object):
             self,
             input_args: Dict,
             output_args: Optional[Dict] = None,
-            inspector: Optional[Callable[[List], None]] = None
+            inspector: Optional[Callable[[GraphEntityType, List], None]] = None
     ) -> None:
         """
         Transform an input source and write to an output sink.
@@ -93,15 +93,22 @@ class Transformer(object):
         If ``output_args`` is not defined then the data is persisted to
         an in-memory graph.
 
+        The 'inspector' argument is an optional Callable which the
+        transformer.process() method applies to 'inspect' source records
+        prior to writing them out to the Sink. The first (GraphEntityType)
+        argument of the Callable tags the record as a NODE or an EDGE.
+        The second argument given to the Callable is the current record
+        itself. This Callable is strictly meant to be procedural and should
+        *not* mutate the record.
+
         Parameters
         ----------
         input_args: Dict
             Arguments relevant to your input source
         output_args: Optional[Dict]
             Arguments relevant to your output sink (
-        inspector: Optional[Callable[[List], None]]
-            Transformer.process() data inspector
-
+        inspector: Optional[Callable[[GraphEntityType, List], None]]
+            Optional Callable to 'inspect' source records during processing.
         """
         sources = []
         generators = []
@@ -113,7 +120,7 @@ class Transformer(object):
         edge_filters = input_args.pop('edge_filters', {})
         operations = input_args.pop('operations', [])
 
-        # Optional process data stream inspector
+        # Optional process() data stream inspector
         self.inspector = inspector
 
         if input_format in {'neo4j', 'graph'}:
@@ -276,13 +283,13 @@ class Transformer(object):
                             write_edge = False
                     if write_edge:
                         if self.inspector:
-                            self.inspector(rec)
+                            self.inspector(GraphEntityType.EDGE, rec)
                         sink.write_edge(rec[-1])
                 else:  # infer a node record
                     if 'category' in self.node_filters:
                         self._seen_nodes.add(rec[0])
                     if self.inspector:
-                        self.inspector(rec)
+                        self.inspector(GraphEntityType.NODE, rec)
                     sink.write_node(rec[-1])
 
     def save(self, output_args: Dict) -> None:

@@ -5,6 +5,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from kgx import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 
@@ -42,82 +43,41 @@ def gs_default(o):
 
 
 class GraphSummary:
+    """
+    Class for generating a "classical" knowledge graph summary.
 
-    class Category:
-        
-        # this 'category map' just associates a unique int catalog
-        # index ('cid') value as a proxy for the full curie string,
-        # to reduce storage in the main node catalog
-        _category_curie_map: List[str] = list()
-        
-        def __init__(self, category=''):
-            self.category = category
-            if category not in self._category_curie_map:
-                self._category_curie_map.append(category)
-            self.category_stats: Dict[str, Any] = dict()
-            self.category_stats['id_prefixes'] = set()
-            self.category_stats['count'] = 0
-            self.category_stats['count_by_source'] = {'unknown': 0}
-        
-        def get_cid(self):
-            return self._category_curie_map.index(self.category)
-        
-        @classmethod
-        def get_category_curie(cls, cid: int):
-            return cls._category_curie_map[cid]
-        
-        def get_id_prefixes(self):
-            return self.category_stats['id_prefixes']
-        
-        def get_count(self):
-            return self.category_stats['count']
-        
-        def get_count_by_source(self, source: str = None) -> Dict:
-            if source:
-                return {source: self.category_stats['count_by_source'][source]}
-            return self.category_stats['count_by_source']
-        
-        def analyse_node_category(self, n, data):
-            prefix = PrefixManager.get_prefix(n)
-            self.category_stats['count'] += 1
-            if prefix not in self.category_stats['id_prefixes']:
-                self.category_stats['id_prefixes'].add(prefix)
-            if 'provided_by' in data:
-                for s in data['provided_by']:
-                    if s in self.category_stats['count_by_source']:
-                        self.category_stats['count_by_source'][s] += 1
-                    else:
-                        self.category_stats['count_by_source'][s] = 1
-            else:
-                self.category_stats['count_by_source']['unknown'] += 1
-        
-        def json_object(self):
-            return {
-                'id_prefixes': list(self.category_stats['id_prefixes']),
-                'count': self.category_stats['count'],
-                'count_by_source': self.category_stats['count_by_source']
-            }
-    
+    The optional 'progress_monitor' for the validator should be a lightweight Callable
+    which is injected into the class 'inspector' Callable, designed to intercepts
+    node and edge records streaming through the Validator (inside a Transformer.process() call.
+    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
+    The second argument given to the Callable is the current record itself.
+    This Callable is strictly meant to be procedural and should *not* mutate the record.
+    The intent of this Callable is to provide a hook to KGX applications wanting the
+    namesake function of passively monitoring the graph data stream. As such, the Callable
+    could simply tally up the number of times it is called with a NODE or an EDGE, then
+    provide a suitable (quick!) report of that count back to the KGX application. The
+    Callable (function/callable class) should not modify the record and should be of low
+    complexity, so as not to introduce a large computational overhead to validation!
+
+    Parameters
+    ----------
+    name: str
+        (Graph) name assigned to the summary.
+    node_facet_properties: Optional[List]
+            A list of properties to facet on. For example, ``['provided_by']``
+    edge_facet_properties: Optional[List]
+            A list of properties to facet on. For example, ``['provided_by']``
+    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
+        Function given a peek at the current record being processed by the class wrapped Callable.
+    """
     def __init__(
             self,
             name='',
             node_facet_properties: Optional[List] = None,
             edge_facet_properties: Optional[List] = None,
-            progress_monitor: Optional[Callable[[], None]] = None
-
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
     ):
-        """
-        Graph Summary constructor
-        
-        Parameters
-        ----------
-        name: str
-            Name for the graph
-        node_facet_properties: Optional[List]
-            A list of properties to facet on. For example, ``['provided_by']``
-        edge_facet_properties: Optional[List]
-            A list of properties to facet on. For example, ``['provided_by']``
-        """
+        # formal arguments
         self.name = name
         
         self.node_facet_properties: Optional[List] = node_facet_properties
@@ -130,6 +90,9 @@ class GraphSummary:
             for facet_property in self.edge_facet_properties:
                 self.edge_stats[facet_property] = set()
 
+        self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
+
+        # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
         self.node_stats: Dict = {
             TOTAL_NODES: 0,
@@ -144,20 +107,75 @@ class GraphSummary:
         }
         self.edges_processed: bool = False
         self.graph_stats: Dict[str, Dict] = dict()
-
-        # a progress monitor for the validator should be a lightweight callable
-        # that simply tallies up the number of times it is called, and perhaps
-        # have some lightweight reporting of that count back to the caller
-        self.progress_monitor: Optional[Callable[[], None]] = progress_monitor
     
-    def __call__(self, rec: List):
+    def __call__(self, entity_type: GraphEntityType, rec: List):
+        """
+        Transformer 'inspector' Callable
+        """
         if self.progress_monitor:
-            self.progress_monitor()
-        if len(rec) == 4:  # infer an edge record
+            self.progress_monitor(entity_type, rec)
+        if entity_type == GraphEntityType.EDGE:
             self.analyse_edge(*rec)
-        else:  # infer an node record
+        elif entity_type == GraphEntityType.NODE:
             self.analyse_node(*rec)
-    
+        else:
+            raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
+
+    class Category:
+
+        # The 'category map' just associates a unique int catalog
+        # index ('cid') value as a proxy for the full curie string,
+        # to reduce storage in the main node catalog
+        _category_curie_map: List[str] = list()
+
+        def __init__(self, category=''):
+            self.category = category
+            if category not in self._category_curie_map:
+                self._category_curie_map.append(category)
+            self.category_stats: Dict[str, Any] = dict()
+            self.category_stats['id_prefixes'] = set()
+            self.category_stats['count'] = 0
+            self.category_stats['count_by_source'] = {'unknown': 0}
+
+        def get_cid(self):
+            return self._category_curie_map.index(self.category)
+
+        @classmethod
+        def get_category_curie(cls, cid: int):
+            return cls._category_curie_map[cid]
+
+        def get_id_prefixes(self):
+            return self.category_stats['id_prefixes']
+
+        def get_count(self):
+            return self.category_stats['count']
+
+        def get_count_by_source(self, source: str = None) -> Dict:
+            if source:
+                return {source: self.category_stats['count_by_source'][source]}
+            return self.category_stats['count_by_source']
+
+        def analyse_node_category(self, n, data):
+            prefix = PrefixManager.get_prefix(n)
+            self.category_stats['count'] += 1
+            if prefix not in self.category_stats['id_prefixes']:
+                self.category_stats['id_prefixes'].add(prefix)
+            if 'provided_by' in data:
+                for s in data['provided_by']:
+                    if s in self.category_stats['count_by_source']:
+                        self.category_stats['count_by_source'][s] += 1
+                    else:
+                        self.category_stats['count_by_source'][s] = 1
+            else:
+                self.category_stats['count_by_source']['unknown'] += 1
+
+        def json_object(self):
+            return {
+                'id_prefixes': list(self.category_stats['id_prefixes']),
+                'count': self.category_stats['count'],
+                'count_by_source': self.category_stats['count_by_source']
+            }
+
     def analyse_node(self, n, data):
         if n not in self.node_catalog:
             self.node_catalog[n] = list()
