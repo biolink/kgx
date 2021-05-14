@@ -1,10 +1,11 @@
 import os
+from typing import List
+
 import pytest
 
 from kgx.transformer import Transformer
-from tests import print_graph, RESOURCE_DIR, TARGET_DIR
+from tests import RESOURCE_DIR, TARGET_DIR
 from tests.integration import (
-    clean_slate,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
@@ -514,3 +515,41 @@ def test_rdf_transform5():
     assert e1t2['homology'] == 0.0
     assert e1t2['combined_score'] == 490.0
     assert e1t2['cooccurence'] == 332.0
+
+
+def test_transform_inspector():
+    """
+    Test transform with an inspection callable.
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test2_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test2_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+    t = Transformer()
+
+    class TestInspector:
+        def __init__(self):
+            self._node_count = 0
+            self._edge_count = 0
+
+        def __call__(self, rec: List):
+            if len(rec) == 4:  # infer an edge record
+                self._edge_count += 1
+            else:
+                self._node_count += 1
+
+        def get_node_count(self):
+            return self._node_count
+
+        def get_edge_count(self):
+            return self._edge_count
+
+    inspector = TestInspector()
+
+    t.transform(input_args=input_args, inspector=inspector)
+
+    assert inspector.get_node_count() == 4
+    assert inspector.get_edge_count() == 4

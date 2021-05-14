@@ -1,0 +1,11 @@
+id	name	category	taxon
+HGNC:10848	SHH (human)	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+NCBIGene:6469	SHH	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:9398	OLIG2	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:9399	PRKCD	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+HGNC:16265	WNT5B	biolink:NamedThing|biolink:GenomicEntity|biolink:Gene	NCBITaxon:9606
+MONDO:0010011	schizencephaly	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:Disease
+HP:0002510	Spastic tetraplegia	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:PhenotypicFeature
+HP:0002132	Porencephalic cyst	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:PhenotypicFeature
+HP:0002120	Cerebral cortical atrophy	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:PhenotypicFeature
+HP:0000486	Strabismus	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:PhenotypicFeature

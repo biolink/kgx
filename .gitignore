@@ -18,4 +18,3 @@ venv
 docker_test_*
 target
 tests/logs
-

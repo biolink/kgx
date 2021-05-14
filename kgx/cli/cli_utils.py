@@ -1,23 +1,25 @@
 import importlib
+import json
 import os
 import sys
 from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 import yaml
 
+from kgx.graph_operations.meta_knowledge_graph import MetaKnowledgeGraph
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
-from kgx.graph_operations import summarize_graph, knowledge_map
+from kgx.graph_operations import summarize_graph, meta_knowledge_graph
 from kgx.utils.kgx_utils import apply_graph_operations
 
 
 summary_report_types = {
-    'kgx-map': summarize_graph.summarize_graph,
-    'knowledge-map': knowledge_map.summarize_graph,
+    'kgx-map': summarize_graph.GraphSummary,
+    'meta-knowledge-graph': meta_knowledge_graph.MetaKnowledgeGraph,
 }
 
 log = get_logger()
@@ -49,15 +51,30 @@ def get_output_file_types() -> Tuple:
     return tuple(SINK_MAP.keys())
 
 
+def get_report_format_types() -> Tuple:
+    """
+    Get all graph summary report formats supported by KGX.
+
+    Returns
+    -------
+    Tuple
+        A tuple of supported file formats
+
+    """
+    return 'yaml', 'json'
+
+
 def graph_summary(
     inputs: List[str],
     input_format: str,
     input_compression: Optional[str],
     output: Optional[str],
     report_type: str,
+    report_format: Optional[str] = None,
     stream: bool = False,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
+    error_log: str = ''
 ) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -74,12 +91,16 @@ def graph_summary(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
+    report_format: str
+        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
         A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+    error_log: str
+        Where to write any graph processing error message (stderr, by default)
 
     Returns
     -------
@@ -87,28 +108,50 @@ def graph_summary(
         A dictionary with the graph stats
 
     """
-    if stream:
-        log.info("stream processing not supported. Setting stream to 'False'")
-        stream = False
-    transformer = Transformer(stream=stream)
-    transformer.transform(
-        {'filename': inputs, 'format': input_format, 'compression': input_compression}
-    )
+    if report_format and report_format not in get_report_format_types():
+        raise ValueError(f"report_format must be one of {get_report_format_types()}")
+    
     if report_type in summary_report_types:
-        stats = summary_report_types[report_type](
-            graph=transformer.store.graph,
+        # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+        # by injecting an inspector in the Transformer.process() source-to-sink data flow.
+        #
+        # First, we instantiate the Inspector (generally, a Callable class)...
+        #
+        inspector = summary_report_types[report_type](
+            # ...thus, there is no need to hand the Inspector the graph;
+            # rather, the inspector will see the graph data after
+            # being injected into the Transformer.transform() workflow
+            # graph=transformer.store.graph,
             name='Graph',
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
+            error_log=error_log
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
-    if output:
-        WH = open(output, 'w')
-        WH.write(yaml.dump(stats))
+    
+    if stream:
+        output_args = {'format': 'null'}  # streaming processing throws the graph data away
     else:
-        print(yaml.dump(stats))
-    return stats
+        output_args = None
+    
+    transformer = Transformer(stream=stream)
+    transformer.transform(
+        input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+        output_args=output_args,
+        #... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=inspector
+    )
+
+    if output:
+        with open(output, 'w') as gsr:
+            inspector.save(gsr, file_format=report_format)
+    else:
+        inspector.save(sys.stdout, file_format=report_format)
+
+    # ... Third, we directly return the graph statistics to the caller.
+    return inspector.get_graph_summary()
 
 
 def validate(
@@ -132,28 +175,53 @@ def validate(
     output: Optional[str]
         Path to output file (stdout, by default)
     stream: bool
-        Whether to parse input as a stream
+         Whether to parse input as a stream.
     Returns
     -------
     List
         Returns a list of errors, if any
 
     """
+    # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+    # by injecting an inspector in the Transformer.process() source-to-sink data flow.
+    #
+    # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
+    # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
+    #
     if stream:
-        log.info("stream processing not supported. Setting stream to 'False'")
-        stream = False
-    transformer = Transformer(stream=stream)
-    transformer.transform(
-        {'filename': inputs, 'format': input_format, 'compression': input_compression}
-    )
-
-    validator = Validator()
-    errors = validator.validate(transformer.store.graph)
-    if output:
-        validator.write_report(errors, open(output, 'w'))
+        validator = Validator()
+        
+        transformer = Transformer(stream=stream)
+        
+        transformer.transform(
+            input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+            output_args={'format': 'null'},  # streaming processing throws the graph data away
+            # ... Second, we inject the Inspector into the transform() call,
+            # for the underlying Transformer.process() to use...
+            inspector=validator
+        )
     else:
-        validator.write_report(errors, sys.stdout)
-    return errors
+        # "Classical" non-streaming mode, with click.progressbar
+        # but an unfriendly large memory footprint for large graphs
+        
+        transformer = Transformer()
+        
+        transformer.transform(
+            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+        )
+        validator = Validator()
+        
+        # Slight tweak of classical 'validate' function: that the
+        # list of errors are cached internally in the Validator object
+        validator.validate(transformer.store.graph)
+    
+    if output:
+        validator.write_report(open(output, 'w'))
+    else:
+        validator.write_report(sys.stdout)
+
+    # ... Third, we return directly any validation errors to the caller
+    return validator.get_errors()
 
 
 def neo4j_download(
@@ -280,8 +348,6 @@ def transform(
     output_format: Optional[str] = None,
     output_compression: Optional[str] = None,
     stream: bool = False,
-    node_filters: Optional[Tuple] = None,
-    edge_filters: Optional[Tuple] = None,
     transform_config: str = None,
     source: Optional[List] = None,
     destination: Optional[List] = None,
@@ -306,10 +372,6 @@ def transform(
         The output compression type
     stream: bool
         Whether to parse input as a stream
-    node_filters: Optional[Tuple]
-        Node filters
-    edge_filters: Optional[Tuple]
-        Edge filters
     transform_config: Optional[str]
         The transform config YAML
     source: Optional[List]
