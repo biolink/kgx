@@ -6,6 +6,7 @@ import click
 import validators
 
 from kgx import GraphEntityType
+
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
@@ -179,11 +180,7 @@ class Validator(object):
         """
         if not jsonld:
             jsonld = get_jsonld_context()
-        prefixes: Set = set(
-                k for k, v in jsonld.items()
-                if isinstance(v, str) or
-                  (isinstance(v, dict) and v.setdefault('@prefix', False))
-        )  # @type: ignored
+        prefixes = set(jsonld.keys())
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes
