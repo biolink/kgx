@@ -81,19 +81,24 @@ on your local machine.
 Once Docker is up and running, run the following commands:
 
 ```bash
-docker run -d --name kgx-neo4j-integration-test
-            -p 7474:7474 -p 7687:7687
-            --env NEO4J_AUTH=neo4j/test
+docker run -d --name kgx-neo4j-integration-test \
+            -p 7474:7474 -p 7687:7687 \
+            --env NEO4J_AUTH=neo4j/test \
             neo4j:3.5.25
 ```
 
 ```bash
-docker run -d --name kgx-neo4j-unit-test
-            -p 8484:7474 -p 8888:7687
-            --env NEO4J_AUTH=neo4j/test
+docker run -d --name kgx-neo4j-unit-test \
+            -p 8484:7474 -p 8888:7687 \
+            --env NEO4J_AUTH=neo4j/test \
             neo4j:3.5.25
 ```
 
 
-**Note:** Setting up the Neo4j container is optional. If there is no container set up
-then the tests that rely on them are skipped.
+**Note:** Setting up the Neo4j container is optional. If there is no container set up then the tests that rely on them are skipped.
+
+KGX tests are simply run using `make`:
+
+```bash
+make tests
+```
