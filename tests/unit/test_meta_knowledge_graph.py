@@ -60,10 +60,10 @@ def test_generate_streaming_meta_knowledge_graph_direct():
     transformer.transform(input_args=input_args, inspector=mkg)
 
     assert mkg.get_name() == 'Test Graph - Streamed'
-    assert mkg.get_total_nodes_count() == 534
-    assert mkg.get_category_count() == 8
+    assert mkg.get_total_nodes_count() == 512
+    assert mkg.get_number_of_categories() == 8
     assert mkg.get_total_edges_count() == 540
-    assert mkg.get_edge_map_count() == 13
+    assert mkg.get_edge_mapping_count() == 13
     assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
     assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()
     assert 'HP' in mkg.get_category('biolink:PhenotypicFeature').get_id_prefixes()
@@ -109,16 +109,16 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
 
     monitor = ProgressMonitor()
 
-    inspector = MetaKnowledgeGraph(
+    mkg = MetaKnowledgeGraph(
         name='Test Graph - Streamed, Stats accessed via File',
         progress_monitor=monitor
     )
 
-    t.transform(input_args=input_args, inspector=inspector)
+    t.transform(input_args=input_args, inspector=mkg)
 
     output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-2.json')
     with open(output_filename, 'w') as mkgh:
-        inspector.save(mkgh)
+        mkg.save(mkgh)
 
     data = json.load(open(output_filename))
     assert data['name'] == 'Test Graph - Streamed, Stats accessed via File'
@@ -130,3 +130,57 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     assert len(data['edges']) == 13
 
     monitor.summary()
+
+
+def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
+    """
+    Test meta knowledge graph parsing multiple categories
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_multi_category_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_multi_category_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+
+    t = Transformer(stream=True)
+
+    mkg = MetaKnowledgeGraph(
+        name='Test Graph - Multiple Node Categories'
+    )
+
+    t.transform(input_args=input_args, inspector=mkg)
+
+    assert mkg.get_name() == 'Test Graph - Multiple Node Categories'
+
+    assert mkg.get_total_nodes_count() == 10
+
+    # unique set, including (shared) parent
+    # classes (not including category 'unknown' )
+    assert mkg.get_number_of_categories() == 7
+
+    assert mkg.get_node_count_by_category("biolink:Disease") == 1
+    assert mkg.get_node_count_by_category("biolink:BiologicalEntity") == 5
+    assert mkg.get_node_count_by_category("biolink:AnatomicalEntityEntity") == 0
+
+    # sums up all the counts of node mappings across
+    # all categories (not including category 'unknown')
+    assert mkg.get_total_node_counts_across_categories() == 35
+
+    # only counts 'valid' edges for which
+    # subject and object nodes are in the nodes file
+    assert mkg.get_total_edges_count() == 8
+
+    # total number of distinct predicates
+    assert mkg.get_predicate_count() == 2
+
+    # counts edges with a given predicate
+    # (ignoring edges with unknown subject or object identifiers)
+    assert mkg.get_edge_count_by_predicate("biolink:has_phenotype") == 4
+    assert mkg.get_edge_count_by_predicate("biolink:involved_in") == 0
+
+    assert mkg.get_edge_mapping_count() == 25
+
+    assert mkg.get_total_edge_counts_across_mappings() == 100
+

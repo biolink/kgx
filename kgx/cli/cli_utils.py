@@ -74,6 +74,7 @@ def graph_summary(
     stream: bool = False,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
+    error_log: str = ''
 ) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -98,6 +99,8 @@ def graph_summary(
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
         A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+    error_log: str
+        Where to write any graph processing error message (stderr, by default)
 
     Returns
     -------
@@ -122,6 +125,7 @@ def graph_summary(
             name='Graph',
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
+            error_log=error_log
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")

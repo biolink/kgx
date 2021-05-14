@@ -73,6 +73,13 @@ def cli():
     multiple=True,
     help='A list of edge properties from which to generate counts per value for those properties',
 )
+@click.option(
+    '--error-log',
+    '-l',
+    required=False,
+    type=click.Path(exists=False),
+    help='File within which to report graph data parsing errors (default: "stderr")'
+)
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
@@ -83,6 +90,7 @@ def graph_summary_wrapper(
     stream: bool,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
+    error_log: str = ''
 ):
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -109,6 +117,8 @@ def graph_summary_wrapper(
     edge_facet_properties: Optional[Set]
         A list of edge properties from which to generate counts per value for those properties.
         For example, ``['provided_by']``
+    error_log: str
+        Where to write any graph processing error message (stderr, by default)
     """
     graph_summary(
         inputs,
@@ -120,6 +130,7 @@ def graph_summary_wrapper(
         stream,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
+        error_log=error_log
     )
 
 

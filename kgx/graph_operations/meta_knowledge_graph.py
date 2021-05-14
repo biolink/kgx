@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional, Any, Callable
-from sys import stdout
+from sys import stderr
 
 import yaml
 from json import dump
@@ -8,7 +8,6 @@ from json.encoder import JSONEncoder
 from kgx import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
-
 
 """
 Generate a knowledge map that corresponds to TRAPI KnowledgeMap.
@@ -62,15 +61,18 @@ class MetaKnowledgeGraph:
         (Graph) name assigned to the summary.
     progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
         Function given a peek at the current record being processed by the class wrapped Callable.
+    error_log:
+        Where to write any graph processing error message (stderr, by default)
     """
-
     def __init__(
             self,
             name='',
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            error_log=None,
             **kwargs
     ):
         # formal args
+
         self.name = name
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
@@ -78,9 +80,16 @@ class MetaKnowledgeGraph:
         self.node_catalog: Dict[str, List[int]] = dict()
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
         self.node_stats['unknown'] = self.Category('unknown')
+        self.edge_record_count: int = 0
+        self.predicates: Dict = dict()
         self.association_map: Dict = dict()
         self.edge_stats = []
         self.graph_stats: Dict[str, Dict] = dict()
+
+        if error_log:
+            self.error_log = open(error_log, 'w')
+        else:
+            self.error_log = stderr
 
     def __call__(self, entity_type: GraphEntityType, rec: List):
         """
@@ -153,12 +162,22 @@ class MetaKnowledgeGraph:
         # The TRAPI release 1.1 meta_knowledge_graph format indexes nodes by biolink:Category
         # the node 'category' field is a list of assigned categories (usually just one...).
         # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
-        if n not in self.node_catalog:
+        if n in self.node_catalog:
+            # Report duplications of node records, as discerned from node id.
+            print("Duplicate node identifier '" + n +
+                  "' encountered in input node data? Ignoring...", file=self.error_log)
+            return
+        else:
             self.node_catalog[n] = list()
             
         if 'category' not in data:
             category = self.node_stats['unknown']
             category.analyse_node_category(n, data)
+            print(
+                "Node with identifier '" + n +
+                "' is missing its 'category' value? " +
+                "Counting it as 'unknown', but otherwise ignoring in the analysis...", file=self.error_log
+            )
             return
         
         for category_data in data['category']:
@@ -180,54 +199,108 @@ class MetaKnowledgeGraph:
         # graph stream were analysed first by the MetaKnowledgeGraph
         # before the edges are analysed, thus we can test for
         # node 'n' existence internally, by identifier.
-        if u in self.node_catalog:
-            subject_category = \
-                MetaKnowledgeGraph.Category.get_category_curie(self.node_catalog[u][0])
+        #
+        # Given the use case of multiple categories being assigned to a given node in a KGX data file,
+        # either by category inheritance (ancestry all the way back up to NamedThing)
+        # or by conflation (i.e. gene == protein id?), then the Cartesian product of
+        # subject/object edges mappings need to be captured here.
+        #
+        self.edge_record_count += 1
+
+        predicate = data['predicate']
+        if predicate not in self.predicates:
+            # just need to track the number
+            # of edge records using this predicate
+            self.predicates[predicate] = 0
+        self.predicates[predicate] += 1
+
+        if u not in self.node_catalog:
+            print("Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...", file=self.error_log)
+            # removing from edge count
+            self.edge_record_count -= 1
+            self.predicates[predicate] -= 1
+            return
         else:
-            subject_category = 'unknown'
-        if v in self.node_catalog:
-            object_category = \
-                MetaKnowledgeGraph.Category.get_category_curie(self.node_catalog[v][0])
-        else:
-            object_category = 'unknown'
+            for subj_cat_idx in self.node_catalog[u]:
+                subject_category = MetaKnowledgeGraph.Category.get_category_curie(subj_cat_idx)
 
-        triple = (subject_category, data['predicate'], object_category)
-        if triple not in self.association_map:
-            self.association_map[triple] = {
-                'subject': triple[0],
-                'predicate': triple[1],
-                'object': triple[2],
-                'relations': set(),
-                'count': 0,
-                'count_by_source': {'unknown': 0},
-            }
-
-        if data['relation'] not in self.association_map[triple]['relations']:
-            self.association_map[triple]['relations'].add(data['relation'])
-
-        self.association_map[triple]['count'] += 1
-        if 'provided_by' in data:
-            for s in data['provided_by']:
-                if s not in self.association_map[triple]['count_by_source']:
-                    self.association_map[triple]['count_by_source'][s] = 1
+                if v not in self.node_catalog:
+                    print("Edge 'object' node ID '" + v +
+                          "' not found in node catalog? Ignoring...", file=self.error_log)
+                    self.edge_record_count -= 1
+                    self.predicates[predicate] -= 1
+                    return
                 else:
-                    self.association_map[triple]['count_by_source'][s] += 1
-        else:
-            self.association_map[triple]['count_by_source']['unknown'] += 1
+                    for obj_cat_idx in self.node_catalog[v]:
+                        object_category = MetaKnowledgeGraph.Category.get_category_curie(obj_cat_idx)
+
+                        # Process the 'valid' S-P-O triple here...
+                        triple = (subject_category, predicate, object_category)
+                        if triple not in self.association_map:
+                            self.association_map[triple] = {
+                                'subject': triple[0],
+                                'predicate': triple[1],
+                                'object': triple[2],
+                                'relations': set(),
+                                'count': 0,
+                                'count_by_source': {'unknown': 0},
+                            }
+
+                        if data['relation'] not in self.association_map[triple]['relations']:
+                            self.association_map[triple]['relations'].add(data['relation'])
+
+                        self.association_map[triple]['count'] += 1
+                        if 'provided_by' in data:
+                            for s in data['provided_by']:
+                                if s not in self.association_map[triple]['count_by_source']:
+                                    self.association_map[triple]['count_by_source'][s] = 1
+                                else:
+                                    self.association_map[triple]['count_by_source'][s] += 1
+                        else:
+                            self.association_map[triple]['count_by_source']['unknown'] += 1
 
     def get_name(self):
+        """
+        Returns
+        -------
+        str
+            Currently assigned knowledge graph name.
+        """
         return self.name
 
-    def get_category(self, category: str) -> Category:
-        return self.node_stats[category]
+    def get_category(self, category_curie: str) -> Category:
+        """
+        Counts the number of distinct (Biolink) categories encountered
+        in the knowledge graph (not including those of 'unknown' category)
+
+        Parameters
+        ----------
+        category_curie: str
+            Curie identifier for the (Biolink) category.
+
+        Returns
+        -------
+        Category
+            MetaKnowledgeGraph.Category object for a given Biolink category.
+        """
+        return self.node_stats[category_curie]
 
     def get_node_stats(self) -> Dict[str, Category]:
         if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
             self.node_stats.pop('unknown')
         return self.node_stats
 
-    def get_category_count(self) -> int:
-        return len(self.node_stats)
+    def get_number_of_categories(self) -> int:
+        """
+        Counts the number of distinct (Biolink) categories encountered
+        in the knowledge graph (not including those of 'unknown' category)
+
+        Returns
+        -------
+        int
+            Number of distinct (Biolink) categories found in the graph (excluding the 'unknown' category)
+        """
+        return len([c for c in self.node_stats.keys() if c != 'unknown'])
 
     def get_edge_stats(self) -> List:
         # Not sure if this is "safe" but assume
@@ -240,16 +313,136 @@ class MetaKnowledgeGraph:
                 self.edge_stats.append(kedge)
         return self.edge_stats
 
-    def get_edge_map_count(self) -> int:
-        return len(self.edge_stats)
-
     def get_total_nodes_count(self) -> int:
+        """
+        Counts the total number of distinct nodes in the knowledge graph
+        (**not** including those ignored due to being of 'unknown' category)
+
+        Returns
+        -------
+        int
+            Number of distinct nodes in the knowledge.
+        """
+        return len(self.node_catalog)
+
+    def get_node_count_by_category(self, category_curie: str) -> int:
+        """
+        Counts the number of edges in the graph
+        with the specified (Biolink) category curie.
+
+        Parameters
+        ----------
+        category_curie: str
+            Curie identifier for the (Biolink) category.
+
+        Returns
+        -------
+        int
+            Number of nodes for the given category.
+
+        Raises
+        ------
+        RuntimeError
+            Error if category identifier is empty string or None.
+        """
+        if not category_curie:
+            raise RuntimeError("get_node_count_by_category(): null or empty category argument!?")
+        if category_curie in self.node_stats.keys():
+            return self.node_stats[category_curie].get_count()
+        else:
+            return 0
+
+    def get_total_node_counts_across_categories(self) -> int:
+        """
+        The aggregate count of all node category assignments for every category.
+        Note that nodes with multiple categories will have their count replicated
+        under each of its categories.
+
+        Parameters
+        ----------
+        category_curie: str
+            Curie identifier for the (Biolink) category.
+
+        Returns
+        -------
+        int
+            Number of nodes for the given category.
+        """
         count = 0
         for category in self.node_stats.values():
             count += category.get_count()
         return count
 
     def get_total_edges_count(self) -> int:
+        """
+        Gets the total number of 'valid' edges in the data set
+        (ignoring those with 'unknown' subject or predicate category mappings)
+
+        :return int count of edges
+        """
+        return self.edge_record_count
+
+    def get_edge_mapping_count(self) -> int:
+        """
+        Counts the number of distinct edge
+        Subject (category) - P (predicate) -> Object (category)
+        mappings in the knowledge graph.
+
+        Returns
+        ----------
+        int
+            Count of mappings
+        """
+        return len(self.get_edge_stats())
+
+    def get_predicate_count(self) -> int:
+        """
+        Counts the number of distinct edge predicates
+        in the knowledge graph.
+
+        Returns
+        ----------
+        int
+            Number of (Biolink) predicates.
+        """
+        return len(self.predicates)
+
+    def get_edge_count_by_predicate(self, predicate_curie: str) -> int:
+        """
+        Counts the number of edges in the graph with the specified predicate.
+
+        Parameters
+        ----------
+        predicate_curie: str
+            (Biolink) curie identifier for the predicate.
+
+        Returns
+        -------
+        int
+            Number of edges for the given predicate.
+
+        Raises
+        ------
+        RuntimeError
+            Error if predicate identifier is empty string or None.
+        """
+        if not predicate_curie:
+            raise RuntimeError("get_node_count_by_category(): null or empty predicate argument!?")
+        if predicate_curie in self.predicates:
+            return self.predicates[predicate_curie]
+        return 0
+
+    def get_total_edge_counts_across_mappings(self) -> int:
+        """
+        Aggregate count of the edges in the graph for every mapping. Edges
+        with subject and object nodes with multiple assigned categories will
+        have their count replicated under each distinct mapping of its categories.
+
+        Returns
+        -------
+        int
+            Number of the edges counted across all mappings.
+        """
         count = 0
         for edge in self.get_edge_stats():
             count += edge['count']
@@ -389,7 +582,7 @@ def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) ->
 
     """
     graph_stats = summarize_graph(graph, name)
-    with open(filename, 'w') as mkgh:
+    with open(filename, mode='w') as mkgh:
         dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
 

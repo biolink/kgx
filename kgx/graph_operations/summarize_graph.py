@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional, Any, Callable
-from sys import stdout
+from sys import stderr
 
 import yaml
 from json import dump
@@ -43,40 +43,44 @@ def gs_default(o):
 
 
 class GraphSummary:
-    """
-    Class for generating a "classical" knowledge graph summary.
-
-    The optional 'progress_monitor' for the validator should be a lightweight Callable
-    which is injected into the class 'inspector' Callable, designed to intercepts
-    node and edge records streaming through the Validator (inside a Transformer.process() call.
-    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
-    The second argument given to the Callable is the current record itself.
-    This Callable is strictly meant to be procedural and should *not* mutate the record.
-    The intent of this Callable is to provide a hook to KGX applications wanting the
-    namesake function of passively monitoring the graph data stream. As such, the Callable
-    could simply tally up the number of times it is called with a NODE or an EDGE, then
-    provide a suitable (quick!) report of that count back to the KGX application. The
-    Callable (function/callable class) should not modify the record and should be of low
-    complexity, so as not to introduce a large computational overhead to validation!
-
-    Parameters
-    ----------
-    name: str
-        (Graph) name assigned to the summary.
-    node_facet_properties: Optional[List]
-            A list of properties to facet on. For example, ``['provided_by']``
-    edge_facet_properties: Optional[List]
-            A list of properties to facet on. For example, ``['provided_by']``
-    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
-        Function given a peek at the current record being processed by the class wrapped Callable.
-    """
     def __init__(
             self,
             name='',
             node_facet_properties: Optional[List] = None,
             edge_facet_properties: Optional[List] = None,
+            error_log: str = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
     ):
+        """
+        Class for generating a "classical" knowledge graph summary.
+
+        The optional 'progress_monitor' for the validator should be a lightweight Callable
+        which is injected into the class 'inspector' Callable, designed to intercepts
+        node and edge records streaming through the Validator (inside a Transformer.process() call.
+        The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
+        The second argument given to the Callable is the current record itself.
+        This Callable is strictly meant to be procedural and should *not* mutate the record.
+        The intent of this Callable is to provide a hook to KGX applications wanting the
+        namesake function of passively monitoring the graph data stream. As such, the Callable
+        could simply tally up the number of times it is called with a NODE or an EDGE, then
+        provide a suitable (quick!) report of that count back to the KGX application. The
+        Callable (function/callable class) should not modify the record and should be of low
+        complexity, so as not to introduce a large computational overhead to validation!
+
+        Parameters
+        ----------
+        name: str
+            (Graph) name assigned to the summary.
+        node_facet_properties: Optional[List]
+                A list of properties to facet on. For example, ``['provided_by']``
+        edge_facet_properties: Optional[List]
+                A list of properties to facet on. For example, ``['provided_by']``
+        progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
+            Function given a peek at the current record being processed by the class wrapped Callable.
+        error_log: str
+            Where to write any graph processing error message (stderr, by default)
+
+        """
         # formal arguments
         self.name = name
         
@@ -91,6 +95,11 @@ class GraphSummary:
                 self.edge_stats[facet_property] = set()
 
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
+
+        if error_log:
+            self.error_log = open(error_log, mode='w')
+        else:
+            self.error_log = stderr
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
