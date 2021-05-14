@@ -98,6 +98,11 @@ class TsvSource(Source):
             kwargs['quoting'] = 3  # type: ignore
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
+                # Alas, the order that tar file members is important  in some streaming operations (i.e. graph-summary,
+                # and validation) in that generally, all the node files need to be loaded first, then, the
+                # associated edges files can be loaded and analysed.
+                # TODO: we need to examine the table  of  contents  of the TAR
+                #       then, extract the files in that order: nodes first, edges second.
                 for member in tar.getmembers():
                     f = tar.extractfile(member)
                     # TODO: can this somehow be streamed here?
