@@ -1,6 +1,6 @@
 import re
 import tarfile
-from typing import Dict, Tuple, Any, Generator, Optional, Union
+from typing import Dict, Tuple, Any, Generator, Optional, Union, List
 import pandas as pd
 
 from kgx.config import get_logger
@@ -98,12 +98,30 @@ class TsvSource(Source):
             kwargs['quoting'] = 3  # type: ignore
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
-                # Alas, the order that tar file members is important  in some streaming operations (i.e. graph-summary,
-                # and validation) in that generally, all the node files need to be loaded first, then, the
-                # associated edges files can be loaded and analysed.
-                # TODO: we need to examine the table  of  contents  of the TAR
-                #       then, extract the files in that order: nodes first, edges second.
-                for member in tar.getmembers():
+                # Alas, the order that tar file members is important in some streaming operations
+                # (e.g. graph-summary and validation) in that generally, all the node files need to be
+                # loaded first,  followed by the  associated edges files can be loaded and analysed.
+
+                # Start by partitioning files of each type into separate lists
+                node_files: List[str] = list()
+                edge_files: List[str] = list()
+                for name in tar.getnames():
+                    if re.search(f'nodes.{format}', name):
+                        node_files.append(name)
+                    elif re.search(f'edges.{format}', name):
+                        edge_files.append(name)
+                    else:
+                        # This used to throw an exception but perhaps we should simply ignore it.
+                        log.warning(f'Tar archive contains an unrecognized file: {name}. Skipped...')
+
+                # Then, first extract and capture contents of the nodes files...
+                for name in node_files:
+                    try:
+                        member = tar.getmember(name)
+                    except KeyError as ke:
+                        log.warning(f"Node file {name} member in archive {filename} could not be accessed? Skipped?")
+                        continue
+
                     f = tar.extractfile(member)
                     # TODO: can this somehow be streamed here?
                     file_iter = pd.read_csv(
@@ -114,16 +132,31 @@ class TsvSource(Source):
                         keep_default_na=False,
                         **kwargs,
                     )
-                    if re.search(f'nodes.{format}', member.name):
-                        for chunk in file_iter:
-                            self.node_properties.update(chunk.columns)
-                            yield from self.read_nodes(chunk)
-                    elif re.search(f'edges.{format}', member.name):
-                        for chunk in file_iter:
-                            self.edge_properties.update(chunk.columns)
-                            yield from self.read_edges(chunk)
-                    else:
-                        raise Exception(f'Tar archive contains an unrecognized file: {member.name}')
+                    for chunk in file_iter:
+                        self.node_properties.update(chunk.columns)
+                        yield from self.read_nodes(chunk)
+
+                # Next, extract and capture contents of the edges files...
+                for name in edge_files:
+                    try:
+                        member = tar.getmember(name)
+                    except KeyError as ke:
+                        log.warning(f"Edge file {name} member in archive {filename} could not be accessed? Skipped?")
+                        continue
+
+                    f = tar.extractfile(member)
+                    # TODO: can this somehow be streamed here?
+                    file_iter = pd.read_csv(
+                        f,
+                        dtype=str,
+                        chunksize=10000,
+                        low_memory=False,
+                        keep_default_na=False,
+                        **kwargs,
+                    )
+                    for chunk in file_iter:
+                        self.edge_properties.update(chunk.columns)
+                        yield from self.read_edges(chunk)
         else:
             file_iter = pd.read_csv(
                 filename,
@@ -175,7 +208,6 @@ class TsvSource(Source):
         -------
         Optional[Tuple[str, Dict]]
             A tuple that contains node id and node data
-
         """
         node = validate_node(node)
         node_data = sanitize_import(node.copy())
