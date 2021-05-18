@@ -218,7 +218,7 @@ def test_summarize_graph_inspector():
 
     transformer.transform(input_args=input_args, inspector=inspector)
     
-    output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.json')
+    output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.yaml')
 
     with open(output_filename, 'w') as gsh:
         inspector.save(output_filename)

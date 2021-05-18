@@ -78,8 +78,10 @@ class MetaKnowledgeGraph:
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
+
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
         self.node_stats['unknown'] = self.Category('unknown')
+
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
         self.association_map: Dict = dict()
@@ -140,8 +142,11 @@ class MetaKnowledgeGraph:
         def analyse_node_category(self, n, data):
             prefix = PrefixManager.get_prefix(n)
             self.category_stats['count'] += 1
-            if prefix not in self.category_stats['id_prefixes']:
-                self.category_stats['id_prefixes'].add(prefix)
+            if not prefix:
+                print(f"Warning: node id {n} has no CURIE prefix", file=self.error_log)
+            else:
+                if prefix not in self.category_stats['id_prefixes']:
+                    self.category_stats['id_prefixes'].add(prefix)
             if 'provided_by' in data:
                 for s in data['provided_by']:
                     if s in self.category_stats['count_by_source']:
@@ -174,13 +179,14 @@ class MetaKnowledgeGraph:
             category = self.node_stats['unknown']
             category.analyse_node_category(n, data)
             print(
-                "Node with identifier '" + n +
-                "' is missing its 'category' value? " +
+                "Node with identifier '" + n + "' is missing its 'category' value? " +
                 "Counting it as 'unknown', but otherwise ignoring in the analysis...", file=self.error_log
             )
             return
-        
-        for category_data in data['category']:
+
+        categories = data['category']
+
+        for category_data in categories:
             # we note here that category_curie may be
             # a piped '|' set of Biolink category CURIE values
             categories = category_data.split("|")

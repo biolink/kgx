@@ -103,6 +103,10 @@ class GraphSummary:
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
+
+        self.node_categories: Dict[str, GraphSummary.Category] = dict()
+        self.node_categories['unknown'] = self.Category('unknown')
+
         self.node_stats: Dict = {
             TOTAL_NODES: 0,
             NODE_CATEGORIES: set(),
@@ -146,6 +150,9 @@ class GraphSummary:
             self.category_stats['count'] = 0
             self.category_stats['count_by_source'] = {'unknown': 0}
 
+        def get_name(self):
+            return self.category
+
         def get_cid(self):
             return self._category_curie_map.index(self.category)
 
@@ -164,7 +171,7 @@ class GraphSummary:
                 return {source: self.category_stats['count_by_source'][source]}
             return self.category_stats['count_by_source']
 
-        def analyse_node_category(self, n, data):
+        def analyse_node_category(self, summary, n, data):
             prefix = PrefixManager.get_prefix(n)
             self.category_stats['count'] += 1
             if prefix not in self.category_stats['id_prefixes']:
@@ -177,6 +184,14 @@ class GraphSummary:
                         self.category_stats['count_by_source'][s] = 1
             else:
                 self.category_stats['count_by_source']['unknown'] += 1
+            #
+            # Moved this computation from the 'analyse_node() method below
+            #
+            if summary.node_facet_properties:
+                for facet_property in summary.node_facet_properties:
+                    summary.node_stats = summary.get_facet_counts(
+                        data, summary.node_stats, COUNT_BY_CATEGORY, self.category, facet_property
+                    )
 
         def json_object(self):
             return {
@@ -186,36 +201,42 @@ class GraphSummary:
             }
 
     def analyse_node(self, n, data):
-        if n not in self.node_catalog:
+        if n in self.node_catalog:
+            # Report duplications of node records, as discerned from node id.
+            print("Duplicate node identifier '" + n +
+                  "' encountered in input node data? Ignoring...", file=self.error_log)
+            return
+        else:
             self.node_catalog[n] = list()
         
         if 'category' not in data:
-            self.node_stats[COUNT_BY_CATEGORY]['unknown']['count'] += 1
+            category = self.node_categories['unknown']
+            category.analyse_node_category(self, n, data)
+            print(
+                "Node with identifier '" + n + "' is missing its 'category' value? " +
+                "Counting it as 'unknown', but otherwise ignoring in the analysis...", file=self.error_log
+            )
             return
         
         categories = data['category']
-        self.node_stats[NODE_CATEGORIES].update(categories)
-
         for category_curie in categories:
-            # if category_curie not in self.node_stats:
-            #    self.node_stats[category_curie] = self.Category(category_curie)
-            # category = self.node_stats[category_curie]
-            # category_idx: int = category.get_cid()
-            # if category_idx not in self.node_catalog[n]:
-            #    self.node_catalog[n].append(category_idx)
-            # category.analyse_node_category(n, data)
-            
-            if category_curie in self.node_stats[COUNT_BY_CATEGORY]:
-                self.node_stats[COUNT_BY_CATEGORY][category_curie]['count'] += 1
-            else:
-                self.node_stats[COUNT_BY_CATEGORY][category_curie] = {'count': 1}
-            
-            if self.node_facet_properties:
-                for facet_property in self.node_facet_properties:
-                    self.node_stats = self.get_facet_counts(
-                        data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
-                    )
-        
+            if category_curie not in self.node_categories:
+               self.node_categories[category_curie] = self.Category(category_curie)
+            category = self.node_categories[category_curie]
+            category_idx: int = category.get_cid()
+            if category_idx not in self.node_catalog[n]:
+               self.node_catalog[n].append(category_idx)
+            category.analyse_node_category(self, n, data)
+
+        #
+        # Moved this computation from the 'analyse_node_category() method above
+        #
+        # if self.node_facet_properties:
+        #     for facet_property in self.node_facet_properties:
+        #         self.node_stats = self.get_facet_counts(
+        #             data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
+        #         )
+
         # TODO: review these operations since self.node_stats[NODE_CATEGORIES] is supposed to
         #       be a Set (which is intrinsically unordered?) and this operation appears to be
         #       applied for the processing of every node, which seems unnecessary and time wasteful?
@@ -230,6 +251,9 @@ class GraphSummary:
         # graph stream were analysed first by the GraphSummary
         # before the edges are analysed, thus we can test for
         # node 'n' existence internally, by identifier.
+
+        self.edge_stats[TOTAL_EDGES] += 1
+
         if 'predicate' not in data:
             self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] += 1
             edge_predicate = "unknown"
@@ -262,12 +286,12 @@ class GraphSummary:
         
         if u in self.node_catalog:
             subject_category = \
-                GraphSummary.Category.get_category_curie(self.node_catalog[u][0])
+                self.Category.get_category_curie(self.node_catalog[u][0])
         else:
             subject_category = 'unknown'
         if v in self.node_catalog:
             object_category = \
-                GraphSummary.Category.get_category_curie(self.node_catalog[v][0])
+                self.Category.get_category_curie(self.node_catalog[v][0])
         else:
             object_category = 'unknown'
         
@@ -285,22 +309,46 @@ class GraphSummary:
         return self.name
     
     def get_node_stats(self) -> Dict[str, Any]:
+
+        for category in self.node_categories.values():
+            category_curie = category.get_name()
+            self.node_stats[NODE_CATEGORIES].add(category_curie)
+            self.node_stats[COUNT_BY_CATEGORY][category_curie] = category.get_count()
+
+        if not self.node_stats[TOTAL_NODES]:
+            self.node_stats[TOTAL_NODES] = len(self.node_catalog)
+
         return self.node_stats
     
     def add_node_stat(self, tag: str, value: Any):
         self.node_stats[tag] = value
     
-    def get_edge_stats(self) -> Dict:
-        # Not sure if this is "safe" but assume that edge_stats
-        # may be cached once analyse_edge() are all processed?
-        if self.edges_processed:
+    def get_edge_stats(self) -> Dict[str, Any]:
+        # Not sure if this is "safe" but assume that edge_stats may be finalized
+        # and cached once after the first time the edge stats are accessed
+        if not self.edges_processed:
+            self.edges_processed = True
             self.edge_stats[EDGE_PREDICATES] = sorted(list(self.edge_stats[EDGE_PREDICATES]))
             if self.edge_facet_properties:
                 for facet_property in self.edge_facet_properties:
                     self.edge_stats[facet_property] = sorted(list(self.edge_stats[facet_property]))
         
         return self.edge_stats
-    
+
+    def wrap_graph_stats(
+            self,
+            graph_name: str,
+            node_stats: Dict[str, Any],
+            edge_stats: Dict[str, Any],
+    ):
+        if not self.graph_stats:
+            self.graph_stats = {
+                'graph_name': graph_name,
+                'node_stats': node_stats,
+                'edge_stats': edge_stats,
+            }
+        return self.graph_stats
+
     def get_graph_summary(self, name: str = None, **kwargs) -> Dict:
         """
         Similar to summarize_graph except that the node and edge statistics are already captured
@@ -320,18 +368,11 @@ class GraphSummary:
             A knowledge map dictionary corresponding to the graph
 
         """
-        if not self.graph_stats:
-            # JSON sent back as TRAPI 1.1 version,
-            # without the global 'knowledge_map' object tag
-            self.graph_stats = {
-                'nodes': self.get_node_stats(),
-                'edges': self.get_edge_stats()
-            }
-            if name:
-                self.graph_stats['name'] = name
-            else:
-                self.graph_stats['name'] = self.name
-        return self.graph_stats
+        return self.wrap_graph_stats(
+            graph_name=name if name else self.name,
+            node_stats=self.get_node_stats(),
+            edge_stats=self.get_edge_stats()
+        )
     
     def summarize_graph(
             self,
@@ -351,15 +392,11 @@ class GraphSummary:
             The stats dictionary
 
         """
-        if not self.graph_stats:
-            node_stats = self.summarize_graph_nodes(graph)
-            edge_stats = self.summarize_graph_edges(graph)
-            self.graph_stats = {
-                'graph_name': self.name if self.name else graph.name,
-                'node_stats': node_stats,
-                'edge_stats': edge_stats,
-            }
-        return self.graph_stats
+        return self.wrap_graph_stats(
+            graph_name=self.name if self.name else graph.name,
+            node_stats=self.summarize_graph_nodes(graph),
+            edge_stats=self.summarize_graph_edges(graph)
+        )
     
     def summarize_graph_nodes(self, graph: BaseGraph) -> Dict:
         """
@@ -375,9 +412,6 @@ class GraphSummary:
         Dict
             The node stats
         """
-        # TODO: count TOTAL_NODES somewhere else?
-        self.add_node_stat(TOTAL_NODES, len(graph.nodes()))
-
         for n, data in graph.nodes(data=True):
             self.analyse_node(n, data)
         
@@ -397,13 +431,8 @@ class GraphSummary:
         Dict
             The edge stats
         """
-        # TODO: count TOTAL_EDGES somewhere else?
-        self.edge_stats[TOTAL_EDGES] = len(graph.edges())
-        
         for u, v, k, data in graph.edges(keys=True, data=True):
             self.analyse_edge(u, v, k, data)
-        
-        self.edges_processed = True
         
         return self.get_edge_stats()
     
