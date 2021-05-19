@@ -8,8 +8,8 @@ merged_graph:
       input:
         format: tsv
         filename:
-          - tests/resources/graph_nodes.tsv
-          - tests/resources/graph_edges.tsv
+          - graph_nodes.tsv
+          - graph_edges.tsv
       filters:
         node_filters:
           category:
@@ -24,7 +24,7 @@ merged_graph:
       input:
         format: json
         filename:
-          - tests/resources/valid.json
+          - valid.json
   operations:
     - name: kgx.graph_operations.summarize_graph.generate_graph_stats
       args:

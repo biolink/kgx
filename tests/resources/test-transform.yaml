@@ -8,8 +8,8 @@ transform:
       input:
         format: tsv
         filename:
-          - tests/resources/graph_nodes.tsv
-          - tests/resources/graph_edges.tsv
+          - graph_nodes.tsv
+          - graph_edges.tsv
       output:
         format: json
         filename:
@@ -19,7 +19,7 @@ transform:
       input:
         format: json
         filename:
-          - tests/resources/valid.json
+          - valid.json
       output:
         format: tsv
         filename:

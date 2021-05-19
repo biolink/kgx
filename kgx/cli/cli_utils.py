@@ -1,8 +1,11 @@
 import importlib
+
 import os
+from os.path import dirname, abspath
+
 import sys
 from multiprocessing import Pool
-from typing import List, Tuple, Any, Optional, Dict, Set
+from typing import List, Tuple, Optional, Dict, Set
 import yaml
 
 from kgx.validator import Validator
@@ -272,6 +275,29 @@ def neo4j_upload(
     return transformer
 
 
+def _validate_files(cwd: str, file_paths: List[str], context: str = ''):
+    """
+    Utility method for resolving file paths
+    :param cwd: current working directory for resolving possible relative file path names
+    :param file_list: list of file path names to resolve
+    :param context: optional source context of of the file list
+    :return: resolved list of file paths (as absolute paths)
+    """
+    resolved_files: List[str] = list()
+    for f in file_paths:
+        # check if the file exists as an absolute path
+        if not os.path.exists(f):
+            # otherwise, check if file exists as a path
+            # relative to the provided "current working directory"
+            f = abspath(cwd + "/" + f)
+            if not os.path.exists(f):
+                raise FileNotFoundError(f"Filename '{f}' for source '{context}' does not exist!")
+        if not os.path.isfile(f):
+            raise FileNotFoundError(f"Filename '{f}' for source '{context}' is not a file!")
+        resolved_files.append(f)
+    return resolved_files
+
+
 def transform(
     inputs: Optional[List[str]],
     input_format: Optional[str] = None,
@@ -320,6 +346,10 @@ def transform(
     output_directory = 'output'
 
     if transform_config:
+        # Use the directory within which the 'transform_config' file
+        # exists as a 'current working directory' for
+        # resolving relative filename paths in the configuration.
+        cwd = dirname(transform_config)
         cfg = yaml.load(open(transform_config), Loader=yaml.FullLoader)
         top_level_args = {}
         if 'configuration' in cfg:
@@ -341,11 +371,12 @@ def transform(
         for s in source:
             source_properties = cfg['transform']['source'][s]
             if source_properties['input']['format'] in get_input_file_types():
-                for f in source_properties['input']['filename']:
-                    if not os.path.exists(f):
-                        raise FileNotFoundError(f"Filename '{f}' for source '{s}' does not exist!")
-                    elif not os.path.isfile(f):
-                        raise FileNotFoundError(f"Filename '{f}' for source '{s}' is not a file!")
+                source_properties['input']['filename'] = \
+                    _validate_files(
+                        cwd=cwd,
+                        file_paths=source_properties['input']['filename'],
+                        context=s
+                    )
 
         source_to_parse = {}
         for key, val in cfg['transform']['source'].items():
@@ -421,6 +452,11 @@ def merge(
         The merged graph
 
     """
+    # Use the directory within which the 'merge_config' file
+    # exists as a 'current working directory' for
+    # resolving relative filename paths in the configuration.
+    cwd = dirname(merge_config)
+
     with open(merge_config, 'r') as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
@@ -447,11 +483,12 @@ def merge(
     for s in source:
         source_properties = cfg['merged_graph']['source'][s]
         if source_properties['input']['format'] in get_input_file_types():
-            for f in source_properties['input']['filename']:
-                if not os.path.exists(f):
-                    raise FileNotFoundError(f"Filename '{f}' for source '{s}' does not exist!")
-                elif not os.path.isfile(f):
-                    raise FileNotFoundError(f"Filename '{f}' for source '{s}' is not a file!")
+            source_properties['input']['filename'] = \
+                _validate_files(
+                    cwd=cwd,
+                    file_paths=source_properties['input']['filename'],
+                    context=s
+                )
 
     sources_to_parse = {}
     for key in cfg['merged_graph']['source']:
