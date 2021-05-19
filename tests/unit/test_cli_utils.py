@@ -57,7 +57,7 @@ def test_graph_summary1():
     assert summary_stats['node_stats']['total_nodes'] == 512
     assert 'biolink:Gene' in summary_stats['node_stats']['node_categories']
     assert 'biolink:Disease' in summary_stats['node_stats']['node_categories']
-    assert summary_stats['edge_stats']['total_edges'] == 532
+    assert summary_stats['edge_stats']['total_edges'] == 540
     assert 'biolink:has_phenotype' in summary_stats['edge_stats']['predicates']
     assert 'biolink:interacts_with' in summary_stats['edge_stats']['predicates']
 
