@@ -213,12 +213,16 @@ class MetaKnowledgeGraph:
         #
         self.edge_record_count += 1
 
-        predicate = data['predicate']
-        if predicate not in self.predicates:
-            # just need to track the number
-            # of edge records using this predicate
-            self.predicates[predicate] = 0
-        self.predicates[predicate] += 1
+        if 'predicate' not in data:
+            self.predicates['unknown'] += 1
+            predicate = "unknown"
+        else:
+            predicate = data['predicate']
+            if predicate not in self.predicates:
+                # just need to track the number
+                # of edge records using this predicate
+                self.predicates[predicate] = 0
+            self.predicates[predicate] += 1
 
         if u not in self.node_catalog:
             print("Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...", file=self.error_log)
@@ -226,44 +230,46 @@ class MetaKnowledgeGraph:
             self.edge_record_count -= 1
             self.predicates[predicate] -= 1
             return
-        else:
-            for subj_cat_idx in self.node_catalog[u]:
-                subject_category = MetaKnowledgeGraph.Category.get_category_curie(subj_cat_idx)
 
-                if v not in self.node_catalog:
-                    print("Edge 'object' node ID '" + v +
-                          "' not found in node catalog? Ignoring...", file=self.error_log)
-                    self.edge_record_count -= 1
-                    self.predicates[predicate] -= 1
-                    return
-                else:
-                    for obj_cat_idx in self.node_catalog[v]:
-                        object_category = MetaKnowledgeGraph.Category.get_category_curie(obj_cat_idx)
+        for subj_cat_idx in self.node_catalog[u]:
 
-                        # Process the 'valid' S-P-O triple here...
-                        triple = (subject_category, predicate, object_category)
-                        if triple not in self.association_map:
-                            self.association_map[triple] = {
-                                'subject': triple[0],
-                                'predicate': triple[1],
-                                'object': triple[2],
-                                'relations': set(),
-                                'count': 0,
-                                'count_by_source': {'unknown': 0},
-                            }
+            subject_category = self.Category.get_category_curie(subj_cat_idx)
 
-                        if data['relation'] not in self.association_map[triple]['relations']:
-                            self.association_map[triple]['relations'].add(data['relation'])
+            if v not in self.node_catalog:
+                print("Edge 'object' node ID '" + v +
+                      "' not found in node catalog? Ignoring...", file=self.error_log)
+                self.edge_record_count -= 1
+                self.predicates[predicate] -= 1
+                return
 
-                        self.association_map[triple]['count'] += 1
-                        if 'provided_by' in data:
-                            for s in data['provided_by']:
-                                if s not in self.association_map[triple]['count_by_source']:
-                                    self.association_map[triple]['count_by_source'][s] = 1
-                                else:
-                                    self.association_map[triple]['count_by_source'][s] += 1
+            for obj_cat_idx in self.node_catalog[v]:
+
+                object_category = self.Category.get_category_curie(obj_cat_idx)
+
+                # Process the 'valid' S-P-O triple here...
+                triple = (subject_category, predicate, object_category)
+                if triple not in self.association_map:
+                    self.association_map[triple] = {
+                        'subject': triple[0],
+                        'predicate': triple[1],
+                        'object': triple[2],
+                        'relations': set(),
+                        'count': 0,
+                        'count_by_source': {'unknown': 0},
+                    }
+
+                if data['relation'] not in self.association_map[triple]['relations']:
+                    self.association_map[triple]['relations'].add(data['relation'])
+
+                self.association_map[triple]['count'] += 1
+                if 'provided_by' in data:
+                    for s in data['provided_by']:
+                        if s not in self.association_map[triple]['count_by_source']:
+                            self.association_map[triple]['count_by_source'][s] = 1
                         else:
-                            self.association_map[triple]['count_by_source']['unknown'] += 1
+                            self.association_map[triple]['count_by_source'][s] += 1
+                else:
+                    self.association_map[triple]['count_by_source']['unknown'] += 1
 
     def get_name(self):
         """

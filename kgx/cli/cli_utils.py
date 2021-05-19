@@ -1,5 +1,4 @@
 import importlib
-import json
 
 import os
 from os.path import dirname, abspath
@@ -9,7 +8,6 @@ from multiprocessing import Pool
 from typing import List, Tuple, Any, Optional, Dict, Set
 import yaml
 
-from kgx.graph_operations.meta_knowledge_graph import MetaKnowledgeGraph
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP

@@ -114,6 +114,8 @@ class GraphSummary:
         self.node_categories: Dict[str, GraphSummary.Category] = dict()
         self.node_categories['unknown'] = self.Category('unknown')
 
+        self.nodes_processed = False
+
         self.node_stats: Dict = {
             TOTAL_NODES: 0,
             NODE_CATEGORIES: set(),
@@ -123,13 +125,16 @@ class GraphSummary:
             COUNT_BY_ID_PREFIXES_BY_CATEGORY: dict(),
             COUNT_BY_ID_PREFIXES: dict(),
         }
+
+        self.edges_processed: bool = False
+
         self.edge_stats: Dict = {
             TOTAL_EDGES: 0,
             EDGE_PREDICATES: set(),
             COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
             COUNT_BY_SPO: {},
         }
-        self.edges_processed: bool = False
+
         self.graph_stats: Dict[str, Dict] = dict()
     
     def __call__(self, entity_type: GraphEntityType, rec: List):
@@ -280,57 +285,72 @@ class GraphSummary:
                         data, self.edge_stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property
                     )
         
-        if u in self.node_catalog:
-            subject_category = \
-                self.Category.get_category_curie(self.node_catalog[u][0])
-        else:
-            subject_category = 'unknown'
-        if v in self.node_catalog:
-            object_category = \
-                self.Category.get_category_curie(self.node_catalog[v][0])
-        else:
-            object_category = 'unknown'
+        if u not in self.node_catalog:
+            print("Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...", file=self.error_log)
+            # removing from edge count
+            self.edge_stats[TOTAL_EDGES] -= 1
+            self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
+            return
+
+        for subj_cat_idx in self.node_catalog[u]:
+            subject_category = self.Category.get_category_curie(subj_cat_idx)
+
+            if v not in self.node_catalog:
+                print("Edge 'object' node ID '" + v +
+                      "' not found in node catalog? Ignoring...", file=self.error_log)
+                self.edge_stats[TOTAL_EDGES] -= 1
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
+                return
+
+            for obj_cat_idx in self.node_catalog[v]:
+
+                object_category = self.Category.get_category_curie(obj_cat_idx)
+
+                # Process the 'valid' S-P-O triple here...
+                key = f"{subject_category}-{edge_predicate}-{object_category}"
+                if key in self.edge_stats[COUNT_BY_SPO]:
+                    self.edge_stats[COUNT_BY_SPO][key]['count'] += 1
+                else:
+                    self.edge_stats[COUNT_BY_SPO][key] = {'count': 1}
         
-        key = f"{subject_category}-{edge_predicate}-{object_category}"
-        if key in self.edge_stats[COUNT_BY_SPO]:
-            self.edge_stats[COUNT_BY_SPO][key]['count'] += 1
-        else:
-            self.edge_stats[COUNT_BY_SPO][key] = {'count': 1}
-        
-        if self.edge_facet_properties:
-            for facet_property in self.edge_facet_properties:
-                self.edge_stats = self.get_facet_counts(data, self.edge_stats, COUNT_BY_SPO, key, facet_property)
+                if self.edge_facet_properties:
+                    for facet_property in self.edge_facet_properties:
+                        self.edge_stats = \
+                            self.get_facet_counts(data, self.edge_stats, COUNT_BY_SPO, key, facet_property)
     
     def get_name(self):
         return self.name
     
     def get_node_stats(self) -> Dict[str, Any]:
 
-        for category in self.node_categories.values():
-            category_curie = category.get_name()
-            self.node_stats[NODE_CATEGORIES].add(category_curie)
-            self.node_stats[COUNT_BY_CATEGORY][category_curie] = category.get_count()
+        if not self.nodes_processed:
+            self.nodes_processed = True
 
-            id_prefixes = category.get_id_prefixes()
-            self.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category_curie] = id_prefixes
-            self.node_stats[NODE_ID_PREFIXES].update(id_prefixes)
+            for category in self.node_categories.values():
+                category_curie = category.get_name()
+                self.node_stats[NODE_CATEGORIES].add(category_curie)
+                self.node_stats[COUNT_BY_CATEGORY][category_curie] = category.get_count()
 
-            self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie] = category.get_count_by_id_prefixes()
+                id_prefixes = category.get_id_prefixes()
+                self.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category_curie] = id_prefixes
+                self.node_stats[NODE_ID_PREFIXES].update(id_prefixes)
 
-            for prefix in self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie]:
-                if prefix not in self.node_stats[COUNT_BY_ID_PREFIXES]:
-                    self.node_stats[COUNT_BY_ID_PREFIXES][prefix] = 0
-                self.node_stats[COUNT_BY_ID_PREFIXES][prefix] += \
-                    self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie][prefix]
+                self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie] = category.get_count_by_id_prefixes()
 
-        self.node_stats[NODE_CATEGORIES] = sorted(list(self.node_stats[NODE_CATEGORIES]))
+                for prefix in self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie]:
+                    if prefix not in self.node_stats[COUNT_BY_ID_PREFIXES]:
+                        self.node_stats[COUNT_BY_ID_PREFIXES][prefix] = 0
+                    self.node_stats[COUNT_BY_ID_PREFIXES][prefix] += \
+                        self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie][prefix]
 
-        if self.node_facet_properties:
-            for facet_property in self.node_facet_properties:
-                self.node_stats[facet_property] = sorted(list(self.node_stats[facet_property]))
+            self.node_stats[NODE_CATEGORIES] = sorted(list(self.node_stats[NODE_CATEGORIES]))
 
-        if not self.node_stats[TOTAL_NODES]:
-            self.node_stats[TOTAL_NODES] = len(self.node_catalog)
+            if self.node_facet_properties:
+                for facet_property in self.node_facet_properties:
+                    self.node_stats[facet_property] = sorted(list(self.node_stats[facet_property]))
+
+            if not self.node_stats[TOTAL_NODES]:
+                self.node_stats[TOTAL_NODES] = len(self.node_catalog)
 
         return self.node_stats
     
