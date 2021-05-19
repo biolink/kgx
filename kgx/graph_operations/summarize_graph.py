@@ -97,8 +97,8 @@ class GraphSummary:
             TOTAL_NODES: 0,
             NODE_CATEGORIES: set(),
             NODE_ID_PREFIXES: set(),
-            NODE_ID_PREFIXES_BY_CATEGORY: {'unknown': set()},
-            COUNT_BY_CATEGORY: {'unknown': {'count': 0}},
+            NODE_ID_PREFIXES_BY_CATEGORY: dict(),
+            COUNT_BY_CATEGORY: dict(),
             COUNT_BY_ID_PREFIXES_BY_CATEGORY: dict(),
             COUNT_BY_ID_PREFIXES: dict(),
         }
@@ -108,7 +108,7 @@ class GraphSummary:
         self.edge_stats: Dict = {
             TOTAL_EDGES: 0,
             EDGE_PREDICATES: set(),
-            COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
+            COUNT_BY_EDGE_PREDICATES: dict(),
             COUNT_BY_SPO: {},
         }
         
@@ -133,7 +133,7 @@ class GraphSummary:
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_categories: Dict[str, GraphSummary.Category] = dict()
-        self.node_categories['unknown'] = self.Category('unknown')
+        self.node_categories['unknown'] = GraphSummary.Category('unknown', self)
 
         self.graph_stats: Dict[str, Dict] = dict()
     
@@ -157,8 +157,22 @@ class GraphSummary:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category=''):
+        def __init__(self, category, summary):
+            # generally, a Biolink  category class CURIE but also 'unknown'
             self.category = category
+
+            # it is useful to point to the GraphSummary within
+            # which this Category metadata is bring tracked...
+            self.summary = summary
+
+            # ...so that Category related entries at that
+            # higher level may be properly initialized
+            # for subsequent facet metadata access
+            self.summary.node_stats[NODE_CATEGORIES].add(category)
+            self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category] = set()
+            self.summary.node_stats[COUNT_BY_CATEGORY][category] = {'count': 0}
+            self.summary.edge_stats[COUNT_BY_EDGE_PREDICATES][category] = {'count': 0}
+
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
             self.category_stats: Dict[str, Any] = dict()
@@ -244,7 +258,7 @@ class GraphSummary:
         categories = data['category']
         for category_curie in categories:
             if category_curie not in self.node_categories:
-               self.node_categories[category_curie] = self.Category(category_curie)
+               self.node_categories[category_curie] = GraphSummary.Category(category_curie, self)
             category = self.node_categories[category_curie]
             category_idx: int = category.get_cid()
             if category_idx not in self.node_catalog[n]:
@@ -328,8 +342,8 @@ class GraphSummary:
 
             for category in self.node_categories.values():
                 category_curie = category.get_name()
-                self.node_stats[NODE_CATEGORIES].add(category_curie)
-                self.node_stats[COUNT_BY_CATEGORY][category_curie] = category.get_count()
+
+                self.node_stats[COUNT_BY_CATEGORY][category_curie]['count'] = category.get_count()
 
                 id_prefixes = category.get_id_prefixes()
                 self.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category_curie] = id_prefixes
