@@ -90,6 +90,27 @@ class GraphSummary:
         """
         # formal arguments
         self.name = name
+
+        self.nodes_processed = False
+
+        self.node_stats: Dict = {
+            TOTAL_NODES: 0,
+            NODE_CATEGORIES: set(),
+            NODE_ID_PREFIXES: set(),
+            NODE_ID_PREFIXES_BY_CATEGORY: {'unknown': set()},
+            COUNT_BY_CATEGORY: {'unknown': {'count': 0}},
+            COUNT_BY_ID_PREFIXES_BY_CATEGORY: dict(),
+            COUNT_BY_ID_PREFIXES: dict(),
+        }
+
+        self.edges_processed: bool = False
+
+        self.edge_stats: Dict = {
+            TOTAL_EDGES: 0,
+            EDGE_PREDICATES: set(),
+            COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
+            COUNT_BY_SPO: {},
+        }
         
         self.node_facet_properties: Optional[List] = node_facet_properties
         if self.node_facet_properties:
@@ -113,27 +134,6 @@ class GraphSummary:
 
         self.node_categories: Dict[str, GraphSummary.Category] = dict()
         self.node_categories['unknown'] = self.Category('unknown')
-
-        self.nodes_processed = False
-
-        self.node_stats: Dict = {
-            TOTAL_NODES: 0,
-            NODE_CATEGORIES: set(),
-            NODE_ID_PREFIXES: set(),
-            NODE_ID_PREFIXES_BY_CATEGORY: {'unknown': set()},
-            COUNT_BY_CATEGORY: {'unknown': {'count': 0}},
-            COUNT_BY_ID_PREFIXES_BY_CATEGORY: dict(),
-            COUNT_BY_ID_PREFIXES: dict(),
-        }
-
-        self.edges_processed: bool = False
-
-        self.edge_stats: Dict = {
-            TOTAL_EDGES: 0,
-            EDGE_PREDICATES: set(),
-            COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
-            COUNT_BY_SPO: {},
-        }
 
         self.graph_stats: Dict[str, Dict] = dict()
     
