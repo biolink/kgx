@@ -11,7 +11,14 @@ from kgx.prefix_manager import PrefixManager
 
 TOTAL_NODES = 'total_nodes'
 NODE_CATEGORIES = 'node_categories'
+
+NODE_ID_PREFIXES_BY_CATEGORY = 'node_id_prefixes_by_category'
+NODE_ID_PREFIXES = 'node_id_prefixes'
+
 COUNT_BY_CATEGORY = 'count_by_category'
+
+COUNT_BY_ID_PREFIXES_BY_CATEGORY = 'count_by_id_prefixes_by_category'
+COUNT_BY_ID_PREFIXES = 'count_by_id_prefixes'
 
 TOTAL_EDGES = 'total_edges'
 EDGE_PREDICATES = 'predicates'
@@ -110,7 +117,11 @@ class GraphSummary:
         self.node_stats: Dict = {
             TOTAL_NODES: 0,
             NODE_CATEGORIES: set(),
+            NODE_ID_PREFIXES: set(),
+            NODE_ID_PREFIXES_BY_CATEGORY: {'unknown': set()},
             COUNT_BY_CATEGORY: {'unknown': {'count': 0}},
+            COUNT_BY_ID_PREFIXES_BY_CATEGORY: dict(),
+            COUNT_BY_ID_PREFIXES: dict(),
         }
         self.edge_stats: Dict = {
             TOTAL_EDGES: 0,
@@ -146,9 +157,9 @@ class GraphSummary:
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
             self.category_stats: Dict[str, Any] = dict()
-            self.category_stats['id_prefixes'] = set()
-            self.category_stats['count'] = 0
-            self.category_stats['count_by_source'] = {'unknown': 0}
+            self.category_stats['count']: int = 0
+            self.category_stats['count_by_source']: Dict[str, int] = {'unknown': 0}
+            self.category_stats['count_by_id_prefix']: Dict[str, int] = dict()
 
         def get_name(self):
             return self.category
@@ -161,21 +172,27 @@ class GraphSummary:
             return cls._category_curie_map[cid]
 
         def get_id_prefixes(self):
-            return self.category_stats['id_prefixes']
+            return set(self.category_stats['count_by_id_prefix'].keys())
+
+        def get_count_by_id_prefixes(self):
+            return self.category_stats['count_by_id_prefix']
 
         def get_count(self):
             return self.category_stats['count']
 
-        def get_count_by_source(self, source: str = None) -> Dict:
-            if source:
-                return {source: self.category_stats['count_by_source'][source]}
-            return self.category_stats['count_by_source']
-
         def analyse_node_category(self, summary, n, data):
-            prefix = PrefixManager.get_prefix(n)
+
             self.category_stats['count'] += 1
-            if prefix not in self.category_stats['id_prefixes']:
-                self.category_stats['id_prefixes'].add(prefix)
+
+            prefix = PrefixManager.get_prefix(n)
+            if not prefix:
+                print(f"Warning: node id {n} has no CURIE prefix", file=self.error_log)
+            else:
+                if prefix in self.category_stats['count_by_id_prefix']:
+                    self.category_stats['count_by_id_prefix'][prefix] += 1
+                else:
+                    self.category_stats['count_by_id_prefix'][prefix] = 1
+
             if 'provided_by' in data:
                 for s in data['provided_by']:
                     if s in self.category_stats['count_by_source']:
@@ -195,9 +212,10 @@ class GraphSummary:
 
         def json_object(self):
             return {
-                'id_prefixes': list(self.category_stats['id_prefixes']),
+                'id_prefixes': list(self.category_stats['count_by_id_prefix'].keys()),
                 'count': self.category_stats['count'],
-                'count_by_source': self.category_stats['count_by_source']
+                'count_by_source': self.category_stats['count_by_source'],
+                'count_by_id_prefix': self.category_stats['count_by_id_prefix']
             }
 
     def analyse_node(self, n, data):
@@ -236,18 +254,9 @@ class GraphSummary:
         #         self.node_stats = self.get_facet_counts(
         #             data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
         #         )
-
-        # TODO: review these operations since self.node_stats[NODE_CATEGORIES] is supposed to
-        #       be a Set (which is intrinsically unordered?) and this operation appears to be
-        #       applied for the processing of every node, which seems unnecessary and time wasteful?
-        # self.node_stats[NODE_CATEGORIES] = sorted(list(self.node_stats[NODE_CATEGORIES]))
-        
-        # if self.node_facet_properties:
-        #     for facet_property in self.node_facet_properties:
-        #         self.node_stats[facet_property] = sorted(list(self.node_stats[facet_property]))
     
     def analyse_edge(self, u, v, k, data):
-        # we blissfully assume that all the nodes of a
+        # we blissfully now assume that all the nodes of a
         # graph stream were analysed first by the GraphSummary
         # before the edges are analysed, thus we can test for
         # node 'n' existence internally, by identifier.
@@ -270,19 +279,6 @@ class GraphSummary:
                     self.edge_stats = self.get_facet_counts(
                         data, self.edge_stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property
                     )
-        
-        # u_data = graph.nodes()[u]
-        # v_data = graph.nodes()[v]
-        #
-        # if 'category' in u_data:
-        #     subject_category = u_data['category'][0]
-        # else:
-        #     subject_category = "unknown"
-        #
-        # if 'category' in v_data:
-        #     object_category = v_data['category'][0]
-        # else:
-        #     object_category = "unknown"
         
         if u in self.node_catalog:
             subject_category = \
@@ -315,6 +311,24 @@ class GraphSummary:
             self.node_stats[NODE_CATEGORIES].add(category_curie)
             self.node_stats[COUNT_BY_CATEGORY][category_curie] = category.get_count()
 
+            id_prefixes = category.get_id_prefixes()
+            self.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category_curie] = id_prefixes
+            self.node_stats[NODE_ID_PREFIXES].update(id_prefixes)
+
+            self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie] = category.get_count_by_id_prefixes()
+
+            for prefix in self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie]:
+                if prefix not in self.node_stats[COUNT_BY_ID_PREFIXES]:
+                    self.node_stats[COUNT_BY_ID_PREFIXES][prefix] = 0
+                self.node_stats[COUNT_BY_ID_PREFIXES][prefix] += \
+                    self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie][prefix]
+
+        self.node_stats[NODE_CATEGORIES] = sorted(list(self.node_stats[NODE_CATEGORIES]))
+
+        if self.node_facet_properties:
+            for facet_property in self.node_facet_properties:
+                self.node_stats[facet_property] = sorted(list(self.node_stats[facet_property]))
+
         if not self.node_stats[TOTAL_NODES]:
             self.node_stats[TOTAL_NODES] = len(self.node_catalog)
 
@@ -328,7 +342,9 @@ class GraphSummary:
         # and cached once after the first time the edge stats are accessed
         if not self.edges_processed:
             self.edges_processed = True
+
             self.edge_stats[EDGE_PREDICATES] = sorted(list(self.edge_stats[EDGE_PREDICATES]))
+
             if self.edge_facet_properties:
                 for facet_property in self.edge_facet_properties:
                     self.edge_stats[facet_property] = sorted(list(self.edge_stats[facet_property]))

@@ -1,13 +1,33 @@
-import json
 import os
-from json import JSONEncoder
 
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.graph_operations.summarize_graph import summarize_graph, generate_graph_stats, GraphSummary
+from kgx.graph_operations.summarize_graph import (
+    summarize_graph,
+    generate_graph_stats,
+    GraphSummary,
+
+    TOTAL_NODES,
+    NODE_CATEGORIES,
+    NODE_ID_PREFIXES,
+    NODE_ID_PREFIXES_BY_CATEGORY,
+    COUNT_BY_CATEGORY,
+    COUNT_BY_ID_PREFIXES,
+    COUNT_BY_ID_PREFIXES_BY_CATEGORY,
+
+    TOTAL_EDGES,
+    EDGE_PREDICATES,
+    COUNT_BY_EDGE_PREDICATES,
+    COUNT_BY_SPO
+)
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
+
+try:
+    from yaml import load, CLoader as Loader
+except ImportError:
+    from yaml import load, Loader
 
 
 def get_graphs():
@@ -179,27 +199,6 @@ def test_summarize_graph(query):
         assert v == stats['edge_stats'][k]
 
 
-####################################################################################
-# New "Inspector Class" design pattern for KGX stream data processing
-####################################################################################
-def mkg_default(o):
-    """
-    JSONEncoder 'default' function override to
-    properly serialize 'Set' objects (into 'List')
-    """
-    if isinstance(o, GraphSummary.Category):
-        return o.json_object()
-    else:
-        try:
-            iterable = iter(o)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        # Let the base class default method raise the TypeError
-        return JSONEncoder.default(o)
-
-
 def test_summarize_graph_inspector():
     """
     Test for Inspector sourced graph stats, and comparing the resulting stats.
@@ -221,13 +220,72 @@ def test_summarize_graph_inspector():
     output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.yaml')
 
     with open(output_filename, 'w') as gsh:
-        inspector.save(output_filename)
+        inspector.save(gsh)
 
-    data = json.load(open(output_filename))
-    assert data['name'] == 'Test Graph Summary - Streamed'
-    assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
-    assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
-    assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
-    assert data['nodes']['biolink:Gene']['count'] == 178
-    assert len(data['nodes']) == 8
-    assert len(data['edges']) == 13
+    with open(output_filename, 'r') as gsh:
+        data = load(stream=gsh, Loader=Loader)
+
+    assert data['graph_name'] == 'Test Graph Summary - Streamed'
+    node_stats = data['node_stats']
+    assert node_stats
+
+    assert TOTAL_NODES in node_stats
+    assert node_stats[TOTAL_NODES] == 512
+
+    assert NODE_CATEGORIES in node_stats
+    node_categories = node_stats[NODE_CATEGORIES]
+    assert 'biolink:Pathway' in node_categories
+
+    assert NODE_ID_PREFIXES in node_stats
+    node_id_prefixes = node_stats[NODE_ID_PREFIXES]
+    assert 'HGNC' in node_id_prefixes
+
+    assert NODE_ID_PREFIXES_BY_CATEGORY in node_stats
+    id_prefixes_by_category = node_stats[NODE_ID_PREFIXES_BY_CATEGORY]
+
+    assert 'biolink:Gene' in id_prefixes_by_category
+    assert 'ENSEMBL' in id_prefixes_by_category['biolink:Gene']
+
+    assert 'biolink:Disease' in id_prefixes_by_category
+    assert 'MONDO' in id_prefixes_by_category['biolink:Disease']
+
+    assert 'biolink:PhenotypicFeature' in id_prefixes_by_category
+    assert 'HP' in id_prefixes_by_category['biolink:PhenotypicFeature']
+
+    assert COUNT_BY_CATEGORY in node_stats
+    count_by_category = node_stats[COUNT_BY_CATEGORY]
+    assert 'biolink:AnatomicalEntity' in count_by_category
+    assert count_by_category['biolink:AnatomicalEntity'] == 20
+
+    assert COUNT_BY_ID_PREFIXES in node_stats
+    count_by_id_prefixes = node_stats[COUNT_BY_ID_PREFIXES]
+    assert 'HP' in count_by_id_prefixes
+    assert count_by_id_prefixes['HP'] == 111
+
+    assert COUNT_BY_ID_PREFIXES_BY_CATEGORY in node_stats
+    count_by_id_prefixes_by_category = node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY]
+    assert 'biolink:BiologicalProcess' in count_by_id_prefixes_by_category
+    biological_process_id_prefix_count = count_by_id_prefixes_by_category['biolink:BiologicalProcess']
+    assert 'GO' in biological_process_id_prefix_count
+    assert biological_process_id_prefix_count['GO'] == 143
+
+    edge_stats = data['edge_stats']
+    assert edge_stats
+    assert TOTAL_EDGES in edge_stats
+    assert edge_stats[TOTAL_EDGES] == 540
+
+    assert EDGE_PREDICATES in edge_stats
+    assert len(edge_stats[EDGE_PREDICATES]) == 8
+    assert 'biolink:involved_in' in edge_stats[EDGE_PREDICATES]
+
+    assert COUNT_BY_EDGE_PREDICATES in edge_stats
+    assert len(edge_stats[COUNT_BY_EDGE_PREDICATES]) == 9
+    assert 'biolink:has_phenotype' in edge_stats[COUNT_BY_EDGE_PREDICATES]
+    assert 'count' in edge_stats[COUNT_BY_EDGE_PREDICATES]['biolink:has_phenotype']
+    assert edge_stats[COUNT_BY_EDGE_PREDICATES]['biolink:has_phenotype']['count'] == 124
+
+    assert COUNT_BY_SPO in edge_stats
+    assert len(edge_stats[COUNT_BY_SPO]) == 13
+    assert 'biolink:Gene-biolink:related_to-biolink:Pathway' in edge_stats[COUNT_BY_SPO]
+    assert 'count' in edge_stats[COUNT_BY_SPO]['biolink:Gene-biolink:related_to-biolink:Pathway']
+    assert edge_stats[COUNT_BY_SPO]['biolink:Gene-biolink:related_to-biolink:Pathway']['count'] == 16

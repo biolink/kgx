@@ -140,8 +140,8 @@ class MetaKnowledgeGraph:
             return self.category_stats['count_by_source']
 
         def analyse_node_category(self, n, data):
-            prefix = PrefixManager.get_prefix(n)
             self.category_stats['count'] += 1
+            prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 print(f"Warning: node id {n} has no CURIE prefix", file=self.error_log)
             else:
