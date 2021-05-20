@@ -133,6 +133,8 @@ class GraphSummary:
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_categories: Dict[str, GraphSummary.Category] = dict()
+
+        # indexed internally with category index id '0'
         self.node_categories['unknown'] = GraphSummary.Category('unknown', self)
 
         self.graph_stats: Dict[str, Dict] = dict()
@@ -168,7 +170,8 @@ class GraphSummary:
             # ...so that Category related entries at that
             # higher level may be properly initialized
             # for subsequent facet metadata access
-            self.summary.node_stats[NODE_CATEGORIES].add(category)
+            if not category == 'unknown':
+                self.summary.node_stats[NODE_CATEGORIES].add(category)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category] = set()
             self.summary.node_stats[COUNT_BY_CATEGORY][category] = {'count': 0}
 
@@ -245,16 +248,15 @@ class GraphSummary:
         else:
             self.node_catalog[n] = list()
         
-        if 'category' not in data:
-            category = self.node_categories['unknown']
-            category.analyse_node_category(self, n, data)
+        if 'category' in data:
+            categories = data['category']
+        else:
+            categories = ['unknown']
             print(
-                "Node with identifier '" + n + "' is missing its 'category' value? " +
-                "Counting it as 'unknown', but otherwise ignoring in the analysis...", file=self.error_log
+                "Node with identifier '" + n + "' is missing its 'category' value? Tagging it as 'unknown'",
+                file=self.error_log
             )
-            return
-        
-        categories = data['category']
+
         for category_curie in categories:
             if category_curie not in self.node_categories:
                self.node_categories[category_curie] = GraphSummary.Category(category_curie, self)
@@ -306,6 +308,7 @@ class GraphSummary:
             return
 
         for subj_cat_idx in self.node_catalog[u]:
+
             subject_category = self.Category.get_category_curie(subj_cat_idx)
 
             if v not in self.node_catalog:
@@ -325,7 +328,7 @@ class GraphSummary:
                     self.edge_stats[COUNT_BY_SPO][key]['count'] += 1
                 else:
                     self.edge_stats[COUNT_BY_SPO][key] = {'count': 1}
-        
+
                 if self.edge_facet_properties:
                     for facet_property in self.edge_facet_properties:
                         self.edge_stats = \
