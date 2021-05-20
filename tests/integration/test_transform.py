@@ -3,6 +3,7 @@ from typing import List
 
 import pytest
 
+from kgx import GraphEntityType
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.integration import (
@@ -535,11 +536,13 @@ def test_transform_inspector():
             self._node_count = 0
             self._edge_count = 0
 
-        def __call__(self, rec: List):
-            if len(rec) == 4:  # infer an edge record
+        def __call__(self, entity_type: GraphEntityType, rec: List):
+            if entity_type == GraphEntityType.EDGE:
                 self._edge_count += 1
-            else:
+            elif entity_type == GraphEntityType.NODE:
                 self._node_count += 1
+            else:
+                raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
         def get_node_count(self):
             return self._node_count
