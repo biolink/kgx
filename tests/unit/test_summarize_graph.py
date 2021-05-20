@@ -255,7 +255,7 @@ def test_summarize_graph_inspector():
     assert COUNT_BY_CATEGORY in node_stats
     count_by_category = node_stats[COUNT_BY_CATEGORY]
     assert 'biolink:AnatomicalEntity' in count_by_category
-    assert count_by_category['biolink:AnatomicalEntity'] == 20
+    assert count_by_category['biolink:AnatomicalEntity']['count'] == 20
 
     assert COUNT_BY_ID_PREFIXES in node_stats
     count_by_id_prefixes = node_stats[COUNT_BY_ID_PREFIXES]
@@ -281,7 +281,6 @@ def test_summarize_graph_inspector():
     assert COUNT_BY_EDGE_PREDICATES in edge_stats
     assert len(edge_stats[COUNT_BY_EDGE_PREDICATES]) == 9
     assert 'biolink:has_phenotype' in edge_stats[COUNT_BY_EDGE_PREDICATES]
-    assert 'count' in edge_stats[COUNT_BY_EDGE_PREDICATES]['biolink:has_phenotype']
     assert edge_stats[COUNT_BY_EDGE_PREDICATES]['biolink:has_phenotype']['count'] == 124
 
     assert COUNT_BY_SPO in edge_stats

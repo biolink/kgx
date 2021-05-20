@@ -108,7 +108,7 @@ class GraphSummary:
         self.edge_stats: Dict = {
             TOTAL_EDGES: 0,
             EDGE_PREDICATES: set(),
-            COUNT_BY_EDGE_PREDICATES: dict(),
+            COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
             COUNT_BY_SPO: {},
         }
         
@@ -171,7 +171,6 @@ class GraphSummary:
             self.summary.node_stats[NODE_CATEGORIES].add(category)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category] = set()
             self.summary.node_stats[COUNT_BY_CATEGORY][category] = {'count': 0}
-            self.summary.edge_stats[COUNT_BY_EDGE_PREDICATES][category] = {'count': 0}
 
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
@@ -205,7 +204,7 @@ class GraphSummary:
 
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(f"Warning: node id {n} has no CURIE prefix", file=self.error_log)
+                print(f"Warning: node id {n} has no CURIE prefix", file=summary.error_log)
             else:
                 if prefix in self.category_stats['count_by_id_prefix']:
                     self.category_stats['count_by_id_prefix'][prefix] += 1
