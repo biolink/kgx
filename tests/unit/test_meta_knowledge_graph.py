@@ -40,10 +40,10 @@ def test_generate_classical_meta_knowledge_graph():
     assert len(data['edges']) == 13
 
 
-def test_generate_streaming_meta_knowledge_graph_direct():
+def test_generate_meta_knowledge_graph_by_stream_inspector():
     """
-    Test generate meta knowledge graph operation...
-    MetaKnowledgeGraph as direct Transformer.transform Inspector
+    Test generate the meta knowledge graph by streaming
+    graph data through a graph Transformer.process() Inspector
     """
     input_args = {
         'filename': [
@@ -57,6 +57,8 @@ def test_generate_streaming_meta_knowledge_graph_direct():
 
     mkg = MetaKnowledgeGraph('Test Graph - Streamed')
 
+    # We configure the Transformer with a data flow inspector
+    # (Deployed in the internal Transformer.process() call)
     transformer.transform(input_args=input_args, inspector=mkg)
 
     assert mkg.get_name() == 'Test Graph - Streamed'
@@ -183,4 +185,3 @@ def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
     assert mkg.get_edge_mapping_count() == 25
 
     assert mkg.get_total_edge_counts_across_mappings() == 100
-

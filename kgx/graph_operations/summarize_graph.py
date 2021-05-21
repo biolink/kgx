@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any, Callable, Set
 from sys import stderr
 
 import yaml
@@ -50,6 +50,22 @@ def gs_default(o):
 
 
 class GraphSummary:
+    """
+    Class for generating a "classical" knowledge graph summary.
+
+    The optional 'progress_monitor' for the validator should be a lightweight Callable
+    which is injected into the class 'inspector' Callable, designed to intercepts
+    node and edge records streaming through the Validator (inside a Transformer.process() call.
+    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
+    The second argument given to the Callable is the current record itself.
+    This Callable is strictly meant to be procedural and should *not* mutate the record.
+    The intent of this Callable is to provide a hook to KGX applications wanting the
+    namesake function of passively monitoring the graph data stream. As such, the Callable
+    could simply tally up the number of times it is called with a NODE or an EDGE, then
+    provide a suitable (quick!) report of that count back to the KGX application. The
+    Callable (function/callable class) should not modify the record and should be of low
+    complexity, so as not to introduce a large computational overhead to validation!
+    """
     def __init__(
             self,
             name='',
@@ -59,20 +75,7 @@ class GraphSummary:
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
     ):
         """
-        Class for generating a "classical" knowledge graph summary.
-
-        The optional 'progress_monitor' for the validator should be a lightweight Callable
-        which is injected into the class 'inspector' Callable, designed to intercepts
-        node and edge records streaming through the Validator (inside a Transformer.process() call.
-        The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
-        The second argument given to the Callable is the current record itself.
-        This Callable is strictly meant to be procedural and should *not* mutate the record.
-        The intent of this Callable is to provide a hook to KGX applications wanting the
-        namesake function of passively monitoring the graph data stream. As such, the Callable
-        could simply tally up the number of times it is called with a NODE or an EDGE, then
-        provide a suitable (quick!) report of that count back to the KGX application. The
-        Callable (function/callable class) should not modify the record and should be of low
-        complexity, so as not to introduce a large computational overhead to validation!
+        GraphSummary constructor.
 
         Parameters
         ----------
@@ -83,7 +86,7 @@ class GraphSummary:
         edge_facet_properties: Optional[List]
                 A list of properties to facet on. For example, ``['provided_by']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
-            Function given a peek at the current record being processed by the class wrapped Callable.
+            Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log: str
             Where to write any graph processing error message (stderr, by default)
 
@@ -138,10 +141,27 @@ class GraphSummary:
         self.node_categories['unknown'] = GraphSummary.Category('unknown', self)
 
         self.graph_stats: Dict[str, Dict] = dict()
-    
+
+    def get_name(self):
+        """
+        Returns
+        -------
+        str
+            Currently assigned knowledge graph name.
+        """
+        return self.name
+
     def __call__(self, entity_type: GraphEntityType, rec: List):
         """
-        Transformer 'inspector' Callable
+        Transformer 'inspector' Callable, for analysing a stream of graph data.
+
+        Parameters
+        ----------
+        entity_type: GraphEntityType
+            indicates what kind of record being passed to the function for analysis.
+        rec: Dict
+            Complete data dictionary of the given record.
+
         """
         if self.progress_monitor:
             self.progress_monitor(entity_type, rec)
@@ -153,13 +173,22 @@ class GraphSummary:
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
     class Category:
-
+        """
+        Internal class for compiling statistics about a distinct category.
+        """
         # The 'category map' just associates a unique int catalog
         # index ('cid') value as a proxy for the full curie string,
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
         def __init__(self, category, summary):
+            """
+            GraphSummary.Category constructor.
+
+            category: str
+                Biolink Model category curie identifier.
+
+            """
             # generally, a Biolink  category class CURIE but also 'unknown'
             self.category = category
 
@@ -182,27 +211,80 @@ class GraphSummary:
             self.category_stats['count_by_source']: Dict[str, int] = {'unknown': 0}
             self.category_stats['count_by_id_prefix']: Dict[str, int] = dict()
 
-        def get_name(self):
+        def get_name(self) -> str:
+            """
+            Returns
+            -------
+            str
+                Name  of the category.
+            """
             return self.category
 
-        def get_cid(self):
+        def get_cid(self) -> int:
+            """
+            Returns
+            -------
+            int
+                Internal GraphSummary index id for tracking a Category.
+            """
             return self._category_curie_map.index(self.category)
 
         @classmethod
-        def get_category_curie(cls, cid: int):
+        def get_category_curie(cls, cid: int) -> str:
+            """
+            Parameters
+            ----------
+            cid: int
+                Internal GraphSummary index id for tracking a Category.
+
+            Returns
+            -------
+            str
+                Curie identifier of the Category.
+            """
             return cls._category_curie_map[cid]
 
-        def get_id_prefixes(self):
+        def get_id_prefixes(self) -> Set:
+            """
+            Returns
+            -------
+            Set[str]
+                Set of identifier prefix (strings) used by nodes of this Category.
+            """
             return set(self.category_stats['count_by_id_prefix'].keys())
 
         def get_count_by_id_prefixes(self):
+            """
+            Returns
+            -------
+            int
+                Count of nodes by id_prefixes for nodes which have this category.
+            """
             return self.category_stats['count_by_id_prefix']
 
         def get_count(self):
+            """
+            Returns
+            -------
+            int
+                Count of nodes which have this category.
+            """
             return self.category_stats['count']
 
         def analyse_node_category(self, summary, n, data):
+            """
+            Analyse metadata of a given graph node record of this category.
 
+            Parameters
+            ----------
+            summary: GraphSummary
+                GraphSunmmary within which the Category is being analysed.
+            n: str
+                Curie identifier of the node record (not used here).
+            data: Dict
+                Complete data dictionary of node record fields.
+
+            """
             self.category_stats['count'] += 1
 
             prefix = PrefixManager.get_prefix(n)
@@ -232,6 +314,12 @@ class GraphSummary:
                     )
 
         def json_object(self):
+            """
+            Returns
+            -------
+            Dict[str, Any]
+                Returns JSON friendly metadata for this category.,
+            """
             return {
                 'id_prefixes': list(self.category_stats['count_by_id_prefix'].keys()),
                 'count': self.category_stats['count'],
@@ -239,7 +327,35 @@ class GraphSummary:
                 'count_by_id_prefix': self.category_stats['count_by_id_prefix']
             }
 
+    def get_category(self, category_curie: str) -> Category:
+        """
+        Counts the number of distinct (Biolink) categories encountered
+        in the knowledge graph (not including those of 'unknown' category)
+
+        Parameters
+        ----------
+        category_curie: str
+            Curie identifier for the (Biolink) category.
+
+        Returns
+        -------
+        Category
+            MetaKnowledgeGraph.Category object for a given Biolink category.
+        """
+        return self.node_stats[category_curie]
+
     def analyse_node(self, n, data):
+        """
+        Analyse metadata of one graph node record.
+
+        Parameters
+        ----------
+        n: str
+            Curie identifier of the node record (not used here).
+        data: Dict
+            Complete data dictionary of node record fields.
+
+        """
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
             print("Duplicate node identifier '" + n +
@@ -276,6 +392,21 @@ class GraphSummary:
         #         )
     
     def analyse_edge(self, u, v, k, data):
+        """
+        Analyse metadata of one graph edge record.
+
+        Parameters
+        ----------
+        u: str
+            Subject node curie identifier of the edge.
+        v: str
+            Subject node curie identifier of the edge.
+        k: str
+            Key identifier of the edge record (not used here).
+        data: Dict
+            Complete data dictionary of edge record fields.
+
+        """
         # we blissfully now assume that all the nodes of a
         # graph stream were analysed first by the GraphSummary
         # before the edges are analysed, thus we can test for
@@ -334,11 +465,13 @@ class GraphSummary:
                         self.edge_stats = \
                             self.get_facet_counts(data, self.edge_stats, COUNT_BY_SPO, key, facet_property)
     
-    def get_name(self):
-        return self.name
-    
     def get_node_stats(self) -> Dict[str, Any]:
-
+        """
+        Returns
+        -------
+        Dict[str, Any]
+            Statistics for the nodes in the graph.
+        """
         if not self.nodes_processed:
             self.nodes_processed = True
 
@@ -371,6 +504,21 @@ class GraphSummary:
         return self.node_stats
     
     def add_node_stat(self, tag: str, value: Any):
+        """
+        Compile/add a nodes statistic for a given tag = value annotation of the node.
+
+        :param tag:
+        :param value:
+        :return:
+
+        Parameters
+        ----------
+        tag: str
+            Tag label for the annotation.
+        value: Any
+             Value of the specific tag annotation.
+
+        """
         self.node_stats[tag] = value
     
     def get_edge_stats(self) -> Dict[str, Any]:
@@ -387,12 +535,13 @@ class GraphSummary:
         
         return self.edge_stats
 
-    def wrap_graph_stats(
+    def _wrap_graph_stats(
             self,
             graph_name: str,
             node_stats: Dict[str, Any],
             edge_stats: Dict[str, Any],
     ):
+        # Utility wrapper function to support DRY code below.
         if not self.graph_stats:
             self.graph_stats = {
                 'graph_name': graph_name,
@@ -420,7 +569,7 @@ class GraphSummary:
             A knowledge map dictionary corresponding to the graph
 
         """
-        return self.wrap_graph_stats(
+        return self._wrap_graph_stats(
             graph_name=name if name else self.name,
             node_stats=self.get_node_stats(),
             edge_stats=self.get_edge_stats()
@@ -444,7 +593,7 @@ class GraphSummary:
             The stats dictionary
 
         """
-        return self.wrap_graph_stats(
+        return self._wrap_graph_stats(
             graph_name=self.name if self.name else graph.name,
             node_stats=self.summarize_graph_nodes(graph),
             edge_stats=self.summarize_graph_edges(graph)
@@ -544,7 +693,20 @@ class GraphSummary:
     
     def save(self, file, name: str = None, file_format: str = 'yaml'):
         """
-        Save the current GraphSummary to a specified (open) file (device)
+        Save the current GraphSummary to a specified (open) file (device).
+
+        Parameters
+        ----------
+        file: File
+            Text file handler open for writing.
+        name: str
+            Optional string to which to (re-)name the graph.
+        file_format:  str
+            Text output format ('json' or 'yaml') for the saved meta knowledge graph  (default: 'json')
+
+        Returns
+        -------
+        None
         """
         stats = self.get_graph_summary(name)
         if not file_format or file_format == 'yaml':

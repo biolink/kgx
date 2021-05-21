@@ -199,9 +199,10 @@ def test_summarize_graph(query):
         assert v == stats['edge_stats'][k]
 
 
-def test_summarize_graph_inspector():
+def test_summarize_graph_stream_inspector():
     """
-    Test for Inspector sourced graph stats, and comparing the resulting stats.
+    Test generate the graph summary by streaming
+    graph data through a graph Transformer.process() Inspector
     """
     input_args = {
         'filename': [
@@ -215,6 +216,8 @@ def test_summarize_graph_inspector():
 
     inspector = GraphSummary('Test Graph Summary - Streamed')
 
+    # We configure the Transformer with a data flow inspector
+    # (Deployed in the internal Transformer.process() call)
     transformer.transform(input_args=input_args, inspector=inspector)
     
     output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.yaml')

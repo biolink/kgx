@@ -10,6 +10,9 @@ v = Validator()
 v.validate(graph)
 ```
 
+## Streaming Data Processing Mode
+
+For very large graphs, the Validator operation may now successfully process graph data equally well using data streaming (command flag `--stream=True`) which significantly minimizes the memory footprint required to process such graphs.
 
 ## kgx.validator
 

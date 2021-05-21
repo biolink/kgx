@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any, Callable, Set
 from sys import stderr
 
 import yaml
@@ -54,15 +54,6 @@ class MetaKnowledgeGraph:
     provide a suitable (quick!) report of that count back to the KGX application. The
     Callable (function/callable class) should not modify the record and should be of low
     complexity, so as not to introduce a large computational overhead to validation!
-
-    Parameters
-    ----------
-    name: str
-        (Graph) name assigned to the summary.
-    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
-        Function given a peek at the current record being processed by the class wrapped Callable.
-    error_log:
-        Where to write any graph processing error message (stderr, by default)
     """
     def __init__(
             self,
@@ -71,6 +62,19 @@ class MetaKnowledgeGraph:
             error_log=None,
             **kwargs
     ):
+        """
+            MetaKnowledgeGraph constructor.
+
+        Parameters
+        ----------
+        name: str
+            (Graph) name assigned to the summary.
+        progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
+            Function given a peek at the current record being stream processed by the class wrapped Callable.
+        error_log:
+            Where to write any graph processing error message (stderr, by default).
+
+        """
         # formal args
 
         self.name = name
@@ -93,9 +97,26 @@ class MetaKnowledgeGraph:
         else:
             self.error_log = stderr
 
+    def get_name(self) -> str:
+        """
+        Returns
+        -------
+        str
+            Currently assigned knowledge graph name.
+        """
+        return self.name
+
     def __call__(self, entity_type: GraphEntityType, rec: List):
         """
-        Transformer 'inspector' Callable
+        Transformer 'inspector' Callable, for analysing a stream of graph data.
+
+        Parameters
+        ----------
+        entity_type: GraphEntityType
+            indicates what kind of record being passed to the function for analysis.
+        rec: Dict
+            Complete data dictionary of the given record.
+
         """
         if self.progress_monitor:
             self.progress_monitor(entity_type, rec)
@@ -107,12 +128,22 @@ class MetaKnowledgeGraph:
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
     class Category:
+        """
+        Internal class for compiling statistics about a distinct category.
+        """
         # The 'category map' just associates a unique int catalog
         # index ('cid') value as a proxy for the full curie string,
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
         def __init__(self, category=''):
+            """
+            MetaKnowledgeGraph.Category constructor.
+
+            category: str
+                Biolink Model category curie identifier.
+
+            """
             self.category = category
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
@@ -121,25 +152,80 @@ class MetaKnowledgeGraph:
             self.category_stats['count'] = 0
             self.category_stats['count_by_source'] = {'unknown': 0}
 
+        def get_name(self) -> str:
+            """
+            Returns
+            -------
+            str
+                Name of the category.
+            """
+            return self.category
+
         def get_cid(self):
+            """
+            Returns
+            -------
+            int
+                Internal MetaKnowledgeGraph index id for tracking a Category.
+            """
             return self._category_curie_map.index(self.category)
 
         @classmethod
-        def get_category_curie(cls, cid: int):
+        def get_category_curie(cls, cid: int) -> str:
+            """
+            Parameters
+            ----------
+            cid: int
+                Internal MetaKnowledgeGraph index id for tracking a Category.
+
+            Returns
+            -------
+            str
+                Curie identifier of the Category.
+            """
             return cls._category_curie_map[cid]
 
-        def get_id_prefixes(self):
+        def get_id_prefixes(self) -> Set[str]:
+            """
+            Returns
+            -------
+            Set[str]
+                Set of identifier prefix (strings) used by nodes of this Category.
+            """
             return self.category_stats['id_prefixes']
 
-        def get_count(self):
+        def get_count(self) -> int:
+            """
+            Returns
+            -------
+            int
+                Count of nodes which have this category.
+            """
             return self.category_stats['count']
 
-        def get_count_by_source(self, source: str = None) -> Dict:
+        def get_count_by_source(self, source: str = None) -> Dict[str, int]:
+            """
+            Returns
+            -------
+            Dict[str, int]
+                Count of nodes, by provider_by knowledge source, for this given category.
+            """
             if source:
                 return {source: self.category_stats['count_by_source'][source]}
             return self.category_stats['count_by_source']
 
-        def analyse_node_category(self, n, data):
+        def analyse_node_category(self, n, data) -> None:
+            """
+            Analyse metadata of a given graph node record of this category.
+
+            Parameters
+            ----------
+            n: str
+                Curie identifier of the node record (not used here).
+            data: Dict
+                Complete data dictionary of node record fields.
+
+            """
             self.category_stats['count'] += 1
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
@@ -157,13 +243,47 @@ class MetaKnowledgeGraph:
                 self.category_stats['count_by_source']['unknown'] += 1
 
         def json_object(self):
+            """
+            Returns
+            -------
+            Dict[str, Any]
+                Returns JSON friendly metadata for this category.,
+            """
             return {
                 'id_prefixes': list(self.category_stats['id_prefixes']),
                 'count': self.category_stats['count'],
                 'count_by_source': self.category_stats['count_by_source']
             }
 
-    def analyse_node(self, n, data):
+    def get_category(self, category_curie: str) -> Category:
+        """
+        Counts the number of distinct (Biolink) categories encountered
+        in the knowledge graph (not including those of 'unknown' category)
+
+        Parameters
+        ----------
+        category_curie: str
+            Curie identifier for the (Biolink) category.
+
+        Returns
+        -------
+        Category
+            MetaKnowledgeGraph.Category object for a given Biolink category.
+        """
+        return self.node_stats[category_curie]
+
+    def analyse_node(self, n, data) -> None:
+        """
+        Analyse metadata of one graph node record.
+
+        Parameters
+        ----------
+        n: str
+            Curie identifier of the node record (not used here).
+        data: Dict
+            Complete data dictionary of node record fields.
+
+        """
         # The TRAPI release 1.1 meta_knowledge_graph format indexes nodes by biolink:Category
         # the node 'category' field is a list of assigned categories (usually just one...).
         # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
@@ -200,7 +320,20 @@ class MetaKnowledgeGraph:
                     self.node_catalog[n].append(category_idx)
                 category.analyse_node_category(n, data)
 
-    def analyse_edge(self, u, v, k, data):
+    def analyse_edge(self, u, v, k, data) -> None:
+        """
+        Analyse metadata of one graph edge record.
+        Parameters
+        ----------
+        u: str
+            Subject node curie identifier of the edge.
+        v: str
+            Subject node curie identifier of the edge.
+        k: str
+            Key identifier of the edge record (not used here).
+        data: Dict
+            Complete data dictionary of edge record fields.
+        """
         # we blissfully assume that all the nodes of a
         # graph stream were analysed first by the MetaKnowledgeGraph
         # before the edges are analysed, thus we can test for
@@ -271,37 +404,6 @@ class MetaKnowledgeGraph:
                 else:
                     self.association_map[triple]['count_by_source']['unknown'] += 1
 
-    def get_name(self):
-        """
-        Returns
-        -------
-        str
-            Currently assigned knowledge graph name.
-        """
-        return self.name
-
-    def get_category(self, category_curie: str) -> Category:
-        """
-        Counts the number of distinct (Biolink) categories encountered
-        in the knowledge graph (not including those of 'unknown' category)
-
-        Parameters
-        ----------
-        category_curie: str
-            Curie identifier for the (Biolink) category.
-
-        Returns
-        -------
-        Category
-            MetaKnowledgeGraph.Category object for a given Biolink category.
-        """
-        return self.node_stats[category_curie]
-
-    def get_node_stats(self) -> Dict[str, Category]:
-        if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
-            self.node_stats.pop('unknown')
-        return self.node_stats
-
     def get_number_of_categories(self) -> int:
         """
         Counts the number of distinct (Biolink) categories encountered
@@ -314,7 +416,24 @@ class MetaKnowledgeGraph:
         """
         return len([c for c in self.node_stats.keys() if c != 'unknown'])
 
-    def get_edge_stats(self) -> List:
+    def get_node_stats(self) -> Dict[str, Category]:
+        """
+        Returns
+        -------
+        Dict[str, Category]
+            Statistics for the nodes in the graph.
+        """
+        if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
+            self.node_stats.pop('unknown')
+        return self.node_stats
+
+    def get_edge_stats(self) -> List[Dict[str, Any]]:
+        """
+        Returns
+        -------
+        List[Dict[str, Any]]
+            Knowledge map for the list of edges in the graph.
+        """
         # Not sure if this is "safe" but assume
         # that edge_stats may be cached once computed?
         if not self.edge_stats:
@@ -366,19 +485,14 @@ class MetaKnowledgeGraph:
 
     def get_total_node_counts_across_categories(self) -> int:
         """
-        The aggregate count of all node category assignments for every category.
+        The aggregate count of all node to category mappings for every category.
         Note that nodes with multiple categories will have their count replicated
         under each of its categories.
-
-        Parameters
-        ----------
-        category_curie: str
-            Curie identifier for the (Biolink) category.
 
         Returns
         -------
         int
-            Number of nodes for the given category.
+            Total count of node to category mappings for the graph.
         """
         count = 0
         for category in self.node_stats.values():
@@ -390,7 +504,10 @@ class MetaKnowledgeGraph:
         Gets the total number of 'valid' edges in the data set
         (ignoring those with 'unknown' subject or predicate category mappings)
 
-        :return int count of edges
+        Returns
+        ----------
+        int
+            Total count of edges in the graph.
         """
         return self.edge_record_count
 
@@ -403,7 +520,7 @@ class MetaKnowledgeGraph:
         Returns
         ----------
         int
-            Count of mappings
+            Count of subject(category) - predicate -> object(category) mappings in the graph.
         """
         return len(self.get_edge_stats())
 
@@ -415,7 +532,7 @@ class MetaKnowledgeGraph:
         Returns
         ----------
         int
-            Number of (Biolink) predicates.
+            Number of distinct (Biolink) predicates in the graph.
         """
         return len(self.predicates)
 
@@ -518,7 +635,7 @@ class MetaKnowledgeGraph:
         Returns
         -------
         Dict
-            A knowledge map dictionary corresponding to the graph
+            A TRAPI 1.1 compliant meta knowledge graph of the knowledge graph returned as a dictionary.
         """
         if not self.graph_stats:
             node_stats = self.summarize_graph_nodes(graph)
@@ -551,8 +668,7 @@ class MetaKnowledgeGraph:
         Returns
         -------
         Dict
-            A knowledge map dictionary corresponding to the graph
-
+            A TRAPI 1.1 compliant meta knowledge graph of the knowledge graph returned as a dictionary.
         """
         if not self.graph_stats:
             # JSON sent back as TRAPI 1.1 version,
@@ -567,9 +683,22 @@ class MetaKnowledgeGraph:
                 self.graph_stats['name'] = self.name
         return self.graph_stats
 
-    def save(self, file, name: str = None, file_format: str = 'json'):
+    def save(self, file, name: str = None, file_format: str = 'json') -> None:
         """
-        Save the current MetaKnowledgeGraph to a specified (open) file (device)
+        Save the current MetaKnowledgeGraph to a specified (open) file (device).
+
+        Parameters
+        ----------
+        file: File
+            Text file handler open for writing.
+        name: str
+            Optional string to which to (re-)name the graph.
+        file_format:  str
+            Text output format ('json' or 'yaml') for the saved meta knowledge graph  (default: 'json')
+
+        Returns
+        -------
+        None
         """
         stats = self.get_graph_summary(name)
         if not file_format or file_format == 'json':
@@ -614,8 +743,7 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     Returns
     -------
     Dict
-        A knowledge map dictionary corresponding to the graph
-
+        A TRAPI 1.1 compliant meta knowledge graph of the knowledge graph returned as a dictionary.
     """
     mkg = MetaKnowledgeGraph(name)
     return mkg.summarize_graph(graph)
