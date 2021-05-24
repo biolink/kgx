@@ -3,7 +3,7 @@ from collections import OrderedDict
 from typing import Optional, Union, Tuple, Any, Dict
 
 import rdflib
-from biolinkml.meta import Element, ClassDefinition, SlotDefinition
+from linkml_model.meta import Element, ClassDefinition, SlotDefinition
 from rdflib import URIRef, Literal, Namespace, RDF
 from rdflib.plugins.serializers.nt import _nt_row
 from rdflib.term import _is_valid_uri

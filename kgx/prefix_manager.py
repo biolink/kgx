@@ -52,6 +52,9 @@ class PrefixManager(object):
         for k, v in m.items():
             if isinstance(v, str):
                 self.prefix_map[k] = v
+            else:
+                self.prefix_map[k] = v.get('@id')
+
         if 'biolink' not in self.prefix_map:
             self.prefix_map['biolink'] = (
                 self.prefix_map['@vocab']
