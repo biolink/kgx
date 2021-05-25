@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional, Any, Callable, Set
 from sys import stderr
 
+import re
+
 import yaml
 from json import dump
 from json.encoder import JSONEncoder
@@ -36,6 +38,10 @@ def mkg_default(o):
             return list(iterable)
         # Let the base class default method raise the TypeError
         return JSONEncoder.default(o)
+
+
+_category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
+_predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 
 
 class MetaKnowledgeGraph:
@@ -136,7 +142,7 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category=''):
+        def __init__(self, category: str = ''):
             """
             MetaKnowledgeGraph.Category constructor.
 
@@ -144,6 +150,9 @@ class MetaKnowledgeGraph:
                 Biolink Model category curie identifier.
 
             """
+            if not (_category_curie_regexp.fullmatch(category) or category == "unknown"):
+                raise RuntimeError("Invalid Biolink category CURIE: " + category)
+
             self.category = category
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
@@ -295,7 +304,7 @@ class MetaKnowledgeGraph:
         else:
             self.node_catalog[n] = list()
             
-        if 'category' not in data:
+        if 'category' not in data or not data['category']:
             category = self.node_stats['unknown']
             category.analyse_node_category(n, data)
             print(
@@ -306,14 +315,23 @@ class MetaKnowledgeGraph:
 
         categories = data['category']
 
-        for category_data in categories:
-            # we note here that category_curie may be
+        # analyse them each independently...
+        for category in categories:
+
+            # we note here that category_curie *may be*
             # a piped '|' set of Biolink category CURIE values
-            categories = category_data.split("|")
+            category_list = category.split("|")
+
             # analyse them each independently...
-            for category_curie in categories:
+            for category_curie in category_list:
+
                 if category_curie not in self.node_stats:
-                    self.node_stats[category_curie] = self.Category(category_curie)
+                    try:
+                        self.node_stats[category_curie] = self.Category(category_curie)
+                    except RuntimeError as rte:
+                        print("Invalid  category CURIE '" + category_curie + "'.  Ignoring...", file=self.error_log)
+                        continue
+
                 category = self.node_stats[category_curie]
                 category_idx: int = category.get_cid()
                 if category_idx not in self.node_catalog[n]:
@@ -351,6 +369,11 @@ class MetaKnowledgeGraph:
             predicate = "unknown"
         else:
             predicate = data['predicate']
+
+            if not _predicate_curie_regexp.fullmatch(predicate):
+                print("Invalid  predicate CURIE '"+predicate+"'.  Ignoring...", file=self.error_log)
+                return
+
             if predicate not in self.predicates:
                 # just need to track the number
                 # of edge records using this predicate

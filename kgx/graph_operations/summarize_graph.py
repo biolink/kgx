@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional, Any, Callable, Set
 from sys import stderr
 
+import re
+
 import yaml
 from json import dump
 from json.encoder import JSONEncoder
@@ -47,6 +49,10 @@ def gs_default(o):
             return list(iterable)
         # Let the base class default method raise the TypeError
         return JSONEncoder.default(o)
+
+
+_category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
+_predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 
 
 class GraphSummary:
@@ -189,6 +195,9 @@ class GraphSummary:
                 Biolink Model category curie identifier.
 
             """
+            if not (_category_curie_regexp.fullmatch(category) or category == "unknown"):
+                raise RuntimeError("Invalid Biolink category CURIE: " + category)
+
             # generally, a Biolink  category class CURIE but also 'unknown'
             self.category = category
 
@@ -364,8 +373,9 @@ class GraphSummary:
         else:
             self.node_catalog[n] = list()
         
-        if 'category' in data:
+        if 'category' in data and data['category']:
             categories = data['category']
+
         else:
             categories = ['unknown']
             print(
@@ -373,23 +383,39 @@ class GraphSummary:
                 file=self.error_log
             )
 
-        for category_curie in categories:
-            if category_curie not in self.node_categories:
-               self.node_categories[category_curie] = GraphSummary.Category(category_curie, self)
-            category = self.node_categories[category_curie]
-            category_idx: int = category.get_cid()
-            if category_idx not in self.node_catalog[n]:
-               self.node_catalog[n].append(category_idx)
-            category.analyse_node_category(self, n, data)
+        # analyse them each independently...
+        for category in categories:
 
-        #
-        # Moved this computation from the 'analyse_node_category() method above
-        #
-        # if self.node_facet_properties:
-        #     for facet_property in self.node_facet_properties:
-        #         self.node_stats = self.get_facet_counts(
-        #             data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
-        #         )
+            # we note here that category_curie *may be*
+            # a piped '|' set of Biolink category CURIE values
+            category_list = category.split("|")
+
+            # analyse them each independently...
+            for category_curie in category_list:
+
+                if category_curie not in self.node_categories:
+
+                    if category_curie not in self.node_stats:
+                        try:
+                            self.node_categories[category_curie] = self.Category(category_curie, self)
+                        except RuntimeError as rte:
+                            print("Invalid  category CURIE '" + category_curie + "'.  Ignoring...", file=self.error_log)
+                            continue
+
+                category = self.node_categories[category_curie]
+                category_idx: int = category.get_cid()
+                if category_idx not in self.node_catalog[n]:
+                    self.node_catalog[n].append(category_idx)
+                category.analyse_node_category(self, n, data)
+
+            #
+            # Moved this computation from the 'analyse_node_category() method above
+            #
+            # if self.node_facet_properties:
+            #     for facet_property in self.node_facet_properties:
+            #         self.node_stats = self.get_facet_counts(
+            #             data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
+            #         )
     
     def analyse_edge(self, u, v, k, data):
         """
@@ -416,19 +442,24 @@ class GraphSummary:
 
         if 'predicate' not in data:
             self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] += 1
-            edge_predicate = "unknown"
+            predicate = "unknown"
         else:
-            edge_predicate = data['predicate']
-            self.edge_stats[EDGE_PREDICATES].add(edge_predicate)
-            if edge_predicate in self.edge_stats[COUNT_BY_EDGE_PREDICATES]:
-                self.edge_stats[COUNT_BY_EDGE_PREDICATES][edge_predicate]['count'] += 1
+            predicate = data['predicate']
+
+            if not _predicate_curie_regexp.fullmatch(predicate):
+                print("Invalid  predicate CURIE '" + predicate + "'.  Ignoring...", file=self.error_log)
+                return
+
+            self.edge_stats[EDGE_PREDICATES].add(predicate)
+            if predicate in self.edge_stats[COUNT_BY_EDGE_PREDICATES]:
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate]['count'] += 1
             else:
-                self.edge_stats[COUNT_BY_EDGE_PREDICATES][edge_predicate] = {'count': 1}
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate] = {'count': 1}
             
             if self.edge_facet_properties:
                 for facet_property in self.edge_facet_properties:
                     self.edge_stats = self.get_facet_counts(
-                        data, self.edge_stats, COUNT_BY_EDGE_PREDICATES, edge_predicate, facet_property
+                        data, self.edge_stats, COUNT_BY_EDGE_PREDICATES, predicate, facet_property
                     )
         
         if u not in self.node_catalog:
@@ -454,7 +485,7 @@ class GraphSummary:
                 object_category = self.Category.get_category_curie(obj_cat_idx)
 
                 # Process the 'valid' S-P-O triple here...
-                key = f"{subject_category}-{edge_predicate}-{object_category}"
+                key = f"{subject_category}-{predicate}-{object_category}"
                 if key in self.edge_stats[COUNT_BY_SPO]:
                     self.edge_stats[COUNT_BY_SPO][key]['count'] += 1
                 else:
