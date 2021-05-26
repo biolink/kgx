@@ -7,3 +7,4 @@ class GraphEntityType(Enum):
     GRAPH = "graph"
     NODE = "node"
     EDGE = "edge"
+

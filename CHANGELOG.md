@@ -1,8 +1,12 @@
 # Changelog
 
-## 1.1.0 - (2021-04-25)
+## 1.1.1 (2021-05-25)
 
 - Converted knowledge_map summary to new TRAPI 1.1 aligned meta_knowledge_graph format.
+
+## 1.1.0 (2021-05-24)
+
+- Migrate to LinkML from BiolinkML
 
 ## 1.0.0 - (2021-03-16)
 
