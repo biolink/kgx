@@ -1,4 +1,7 @@
 # Changelog
+## 1.1.0 (2021-05-24)
+
+- Migrate to LinkML from BiolinkML
 
 ## 1.1.0 - (2021-04-25)
 
