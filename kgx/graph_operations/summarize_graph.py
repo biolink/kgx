@@ -187,7 +187,7 @@ class GraphSummary:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category, summary):
+        def __init__(self, category:str, summary):
             """
             GraphSummary.Category constructor.
 
@@ -204,6 +204,7 @@ class GraphSummary:
             # it is useful to point to the GraphSummary within
             # which this Category metadata is bring tracked...
             self.summary = summary
+            self.error_log = summary.error_log
 
             # ...so that Category related entries at that
             # higher level may be properly initialized

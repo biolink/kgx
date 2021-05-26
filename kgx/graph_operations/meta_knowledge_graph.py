@@ -86,22 +86,22 @@ class MetaKnowledgeGraph:
         self.name = name
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
+        if error_log:
+            self.error_log = open(error_log, 'w')
+        else:
+            self.error_log = stderr
+
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
-        self.node_stats['unknown'] = self.Category('unknown')
+        self.node_stats['unknown'] = self.Category('unknown', summary=self)
 
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
         self.association_map: Dict = dict()
         self.edge_stats = []
         self.graph_stats: Dict[str, Dict] = dict()
-
-        if error_log:
-            self.error_log = open(error_log, 'w')
-        else:
-            self.error_log = stderr
 
     def get_name(self) -> str:
         """
@@ -142,7 +142,7 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category: str = ''):
+        def __init__(self, category: str, summary):
             """
             MetaKnowledgeGraph.Category constructor.
 
@@ -150,6 +150,9 @@ class MetaKnowledgeGraph:
                 Biolink Model category curie identifier.
 
             """
+            self.summary = summary
+            self.error_log = summary.error_log
+
             if not (_category_curie_regexp.fullmatch(category) or category == "unknown"):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category)
 
@@ -327,7 +330,7 @@ class MetaKnowledgeGraph:
 
                 if category_curie not in self.node_stats:
                     try:
-                        self.node_stats[category_curie] = self.Category(category_curie)
+                        self.node_stats[category_curie] = self.Category(category_curie, summary=self)
                     except RuntimeError as rte:
                         print("Invalid  category CURIE '" + category_curie + "'.  Ignoring...", file=self.error_log)
                         continue
