@@ -8,6 +8,8 @@ This operation generates graph summary as a JSON (or YAML) in a format that is c
 
 The main entry point is the `kgx.graph_operations.meta_knowledge_graph.generate_meta_knowledge_graph` method.
 
+The tool does detect and logs anomalies in the graph (defaults reporting  to stderr, but may be reset to a file using the `error_log` parameter)
+
 **Note:** To generate a summary statistics YAML that is compatible with Knowledge Graph Hub dashboard,
 refer to [Summarize Graph operation](summarize_graph.md).
 
