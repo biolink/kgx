@@ -61,6 +61,8 @@ class MetaKnowledgeGraph:
     Callable (function/callable class) should not modify the record and should be of low
     complexity, so as not to introduce a large computational overhead to validation!
     """
+    error_log = stderr
+
     def __init__(
             self,
             name='',
@@ -87,15 +89,13 @@ class MetaKnowledgeGraph:
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         if error_log:
-            self.error_log = open(error_log, 'w')
-        else:
-            self.error_log = stderr
+            MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
-        self.node_stats['unknown'] = self.Category('unknown', summary=self)
+        self.node_stats['unknown'] = self.Category('unknown')
 
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
@@ -142,7 +142,7 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category: str, summary):
+        def __init__(self, category: str):
             """
             MetaKnowledgeGraph.Category constructor.
 
@@ -150,9 +150,6 @@ class MetaKnowledgeGraph:
                 Biolink Model category curie identifier.
 
             """
-            self.summary = summary
-            self.error_log = summary.error_log
-
             if not (_category_curie_regexp.fullmatch(category) or category == "unknown"):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category)
 
@@ -241,7 +238,10 @@ class MetaKnowledgeGraph:
             self.category_stats['count'] += 1
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(f"Warning: node id {n} has no CURIE prefix", file=self.error_log)
+                print(
+                    f"Warning: node id {n} has no CURIE prefix",
+                    file=MetaKnowledgeGraph.error_log
+                )
             else:
                 if prefix not in self.category_stats['id_prefixes']:
                     self.category_stats['id_prefixes'].add(prefix)
@@ -301,8 +301,10 @@ class MetaKnowledgeGraph:
         # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            print("Duplicate node identifier '" + n +
-                  "' encountered in input node data? Ignoring...", file=self.error_log)
+            print(
+                "Duplicate node identifier '" + n + "' encountered in input node data? Ignoring...",
+                file=MetaKnowledgeGraph.error_log
+            )
             return
         else:
             self.node_catalog[n] = list()
@@ -312,7 +314,8 @@ class MetaKnowledgeGraph:
             category.analyse_node_category(n, data)
             print(
                 "Node with identifier '" + n + "' is missing its 'category' value? " +
-                "Counting it as 'unknown', but otherwise ignoring in the analysis...", file=self.error_log
+                "Counting it as 'unknown', but otherwise ignoring in the analysis...",
+                file=MetaKnowledgeGraph.error_log
             )
             return
 
@@ -330,9 +333,12 @@ class MetaKnowledgeGraph:
 
                 if category_curie not in self.node_stats:
                     try:
-                        self.node_stats[category_curie] = self.Category(category_curie, summary=self)
+                        self.node_stats[category_curie] = self.Category(category_curie)
                     except RuntimeError as rte:
-                        print("Invalid  category CURIE '" + category_curie + "'.  Ignoring...", file=self.error_log)
+                        print(
+                            "Invalid  category CURIE '" + category_curie + "'.  Ignoring...",
+                            file=MetaKnowledgeGraph.error_log
+                        )
                         continue
 
                 category = self.node_stats[category_curie]
@@ -374,7 +380,10 @@ class MetaKnowledgeGraph:
             predicate = data['predicate']
 
             if not _predicate_curie_regexp.fullmatch(predicate):
-                print("Invalid  predicate CURIE '"+predicate+"'.  Ignoring...", file=self.error_log)
+                print(
+                    "Invalid  predicate CURIE '"+predicate+"'.  Ignoring...",
+                    file=MetaKnowledgeGraph.error_log
+                )
                 return
 
             if predicate not in self.predicates:
@@ -384,7 +393,10 @@ class MetaKnowledgeGraph:
             self.predicates[predicate] += 1
 
         if u not in self.node_catalog:
-            print("Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...", file=self.error_log)
+            print(
+                "Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...",
+                file=MetaKnowledgeGraph.error_log
+            )
             # removing from edge count
             self.edge_record_count -= 1
             self.predicates[predicate] -= 1
@@ -395,8 +407,10 @@ class MetaKnowledgeGraph:
             subject_category = self.Category.get_category_curie(subj_cat_idx)
 
             if v not in self.node_catalog:
-                print("Edge 'object' node ID '" + v +
-                      "' not found in node catalog? Ignoring...", file=self.error_log)
+                print(
+                    "Edge 'object' node ID '" + v + "' not found in node catalog? Ignoring...",
+                    file=MetaKnowledgeGraph.error_log
+                )
                 self.edge_record_count -= 1
                 self.predicates[predicate] -= 1
                 return

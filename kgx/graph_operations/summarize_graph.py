@@ -72,6 +72,9 @@ class GraphSummary:
     Callable (function/callable class) should not modify the record and should be of low
     complexity, so as not to introduce a large computational overhead to validation!
     """
+
+    error_log = stderr
+
     def __init__(
             self,
             name='',
@@ -134,9 +137,7 @@ class GraphSummary:
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         if error_log:
-            self.error_log = open(error_log, mode='w')
-        else:
-            self.error_log = stderr
+            GraphSummary.error_log = open(error_log, mode='w')
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
@@ -204,7 +205,6 @@ class GraphSummary:
             # it is useful to point to the GraphSummary within
             # which this Category metadata is bring tracked...
             self.summary = summary
-            self.error_log = summary.error_log
 
             # ...so that Category related entries at that
             # higher level may be properly initialized
@@ -299,7 +299,10 @@ class GraphSummary:
 
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(f"Warning: node id {n} has no CURIE prefix", file=summary.error_log)
+                print(
+                    f"Warning: node id {n} has no CURIE prefix",
+                    file=GraphSummary.error_log
+                )
             else:
                 if prefix in self.category_stats['count_by_id_prefix']:
                     self.category_stats['count_by_id_prefix'][prefix] += 1
@@ -368,8 +371,10 @@ class GraphSummary:
         """
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            print("Duplicate node identifier '" + n +
-                  "' encountered in input node data? Ignoring...", file=self.error_log)
+            print(
+                "Duplicate node identifier '" + n + "' encountered in input node data? Ignoring...",
+                file=GraphSummary.error_log
+            )
             return
         else:
             self.node_catalog[n] = list()
@@ -381,7 +386,7 @@ class GraphSummary:
             categories = ['unknown']
             print(
                 "Node with identifier '" + n + "' is missing its 'category' value? Tagging it as 'unknown'",
-                file=self.error_log
+                file=GraphSummary.error_log
             )
 
         # analyse them each independently...
@@ -400,7 +405,10 @@ class GraphSummary:
                         try:
                             self.node_categories[category_curie] = self.Category(category_curie, self)
                         except RuntimeError as rte:
-                            print("Invalid  category CURIE '" + category_curie + "'.  Ignoring...", file=self.error_log)
+                            print(
+                                "Invalid  category CURIE '" + category_curie + "'.  Ignoring...",
+                                file=GraphSummary.error_log
+                            )
                             continue
 
                 category = self.node_categories[category_curie]
@@ -448,7 +456,10 @@ class GraphSummary:
             predicate = data['predicate']
 
             if not _predicate_curie_regexp.fullmatch(predicate):
-                print("Invalid  predicate CURIE '" + predicate + "'.  Ignoring...", file=self.error_log)
+                print(
+                    "Invalid  predicate CURIE '" + predicate + "'.  Ignoring...",
+                    file=GraphSummary.error_log
+                )
                 return
 
             self.edge_stats[EDGE_PREDICATES].add(predicate)
@@ -464,7 +475,10 @@ class GraphSummary:
                     )
         
         if u not in self.node_catalog:
-            print("Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...", file=self.error_log)
+            print(
+                "Edge 'subject' node ID '" + u + "' not found in node catalog? Ignoring...",
+                file=GraphSummary.error_log
+            )
             # removing from edge count
             self.edge_stats[TOTAL_EDGES] -= 1
             self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
@@ -475,8 +489,10 @@ class GraphSummary:
             subject_category = self.Category.get_category_curie(subj_cat_idx)
 
             if v not in self.node_catalog:
-                print("Edge 'object' node ID '" + v +
-                      "' not found in node catalog? Ignoring...", file=self.error_log)
+                print(
+                    "Edge 'object' node ID '" + v + "' not found in node catalog? Ignoring...",
+                    file=GraphSummary.error_log
+                )
                 self.edge_stats[TOTAL_EDGES] -= 1
                 self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
                 return
