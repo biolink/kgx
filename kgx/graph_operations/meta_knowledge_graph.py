@@ -95,7 +95,10 @@ class MetaKnowledgeGraph:
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
-        self.node_stats['unknown'] = self.Category('unknown')
+
+        # We no longer track 'unknown' categories in meta-knowledge-graph
+        # computations since such nodes are not TRAPI 1.1 compliant categories
+        # self.node_stats['unknown'] = self.Category('unknown')
 
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
@@ -310,11 +313,12 @@ class MetaKnowledgeGraph:
             self.node_catalog[n] = list()
             
         if 'category' not in data or not data['category']:
-            category = self.node_stats['unknown']
-            category.analyse_node_category(n, data)
+            # we now simply exclude nodes with missing categories from the count, since a category
+            # of 'unknown' in the  meta_knowledge_graph output  is considered invalid.
+            # category = self.node_stats['unknown']
+            # category.analyse_node_category(n, data)
             print(
-                "Node with identifier '" + n + "' is missing its 'category' value? " +
-                "Counting it as 'unknown', but otherwise ignoring in the analysis...",
+                "Node with identifier '" + n + "' is missing its 'category' value? Ignoring in the analysis...",
                 file=MetaKnowledgeGraph.error_log
             )
             return
@@ -374,8 +378,16 @@ class MetaKnowledgeGraph:
         self.edge_record_count += 1
 
         if 'predicate' not in data:
-            self.predicates['unknown'] += 1
-            predicate = "unknown"
+            # We no longer track edges with 'unknown' predicates,
+            # since those would not be TRAPI 1.1 JSON compliant...
+            # self.predicates['unknown'] += 1
+            # predicate = "unknown"
+            print(
+                "Empty predicate CURIE in edge data '"+str(data)+"'.  Ignoring...",
+                file=MetaKnowledgeGraph.error_log
+            )
+            self.edge_record_count -= 1
+            return
         else:
             predicate = data['predicate']
 
@@ -384,6 +396,7 @@ class MetaKnowledgeGraph:
                     "Invalid  predicate CURIE '"+predicate+"'.  Ignoring...",
                     file=MetaKnowledgeGraph.error_log
                 )
+                self.edge_record_count -= 1
                 return
 
             if predicate not in self.predicates:
@@ -452,9 +465,11 @@ class MetaKnowledgeGraph:
         Returns
         -------
         int
-            Number of distinct (Biolink) categories found in the graph (excluding the 'unknown' category)
+            Number of distinct (Biolink) categories found in the graph (excluding nodes with 'unknown' category)
         """
-        return len([c for c in self.node_stats.keys() if c != 'unknown'])
+        # 'unknown' not tracked anymore...
+        # return len([c for c in self.node_stats.keys() if c != 'unknown'])
+        return len(self.node_stats.keys())
 
     def get_node_stats(self) -> Dict[str, Category]:
         """
@@ -463,8 +478,9 @@ class MetaKnowledgeGraph:
         Dict[str, Category]
             Statistics for the nodes in the graph.
         """
-        if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
-            self.node_stats.pop('unknown')
+        # We no longer track 'unknown' node category counts - non TRAPI 1.1. compliant output
+        # if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
+        #     self.node_stats.pop('unknown')
         return self.node_stats
 
     def get_edge_stats(self) -> List[Dict[str, Any]]:
