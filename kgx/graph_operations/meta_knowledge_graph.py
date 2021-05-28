@@ -162,7 +162,7 @@ class MetaKnowledgeGraph:
             self.category_stats: Dict[str, Any] = dict()
             self.category_stats['id_prefixes'] = set()
             self.category_stats['count'] = 0
-            self.category_stats['count_by_source'] = {'unknown': 0}
+            self.category_stats['count_by_source'] = dict()
 
         def get_name(self) -> str:
             """
@@ -255,7 +255,10 @@ class MetaKnowledgeGraph:
                     else:
                         self.category_stats['count_by_source'][s] = 1
             else:
-                self.category_stats['count_by_source']['unknown'] += 1
+                if 'unknown' in self.category_stats['count_by_source']:
+                    self.category_stats['count_by_source']['unknown'] += 1
+                else:
+                    self.category_stats['count_by_source']['unknown'] = 1
 
         def json_object(self):
             """
@@ -440,8 +443,8 @@ class MetaKnowledgeGraph:
                         'predicate': triple[1],
                         'object': triple[2],
                         'relations': set(),
-                        'count': 0,
-                        'count_by_source': {'unknown': 0},
+                        'count_by_source': dict(),
+                        'count': 0
                     }
 
                 if data['relation'] not in self.association_map[triple]['relations']:
@@ -455,7 +458,10 @@ class MetaKnowledgeGraph:
                         else:
                             self.association_map[triple]['count_by_source'][s] += 1
                 else:
-                    self.association_map[triple]['count_by_source']['unknown'] += 1
+                    if 'unknown' in self.association_map[triple]['count_by_source']:
+                        self.association_map[triple]['count_by_source']['unknown'] += 1
+                    else:
+                        self.association_map[triple]['count_by_source']['unknown'] = 1
 
     def get_number_of_categories(self) -> int:
         """
