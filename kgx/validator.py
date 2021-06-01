@@ -777,6 +777,19 @@ class Validator(object):
         """
         return [str(x) for x in errors]
 
+    def get_error_messages(self):
+        """
+        A direct Validator "instance" method version of report()
+        that directly accesses the internal Validator self.errors list.
+
+        Returns
+        -------
+        List
+            A list of formatted error messages.
+
+        """
+        return Validator.report(self.errors)
+
     def write_report(self, outstream: TextIO) -> None:
         """
         Write error report to a file
