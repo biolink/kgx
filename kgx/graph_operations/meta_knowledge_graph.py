@@ -63,11 +63,22 @@ class MetaKnowledgeGraph:
     """
     error_log = stderr
 
+    _infores_parser: Optional[Callable[[str], str]] = None
+
+    @staticmethod
+    def _default_infores_processor(source: str,):
+        _infores_filter = ""
+        filter = re.compile(_infores_filter)
+        def _infores_parser(source):
+            source = filter(source)
+        return _infores_parser
+
     def __init__(
             self,
             name='',
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
+            infores_filter: str = None,
             **kwargs
     ):
         """
@@ -81,6 +92,10 @@ class MetaKnowledgeGraph:
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
             Where to write any graph processing error message (stderr, by default).
+        infores_filter:
+            Optional argument is a regular expression (string) to compile and apply to the
+            knowledge source ("provided_by") field identifier for a node or edge
+            input source field, prior to coercing it into an InfoRes CURIE.
 
         """
         # formal args
@@ -91,7 +106,12 @@ class MetaKnowledgeGraph:
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
-        # internal attributes
+        if infores_filter:
+            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._default_infores_processor(infores_filter)
+        else:
+            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._default_infores_processor('')
+
+            # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
 
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
@@ -250,6 +270,8 @@ class MetaKnowledgeGraph:
                     self.category_stats['id_prefixes'].add(prefix)
             if 'provided_by' in data:
                 for s in data['provided_by']:
+                    if MetaKnowledgeGraph.infores_processor:
+                        s = MetaKnowledgeGraph.infores_processor(s)
                     if s in self.category_stats['count_by_source']:
                         self.category_stats['count_by_source'][s] += 1
                     else:
@@ -453,6 +475,8 @@ class MetaKnowledgeGraph:
                 self.association_map[triple]['count'] += 1
                 if 'provided_by' in data:
                     for s in data['provided_by']:
+                        if MetaKnowledgeGraph.infores_processor:
+                            s = MetaKnowledgeGraph.infores_processor(s)
                         if s not in self.association_map[triple]['count_by_source']:
                             self.association_map[triple]['count_by_source'][s] = 1
                         else:

@@ -188,7 +188,7 @@ class GraphSummary:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category:str, summary):
+        def __init__(self, category: str, summary):
             """
             GraphSummary.Category constructor.
 
