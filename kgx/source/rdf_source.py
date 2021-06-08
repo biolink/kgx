@@ -2,7 +2,7 @@ import gzip
 from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
-from biolinkml.meta import SlotDefinition, ClassDefinition, Element
+from linkml_model.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
 from kgx.prefix_manager import PrefixManager
@@ -43,7 +43,8 @@ class RdfSource(Source):
     def __init__(self):
         super().__init__()
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
-        # TODO: use OBO IRI from biolink model context once https://github.com/biolink/biolink-model/issues/211 is resolved
+        # TODO: use OBO IRI from biolink model context once
+        #  https://github.com/biolink/biolink-model/issues/211 is resolved
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
         self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])

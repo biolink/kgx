@@ -3,8 +3,9 @@ from enum import Enum
 from typing import Tuple, List, TextIO, Optional, Dict, Set
 
 import click
+import functools
 import validators
-
+from pprint import pprint
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
