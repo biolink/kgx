@@ -372,9 +372,13 @@ def transform(
     output_format: Optional[str] = None,
     output_compression: Optional[str] = None,
     stream: bool = False,
+    node_filters: Tuple[str, str] = None,
+    edge_filters: Tuple[str, str] = None,
     transform_config: str = None,
     source: Optional[List] = None,
-    destination: Optional[List] = None,
+    # this parameter doesn't get used, but I leave it in
+    # for now, in case it signifies an unimplemented concept
+    # destination: Optional[List] = None,
     processes: int = 1,
 ) -> None:
     """
@@ -396,12 +400,14 @@ def transform(
         The output compression type
     stream: bool
         Whether to parse input as a stream
+    node_filters: Tuple[str, str]
+        Node input filters
+    edge_filters: Tuple[str, str]
+        Edge input filters
     transform_config: Optional[str]
         The transform config YAML
     source: Optional[List]
         A list of source to load from the YAML
-    destination: Optional[List]
-        A list of destination to write to, as defined in the YAML
     processes: int
         Number of processes to use
 
@@ -480,6 +486,10 @@ def transform(
                 'format': input_format,
                 'compression': input_compression,
                 'filename': inputs,
+                'filters': {
+                    'node_filters': node_filters,
+                    'edge_filters': edge_filters,
+                },
             },
             'output': {
                 'format': output_format,
@@ -691,7 +701,12 @@ def parse_source(
     if not key:
         key = os.path.basename(source['input']['filename'][0])
     input_args = prepare_input_args(
-        key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings
+        key,
+        source,
+        output_directory,
+        prefix_map,
+        node_property_predicates,
+        predicate_mappings
     )
     transformer = Transformer()
     transformer.transform(input_args)
@@ -756,7 +771,12 @@ def transform_source(
     """
     log.info(f"Processing source '{key}'")
     input_args = prepare_input_args(
-        key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings
+        key,
+        source,
+        output_directory,
+        prefix_map,
+        node_property_predicates,
+        predicate_mappings
     )
     output_args = prepare_output_args(
         key,
