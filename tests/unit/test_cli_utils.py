@@ -169,7 +169,7 @@ def test_transform2():
     Transform from a test transform YAML.
     """
     transform_config = os.path.join(RESOURCE_DIR, 'test-transform.yaml')
-    transform(None, transform_config=transform_config)
+    transform(inputs=None, transform_config=transform_config)
     assert os.path.exists(os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'))
     assert os.path.exists(os.path.join(RESOURCE_DIR, 'graph_edges.tsv'))
 

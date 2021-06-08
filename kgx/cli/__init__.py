@@ -372,15 +372,14 @@ def transform_wrapper(
     output_format: str,
     output_compression: str,
     stream: bool,
-    node_filters: Tuple,
-    edge_filters: Tuple,
+    node_filters: Tuple[str, str],
+    edge_filters: Tuple[str, str],
     transform_config: str,
     source: List,
     processes: int,
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
-    \f
 
     Parameters
     ----------
@@ -399,9 +398,9 @@ def transform_wrapper(
     stream: bool
         Wheter or not to stream
     node_filters: Tuple[str, str]
-        Node filters
+        Node input filters
     edge_filters: Tuple[str, str]
-        Edge filters
+        Edge input filters
     transform_config: str
         Transform config YAML
     source: List
@@ -412,16 +411,16 @@ def transform_wrapper(
     """
     transform(
         inputs,
-        input_format,
-        input_compression,
-        output,
-        output_format,
-        output_compression,
-        stream,
-        node_filters,
-        edge_filters,
-        transform_config,
-        source,
+        input_format=input_format,
+        input_compression=input_compression,
+        output=output,
+        output_format=output_format,
+        output_compression=output_compression,
+        stream=stream,
+        node_filters=node_filters,
+        edge_filters=edge_filters,
+        transform_config=transform_config,
+        source=source,
         processes=processes,
     )
 
