@@ -121,7 +121,7 @@ class MetaKnowledgeGraph:
             is a substitution string for the regex value matched in the field. If the Tuple contains
             a third non-empty string (as infores_rewrite[2]), then the given string is added as a prefix
             to the InfoRes.  Whatever the transformations, unique InfoRes identifiers once generated,
-            are used in the meta_knowledge_graph and also, reported in the program error_log.
+            are used in the meta_knowledge_graph and also reported using the get_infores_catalog() method.
         """
         # formal args
 
