@@ -118,7 +118,7 @@ class TsvSource(Source):
                 for name in node_files:
                     try:
                         member = tar.getmember(name)
-                    except KeyError as ke:
+                    except KeyError:
                         log.warning(f"Node file {name} member in archive {filename} could not be accessed? Skipped?")
                         continue
 
@@ -140,7 +140,7 @@ class TsvSource(Source):
                 for name in edge_files:
                     try:
                         member = tar.getmember(name)
-                    except KeyError as ke:
+                    except KeyError:
                         log.warning(f"Edge file {name} member in archive {filename} could not be accessed? Skipped?")
                         continue
 
