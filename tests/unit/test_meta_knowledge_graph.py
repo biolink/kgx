@@ -40,6 +40,31 @@ def test_generate_classical_meta_knowledge_graph():
     assert len(data['edges']) == 13
 
 
+def test_meta_knowledge_graph_infores_parser():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+    mkg = MetaKnowledgeGraph(
+        infores_rewrite=(r"\(.+\)", '')  # deletes anything inside (and including the) parentheses
+    )
+    t = Transformer()
+    t.transform(input_args=input_args, inspector=mkg)
+    
+    gene_category = mkg.get_category('biolink:Gene')
+    assert gene_category.get_count() == 1
+    ccbs = gene_category.get_count_by_source()
+    assert len(ccbs) == 1
+    assert "flybase" in ccbs
+    
+    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    assert len(ecbs) == 1
+    assert "gene-ontology" in ecbs
+
+
 def test_generate_meta_knowledge_graph_by_stream_inspector():
     """
     Test generate the meta knowledge graph by streaming
@@ -69,7 +94,20 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
     assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()
     assert 'HP' in mkg.get_category('biolink:PhenotypicFeature').get_id_prefixes()
-    assert mkg.get_category('biolink:Gene').get_count() == 178
+    gene_category = mkg.get_category('biolink:Gene')
+    assert gene_category.get_count() == 178
+    gene_category.get_count_by_source()
+    assert len(mkg.get_edge_count_by_source("", "", "")) == 0
+    assert len(mkg.get_edge_count_by_source("biolink:Gene", "biolink:affects", "biolink:Disease")) == 0
+    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:interacts_with", "biolink:Gene")
+    assert len(ecbs) == 2
+    assert "biogrid" in ecbs
+    assert "string" in ecbs
+    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature")
+    assert len(ecbs) == 3
+    assert "omim" in ecbs
+    assert "orphanet" in ecbs
+    assert "hpoa" in ecbs
 
 
 #

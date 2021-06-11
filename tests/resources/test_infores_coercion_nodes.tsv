@@ -1,0 +1,3 @@
+id	name	category	provided_by
+FlyBase:FBgn0000008	Arc	biolink:Gene	FlyBase (Monarch version 202012)
+GO:0005912	adherens junction	biolink:CellularComponent	Gene Ontology (Monarch version 202012)

@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Any, Callable, Set
+
+from typing import Dict, List, Optional, Any, Callable, Set, Tuple
 from sys import stderr
 
 import re
@@ -66,11 +67,20 @@ class MetaKnowledgeGraph:
     _infores_parser: Optional[Callable[[str], str]] = None
 
     @staticmethod
-    def _default_infores_processor(source: str,):
-        _infores_filter = ""
-        filter = re.compile(_infores_filter)
-        def _infores_parser(source):
-            source = filter(source)
+    def _infores_processor(infores_rewrite: Optional[Tuple[str, str]] = None):
+        if infores_rewrite:
+            _filter = re.compile(infores_rewrite[0])
+        else:
+            _filter = None
+            
+        def _infores_parser(source: str):
+            if _filter:
+                source = re.sub(_filter, infores_rewrite[1], source)
+            source = source.lower()
+            source = source.strip()
+            source = source.replace(' ', '-')
+            return source
+        
         return _infores_parser
 
     def __init__(
@@ -78,7 +88,7 @@ class MetaKnowledgeGraph:
             name='',
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
-            infores_filter: str = None,
+            infores_rewrite: Optional[Tuple[str, str]] = None,
             **kwargs
     ):
         """
@@ -92,11 +102,13 @@ class MetaKnowledgeGraph:
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
             Where to write any graph processing error message (stderr, by default).
-        infores_filter:
-            Optional argument is a regular expression (string) to compile and apply to the
-            knowledge source ("provided_by") field identifier for a node or edge
-            input source field, prior to coercing it into an InfoRes CURIE.
-
+        infores_rewrite: Optional[Tuple[str, str]]
+            Optional argument is a 2-Tuple value. infores_rewrite[0] is a regular expression (string)
+            to match against the knowledge source ("provided_by") field value of node and edge
+            data records, to substitute the second string value of infores_rewrite[1]
+            in the knowledge source identifier being matched, prior to coercing the field value
+            into an InfoRes CURIE. Unique InfoRes identifiers generated used in the meta_knowledge_graph
+            and also reported in the program error_log.
         """
         # formal args
 
@@ -106,10 +118,10 @@ class MetaKnowledgeGraph:
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
-        if infores_filter:
-            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._default_infores_processor(infores_filter)
+        if infores_rewrite:
+            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._infores_processor(infores_rewrite)
         else:
-            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._default_infores_processor('')
+            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._infores_processor()
 
             # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
@@ -241,9 +253,13 @@ class MetaKnowledgeGraph:
             -------
             Dict[str, int]
                 Count of nodes, by provider_by knowledge source, for this given category.
+                Returns list of all source counts if input 'source' argument is not specified.
             """
             if source:
-                return {source: self.category_stats['count_by_source'][source]}
+                if source in self.category_stats['count_by_source']:
+                    return {source: self.category_stats['count_by_source'][source]}
+                else:
+                    return {source: 0}
             return self.category_stats['count_by_source']
 
         def analyse_node_category(self, n, data) -> None:
@@ -270,8 +286,8 @@ class MetaKnowledgeGraph:
                     self.category_stats['id_prefixes'].add(prefix)
             if 'provided_by' in data:
                 for s in data['provided_by']:
-                    if MetaKnowledgeGraph.infores_processor:
-                        s = MetaKnowledgeGraph.infores_processor(s)
+                    if MetaKnowledgeGraph._infores_parser:
+                        s = MetaKnowledgeGraph._infores_parser(s)
                     if s in self.category_stats['count_by_source']:
                         self.category_stats['count_by_source'][s] += 1
                     else:
@@ -469,14 +485,14 @@ class MetaKnowledgeGraph:
                         'count': 0
                     }
 
-                if data['relation'] not in self.association_map[triple]['relations']:
+                if 'relation' in data and data['relation'] not in self.association_map[triple]['relations']:
                     self.association_map[triple]['relations'].add(data['relation'])
 
                 self.association_map[triple]['count'] += 1
                 if 'provided_by' in data:
                     for s in data['provided_by']:
-                        if MetaKnowledgeGraph.infores_processor:
-                            s = MetaKnowledgeGraph.infores_processor(s)
+                        if MetaKnowledgeGraph._infores_parser:
+                            s = MetaKnowledgeGraph._infores_parser(s)
                         if s not in self.association_map[triple]['count_by_source']:
                             self.association_map[triple]['count_by_source'][s] = 1
                         else:
@@ -663,6 +679,32 @@ class MetaKnowledgeGraph:
             count += edge['count']
         return count
 
+    def get_edge_count_by_source(
+            self,
+            subject_category: str,
+            predicate: str,
+            object_category: str
+    ) -> Dict[str, int]:
+        """
+        Returns count by source for one S-P-O triple (S, O being Biolink categories; P, the Biolink predicate)
+        """
+        if not (subject_category and predicate and object_category):
+            print(
+                "Warning: get_edge_count_by_source() has some empty S-P-O arguments? Don't know what you are counting!",
+                file=MetaKnowledgeGraph.error_log
+            )
+            return dict()
+        triple = (subject_category, predicate, object_category)
+        if triple in self.association_map and 'count_by_source' in self.association_map[triple]:
+            return self.association_map[triple]['count_by_source']
+        else:
+            print(
+                "Warning: get_edge_count_by_source(): no source count available unknown triple " +
+                "("+subject_category+","+predicate+","+object_category+")?",
+                file=MetaKnowledgeGraph.error_log
+            )
+            return dict()
+    
     def summarize_graph_nodes(self, graph: BaseGraph) -> Dict:
         """
         Summarize the nodes in a graph.
