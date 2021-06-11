@@ -76,12 +76,17 @@ class MetaKnowledgeGraph:
 
         def _infores_parser(source: str):
             if self._filter:
-                source = re.sub(self._filter, self._substr, source)
-            source = self._prefix + ' ' + source
-            source = source.strip()
-            source = source.lower()
-            source = source.replace(' ', '-')
-            return source
+                infores = re.sub(self._filter, self._substr, source)
+            else:
+                infores = source
+            infores = self._prefix + ' ' + infores
+            infores = infores.strip()
+            infores = infores.lower()
+            infores = infores.replace(' ', '-')
+            if infores not in self._infores_catalog:
+                self._infores_catalog[infores] = set()
+            self._infores_catalog[infores].add(source)
+            return infores
         
         return _infores_parser
 
@@ -126,7 +131,10 @@ class MetaKnowledgeGraph:
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
+        # Configure the InfoRes rewriting / logging mechanism, if specified
         self._infores_parser: Optional[Callable[[str], str]] = None
+        self._infores_catalog: Dict[str, Set[str]] = dict()
+        
         if not (infores_rewrite is None):
             # Yes, we have a Tuple data structure, so we rewrite, but check for a regex filter
             if len(infores_rewrite) > 0:
@@ -849,6 +857,9 @@ class MetaKnowledgeGraph:
         else:
             yaml.dump(stats, file)
 
+    def get_infores_catalog(self):
+        return self._infores_catalog
+    
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
     """

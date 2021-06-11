@@ -65,6 +65,11 @@ def test_meta_knowledge_graph_infores_parser_deletion_rewrite():
     assert len(ecbs) == 1
     assert "gene-ontology" in ecbs
     
+    irc = mkg.get_infores_catalog()
+    assert len(irc) == 2
+    assert "gene-ontology" in irc
+    assert "Gene Ontology (Monarch version 202012)" in irc['gene-ontology']
+    
 
 def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
     input_args = {
