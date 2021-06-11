@@ -65,23 +65,6 @@ def test_meta_knowledge_graph_infores_parser_deletion_rewrite():
     assert len(ecbs) == 1
     assert "gene-ontology" in ecbs
     
-    t2 = Transformer()
-    mkg2 = MetaKnowledgeGraph(
-        # substitute anything inside (and including the) parentheses with Monarch' (but will be lowercased)
-        infores_rewrite=(r"\(.+\)", "Monarch")
-    )
-    t2.transform(input_args=input_args, inspector=mkg2)
-    
-    gene_category = mkg2.get_category('biolink:Gene')
-    assert gene_category.get_count() == 1
-    ccbs = gene_category.get_count_by_source()
-    assert len(ccbs) == 1
-    assert "flybase-monarch" in ccbs
-    
-    ecbs = mkg2.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
-    assert len(ecbs) == 1
-    assert "gene-ontology" in ecbs
-
 
 def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
     input_args = {

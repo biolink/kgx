@@ -64,23 +64,20 @@ class MetaKnowledgeGraph:
     """
     error_log = stderr
 
-    _infores_parser: Optional[Callable[[str], str]] = None
-
-    @classmethod
-    def _infores_processor(cls, infores_rewrite_filter: Optional[Tuple] = tuple()):
+    def _infores_processor(self, infores_rewrite_filter: Optional[Tuple] = tuple()):
         # Check for non-empty infores_rewrite_filter
         if infores_rewrite_filter:
-            _filter = re.compile(infores_rewrite_filter[0])
-            _substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
+            self._filter = re.compile(infores_rewrite_filter[0])
+            self._substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
         else:
-            _filter = None
-            _substr = ''
-        _prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
+            self._filter = None
+            self._substr = ''
+        self._prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
 
         def _infores_parser(source: str):
-            if _filter:
-                source = re.sub(_filter, _substr, source)
-            source = _prefix + ' ' + source
+            if self._filter:
+                source = re.sub(self._filter, self._substr, source)
+            source = self._prefix + ' ' + source
             source = source.strip()
             source = source.lower()
             source = source.replace(' ', '-')
@@ -129,13 +126,14 @@ class MetaKnowledgeGraph:
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
+        self._infores_parser: Optional[Callable[[str], str]] = None
         if not (infores_rewrite is None):
             # Yes, we have a Tuple data structure, so we rewrite, but check for a regex filter
             if len(infores_rewrite) > 0:
-                MetaKnowledgeGraph._infores_parser = self._infores_processor(infores_rewrite)
+                self._infores_parser = self._infores_processor(infores_rewrite)
             else:
                 # Empty tuple just signals a basic rewrite
-                MetaKnowledgeGraph._infores_parser = self._infores_processor()
+                self._infores_parser = self._infores_processor()
 
             # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
@@ -191,18 +189,21 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category: str):
+        def __init__(self, category: str, mkg):
             """
             MetaKnowledgeGraph.Category constructor.
 
             category: str
                 Biolink Model category curie identifier.
+            mkg: parent MetaKnowledgeGraph of the Category
 
             """
             if not (_category_curie_regexp.fullmatch(category) or category == "unknown"):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category)
 
             self.category = category
+            self.mkg = mkg
+            
             if category not in self._category_curie_map:
                 self._category_curie_map.append(category)
             self.category_stats: Dict[str, Any] = dict()
@@ -300,8 +301,8 @@ class MetaKnowledgeGraph:
                     self.category_stats['id_prefixes'].add(prefix)
             if 'provided_by' in data:
                 for s in data['provided_by']:
-                    if MetaKnowledgeGraph._infores_parser:
-                        s = MetaKnowledgeGraph._infores_parser(s)
+                    if self.mkg._infores_parser:
+                        s = self.mkg._infores_parser(s)
                     if s in self.category_stats['count_by_source']:
                         self.category_stats['count_by_source'][s] += 1
                     else:
@@ -392,8 +393,8 @@ class MetaKnowledgeGraph:
 
                 if category_curie not in self.node_stats:
                     try:
-                        self.node_stats[category_curie] = self.Category(category_curie)
-                    except RuntimeError as rte:
+                        self.node_stats[category_curie] = self.Category(category_curie, self)
+                    except RuntimeError:
                         print(
                             "Invalid  category CURIE '" + category_curie + "'.  Ignoring...",
                             file=MetaKnowledgeGraph.error_log
@@ -505,8 +506,8 @@ class MetaKnowledgeGraph:
                 self.association_map[triple]['count'] += 1
                 if 'provided_by' in data:
                     for s in data['provided_by']:
-                        if MetaKnowledgeGraph._infores_parser:
-                            s = MetaKnowledgeGraph._infores_parser(s)
+                        if self._infores_parser:
+                            s = self._infores_parser(s)
                         if s not in self.association_map[triple]['count_by_source']:
                             self.association_map[triple]['count_by_source'][s] = 1
                         else:
