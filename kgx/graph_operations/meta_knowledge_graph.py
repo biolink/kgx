@@ -66,18 +66,23 @@ class MetaKnowledgeGraph:
 
     _infores_parser: Optional[Callable[[str], str]] = None
 
-    @staticmethod
-    def _infores_processor(infores_rewrite: Optional[Tuple[str, str]] = None):
-        if infores_rewrite:
-            _filter = re.compile(infores_rewrite[0])
+    @classmethod
+    def _infores_processor(cls, infores_rewrite_filter: Optional[Tuple] = tuple()):
+        # Check for non-empty infores_rewrite_filter
+        if infores_rewrite_filter:
+            _filter = re.compile(infores_rewrite_filter[0])
+            _substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
         else:
             _filter = None
-            
+            _substr = ''
+        _prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
+
         def _infores_parser(source: str):
             if _filter:
-                source = re.sub(_filter, infores_rewrite[1], source)
-            source = source.lower()
+                source = re.sub(_filter, _substr, source)
+            source = _prefix + ' ' + source
             source = source.strip()
+            source = source.lower()
             source = source.replace(' ', '-')
             return source
         
@@ -88,7 +93,7 @@ class MetaKnowledgeGraph:
             name='',
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
-            infores_rewrite: Optional[Tuple[str, str]] = None,
+            infores_rewrite: Optional[Tuple] = None,
             **kwargs
     ):
         """
@@ -102,13 +107,19 @@ class MetaKnowledgeGraph:
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
             Where to write any graph processing error message (stderr, by default).
-        infores_rewrite: Optional[Tuple[str, str]]
-            Optional argument is a 2-Tuple value. infores_rewrite[0] is a regular expression (string)
-            to match against the knowledge source ("provided_by") field value of node and edge
-            data records, to substitute the second string value of infores_rewrite[1]
-            in the knowledge source identifier being matched, prior to coercing the field value
-            into an InfoRes CURIE. Unique InfoRes identifiers generated used in the meta_knowledge_graph
-            and also reported in the program error_log.
+        infores_rewrite: Optional[Tuple]
+            Optional argument is a Tuple value. The presence of a Tuple signals an InfoRes rewrite
+            of the knowledge source ("provided_by") field value of node and edge data records.
+            The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
+            then only a standard transformation of the field value is performed. If the Tuple has
+            an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
+            against. If there is no infores_rewrite[1] value or it is empty, then matches of the
+            infores_rewrite[0] are simply deleted from the field value prior to coercing the field
+            value into an InfoRes CURIE. Otherwise, a non-empty second string value of infores_rewrite[1]
+            is a substitution string for the regex value matched in the field. If the Tuple contains
+            a third non-empty string (as infores_rewrite[2]), then the given string is added as a prefix
+            to the InfoRes.  Whatever the transformations, unique InfoRes identifiers once generated,
+            are used in the meta_knowledge_graph and also, reported in the program error_log.
         """
         # formal args
 
@@ -118,10 +129,13 @@ class MetaKnowledgeGraph:
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
-        if infores_rewrite:
-            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._infores_processor(infores_rewrite)
-        else:
-            MetaKnowledgeGraph._infores_parser = MetaKnowledgeGraph._infores_processor()
+        if not (infores_rewrite is None):
+            # Yes, we have a Tuple data structure, so we rewrite, but check for a regex filter
+            if len(infores_rewrite) > 0:
+                MetaKnowledgeGraph._infores_parser = self._infores_processor(infores_rewrite)
+            else:
+                # Empty tuple just signals a basic rewrite
+                MetaKnowledgeGraph._infores_parser = self._infores_processor()
 
             # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
