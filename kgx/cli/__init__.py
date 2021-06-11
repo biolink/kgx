@@ -80,6 +80,12 @@ def cli():
     type=click.Path(exists=False),
     help='File within which to report graph data parsing errors (default: "stderr")'
 )
+@click.option(
+    '--infores-rewrite',
+    required=False,
+    multiple=True,
+    help='A knowledge source InfoRes remapping specification (see documentation for meta knowledge graph summaries).'
+)
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
@@ -90,8 +96,40 @@ def graph_summary_wrapper(
     stream: bool,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
-    error_log: str = ''
+    error_log: str = '',
+    infores_rewrite: Optional[Tuple] = None
 ):
+    """
+    Loads and summarizes a knowledge graph from a set of input files.
+    \f
+
+    Parameters
+    ----------
+    inputs: List[str]
+        Input file
+    input_format: str
+        Input file format
+    input_compression: str
+        The input compression type
+    output: str
+        Where to write the output (stdout, by default)
+    report_type: str
+        The summary report type
+    stream: bool
+        Whether to parse input as a stream
+    node_facet_properties: Optional[Set]
+        A list of node properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
+    edge_facet_properties: Optional[Set]
+        A list of edge properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
+    error_log: str
+        Where to write any graph processing error message (stderr, by default, for empty argument)
+    infores_rewrite: Optional[Tuple]
+            Optional argument is a Tuple value (default: None).  The presence of a Tuple signals an
+            InfoRes rewrite of the knowledge source ("provided_by") field value of node and edge data records.
+            Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
+    """
     graph_summary(
         inputs,
         input_format,
@@ -102,7 +140,8 @@ def graph_summary_wrapper(
         stream,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
-        error_log=error_log
+        error_log=error_log,
+        infores_rewrite=infores_rewrite
     )
 
 
@@ -128,7 +167,8 @@ def validate_wrapper(
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
-
+    \f
+    
     Parameters
     ----------
     inputs: List[str]
@@ -371,7 +411,8 @@ def transform_wrapper(
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
-
+    \f
+    
     Parameters
     ----------
     inputs: List[str]

@@ -126,6 +126,34 @@ def test_meta_knowledge_graph_infores_parser_prefix_rewrite():
     assert "monarch-gene-ontology" in ecbs
 
 
+def test_meta_knowledge_graph_infores_simple_prefix_rewrite():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+    
+    t = Transformer()
+    mkg = MetaKnowledgeGraph(
+        # Delete anything inside (and including the) parentheses
+        # then but then add a prefix 'Monarch' (but will be lower cased)
+        infores_rewrite=("", "", "Fixed")
+    )
+    t.transform(input_args=input_args, inspector=mkg)
+    
+    gene_category = mkg.get_category('biolink:Gene')
+    assert gene_category.get_count() == 1
+    ccbs = gene_category.get_count_by_source()
+    assert len(ccbs) == 1
+    assert "fixed-flybase-monarch-version-202012" in ccbs
+    
+    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    assert len(ecbs) == 1
+    assert "fixed-gene-ontology-monarch-version-202012" in ecbs
+
+
 def test_generate_meta_knowledge_graph_by_stream_inspector():
     """
     Test generate the meta knowledge graph by streaming

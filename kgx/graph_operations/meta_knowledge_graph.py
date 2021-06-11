@@ -82,7 +82,9 @@ class MetaKnowledgeGraph:
             infores = self._prefix + ' ' + infores
             infores = infores.strip()
             infores = infores.lower()
-            infores = infores.replace(' ', '-')
+            infores = re.sub(r"\s+", "_", infores)
+            infores = re.sub(r"[\W]", "", infores)
+            infores = re.sub(r"_", "-", infores)
             if infores not in self._infores_catalog:
                 self._infores_catalog[infores] = set()
             self._infores_catalog[infores].add(source)
