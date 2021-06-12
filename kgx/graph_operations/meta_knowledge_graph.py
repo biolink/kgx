@@ -38,7 +38,7 @@ def mkg_default(o):
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
-        return JSONEncoder.default(o)
+        return JSONEncoder().default(o)
 
 
 _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
@@ -293,19 +293,7 @@ class MetaKnowledgeGraph:
                     return {source: 0}
             return self.category_stats['count_by_source']
 
-        def analyse_node_category(self, n, data) -> None:
-            """
-            Analyse metadata of a given graph node record of this category.
-
-            Parameters
-            ----------
-            n: str
-                Curie identifier of the node record (not used here).
-            data: Dict
-                Complete data dictionary of node record fields.
-
-            """
-            self.category_stats['count'] += 1
+        def _compile_prefix_stats(self, n: str):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 print(
@@ -316,6 +304,7 @@ class MetaKnowledgeGraph:
                 if prefix not in self.category_stats['id_prefixes']:
                     self.category_stats['id_prefixes'].add(prefix)
 
+        def _compile_source_stats(self, data: Dict):
             if 'provided_by' in data:
                 for s in data['provided_by']:
                     if self.mkg._infores_parser:
@@ -329,6 +318,22 @@ class MetaKnowledgeGraph:
                     self.category_stats['count_by_source']['unknown'] += 1
                 else:
                     self.category_stats['count_by_source']['unknown'] = 1
+
+        def analyse_node_category(self, n, data) -> None:
+            """
+            Analyse metadata of a given graph node record of this category.
+
+            Parameters
+            ----------
+            n: str
+                Curie identifier of the node record (not used here).
+            data: Dict
+                Complete data dictionary of node record fields.
+
+            """
+            self.category_stats['count'] += 1
+            self._compile_prefix_stats(n)
+            self._compile_source_stats(data)
 
         def json_object(self):
             """

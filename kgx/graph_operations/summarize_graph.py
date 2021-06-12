@@ -33,6 +33,7 @@ COUNT_BY_SPO = 'count_by_spo'
 ####################################################################################
 # New "Inspector Class" design pattern for KGX stream data processing
 ####################################################################################
+
 def gs_default(o):
     """
     JSONEncoder 'default' function override to
@@ -48,7 +49,7 @@ def gs_default(o):
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
-        return JSONEncoder.default(o)
+        return JSONEncoder().default(o)
 
 
 _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
