@@ -466,6 +466,8 @@ class MetaKnowledgeGraph:
         self.association_map[triple]['count'] += 1
         if 'provided_by' in data:
             for s in data['provided_by']:
+                if self._infores_parser:
+                    s = self._infores_parser(s)
                 if s not in self.association_map[triple]['count_by_source']:
                     self.association_map[triple]['count_by_source'][s] = 1
                 else:
