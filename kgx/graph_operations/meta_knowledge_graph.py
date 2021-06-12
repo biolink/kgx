@@ -37,7 +37,7 @@ def mkg_default(o):
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
-        return JSONEncoder.default(o)
+        return JSONEncoder().default(o)
 
 
 _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
@@ -234,6 +234,30 @@ class MetaKnowledgeGraph:
                 return {source: self.category_stats['count_by_source'][source]}
             return self.category_stats['count_by_source']
 
+        def _compile_prefix_stats(self, n: str):
+            prefix = PrefixManager.get_prefix(n)
+            if not prefix:
+                print(
+                    f"Warning: node id {n} has no CURIE prefix",
+                    file=MetaKnowledgeGraph.error_log
+                )
+            else:
+                if prefix not in self.category_stats['id_prefixes']:
+                    self.category_stats['id_prefixes'].add(prefix)
+
+        def _compile_source_stats(self, data: Dict):
+            if 'provided_by' in data:
+                for s in data['provided_by']:
+                    if s in self.category_stats['count_by_source']:
+                        self.category_stats['count_by_source'][s] += 1
+                    else:
+                        self.category_stats['count_by_source'][s] = 1
+            else:
+                if 'unknown' in self.category_stats['count_by_source']:
+                    self.category_stats['count_by_source']['unknown'] += 1
+                else:
+                    self.category_stats['count_by_source']['unknown'] = 1
+
         def analyse_node_category(self, n, data) -> None:
             """
             Analyse metadata of a given graph node record of this category.
@@ -247,26 +271,8 @@ class MetaKnowledgeGraph:
 
             """
             self.category_stats['count'] += 1
-            prefix = PrefixManager.get_prefix(n)
-            if not prefix:
-                print(
-                    f"Warning: node id {n} has no CURIE prefix",
-                    file=MetaKnowledgeGraph.error_log
-                )
-            else:
-                if prefix not in self.category_stats['id_prefixes']:
-                    self.category_stats['id_prefixes'].add(prefix)
-            if 'provided_by' in data:
-                for s in data['provided_by']:
-                    if s in self.category_stats['count_by_source']:
-                        self.category_stats['count_by_source'][s] += 1
-                    else:
-                        self.category_stats['count_by_source'][s] = 1
-            else:
-                if 'unknown' in self.category_stats['count_by_source']:
-                    self.category_stats['count_by_source']['unknown'] += 1
-                else:
-                    self.category_stats['count_by_source']['unknown'] = 1
+            self._compile_prefix_stats(n)
+            self._compile_source_stats(data)
 
         def json_object(self):
             """
