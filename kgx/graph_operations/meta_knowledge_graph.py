@@ -207,7 +207,7 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category_curie: str):
+        def __init__(self, category_curie: str, mkg):
             """
             MetaKnowledgeGraph.Category constructor.
 
@@ -218,6 +218,8 @@ class MetaKnowledgeGraph:
                 raise RuntimeError("Invalid Biolink category CURIE: " + category_curie)
 
             self.category_curie = category_curie
+            self.mkg = mkg
+            
             if self.category_curie not in self._category_curie_map:
                 self._category_curie_map.append(self.category_curie)
             self.category_stats: Dict[str, Any] = dict()
@@ -313,6 +315,7 @@ class MetaKnowledgeGraph:
             else:
                 if prefix not in self.category_stats['id_prefixes']:
                     self.category_stats['id_prefixes'].add(prefix)
+
             if 'provided_by' in data:
                 for s in data['provided_by']:
                     if self.mkg._infores_parser:
@@ -367,15 +370,17 @@ class MetaKnowledgeGraph:
         
             if category_curie not in self.node_stats:
                 try:
-                    self.node_stats[category_curie] = self.Category(category_curie)
+                    self.node_stats[category_curie] = self.Category(category_curie, self)
                 except RuntimeError:
                     _parse_warning("Invalid category CURIE", category_curie)
                     continue
         
             category_record = self.node_stats[category_curie]
+            
             category_idx: int = category_record.get_cid()
             if category_idx not in self.node_catalog[n]:
                 self.node_catalog[n].append(category_idx)
+                
             category_record.analyse_node_category(n, data)
     
     def analyse_node(self, n: str, data: Dict) -> None:
@@ -454,8 +459,8 @@ class MetaKnowledgeGraph:
                 'count_by_source': dict(),
                 'count': 0
             }
-    
-        if data['relation'] not in self.association_map[triple]['relations']:
+
+        if 'relation' in data and data['relation'] not in self.association_map[triple]['relations']:
             self.association_map[triple]['relations'].add(data['relation'])
     
         self.association_map[triple]['count'] += 1
