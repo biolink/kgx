@@ -88,8 +88,9 @@ class GraphSummary:
             name='',
             node_facet_properties: Optional[List] = None,
             edge_facet_properties: Optional[List] = None,
-            error_log: str = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            error_log: str = None,
+            **kwargs
     ):
         """
         GraphSummary constructor.
@@ -197,6 +198,7 @@ class GraphSummary:
         _category_curie_map: List[str] = list()
 
         def __init__(self, category_curie: str, summary):
+
             """
             GraphSummary.Category constructor.
 
