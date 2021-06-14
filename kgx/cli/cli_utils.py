@@ -479,14 +479,13 @@ def merge(
                 top_level_args['checkpoint'],
             ),
         )
-        print(result)
         results.append(result)
     pool.close()
     pool.join()
     stores = []
     for r in results:
-        value_to_add = str(r.get())
-        stores.append(value_to_add)
+        value_to_add = r.get()
+        stores.append(str(value_to_add))
     merged_graph = merge_all_graphs([x.graph for x in stores])
     log.info(
         f"Merged graph has {merged_graph.number_of_nodes()} nodes and {merged_graph.number_of_edges()} edges"
