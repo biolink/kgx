@@ -382,7 +382,6 @@ def transform(
             results.append(result)
         pool.close()
         pool.join()
-        graphs = [r.get() for r in results]
     else:
         source_dict: Dict = {
             'input': {
@@ -480,10 +479,14 @@ def merge(
                 top_level_args['checkpoint'],
             ),
         )
+        print(result)
         results.append(result)
     pool.close()
     pool.join()
-    stores = [r.get() for r in results]
+    stores = []
+    for r in results:
+        value_to_add = str(r.get())
+        stores.append(value_to_add)
     merged_graph = merge_all_graphs([x.graph for x in stores])
     log.info(
         f"Merged graph has {merged_graph.number_of_nodes()} nodes and {merged_graph.number_of_edges()} edges"
