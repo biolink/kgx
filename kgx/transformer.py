@@ -147,6 +147,7 @@ class Transformer(object):
                         log.warning(
                             f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
                         )
+                print("made it here to the sink")
                 sink = self.get_sink(**output_args)
                 if 'reverse_prefix_map' in output_args:
                     sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
@@ -230,6 +231,7 @@ class Transformer(object):
 
         """
         for rec in source:
+            print("made it to rec in source")
             if rec:
                 if len(rec) == 4:
                     write_edge = True
