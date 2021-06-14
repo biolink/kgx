@@ -243,6 +243,7 @@ class Transformer(object):
             if rec:
                 print("I have a record")
                 if len(rec) == 4:
+                    print(self.edge_filters)
                     write_edge = True
                     if 'subject_category' in self.edge_filters:
                         if rec[0] in self._seen_nodes:
@@ -258,10 +259,14 @@ class Transformer(object):
                                 write_edge = True
                         else:
                             write_edge = False
+                    print("write edge")
+                    print(write_edge)
                     if write_edge:
                         print("I am going to write an edge, but that means pass?")
                         sink.write_edge(rec[-1])
                 else:
+                    print("node filters")
+                    print(self.node_filters)
                     if 'category' in self.node_filters:
                         print("rec[0]")
                         print(rec[0])
@@ -269,6 +274,7 @@ class Transformer(object):
                         print("rec[-1]")
                         print(rec[-1])
                     sink.write_node(rec[-1])
+        print("returning from parse transformer")
 
     def save(self, output_args: Dict) -> None:
         """
