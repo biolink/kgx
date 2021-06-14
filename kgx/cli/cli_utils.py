@@ -600,10 +600,20 @@ def parse_source(
     log.info(f"Processing source '{key}'")
     if not key:
         key = os.path.basename(source['input']['filename'][0])
+    print("key from source")
+    print(key)
+    print(source)
+    print(output_directory)
+    print(prefix_map)
+    print(node_property_predicates)
+    print(predicate_mappings)
     input_args = prepare_input_args(
         key, source, output_directory, prefix_map, node_property_predicates, predicate_mappings
     )
+    print("made it through")
     transformer = Transformer()
+    print("input args")
+    print(input_args)
     transformer.transform(input_args)
     print("key again")
     print(key)

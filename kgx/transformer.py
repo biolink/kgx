@@ -126,6 +126,7 @@ class Transformer(object):
                 self.edge_filters = source.edge_filters
                 if 'provided_by' not in input_args:
                     if 'name' in input_args:
+                        print("name")
                         input_args['provided_by'] = input_args.pop('name')
                     else:
                         input_args['provided_by'] = os.path.basename(f)
