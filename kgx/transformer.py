@@ -137,15 +137,19 @@ class Transformer(object):
         source_generator = itertools.chain(*generators)
 
         if output_args:
+            print("my output args")
+            print(output_args)
             if self.stream:
                 if output_args['format'] in {'tsv', 'csv'}:
                     if 'node_properties' not in output_args:
                         log.warning(
-                            f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                            f"'node_properties' not defined for output while streaming. "
+                            f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
                     if 'edge_properties' not in output_args:
                         log.warning(
-                            f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                            f"'edge_properties' not defined for output while streaming. "
+                            f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
                 print("made it here to the sink")
                 sink = self.get_sink(**output_args)
@@ -200,12 +204,16 @@ class Transformer(object):
                 self.store.node_properties.update(sink.node_properties)
                 self.store.edge_properties.update(sink.edge_properties)
         else:
+            print("I had no output args")
             # stream from source to intermediate
             sink = GraphSink(self.store.graph)
             self.process(source_generator, sink)
+            print("I came back from process transformer")
             sink.node_properties.update(self.store.node_properties)
             sink.edge_properties.update(self.store.edge_properties)
             for s in sources:
+                print("s in sources")
+                print(s)
                 sink.node_properties.update(s.node_properties)
                 sink.edge_properties.update(s.edge_properties)
             sink.finalize()

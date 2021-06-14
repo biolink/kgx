@@ -1008,5 +1008,7 @@ def apply_graph_operations(graph: BaseGraph, operations: List) -> None:
         op_args = operation['args']
         module_name = '.'.join(op_name.split('.')[0:-1])
         function_name = op_name.split('.')[-1]
+        print("function name")
+        print(function_name)
         f = getattr(importlib.import_module(module_name), function_name)
         f(graph, **op_args)
