@@ -36,6 +36,8 @@ class Sink(object):
             A node record
 
         """
+        print("I'm a record!")
+        print(record)
         pass
 
     def write_edge(self, record) -> None:

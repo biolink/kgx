@@ -271,10 +271,9 @@ class Transformer(object):
                         print("rec[0]")
                         print(rec[0])
                         self._seen_nodes.add(rec[0])
-                        print("rec[-1]")
-                        print(rec[-1])
+                    print("rec[-1]")
+                    print(rec[-1])
                     sink.write_node(rec[-1])
-        print("returning from parse transformer")
 
     def save(self, output_args: Dict) -> None:
         """
