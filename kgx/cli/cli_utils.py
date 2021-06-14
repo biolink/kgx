@@ -480,11 +480,13 @@ def merge(
             ),
         )
         results.append(result)
+
     pool.close()
     pool.join()
     stores = []
     for r in results:
-        value_to_add = str(r.get())
+        print(r.get())
+        value_to_add = r.get()
         stores.append(value_to_add)
     merged_graph = merge_all_graphs([x.graph for x in stores])
     log.info(
