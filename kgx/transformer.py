@@ -241,6 +241,7 @@ class Transformer(object):
         for rec in source:
             print("made it to rec in source")
             if rec:
+                print("I have a record")
                 if len(rec) == 4:
                     write_edge = True
                     if 'subject_category' in self.edge_filters:
@@ -258,10 +259,15 @@ class Transformer(object):
                         else:
                             write_edge = False
                     if write_edge:
+                        print("I am going to write an edge, but that means pass?")
                         sink.write_edge(rec[-1])
                 else:
                     if 'category' in self.node_filters:
+                        print("rec[0]")
+                        print(rec[0])
                         self._seen_nodes.add(rec[0])
+                        print("rec[-1]")
+                        print(rec[-1])
                     sink.write_node(rec[-1])
 
     def save(self, output_args: Dict) -> None:
