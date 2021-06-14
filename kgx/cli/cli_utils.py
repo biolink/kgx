@@ -461,10 +461,6 @@ def merge(
     sources_to_parse = {}
     for key in cfg['merged_graph']['source']:
         if key in source:
-            print("key")
-            print(key)
-            print("source")
-            print(source)
             sources_to_parse[key] = cfg['merged_graph']['source'][key]
 
     results = []
@@ -472,7 +468,7 @@ def merge(
     for k, v in sources_to_parse.items():
         print(k)
         print(v)
-        log.info(f"Spawning process for '{k}'")
+        print(f"Spawning process for '{k}'")
         result = pool.apply_async(
             parse_source,
             (
@@ -491,7 +487,7 @@ def merge(
     pool.join()
     stores = []
     for r in results:
-        print(r)
+        print(r.get())
         print(r.get())
         value_to_add = r.get()
         stores.append(value_to_add)
@@ -609,6 +605,8 @@ def parse_source(
     )
     transformer = Transformer()
     transformer.transform(input_args)
+    print("key again")
+    print(key)
     transformer.store.graph.name = key
     if checkpoint:
         log.info(f"Writing checkpoint for source '{key}'")
