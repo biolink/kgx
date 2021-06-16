@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import List, Optional, Any, Union, Dict, Tuple
 import rdflib
-from linkml_model.meta import Element, SlotDefinition, ClassDefinition
+from linkml_runtime.linkml_model.meta import Element, SlotDefinition, ClassDefinition
 from cachetools import cached, LRUCache
 from rdflib import Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS

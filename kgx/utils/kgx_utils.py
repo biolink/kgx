@@ -4,7 +4,7 @@ import time
 import uuid
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
-from linkml_model.meta import (
+from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
     ElementName,
     SlotDefinition,

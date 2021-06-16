@@ -140,11 +140,13 @@ class Transformer(object):
                 if output_args['format'] in {'tsv', 'csv'}:
                     if 'node_properties' not in output_args:
                         log.warning(
-                            f"'node_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                            f"'node_properties' not defined for output while streaming. "
+                            f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
                     if 'edge_properties' not in output_args:
                         log.warning(
-                            f"'edge_properties' not defined for output while streaming. The exported {output_args['format']} will be limited to a subset of the columns."
+                            f"'edge_properties' not defined for output while streaming. "
+                            f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
                 sink = self.get_sink(**output_args)
                 if 'reverse_prefix_map' in output_args:
