@@ -403,7 +403,7 @@ def get_biolink_ancestors(name: str):
 
     """
     toolkit = get_toolkit()
-    ancestors = toolkit.get_ancestors(name, formatted=True)
+    ancestors = toolkit.get_ancestors(name, formatted=True, mixin=False)
     return ancestors
 
 
