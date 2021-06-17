@@ -132,7 +132,8 @@ class ObographSource(JsonSource):
             equivalent_nodes = node_properties['equivalent_nodes']
             fixed_node['same_as'] = equivalent_nodes
             # for n in node_properties['equivalent_nodes']:
-            #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as', 'object': n, 'relation': 'owl:sameAs'}
+            #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as',
+            #     'object': n, 'relation': 'owl:sameAs'}
             #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
             #     self.graph.add_edge(fixed_node['id'], n, **data)
         return super().read_node(fixed_node)

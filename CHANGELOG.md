@@ -1,8 +1,10 @@
 # Changelog
 
-## 1.1.1 (2021-05-25)
+## 1.2.0 (2021-06-17)
 
-- Converted knowledge_map summary to new TRAPI 1.1 aligned meta_knowledge_graph format.
+- Update BMT to 0.7.2
+- Update LinkML to 1.0.0
+- Pin some major release versions in requirements.txt
 
 ## 1.1.0 (2021-05-24)
 
