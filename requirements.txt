@@ -1,3 +1,4 @@
+bmt>=0.7.1
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
@@ -12,7 +13,6 @@ Click~=7.0
 neo4jrestclient>=0.0
 pyyaml>=0.0
 linkml>=1.0.0
-bmt>=0.7.0
 prologterms>=0.0.5
 shexjsg>=0.6.5
 terminaltables>=3.1.0
