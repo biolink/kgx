@@ -536,13 +536,7 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     sc: List = sort_categories(categories)
     for c in sc:
         if previous:
-            print("previous")
-            print(previous[0])
-            print("c")
-            print(c)
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(previous[0]), None)
-            print("ancestors check")
-            print(get_biolink_ancestors(previous[0]), None)
         else:
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(c), None)
         if vbc:
@@ -553,8 +547,6 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
             invalid_biolink_categories.extend(ibc)
         else:
             previous = vbc
-    print("HERE!!!!!")
-    print(invalid_biolink_categories)
     return valid_biolink_categories, invalid_biolink_categories, invalid_categories
 
 

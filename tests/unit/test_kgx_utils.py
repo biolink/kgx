@@ -80,8 +80,9 @@ def test_get_biolink_ancestors():
     Test to get biolink ancestors.
     """
     ancestors1 = get_biolink_ancestors('phenotypic feature')
+    print(ancestors1)
     assert ancestors1 is not None
-    assert len(ancestors1) == 6
+    assert len(ancestors1) == 5
 
 
 def test_generate_edge_key():
