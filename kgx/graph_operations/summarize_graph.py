@@ -382,7 +382,7 @@ class GraphSummary:
             if category_curie not in self.node_categories:
                 try:
                     self.node_categories[category_curie] = self.Category(category_curie, self)
-                except RuntimeError as rte:
+                except RuntimeError:
                     _parse_warning("Invalid category CURIE", category_curie)
                     continue
         
