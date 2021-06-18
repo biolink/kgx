@@ -5,7 +5,9 @@ __pycache__
 *.egg-info
 tests/logs/*.log
 build
+target
 dist
+docker_test_*
 
 # local IDE files
 venv
@@ -15,3 +17,6 @@ venv
 docker_test_*
 target
 tests/logs
+
+# the stray output file from a test-merge.yaml driven test
+merged-kg_stats.yaml
