@@ -5,7 +5,7 @@ from os.path import dirname, abspath
 
 import sys
 from multiprocessing import Pool
-from typing import List, Tuple, Any, Optional, Dict, Set
+from typing import List, Tuple, Optional, Dict, Set
 import yaml
 
 from kgx.validator import Validator
