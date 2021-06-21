@@ -1,4 +1,8 @@
 # Changelog
+## 1.3.0 (2021-06-21)
+
+- Add streaming option to validation
+
 ## 1.2.0 (2021-06-17)
 
 - Update BMT to 0.7.2
