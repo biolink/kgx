@@ -9,6 +9,9 @@ target
 dist
 docker_test_*
 
+/build
+/dist
+
 # local IDE files
 venv
 .idea/

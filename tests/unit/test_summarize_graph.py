@@ -1,9 +1,33 @@
 import os
+
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
-from kgx.graph_operations.summarize_graph import summarize_graph, generate_graph_stats
-from tests import TARGET_DIR
+from kgx.graph_operations.summarize_graph import (
+    summarize_graph,
+    generate_graph_stats,
+    GraphSummary,
+
+    TOTAL_NODES,
+    NODE_CATEGORIES,
+    NODE_ID_PREFIXES,
+    NODE_ID_PREFIXES_BY_CATEGORY,
+    COUNT_BY_CATEGORY,
+    COUNT_BY_ID_PREFIXES,
+    COUNT_BY_ID_PREFIXES_BY_CATEGORY,
+
+    TOTAL_EDGES,
+    EDGE_PREDICATES,
+    COUNT_BY_EDGE_PREDICATES,
+    COUNT_BY_SPO
+)
+from kgx.transformer import Transformer
+from tests import RESOURCE_DIR, TARGET_DIR
+
+try:
+    from yaml import load, CLoader as Loader
+except ImportError:
+    from yaml import load, Loader
 
 
 def get_graphs():
@@ -173,3 +197,97 @@ def test_summarize_graph(query):
         assert v == stats['node_stats'][k]
     for k, v in query[1]['edge_stats'].items():
         assert v == stats['edge_stats'][k]
+
+
+def test_summarize_graph_stream_inspector():
+    """
+    Test generate the graph summary by streaming
+    graph data through a graph Transformer.process() Inspector
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        ],
+        'format': 'tsv',
+    }
+    
+    transformer = Transformer(stream=True)
+
+    inspector = GraphSummary('Test Graph Summary - Streamed')
+
+    # We configure the Transformer with a data flow inspector
+    # (Deployed in the internal Transformer.process() call)
+    transformer.transform(input_args=input_args, inspector=inspector)
+    
+    output_filename = os.path.join(TARGET_DIR, 'test_graph-summary-from-inspection.yaml')
+
+    with open(output_filename, 'w') as gsh:
+        inspector.save(gsh)
+
+    with open(output_filename, 'r') as gsh:
+        data = load(stream=gsh, Loader=Loader)
+
+    assert data['graph_name'] == 'Test Graph Summary - Streamed'
+    node_stats = data['node_stats']
+    assert node_stats
+
+    assert TOTAL_NODES in node_stats
+    assert node_stats[TOTAL_NODES] == 512
+
+    assert NODE_CATEGORIES in node_stats
+    node_categories = node_stats[NODE_CATEGORIES]
+    assert 'biolink:Pathway' in node_categories
+
+    assert NODE_ID_PREFIXES in node_stats
+    node_id_prefixes = node_stats[NODE_ID_PREFIXES]
+    assert 'HGNC' in node_id_prefixes
+
+    assert NODE_ID_PREFIXES_BY_CATEGORY in node_stats
+    id_prefixes_by_category = node_stats[NODE_ID_PREFIXES_BY_CATEGORY]
+
+    assert 'biolink:Gene' in id_prefixes_by_category
+    assert 'ENSEMBL' in id_prefixes_by_category['biolink:Gene']
+
+    assert 'biolink:Disease' in id_prefixes_by_category
+    assert 'MONDO' in id_prefixes_by_category['biolink:Disease']
+
+    assert 'biolink:PhenotypicFeature' in id_prefixes_by_category
+    assert 'HP' in id_prefixes_by_category['biolink:PhenotypicFeature']
+
+    assert COUNT_BY_CATEGORY in node_stats
+    count_by_category = node_stats[COUNT_BY_CATEGORY]
+    assert 'biolink:AnatomicalEntity' in count_by_category
+    assert count_by_category['biolink:AnatomicalEntity']['count'] == 20
+
+    assert COUNT_BY_ID_PREFIXES in node_stats
+    count_by_id_prefixes = node_stats[COUNT_BY_ID_PREFIXES]
+    assert 'HP' in count_by_id_prefixes
+    assert count_by_id_prefixes['HP'] == 111
+
+    assert COUNT_BY_ID_PREFIXES_BY_CATEGORY in node_stats
+    count_by_id_prefixes_by_category = node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY]
+    assert 'biolink:BiologicalProcess' in count_by_id_prefixes_by_category
+    biological_process_id_prefix_count = count_by_id_prefixes_by_category['biolink:BiologicalProcess']
+    assert 'GO' in biological_process_id_prefix_count
+    assert biological_process_id_prefix_count['GO'] == 143
+
+    edge_stats = data['edge_stats']
+    assert edge_stats
+    assert TOTAL_EDGES in edge_stats
+    assert edge_stats[TOTAL_EDGES] == 540
+
+    assert EDGE_PREDICATES in edge_stats
+    assert len(edge_stats[EDGE_PREDICATES]) == 8
+    assert 'biolink:involved_in' in edge_stats[EDGE_PREDICATES]
+
+    assert COUNT_BY_EDGE_PREDICATES in edge_stats
+    assert len(edge_stats[COUNT_BY_EDGE_PREDICATES]) == 9
+    assert 'biolink:has_phenotype' in edge_stats[COUNT_BY_EDGE_PREDICATES]
+    assert edge_stats[COUNT_BY_EDGE_PREDICATES]['biolink:has_phenotype']['count'] == 124
+
+    assert COUNT_BY_SPO in edge_stats
+    assert len(edge_stats[COUNT_BY_SPO]) == 13
+    assert 'biolink:Gene-biolink:related_to-biolink:Pathway' in edge_stats[COUNT_BY_SPO]
+    assert 'count' in edge_stats[COUNT_BY_SPO]['biolink:Gene-biolink:related_to-biolink:Pathway']
+    assert edge_stats[COUNT_BY_SPO]['biolink:Gene-biolink:related_to-biolink:Pathway']['count'] == 16

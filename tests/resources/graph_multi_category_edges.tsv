@@ -1,0 +1,10 @@
+subject	object	predicate	relation	provided_by
+HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	biogrid
+HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434	string
+HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string
+HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string
+MONDO:0010011	HP:0002510	biolink:has_phenotype	RO:0002200	hpoa
+MONDO:0010011	HP:0002132	biolink:has_phenotype	RO:0002200	hpoa
+MONDO:0010011	HP:0002120	biolink:has_phenotype	RO:0002200	hpoa
+MONDO:0010011	HP:0000486	biolink:has_phenotype	RO:0002200	hpoa
+MONDO:0010011	HP:0010636	biolink:has_phenotype	RO:0002200	hpoa
