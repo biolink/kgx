@@ -1,4 +1,13 @@
 # Changelog
+## 1.2.0 (2021-06-17)
+
+- Update BMT to 0.7.2
+- Update LinkML to 1.0.0
+- Pin some major release versions in requirements.txt
+
+## 1.1.0 (2021-05-24)
+
+- Migrate to LinkML from BiolinkML
 
 ## 1.2.0 (2021-06-17)
 
