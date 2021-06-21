@@ -22,16 +22,27 @@ Currently the CLI supports the following operations,
 
 ### graph-summary
 
-Summarizes a graph and generate a YAML report regarding the composition of node 
-and edge types in the graph.
+Summarizes a graph and generate a YAML report regarding the composition of node and edge types in the graph.
 
 ```bash
     kgx graph-summary --input-format tsv \
                       --output graph_stats.yaml \
                       --report-type kgx-map \
+                      --error-log graph_stats.err \
                       tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
 ```
 
+An alternate summary of a graph generates a TRAPI 1.1-compliant meta knowledge graph JSON report:
+
+```bash
+    kgx graph-summary --input-format tsv \
+                      --output graph_stats.yaml \
+                      --report-type meta-knowledge-graph \
+                      --error-log graph_stats.err \
+                      tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
+```
+
+Some basic validation is done during **graph-summary** operation, with detected errors reported on the `--error_log` (default: `stderr`).  For more complete graph validation,  the **validate** command (below) may be used.
 
 ### validate
 
@@ -92,7 +103,6 @@ A sample of the merge configuration can be found [here](https://github.com/NCATS
 ```bash
     kgx transform --transform-config transform.yaml
 ```
-
 
 ### merge
 
