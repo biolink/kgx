@@ -72,9 +72,9 @@ def test_read_csv():
     assert 'PMID:1' in e1['publications']
 
 
-def test_read_tsv_compressed():
+def test_read_tsv_tar_compressed():
     """
-    Read a compressed TSV archive using TsvSource.
+    Read a compressed TSV TAR archive using TsvSource.
     """
     s = TsvSource()
     g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test.tar'), format='tsv', compression='tar')
@@ -89,8 +89,34 @@ def test_read_tsv_compressed():
     assert len(nodes) == 3
     assert len(edges) == 1
 
+
+def test_read_tsv_tar_gz_compressed():
+    """
+    Read a compressed TSV TAR archive using TsvSource.
+    """
+    s = TsvSource()
     g = s.parse(
         filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'), format='tsv', compression='tar.gz'
+    )
+    nodes = []
+    edges = []
+    for rec in g:
+        if rec:
+            if len(rec) == 4:
+                edges.append(rec)
+            else:
+                nodes.append(nodes)
+    assert len(nodes) == 3
+    assert len(edges) == 1
+
+
+def test_read_tsv_tar_gz_compressed_inverted_file_order():
+    """
+    Read a compressed TSV TAR archive using TsvSource, where source tar archive has edge file first, node second.
+    """
+    s = TsvSource()
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test-inverse.tar.gz'), format='tsv', compression='tar.gz'
     )
     nodes = []
     edges = []

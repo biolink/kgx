@@ -34,9 +34,6 @@ t.save(output_args=output_args)
 
 In this mode, records are read from a source and written to sink, on-the-fly.
 
-``` note:: Using streaming disables certain functionalities like the ability to apply graph operations
-```
-
 ```python
 from kgx.transformer import Transformer
 
@@ -49,6 +46,9 @@ t = Transformer(stream=True)
 t.transform(input_args=input_args, output_args=output_args)
 ```
 
+Note that `transform` operation accepts an optional inspect _Callable_ argument which injects node/edge data stream inspection into the `Transform.process` operation of `Transform.transform` operations.  See the unit  test module [test_transformer.py](../../tests/integration/test_transform.py) for an example of usage of this callable argument. 
+
+This feature, when coupled with the `--stream` and a 'null' Transformer Sink  (i.e. `output_args = {'format': 'null'}'`), allows "just-in-time" processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.
 
 ## kgx.transformer
 

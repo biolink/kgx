@@ -1,11 +1,12 @@
 import re
 from enum import Enum
-from typing import Tuple, List, TextIO, Optional, Dict, Set
+from typing import List, TextIO, Optional, Dict, Set, Callable
 
 import click
-import functools
 import validators
-from pprint import pprint
+
+from kgx import GraphEntityType
+
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
@@ -16,14 +17,14 @@ from kgx.utils.kgx_utils import (
 )
 from kgx.prefix_manager import PrefixManager
 
-log = get_logger()
+logger = get_logger()
 
 
 class ErrorType(Enum):
     """
     Validation error types
     """
-
+    
     MISSING_NODE_PROPERTY = 1
     MISSING_EDGE_PROPERTY = 2
     INVALID_NODE_PROPERTY_VALUE_TYPE = 3
@@ -40,7 +41,7 @@ class MessageLevel(Enum):
     """
     Message level for validation reports
     """
-
+    
     # Recommendations
     INFO = 1
     # Message to convey 'should'
@@ -65,18 +66,18 @@ class ValidationError(object):
         The message level
 
     """
-
+    
     def __init__(
-        self, entity: str, error_type: ErrorType, message: str, message_level: MessageLevel
+            self, entity: str, error_type: ErrorType, message: str, message_level: MessageLevel
     ):
         self.entity = entity
         self.error_type = error_type
         self.message = message
         self.message_level = message_level
-
+    
     def __str__(self):
         return f"[{self.message_level.name}][{self.error_type.name}] {self.entity} - {self.message}"
-
+    
     def as_dict(self):
         return {
             'entity': self.entity,
@@ -90,21 +91,74 @@ class Validator(object):
     """
     Class for validating a property graph.
 
+    The optional 'progress_monitor' for the validator should be a lightweight Callable
+    which is injected into the class 'inspector' Callable, designed to intercepts
+    node and edge records streaming through the Validator (inside a Transformer.process() call.
+    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
+    The second argument given to the Callable is the current record itself.
+    This Callable is strictly meant to be procedural and should *not* mutate the record.
+    The intent of this Callable is to provide a hook to KGX applications wanting the
+    namesake function of passively monitoring the graph data stream. As such, the Callable
+    could simply tally up the number of times it is called with a NODE or an EDGE, then
+    provide a suitable (quick!) report of that count back to the KGX application. The
+    Callable (function/callable class) should not modify the record and should be of low
+    complexity, so as not to introduce a large computational overhead to validation!
+
     Parameters
     ----------
     verbose: bool
         Whether the generated report should be verbose or not (default: ``False``)
-
+    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
+        Function given a peek at the current record being processed by the class wrapped Callable.
     """
+    
+    def __init__(
+            self,
+            verbose: bool = False,
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None
+    ):
+        # formal arguments
+        self.verbose: bool = verbose
+        self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
-    def __init__(self, verbose: bool = False):
+        # internal attributes
         self.toolkit = get_toolkit()
         self.prefix_manager = PrefixManager()
         self.jsonld = get_jsonld_context()
         self.prefixes = Validator.get_all_prefixes(self.jsonld)
         self.required_node_properties = Validator.get_required_node_properties()
         self.required_edge_properties = Validator.get_required_edge_properties()
-        self.verbose = verbose
+        self.errors: List[ValidationError] = list()
+
+    def __call__(self, entity_type: GraphEntityType, rec: List):
+        """
+        Transformer 'inspector' Callable
+        """
+        if self.progress_monitor:
+            self.progress_monitor(entity_type, rec)
+        if entity_type == GraphEntityType.EDGE:
+            self.errors += self.analyse_edge(*rec)
+        elif entity_type == GraphEntityType.NODE:
+            self.errors += self.analyse_node(*rec)
+        else:
+            raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
+
+    def get_errors(self):
+        return self.errors
+
+    def analyse_node(self, n, data):
+        e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
+        e2 = Validator.validate_node_property_types(n, data)
+        e3 = Validator.validate_node_property_values(n, data)
+        e4 = Validator.validate_categories(n, data)
+        return e1 + e2 + e3 + e4
+
+    def analyse_edge(self, u, v, k, data):
+        e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
+        e2 = Validator.validate_edge_property_types(u, v, data)
+        e3 = Validator.validate_edge_property_values(u, v, data)
+        e4 = Validator.validate_edge_predicate(u, v, data)
+        return e1 + e2 + e3 + e4
 
     @staticmethod
     def get_all_prefixes(jsonld: Optional[Dict] = None) -> set:
@@ -126,11 +180,15 @@ class Validator(object):
         """
         if not jsonld:
             jsonld = get_jsonld_context()
-        prefixes = set(jsonld.keys())
+        prefixes: Set = set(
+            k for k, v in jsonld.items()
+            if isinstance(v, str) or
+            (isinstance(v, dict) and v.setdefault('@prefix', False))
+        )  # @type: ignored
         if 'biolink' not in prefixes:
             prefixes.add('biolink')
         return prefixes
-
+    
     @staticmethod
     def get_required_node_properties() -> list:
         """
@@ -155,7 +213,7 @@ class Validator(object):
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
-
+    
     @staticmethod
     def get_required_edge_properties() -> list:
         """
@@ -177,7 +235,7 @@ class Validator(object):
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
-
+    
     def validate(self, graph: BaseGraph) -> list:
         """
         Validate nodes and edges in a graph.
@@ -196,7 +254,8 @@ class Validator(object):
         """
         node_errors = self.validate_nodes(graph)
         edge_errors = self.validate_edges(graph)
-        return node_errors + edge_errors
+        self.errors = node_errors + edge_errors
+        return self.errors
 
     def validate_nodes(self, graph: BaseGraph) -> list:
         """
@@ -222,13 +281,9 @@ class Validator(object):
         errors = []
         with click.progressbar(graph.nodes(data=True), label='Validating nodes in graph') as bar:
             for n, data in bar:
-                e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
-                e2 = Validator.validate_node_property_types(n, data)
-                e3 = Validator.validate_node_property_values(n, data)
-                e4 = Validator.validate_categories(n, data)
-                errors += e1 + e2 + e3 + e4
+                errors += self.analyse_node(n, data)
         return errors
-
+    
     def validate_edges(self, graph: BaseGraph) -> list:
         """
         Validate all the edges in a graph.
@@ -253,13 +308,9 @@ class Validator(object):
         errors = []
         with click.progressbar(graph.edges(data=True), label='Validate edges in graph') as bar:
             for u, v, data in bar:
-                e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
-                e2 = Validator.validate_edge_property_types(u, v, data)
-                e3 = Validator.validate_edge_property_values(u, v, data)
-                e4 = Validator.validate_edge_predicate(u, v, data)
-                errors += e1 + e2 + e3 + e4
+                errors += self.analyse_edge(u, v, None, data)
         return errors
-
+    
     @staticmethod
     def validate_node_properties(node: str, data: dict, required_properties: list) -> list:
         """
@@ -287,10 +338,10 @@ class Validator(object):
                 message = f"Required node property '{p}' missing"
                 errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
         return errors
-
+    
     @staticmethod
     def validate_edge_properties(
-        subject: str, object: str, data: dict, required_properties: list
+            subject: str, object: str, data: dict, required_properties: list
     ) -> list:
         """
         Checks if all the required edge properties exist for a given edge.
@@ -334,7 +385,7 @@ class Validator(object):
                         )
                     )
         return errors
-
+    
     @staticmethod
     def validate_node_property_types(node: str, data: dict) -> list:
         """
@@ -359,7 +410,7 @@ class Validator(object):
         if not isinstance(node, str):
             message = "Node property 'id' expected to be of type 'string'"
             errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
-
+        
         for key, value in data.items():
             element = toolkit.get_element(key)
             if element:
@@ -370,9 +421,9 @@ class Validator(object):
                             ValidationError(node, error_type, message, MessageLevel.ERROR)
                         )
                     elif (
-                        element.typeof == 'uriorcurie'
-                        and not isinstance(value, str)
-                        and not validators.url(value)
+                            element.typeof == 'uriorcurie'
+                            and not isinstance(value, str)
+                            and not validators.url(value)
                     ):
                         message = f"Node property '{key}' expected to be of type 'uri' or 'CURIE'"
                         errors.append(
@@ -384,7 +435,7 @@ class Validator(object):
                             ValidationError(node, error_type, message, MessageLevel.ERROR)
                         )
                     else:
-                        log.warning(
+                        logger.warning(
                             "Skipping validation for Node property '{}'. Expected type '{}' vs Actual type '{}'".format(
                                 key, element.typeof, type(value)
                             )
@@ -403,7 +454,7 @@ class Validator(object):
                                 ValidationError(node, error_type, message, MessageLevel.ERROR)
                             )
         return errors
-
+    
     @staticmethod
     def validate_edge_property_types(subject: str, object: str, data: dict) -> list:
         """
@@ -437,7 +488,7 @@ class Validator(object):
             errors.append(
                 ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
             )
-
+        
         for key, value in data.items():
             element = toolkit.get_element(key)
             if element:
@@ -450,9 +501,9 @@ class Validator(object):
                             )
                         )
                     elif (
-                        element.typeof == 'uriorcurie'
-                        and not isinstance(value, str)
-                        and not validators.url(value)
+                            element.typeof == 'uriorcurie'
+                            and not isinstance(value, str)
+                            and not validators.url(value)
                     ):
                         message = f"Edge property '{key}' expected to be of type 'uri' or 'CURIE'"
                         errors.append(
@@ -468,7 +519,7 @@ class Validator(object):
                             )
                         )
                     else:
-                        log.warning(
+                        logger.warning(
                             "Skipping validation for Edge property '{}'. Expected type '{}' vs Actual type '{}'".format(
                                 key, element.typeof, type(value)
                             )
@@ -495,7 +546,7 @@ class Validator(object):
                                 )
                             )
         return errors
-
+    
     @staticmethod
     def validate_node_property_values(node: str, data: dict) -> list:
         """
@@ -525,7 +576,7 @@ class Validator(object):
                 message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}' is not represented in Biolink Model JSON-LD context"
                 errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
         return errors
-
+    
     @staticmethod
     def validate_edge_property_values(subject: str, object: str, data: dict) -> list:
         """
@@ -549,7 +600,7 @@ class Validator(object):
         errors = []
         error_type = ErrorType.INVALID_EDGE_PROPERTY_VALUE
         prefixes = Validator.get_all_prefixes()
-
+        
         if PrefixManager.is_curie(subject):
             prefix = PrefixManager.get_prefix(subject)
             if prefix and prefix not in prefixes:
@@ -562,7 +613,7 @@ class Validator(object):
             errors.append(
                 ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
             )
-
+        
         if PrefixManager.is_curie(object):
             prefix = PrefixManager.get_prefix(object)
             if prefix not in prefixes:
@@ -591,7 +642,7 @@ class Validator(object):
                     ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
                 )
         return errors
-
+    
     @staticmethod
     def validate_categories(node: str, data: dict) -> list:
         """
@@ -631,8 +682,11 @@ class Validator(object):
                     message = f"Category '{category}' is not in CamelCase form"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 formatted_category = camelcase_to_sentencecase(category)
-                if not toolkit.is_category(formatted_category):
-                    message = f"Category '{category}' not in Biolink Model"
+                if toolkit.is_mixin(formatted_category):
+                    message = f"Category '{category}' is a mixin in the Biolink Model"
+                    errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
+                elif not toolkit.is_category(formatted_category):
+                    message = f"Category '{category}' unknown in the current Biolink Model"
                     errors.append(ValidationError(node, error_type, message, MessageLevel.ERROR))
                 else:
                     c = toolkit.get_element(formatted_category.lower())
@@ -643,7 +697,7 @@ class Validator(object):
                                 ValidationError(node, error_type, message, MessageLevel.ERROR)
                             )
         return errors
-
+    
     @staticmethod
     def validate_edge_predicate(subject: str, object: str, data: dict) -> list:
         """
@@ -704,7 +758,7 @@ class Validator(object):
                     ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
                 )
         return errors
-
+    
     @staticmethod
     def report(errors: List[ValidationError]) -> List:
         """
@@ -723,18 +777,28 @@ class Validator(object):
         """
         return [str(x) for x in errors]
 
-    @staticmethod
-    def write_report(errors: List[ValidationError], outstream: TextIO) -> None:
+    def get_error_messages(self):
+        """
+        A direct Validator "instance" method version of report()
+        that directly accesses the internal Validator self.errors list.
+
+        Returns
+        -------
+        List
+            A list of formatted error messages.
+
+        """
+        return Validator.report(self.errors)
+
+    def write_report(self, outstream: TextIO) -> None:
         """
         Write error report to a file
 
         Parameters
         ----------
-        errors: List[ValidationError]
-            List of kgx.validator.ValidationError
         outstream: TextIO
             The stream to write to
 
         """
-        for x in Validator.report(errors):
+        for x in Validator.report(self.errors):
             outstream.write(f"{x}\n")

@@ -9,9 +9,17 @@ target
 dist
 docker_test_*
 
+/build
+/dist
+
 # local IDE files
 venv
 .idea/
+
+# test directories
+docker_test_*
+target
+tests/logs
 
 # the stray output file from a test-merge.yaml driven test
 merged-kg_stats.yaml
