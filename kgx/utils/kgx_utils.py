@@ -4,7 +4,7 @@ import time
 import uuid
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
-from linkml_model.meta import (
+from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
     ElementName,
     SlotDefinition,
@@ -403,7 +403,7 @@ def get_biolink_ancestors(name: str):
 
     """
     toolkit = get_toolkit()
-    ancestors = toolkit.get_ancestors(name, formatted=True)
+    ancestors = toolkit.get_ancestors(name, formatted=True, mixin=False)
     return ancestors
 
 

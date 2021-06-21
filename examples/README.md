@@ -5,4 +5,6 @@ certain operations.
 
 This folder also contains sample YAML files that can 
 be used as input to KGX to drive certain operations.
+
+For additional design patterns of KGX to consider, see also the [unit tests folder](../tests).
  

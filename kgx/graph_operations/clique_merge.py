@@ -544,7 +544,6 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
             invalid_biolink_categories.extend(ibc)
         else:
             previous = vbc
-
     return valid_biolink_categories, invalid_biolink_categories, invalid_categories
 
 

@@ -14,6 +14,7 @@ from kgx.cli.cli_utils import (
     transform,
     merge,
     summary_report_types,
+    get_report_format_types,
 )
 
 log = get_logger()
@@ -54,6 +55,11 @@ def cli():
     help=f'The summary report type. Must be one of {tuple(summary_report_types.keys())}',
     default='kgx-map',
 )
+@click.option(
+    '--report-format',
+    '-f',
+    help=f'The input format. Can be one of {get_report_format_types()}',
+)
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
     '--node-facet-properties',
@@ -67,50 +73,36 @@ def cli():
     multiple=True,
     help='A list of edge properties from which to generate counts per value for those properties',
 )
+@click.option(
+    '--error-log',
+    '-l',
+    required=False,
+    type=click.Path(exists=False),
+    help='File within which to report graph data parsing errors (default: "stderr")'
+)
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
     input_compression: str,
     output: str,
     report_type: str,
+    report_format: str,
     stream: bool,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
+    error_log: str = ''
 ):
-    """
-    Loads and summarizes a knowledge graph from a set of input files.
-    \f
-
-    Parameters
-    ----------
-    inputs: List[str]
-        Input file
-    input_format: str
-        Input file format
-    input_compression: str
-        The input compression type
-    output: str
-        Where to write the output (stdout, by default)
-    report_type: str
-        The summary report type
-    stream: bool
-        Whether to parse input as a stream
-    node_facet_properties: Optional[Set]
-        A list of node properties from which to generate counts per value for those properties.
-        For example, ``['provided_by']``
-    edge_facet_properties: Optional[Set]
-        A list of edge properties from which to generate counts per value for those properties.
-        For example, ``['provided_by']``
-    """
     graph_summary(
         inputs,
         input_format,
         input_compression,
         output,
         report_type,
+        report_format,
         stream,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
+        error_log=error_log
     )
 
 
@@ -136,7 +128,6 @@ def validate_wrapper(
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
-    \f
 
     Parameters
     ----------
@@ -372,15 +363,14 @@ def transform_wrapper(
     output_format: str,
     output_compression: str,
     stream: bool,
-    node_filters: Tuple,
-    edge_filters: Tuple,
+    node_filters: Tuple[str, str],
+    edge_filters: Tuple[str, str],
     transform_config: str,
     source: List,
     processes: int,
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
-    \f
 
     Parameters
     ----------
@@ -399,9 +389,9 @@ def transform_wrapper(
     stream: bool
         Wheter or not to stream
     node_filters: Tuple[str, str]
-        Node filters
+        Node input filters
     edge_filters: Tuple[str, str]
-        Edge filters
+        Edge input filters
     transform_config: str
         Transform config YAML
     source: List
@@ -412,16 +402,16 @@ def transform_wrapper(
     """
     transform(
         inputs,
-        input_format,
-        input_compression,
-        output,
-        output_format,
-        output_compression,
-        stream,
-        node_filters,
-        edge_filters,
-        transform_config,
-        source,
+        input_format=input_format,
+        input_compression=input_compression,
+        output=output,
+        output_format=output_format,
+        output_compression=output_compression,
+        stream=stream,
+        node_filters=node_filters,
+        edge_filters=edge_filters,
+        transform_config=transform_config,
+        source=source,
         processes=processes,
     )
 
