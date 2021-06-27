@@ -2,7 +2,7 @@ import gzip
 from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
-from linkml_model.meta import SlotDefinition, ClassDefinition, Element
+from linkml_runtime.linkml_model.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
 from kgx.prefix_manager import PrefixManager

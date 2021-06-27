@@ -1,8 +1,23 @@
 # Changelog
+## 1.3.0 (2021-06-21)
 
-## 1.1.1 (2021-05-25)
+- Add streaming option to validation
 
-- Converted knowledge_map summary to new TRAPI 1.1 aligned meta_knowledge_graph format.
+## 1.2.0 (2021-06-17)
+
+- Update BMT to 0.7.2
+- Update LinkML to 1.0.0
+- Pin some major release versions in requirements.txt
+
+## 1.1.0 (2021-05-24)
+
+- Migrate to LinkML from BiolinkML
+
+## 1.2.0 (2021-06-17)
+
+- Update BMT to 0.7.2
+- Update LinkML to 1.0.0
+- Pin some major release versions in requirements.txt
 
 ## 1.1.0 (2021-05-24)
 
