@@ -113,7 +113,7 @@ def test_transform_filters1(query):
             13,
         ),
         ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
-        ({}, {'provided_by': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
+        ({}, {'knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
         ({}, {'subject_category': {'biolink:Disease'}}, 56, 35),
         ({}, {'object_category': {'biolink:Disease'}}, 22, 20),
     ],
@@ -383,9 +383,9 @@ def test_rdf_transform3():
         == 'This is a Test Gene 123'
     )
     assert (
-        'Test Dataset' in n1t1['provided_by']
-        and 'Test Dataset' in n1t2['provided_by']
-        and 'Test Dataset' in n1t3['provided_by']
+        'Test Dataset' in n1t1['knowledge_source']
+        and 'Test Dataset' in n1t2['knowledge_source']
+        and 'Test Dataset' in n1t3['knowledge_source']
     )
 
 
@@ -428,7 +428,7 @@ def test_rdf_transform4():
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
+    assert 'Test Dataset' in n1t1['knowledge_source'] and 'Test Dataset' in n1t2['knowledge_source']
 
     e1t1 = list(
         t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
@@ -497,7 +497,7 @@ def test_rdf_transform5():
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
+    assert 'Test Dataset' in n1t1['knowledge_source'] and 'Test Dataset' in n1t2['knowledge_source']
 
     e1t1 = list(
         t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()

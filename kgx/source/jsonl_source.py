@@ -20,7 +20,7 @@ class JsonlSource(JsonSource):
         filename: str,
         format: str = 'jsonl',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
+        knowledge_source: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -34,7 +34,7 @@ class JsonlSource(JsonSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
+        knowledge_source: Optional[str]
             The name of the source providing the input file
         kwargs: Any
             Any additional arguments
@@ -45,8 +45,8 @@ class JsonlSource(JsonSource):
             A generator for records
 
         """
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+        if knowledge_source:
+            self.graph_metadata['provided_by'] = self.graph_metadata['knowledge_source'] = [knowledge_source]
         if re.search(f'nodes.{format}', filename):
             m = self.read_node
         elif re.search(f'edges.{format}', filename):

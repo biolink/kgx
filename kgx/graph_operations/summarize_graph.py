@@ -791,7 +791,7 @@ def generate_graph_stats(
     node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
-        A list of properties to facet on. For example, ``['provided_by']``
+        A list of properties to facet on. For example, ``['knowledge_source']``
 
     """
     stats = summarize_graph(graph, graph_name, node_facet_properties, edge_facet_properties)
@@ -817,7 +817,7 @@ def summarize_graph(
     node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
-        A list of properties to facet on. For example, ``['provided_by']``
+        A list of properties to facet on. For example, ``['knowledge_source']``
 
     Returns
     -------

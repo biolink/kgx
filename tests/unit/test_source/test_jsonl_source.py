@@ -39,16 +39,16 @@ def test_read_jsonl1():
 def test_read_jsonl2():
     """
     Read from JSON Lines using JsonlSource.
-    This test also supplies the provided_by parameter.
+    This test also supplies the knowledge_source parameter.
     """
     s = JsonlSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'), provided_by='Test JSON')
+    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'), knowledge_source='Test JSON')
     nodes = {}
     for rec in g:
         if rec:
             nodes[rec[0]] = rec[1]
 
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'), provided_by='Test JSON')
+    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'), knowledge_source='Test JSON')
     edges = {}
     for rec in g:
         if rec:
@@ -68,4 +68,4 @@ def test_read_jsonl2():
     assert e['object'] == 'MONDO:0017148'
     assert e['predicate'] == 'biolink:related_to'
     assert e['relation'] == 'RO:0004013'
-    assert 'Test JSON' in e['provided_by']
+    assert 'Test JSON' in e['knowledge_source']

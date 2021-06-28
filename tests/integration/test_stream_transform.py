@@ -189,7 +189,7 @@ def test_transform1(query):
                 'filename': os.path.join(TARGET_DIR, 'graph1s2'),
                 'format': 'tsv',
                 'node_properties': ['id', 'name', 'category', 'taxon'],
-                'edge_properties': ['subject', 'predicate', 'object', 'relation', 'provided_by'],
+                'edge_properties': ['subject', 'predicate', 'object', 'relation', 'knowledge_source'],
             },
             512,
             532,
@@ -237,7 +237,7 @@ def test_transform2(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s3'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': [
                     'subject',
                     'predicate',
@@ -296,7 +296,7 @@ def test_transform3(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s4'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             176,
@@ -353,7 +353,7 @@ def test_transform4(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s5'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             220,
@@ -404,7 +404,7 @@ def test_transform5(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s6'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             4,

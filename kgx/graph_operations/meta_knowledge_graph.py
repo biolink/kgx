@@ -8,7 +8,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import GraphEntityType
+from kgx import GraphEntityType, KS_SLOTS
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
@@ -82,7 +82,7 @@ class MetaKnowledgeGraph:
             self._substr = ''
         self._prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
 
-        def _infores_parser(source: str):
+        def parser(source: str):
             if self._filter:
                 infores = re.sub(self._filter, self._substr, source)
             else:
@@ -98,7 +98,7 @@ class MetaKnowledgeGraph:
             self._infores_catalog[infores].add(source)
             return infores
         
-        return _infores_parser
+        return parser
 
     def __init__(
             self,
@@ -121,7 +121,7 @@ class MetaKnowledgeGraph:
             Where to write any graph processing error message (stderr, by default).
         infores_rewrite: Optional[Tuple]
             Optional argument is a Tuple value. The presence of a Tuple signals an InfoRes rewrite
-            of the knowledge source ("provided_by") field value of node and edge data records.
+            of any Biolink 2.0 compliant knowledge source field value of node and edge data records.
             The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
             then only a standard transformation of the field value is performed. If the Tuple has
             an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
@@ -142,16 +142,16 @@ class MetaKnowledgeGraph:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
         # Configure the InfoRes rewriting / logging mechanism, if specified
-        self._infores_parser: Optional[Callable[[str], str]] = None
+        self.infores_parser: Optional[Callable[[str], str]] = None
         self._infores_catalog: Dict[str, Set[str]] = dict()
         
         if not (infores_rewrite is None):
             # Yes, we have a Tuple data structure, so we rewrite, but check for a regex filter
             if len(infores_rewrite) > 0:
-                self._infores_parser = self._infores_processor(infores_rewrite)
+                self.infores_parser = self._infores_processor(infores_rewrite)
             else:
                 # Empty tuple just signals a basic rewrite
-                self._infores_parser = self._infores_processor()
+                self.infores_parser = self._infores_processor()
 
             # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
@@ -305,10 +305,12 @@ class MetaKnowledgeGraph:
                     self.category_stats['id_prefixes'].add(prefix)
 
         def _compile_source_stats(self, data: Dict):
+            # for now, nodes diverge from _compile_triple_source_stats()
+            # and only just look for the old 'provided_by' field
             if 'provided_by' in data:
                 for s in data['provided_by']:
-                    if self.mkg._infores_parser:
-                        s = self.mkg._infores_parser(s)
+                    if self.mkg.infores_parser:
+                        s = self.mkg.infores_parser(s)
                     if s in self.category_stats['count_by_source']:
                         self.category_stats['count_by_source'][s] += 1
                     else:
@@ -453,15 +455,18 @@ class MetaKnowledgeGraph:
         return predicate
 
     def _compile_triple_source_stats(self, triple: Tuple[str,str,str], data: Dict):
-        if 'provided_by' in data:
-            for s in data['provided_by']:
-                if self._infores_parser:
-                    s = self._infores_parser(s)
-                if s not in self.association_map[triple]['count_by_source']:
-                    self.association_map[triple]['count_by_source'][s] = 1
-                else:
-                    self.association_map[triple]['count_by_source'][s] += 1
-        else:
+        ksf_found = False
+        for ksf in KS_SLOTS:
+            if ksf in data:
+                ksf_found = True
+                for s in data[ksf]:
+                    if self.infores_parser:
+                        s = self.infores_parser(s)
+                    if s not in self.association_map[triple]['count_by_source']:
+                        self.association_map[triple]['count_by_source'][s] = 1
+                    else:
+                        self.association_map[triple]['count_by_source'][s] += 1
+        if not ksf_found:
             if 'unknown' in self.association_map[triple]['count_by_source']:
                 self.association_map[triple]['count_by_source']['unknown'] += 1
             else:

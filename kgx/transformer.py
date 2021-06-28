@@ -132,12 +132,12 @@ class Transformer(object):
             source.set_edge_filters(edge_filters)
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
-            if 'provided_by' not in input_args:
+            if 'knowledge_source' not in input_args:
                 if 'name' in input_args:
-                    input_args['provided_by'] = input_args['name']
+                    input_args['knowledge_source'] = input_args['name']
                 else:
                     if 'uri' in input_args:
-                        input_args['provided_by'] = input_args['uri']
+                        input_args['knowledge_source'] = input_args['uri']
             g = source.parse(**input_args)
             sources.append(source)
             generators.append(g)
@@ -155,11 +155,11 @@ class Transformer(object):
                 source.set_edge_filters(edge_filters)
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
-                if 'provided_by' not in input_args:
+                if 'knowledge_source' not in input_args:
                     if 'name' in input_args:
-                        input_args['provided_by'] = input_args.pop('name')
+                        input_args['knowledge_source'] = input_args.pop('name')
                     else:
-                        input_args['provided_by'] = os.path.basename(f)
+                        input_args['knowledge_source'] = os.path.basename(f)
                 g = source.parse(f, **input_args)
                 sources.append(source)
                 generators.append(g)
