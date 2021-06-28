@@ -292,7 +292,7 @@ class Validator(object):
         - Edge properties
         - Edge property type
         - Edge property value type
-        - Edge label
+        - Edge predicate
 
         Parameters
         ----------
@@ -739,21 +739,21 @@ class Validator(object):
             if m:
                 p = toolkit.get_element(snakecase_to_sentencecase(edge_predicate))
                 if p is None:
-                    message = f"Edge label '{edge_predicate}' not in Biolink Model"
+                    message = f"Edge predicate '{edge_predicate}' not in Biolink Model"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}", error_type, message, MessageLevel.ERROR
                         )
                     )
                 elif edge_predicate != p.name and edge_predicate in p.aliases:
-                    message = f"Edge label '{edge_predicate}' is actually an alias for {p.name}; Should replace {edge_predicate} with {p.name}"
+                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; Should replace {edge_predicate} with {p.name}"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}", error_type, message, MessageLevel.ERROR
                         )
                     )
             else:
-                message = f"Edge label '{edge_predicate}' is not in snake_case form"
+                message = f"Edge predicate '{edge_predicate}' is not in snake_case form"
                 errors.append(
                     ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
                 )
