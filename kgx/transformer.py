@@ -2,7 +2,7 @@ import itertools
 import os
 from typing import Dict, Generator, List, Optional, Callable
 
-from kgx import GraphEntityType
+from kgx import GraphEntityType, KS_SLOTS
 from kgx.config import get_logger
 from kgx.source import (
     GraphSource,
@@ -132,12 +132,18 @@ class Transformer(object):
             source.set_edge_filters(edge_filters)
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
-            if 'knowledge_source' not in input_args:
-                if 'name' in input_args:
-                    input_args['knowledge_source'] = input_args['name']
-                else:
-                    if 'uri' in input_args:
-                        input_args['knowledge_source'] = input_args['uri']
+
+            # Biolink 2.0 provenance fields
+            if 'provenance' not in input_args:
+                input_args['provenance'] = dict()
+            for ksf in KS_SLOTS:
+                if ksf not in input_args['provenance']:
+                    if 'name' in input_args:
+                        input_args['provenance'][ksf] = input_args['name']
+                    else:
+                        if 'uri' in input_args:
+                            input_args['provenance'][ksf] = input_args['uri']
+
             g = source.parse(**input_args)
             sources.append(source)
             generators.append(g)
@@ -155,11 +161,17 @@ class Transformer(object):
                 source.set_edge_filters(edge_filters)
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
-                if 'knowledge_source' not in input_args:
-                    if 'name' in input_args:
-                        input_args['knowledge_source'] = input_args.pop('name')
-                    else:
-                        input_args['knowledge_source'] = os.path.basename(f)
+
+                # Biolink 2.0 provenance fields
+                if 'provenance' not in input_args:
+                    input_args['provenance'] = dict()
+                for ksf in KS_SLOTS:
+                    if ksf not in input_args['provenance']:
+                        if 'name' in input_args:
+                            input_args['provenance'][ksf] = input_args['name']
+                        else:
+                            input_args['provenance'][ksf] = os.path.basename(f)
+
                 g = source.parse(f, **input_args)
                 sources.append(source)
                 generators.append(g)

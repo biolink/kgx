@@ -122,7 +122,7 @@ class RdfSource(Source):
         filename: str,
         format: str = 'nt',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
+        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -142,8 +142,8 @@ class RdfSource(Source):
             The format (``nt``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -154,8 +154,11 @@ class RdfSource(Source):
 
         """
         p = CustomNTriplesParser(self)
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
+
         if compression == 'gz':
             yield from p.parse(gzip.open(filename, 'rb'))
         else:

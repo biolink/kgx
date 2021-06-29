@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Generator, Any
+from typing import Generator, Any, Dict
 
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
@@ -19,7 +19,12 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(self, graph: BaseGraph, provided_by: str = None, **kwargs: Any) -> Generator:
+    def parse(
+            self,
+            graph: BaseGraph,
+            provenance: Dict[str, str] = dict(),
+            **kwargs: Any
+    ) -> Generator:
         """
         This method reads from a graph and yields records.
 
@@ -27,8 +32,8 @@ class GraphSource(Source):
         ----------
         graph: kgx.graph.base_graph.BaseGraph
             The graph to read from
-        provided_by: Optional[str]
-            The name of the source providing the graph
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -39,8 +44,11 @@ class GraphSource(Source):
 
         """
         self.graph = graph
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
+
         nodes = self.read_nodes()
         edges = self.read_edges()
         yield from chain(nodes, edges)

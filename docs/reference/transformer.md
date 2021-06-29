@@ -50,6 +50,10 @@ Note that `transform` operation accepts an optional inspect _Callable_ argument 
 
 This feature, when coupled with the `--stream` and a 'null' Transformer Sink  (i.e. `output_args = {'format': 'null'}'`), allows "just-in-time" processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.
 
+## Provenance of Edges
+
+Biolink Model 2.0 specified new [properties for edge provenance](https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance) to replace the (now deprecated) `provided_by` property.  An optional `provenance` dictionary entry into the input arguments may provide a dictionary of default global values for any of these properties, to be used when a record lacks such a provenance property value. If no such value is given, then a `knowledge_source` default value is inferred.
+
 ## kgx.transformer
 
 

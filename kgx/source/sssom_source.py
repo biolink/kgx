@@ -67,7 +67,7 @@ class SssomSource(Source):
         filename: str,
         format: str,
         compression: Optional[str] = None,
-        provided_by: str = None,
+        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -81,8 +81,8 @@ class SssomSource(Source):
             The input file format (``tsv``, by default)
         compression: Optional[str]
             The compression (``gz``)
-        provided_by: Optional[str]
-            Define the source providing the input file
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Dict
             Any additional arguments
 
@@ -95,8 +95,11 @@ class SssomSource(Source):
         if 'delimiter' not in kwargs:
             kwargs['delimiter'] = '\t'
         self.parse_header(filename, compression)
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
+
         if 'mapping_provider' in self.graph_metadata:
             self.graph_metadata['provided_by'] = self.graph_metadata['mapping_provider']
         if compression:

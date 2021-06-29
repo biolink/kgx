@@ -1,5 +1,5 @@
 import gzip
-from typing import Optional, Generator, Any
+from typing import Optional, Generator, Any, Dict
 
 import ijson
 from itertools import chain
@@ -22,7 +22,7 @@ class JsonSource(TsvSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        knowledge_source: Optional[str] = None,
+        provenance: Dict[str, str] = dict(),
         **kwargs: Any
     ) -> Generator:
         """
@@ -36,8 +36,8 @@ class JsonSource(TsvSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        knowledge_source: Optional[str]
-            The name of the source providing the input file
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -47,8 +47,11 @@ class JsonSource(TsvSource):
             A generator for node and edge records read from the file
 
         """
-        if knowledge_source:
-            self.graph_metadata['provided_by'] = self.graph_metadata['knowledge_source'] = [knowledge_source]
+
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
+
         self.compression = compression
         n = self.read_nodes(filename)
         e = self.read_edges(filename)

@@ -58,7 +58,7 @@ class TsvSource(Source):
         filename: str,
         format: str,
         compression: Optional[str] = None,
-        knowledge_source: str = None,
+        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -72,8 +72,8 @@ class TsvSource(Source):
             The format (``tsv``, ``csv``)
         compression: Optional[str]
             The compression type (``tar``, ``tar.gz``)
-        knowledge_source: Optional[str]
-            The name of the source providing the input file
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -93,8 +93,10 @@ class TsvSource(Source):
 
         mode = archive_read_mode[compression] if compression in archive_read_mode else None
 
-        if knowledge_source:
-            self.graph_metadata['provided_by'] = self.graph_metadata['knowledge_source'] = [knowledge_source]
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
+
         if format == 'tsv':
             kwargs['quoting'] = 3  # type: ignore
         if mode:
@@ -216,10 +218,8 @@ class TsvSource(Source):
 
             n = node_data['id']
 
-            # Biolink 2.0 'knowledge source' association slots
-            if not any(ksf in node_data.keys() for ksf in KS_SLOTS) and \
-               'knowledge_source' in self.graph_metadata:
-                node_data['knowledge_source'] = self.graph_metadata['knowledge_source']
+            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
+                node_data['provided_by'] = self.graph_metadata['provided_by']
 
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
@@ -267,8 +267,12 @@ class TsvSource(Source):
             edge_data['id'] = generate_uuid()
         s = edge_data['subject']
         o = edge_data['object']
-        if 'knowledge_source' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-            edge_data['knowledge_source'] = self.graph_metadata['knowledge_source']
+
+        # Biolink 2.0 'knowledge source' association slot provenance for edges
+        for ksf in KS_SLOTS:
+            if ksf not in edge_data.keys() and ksf in self.graph_metadata:
+                edge_data[ksf] = self.graph_metadata[ksf]
+
         key = generate_edge_key(s, edge_data['predicate'], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):

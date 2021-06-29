@@ -66,7 +66,7 @@ The element is a multivalued list which must have a value from the Biolink [Name
 
 A node can have additional properties, as defined in the Biolink Model.
 
-For example, [name](https://biolink.github.io/biolink-model/docs/name), [description](https://biolink.github.io/biolink-model/docs/description), and [xref](https://biolink.github.io/biolink-model/docs/xref).
+For example, [name](https://biolink.github.io/biolink-model/docs/name), [description](https://biolink.github.io/biolink-model/docs/description), and [xref](https://biolink.github.io/biolink-model/docs/xref).  Nodes can also optionally have a [`provided_by`](https://biolink.github.io/biolink-model/docs/provided_by) property.
 
 
 ##### Non-Biolink Model elements
@@ -110,6 +110,10 @@ The `relation` element is used to refer to a more specific relationship that fur
 Usually, this is a term from the [Relations Ontology](http://www.obofoundry.org/ontology/ro.html) but other ontologies,
 thesauri, and controlled vocabularies are allowed.
 
+#### Edge Provenance
+
+Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original [`provided_by`](https://biolink.github.io/biolink-model/docs/provided_by) property is now deprecated for edges in favor of the Biolink Model 2.0 defined [`knowledge_source`](https://biolink.github.io/biolink-model/docs/knowledge_source) association slot or one of its descendents - [`aggregator_knowledge_source`](https://biolink.github.io/biolink-model/docs/aggregator_knowledge_source),  [`primary_knowledge_source`](https://biolink.github.io/biolink-model/docs/primary_knowledge_source) and [`original_knowledge_source`](https://biolink.github.io/biolink-model/docs/original_knowledge_source) - or the related association slot, [`supporting_data_source`](https://biolink.github.io/biolink-model/docs/supporting_data_source).
+
 
 #### Optional Edge Record Elements
 
@@ -117,7 +121,8 @@ thesauri, and controlled vocabularies are allowed.
 
 An edge can have additional properties, as defined in the Biolink Model.
 
-For example, [category](https://biolink.github.io/biolink-model/docs/category), [provided_by](https://biolink.github.io/biolink-model/docs/provided_by) and [publications](https://biolink.github.io/biolink-model/docs/publications).
+For example, [category](https://biolink.github.io/biolink-model/docs/category) and [publications](https://biolink.github.io/biolink-model/docs/publications).
+
 
 ##### Non-Biolink Model Elements
 
@@ -162,15 +167,13 @@ A sample KGX JSON that represents a graph with 2 nodes and 1 edge:
         "object": "MONDO:0005002",
         "relation": "RO:0003304",
         "category": ["biolink:GeneToDiseaseAssociation"],
-        "provided_by": ["MonarchArchive:gwascatalog"],
+        "primary_knowledge_source": ["MonarchArchive:gwascatalog"],
         "publications": ["PMID:26634245", "PMID:26634244"]
       }
     ]
 }
 
 ```
-
-
 
 ## KGX format as TSV
 
@@ -190,7 +193,7 @@ MONDO:0005002	biolink:Disease	chronic obstructive pulmonary disease	MonarchArchi
 
 edges.tsv
 ```tsv
-id	subject	predicate	object	relation	provided_by	category	publications
+id	subject	predicate	object	relation	primary_knowledge_source	category	publications
 urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	MONDO:0005002	RO:0003304	MonarchArchive:gwascatalog	biolink:GeneToDiseaseAssociation	PMID:26634245|PMID:26634244
 ```
 
@@ -227,6 +230,6 @@ A sample KGX RDF Turtle (TTL) that represents a graph with 2 nodes and 1 edge:
 
 OBO:MONDO_0005002 rdfs:label "chronic obstructive pulmonary disease"^^xsd:string ;
     biolink:category biolink:Disease ;
-    biolink:provided_by <https://archive.monarchinitiative.org/201806/gwascatalog> .
+    biolink:primary_knowledge_source <https://archive.monarchinitiative.org/201806/gwascatalog> .
 
 ```

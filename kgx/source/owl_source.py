@@ -38,7 +38,7 @@ class OwlSource(RdfSource):
         filename: str,
         format: str = 'owl',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
+        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -52,8 +52,8 @@ class OwlSource(RdfSource):
             The format (``owl``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
+        provenance: Dict[str, str]
+            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -76,8 +76,9 @@ class OwlSource(RdfSource):
         rdfgraph.parse(filename, format=format)
         log.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
 
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+        if provenance:
+            for ksf in provenance.keys():
+                self.graph_metadata[ksf] = [provenance[ksf]]
 
         self.start = current_time_in_millis()
         log.info(f"Done parsing {filename}")
