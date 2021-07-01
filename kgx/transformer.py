@@ -133,18 +133,14 @@ class Transformer(object):
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
 
-            # Biolink 2.0 provenance fields
-            if 'provenance' not in input_args:
-                input_args['provenance'] = dict()
-            for ksf in KS_SLOTS:
-                if ksf not in input_args['provenance']:
-                    if 'name' in input_args:
-                        input_args['provenance'][ksf] = input_args['name']
-                    else:
-                        if 'uri' in input_args:
-                            input_args['provenance'][ksf] = input_args['uri']
+            if 'uri' in input_args:
+                self._default_provenance = input_args['uri']
+            else:
+                self._default_provenance = None
+            self._capture_provenance(input_args)
 
             g = source.parse(**input_args)
+
             sources.append(source)
             generators.append(g)
         else:
@@ -162,17 +158,11 @@ class Transformer(object):
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
 
-                # Biolink 2.0 provenance fields
-                if 'provenance' not in input_args:
-                    input_args['provenance'] = dict()
-                for ksf in KS_SLOTS:
-                    if ksf not in input_args['provenance']:
-                        if 'name' in input_args:
-                            input_args['provenance'][ksf] = input_args['name']
-                        else:
-                            input_args['provenance'][ksf] = os.path.basename(f)
+                self._default_provenance = os.path.basename(f)
+                self._capture_provenance(input_args)
 
                 g = source.parse(f, **input_args)
+
                 sources.append(source)
                 generators.append(g)
 
@@ -255,6 +245,25 @@ class Transformer(object):
             self.store.node_properties.update(sink.node_properties)
             self.store.edge_properties.update(sink.edge_properties)
             apply_graph_operations(sink.graph, operations)
+
+    def _capture_provenance(self, input_args: Dict):
+
+        input_args['provenance'] = dict()
+
+        # Biolink 2.0 provenance fields
+        for ksf in KS_SLOTS:
+            if ksf in input_args:
+                input_args['provenance'][ksf] = input_args.pop(ksf)
+
+        # if none specified, add at least one generic 'knowledge_source'
+        if not input_args['provenance']:
+            if 'name' in input_args:
+                input_args['provenance']['provided_by'] = \
+                    input_args['provenance']['knowledge_source'] = input_args['name']
+            else:
+                if self._default_provenance:
+                    input_args['provenance']['provided_by'] = \
+                        input_args['provenance']['knowledge_source'] = self._default_provenance
 
     def process(
             self,

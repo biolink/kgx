@@ -1,7 +1,7 @@
 import gzip
 import re
 import jsonlines
-from typing import Optional, Any, Generator
+from typing import Optional, Any, Generator, Dict
 
 from kgx.source.json_source import JsonSource
 
