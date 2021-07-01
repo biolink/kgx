@@ -305,7 +305,7 @@ class RdfSource(Source):
         if 'subject' in node and 'object' in node:
             self.add_edge(node['subject'], node['object'], node['predicate'], node)
         else:
-            raise ValueError(f"Incomplete node {n} {node}")
+            log.warning(f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge....")
 
     def add_node_attribute(
         self, iri: Union[URIRef, str], key: str, value: Union[str, List]

@@ -175,7 +175,8 @@ class TsvSource(Source):
                     self.edge_properties.update(chunk.columns)
                     yield from self.read_edges(chunk)
             else:
-                raise Exception(f'Unrecognized file: {filename}')
+                # This used to throw an exception but perhaps we should simply ignore it.
+                log.warning(f'Parse function cannot resolve the KGX file type in name {filename}. Skipped...')
 
     def read_nodes(self, df: pd.DataFrame) -> Generator:
         """
