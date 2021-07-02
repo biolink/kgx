@@ -1,6 +1,6 @@
 import kgx
 import click
-from typing import List, Tuple, Optional, Set
+from typing import List, Tuple, Optional, Set, Dict
 
 from kgx.config import get_logger, get_config
 from kgx.cli.cli_utils import (
@@ -89,8 +89,8 @@ def cli():
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
-    input_compression: str,
-    output: str,
+    input_compression: Optional[str],
+    output: Optional[str],
     report_type: str,
     report_format: str,
     stream: bool,
@@ -98,7 +98,7 @@ def graph_summary_wrapper(
     edge_facet_properties: Optional[Set],
     error_log: str = '',
     infores_rewrite: Optional[Tuple] = None
-):
+) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
     \f
@@ -109,12 +109,14 @@ def graph_summary_wrapper(
         Input file
     input_format: str
         Input file format
-    input_compression: str
+    input_compression: Optional[str]
         The input compression type
-    output: str
+    output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
+    report_format: Optional[str]
+        The summary report format file types: 'yaml' or 'json'  (default is report_type specific)
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[Set]
@@ -129,6 +131,11 @@ def graph_summary_wrapper(
             Optional argument is a Tuple value (default: None).  The presence of a Tuple signals an
             InfoRes rewrite of the knowledge source ("provided_by") field value of node and edge data records.
             Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
+
+    Returns
+    -------
+    Dict
+        A dictionary with the graph stats
     """
     graph_summary(
         inputs,
@@ -168,7 +175,7 @@ def validate_wrapper(
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
     \f
-    
+
     Parameters
     ----------
     inputs: List[str]
@@ -412,7 +419,7 @@ def transform_wrapper(
     """
     Transform a Knowledge Graph from one serialization form to another.
     \f
-    
+
     Parameters
     ----------
     inputs: List[str]

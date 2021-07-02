@@ -3,6 +3,9 @@ import re
 import jsonlines
 from typing import Optional, Any, Generator, Dict
 
+from kgx.config import get_logger
+log = get_logger()
+
 from kgx.source.json_source import JsonSource
 
 
@@ -55,7 +58,9 @@ class JsonlSource(JsonSource):
         elif re.search(f'edges.{format}', filename):
             m = self.read_edge
         else:
-            raise TypeError(f"Unrecognized file: {filename}")
+            # This used to throw an exception but perhaps we should simply ignore it.
+            log.warning(f'Parse function cannot resolve the KGX file type in name {filename}. Skipped...')
+            return
 
         if compression == 'gz':
             with gzip.open(filename, 'rb') as FH:

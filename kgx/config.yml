@@ -17,7 +17,8 @@ logging:
   level: INFO
   format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
-biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/2.0.2/biolink-model.yaml
+# KGX setting for the Biolink Model is now ignored; defer to the Biolink Model Toolkit default.
+# biolink-model: https://raw.githubusercontent.com/biolink/biolink-model/2.0.2/biolink-model.yaml
 
 jsonld-context:
   biolink: https://raw.githubusercontent.com/biolink/biolink-model/master/context.jsonld

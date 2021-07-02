@@ -93,8 +93,8 @@ def graph_summary(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
-    report_format: str
-        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
+    report_format: Optional[str]
+        The summary report format file types: 'yaml' or 'json'
     stream: bool
         Whether to parse input as a stream
     node_facet_properties: Optional[List]
