@@ -92,6 +92,39 @@ def graph_summary_wrapper(
     edge_facet_properties: Optional[Set],
     error_log: str = ''
 ):
+    """
+    Loads and summarizes a knowledge graph from a set of input files.
+    \f
+
+    Parameters
+    ----------
+    inputs: List[str]
+        Input file
+    input_format: str
+        Input file format
+    input_compression: Optional[str]
+        The input compression type
+    output: Optional[str]
+        Where to write the output (stdout, by default)
+    report_type: str
+        The summary report type
+    report_format: str
+        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
+    stream: bool
+        Whether to parse input as a stream
+    node_facet_properties: Optional[List]
+        A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+    edge_facet_properties: Optional[List]
+        A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+    error_log: str
+        Where to write any graph processing error message (stderr, by default)
+
+    Returns
+    -------
+    Dict
+        A dictionary with the graph stats
+
+    """
     graph_summary(
         inputs,
         input_format,
@@ -128,6 +161,7 @@ def validate_wrapper(
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
+    \f
 
     Parameters
     ----------
@@ -371,6 +405,7 @@ def transform_wrapper(
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
+    \f
 
     Parameters
     ----------
