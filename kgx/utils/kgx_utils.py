@@ -264,10 +264,12 @@ def get_toolkit(schema: Optional[str] = None) -> Toolkit:
     """
     global toolkit
     if toolkit is None:
-        if not schema:
-            config = get_config()
-            schema = config['biolink-model']
-        toolkit = Toolkit(schema=schema)
+        # We no longer assume that the KGX config containsthe default schema
+        # but rather  now, defer schema resolution to BMT
+        # if not schema:
+        #     config = get_config()
+        #     schema = config['biolink-model']
+        toolkit = Toolkit(schema=schema) if schema else Toolkit()
     return toolkit
 
 
