@@ -18,9 +18,9 @@ def test_check_categories():
     assert len(ibc) == 0
 
     vbc, ibc, ic = check_categories(
-        ['biolink:GenomicEntity'], get_biolink_ancestors('biolink:Gene'), None
+        ['biolink:BiologicalEntity'], get_biolink_ancestors('biolink:Disease'), None
     )
-    assert 'biolink:GenomicEntity' in vbc
+    assert 'biolink:BiologicalEntity' in vbc
     assert len(ibc) == 0
 
     vbc, ibc, ic = check_categories(
@@ -68,10 +68,10 @@ def test_sort_categories():
     """
     Test sort_categories method.
     """
-    categories = ['biolink:NamedThing', 'biolink:GenomicEntity', 'biolink:Gene']
+    categories = ['biolink:NamedThing', 'biolink:BiologicalEntity', 'biolink:Disease']
     sorted_categories = sort_categories(categories)
-    assert sorted_categories.index('biolink:Gene') == 0
-    assert sorted_categories.index('biolink:GenomicEntity') == 1
+    assert sorted_categories.index('biolink:Disease') == 0
+    assert sorted_categories.index('biolink:BiologicalEntity') == 1
     assert sorted_categories.index('biolink:NamedThing') == 2
 
 
