@@ -1,12 +1,14 @@
 import importlib
-import logging
+from typing import Dict, Any, Optional
 import sys
 from os import path
-import json
-from typing import Dict, Any, Optional
+
+import re
 
 import requests
 import yaml
+import json
+import logging
 
 from kgx.graph.base_graph import BaseGraph
 
@@ -119,3 +121,15 @@ def get_graph_store_class() -> Any:
         class_name = name.split('.')[-1]
         graph_store_class = getattr(importlib.import_module(module_name), class_name)
     return graph_store_class
+
+
+# Biolink Release number should be a well formed Semantic Versioning (patch is optional?)
+semver_pattern = re.compile(r"^\d+\.\d+\.\d+$")
+
+
+def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[str]:
+    if not biolink_release or not semver_pattern.fullmatch(biolink_release):
+        return None
+    else:
+        schema = f"https://raw.githubusercontent.com/biolink/biolink-model/{biolink_release}/biolink-model.yaml"
+        return schema

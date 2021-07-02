@@ -169,8 +169,18 @@ def graph_summary_wrapper(
     help='File to write validation reports to',
 )
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
+@click.option('--biolink-release',
+              '-b',
+              required=False,
+              help='Biolink Model Release (SemVer) used for validation (default: latest Biolink Model Toolkit version)'
+)
 def validate_wrapper(
-    inputs: List[str], input_format: str, input_compression: str, output: str, stream: bool
+        inputs: List[str],
+        input_format: str,
+        input_compression: str,
+        output: str,
+        stream: bool,
+        biolink_release: str = None
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
@@ -188,9 +198,10 @@ def validate_wrapper(
         Path to output file
     stream: bool
         Whether to parse input as a stream
-
+    biolink_release: Optional[str]
+        SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    validate(inputs, input_format, input_compression, output, stream)
+    validate(inputs, input_format, input_compression, output, stream, biolink_release)
 
 
 @cli.command(name='neo4j-download')

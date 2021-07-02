@@ -261,6 +261,12 @@ def get_toolkit(schema: Optional[str] = None) -> Toolkit:
     """
     Get an instance of bmt.Toolkit
     If there no instance defined, then one is instantiated and returned.
+
+    Parameters
+    ----------
+    schema: Optional[str]
+        Url to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
+
     """
     global toolkit
     if toolkit is None:
