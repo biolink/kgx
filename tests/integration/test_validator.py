@@ -73,10 +73,8 @@ def test_validator_explicit_biolink_version():
         object='UBERON:0000001',
         category=['biolink:Association'],
     )
-    validator = Validator(
-        verbose=True,
-        schema=get_biolink_model_schema("1.8.2")
-    )
+    validator = Validator(verbose=True)
+    Validator.set_biolink_model(version="1.8.2")
     e = validator.validate(G)
     print(validator.report(e))
     assert len(e) == 0

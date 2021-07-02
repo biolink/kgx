@@ -11,7 +11,7 @@ import yaml
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
-from kgx.config import get_logger, get_biolink_model_schema
+from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph
@@ -192,11 +192,8 @@ def validate(
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
-
-    if biolink_release:
-        validator = Validator(schema=get_biolink_model_schema(biolink_release))
-    else:
-        validator = Validator()
+    validator = Validator()
+    Validator.set_biolink_model(biolink_release)
 
     if stream:
         transformer = Transformer(stream=stream)
