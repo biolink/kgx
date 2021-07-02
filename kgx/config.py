@@ -128,8 +128,12 @@ semver_pattern = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[str]:
-    if not biolink_release or not semver_pattern.fullmatch(biolink_release):
-        return None
-    else:
+    if biolink_release:
+        if not semver_pattern.fullmatch(biolink_release):
+            raise TypeError(
+                "The 'biolink_release' argument '"+biolink_release+
+                "' is not a properly formatted 'major.minor.patch' semantic version?")
         schema = f"https://raw.githubusercontent.com/biolink/biolink-model/{biolink_release}/biolink-model.yaml"
         return schema
+    else:
+        return None
