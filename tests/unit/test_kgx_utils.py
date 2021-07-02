@@ -31,10 +31,12 @@ from kgx.utils.kgx_utils import (
 
 def test_get_toolkit():
     """
-    Test to get an instance of Toolkit via get_toolkit.
+    Test to get an instance of Toolkit via get_toolkit and
+    check if default toolkit biolink model version.
     """
     tk = get_toolkit()
     assert isinstance(tk, Toolkit)
+    assert(tk.get_model_version() == Toolkit().get_model_version())
 
 
 def test_get_curie_lookup_service():
