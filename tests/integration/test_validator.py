@@ -1,5 +1,6 @@
 import os
 
+from kgx.config import get_biolink_model_schema
 from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
 from kgx.transformer import Transformer
@@ -53,3 +54,30 @@ def test_validate_json():
     validator = Validator()
     e = validator.validate(t.store.graph)
     assert len(e) == 0
+
+
+def test_validator_explicit_biolink_version():
+    """
+    A fake test to establish a success condition for validation.
+    """
+    G = NxGraph()
+    G.add_node('CHEMBL.COMPOUND:1222250', id='CHEMBL.COMPOUND:1222250', name='Dextrose', category=['Carbohydrate'])
+    G.add_node('UBERON:0000001', id='UBERON:0000001', name='fake', category=['NamedThing'])
+    G.add_edge(
+        'CHEMBL.COMPOUND:1222250',
+        'UBERON:0000001',
+        id='CHEMBL.COMPOUND:1222250-part_of-UBERON:0000001',
+        relation='RO:1',
+        predicate='part_of',
+        subject='CHEMBL.COMPOUND:1222250',
+        object='UBERON:0000001',
+        category=['biolink:Association'],
+    )
+    validator = Validator(
+        verbose=True,
+        schema=get_biolink_model_schema("1.8.2")
+    )
+    e = validator.validate(G)
+    print(validator.report(e))
+    assert len(e) == 0
+

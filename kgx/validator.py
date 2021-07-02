@@ -110,19 +110,22 @@ class Validator(object):
         Whether the generated report should be verbose or not (default: ``False``)
     progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
         Function given a peek at the current record being processed by the class wrapped Callable.
+    schema: Optional[str]
+        URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
     """
     
     def __init__(
             self,
             verbose: bool = False,
-            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            schema: Optional[str] = None
     ):
         # formal arguments
         self.verbose: bool = verbose
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         # internal attributes
-        self.toolkit = get_toolkit()
+        self.toolkit = get_toolkit(schema)
         self.prefix_manager = PrefixManager()
         self.jsonld = get_jsonld_context()
         self.prefixes = Validator.get_all_prefixes(self.jsonld)

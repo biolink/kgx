@@ -11,7 +11,7 @@ import yaml
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
-from kgx.config import get_logger
+from kgx.config import get_logger, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph
@@ -161,6 +161,7 @@ def validate(
     input_compression: Optional[str],
     output: Optional[str],
     stream: bool,
+    biolink_release: Optional[str] = None
 ) -> List:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
@@ -177,6 +178,8 @@ def validate(
         Path to output file (stdout, by default)
     stream: bool
          Whether to parse input as a stream.
+    biolink_release: Optional[str] = None
+        SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     Returns
     -------
     List
@@ -189,9 +192,13 @@ def validate(
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
-    if stream:
+
+    if biolink_release:
+        validator = Validator(schema=get_biolink_model_schema(biolink_release))
+    else:
         validator = Validator()
-        
+
+    if stream:
         transformer = Transformer(stream=stream)
         
         transformer.transform(
@@ -210,7 +217,6 @@ def validate(
         transformer.transform(
             {'filename': inputs, 'format': input_format, 'compression': input_compression},
         )
-        validator = Validator()
         
         # Slight tweak of classical 'validate' function: that the
         # list of errors are cached internally in the Validator object
