@@ -128,8 +128,8 @@ def graph_summary_wrapper(
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
     infores_rewrite: Optional[Tuple]
-            Optional argument is a Tuple value (default: None).  The presence of a Tuple signals an
-            InfoRes rewrite of the knowledge source ("provided_by") field value of node and edge data records.
+            Optional argument is a Tuple value.  The presence of a Tuple signals an
+            InfoRes rewrite of the knowledge source field values of node and edge data records.
             Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
 
     Returns

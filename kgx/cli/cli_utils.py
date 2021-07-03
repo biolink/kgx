@@ -115,11 +115,11 @@ def graph_summary(
     """
     if report_format and report_format not in get_report_format_types():
         raise ValueError(f"report_format must be one of {get_report_format_types()}")
-    
+
     if report_type in summary_report_types:
         # New design pattern enabling 'stream' processing of statistics on a small memory footprint
         # by injecting an inspector in the Transformer.process() source-to-sink data flow.
-        
+
         # First, check and adjust the infores_rewrite argument
         if infores_rewrite:
             if len(infores_rewrite) == 1 and str(infores_rewrite[0]).lower() == 'true':
@@ -127,6 +127,8 @@ def graph_summary(
                 # so only a simple rewrite is specified,
                 # signalled with an empty tuple()
                 infores_rewrite = tuple()
+        else:
+            infores_rewrite = None  # infores_rewrite could be an empty tuple - treat as None here
         #
         # First, we instantiate the Inspector (generally, a Callable class)...
         #

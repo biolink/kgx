@@ -459,7 +459,12 @@ class MetaKnowledgeGraph:
         for ksf in KS_SLOTS:
             if ksf in data:
                 ksf_found = True
-                for s in data[ksf]:
+                if isinstance(data[ksf], str):
+                    ksf_values = [data[ksf]]
+                else:
+                    # assume regular iterable
+                    ksf_values = list(data[ksf])
+                for s in ksf_values:
                     if self.infores_parser:
                         s = self.infores_parser(s)
                     if s not in self.association_map[triple]['count_by_source']:
