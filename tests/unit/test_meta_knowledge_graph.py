@@ -50,6 +50,7 @@ def test_meta_knowledge_graph_infores_parser_deletion_rewrite():
     }
     mkg = MetaKnowledgeGraph(
         # deletes anything inside (and including the) parentheses
+        edge_facet_properties=['aggregator_knowledge_source'],
         infores_rewrite=(r"\(.+\)", '')
     )
     t = Transformer()
@@ -59,9 +60,12 @@ def test_meta_knowledge_graph_infores_parser_deletion_rewrite():
     assert gene_category.get_count() == 1
     ccbs = gene_category.get_count_by_source()
     assert len(ccbs) == 1
-    assert "flybase" in ccbs
+    assert "flybase" in ccbs['provided_by']
     
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
+        facet='aggregator_knowledge_source'
+    )
     assert len(ecbs) == 1
     assert "gene-ontology" in ecbs
     
@@ -77,13 +81,14 @@ def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
             os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
             os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
         ],
-        'format': 'tsv',
+        'format': 'tsv'
     }
     
     t = Transformer()
     mkg = MetaKnowledgeGraph(
         # substitute anything inside (and including the) parentheses with Monarch' (but will be lowercased)
-        infores_rewrite=(r"\(.+\)", "Monarch")
+        edge_facet_properties=['aggregator_knowledge_source'],
+        infores_rewrite=(True, r"\(.+\)", "Monarch")
     )
     t.transform(input_args=input_args, inspector=mkg)
     
@@ -91,9 +96,12 @@ def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
     assert gene_category.get_count() == 1
     ccbs = gene_category.get_count_by_source()
     assert len(ccbs) == 1
-    assert "flybase-monarch" in ccbs
+    assert "flybase-monarch" in ccbs['provided_by']
     
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
+        facet='aggregator_knowledge_source'
+    )
     assert len(ecbs) == 1
     assert "gene-ontology-monarch" in ecbs
 
@@ -111,6 +119,7 @@ def test_meta_knowledge_graph_infores_parser_prefix_rewrite():
     mkg = MetaKnowledgeGraph(
         # Delete anything inside (and including the) parentheses
         # then but then add a prefix 'Monarch' (but will be lower cased)
+        edge_facet_properties=['aggregator_knowledge_source'],
         infores_rewrite=(r"\(.+\)", "", "Monarch")
     )
     t.transform(input_args=input_args, inspector=mkg)
@@ -119,9 +128,12 @@ def test_meta_knowledge_graph_infores_parser_prefix_rewrite():
     assert gene_category.get_count() == 1
     ccbs = gene_category.get_count_by_source()
     assert len(ccbs) == 1
-    assert "monarch-flybase" in ccbs
+    assert "monarch-flybase" in ccbs['provided_by']
     
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
+        facet='aggregator_knowledge_source'
+    )
     assert len(ecbs) == 1
     assert "monarch-gene-ontology" in ecbs
 
@@ -139,6 +151,7 @@ def test_meta_knowledge_graph_infores_simple_prefix_rewrite():
     mkg = MetaKnowledgeGraph(
         # Delete anything inside (and including the) parentheses
         # then but then add a prefix 'Monarch' (but will be lower cased)
+        edge_facet_properties=['aggregator_knowledge_source'],
         infores_rewrite=("", "", "Fixed")
     )
     t.transform(input_args=input_args, inspector=mkg)
@@ -147,9 +160,12 @@ def test_meta_knowledge_graph_infores_simple_prefix_rewrite():
     assert gene_category.get_count() == 1
     ccbs = gene_category.get_count_by_source()
     assert len(ccbs) == 1
-    assert "fixed-flybase-monarch-version-202012" in ccbs
+    assert "fixed-flybase-monarch-version-202012" in ccbs['provided_by']
     
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:part_of", "biolink:CellularComponent")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
+        facet='aggregator_knowledge_source'
+    )
     assert len(ecbs) == 1
     assert "fixed-gene-ontology-monarch-version-202012" in ecbs
 
@@ -169,7 +185,10 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
 
     transformer = Transformer(stream=True)
 
-    mkg = MetaKnowledgeGraph('Test Graph - Streamed')
+    mkg = MetaKnowledgeGraph(
+        'Test Graph - Streamed',
+        edge_facet_properties=['original_knowledge_source']
+    )
 
     # We configure the Transformer with a data flow inspector
     # (Deployed in the internal Transformer.process() call)
@@ -188,11 +207,17 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     gene_category.get_count_by_source()
     assert len(mkg.get_edge_count_by_source("", "", "")) == 0
     assert len(mkg.get_edge_count_by_source("biolink:Gene", "biolink:affects", "biolink:Disease")) == 0
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:interacts_with", "biolink:Gene")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:interacts_with", "biolink:Gene",
+        facet='original_knowledge_source'
+    )
     assert len(ecbs) == 2
     assert "biogrid" in ecbs
     assert "string" in ecbs
-    ecbs = mkg.get_edge_count_by_source("biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature")
+    ecbs = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature",
+        facet='original_knowledge_source'
+    )
     assert len(ecbs) == 3
     assert "omim" in ecbs
     assert "orphanet" in ecbs
