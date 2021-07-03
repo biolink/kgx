@@ -103,6 +103,8 @@ class MetaKnowledgeGraph:
     def __init__(
             self,
             name='',
+            node_facet_properties: Optional[List] = None,
+            edge_facet_properties: Optional[List] = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
             infores_rewrite: Optional[Tuple] = None,
@@ -115,6 +117,11 @@ class MetaKnowledgeGraph:
         ----------
         name: str
             (Graph) name assigned to the summary.
+        node_facet_properties: Optional[List]
+                A list of node properties (e.g. provenance tags) to facet on. For example, ``['provided_by']``
+        edge_facet_properties: Optional[List]
+                A list of edge properties (e.g. provenance tags) to facet on. For example,
+                ``['original_knowledge_source', 'aggregator_knowledge_source']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
@@ -136,6 +143,12 @@ class MetaKnowledgeGraph:
         # formal args
 
         self.name = name
+
+        # these facet properties mainly for provenance counting
+        # using Biolink 2.0 'knowledge_source' slot values
+        self.node_facet_properties: Optional[List] = node_facet_properties
+        self.edge_facet_properties: Optional[List] = edge_facet_properties
+
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         if error_log:
@@ -153,19 +166,22 @@ class MetaKnowledgeGraph:
                 # Empty tuple just signals a basic rewrite
                 self.infores_parser = self._infores_processor()
 
-            # internal attributes
+        # internal attributes
+        # For Nodes...
         self.node_catalog: Dict[str, List[int]] = dict()
-
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
 
         # We no longer track 'unknown' categories in meta-knowledge-graph
         # computations since such nodes are not TRAPI 1.1 compliant categories
         # self.node_stats['unknown'] = self.Category('unknown')
 
+        # For Edges...
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
         self.association_map: Dict = dict()
         self.edge_stats = []
+
+        # Overall graph statistics
         self.graph_stats: Dict[str, Dict] = dict()
 
     def get_name(self) -> str:

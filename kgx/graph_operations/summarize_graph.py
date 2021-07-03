@@ -103,7 +103,7 @@ class GraphSummary:
         node_facet_properties: Optional[List]
                 A list of properties to facet on. For example, ``['provided_by']``
         edge_facet_properties: Optional[List]
-                A list of properties to facet on. For example, ``['provided_by']``
+                A list of properties to facet on. For example, ``['knowledge_source']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log: str
