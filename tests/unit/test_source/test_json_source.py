@@ -40,7 +40,7 @@ def test_read_json2():
     This test also supplies the provided_by parameter.
     """
     s = JsonSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid.json'), provided_by='Test JSON')
+    g = s.parse(os.path.join(RESOURCE_DIR, 'valid.json'), provenance={'knowledge_source': 'Test JSON'})
     nodes = {}
     edges = {}
     for rec in g:
@@ -64,7 +64,7 @@ def test_read_json2():
     assert e['object'] == 'MONDO:0017148'
     assert e['predicate'] == 'biolink:related_to'
     assert e['relation'] == 'RO:0004013'
-    assert 'Test JSON' in e['provided_by']
+    assert 'Test JSON' in e['knowledge_source']
 
 
 def test_read_json_compressed():

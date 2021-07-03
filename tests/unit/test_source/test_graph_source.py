@@ -64,7 +64,10 @@ def test_read_graph2():
         }
     )
     s = GraphSource()
-    g = s.parse(graph=graph, provided_by='Test Graph')
+    g = s.parse(
+        graph=graph,
+        provenance={'knowledge_source': 'Test Graph'}
+    )
     nodes = {}
     edges = {}
     for rec in g:
@@ -86,4 +89,4 @@ def test_read_graph2():
     assert e1['predicate'] == 'biolink:related_to'
     assert e1['object'] == 'C'
     assert e1['relation'] == 'biolink:related_to'
-    assert 'Test Graph' in e1['provided_by']
+    assert 'Test Graph' in e1['knowledge_source']

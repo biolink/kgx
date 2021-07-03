@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Generator, Any, Dict
+from typing import Generator, Any, Dict, Optional
 
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
@@ -22,7 +22,7 @@ class GraphSource(Source):
     def parse(
             self,
             graph: BaseGraph,
-            provenance: Dict[str, str] = dict(),
+            provenance: Optional[Dict[str, str]] = None,
             **kwargs: Any
     ) -> Generator:
         """

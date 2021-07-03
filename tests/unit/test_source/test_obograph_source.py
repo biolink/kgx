@@ -11,7 +11,10 @@ def test_read_obograph1():
     Read from an Obograph JSON using ObographSource.
     """
     s = ObographSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.json'))
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
+        provenance={'knowledge_source': "GO slim generic"}
+    )
     nodes = {}
     edges = {}
     for rec in g:
@@ -53,10 +56,13 @@ def test_read_obograph1():
 def test_read_jsonl2():
     """
     Read from an Obograph JSON using ObographSource.
-    This test also supplies the provided_by parameter.
+    This test also supplies the knowledge_source parameter.
     """
     s = ObographSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.json'), provided_by='GO slim generic')
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
+        provenance={'knowledge_source': 'GO slim generic'}
+    )
     nodes = {}
     edges = {}
     for rec in g:

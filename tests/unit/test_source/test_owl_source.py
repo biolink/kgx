@@ -10,7 +10,10 @@ def test_read_owl1():
     Read an OWL ontology using OwlSource.
     """
     s = OwlSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
+        provenance={'knowledge_source': "GO slim generic"}
+    )
     nodes = {}
     edges = {}
     for rec in g:
@@ -51,10 +54,13 @@ def test_read_owl1():
 def test_read_owl2():
     """
     Read an OWL ontology using OwlSource.
-    This test also supplies the provided_by parameter.
+    This test also supplies the knowledge_source parameter.
     """
     s = OwlSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'), provided_by='GO slim generic')
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
+        provenance={'knowledge_source': "GO slim generic"}
+    )
     nodes = {}
     edges = {}
     for rec in g:
@@ -93,7 +99,7 @@ def test_read_owl2():
     assert e1['predicate'] == 'biolink:subclass_of'
     assert e1['object'] == 'GO:0003674'
     assert e1['relation'] == 'rdfs:subClassOf'
-    assert 'GO slim generic' in e1['provided_by']
+    assert 'GO slim generic' in e1['knowledge_source']
 
 
 def test_read_owl3():
