@@ -15,7 +15,11 @@ refer to [Summarize Graph operation](summarize_graph.md).
 
 ## Streaming Data Processing Mode
 
-For very large graphs, the Meta Knowledge Graph operation may now successfully process graph data equally well  using data streaming (command flag `--stream=True`) which significantly minimizes the memory footprint required to process such graphs.
+For very large graphs, the Meta Knowledge Graph operation now successfully processes graph data using data streaming (command flag `--stream=True`) which significantly minimizes the memory footprint required to process such graphs.
+
+## Provenance Statistics
+
+The Meta Knowledge Graph operation can count numbers of nodes and edges by Biolink 2.0 `biolink:knowledge_source` provenance (and related `is_a` descendant slot terms). The `node_facet_properties` and `edge_facet_properties` CLI (and code method) arguments need to be explicitly used to specify which provenance slot names are to be counted in a given graph (by default, `provided_by` slots are used for nodes and `knowledge_source` slots used for edges).
 
 ## InfoRes Identifier Rewriting
 
