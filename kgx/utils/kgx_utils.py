@@ -19,10 +19,10 @@ import numpy as np
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
-from kgx.config import get_jsonld_context, get_logger, get_config
+from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
-toolkit = None
+default_toolkit = None
 curie_lookup_service = None
 cache = None
 
@@ -257,27 +257,25 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
     return uri
 
 
-def get_toolkit(schema: Optional[str] = None) -> Toolkit:
+def get_toolkit(biolink_release: Optional[str] = None) -> Toolkit:
     """
     Get an instance of bmt.Toolkit
     If there no instance defined, then one is instantiated and returned.
 
     Parameters
     ----------
-    schema: Optional[str]
-        Url to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
+    biolink_release: Optional[str]
+        URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
 
     """
-    global toolkit
-    if toolkit is None:
-        # We no longer assume that the KGX config.yml specifies the default schema
-        # but rather  now, defer schema resolution to the Biolink Model Toolkit default.
-        #
-        # if not schema:
-        #     config = get_config()
-        #     schema = config['biolink-model']
-        #
-        toolkit = Toolkit(schema=schema) if schema else Toolkit()
+    global default_toolkit
+    if biolink_release:
+        schema = get_biolink_model_schema(biolink_release)
+        toolkit = Toolkit(schema=schema)
+    else:
+        if default_toolkit is None:
+            default_toolkit = Toolkit()
+        toolkit = default_toolkit
     return toolkit
 
 
@@ -451,7 +449,7 @@ def get_type_for_property(p: str) -> str:
     """
     Get type for a property.
 
-    TODO: Move this to biolink-model-toolkit
+    TODO: Move this to biolink-model-default_toolkit
 
     Parameters
     ----------

@@ -1,6 +1,6 @@
 import os
 
-from kgx.config import get_biolink_model_schema
+from kgx.utils.kgx_utils import get_toolkit
 from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
 from kgx.transformer import Transformer
@@ -73,11 +73,15 @@ def test_validator_explicit_biolink_version():
         object='UBERON:0000001',
         category=['biolink:Association'],
     )
-    validator = Validator(
-        verbose=True,
-        schema=get_biolink_model_schema("1.8.2")
-    )
+    validator = Validator(verbose=True)
+    Validator.set_biolink_model(version="1.8.2")
     e = validator.validate(G)
     print(validator.report(e))
     assert len(e) == 0
 
+
+def test_distinct_persistent_validator_biolink_version():
+    Validator.set_biolink_model(version="1.8.2")
+    default_tk = get_toolkit()
+    validator_tk = Validator.get_toolkit()
+    assert(default_tk.get_model_version() != validator_tk.get_model_version())

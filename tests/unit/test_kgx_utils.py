@@ -32,7 +32,7 @@ from kgx.utils.kgx_utils import (
 def test_get_toolkit():
     """
     Test to get an instance of Toolkit via get_toolkit and
-    check if default toolkit biolink model version.
+    check if default is the default biolink model version.
     """
     tk = get_toolkit()
     assert isinstance(tk, Toolkit)
