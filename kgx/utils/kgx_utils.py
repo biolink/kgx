@@ -255,6 +255,7 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
 
     return uri
 
+
 _default_toolkit = None
 
 # TODO: not sure how threadsafe this simple-minded Toolkit cache is

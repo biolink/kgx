@@ -166,6 +166,15 @@ class Validator(object):
             cls._currently_active_toolkit = get_toolkit()
         return cls._currently_active_toolkit
 
+    _default_model_version = None
+
+    @classmethod
+    def get_default_biolink_model_version(cls):
+        if not cls._default_model_version:
+            # get default Biolink version from BMT
+            cls._default_model_version = get_toolkit().get_model_version()
+        return cls._default_model_version
+
     def analyse_node(self, n, data):
         e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
         e2 = Validator.validate_node_property_types(n, data, toolkit=self.validating_toolkit)
