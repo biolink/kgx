@@ -169,7 +169,7 @@ class Validator(object):
     _default_model_version = None
 
     @classmethod
-    def get_default_biolink_model_version(cls):
+    def get_default_model_version(cls):
         if not cls._default_model_version:
             # get default Biolink version from BMT
             cls._default_model_version = get_toolkit().get_model_version()
