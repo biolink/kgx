@@ -192,8 +192,8 @@ def validate(
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
-    validator = Validator()
     Validator.set_biolink_model(biolink_release)
+    validator = Validator()
 
     if stream:
         transformer = Transformer(stream=stream)

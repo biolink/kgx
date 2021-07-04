@@ -123,6 +123,8 @@ class Validator(object):
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         # internal attributes
+        # associated currently active _currently_active_toolkit with this Validator instance
+        self.validating_toolkit = self.get_toolkit()
         self.prefix_manager = PrefixManager()
         self.jsonld = get_jsonld_context()
         self.prefixes = Validator.get_all_prefixes(self.jsonld)
@@ -143,20 +145,26 @@ class Validator(object):
         else:
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
+    def get_validating_toolkit(self):
+        return self.validating_toolkit
+
+    def get_validation_model_version(self):
+        return self.validating_toolkit.get_model_version()
+
     def get_errors(self):
         return self.errors
 
-    toolkit: Optional[Toolkit] = None
+    _currently_active_toolkit: Optional[Toolkit] = None
 
     @classmethod
     def set_biolink_model(cls, version: Optional[str]):
-        cls.toolkit = get_toolkit(biolink_release=version)
+        cls._currently_active_toolkit = get_toolkit(biolink_release=version)
 
     @classmethod
     def get_toolkit(cls) -> Toolkit:
-        if not cls.toolkit:
-            cls.toolkit = get_toolkit()
-        return cls.toolkit
+        if not cls._currently_active_toolkit:
+            cls._currently_active_toolkit = get_toolkit()
+        return cls._currently_active_toolkit
 
     def analyse_node(self, n, data):
         e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
