@@ -22,7 +22,6 @@ from prefixcommons.curie_util import expand_uri
 from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
-default_toolkit = None
 curie_lookup_service = None
 cache = None
 
@@ -256,6 +255,11 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
 
     return uri
 
+_default_toolkit = None
+
+# TODO: not sure how threadsafe this simple-minded Toolkit cache is
+_toolkit_versions: Dict[str, Toolkit] = dict()
+
 
 def get_toolkit(biolink_release: Optional[str] = None) -> Toolkit:
     """
@@ -268,14 +272,22 @@ def get_toolkit(biolink_release: Optional[str] = None) -> Toolkit:
         URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
 
     """
-    global default_toolkit
+    global _default_toolkit, _toolkit_versions
     if biolink_release:
-        schema = get_biolink_model_schema(biolink_release)
-        toolkit = Toolkit(schema=schema)
+        if biolink_release in _toolkit_versions:
+            toolkit = _toolkit_versions[biolink_release]
+        else:
+            schema = get_biolink_model_schema(biolink_release)
+            toolkit = Toolkit(schema=schema)
+            _toolkit_versions[biolink_release] = toolkit
     else:
-        if default_toolkit is None:
-            default_toolkit = Toolkit()
-        toolkit = default_toolkit
+        if _default_toolkit is None:
+            _default_toolkit = Toolkit()
+        toolkit = _default_toolkit
+        biolink_release = toolkit.get_model_version()
+        if biolink_release not in _toolkit_versions:
+            _toolkit_versions[biolink_release] = toolkit
+
     return toolkit
 
 

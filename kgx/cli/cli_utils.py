@@ -193,6 +193,8 @@ def validate(
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
     Validator.set_biolink_model(biolink_release)
+
+    # Validator assumes the currently set Biolink Release
     validator = Validator()
 
     if stream:

@@ -9,8 +9,8 @@ The Transformer supports two modes:
 
 **No streaming**
 
-In this mode, records are read from a source and written to an intermediate graph. This
-intermediate graph can then be used as a substrate for various graph operations.
+In this mode, the Transformer reads records from a source and writes to an intermediate graph. One can then use this
+intermediate graph as a substrate for various graph operations.
 
 
 ```python
