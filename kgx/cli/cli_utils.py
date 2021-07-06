@@ -73,6 +73,7 @@ def graph_summary(
     report_type: str,
     report_format: Optional[str] = None,
     stream: bool = False,
+    graph_name: Optional[str] = None,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
     error_log: str = ''
@@ -96,6 +97,8 @@ def graph_summary(
         The summary report format file types: 'yaml' or 'json' (default: 'yaml')
     stream: bool
         Whether to parse input as a stream
+    graph_name: str
+        User specified name of graph being summarized
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
@@ -123,7 +126,7 @@ def graph_summary(
             # rather, the inspector will see the graph data after
             # being injected into the Transformer.transform() workflow
             # graph=transformer.store.graph,
-            name='Graph',
+            name=graph_name if graph_name else 'Graph',
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
             error_log=error_log

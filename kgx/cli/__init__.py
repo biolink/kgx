@@ -62,6 +62,12 @@ def cli():
 )
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
+    '--graph-name',
+    '-n',
+    required=False,
+    help="User specified name of graph being summarized (default: 'Graph')"
+)
+@click.option(
     '--node-facet-properties',
     required=False,
     multiple=True,
@@ -88,6 +94,7 @@ def graph_summary_wrapper(
     report_type: str,
     report_format: str,
     stream: bool,
+    graph_name: str,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
     error_log: str = ''
@@ -112,6 +119,8 @@ def graph_summary_wrapper(
         The summary report format file types: 'yaml' or 'json' (default: 'yaml')
     stream: bool
         Whether to parse input as a stream
+    graph_name: str
+        User specified name of graph being summarized
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
@@ -133,6 +142,7 @@ def graph_summary_wrapper(
         report_type,
         report_format,
         stream,
+        graph_name,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
         error_log=error_log

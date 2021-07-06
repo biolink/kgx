@@ -77,13 +77,16 @@ def test_graph_summary2a():
         'tsv',
         None,
         output,
-        report_type='meta-knowledge-graph'
+        report_type='meta-knowledge-graph',
+        graph_name='Default Meta-Knowledge-Graph'
     )
 
     assert os.path.exists(output)
     assert summary_stats
     assert 'nodes' in summary_stats
     assert 'edges' in summary_stats
+    assert 'name' in summary_stats
+    assert summary_stats['name']  == 'Default Meta-Knowledge-Graph'
 
 
 def test_graph_summary2b():
@@ -109,7 +112,8 @@ def test_graph_summary2b():
     assert summary_stats
     assert 'nodes' in summary_stats
     assert 'edges' in summary_stats
-    
+
+
 def test_graph_summary2c():
     """
      Test graph summary, where the output report type
