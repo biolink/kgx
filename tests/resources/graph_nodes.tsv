@@ -334,7 +334,7 @@ REACT:R-HSA-5362798	Release of Hh-Np from the secreting cell	biolink:Pathway
 ZFIN:ZDB-GENE-980526-41	shhb	biolink:Gene	NCBITaxon:7955
 ZFIN:ZDB-GENE-980526-166	shha	biolink:Gene	NCBITaxon:7955
 MGI:98297	Shh	biolink:Gene	NCBITaxon:10090
-FlyBase:FBgn0004644	hh	biolink:Gene	NCBITaxon:7227
+FB:FBgn0004644	hh	biolink:Gene	NCBITaxon:7227
 NCBIGene:100147450	SHH	biolink:Gene	NCBITaxon:9796
 NCBIGene:100016531	SHH	biolink:Gene	NCBITaxon:13616
 NCBIGene:100557233	shh	biolink:Gene	NCBITaxon:28377
