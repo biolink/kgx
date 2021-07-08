@@ -73,15 +73,24 @@ def test_validator_explicit_biolink_version():
         object='UBERON:0000001',
         category=['biolink:Association'],
     )
-    validator = Validator(verbose=True)
     Validator.set_biolink_model(version="1.8.2")
+    validator = Validator(verbose=True)
     e = validator.validate(G)
     print(validator.report(e))
     assert len(e) == 0
 
 
-def test_distinct_persistent_validator_biolink_version():
+def test_distinct_validator_class_versus_default_toolkit_biolink_version():
     Validator.set_biolink_model(version="1.8.2")
     default_tk = get_toolkit()
     validator_tk = Validator.get_toolkit()
     assert(default_tk.get_model_version() != validator_tk.get_model_version())
+
+
+def test_distinct_class_versus_validator_instance_biolink_version():
+    Validator.set_biolink_model(version="1.7.0")
+    validator = Validator()
+    Validator.set_biolink_model(version="1.8.2")
+    validator_class_tk = Validator.get_toolkit()
+    validation_instance_version = validator.get_validation_model_version()
+    assert(validation_instance_version != validator_class_tk.get_model_version())

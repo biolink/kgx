@@ -126,6 +126,8 @@ class Validator(object):
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         # internal attributes
+        # associated currently active _currently_active_toolkit with this Validator instance
+        self.validating_toolkit = self.get_toolkit()
         self.prefix_manager = PrefixManager()
         self.jsonld = get_jsonld_context()
         self.prefixes = Validator.get_all_prefixes(self.jsonld)
@@ -146,33 +148,48 @@ class Validator(object):
         else:
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
+    def get_validating_toolkit(self):
+        return self.validating_toolkit
+
+    def get_validation_model_version(self):
+        return self.validating_toolkit.get_model_version()
+
     def get_errors(self):
         return self.errors
 
-    toolkit: Optional[Toolkit] = None
+    _currently_active_toolkit: Optional[Toolkit] = None
 
     @classmethod
     def set_biolink_model(cls, version: Optional[str]):
-        cls.toolkit = get_toolkit(biolink_release=version)
+        cls._currently_active_toolkit = get_toolkit(biolink_release=version)
 
     @classmethod
     def get_toolkit(cls) -> Toolkit:
-        if not cls.toolkit:
-            cls.toolkit = get_toolkit()
-        return cls.toolkit
+        if not cls._currently_active_toolkit:
+            cls._currently_active_toolkit = get_toolkit()
+        return cls._currently_active_toolkit
+
+    _default_model_version = None
+
+    @classmethod
+    def get_default_model_version(cls):
+        if not cls._default_model_version:
+            # get default Biolink version from BMT
+            cls._default_model_version = get_toolkit().get_model_version()
+        return cls._default_model_version
 
     def analyse_node(self, n, data):
         e1 = Validator.validate_node_properties(n, data, self.required_node_properties)
-        e2 = Validator.validate_node_property_types(n, data)
+        e2 = Validator.validate_node_property_types(n, data, toolkit=self.validating_toolkit)
         e3 = Validator.validate_node_property_values(n, data)
-        e4 = Validator.validate_categories(n, data)
+        e4 = Validator.validate_categories(n, data, toolkit=self.validating_toolkit)
         return e1 + e2 + e3 + e4
 
     def analyse_edge(self, u, v, k, data):
         e1 = Validator.validate_edge_properties(u, v, data, self.required_edge_properties)
-        e2 = Validator.validate_edge_property_types(u, v, data)
+        e2 = Validator.validate_edge_property_types(u, v, data, toolkit=self.validating_toolkit)
         e3 = Validator.validate_edge_property_values(u, v, data)
-        e4 = Validator.validate_edge_predicate(u, v, data)
+        e4 = Validator.validate_edge_predicate(u, v, data, toolkit=self.validating_toolkit)
         return e1 + e2 + e3 + e4
 
     @staticmethod
@@ -205,9 +222,14 @@ class Validator(object):
         return prefixes
     
     @staticmethod
-    def get_required_node_properties() -> list:
+    def get_required_node_properties(toolkit: Optional[Toolkit] = None) -> list:
         """
         Get all properties for a node that are required, as defined by Biolink Model.
+
+        Parameters
+        ----------
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -215,7 +237,8 @@ class Validator(object):
             A list of required node properties
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         node_properties = toolkit.get_all_node_properties()
         required_properties = []
         for p in node_properties:
@@ -230,9 +253,14 @@ class Validator(object):
         return required_properties
     
     @staticmethod
-    def get_required_edge_properties() -> list:
+    def get_required_edge_properties(toolkit: Optional[Toolkit] = None) -> list:
         """
         Get all properties for an edge that are required, as defined by Biolink Model.
+
+        Parameters
+        ----------
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -240,7 +268,8 @@ class Validator(object):
             A list of required edge properties
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         edge_properties = toolkit.get_all_edge_properties()
         required_properties = []
         for p in edge_properties:
@@ -402,7 +431,7 @@ class Validator(object):
         return errors
     
     @staticmethod
-    def validate_node_property_types(node: str, data: dict) -> list:
+    def validate_node_property_types(node: str, data: dict, toolkit: Optional[Toolkit] = None) -> list:
         """
         Checks if node properties have the expected value type.
 
@@ -412,6 +441,8 @@ class Validator(object):
             Node identifier
         data: dict
             Node properties
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -419,7 +450,8 @@ class Validator(object):
             A list of errors for a given node
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         errors = []
         error_type = ErrorType.INVALID_NODE_PROPERTY_VALUE_TYPE
         if not isinstance(node, str):
@@ -471,7 +503,7 @@ class Validator(object):
         return errors
     
     @staticmethod
-    def validate_edge_property_types(subject: str, object: str, data: dict) -> list:
+    def validate_edge_property_types(subject: str, object: str, data: dict, toolkit: Optional[Toolkit] = None) -> list:
         """
         Checks if edge properties have the expected value type.
 
@@ -483,6 +515,8 @@ class Validator(object):
             Object identifier
         data: dict
             Edge properties
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -490,7 +524,8 @@ class Validator(object):
             A list of errors for a given edge
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         errors = []
         error_type = ErrorType.INVALID_EDGE_PROPERTY_VALUE_TYPE
         if not isinstance(subject, str):
@@ -659,7 +694,7 @@ class Validator(object):
         return errors
     
     @staticmethod
-    def validate_categories(node: str, data: dict) -> list:
+    def validate_categories(node: str, data: dict, toolkit: Optional[Toolkit] = None) -> list:
         """
         Validate ``category`` field of a given node.
 
@@ -669,6 +704,8 @@ class Validator(object):
             Node identifier
         data: dict
             Node properties
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -676,7 +713,8 @@ class Validator(object):
             A list of errors for a given node
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         error_type = ErrorType.INVALID_CATEGORY
         errors = []
         categories = data.get('category')
@@ -714,7 +752,7 @@ class Validator(object):
         return errors
     
     @staticmethod
-    def validate_edge_predicate(subject: str, object: str, data: dict) -> list:
+    def validate_edge_predicate(subject: str, object: str, data: dict, toolkit: Optional[Toolkit] = None) -> list:
         """
         Validate ``edge_predicate`` field of a given edge.
 
@@ -726,6 +764,8 @@ class Validator(object):
             Object identifier
         data: dict
             Edge properties
+        toolkit: Optional[Toolkit]
+            Optional externally provided toolkit (default: use Validator class defined toolkit)
 
         Returns
         -------
@@ -733,7 +773,8 @@ class Validator(object):
             A list of errors for a given edge
 
         """
-        toolkit = Validator.get_toolkit()
+        if not toolkit:
+            toolkit = Validator.get_toolkit()
         error_type = ErrorType.INVALID_EDGE_PREDICATE
         errors = []
         edge_predicate = data.get('predicate')

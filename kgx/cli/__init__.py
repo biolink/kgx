@@ -62,6 +62,12 @@ def cli():
 )
 @click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
+    '--graph-name',
+    '-n',
+    required=False,
+    help="User specified name of graph being summarized (default: 'Graph')"
+)
+@click.option(
     '--node-facet-properties',
     required=False,
     multiple=True,
@@ -94,11 +100,12 @@ def graph_summary_wrapper(
     report_type: str,
     report_format: str,
     stream: bool,
+    graph_name: str,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
     error_log: str = '',
     infores_rewrite: Optional[Tuple] = None
-) -> Dict:
+):
     """
     Loads and summarizes a knowledge graph from a set of input files.
     \f
@@ -119,23 +126,20 @@ def graph_summary_wrapper(
         The summary report format file types: 'yaml' or 'json'  (default is report_type specific)
     stream: bool
         Whether to parse input as a stream
+    graph_name: str
+        User specified name of graph being summarize
     node_facet_properties: Optional[Set]
         A list of node properties from which to generate counts per value for those properties.
         For example, ``['provided_by']``
     edge_facet_properties: Optional[Set]
         A list of edge properties from which to generate counts per value for those properties.
-        For example, ``['provided_by']``
+        For example, ``['knowledge_source']``d
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
     infores_rewrite: Optional[Tuple]
             Optional argument is a Tuple value.  The presence of a Tuple signals an
             InfoRes rewrite of the knowledge source field values of node and edge data records.
             Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
-
-    Returns
-    -------
-    Dict
-        A dictionary with the graph stats
     """
     graph_summary(
         inputs,
@@ -145,6 +149,7 @@ def graph_summary_wrapper(
         report_type,
         report_format,
         stream,
+        graph_name,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
         error_log=error_log,
