@@ -86,9 +86,10 @@ def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
     
     t = Transformer()
     mkg = MetaKnowledgeGraph(
-        # substitute anything inside (and including the) parentheses with Monarch' (but will be lowercased)
+        # substitute anything inside (and including the)
+        # parentheses with Monarch' (but will be lower cased)
         edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=(True, r"\(.+\)", "Monarch")
+        infores_rewrite=(r"\(.+\)", "Monarch")
     )
     t.transform(input_args=input_args, inspector=mkg)
     
@@ -152,7 +153,7 @@ def test_meta_knowledge_graph_infores_simple_prefix_rewrite():
         # Delete anything inside (and including the) parentheses
         # then but then add a prefix 'Monarch' (but will be lower cased)
         edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=("", "", "Fixed")
+        infores_rewrite=(r"", "", "Fixed")
     )
     t.transform(input_args=input_args, inspector=mkg)
     
@@ -197,7 +198,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert mkg.get_name() == 'Test Graph - Streamed'
     assert mkg.get_total_nodes_count() == 512
     assert mkg.get_number_of_categories() == 8
-    assert mkg.get_total_edges_count() == 540
+    assert mkg.get_total_edges_count() == 539
     assert mkg.get_edge_mapping_count() == 13
     assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
     assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()

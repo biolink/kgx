@@ -57,7 +57,7 @@ def test_graph_summary1():
     assert summary_stats['node_stats']['total_nodes'] == 512
     assert 'biolink:Gene' in summary_stats['node_stats']['node_categories']
     assert 'biolink:Disease' in summary_stats['node_stats']['node_categories']
-    assert summary_stats['edge_stats']['total_edges'] == 540
+    assert summary_stats['edge_stats']['total_edges'] == 539
     assert 'biolink:has_phenotype' in summary_stats['edge_stats']['predicates']
     assert 'biolink:interacts_with' in summary_stats['edge_stats']['predicates']
 
@@ -86,7 +86,7 @@ def test_graph_summary2a():
     assert 'nodes' in summary_stats
     assert 'edges' in summary_stats
     assert 'name' in summary_stats
-    assert summary_stats['name']  == 'Default Meta-Knowledge-Graph'
+    assert summary_stats['name'] == 'Default Meta-Knowledge-Graph'
 
 
 def test_graph_summary2b():
@@ -197,7 +197,7 @@ def test_neo4j_upload(clean_slate):
         stream=False,
     )
     assert t.store.graph.number_of_nodes() == 512
-    assert t.store.graph.number_of_edges() == 532
+    assert t.store.graph.number_of_edges() == 531
 
 
 @pytest.mark.skip()
@@ -258,7 +258,7 @@ def test_transform1():
     assert 'nodes' in data
     assert 'edges' in data
     assert len(data['nodes']) == 512
-    assert len(data['edges']) == 532
+    assert len(data['edges']) == 531
 
 
 def test_transform2():
