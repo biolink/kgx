@@ -25,7 +25,7 @@ class TrapiSource(JsonSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
+        provenance: Optional[Dict[str, str]] = None,
         **kwargs: Any
     ) -> Generator:
         """

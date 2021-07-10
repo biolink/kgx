@@ -94,13 +94,13 @@ def test_transform_filters1(query):
 @pytest.mark.parametrize(
     'query',
     [
-        ({}, {}, 512, 532),
-        ({'category': {'biolink:Gene'}}, {}, 178, 178),
+        ({}, {}, 512, 531),
+        ({'category': {'biolink:Gene'}}, {}, 178, 177),
         (
             {'category': {'biolink:Gene'}},
             {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}},
             178,
-            178,
+            177,
         ),
         (
             {'category': {'biolink:Gene'}},
@@ -110,7 +110,7 @@ def test_transform_filters1(query):
                 'predicate': {'biolink:orthologous_to'},
             },
             178,
-            13,
+            12,
         ),
         ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
         ({}, {'knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
@@ -339,7 +339,11 @@ def test_rdf_transform3():
     """
     Test parsing an RDF N-triple and round-trip.
     """
-    input_args1 = {'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')], 'format': 'nt'}
+    input_args1 = {
+        'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')],
+        'format': 'nt',
+        'knowledge_source': 'Test Dataset'
+    }
     t1 = Transformer()
     t1.transform(input_args1)
     assert t1.store.graph.number_of_nodes() == 2
@@ -401,6 +405,7 @@ def test_rdf_transform4():
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt')],
         'format': 'nt',
         'node_property_predicates': node_property_predicates,
+        'knowledge_source': 'Test Dataset'
     }
     t1 = Transformer()
     t1.transform(input_args1)
