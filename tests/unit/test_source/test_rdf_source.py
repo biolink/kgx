@@ -53,7 +53,10 @@ def test_read_nt2():
     s = RdfSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'),
-        provenance={'knowledge_source': "Test Dataset"}
+        provenance={
+            'provided_by': "Test Dataset",
+            'knowledge_source': "Test Dataset"
+        }
     )
     nodes, edges = process_stream(g)
     assert len(nodes) == 2
@@ -303,15 +306,15 @@ def test_read_nt6():
             {
                 'id': 'ABC:123',
                 'category': ['biolink:NamedThing'],
-                'knowledge_source': 'test'
+                'provided_by': 'test1'
             },
             {
                 'id': 'DEF:456',
                 'category': ('biolink:NamedThing', 'biolink:Gene'),
-                'knowledge_source': 'test',
+                'provided_by': 'test2',
             },
             {'category': ['biolink:NamedThing', 'biolink:Gene']},
-            {'knowledge_source': ['test']},
+            {'provided_by': ['test1', 'test2']},
         ),
         (
             {
@@ -341,7 +344,7 @@ def test_read_nt6():
                 'predicate': 'biolink:has_phenotype',
                 'id': 'bfada868a8309f2b7849',
                 'type': 'OBAN:association',
-                'source': 'Orphanet:331206',
+                'knowledge_source': 'Orphanet:331206',
             },
             {
                 'subject': 'Orphanet:331206',
@@ -350,10 +353,10 @@ def test_read_nt6():
                 'predicate': 'biolink:has_phenotype',
                 'id': 'bfada868a8309f2b7849',
                 'type': 'OBAN:association',
-                'source': 'Orphanet:331206',
+                'knowledge_source': 'Orphanet:331206',
             },
             {},
-            {'source': ['Orphanet:331206', 'Orphanet:331206']},
+            {'knowledge_source': ['Orphanet:331206', 'Orphanet:331206']},
         ),
     ],
 )

@@ -5,6 +5,7 @@ import rdflib
 from linkml_runtime.linkml_model.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
+from kgx import KS_SLOTS
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.parsers.ntriples_parser import CustomNTriplesParser
@@ -178,8 +179,10 @@ class RdfSource(Source):
                 data['category'] = ["biolink:NamedThing"]
             data = validate_node(data)
             data = sanitize_import(data)
+
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
+
             if self.check_node_filter(data):
                 self.node_properties.update(data.keys())
                 yield k, data
@@ -189,8 +192,15 @@ class RdfSource(Source):
             data = self.edge_cache[k]
             data = validate_edge(data)
             data = sanitize_import(data)
+
             if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
                 data['provided_by'] = self.graph_metadata['provided_by']
+
+            # Biolink 2.0 'knowledge source' association slot provenance for edges
+            for ksf in KS_SLOTS:
+                if ksf not in data.keys() and ksf in self.graph_metadata:
+                    data[ksf] = self.graph_metadata[ksf]
+
             if self.check_edge_filter(data):
                 self.edge_properties.update(data.keys())
                 yield k[0], k[1], k[2], data
