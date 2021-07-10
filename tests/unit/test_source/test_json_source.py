@@ -40,7 +40,13 @@ def test_read_json2():
     This test also supplies the provided_by parameter.
     """
     s = JsonSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid.json'), provenance={'knowledge_source': 'Test JSON'})
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'valid.json'),
+        provenance={
+            'provided_by': 'Test JSON',
+            'knowledge_source': 'Test JSON'
+        }
+    )
     nodes = {}
     edges = {}
     for rec in g:

@@ -12,7 +12,10 @@ def test_read_owl1():
     s = OwlSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
-        provenance={'knowledge_source': "GO slim generic"}
+        provenance={
+            'provided_by': "GO slim generic",
+            'knowledge_source': "GO slim generic"
+        }
     )
     nodes = {}
     edges = {}
@@ -59,7 +62,10 @@ def test_read_owl2():
     s = OwlSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'goslim_generic.owl'),
-        provenance={'knowledge_source': "GO slim generic"}
+        provenance={
+            'provided_by': "GO slim generic",
+            'knowledge_source': "GO slim generic"
+        }
     )
     nodes = {}
     edges = {}

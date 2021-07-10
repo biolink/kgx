@@ -23,7 +23,7 @@ class JsonlSource(JsonSource):
         filename: str,
         format: str = 'jsonl',
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
+        provenance: Optional[Dict[str, str]] = None,
         **kwargs: Any,
     ) -> Generator:
         """

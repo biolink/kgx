@@ -42,7 +42,13 @@ def test_read_jsonl2():
     This test also supplies the knowledge_source parameter.
     """
     s = JsonlSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),  provenance={'knowledge_source': 'Test JSON'})
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),
+        provenance={
+            'provided_by': 'Test JSON',
+            'knowledge_source': 'Test JSON'
+    }
+    )
     nodes = {}
     for rec in g:
         if rec:
@@ -50,7 +56,10 @@ def test_read_jsonl2():
 
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'),
-        provenance={'knowledge_source': 'Test JSON'}
+        provenance={
+            'provided_by': 'Test JSON',
+            'knowledge_source': 'Test JSON'
+        }
     )
     edges = {}
     for rec in g:
