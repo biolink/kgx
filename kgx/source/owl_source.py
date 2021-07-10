@@ -3,6 +3,7 @@ from typing import Set, Optional, Generator, Any, Dict
 import rdflib
 from rdflib import Namespace, URIRef, OWL, RDFS, RDF
 
+from kgx import KS_SLOTS
 from kgx.config import get_logger
 from kgx.source import RdfSource
 from kgx.utils.kgx_utils import (
@@ -186,8 +187,10 @@ class OwlSource(RdfSource):
         for k, data in self.node_cache.items():
             node_data = validate_node(data)
             node_data = sanitize_import(node_data)
+
             if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
                 node_data['provided_by'] = self.graph_metadata['provided_by']
+
             if self.check_node_filter(node_data):
                 yield k, node_data
         self.node_cache.clear()
@@ -195,8 +198,12 @@ class OwlSource(RdfSource):
         for k, data in self.edge_cache.items():
             edge_data = validate_edge(data)
             edge_data = sanitize_import(edge_data)
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+
+            # Biolink 2.0 'knowledge source' association slot provenance for edges
+            for ksf in KS_SLOTS:
+                if ksf not in edge_data.keys() and ksf in self.graph_metadata:
+                    edge_data[ksf] = self.graph_metadata[ksf]
+
             if self.check_edge_filter(edge_data):
                 yield k[0], k[1], k[2], edge_data
         self.edge_cache.clear()
