@@ -137,7 +137,7 @@ def _stream_transform(query):
                 'node_filters': {'category': {'biolink:Gene'}},
             },
             {'filename': os.path.join(TARGET_DIR, 'graph4'), 'format': 'jsonl'},
-            177,
+            178,
             177,
         ),
         (
@@ -151,7 +151,7 @@ def _stream_transform(query):
                 'edge_filters': {'predicate': {'biolink:interacts_with'}},
             },
             {'filename': os.path.join(TARGET_DIR, 'graph5'), 'format': 'jsonl'},
-            177,
+            178,
             165,
         ),
         (
@@ -192,19 +192,19 @@ def test_transform1(query):
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'knowledge_source'],
             },
             512,
-            531,
+            532,
         ),
         (
             {'filename': [os.path.join(RESOURCE_DIR, 'graph.json')], 'format': 'json'},
             {'filename': os.path.join(TARGET_DIR, 'graph2s2'), 'format': 'jsonl'},
             512,
-            531,
+            532,
         ),
         (
             {'filename': [os.path.join(RESOURCE_DIR, 'graph.json')], 'format': 'json'},
             {'filename': os.path.join(TARGET_DIR, 'graph3s2.nt'), 'format': 'nt'},
             512,
-            531,
+            532,
         ),
         (
             {
