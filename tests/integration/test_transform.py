@@ -341,8 +341,7 @@ def test_rdf_transform3():
     """
     input_args1 = {
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')],
-        'format': 'nt',
-        'knowledge_source': 'Test Dataset'
+        'format': 'nt'
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -387,9 +386,9 @@ def test_rdf_transform3():
         == 'This is a Test Gene 123'
     )
     assert (
-        'Test Dataset' in n1t1['knowledge_source']
-        and 'Test Dataset' in n1t2['knowledge_source']
-        and 'Test Dataset' in n1t3['knowledge_source']
+        'Test Dataset' in n1t1['provided_by']
+        and 'Test Dataset' in n1t2['provided_by']
+        and 'Test Dataset' in n1t3['provided_by']
     )
 
 
@@ -433,7 +432,7 @@ def test_rdf_transform4():
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['knowledge_source'] and 'Test Dataset' in n1t2['knowledge_source']
+    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
 
     e1t1 = list(
         t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
@@ -502,7 +501,7 @@ def test_rdf_transform5():
     assert 'biolink:NamedThing' in n1t1['category'] and 'biolink:NamedThing' in n1t2['category']
     assert n1t1['name'] == n1t2['name'] == 'Test Gene 123'
     assert n1t1['description'] == n1t2['description'] == 'This is a Test Gene 123'
-    assert 'Test Dataset' in n1t1['knowledge_source'] and 'Test Dataset' in n1t2['knowledge_source']
+    assert 'Test Dataset' in n1t1['provided_by'] and 'Test Dataset' in n1t2['provided_by']
 
     e1t1 = list(
         t1.store.graph.get_edge('ENSEMBL:ENSP0000000000001', 'ENSEMBL:ENSP0000000000002').values()
@@ -517,10 +516,12 @@ def test_rdf_transform5():
     assert e1t1['relation'] == e1t2['relation'] == 'biolink:interacts_with'
     assert e1t1['type'] == e1t2['type'] == 'biolink:Association'
     assert e1t1['id'] == e1t2['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert 'test3.nt' in e1t1['knowledge_source']
     assert e1t2['fusion'] == 0.0
     assert e1t2['homology'] == 0.0
     assert e1t2['combined_score'] == 490.0
     assert e1t2['cooccurence'] == 332.0
+    assert 'test3.nt' in e1t2['knowledge_source']
 
 
 def test_transform_inspector():
