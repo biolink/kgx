@@ -113,7 +113,7 @@ def test_transform_filters1(query):
             12,
         ),
         ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
-        ({}, {'knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
+        ({}, {'original_knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
         ({}, {'subject_category': {'biolink:Disease'}}, 56, 35),
         ({}, {'object_category': {'biolink:Disease'}}, 22, 20),
     ],
@@ -130,7 +130,7 @@ def test_transform_filters2(query):
         'format': 'tsv',
         'node_filters': query[0],
         'edge_filters': query[1],
-        'lineterminator': None,
+        'lineterminator': None
     }
     t = Transformer()
     t.transform(input_args)

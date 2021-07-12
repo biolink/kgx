@@ -193,9 +193,6 @@ class RdfSource(Source):
             data = validate_edge(data)
             data = sanitize_import(data)
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                data['provided_by'] = self.graph_metadata['provided_by']
-
             # Biolink 2.0 'knowledge source' association slot provenance for edges
             for ksf in KS_SLOTS:
                 if ksf not in data.keys() and ksf in self.graph_metadata:
