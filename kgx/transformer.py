@@ -1,8 +1,7 @@
 import itertools
 import os
-from typing import Dict, Generator, List, Optional, Callable
+from typing import Dict, Generator, List, Optional, Callable, Set
 
-from kgx import GraphEntityType, KS_SLOTS
 from kgx.config import get_logger
 from kgx.source import (
     GraphSource,
@@ -28,7 +27,7 @@ from kgx.sink import (
     NullSink
 )
 
-from kgx.utils.kgx_utils import apply_graph_operations
+from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -76,10 +75,12 @@ class Transformer(object):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
+
         self.inspector: Optional[Callable[[GraphEntityType, List], None]] = None
 
         self.store = self.get_source('graph')
         self._seen_nodes = set()
+        self._infores_catalog: Dict[str, Set[str]] = dict()
 
     def transform(
             self,
@@ -134,12 +135,11 @@ class Transformer(object):
             self.edge_filters = source.edge_filters
 
             if 'uri' in input_args:
-                self._default_provenance = input_args['uri']
+                default_provenance = input_args['uri']
             else:
-                self._default_provenance = None
-            self._capture_provenance(input_args)
+                default_provenance = None
 
-            g = source.parse(**input_args)
+            g = source.parse(default_provenance=default_provenance, **input_args)
 
             sources.append(source)
             generators.append(g)
@@ -158,10 +158,9 @@ class Transformer(object):
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
 
-                self._default_provenance = os.path.basename(f)
-                self._capture_provenance(input_args)
+                default_provenance = os.path.basename(f)
 
-                g = source.parse(f, **input_args)
+                g = source.parse(f, default_provenance=default_provenance, **input_args)
 
                 sources.append(source)
                 generators.append(g)
@@ -246,24 +245,15 @@ class Transformer(object):
             self.store.edge_properties.update(sink.edge_properties)
             apply_graph_operations(sink.graph, operations)
 
-    def _capture_provenance(self, input_args: Dict):
+        # Aggregate the InfoRes catalogs from  all sources
+        for s in sources:
+            for k, v in s.get_infores_catalog().items():
+                if k not in self._infores_catalog:
+                    self._infores_catalog[k] = set()
+                self._infores_catalog[k].update(v)
 
-        input_args['provenance'] = dict()
-
-        # Biolink 2.0 provenance fields
-        for ksf in KS_SLOTS:
-            if ksf in input_args:
-                input_args['provenance'][ksf] = input_args.pop(ksf)
-
-        # if none specified, add at least one generic 'knowledge_source'
-        if not input_args['provenance']:
-            if 'name' in input_args:
-                input_args['provenance']['provided_by'] = \
-                    input_args['provenance']['knowledge_source'] = input_args['name']
-            else:
-                if self._default_provenance:
-                    input_args['provenance']['provided_by'] = \
-                        input_args['provenance']['knowledge_source'] = self._default_provenance
+    def get_infores_catalog(self):
+        return self._infores_catalog
 
     def process(
             self,

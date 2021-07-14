@@ -156,7 +156,11 @@ def graph_summary(
     
     transformer = Transformer(stream=stream)
     transformer.transform(
-        input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+        input_args={
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression
+        },
         output_args=output_args,
         #... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
@@ -219,7 +223,11 @@ def validate(
         transformer = Transformer(stream=stream)
         
         transformer.transform(
-            input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+            input_args={
+                'filename': inputs,
+                'format': input_format,
+                'compression': input_compression
+            },
             output_args={'format': 'null'},  # streaming processing throws the graph data away
             # ... Second, we inject the Inspector into the transform() call,
             # for the underlying Transformer.process() to use...
@@ -232,7 +240,11 @@ def validate(
         transformer = Transformer()
         
         transformer.transform(
-            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+            {
+                'filename': inputs,
+                'format': input_format,
+                'compression': input_compression
+            },
         )
         
         # Slight tweak of classical 'validate' function: that the

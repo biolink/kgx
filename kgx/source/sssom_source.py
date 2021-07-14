@@ -67,7 +67,6 @@ class SssomSource(Source):
         filename: str,
         format: str,
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -81,8 +80,6 @@ class SssomSource(Source):
             The input file format (``tsv``, by default)
         compression: Optional[str]
             The compression (``gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Dict
             Any additional arguments
 
@@ -96,12 +93,12 @@ class SssomSource(Source):
             kwargs['delimiter'] = '\t'
         self.parse_header(filename, compression)
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
+        # SSSOM 'mapping provicer' may override the default 'provided_by' setting?
         if 'mapping_provider' in self.graph_metadata:
             self.graph_metadata['provided_by'] = self.graph_metadata['mapping_provider']
+
         if compression:
             FH = gzip.open(filename, 'rb')
         else:

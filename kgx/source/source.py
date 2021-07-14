@@ -1,5 +1,7 @@
-from typing import Dict, Generator, Any, Union
+from typing import Dict, Generator, Any, Union, Optional, Tuple, List, Iterable, Set
+import re
 
+from kgx.utils.kgx_utils import knowledge_provenance_properties
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
@@ -19,6 +21,8 @@ class Source(object):
         self.node_properties = set()
         self.edge_properties = set()
         self.prefix_manager = PrefixManager()
+        self.default_provenance = 'Graph'
+        self._infores_catalog: Dict[str, Set[str]] = dict()
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -31,6 +35,145 @@ class Source(object):
 
         """
         self.prefix_manager.update_prefix_map(m)
+
+    def _infores_processor(self, infores_rewrite_filter: Optional[Tuple] = None):
+        """
+
+        :param infores_rewrite_filter: Optional[Tuple]
+            Optional argument is a Tuple value. The presence of a Tuple signals an InfoRes rewrite
+            of any Biolink 2.0 compliant knowledge source field value of node and edge data records.
+            The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
+            then only a standard transformation of the field value is performed. If the Tuple has
+            an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
+            against. If there is no infores_rewrite[1] value or it is empty, then matches of the
+            infores_rewrite[0] are simply deleted from the field value prior to coercing the field
+            value into an InfoRes CURIE. Otherwise, a non-empty second string value of infores_rewrite[1]
+            is a substitution string for the regex value matched in the field. If the Tuple contains
+            a third non-empty string (as infores_rewrite[2]), then the given string is added as a prefix
+            to the InfoRes.  Whatever the transformations, unique InfoRes identifiers once generated,
+            are used in the meta_knowledge_graph and also reported using the get_infores_catalog() method.
+        :return:
+        """
+
+        # Check for non-empty infores_rewrite_filter
+        if infores_rewrite_filter:
+            _filter = re.compile(infores_rewrite_filter[0]) if infores_rewrite_filter[0] else None
+            _substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
+            _prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
+        else:
+            _filter = None
+            _substr = ''
+            _prefix = ''
+
+        def parser(sources: Optional[List[str]] = None):
+            if not sources:
+                return list(self.default_provenance)
+
+            results:  List[str] = list()
+            for source in sources:
+                if _filter:
+                    infores = _filter.sub(_substr, source)
+                else:
+                    infores = source
+                infores = _prefix + ' ' + infores
+                infores = infores.strip()
+                infores = infores.lower()
+                infores = re.sub(r"\s+", "_", infores)
+                infores = re.sub(r"[\W]", "", infores)
+                infores = re.sub(r"_", "-", infores)
+
+                if infores:
+                    if infores not in self._infores_catalog:
+                        self._infores_catalog[infores] = set()
+                    self._infores_catalog[infores].add(source)
+
+                    results.append(infores)
+
+            return results
+
+        return parser
+
+    @staticmethod
+    def _infores_default(default=None):
+        def default_value(sources: List[str] = None):
+            if not default:
+                return list()
+            if not sources:
+                return [default]
+            else:
+                return sources
+        return default_value
+
+    def set_provenance_map(self, kwargs: Dict):
+
+        if 'default_provenance' in kwargs:
+            self.default_provenance = kwargs.pop('default_provenance')
+
+        # Biolink 2.0 provenance 'knowledge_source' derived fields
+        ksf_found = False
+        for ksf in knowledge_provenance_properties:
+            if ksf in kwargs:
+                if not ksf_found:
+                    ksf_found = ksf  # save the first one found, for later
+                ksf_value = kwargs.pop(ksf)
+                if isinstance(ksf_value, str):
+                    ksf_value = ksf_value.strip()
+                    if ksf_value.lower() == 'true':
+                        self.graph_metadata[ksf] = self._infores_processor()
+                    elif ksf_value.lower() == 'false':
+                        self.graph_metadata[ksf] = self._infores_default()  # source suppressed
+                    else:
+                        self.graph_metadata[ksf] = self._infores_default(ksf_value)
+                elif isinstance(ksf_value, bool):
+                    if ksf_value:
+                        self.graph_metadata[ksf] = self._infores_processor()
+                    else:  # false, ignore this source?
+                        self.graph_metadata[ksf] = self._infores_default()  # source suppressed
+                elif isinstance(ksf_value, tuple):
+                    self.graph_metadata[ksf] = self._infores_processor(ksf_value)
+
+        # if none specified, add at least one generic 'knowledge_source'
+        if not ksf_found:
+            if 'name' in kwargs:
+                self.graph_metadata['knowledge_source'] = self._infores_default(kwargs['name'])
+            else:
+                self.graph_metadata['knowledge_source'] = self._infores_default(self.default_provenance)
+            ksf_found = 'knowledge_source'  # knowledge source field 'ksf' is set, one way or another
+
+        # TODO: better to lobby the team to totally deprecated this, even for Nodes?
+        if 'provided_by' not in self.graph_metadata:
+            self.graph_metadata['provided_by'] = self.graph_metadata[ksf_found]
+
+    def set_provenance(self, ksf: str, data: Dict):
+        if ksf not in data.keys():
+            if ksf in self.graph_metadata:
+                data[ksf] = self.graph_metadata[ksf]()  # get default ksf value?
+            else:
+                data[ksf] = [self.default_provenance]
+        else:  # valid data value but... possible InfoRes rewrite?
+            if isinstance(data[ksf], Iterable):
+                sources = list(data[ksf])
+            else:
+                sources = [data[ksf]]
+            if ksf in self.graph_metadata:
+                data[ksf] = self.graph_metadata[ksf](sources)
+            else:  # leave data intact?
+                data[ksf] = sources
+
+        # ignore if again empty at this point
+        if not data[ksf]:
+            data.pop(ksf)
+
+    def set_node_provenance(self, node_data: Dict):
+        self.set_provenance('provided_by', node_data)
+
+    def set_edge_provenance(self, edge_data: Dict):
+        # Biolink 2.0 'knowledge source' association slot provenance for edges
+        for ksf in knowledge_provenance_properties:
+            self.set_provenance(ksf, edge_data)
+
+    def get_infores_catalog(self):
+        return self._infores_catalog
 
     def parse(self, **kwargs: Any) -> Generator:
         """

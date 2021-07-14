@@ -451,7 +451,7 @@ def transform_wrapper(
     output_compression: str
         The output compression typ
     stream: bool
-        Wheter or not to stream
+        Whether or not to stream
     node_filters: Tuple[str, str]
         Node input filters
     edge_filters: Tuple[str, str]

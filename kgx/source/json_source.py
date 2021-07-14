@@ -22,7 +22,6 @@ class JsonSource(TsvSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any
     ) -> Generator:
         """
@@ -36,8 +35,6 @@ class JsonSource(TsvSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -48,9 +45,7 @@ class JsonSource(TsvSource):
 
         """
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         self.compression = compression
         n = self.read_nodes(filename)

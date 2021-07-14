@@ -5,7 +5,6 @@ import rdflib
 from linkml_runtime.linkml_model.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
-from kgx import KS_SLOTS
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.parsers.ntriples_parser import CustomNTriplesParser
@@ -123,7 +122,6 @@ class RdfSource(Source):
         filename: str,
         format: str = 'nt',
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -143,8 +141,6 @@ class RdfSource(Source):
             The format (``nt``)
         compression: Optional[str]
             The compression type (``gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -156,9 +152,7 @@ class RdfSource(Source):
         """
         p = CustomNTriplesParser(self)
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         if compression == 'gz':
             yield from p.parse(gzip.open(filename, 'rb'))
@@ -171,36 +165,34 @@ class RdfSource(Source):
             self.dereify(n, data)
 
         for k in self.node_cache.keys():
-            data = self.node_cache[k]
-            if 'category' in data:
-                if 'biolink:NamedThing' not in set(data['category']):
-                    data['category'].append('biolink:NamedThing')
+            node_data = self.node_cache[k]
+            if 'category' in node_data:
+                if 'biolink:NamedThing' not in set(node_data['category']):
+                    node_data['category'].append('biolink:NamedThing')
             else:
-                data['category'] = ["biolink:NamedThing"]
-            data = validate_node(data)
-            data = sanitize_import(data)
+                node_data['category'] = ["biolink:NamedThing"]
+            node_data = validate_node(node_data)
+            node_data = sanitize_import(node_data)
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                data['provided_by'] = self.graph_metadata['provided_by']
+            self.set_node_provenance(node_data)
 
-            if self.check_node_filter(data):
-                self.node_properties.update(data.keys())
-                yield k, data
+            if self.check_node_filter(node_data):
+                self.node_properties.update(node_data.keys())
+                yield k, node_data
+
         self.node_cache.clear()
 
         for k in self.edge_cache.keys():
-            data = self.edge_cache[k]
-            data = validate_edge(data)
-            data = sanitize_import(data)
+            edge_data = self.edge_cache[k]
+            edge_data = validate_edge(edge_data)
+            edge_data = sanitize_import(edge_data)
 
-            # Biolink 2.0 'knowledge source' association slot provenance for edges
-            for ksf in KS_SLOTS:
-                if ksf not in data.keys() and ksf in self.graph_metadata:
-                    data[ksf] = self.graph_metadata[ksf]
+            self.set_edge_provenance(edge_data)
 
-            if self.check_edge_filter(data):
-                self.edge_properties.update(data.keys())
-                yield k[0], k[1], k[2], data
+            if self.check_edge_filter(edge_data):
+                self.edge_properties.update(edge_data.keys())
+                yield k[0], k[1], k[2], edge_data
+
         self.edge_cache.clear()
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:

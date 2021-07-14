@@ -13,7 +13,7 @@ def test_read_obograph1():
     s = ObographSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
-        provenance={'knowledge_source': "GO slim generic"}
+        knowledge_source="GO slim generic"
     )
     nodes = {}
     edges = {}
@@ -61,10 +61,8 @@ def test_read_jsonl2():
     s = ObographSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
-        provenance={
-            'provided_by': 'GO slim generic',
-            'knowledge_source': 'GO slim generic'
-        }
+        provided_by='GO slim generic',
+        knowledge_source='GO slim generic'
     )
     nodes = {}
     edges = {}

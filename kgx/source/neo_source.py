@@ -41,7 +41,6 @@ class NeoSource(Source):
         end: int = None,
         is_directed: bool = True,
         page_size: int = 50000,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -68,8 +67,6 @@ class NeoSource(Source):
             Whether or not the edges should be treated as directed
         page_size: int
             The size of each page/batch fetched from Neo4j (``50000``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -81,9 +78,7 @@ class NeoSource(Source):
         """
         self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         kwargs['is_directed'] = is_directed
         self.node_filters = node_filters
@@ -283,8 +278,9 @@ class NeoSource(Source):
         self.node_count += 1
         # TODO: remove the seen_nodes
         self.seen_nodes.add(node['id'])
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in node.keys():
-            node['provided_by'] = self.graph_metadata['provided_by']
+
+        self.set_node_provenance(node)
+
         node = validate_node(node)
         node = sanitize_import(node.copy())
         self.node_properties.update(node.keys())

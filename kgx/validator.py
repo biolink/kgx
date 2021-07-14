@@ -6,15 +6,13 @@ import click
 import validators
 from bmt import Toolkit
 
-from kgx import GraphEntityType
-
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
     get_toolkit,
     snakecase_to_sentencecase,
     sentencecase_to_snakecase,
-    camelcase_to_sentencecase,
+    camelcase_to_sentencecase, GraphEntityType,
 )
 from kgx.prefix_manager import PrefixManager
 

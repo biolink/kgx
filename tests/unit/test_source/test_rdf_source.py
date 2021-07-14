@@ -53,10 +53,8 @@ def test_read_nt2():
     s = RdfSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'),
-        provenance={
-            'provided_by': "Test Dataset",
-            'knowledge_source': "Test Dataset"
-        }
+        provided_by="Test Dataset",
+        knowledge_source="Test Dataset"
     )
     nodes, edges = process_stream(g)
     assert len(nodes) == 2

@@ -3,7 +3,7 @@ import os
 from sys import stderr
 from typing import List, Dict
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph_operations.meta_knowledge_graph import generate_meta_knowledge_graph, MetaKnowledgeGraph
 from kgx.transformer import Transformer
 
@@ -38,137 +38,6 @@ def test_generate_classical_meta_knowledge_graph():
     assert data['nodes']['biolink:Gene']['count'] == 178
     assert len(data['nodes']) == 8
     assert len(data['edges']) == 13
-
-
-def test_meta_knowledge_graph_infores_parser_deletion_rewrite():
-    input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
-        ],
-        'format': 'tsv',
-    }
-    mkg = MetaKnowledgeGraph(
-        # deletes anything inside (and including the) parentheses
-        edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=(r"\(.+\)", '')
-    )
-    t = Transformer()
-    t.transform(input_args=input_args, inspector=mkg)
-    
-    gene_category = mkg.get_category('biolink:Gene')
-    assert gene_category.get_count() == 1
-    ccbs = gene_category.get_count_by_source()
-    assert len(ccbs) == 1
-    assert "flybase" in ccbs['provided_by']
-    
-    ecbs = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
-        facet='aggregator_knowledge_source'
-    )
-    assert len(ecbs) == 1
-    assert "gene-ontology" in ecbs
-    
-    irc = mkg.get_infores_catalog()
-    assert len(irc) == 2
-    assert "gene-ontology" in irc
-    assert "Gene Ontology (Monarch version 202012)" in irc['gene-ontology']
-    
-
-def test_meta_knowledge_graph_infores_parser_substitution_rewrite():
-    input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
-        ],
-        'format': 'tsv'
-    }
-    
-    t = Transformer()
-    mkg = MetaKnowledgeGraph(
-        # substitute anything inside (and including the)
-        # parentheses with Monarch' (but will be lower cased)
-        edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=(r"\(.+\)", "Monarch")
-    )
-    t.transform(input_args=input_args, inspector=mkg)
-    
-    gene_category = mkg.get_category('biolink:Gene')
-    assert gene_category.get_count() == 1
-    ccbs = gene_category.get_count_by_source()
-    assert len(ccbs) == 1
-    assert "flybase-monarch" in ccbs['provided_by']
-    
-    ecbs = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
-        facet='aggregator_knowledge_source'
-    )
-    assert len(ecbs) == 1
-    assert "gene-ontology-monarch" in ecbs
-
-
-def test_meta_knowledge_graph_infores_parser_prefix_rewrite():
-    input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
-        ],
-        'format': 'tsv',
-    }
-    
-    t = Transformer()
-    mkg = MetaKnowledgeGraph(
-        # Delete anything inside (and including the) parentheses
-        # then but then add a prefix 'Monarch' (but will be lower cased)
-        edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=(r"\(.+\)", "", "Monarch")
-    )
-    t.transform(input_args=input_args, inspector=mkg)
-    
-    gene_category = mkg.get_category('biolink:Gene')
-    assert gene_category.get_count() == 1
-    ccbs = gene_category.get_count_by_source()
-    assert len(ccbs) == 1
-    assert "monarch-flybase" in ccbs['provided_by']
-    
-    ecbs = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
-        facet='aggregator_knowledge_source'
-    )
-    assert len(ecbs) == 1
-    assert "monarch-gene-ontology" in ecbs
-
-
-def test_meta_knowledge_graph_infores_simple_prefix_rewrite():
-    input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
-        ],
-        'format': 'tsv',
-    }
-    
-    t = Transformer()
-    mkg = MetaKnowledgeGraph(
-        # Delete anything inside (and including the) parentheses
-        # then but then add a prefix 'Monarch' (but will be lower cased)
-        edge_facet_properties=['aggregator_knowledge_source'],
-        infores_rewrite=(r"", "", "Fixed")
-    )
-    t.transform(input_args=input_args, inspector=mkg)
-    
-    gene_category = mkg.get_category('biolink:Gene')
-    assert gene_category.get_count() == 1
-    ccbs = gene_category.get_count_by_source()
-    assert len(ccbs) == 1
-    assert "fixed-flybase-monarch-version-202012" in ccbs['provided_by']
-    
-    ecbs = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:part_of", "biolink:CellularComponent",
-        facet='aggregator_knowledge_source'
-    )
-    assert len(ecbs) == 1
-    assert "fixed-gene-ontology-monarch-version-202012" in ecbs
 
 
 def test_generate_meta_knowledge_graph_by_stream_inspector():

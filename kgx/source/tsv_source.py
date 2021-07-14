@@ -1,9 +1,8 @@
 import re
 import tarfile
-from typing import Dict, Tuple, Any, Generator, Optional, Union, List
+from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
-from kgx import KS_SLOTS
 from kgx.config import get_logger
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
@@ -11,7 +10,6 @@ from kgx.utils.kgx_utils import (
     generate_edge_key,
     extension_types,
     archive_read_mode,
-    remove_null,
     sanitize_import,
     validate_edge,
     validate_node,
@@ -58,7 +56,6 @@ class TsvSource(Source):
         filename: str,
         format: str,
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -72,8 +69,6 @@ class TsvSource(Source):
             The format (``tsv``, ``csv``)
         compression: Optional[str]
             The compression type (``tar``, ``tar.gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -93,9 +88,7 @@ class TsvSource(Source):
 
         mode = archive_read_mode[compression] if compression in archive_read_mode else None
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         if format == 'tsv':
             kwargs['quoting'] = 3  # type: ignore
@@ -219,8 +212,7 @@ class TsvSource(Source):
 
             n = node_data['id']
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+            self.set_node_provenance(node_data)
 
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
@@ -269,10 +261,7 @@ class TsvSource(Source):
         s = edge_data['subject']
         o = edge_data['object']
 
-        # Biolink 2.0 'knowledge source' association slot provenance for edges
-        for ksf in KS_SLOTS:
-            if ksf not in edge_data.keys() and ksf in self.graph_metadata:
-                edge_data[ksf] = self.graph_metadata[ksf]
+        self.set_edge_provenance(edge_data)
 
         key = generate_edge_key(s, edge_data['predicate'], o)
         self.edge_properties.update(list(edge_data.keys()))

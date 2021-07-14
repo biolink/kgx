@@ -42,10 +42,8 @@ def test_read_json2():
     s = JsonSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'valid.json'),
-        provenance={
-            'provided_by': 'Test JSON',
-            'knowledge_source': 'Test JSON'
-        }
+        provided_by='Test JSON',
+        knowledge_source='Test JSON'
     )
     nodes = {}
     edges = {}

@@ -1,11 +1,10 @@
 from itertools import chain
 from typing import Generator, Any, Dict, Optional
 
-from kgx import KS_SLOTS
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import
+from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import, knowledge_provenance_properties
 
 
 class GraphSource(Source):
@@ -23,7 +22,6 @@ class GraphSource(Source):
     def parse(
             self,
             graph: BaseGraph,
-            provenance: Optional[Dict[str, str]] = None,
             **kwargs: Any
     ) -> Generator:
         """
@@ -33,8 +31,6 @@ class GraphSource(Source):
         ----------
         graph: kgx.graph.base_graph.BaseGraph
             The graph to read from
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -46,9 +42,7 @@ class GraphSource(Source):
         """
         self.graph = graph
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         nodes = self.read_nodes()
         edges = self.read_edges()
@@ -92,7 +86,7 @@ class GraphSource(Source):
             edge_data = sanitize_import(edge_data.copy())
 
             # Biolink 2.0 'knowledge source' association slot provenance for edges
-            for ksf in KS_SLOTS:
+            for ksf in knowledge_provenance_properties:
                 if ksf not in edge_data.keys() and ksf in self.graph_metadata:
                     edge_data[ksf] = self.graph_metadata[ksf]
 

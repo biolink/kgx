@@ -66,7 +66,8 @@ def test_read_graph2():
     s = GraphSource()
     g = s.parse(
         graph=graph,
-        provenance={'provided_by': 'Test Graph', 'knowledge_source': 'Test Graph'}
+        provided_by='Test Graph',
+        knowledge_source='Test Graph'
     )
     nodes = {}
     edges = {}

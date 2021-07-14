@@ -2,6 +2,7 @@ import importlib
 import re
 import time
 import uuid
+from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from linkml_runtime.linkml_model.meta import (
@@ -34,16 +35,38 @@ CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
 
 LIST_DELIMITER = '|'
 
+
+class GraphEntityType(Enum):
+    GRAPH = "graph"
+    NODE = "node"
+    EDGE = "edge"
+
+
+# Biolink 2.0 "Knowledge Source" association slots,
+# including the deprecated 'provided_by' slot
+
+provenance_slot_types = {
+    'knowledge_source': list,
+    'primary_knowledge_source': list,
+    'original_knowledge_source': list,
+    'aggregator_knowledge_source': list,
+    'supporting_data_source': list,
+    'provided_by': list,
+}
+
 column_types = {
     'publications': list,
     'qualifiers': list,
     'category': list,
     'synonym': list,
-    'provided_by': list,
     'same_as': list,
     'negated': bool,
     'xrefs': list,
 }
+
+column_types.update(provenance_slot_types)
+
+knowledge_provenance_properties = provenance_slot_types.keys()
 
 extension_types = {'csv': ',', 'tsv': '\t', 'csv:neo4j': ',', 'tsv:neo4j': '\t'}
 

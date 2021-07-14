@@ -41,10 +41,8 @@ def test_read_trapi_json2():
     s = TrapiSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'rsa_sample.json'),
-        provenance={
-            'provided_by': "Test TRAPI JSON",
-            'knowledge_source': "Test TRAPI JSON"
-        }
+        provided_by="Test TRAPI JSON",
+        knowledge_source="Test TRAPI JSON"
     )
     nodes = {}
     edges = {}

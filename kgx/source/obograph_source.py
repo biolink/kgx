@@ -32,7 +32,6 @@ class ObographSource(JsonSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        provenance: Dict[str, str] = dict(),
         **kwargs: Any,
     ) -> Generator:
         """
@@ -46,8 +45,6 @@ class ObographSource(JsonSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -57,9 +54,7 @@ class ObographSource(JsonSource):
             A generator for records
 
         """
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         n = self.read_nodes(filename, compression)
         e = self.read_edges(filename, compression)

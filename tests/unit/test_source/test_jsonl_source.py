@@ -44,10 +44,8 @@ def test_read_jsonl2():
     s = JsonlSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),
-        provenance={
-            'provided_by': 'Test JSON',
-            'knowledge_source': 'Test JSON'
-    }
+        provided_by='Test JSON',
+        knowledge_source='Test JSON'
     )
     nodes = {}
     for rec in g:
@@ -56,10 +54,8 @@ def test_read_jsonl2():
 
     g = s.parse(
         os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'),
-        provenance={
-            'provided_by': 'Test JSON',
-            'knowledge_source': 'Test JSON'
-        }
+        provided_by='Test JSON',
+        knowledge_source='Test JSON'
     )
     edges = {}
     for rec in g:

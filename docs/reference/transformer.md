@@ -46,15 +46,37 @@ t = Transformer(stream=True)
 t.transform(input_args=input_args, output_args=output_args)
 ```
 
+## Inspecting the Knowledge Data Flow
+
 Note that `transform` operation accepts an optional inspect _Callable_ argument which injects node/edge data stream inspection into the `Transform.process` operation of `Transform.transform` operations.  See the unit  test module [test_transformer.py](../../tests/integration/test_transform.py) for an example of usage of this callable argument. 
 
 This feature, when coupled with the `--stream` and a 'null' Transformer Sink  (i.e. `output_args = {'format': 'null'}'`), allows "just-in-time" processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.
 
-## Provenance of Edges
+## Provenance of Nodes and Edges
 
-Biolink Model 2.0 specified new [properties for edge provenance](https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance) to replace the (now deprecated) `provided_by` property.  
+Biolink Model 2.0 specified new [properties for edge provenance](https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance) to replace the (now deprecated) `provided_by` provenance property (the `provided_by` property may still be used for node annotation).  
 
-One or more of these properties may optionally be inserted as dictionary entries into the input arguments to specify default global values for these properties, to be used when a an edge lacks such such  a provenance property value. If no such global property is specified, then a default `knowledge_source` value is inferred.
+One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments to specify default global values for these properties. Such values will be used when an edge lacks an explicit provenance property. If one does not specify such a global property, then the algorithm heuristically infers and sets a default `knowledge_source` value.
+
+## InfoRes Identifier Rewriting
+
+The `provided_by` and/or `knowledge_source` _et al._ field values of KGX node and edge records generally contain a name of a knowledge source for the node or edge.  In some cases, (e.g. Monarch)  such values in source knowledge sources could be quite verbose. To normalize such names to a concise standard, the latest Biolink Model (2.*) is moving towards the use of **Information Resource** ("InfoRes") CURIE identifiers.  
+
+To help generate and document such InfoRes identifiers, the provenance property values may optionally trigger a rewrite of their knowledge source names to a candidate InfoRes, as follows:
+
+1. Setting the provenance property to a boolean **True* or  (case insensitive) string **"True"** triggers a simple reformatting of knowledge source names into lower case alphanumeric strings removing non-alphanumeric characters and replacing space delimiting words, with hyphens.
+
+1. Setting the provenance property  to a boolean **False* or (case insensitive) string **"False"** suppresses the given provenance annotation on the output graph.
+
+1. Providing a tuple with a single string argument not equal to **True**, then the string assumed to be a standard (Pythonic) regular expression to match against knowledge source names. If you do not provide any other string argument (see below), then a matching substring in the name triggers deletion of the matched patter.  The simple reformatting (as in 1 above) is then applied to the resulting string.
+
+1. Similar to 2 above, except providing a second string in the tuple which is substituted for the regular expression matched string, followed by simple reformatting.
+
+1. Providing a third string in the tuple to add a  prefix string to the name (as a separate word) of all the generated InfoRes identifiers .  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again,  the algorthm  then  applies the simple reformatting rules, but no other internal changes.
+
+The unit tests provide examples of these various rewrites, in  `tests/integration/test_transform.py`.
+
+Although not (yet) directly exposed in the KGX CLI, the catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the `Tranformer` class.
 
 ## kgx.transformer
 

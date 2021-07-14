@@ -23,7 +23,6 @@ class JsonlSource(JsonSource):
         filename: str,
         format: str = 'jsonl',
         compression: Optional[str] = None,
-        provenance: Optional[Dict[str, str]] = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -37,8 +36,6 @@ class JsonlSource(JsonSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provenance: Dict[str, str]
-            Dictionary of knowledge sources providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -49,9 +46,7 @@ class JsonlSource(JsonSource):
 
         """
 
-        if provenance:
-            for ksf in provenance.keys():
-                self.graph_metadata[ksf] = [provenance[ksf]]
+        self.set_provenance_map(kwargs)
 
         if re.search(f'nodes.{format}', filename):
             m = self.read_node

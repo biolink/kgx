@@ -7,7 +7,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 

@@ -8,7 +8,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import GraphEntityType, KS_SLOTS
+from kgx.utils.kgx_utils import GraphEntityType, knowledge_provenance_properties
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
@@ -72,34 +72,6 @@ class MetaKnowledgeGraph:
     """
     error_log = stderr
 
-    def _infores_processor(self, infores_rewrite_filter: Optional[Tuple] = tuple()):
-        # Check for non-empty infores_rewrite_filter
-        if infores_rewrite_filter:
-            self._filter = re.compile(infores_rewrite_filter[0])
-            self._substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
-        else:
-            self._filter = None
-            self._substr = ''
-        self._prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
-
-        def parser(source: str):
-            if self._filter:
-                infores = re.sub(self._filter, self._substr, source)
-            else:
-                infores = source
-            infores = self._prefix + ' ' + infores
-            infores = infores.strip()
-            infores = infores.lower()
-            infores = re.sub(r"\s+", "_", infores)
-            infores = re.sub(r"[\W]", "", infores)
-            infores = re.sub(r"_", "-", infores)
-            if infores not in self._infores_catalog:
-                self._infores_catalog[infores] = set()
-            self._infores_catalog[infores].add(source)
-            return infores
-        
-        return parser
-
     def __init__(
             self,
             name='',
@@ -107,7 +79,6 @@ class MetaKnowledgeGraph:
             edge_facet_properties: Optional[List] = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
-            infores_rewrite: Optional[Tuple] = None,
             **kwargs
     ):
         """
@@ -126,19 +97,6 @@ class MetaKnowledgeGraph:
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
             Where to write any graph processing error message (stderr, by default).
-        infores_rewrite: Optional[Tuple]
-            Optional argument is a Tuple value. The presence of a Tuple signals an InfoRes rewrite
-            of any Biolink 2.0 compliant knowledge source field value of node and edge data records.
-            The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
-            then only a standard transformation of the field value is performed. If the Tuple has
-            an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
-            against. If there is no infores_rewrite[1] value or it is empty, then matches of the
-            infores_rewrite[0] are simply deleted from the field value prior to coercing the field
-            value into an InfoRes CURIE. Otherwise, a non-empty second string value of infores_rewrite[1]
-            is a substitution string for the regex value matched in the field. If the Tuple contains
-            a third non-empty string (as infores_rewrite[2]), then the given string is added as a prefix
-            to the InfoRes.  Whatever the transformations, unique InfoRes identifiers once generated,
-            are used in the meta_knowledge_graph and also reported using the get_infores_catalog() method.
         """
         # formal args
 
@@ -162,18 +120,6 @@ class MetaKnowledgeGraph:
 
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
-
-        # Configure the InfoRes rewriting / logging mechanism, if specified
-        self.infores_parser: Optional[Callable[[str], str]] = None
-        self._infores_catalog: Dict[str, Set[str]] = dict()
-        
-        if not (infores_rewrite is None):
-            # Yes, we have a Tuple data structure, so we rewrite, but check for a regex filter
-            if len(infores_rewrite) > 0:
-                self.infores_parser = self._infores_processor(infores_rewrite)
-            else:
-                # Empty tuple just signals a basic rewrite
-                self.infores_parser = self._infores_processor()
 
         # internal attributes
         # For Nodes...
@@ -226,7 +172,6 @@ class MetaKnowledgeGraph:
     @staticmethod
     def get_facet_counts(
             facets: Optional[List],
-            infores_parser: Optional[Callable[[str], str]],
             counts_by_source: Dict,
             data: Dict
     ):
@@ -240,8 +185,6 @@ class MetaKnowledgeGraph:
                     # assume regular iterable
                     facet_values = list(data[facet])
                 for s in facet_values:
-                    if infores_parser:
-                        s = infores_parser(s)
                     if facet not in counts_by_source:
                         counts_by_source[facet] = dict()
                     if s in counts_by_source[facet]:
@@ -371,7 +314,6 @@ class MetaKnowledgeGraph:
         def _compile_category_source_stats(self, data: Dict):
             self.mkg.get_facet_counts(
                 self.mkg.node_facet_properties,
-                self.mkg.infores_parser,
                 self.category_stats['count_by_source'],
                 data
             )
@@ -512,7 +454,6 @@ class MetaKnowledgeGraph:
     def _compile_triple_source_stats(self, triple: Tuple[str, str, str], data: Dict):
         self.get_facet_counts(
             self.edge_facet_properties,
-            self.infores_parser,
             self.association_map[triple]['count_by_source'],
             data
         )
@@ -932,9 +873,6 @@ class MetaKnowledgeGraph:
             dump(stats, file, indent=4, default=mkg_default)
         else:
             yaml.dump(stats, file)
-
-    def get_infores_catalog(self):
-        return self._infores_catalog
     
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
