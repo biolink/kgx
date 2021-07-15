@@ -113,7 +113,7 @@ def test_transform_filters1(query):
             12,
         ),
         ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
-        ({}, {'original_knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
+        ({}, {'aggregator_knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
         ({}, {'subject_category': {'biolink:Disease'}}, 56, 35),
         ({}, {'object_category': {'biolink:Disease'}}, 22, 20),
     ],

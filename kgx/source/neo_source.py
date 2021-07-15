@@ -1,7 +1,7 @@
 import itertools
 from typing import Any, Dict, List, Optional, Iterator, Tuple, Generator
 
-from neo4jrestclient.client import GraphDatabase, Node, Relationship, GraphDatabase
+from neo4jrestclient.client import Node, Relationship, GraphDatabase
 from neo4jrestclient.query import CypherException
 
 from kgx.config import get_logger
@@ -12,6 +12,7 @@ from kgx.utils.kgx_utils import (
     validate_node,
     validate_edge,
     sanitize_import,
+    knowledge_provenance_properties
 )
 
 log = get_logger()
@@ -119,10 +120,11 @@ class NeoSource(Source):
                 )
             if 'predicate' in self.edge_filters:
                 qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
-            if 'provided_by' in self.edge_filters:
-                qs.append(
-                    f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})"
-                )
+            for ksf in knowledge_provenance_properties:
+                if ksf in self.edge_filters:
+                    qs.append(
+                        f"({self.format_edge_filter(self.edge_filters, ksf, 'p', '.', 'OR')})"
+                    )
             query = ' WHERE '
             query += ' AND '.join(qs)
         query += f" RETURN COUNT(*) AS count"
@@ -222,10 +224,11 @@ class NeoSource(Source):
                 )
             if 'predicate' in self.edge_filters:
                 qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
-            if 'provided_by' in self.edge_filters:
-                qs.append(
-                    f"({self.format_edge_filter(self.edge_filters, 'provided_by', 'p', '.', 'OR')})"
-                )
+            for ksf in knowledge_provenance_properties:
+                if ksf in self.edge_filters:
+                    qs.append(
+                        f"({self.format_edge_filter(self.edge_filters, ksf, 'p', '.', 'OR')})"
+                    )
             query += ' WHERE '
             query += ' AND '.join(qs)
         query += f" RETURN s, p, o SKIP {skip}"
@@ -334,8 +337,8 @@ class NeoSource(Source):
         edge = edge_record[1]
         object_node = edge_record[2]
 
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in edge.keys():
-            edge['provided_by'] = self.graph_metadata['provided_by']
+        self.set_edge_provenance(edge)
+
         if 'id' not in edge.keys():
             edge['id'] = generate_uuid()
         key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
@@ -434,9 +437,9 @@ class NeoSource(Source):
                 if key in {'category'}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in node_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key in {'provided_by'}:
+                elif key == 'provided_by':
                     formatted = [
-                        f"'{x}' IN {variable}{prefix}{key}" for x in node_filters['provided_by']
+                        f"'{x}' IN {variable}{prefix}{'provided_by'}" for x in node_filters['provided_by']
                     ]
                     value = f" {op} ".join(formatted)
                 else:
@@ -490,9 +493,9 @@ class NeoSource(Source):
                 elif key == 'predicate':
                     formatted = [f"'{x}'" for x in edge_filters['predicate']]
                     value = f"type({variable}) IN [{', '.join(formatted)}]"
-                elif key == 'provided_by':
+                elif key in knowledge_provenance_properties:
                     formatted = [
-                        f"'{x}' IN {variable}{prefix}{key}" for x in edge_filters['provided_by']
+                        f"'{x}' IN {variable}{prefix}{key}" for x in edge_filters[key]
                     ]
                     value = f" {op} ".join(formatted)
                 else:

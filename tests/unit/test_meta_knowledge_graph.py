@@ -57,7 +57,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
 
     mkg = MetaKnowledgeGraph(
         'Test Graph - Streamed',
-        edge_facet_properties=['original_knowledge_source']
+        edge_facet_properties=['aggregator_knowledge_source']
     )
 
     # We configure the Transformer with a data flow inspector
@@ -77,21 +77,22 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     gene_category.get_count_by_source()
     assert len(mkg.get_edge_count_by_source("", "", "")) == 0
     assert len(mkg.get_edge_count_by_source("biolink:Gene", "biolink:affects", "biolink:Disease")) == 0
-    ecbs = mkg.get_edge_count_by_source(
+    ecbs1 = mkg.get_edge_count_by_source(
         "biolink:Gene", "biolink:interacts_with", "biolink:Gene",
-        facet='original_knowledge_source'
+        facet='aggregator_knowledge_source'
     )
-    assert len(ecbs) == 2
-    assert "biogrid" in ecbs
-    assert "string" in ecbs
-    ecbs = mkg.get_edge_count_by_source(
+    assert len(ecbs1) == 2
+    assert "biogrid" in ecbs1
+    assert "string" in ecbs1
+
+    ecbs2 = mkg.get_edge_count_by_source(
         "biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature",
-        facet='original_knowledge_source'
+        facet='aggregator_knowledge_source'
     )
-    assert len(ecbs) == 3
-    assert "omim" in ecbs
-    assert "orphanet" in ecbs
-    assert "hpoa" in ecbs
+    assert len(ecbs2) == 3
+    assert "omim" in ecbs2
+    assert "orphanet" in ecbs2
+    assert "hpoa" in ecbs2
 
 
 #

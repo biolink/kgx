@@ -25,6 +25,7 @@ from kgx.utils.kgx_utils import (
     DEFAULT_EDGE_PREDICATE,
     CORE_NODE_PROPERTIES,
     CORE_EDGE_PROPERTIES,
+    knowledge_provenance_properties
 )
 
 log = get_logger()
@@ -64,7 +65,11 @@ class RdfSource(Source):
         self.node_property_predicates.update(
             set(self.toolkit.get_all_edge_properties(formatted=True))
         )
-        self.node_property_predicates.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
+
+        # TODO: validate expansion of the scope of this statement to include 'knowledge_source' and its descendants?
+        for ksf in knowledge_provenance_properties:
+            self.node_property_predicates.add(URIRef(self.prefix_manager.expand('biolink:'+ksf)))
+
         self.reification_types = {RDF.Statement, self.BIOLINK.Association, self.OBAN.association}
         self.reification_predicates = {
             self.BIOLINK.subject,
@@ -278,8 +283,9 @@ class RdfSource(Source):
                 data = self.edge_cache[k]
                 data = validate_edge(data)
                 data = sanitize_import(data)
-                if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                    data['provided_by'] = self.graph_metadata['provided_by']
+
+                self.set_edge_provenance(data)
+
                 if self.check_edge_filter(data):
                     self.edge_properties.update(data.keys())
                     yield k[0], k[1], k[2], data
@@ -419,8 +425,8 @@ class RdfSource(Source):
         else:
             node_data['category'] = ["biolink:NamedThing"]
 
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
-            node_data['provided_by'] = self.graph_metadata['provided_by']
+        self.set_node_provenance(node_data)
+
         self.node_cache[n] = node_data
         return node_data
 
@@ -501,8 +507,8 @@ class RdfSource(Source):
             if 'relation' not in edge_data:
                 edge_data['relation'] = predicate
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+            self.set_edge_provenance(edge_data)
+
         self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
         return edge_data
 

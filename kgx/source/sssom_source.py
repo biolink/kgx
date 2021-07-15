@@ -95,9 +95,9 @@ class SssomSource(Source):
 
         self.set_provenance_map(kwargs)
 
-        # SSSOM 'mapping provicer' may override the default 'provided_by' setting?
+        # SSSOM 'mapping provider' may override the default 'provided_by' setting?
         if 'mapping_provider' in self.graph_metadata:
-            self.graph_metadata['provided_by'] = self.graph_metadata['mapping_provider']
+            self.graph_metadata['provided_by'] = self._infores_default(self.graph_metadata['mapping_provider'])
 
         if compression:
             FH = gzip.open(filename, 'rb')
@@ -164,8 +164,9 @@ class SssomSource(Source):
         node_data = sanitize_import(node.copy())
         if 'id' in node_data:
             n = node_data['id']
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_node_provenance(node_data)
+
             self.node_properties.update(list(node_data.keys()))
             return n, node_data
         else:
@@ -253,8 +254,9 @@ class SssomSource(Source):
                 edge_data['id'] = generate_uuid()
             s = edge_data['subject']
             o = edge_data['object']
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_edge_provenance(edge_data)
+
             key = generate_edge_key(s, edge_data['predicate'], o)
             self.edge_properties.update(list(edge_data.keys()))
             objs.append((s, o, key, edge_data))

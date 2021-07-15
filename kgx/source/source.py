@@ -1,7 +1,7 @@
 from typing import Dict, Generator, Any, Union, Optional, Tuple, List, Iterable, Set
 import re
 
-from kgx.utils.kgx_utils import knowledge_provenance_properties
+from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
@@ -36,7 +36,12 @@ class Source(object):
         """
         self.prefix_manager.update_prefix_map(m)
 
-    def _infores_processor(self, infores_rewrite_filter: Optional[Tuple] = None):
+    def _infores_to_catalog(self, infores: str, source: str):
+        if infores not in self._infores_catalog:
+            self._infores_catalog[infores] = set()
+        self._infores_catalog[infores].add(source)
+
+    def _infores_processor(self, ksf, infores_rewrite_filter: Optional[Tuple] = None):
         """
 
         :param infores_rewrite_filter: Optional[Tuple]
@@ -65,44 +70,71 @@ class Source(object):
             _substr = ''
             _prefix = ''
 
-        def parser(sources: Optional[List[str]] = None):
-            if not sources:
-                return list(self.default_provenance)
+        def _process_infores(source: str) -> str:
+            if _filter:
+                infores = _filter.sub(_substr, source)
+            else:
+                infores = source
+            infores = _prefix + ' ' + infores
+            infores = infores.strip()
+            infores = infores.lower()
+            infores = re.sub(r"\s+", "_", infores)
+            infores = re.sub(r"[\W]", "", infores)
+            infores = re.sub(r"_", "-", infores)
 
+            return infores
+
+        def parser_list(sources: Optional[List[str]] = None):
+            if not sources:
+                return [self.default_provenance]
             results:  List[str] = list()
             for source in sources:
-                if _filter:
-                    infores = _filter.sub(_substr, source)
-                else:
-                    infores = source
-                infores = _prefix + ' ' + infores
-                infores = infores.strip()
-                infores = infores.lower()
-                infores = re.sub(r"\s+", "_", infores)
-                infores = re.sub(r"[\W]", "", infores)
-                infores = re.sub(r"_", "-", infores)
-
+                infores: str = _process_infores(source)
                 if infores:
-                    if infores not in self._infores_catalog:
-                        self._infores_catalog[infores] = set()
-                    self._infores_catalog[infores].add(source)
-
+                    self._infores_to_catalog(infores, source)
                     results.append(infores)
-
             return results
 
-        return parser
+        def parser_scalar(source=None):
+            if not source:
+                return self.default_provenance
+            infores: str = _process_infores(source)
+            if infores:
+                self._infores_to_catalog(infores, source)
+                return infores
+            else:
+                return None
+
+        if ksf in column_types and column_types[ksf] == list:
+            return parser_list
+        else:
+            # not sure how safe an assumption for non-list column_types, but...
+            return parser_scalar
 
     @staticmethod
-    def _infores_default(default=None):
-        def default_value(sources: List[str] = None):
+    def _infores_default(ksf, default=None):
+
+        def default_value_list(sources: List[str] = None):
             if not default:
                 return list()
             if not sources:
                 return [default]
             else:
                 return sources
-        return default_value
+
+        def default_value_scalar(source = None):
+            if not default:
+                return None
+            if not source:
+                return default
+            else:
+                return source
+
+        if ksf in column_types and column_types[ksf] == list:
+            return default_value_list
+        else:
+            # not sure how safe an assumption for non-list column_types, but...
+            return default_value_scalar
 
     def set_provenance_map(self, kwargs: Dict):
 
@@ -119,25 +151,25 @@ class Source(object):
                 if isinstance(ksf_value, str):
                     ksf_value = ksf_value.strip()
                     if ksf_value.lower() == 'true':
-                        self.graph_metadata[ksf] = self._infores_processor()
+                        self.graph_metadata[ksf] = self._infores_processor(ksf)
                     elif ksf_value.lower() == 'false':
-                        self.graph_metadata[ksf] = self._infores_default()  # source suppressed
+                        self.graph_metadata[ksf] = self._infores_default(ksf)  # source suppressed
                     else:
-                        self.graph_metadata[ksf] = self._infores_default(ksf_value)
+                        self.graph_metadata[ksf] = self._infores_default(ksf, ksf_value)
                 elif isinstance(ksf_value, bool):
                     if ksf_value:
-                        self.graph_metadata[ksf] = self._infores_processor()
+                        self.graph_metadata[ksf] = self._infores_processor(ksf)
                     else:  # false, ignore this source?
-                        self.graph_metadata[ksf] = self._infores_default()  # source suppressed
-                elif isinstance(ksf_value, tuple):
-                    self.graph_metadata[ksf] = self._infores_processor(ksf_value)
+                        self.graph_metadata[ksf] = self._infores_default(ksf)  # source suppressed
+                elif isinstance(ksf_value, (list, set, tuple)):
+                    self.graph_metadata[ksf] = self._infores_processor(ksf, infores_rewrite_filter=ksf_value)
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
             if 'name' in kwargs:
-                self.graph_metadata['knowledge_source'] = self._infores_default(kwargs['name'])
+                self.graph_metadata['knowledge_source'] = self._infores_default(ksf, kwargs['name'])
             else:
-                self.graph_metadata['knowledge_source'] = self._infores_default(self.default_provenance)
+                self.graph_metadata['knowledge_source'] = self._infores_default(ksf, self.default_provenance)
             ksf_found = 'knowledge_source'  # knowledge source field 'ksf' is set, one way or another
 
         # TODO: better to lobby the team to totally deprecated this, even for Nodes?
@@ -151,10 +183,13 @@ class Source(object):
             else:
                 data[ksf] = [self.default_provenance]
         else:  # valid data value but... possible InfoRes rewrite?
-            if isinstance(data[ksf], Iterable):
+            if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
             else:
-                sources = [data[ksf]]
+                if column_types[ksf] == list:
+                    sources = [data[ksf]]
+                else:
+                    sources = data[ksf]
             if ksf in self.graph_metadata:
                 data[ksf] = self.graph_metadata[ksf](sources)
             else:  # leave data intact?
@@ -167,10 +202,18 @@ class Source(object):
     def set_node_provenance(self, node_data: Dict):
         self.set_provenance('provided_by', node_data)
 
+    # TODO: figure out a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
-        # Biolink 2.0 'knowledge source' association slot provenance for edges
-        for ksf in knowledge_provenance_properties:
-            self.set_provenance(ksf, edge_data)
+        ksf_found = False
+        data_fields = list(edge_data.keys())
+        for ksf in data_fields:
+            if ksf in knowledge_provenance_properties:
+                ksf_found = True
+                self.set_provenance(ksf, edge_data)
+        if not ksf_found:
+            for ksf in self.graph_metadata:
+                if ksf != 'provided_by':
+                    self.set_provenance(ksf, edge_data)
 
     def get_infores_catalog(self):
         return self._infores_catalog

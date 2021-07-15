@@ -107,6 +107,7 @@ def test_validate_by_stream_inspector():
             os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
         ],
         'format': 'tsv',
+        'aggregator_knowledge_source': True
     }
 
     Validator.set_biolink_model("1.8.2")
@@ -126,4 +127,5 @@ def test_validate_by_stream_inspector():
 
     validator.write_report(stderr)
 
-    assert not validator.get_errors()
+    e = validator.get_errors()
+    assert len(e) == 0

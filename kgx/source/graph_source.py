@@ -4,7 +4,7 @@ from typing import Generator, Any, Dict, Optional
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import, knowledge_provenance_properties
+from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import
 
 
 class GraphSource(Source):
@@ -64,8 +64,7 @@ class GraphSource(Source):
             node_data = validate_node(data)
             node_data = sanitize_import(node_data.copy())
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+            self.set_node_provenance(node_data)
 
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -85,10 +84,7 @@ class GraphSource(Source):
             edge_data = validate_edge(data)
             edge_data = sanitize_import(edge_data.copy())
 
-            # Biolink 2.0 'knowledge source' association slot provenance for edges
-            for ksf in knowledge_provenance_properties:
-                if ksf not in edge_data.keys() and ksf in self.graph_metadata:
-                    edge_data[ksf] = self.graph_metadata[ksf]
+            self.set_edge_provenance(edge_data)
 
             if self.check_edge_filter(edge_data):
                 self.node_properties.update(edge_data.keys())

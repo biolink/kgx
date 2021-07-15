@@ -354,7 +354,7 @@ def test_read_nt6():
                 'knowledge_source': 'Orphanet:331206',
             },
             {},
-            {'knowledge_source': ['Orphanet:331206', 'Orphanet:331206']},
+            {'knowledge_source': ['Orphanet:331206']},
         ),
     ],
 )
