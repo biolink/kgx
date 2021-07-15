@@ -86,12 +86,6 @@ def cli():
     type=click.Path(exists=False),
     help='File within which to report graph data parsing errors (default: "stderr")'
 )
-@click.option(
-    '--infores-rewrite',
-    required=False,
-    multiple=True,
-    help='A knowledge source InfoRes remapping specification (see documentation for meta knowledge graph summaries).'
-)
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
@@ -103,8 +97,7 @@ def graph_summary_wrapper(
     graph_name: str,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
-    error_log: str = '',
-    infores_rewrite: Optional[Tuple] = None
+    error_log: str = ''
 ):
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -136,10 +129,6 @@ def graph_summary_wrapper(
         For example, ``['knowledge_source']``d
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
-    infores_rewrite: Optional[Tuple]
-            Optional argument is a Tuple value.  The presence of a Tuple signals an
-            InfoRes rewrite of the knowledge source field values of node and edge data records.
-            Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
     """
     graph_summary(
         inputs,
@@ -152,8 +141,7 @@ def graph_summary_wrapper(
         graph_name,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
-        error_log=error_log,
-        infores_rewrite=infores_rewrite
+        error_log=error_log
     )
 
 

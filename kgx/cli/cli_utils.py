@@ -76,8 +76,7 @@ def graph_summary(
     graph_name: Optional[str] = None,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
-    error_log: str = '',
-    infores_rewrite: Optional[Tuple] = None
+    error_log: str = ''
 ) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -106,10 +105,7 @@ def graph_summary(
         A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     error_log: str
         Where to write any graph processing error message (stderr, by default)
-    infores_rewrite: Optional[Tuple]
-            Optional argument is a Tuple value (default: None).  The presence of a Tuple signals an
-            InfoRes rewrite of the knowledge source ("provided_by") field value of node and edge data records.
-            Currently only implemented in the meta-knowledge-graph mode (which see) of graph-summary.
+
     Returns
     -------
     Dict
@@ -122,16 +118,6 @@ def graph_summary(
     if report_type in summary_report_types:
         # New design pattern enabling 'stream' processing of statistics on a small memory footprint
         # by injecting an inspector in the Transformer.process() source-to-sink data flow.
-
-        # First, check and adjust the infores_rewrite argument
-        if infores_rewrite:
-            if len(infores_rewrite) == 1 and str(infores_rewrite[0]).lower() == 'true':
-                # first argument is a simple boolean,
-                # so only a simple rewrite is specified,
-                # signalled with an empty tuple()
-                infores_rewrite = tuple()
-        else:
-            infores_rewrite = None  # infores_rewrite could be an empty tuple - treat as None here
         #
         # First, we instantiate the Inspector (generally, a Callable class)...
         #
@@ -143,8 +129,7 @@ def graph_summary(
             name=graph_name if graph_name else 'Graph',
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
-            error_log=error_log,
-            infores_rewrite=infores_rewrite
+            error_log=error_log
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
@@ -162,7 +147,7 @@ def graph_summary(
             'compression': input_compression
         },
         output_args=output_args,
-        #... Second, we inject the Inspector into the transform() call,
+        # ... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
         inspector=inspector
     )
