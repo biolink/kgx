@@ -425,3 +425,6 @@ class Source(object):
             self.edge_filters[key].update(value)
         else:
             self.edge_filters[key] = value
+
+    def clear_graph_metadata(self):
+        self.graph_metadata.clear()

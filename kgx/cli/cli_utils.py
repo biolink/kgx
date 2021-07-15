@@ -750,6 +750,11 @@ def parse_source(
         log.info(f"Writing checkpoint for source '{key}'")
         checkpoint_output = f"{output_directory}/{key}" if output_directory else key
         transformer.save({'filename': checkpoint_output, 'format': 'tsv'})
+
+    # Current "Callable" metadata not needed at this  point
+    # but causes peculiar problems downstream, so we clear it.
+    transformer.store.clear_graph_metadata()
+
     return transformer.store
 
 
