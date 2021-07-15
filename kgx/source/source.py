@@ -1,4 +1,4 @@
-from typing import Dict, Generator, Any, Union, Optional, Tuple, List, Iterable, Set
+from typing import Dict, Generator, Any, Union, Optional, Tuple, List, Set, Callable
 import re
 
 from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
@@ -37,16 +37,40 @@ class Source(object):
         self.prefix_manager.update_prefix_map(m)
 
     def _infores_to_catalog(self, infores: str, source: str):
+        """
+        Catalogs a mapping of InfoRes to a Knowledge Source name.
+
+        Parameters
+        ----------
+        infores: str
+            Information Resource CURIE to be added to the catalog,
+
+        source: str
+            Name of Information Resource associated with the InfoRes
+            (i.e. from which the InfoRes was inferred)
+
+        """
         if infores not in self._infores_catalog:
             self._infores_catalog[infores] = set()
         self._infores_catalog[infores].add(source)
 
-    def _infores_processor(self, ksf, infores_rewrite_filter: Optional[Tuple] = None):
+    def _infores_processor(
+            self,
+            ksf: str,
+            infores_rewrite_filter: Optional[Tuple] = None
+    ) -> Callable:
         """
+        Full processor of a Knowledge Source name into an InfoRes. The conversion is made based on
+        client-caller specfied rewrite rules for a given knowledge source field ('ksf').
 
-        :param infores_rewrite_filter: Optional[Tuple]
-            Optional argument is a Tuple value. The presence of a Tuple signals an InfoRes rewrite
-            of any Biolink 2.0 compliant knowledge source field value of node and edge data records.
+        Parameters
+        ----------
+        ksf: str
+            Knowledge source field being processed.
+
+        infores_rewrite_filter: Optional[Tuple]
+            The presence of this optional Tuple argument signals an InfoRes rewrite of any
+             Biolink 2.0 compliant knowledge source field name in node and edge data records.
             The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
             then only a standard transformation of the field value is performed. If the Tuple has
             an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
@@ -57,7 +81,14 @@ class Source(object):
             a third non-empty string (as infores_rewrite[2]), then the given string is added as a prefix
             to the InfoRes.  Whatever the transformations, unique InfoRes identifiers once generated,
             are used in the meta_knowledge_graph and also reported using the get_infores_catalog() method.
-        :return:
+
+        Returns
+        -------
+        Callable
+            A locally configured Callable that knows how to process
+            a source name string into an infores CURIE, using on client-specified
+            rewrite rules applied alongside standard formatting rules.
+
         """
 
         # Check for non-empty infores_rewrite_filter
@@ -71,6 +102,21 @@ class Source(object):
             _prefix = ''
 
         def _process_infores(source: str) -> str:
+            """
+            Process a single knowledge Source name  string into an infores, by applying rules
+            in the _infores_processor() closure context, followed by standard formatting.
+
+            Parameters
+            ----------
+            source: str
+                Knowledge source name string being processed.
+
+            Returns
+            -------
+            str
+                Infores CURIE inferred from the input Knowledge Source name string.
+
+            """
             if _filter:
                 infores = _filter.sub(_substr, source)
             else:
@@ -82,9 +128,26 @@ class Source(object):
             infores = re.sub(r"[\W]", "", infores)
             infores = re.sub(r"_", "-", infores)
 
+            # TODO: to be fully compliant, the InfoRes needs to have the 'infores' prefix?
+            #infores = "infores:"+infores
+
             return infores
 
-        def parser_list(sources: Optional[List[str]] = None):
+        def parser_list(sources: Optional[List[str]] = None) -> List[str]:
+            """
+            Infores parser for a list of input knowledge source names.
+
+            Parameters
+            ----------
+            sources: List[str]
+                List of Knowledge source name strings being processed.
+
+            Returns
+            -------
+            List[str]
+                Source name strings transformed into infores CURIES, using _process_infores().
+
+            """
             if not sources:
                 return [self.default_provenance]
             results:  List[str] = list()
@@ -95,7 +158,21 @@ class Source(object):
                     results.append(infores)
             return results
 
-        def parser_scalar(source=None):
+        def parser_scalar(source=None) -> str:
+            """
+            Infores parser for a single knowledge source name string.
+
+            Parameters
+            ----------
+            source: str
+                Knowledge source name string being processed.
+
+            Returns
+            -------
+            str
+                Source name string transformed into an infores CURIE, using _process_infores().
+
+            """
             if not source:
                 return self.default_provenance
             infores: str = _process_infores(source)
@@ -103,18 +180,48 @@ class Source(object):
                 self._infores_to_catalog(infores, source)
                 return infores
             else:
-                return None
+                return ''
 
         if ksf in column_types and column_types[ksf] == list:
             return parser_list
         else:
-            # not sure how safe an assumption for non-list column_types, but...
+            # not sure how safe an assumption for all non-list column_types, but...
             return parser_scalar
 
     @staticmethod
     def _infores_default(ksf, default=None):
+        """
+        Lightweight alternative to _infores_processor which simply assigns provenance fields client-defined
+        simple default knowledge source strings (not constrained to be formatted as infores CURIEs).
+
+        Parameters
+        ----------
+        ksf: str
+            Knowledge source field being processed.
+
+        Returns
+        -------
+        Callable
+            A locally configured Callable that knows how to process a source name string
+            (possibly empty) into a suitable (possibly default) infores string identifier.
+
+        """
 
         def default_value_list(sources: List[str] = None):
+            """
+            Infores default method for a list of input knowledge source names.
+
+            Parameters
+            ----------
+            sources: List[str]
+                List of Knowledge source name strings being processed.
+
+            Returns
+            -------
+            List[str]
+                Infores identifiers mapped to input source strings.
+
+            """
             if not default:
                 return list()
             if not sources:
@@ -122,7 +229,21 @@ class Source(object):
             else:
                 return sources
 
-        def default_value_scalar(source = None):
+        def default_value_scalar(source=None):
+            """
+            Infores default method for single input knowledge source name.
+
+            Parameters
+            ----------
+            source: str
+                Knowledge source name string being processed.
+
+            Returns
+            -------
+            str
+                Infores identifier mapped to the input source string.
+
+            """
             if not default:
                 return None
             if not source:
@@ -137,7 +258,19 @@ class Source(object):
             return default_value_scalar
 
     def set_provenance_map(self, kwargs: Dict):
+        """
+        A provenance property indexed map set up with various graph_metadata
+        Callable methods to process input knowledge source values into
+        suitable InfoRes identifiers.
 
+        Parameters
+        ----------
+        kwargs: Dict
+            The input keyword argument dictionary was likely propagated from the
+            Transformer.transform() method input_args, and is here harvested for
+            static defaults or rewrite rules for provenance slot InfoRes value processing.
+
+        """
         if 'default_provenance' in kwargs:
             self.default_provenance = kwargs.pop('default_provenance')
 
@@ -177,6 +310,18 @@ class Source(object):
             self.graph_metadata['provided_by'] = self.graph_metadata[ksf_found]
 
     def set_provenance(self, ksf: str, data: Dict):
+        """
+            Compute the provenance value for the current node or edge data, using the
+            infores rewrite context previously established by a call to set_provenance_map().
+
+            Parameters
+            ----------
+            ksf: str
+                Knowledge source field being processed.
+            data: Dict
+                Current node or edge data entry being processed.
+
+        """
         if ksf not in data.keys():
             if ksf in self.graph_metadata:
                 data[ksf] = self.graph_metadata[ksf]()  # get default ksf value?
@@ -200,10 +345,31 @@ class Source(object):
             data.pop(ksf)
 
     def set_node_provenance(self, node_data: Dict):
+        """
+        Sets the node provenance value for the current node. At the moment, nodes are still
+        hard-coded to using the (Biolink 2.0 deprecated) 'provided_by' provenance property;
+        However, this could change in the future to use edge 'knowledge_source' properties.
+
+        Parameters
+        ----------
+        node_data: Dict
+            Current node data entry being processed.
+
+        """
         self.set_provenance('provided_by', node_data)
 
-    # TODO: figure out a more efficient algorithm here...
+    # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
+        """
+        Sets the node provenance value for the current node. Edge provenance properties
+        include the full Biolink 2.0 'knowledge_source' related properties.
+
+        Parameters
+        ----------
+        edge_data: Dict
+            Current edge data entry being processed.
+
+        """
         ksf_found = False
         data_fields = list(edge_data.keys())
         for ksf in data_fields:
@@ -215,7 +381,16 @@ class Source(object):
                 if ksf != 'provided_by':
                     self.set_provenance(ksf, edge_data)
 
-    def get_infores_catalog(self):
+    def get_infores_catalog(self) -> Dict[str, Set[str]]:
+        """
+        Retrieves the catalogs mapping of Knowledge Source names to an InfoRes.
+
+        Returns
+        -------
+        Dict[str, Set[str]]
+            Dictionary where the index string is an InfoRes CURIE, values are sets of Knowledge Source Names
+
+        """
         return self._infores_catalog
 
     def parse(self, **kwargs: Any) -> Generator:
@@ -427,4 +602,9 @@ class Source(object):
             self.edge_filters[key] = value
 
     def clear_graph_metadata(self):
+        """
+        Clears a Source graph's internal graph_metadata. The value of such graph metadata is (now)
+        generally a Callable function. This operation can be used in the code when the metadata is
+        no longer needed, but may cause peculiar Python object persistent problems downstream.
+        """
         self.graph_metadata.clear()
