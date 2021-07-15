@@ -581,17 +581,17 @@ def test_transformer_infores_basic_formatting():
     n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
     assert 'provided_by' in n1
     assert len(n1['provided_by']) == 1
-    assert 'flybase-monarch-version-202012' in n1['provided_by']
+    assert 'infores:flybase-monarch-version-202012' in n1['provided_by']
 
     n2 = t.store.graph.nodes()['GO:0005912']
     assert 'provided_by' in n2
     assert len(n2['provided_by']) == 1
-    assert 'gene-ontology-monarch-version-202012' in n2['provided_by']
+    assert 'infores:gene-ontology-monarch-version-202012' in n2['provided_by']
 
     et = list(
         t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
     )[0]
-    assert 'gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
+    assert 'infores:gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
 
     # irc = t.get_infores_catalog()
     # assert len(irc) == 2
@@ -642,22 +642,22 @@ def test_transformer_infores_parser_deletion_rewrite():
     n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
     assert 'provided_by' in n1
     assert len(n1['provided_by']) == 1
-    assert 'flybase' in n1['provided_by']
+    assert 'infores:flybase' in n1['provided_by']
 
     n2 = t.store.graph.nodes()['GO:0005912']
     assert 'provided_by' in n2
     assert len(n2['provided_by']) == 1
-    assert 'gene-ontology' in n2['provided_by']
+    assert 'infores:gene-ontology' in n2['provided_by']
 
     et = list(
         t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
     )[0]
-    assert 'gene-ontology' in et['aggregator_knowledge_source']
+    assert 'infores:gene-ontology' in et['aggregator_knowledge_source']
 
     irc = t.get_infores_catalog()
     assert len(irc) == 2
-    assert "gene-ontology" in irc
-    assert "Gene Ontology (Monarch version 202012)" in irc['gene-ontology']
+    assert "infores:gene-ontology" in irc
+    assert "Gene Ontology (Monarch version 202012)" in irc['infores:gene-ontology']
 
 
 def test_transformer_infores_parser_substitution_rewrite():
@@ -677,22 +677,22 @@ def test_transformer_infores_parser_substitution_rewrite():
     n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
     assert 'provided_by' in n1
     assert len(n1['provided_by']) == 1
-    assert 'flybase-monarch' in n1['provided_by']
+    assert 'infores:flybase-monarch' in n1['provided_by']
 
     n2 = t.store.graph.nodes()['GO:0005912']
     assert 'provided_by' in n2
     assert len(n2['provided_by']) == 1
-    assert 'gene-ontology-monarch' in n2['provided_by']
+    assert 'infores:gene-ontology-monarch' in n2['provided_by']
 
     et = list(
         t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
     )[0]
-    assert 'gene-ontology-monarch' in et['aggregator_knowledge_source']
+    assert 'infores:gene-ontology-monarch' in et['aggregator_knowledge_source']
 
     irc = t.get_infores_catalog()
     assert len(irc) == 2
-    assert "gene-ontology-monarch" in irc
-    assert "Gene Ontology (Monarch version 202012)" in irc['gene-ontology-monarch']
+    assert "infores:gene-ontology-monarch" in irc
+    assert "Gene Ontology (Monarch version 202012)" in irc['infores:gene-ontology-monarch']
 
 
 def test_transformer_infores_parser_prefix_rewrite():
@@ -712,22 +712,22 @@ def test_transformer_infores_parser_prefix_rewrite():
     n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
     assert 'provided_by' in n1
     assert len(n1['provided_by']) == 1
-    assert 'monarch-flybase' in n1['provided_by']
+    assert 'infores:monarch-flybase' in n1['provided_by']
 
     n2 = t.store.graph.nodes()['GO:0005912']
     assert 'provided_by' in n2
     assert len(n2['provided_by']) == 1
-    assert 'monarch-gene-ontology' in n2['provided_by']
+    assert 'infores:monarch-gene-ontology' in n2['provided_by']
 
     et = list(
         t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
     )[0]
-    assert 'monarch-gene-ontology' in et['aggregator_knowledge_source']
+    assert 'infores:monarch-gene-ontology' in et['aggregator_knowledge_source']
 
     irc = t.get_infores_catalog()
     assert len(irc) == 2
-    assert "monarch-gene-ontology" in irc
-    assert "Gene Ontology (Monarch version 202012)" in irc['monarch-gene-ontology']
+    assert "infores:monarch-gene-ontology" in irc
+    assert "Gene Ontology (Monarch version 202012)" in irc['infores:monarch-gene-ontology']
 
 
 def test_transformer_infores_simple_prefix_rewrite():
@@ -747,19 +747,19 @@ def test_transformer_infores_simple_prefix_rewrite():
     n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
     assert 'provided_by' in n1
     assert len(n1['provided_by']) == 1
-    assert 'fixed-flybase-monarch-version-202012' in n1['provided_by']
+    assert 'infores:fixed-flybase-monarch-version-202012' in n1['provided_by']
 
     n2 = t.store.graph.nodes()['GO:0005912']
     assert 'provided_by' in n2
     assert len(n2['provided_by']) == 1
-    assert 'fixed-gene-ontology-monarch-version-202012' in n2['provided_by']
+    assert 'infores:fixed-gene-ontology-monarch-version-202012' in n2['provided_by']
 
     et = list(
         t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
     )[0]
-    assert 'fixed-gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
+    assert 'infores:fixed-gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
 
     irc = t.get_infores_catalog()
     assert len(irc) == 2
-    assert "fixed-gene-ontology-monarch-version-202012" in irc
-    assert "Gene Ontology (Monarch version 202012)" in irc['fixed-gene-ontology-monarch-version-202012']
+    assert "infores:fixed-gene-ontology-monarch-version-202012" in irc
+    assert "Gene Ontology (Monarch version 202012)" in irc['infores:fixed-gene-ontology-monarch-version-202012']
