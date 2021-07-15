@@ -48,7 +48,7 @@ t.transform(input_args=input_args, output_args=output_args)
 
 ## Inspecting the Knowledge Data Flow
 
-Note that `transform` operation accepts an optional inspect _Callable_ argument which injects node/edge data stream inspection into the `Transform.process` operation of `Transform.transform` operations.  See the unit  test module [test_transformer.py](../../tests/integration/test_transform.py) for an example of usage of this callable argument. 
+Note that `transform` operation accepts an optional inspect _Callable_ argument which injects node/edge data stream inspection into the `Transform.process` operation of `Transform.transform` operations.  See the unit  test module in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py) for an example of usage of this callable argument. 
 
 This feature, when coupled with the `--stream` and a 'null' Transformer Sink  (i.e. `output_args = {'format': 'null'}'`), allows "just-in-time" processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.
 
@@ -74,7 +74,7 @@ To help generate and document such InfoRes identifiers, the provenance property 
 
 1. Providing a third string in the tuple to add a  prefix string to the name (as a separate word) of all the generated InfoRes identifiers .  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again,  the algorthm  then  applies the simple reformatting rules, but no other internal changes.
 
-The unit tests provide examples of these various rewrites, in  `tests/integration/test_transform.py`.
+The unit tests provide examples of these various rewrites, in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
 
 Although not (yet) directly exposed in the KGX CLI, the catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the `Tranformer` class.
 
