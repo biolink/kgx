@@ -6,6 +6,7 @@
 - Users of the KGX 'validate' functionality can also [reset the Biolink Model (SemVer) release number at the CLI, and programmatically, with the `Validator.set_biolink_model()` class method](./docs/reference/validator.md#biolink-model-versioning).
 - KGX made [Biolink Model 2.0++ aware with respect to new provenance slots - `knowledge_source` and  its descendant slot definitions](./docs/reference/transformer.md#provenance-of-nodes-and-edges). These slot properties need to be explicitly specified in the `Transformer.transform` **input_args** dictionary.
 - Some support for [heuristic auto-generation of candidate format-compliant CURIES Biolink Model 2.0++ Information Resource ("InfoRes") CURIES](./docs/reference/transformer.md#infores-identifier-rewriting). The new code also provides a regular expression and meta-data based rewrite of knowledge source names into such CURIES.
+- Some additional clarification in the 'readTheDocs' documentation including for 1.3.0 streaming release features.
 
 ## 1.3.0 (2021-06-21)
 

@@ -112,9 +112,7 @@ For example,
 The Transformer class is responsible for reading data from an instance of `kgx.source.source.Source` 
 and writing to an instance of `kgx.sink.sink.Sink`.
 
-The Transformer is built to support various scenarios of execution.
-
-
+The Transformer supports various scenarios of execution.
 
 #### Scenario I
 
@@ -164,8 +162,49 @@ t = Transformer(stream=True)
 t.transform(input_args=input_args, output_args=output_args)
 ```
 
-> **Note:** When `stream=True`, certain operations are disabled. Refer to the [documentation](https://kgx.readthedocs.io/en/latest/reference/transformer.html) for information.
+#### Scenario IV
 
+Stream from a source, compute some graph operations - e.g. `graph-summary`, `validate` or a custom inspector (see below) - on the input graph  and then throw the data away, into a 'null' format Sink.
+
+```py
+from typing import List
+from kgx.transformer import Transformer
+from kgx.utils.kgx_utils import GraphEntityType
+
+input_args = {'filename': ['graph_nodes.tsv', 'graph_edges.tsv'], 'format': 'tsv'}
+output_args = {'format': 'null'}
+
+class TestInspector:
+    def __init__(self):
+        self._node_count = 0
+        self._edge_count = 0
+
+    def __call__(self, entity_type: GraphEntityType, rec: List):
+        if entity_type == GraphEntityType.EDGE:
+            self._edge_count += 1
+        elif entity_type == GraphEntityType.NODE:
+            self._node_count += 1
+        else:
+            raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
+
+    def get_node_count(self):
+        return self._node_count
+
+    def get_edge_count(self):
+        return self._edge_count
+
+inspector = TestInspector()
+
+t = Transformer(stream=True)
+t.transform(
+  input_args=input_args,
+  output_args=output_args,
+  inspector=inspector
+)
+
+print(inspector.get_node_count())
+print(inspector.get_edge_count())
+```
 
 ### Utils
 
