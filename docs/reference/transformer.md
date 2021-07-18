@@ -76,7 +76,7 @@ To help generate and document such InfoRes identifiers, the provenance property 
 
 The unit tests provide examples of these various rewrites, in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
 
-Although not (yet) directly exposed in the KGX CLI, the catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the `Tranformer` class.
+Although not (yet) directly exposed in the KGX CLI, the catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the `Transformer` class.
 
 ## kgx.transformer
 
