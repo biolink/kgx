@@ -47,7 +47,7 @@ def test_check_all_categories2():
     """
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 6
+    assert len(vbc) == 4
     assert len(ibc) == 0
     assert len(ic) == 0
 
