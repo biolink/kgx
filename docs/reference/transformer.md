@@ -58,6 +58,29 @@ Biolink Model 2.0 specified new [properties for edge provenance](https://github.
 
 One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments to specify default global values for these properties. Such values will be used when an edge lacks an explicit provenance property. If one does not specify such a global property, then the algorithm heuristically infers and sets a default `knowledge_source` value.
 
+```python
+from kgx.transformer import Transformer
+
+input_args = {
+    filename': [
+            'graph_nodes.tsv', 
+            'graph_edges.tsv'],
+    'format': 'tsv',
+    'provided_by': "My Test Source",
+    'aggregator_knowledge_source': "My Test Source"
+    
+}
+
+t = Transformer()
+
+# read from TSV 
+t.transform(input_args=input_args)
+
+# use the transformed graph
+t.store.graph.nodes()
+t.store.graph.edges()
+```
+
 ## InfoRes Identifier Rewriting
 
 The `provided_by` and/or `knowledge_source` _et al._ field values of KGX node and edge records generally contain a name of a knowledge source for the node or edge.  In some cases, (e.g. Monarch)  such values in source knowledge sources could be quite verbose. To normalize such names to a concise standard, the latest Biolink Model (2.*) is moving towards the use of **Information Resource** ("InfoRes") CURIE identifiers.  
@@ -72,7 +95,7 @@ To help generate and document such InfoRes identifiers, the provenance property 
 
 1. Similar to 2 above, except providing a second string in the tuple which is substituted for the regular expression matched string, followed by simple reformatting.
 
-1. Providing a third string in the tuple to add a  prefix string to the name (as a separate word) of all the generated InfoRes identifiers .  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again,  the algorthm  then  applies the simple reformatting rules, but no other internal changes.
+1. Providing a third string in the tuple to add a prefix string to the name (as a separate word) of all the generated InfoRes identifiers .  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again,  the algorithm  then  applies the simple reformatting rules, but no other internal changes.
 
 The unit tests provide examples of these various rewrites, in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
 

@@ -152,7 +152,8 @@ def test_validate_non_streaming():
         input_format='json',
         input_compression=None,
         output=output,
-        stream=False
+        stream=False,
+        biolink_release="2.1.0"
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -171,7 +172,8 @@ def test_validate_streaming():
         input_format='json',
         input_compression=None,
         output=output,
-        stream=True
+        stream=True,
+        biolink_release="2.1.0"
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -245,6 +247,9 @@ def test_transform1():
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'True'),
+    ]
     transform(
         inputs=inputs,
         input_format='tsv',
@@ -252,6 +257,7 @@ def test_transform1():
         output=output,
         output_format='json',
         output_compression=None,
+        knowledge_sources=knowledge_sources,
     )
     assert os.path.exists(output)
     data = json.load(open(output, 'r'))
@@ -259,6 +265,81 @@ def test_transform1():
     assert 'edges' in data
     assert len(data['nodes']) == 512
     assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:string' in e['aggregator_knowledge_source']
+            assert 'infores:biogrid' in e['aggregator_knowledge_source']
+            break
+
+
+def test_transform_knowledge_source_suppression():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'False'),
+        ('knowledge_source', 'False'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' not in e
+            assert 'knowledge_source' not in e
+            break
+
+
+def test_transform_knowledge_source_rewrite():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'string,string database'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:string-database' in e['aggregator_knowledge_source']
+            break
 
 
 def test_transform2():

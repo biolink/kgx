@@ -117,6 +117,10 @@ class Source(object):
                 Infores CURIE inferred from the input Knowledge Source name string.
 
             """
+            # don't touch something that already looks like an infores CURIE
+            if source.startswith('infores:'):
+                return source
+
             if _filter:
                 infores = _filter.sub(_substr, source)
             else:
@@ -125,6 +129,7 @@ class Source(object):
             infores = infores.strip()
             infores = infores.lower()
             infores = re.sub(r"\s+", "_", infores)
+            infores = re.sub(r"\.+", "_", infores)
             infores = re.sub(r"[\W]", "", infores)
             infores = re.sub(r"_", "-", infores)
 
@@ -191,7 +196,7 @@ class Source(object):
     @staticmethod
     def _infores_default(ksf, default=None):
         """
-        Lightweight alternative to _infores_processor which simply assigns provenance fields client-defined
+        Lightweight alternative to _infores_processor which simply assigns knowledge_source fields client-defined
         simple default knowledge source strings (not constrained to be formatted as infores CURIEs).
 
         Parameters
@@ -259,7 +264,7 @@ class Source(object):
 
     def set_provenance_map(self, kwargs: Dict):
         """
-        A provenance property indexed map set up with various graph_metadata
+        A knowledge_source property indexed map set up with various graph_metadata
         Callable methods to process input knowledge source values into
         suitable InfoRes identifiers.
 
@@ -268,13 +273,13 @@ class Source(object):
         kwargs: Dict
             The input keyword argument dictionary was likely propagated from the
             Transformer.transform() method input_args, and is here harvested for
-            static defaults or rewrite rules for provenance slot InfoRes value processing.
+            static defaults or rewrite rules for knowledge_source slot InfoRes value processing.
 
         """
         if 'default_provenance' in kwargs:
             self.default_provenance = kwargs.pop('default_provenance')
 
-        # Biolink 2.0 provenance 'knowledge_source' derived fields
+        # Biolink 2.0 knowledge_source 'knowledge_source' derived fields
         ksf_found = False
         for ksf in knowledge_provenance_properties:
             if ksf in kwargs:
@@ -311,7 +316,7 @@ class Source(object):
 
     def set_provenance(self, ksf: str, data: Dict):
         """
-            Compute the provenance value for the current node or edge data, using the
+            Compute the knowledge_source value for the current node or edge data, using the
             infores rewrite context previously established by a call to set_provenance_map().
 
             Parameters
@@ -346,8 +351,8 @@ class Source(object):
 
     def set_node_provenance(self, node_data: Dict):
         """
-        Sets the node provenance value for the current node. At the moment, nodes are still
-        hard-coded to using the (Biolink 2.0 deprecated) 'provided_by' provenance property;
+        Sets the node knowledge_source value for the current node. At the moment, nodes are still
+        hard-coded to using the (Biolink 2.0 deprecated) 'provided_by' knowledge_source property;
         However, this could change in the future to use edge 'knowledge_source' properties.
 
         Parameters
@@ -361,7 +366,7 @@ class Source(object):
     # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
         """
-        Sets the node provenance value for the current node. Edge provenance properties
+        Sets the node knowledge_source value for the current node. Edge knowledge_source properties
         include the full Biolink 2.0 'knowledge_source' related properties.
 
         Parameters

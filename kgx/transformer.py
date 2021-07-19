@@ -27,7 +27,7 @@ from kgx.sink import (
     NullSink
 )
 
-from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType
+from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType, knowledge_provenance_properties
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -205,7 +205,14 @@ class Transformer(object):
                 intermediate_source = self.get_source('graph')
                 intermediate_source.node_properties.update(intermediate_sink.node_properties)
                 intermediate_source.edge_properties.update(intermediate_sink.edge_properties)
-                intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
+
+                # Need to propagate knowledge source specifications here?
+                ks_args = dict()
+                for ksf in knowledge_provenance_properties:
+                    if ksf in input_args:
+                        ks_args[ksf] = input_args[ksf]
+
+                intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph, **ks_args)
 
                 if output_args['format'] in {'tsv', 'csv'}:
                     if 'node_properties' not in output_args:

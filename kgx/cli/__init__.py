@@ -405,7 +405,17 @@ def neo4j_upload_wrapper(
 @click.option(
     '--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process'
 )
-@click.option('--processes', '-p', required=False, type=int, default=1, help='Number of processes to use')
+@click.option(
+    '--knowledge-sources',
+    '-k',
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help='A named knowledge source with (string, boolean or tuple rewrite) specification'
+)
+@click.option(
+    '--processes', '-p', required=False, type=int, default=1, help='Number of processes to use'
+)
 def transform_wrapper(
     inputs: List[str],
     input_format: str,
@@ -414,10 +424,11 @@ def transform_wrapper(
     output_format: str,
     output_compression: str,
     stream: bool,
-    node_filters: Tuple[str, str],
-    edge_filters: Tuple[str, str],
+    node_filters: Optional[List[Tuple[str, str]]],
+    edge_filters: Optional[List[Tuple[str, str]]],
     transform_config: str,
-    source: List,
+    source: Optional[List],
+    knowledge_sources: Optional[List[Tuple[str, str]]],
     processes: int,
 ):
     """
@@ -440,14 +451,16 @@ def transform_wrapper(
         The output compression typ
     stream: bool
         Whether or not to stream
-    node_filters: Tuple[str, str]
+    node_filters: Optional[List[Tuple[str, str]]]
         Node input filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[List[Tuple[str, str]]]
         Edge input filters
     transform_config: str
         Transform config YAML
     source: List
         A list of source(s) to load from the YAML
+    knowledge_sources: Optional[List[Tuple[str, str]]]
+        A list of named knowledge sources with (string, boolean or tuple rewrite) specification
     processes: int
         Number of processes to use
 
@@ -464,6 +477,7 @@ def transform_wrapper(
         edge_filters=edge_filters,
         transform_config=transform_config,
         source=source,
+        knowledge_sources=knowledge_sources,
         processes=processes,
     )
 

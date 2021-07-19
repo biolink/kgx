@@ -89,9 +89,9 @@ class MetaKnowledgeGraph:
         name: str
             (Graph) name assigned to the summary.
         node_facet_properties: Optional[List]
-                A list of node properties (e.g. provenance tags) to facet on. For example, ``['provided_by']``
+                A list of node properties (e.g. knowledge_source tags) to facet on. For example, ``['provided_by']``
         edge_facet_properties: Optional[List]
-                A list of edge properties (e.g. provenance tags) to facet on. For example,
+                A list of edge properties (e.g. knowledge_source tags) to facet on. For example,
                 ``['original_knowledge_source', 'aggregator_knowledge_source']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
             Function given a peek at the current record being stream processed by the class wrapped Callable.
@@ -102,7 +102,7 @@ class MetaKnowledgeGraph:
 
         self.name = name
 
-        # these facet properties are used mainly for provenance counting
+        # these facet properties are used mainly for knowledge_source counting
         # using Biolink 2.0 'knowledge_source' slot values
         if node_facet_properties:
             self.node_facet_properties: Optional[List] = node_facet_properties

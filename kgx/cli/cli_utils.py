@@ -5,7 +5,7 @@ from os.path import dirname, abspath
 
 import sys
 from multiprocessing import Pool
-from typing import List, Tuple, Optional, Dict, Set
+from typing import List, Tuple, Optional, Dict, Set, Any, Union
 import yaml
 
 from kgx.validator import Validator
@@ -15,7 +15,7 @@ from kgx.config import get_logger, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph
-from kgx.utils.kgx_utils import apply_graph_operations
+from kgx.utils.kgx_utils import apply_graph_operations, knowledge_provenance_properties
 
 
 summary_report_types = {
@@ -384,6 +384,28 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ''):
     return resolved_files
 
 
+def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
+    if ksf not in knowledge_provenance_properties:
+        log.warning("Unknown Knowledge Source Field: "+ksf+"... ignoring!")
+        return False
+    else:
+        if spec.lower() == 'true':
+            return True
+        elif spec.lower() == 'false':
+            return False
+        else:
+            # If a Tuple, expect a comma-delimited string?
+            spec_parts = spec.split(',')
+            if len(spec_parts) == 1:
+                # assumed to be just a default string value for the knowledge source field
+                return spec_parts[0]
+            else:
+                # assumed to be an Infores Tuple rewrite specification
+                if len(spec_parts) > 3:
+                    spec_parts = spec_parts[:2]
+                return tuple(spec_parts)
+
+
 def transform(
     inputs: Optional[List[str]],
     input_format: Optional[str] = None,
@@ -392,10 +414,11 @@ def transform(
     output_format: Optional[str] = None,
     output_compression: Optional[str] = None,
     stream: bool = False,
-    node_filters: Tuple[str, str] = None,
-    edge_filters: Tuple[str, str] = None,
+    node_filters: Optional[List[Tuple[str, str]]] = None,
+    edge_filters: Optional[List[Tuple[str, str]]] = None,
     transform_config: str = None,
     source: Optional[List] = None,
+    knowledge_sources: Optional[List[Tuple[str, str]]] = None,
     # this parameter doesn't get used, but I leave it in
     # for now, in case it signifies an unimplemented concept
     # destination: Optional[List] = None,
@@ -420,14 +443,16 @@ def transform(
         The output compression type
     stream: bool
         Whether to parse input as a stream
-    node_filters: Tuple[str, str]
+    node_filters: Optional[List[Tuple[str, str]]]
         Node input filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[List[Tuple[str, str]]]
         Edge input filters
     transform_config: Optional[str]
         The transform config YAML
     source: Optional[List]
         A list of source to load from the YAML
+    knowledge_sources: Optional[List[Tuple[str, str]]]
+        A list of named knowledge sources with (string, boolean or tuple rewrite) specification
     processes: int
         Number of processes to use
 
@@ -517,6 +542,11 @@ def transform(
                 'filename': output,
             },
         }
+
+        if knowledge_sources:
+            for ksf, spec in knowledge_sources:
+                source_dict['input'][ksf] = _process_knowledge_source(ksf, spec)
+
         name = os.path.basename(inputs[0])
         transform_source(key=name, source=source_dict, output_directory=None, stream=stream)
 
@@ -887,7 +917,6 @@ def prepare_input_args(
             'filename': inputs,
             'format': input_format,
             'compression': input_compression,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': source_prefix_map,
@@ -899,7 +928,6 @@ def prepare_input_args(
             'filename': inputs,
             'format': input_format,
             'compression': input_compression,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': source_prefix_map,
@@ -910,13 +938,16 @@ def prepare_input_args(
             'username': source['username'],
             'password': source['password'],
             'format': input_format,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': prefix_map,
         }
     else:
         raise TypeError(f"Type {input_format} not yet supported")
+
+    for ksf in knowledge_provenance_properties:
+        if ksf in source['input']:
+            input_args[ksf] = source['input'][ksf]
 
     input_args['operations'] = source['input'].get('operations', [])
     for o in input_args['operations']:
