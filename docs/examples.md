@@ -95,8 +95,8 @@ Transform a graph from one serialization to another (including a knowledge sourc
     kgx transform --input-format tsv \
                   --output test_graph.json \
                   --output-format json \
-                  --knowledge-sources aggregator_knowledge_source "string,string-database" \
-                  --knowledge-sources aggregator_knowledge_source "go,gene-ontology" \
+                  --knowledge-sources aggregator_knowledge_source "string,string database" \
+                  --knowledge-sources aggregator_knowledge_source "go,gene ontology" \
                   tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
 ```
 

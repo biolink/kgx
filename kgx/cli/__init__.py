@@ -414,6 +414,12 @@ def neo4j_upload_wrapper(
     help='A named knowledge source with (string, boolean or tuple rewrite) specification'
 )
 @click.option(
+    '--infores-catalog',
+    required=False,
+    type=click.Path(exists=False),
+    help='Optional dump of a CSV file of InfoRes CURIE to Knowledge Source mappings'
+)
+@click.option(
     '--processes', '-p', required=False, type=int, default=1, help='Number of processes to use'
 )
 def transform_wrapper(
@@ -430,6 +436,7 @@ def transform_wrapper(
     source: Optional[List],
     knowledge_sources: Optional[List[Tuple[str, str]]],
     processes: int,
+    infores_catalog: Optional[str] = None,
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
@@ -461,6 +468,8 @@ def transform_wrapper(
         A list of source(s) to load from the YAML
     knowledge_sources: Optional[List[Tuple[str, str]]]
         A list of named knowledge sources with (string, boolean or tuple rewrite) specification
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
     processes: int
         Number of processes to use
 
@@ -479,6 +488,7 @@ def transform_wrapper(
         source=source,
         knowledge_sources=knowledge_sources,
         processes=processes,
+        infores_catalog=infores_catalog
     )
 
 

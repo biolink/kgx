@@ -423,6 +423,7 @@ def transform(
     # for now, in case it signifies an unimplemented concept
     # destination: Optional[List] = None,
     processes: int = 1,
+    infores_catalog: Optional[str] = None
 ) -> None:
     """
     Transform a Knowledge Graph from one serialization form to another.
@@ -455,6 +456,9 @@ def transform(
         A list of named knowledge sources with (string, boolean or tuple rewrite) specification
     processes: int
         Number of processes to use
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to
+        Knowledge Source mappings (not yet available in transform_config calling mode)
 
     """
     if transform_config and inputs:
@@ -548,7 +552,13 @@ def transform(
                 source_dict['input'][ksf] = _process_knowledge_source(ksf, spec)
 
         name = os.path.basename(inputs[0])
-        transform_source(key=name, source=source_dict, output_directory=None, stream=stream)
+        transform_source(
+            key=name,
+            source=source_dict,
+            output_directory=None,
+            stream=stream,
+            infores_catalog=infores_catalog
+        )
 
 
 def merge(
@@ -786,6 +796,7 @@ def transform_source(
     checkpoint: bool = False,
     preserve_graph: bool = True,
     stream: bool = False,
+    infores_catalog: Optional[str] = None
 ) -> Sink:
     """
     Transform a source from a transform config YAML.
@@ -817,6 +828,8 @@ def transform_source(
         Whether or not to preserve the graph corresponding to the source
     stream: bool
         Whether to parse input as a stream
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
 
     Returns
     -------
@@ -845,6 +858,14 @@ def transform_source(
     transformer.transform(input_args, output_args)
     if not preserve_graph:
         transformer.store.graph.clear()
+
+    if infores_catalog:
+        with open(infores_catalog, 'w') as irc:
+            catalog: Dict[str, Set[str]] = transformer.get_infores_catalog()
+            for infores in catalog.keys():
+                entry = catalog.setdefault(infores, set())
+                print(f"{infores}\t{','.join(list(entry))}", file=irc)
+
     return transformer.store
 
 
