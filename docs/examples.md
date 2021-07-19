@@ -11,14 +11,16 @@ There are two modes for using KGX:
 KGX provides a variety of functionality that can be achieved by your script 
 by importing KGX as a module and calling the relevant classes/methods as needed.
 
-Examples on how to use the KGX as a module can be found in [examples folder](https://github.com/NCATS-Tangerine/kgx/tree/master/examples) 
+Examples on how to use the KGX as a module can be found in
+[examples folder](https://github.com/biolink/kgx/tree/master/examples). Some additional insights on usage
+may also be obtained by examination of the [tests folder](https://github.com/biolink/kgx/tree/master/tests).
 
 
 ## Using KGX CLI
 
 The KGX CLI is a way of accessing KGX's functionality directly from the command line.
 
-Currently the CLI supports the following operations,
+Currently, the CLI supports the following operations:
 
 ### graph-summary
 
@@ -87,12 +89,14 @@ may lead to side effects.
 
 ### transform
 
-Transform a graph from one serialization to another.
+Transform a graph from one serialization to another (including a knowledge source InfoRes rewrite).
 
 ```bash
     kgx transform --input-format tsv \
                   --output test_graph.json \
                   --output-format json \
+                  --knowledge-sources aggregator_knowledge_source "string,string-database" \
+                  --knowledge-sources aggregator_knowledge_source "go,gene-ontology" \
                   tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
 ```
 

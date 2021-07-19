@@ -11,7 +11,7 @@ import yaml
 from kgx.validator import Validator
 from kgx.sink import Sink
 from kgx.transformer import Transformer, SOURCE_MAP, SINK_MAP
-from kgx.config import get_logger, get_biolink_model_schema
+from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph

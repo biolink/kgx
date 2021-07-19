@@ -1,6 +1,6 @@
 import kgx
 import click
-from typing import List, Tuple, Optional, Set, Dict
+from typing import List, Tuple, Optional, Set
 
 from kgx.config import get_logger, get_config
 from kgx.cli.cli_utils import (
