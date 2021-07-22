@@ -22,7 +22,7 @@ class Source(object):
         self.edge_properties = set()
         self.prefix_manager = PrefixManager()
         self.default_provenance = 'Graph'
-        self._infores_catalog: Dict[str, Set[str]] = dict()
+        self._infores_catalog: Dict[str, str] = dict()
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -35,24 +35,6 @@ class Source(object):
 
         """
         self.prefix_manager.update_prefix_map(m)
-
-    def _infores_to_catalog(self, infores: str, source: str):
-        """
-        Catalogs a mapping of InfoRes to a Knowledge Source name.
-
-        Parameters
-        ----------
-        infores: str
-            Information Resource CURIE to be added to the catalog,
-
-        source: str
-            Name of Information Resource associated with the InfoRes
-            (i.e. from which the InfoRes was inferred)
-
-        """
-        if infores not in self._infores_catalog:
-            self._infores_catalog[infores] = set()
-        self._infores_catalog[infores].add(source)
 
     def _infores_processor(
             self,
@@ -100,6 +82,32 @@ class Source(object):
             _filter = None
             _substr = ''
             _prefix = ''
+
+        def _get_infores(source: str) -> str:
+            """
+            Get InfoRes CURIE inferred from source name.
+
+            Parameters
+            ----------
+            source: str
+                Name of Information Resource associated with the InfoRes
+                (i.e. from which the InfoRes was inferred)
+
+            Returns
+            -------
+            str:
+                infores CURIE, retrieved or generated.
+
+            """
+            if source in self._infores_catalog:
+                return self._infores_catalog[source]
+            else:
+                infores: str = _process_infores(source)
+                if infores:
+                    self._infores_catalog[source] = infores
+                    return infores
+                else:
+                    return ''
 
         def _process_infores(source: str) -> str:
             """
@@ -157,9 +165,8 @@ class Source(object):
                 return [self.default_provenance]
             results:  List[str] = list()
             for source in sources:
-                infores: str = _process_infores(source)
+                infores = _get_infores(source)
                 if infores:
-                    self._infores_to_catalog(infores, source)
                     results.append(infores)
             return results
 
@@ -178,14 +185,7 @@ class Source(object):
                 Source name string transformed into an infores CURIE, using _process_infores().
 
             """
-            if not source:
-                return self.default_provenance
-            infores: str = _process_infores(source)
-            if infores:
-                self._infores_to_catalog(infores, source)
-                return infores
-            else:
-                return ''
+            return self.default_provenance if not source else _get_infores(source)
 
         if ksf in column_types and column_types[ksf] == list:
             return parser_list
@@ -262,6 +262,23 @@ class Source(object):
             # not sure how safe an assumption for non-list column_types, but...
             return default_value_scalar
 
+    def set_provenance_map_entry(self, ksf: str, ksf_value: Any, entry: Dict, key: str):
+        if isinstance(ksf_value, str):
+            ksf_value = ksf_value.strip()
+            if ksf_value.lower() == 'true':
+                entry[key] = self._infores_processor(ksf)
+            elif ksf_value.lower() == 'false':
+                entry[key] = self._infores_default(ksf)  # source suppressed
+            else:
+                entry[key] = self._infores_default(ksf, ksf_value)
+        elif isinstance(ksf_value, bool):
+            if ksf_value:
+                entry[key] = self._infores_processor(ksf)
+            else:  # false, ignore this source?
+                entry[key] = self._infores_default(ksf)  # source suppressed
+        elif isinstance(ksf_value, (list, set, tuple)):
+            entry[key] = self._infores_processor(ksf, infores_rewrite_filter=ksf_value)
+
     def set_provenance_map(self, kwargs: Dict):
         """
         A knowledge_source property indexed map set up with various graph_metadata
@@ -286,21 +303,26 @@ class Source(object):
                 if not ksf_found:
                     ksf_found = ksf  # save the first one found, for later
                 ksf_value = kwargs.pop(ksf)
-                if isinstance(ksf_value, str):
-                    ksf_value = ksf_value.strip()
-                    if ksf_value.lower() == 'true':
-                        self.graph_metadata[ksf] = self._infores_processor(ksf)
-                    elif ksf_value.lower() == 'false':
-                        self.graph_metadata[ksf] = self._infores_default(ksf)  # source suppressed
-                    else:
-                        self.graph_metadata[ksf] = self._infores_default(ksf, ksf_value)
-                elif isinstance(ksf_value, bool):
-                    if ksf_value:
-                        self.graph_metadata[ksf] = self._infores_processor(ksf)
-                    else:  # false, ignore this source?
-                        self.graph_metadata[ksf] = self._infores_default(ksf)  # source suppressed
-                elif isinstance(ksf_value, (list, set, tuple)):
-                    self.graph_metadata[ksf] = self._infores_processor(ksf, infores_rewrite_filter=ksf_value)
+                # This is a multi-valued catalog of patterns
+                # for a given knowledge graph field
+                # indexed on each distinct regex pattern
+                if isinstance(ksf_value, dict):
+                    for ksf_pattern in ksf_value.keys():
+                        if ksf not in self.graph_metadata:
+                            self.graph_metadata[ksf] = dict()
+                        self.set_provenance_map_entry(
+                            ksf,
+                            ksf_value[ksf_pattern],
+                            self.graph_metadata[ksf],
+                            ksf_pattern
+                        )
+                else:
+                    self.set_provenance_map_entry(
+                        ksf,
+                        ksf_value,
+                        self.graph_metadata,
+                        ksf
+                    )
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
@@ -386,7 +408,7 @@ class Source(object):
                 if ksf != 'provided_by':
                     self.set_provenance(ksf, edge_data)
 
-    def get_infores_catalog(self) -> Dict[str, Set[str]]:
+    def get_infores_catalog(self) -> Dict[str, str]:
         """
         Retrieves the catalogs mapping of Knowledge Source names to an InfoRes.
 

@@ -319,6 +319,7 @@ def test_transform_knowledge_source_rewrite():
     output = os.path.join(TARGET_DIR, 'graph.json')
     knowledge_sources = [
         ('aggregator_knowledge_source', 'string,string database'),
+        ('aggregator_knowledge_source', 'go,gene ontology'),
     ]
     transform(
         inputs=inputs,
@@ -339,6 +340,7 @@ def test_transform_knowledge_source_rewrite():
         if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
             assert 'aggregator_knowledge_source' in e
             assert 'infores:string-database' in e['aggregator_knowledge_source']
+            assert 'infores:gene-ontology' in e['aggregator_knowledge_source']
             break
 
 

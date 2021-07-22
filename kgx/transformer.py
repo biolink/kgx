@@ -1,5 +1,7 @@
 import itertools
 import os
+from os.path import exists
+from sys import stderr
 from typing import Dict, Generator, List, Optional, Callable, Set
 
 from kgx.config import get_logger
@@ -68,10 +70,12 @@ class Transformer(object):
     ----------
     stream: bool
         Whether or not to stream
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
 
     """
 
-    def __init__(self, stream: bool = False):
+    def __init__(self, stream: bool = False, infores_catalog: Optional[str] = None):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
@@ -80,7 +84,21 @@ class Transformer(object):
 
         self.store = self.get_source('graph')
         self._seen_nodes = set()
-        self._infores_catalog: Dict[str, Set[str]] = dict()
+        self._infores_catalog: Dict[str, str] = dict()
+
+        if infores_catalog and exists(infores_catalog):
+            with open(infores_catalog, 'r') as irc:
+                # entry = irc.readline()
+                # while entry:
+                for entry in irc:
+                    if len(entry):
+                        entry = entry.strip()
+                        if entry:
+                            print("entry: "+entry, file=stderr)
+                            source, infores = entry.split('\t')
+                            self._infores_catalog[source] = infores
+                    # entry = irc.readline()
+
 
     def transform(
             self,
@@ -212,6 +230,7 @@ class Transformer(object):
                     if ksf in input_args:
                         ks_args[ksf] = input_args[ksf]
 
+                # TODO: does this call also need the default_provenance named argument?
                 intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph, **ks_args)
 
                 if output_args['format'] in {'tsv', 'csv'}:
@@ -255,9 +274,7 @@ class Transformer(object):
         # Aggregate the InfoRes catalogs from  all sources
         for s in sources:
             for k, v in s.get_infores_catalog().items():
-                if k not in self._infores_catalog:
-                    self._infores_catalog[k] = set()
-                self._infores_catalog[k].update(v)
+                self._infores_catalog[k] = v
 
     def get_infores_catalog(self):
         return self._infores_catalog
@@ -312,6 +329,7 @@ class Transformer(object):
                         self.inspector(GraphEntityType.NODE, rec)
                     sink.write_node(rec[-1])
 
+    # TODO: review whether or not the 'save()' method need to be 'knowledge_source' aware?
     def save(self, output_args: Dict) -> None:
         """
         Save data from the in-memory store to a desired sink.

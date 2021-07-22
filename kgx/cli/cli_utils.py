@@ -400,7 +400,7 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
                 # assumed to be just a default string value for the knowledge source field
                 return spec_parts[0]
             else:
-                # assumed to be an Infores Tuple rewrite specification
+                # assumed to be an InfoRes Tuple rewrite specification
                 if len(spec_parts) > 3:
                     spec_parts = spec_parts[:2]
                 return tuple(spec_parts)
@@ -549,7 +549,21 @@ def transform(
 
         if knowledge_sources:
             for ksf, spec in knowledge_sources:
-                source_dict['input'][ksf] = _process_knowledge_source(ksf, spec)
+                ksf_spec = _process_knowledge_source(ksf, spec)
+                if isinstance(ksf_spec, tuple):
+                    if ksf not in source_dict['input']:
+                        source_dict['input'][ksf] = dict()
+                    elif isinstance(source_dict['input'][ksf], dict):
+                        key = ksf_spec[0]
+                        source_dict['input'][ksf][key] = ksf_spec
+                    else:
+                        # Unexpected condition - mixing static values with tuple specified rewrites?
+                        raise RuntimeError(
+                            "Inconsistent multivalued specifications: make sure that all the  values " +
+                            "of the knowledge source tag '" + ksf + "' are all rewrite specifications!"
+                        )
+                else:
+                    source_dict['input'][ksf] = ksf_spec
 
         name = os.path.basename(inputs[0])
         transform_source(
@@ -854,17 +868,18 @@ def transform_source(
         reverse_predicate_mappings,
         property_types,
     )
-    transformer = Transformer(stream=stream)
+    transformer = Transformer(stream=stream, infores_catalog=infores_catalog)
     transformer.transform(input_args, output_args)
+
     if not preserve_graph:
         transformer.store.graph.clear()
 
     if infores_catalog:
         with open(infores_catalog, 'w') as irc:
-            catalog: Dict[str, Set[str]] = transformer.get_infores_catalog()
-            for infores in catalog.keys():
-                entry = catalog.setdefault(infores, set())
-                print(f"{infores}\t{','.join(list(entry))}", file=irc)
+            catalog: Dict[str, str] = transformer.get_infores_catalog()
+            for source in catalog.keys():
+                infores = catalog.setdefault(source, 'unknown')
+                print(f"{source}\t{infores}", file=irc)
 
     return transformer.store
 
