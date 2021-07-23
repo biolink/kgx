@@ -303,9 +303,8 @@ class Source(object):
                 if not ksf_found:
                     ksf_found = ksf  # save the first one found, for later
                 ksf_value = kwargs.pop(ksf)
-                # This is a multi-valued catalog of patterns
-                # for a given knowledge graph field
-                # indexed on each distinct regex pattern
+                # Check if the ksf_value is a multi-valued catalog of patterns for a
+                # given knowledge graph field, indexed on each distinct regex pattern
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
                         if ksf not in self.graph_metadata:
@@ -326,11 +325,12 @@ class Source(object):
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
-            if 'name' in kwargs:
-                self.graph_metadata['knowledge_source'] = self._infores_default(ksf, kwargs['name'])
-            else:
-                self.graph_metadata['knowledge_source'] = self._infores_default(ksf, self.default_provenance)
             ksf_found = 'knowledge_source'  # knowledge source field 'ksf' is set, one way or another
+            if 'name' in kwargs:
+                self.graph_metadata['knowledge_source'] = self._infores_default(ksf_found, kwargs['name'])
+            else:
+                self.graph_metadata['knowledge_source'] = self._infores_default(ksf_found, self.default_provenance)
+            
 
         # TODO: better to lobby the team to totally deprecated this, even for Nodes?
         if 'provided_by' not in self.graph_metadata:
@@ -350,20 +350,36 @@ class Source(object):
 
         """
         if ksf not in data.keys():
-            if ksf in self.graph_metadata:
+            if ksf in self.graph_metadata and not isinstance(self.graph_metadata[ksf], dict):
                 data[ksf] = self.graph_metadata[ksf]()  # get default ksf value?
             else:
+                # if unknown ksf or is an inapplicable pattern
+                # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
         else:  # valid data value but... possible InfoRes rewrite?
+            # If data is s a non-string iterable
+            # then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
             else:
+                # Otherwise, just assumed to be a scalar
+                # data value for this knowledge source field?
+                # Treat differentially depending on column type...
                 if column_types[ksf] == list:
                     sources = [data[ksf]]
                 else:
                     sources = data[ksf]
             if ksf in self.graph_metadata:
-                data[ksf] = self.graph_metadata[ksf](sources)
+                if isinstance(self.graph_metadata[ksf], dict):
+                    # Need to iterate through a pattern dictionary
+                    for pattern in self.graph_metadata[ksf].keys():
+                        for source in sources:
+                            # TODO: I need to test pattern match to each source?
+                            data[ksf] = self.graph_metadata[ksf][pattern](source)
+                            if data[ksf]:
+                                break
+                else:
+                    data[ksf] = self.graph_metadata[ksf](sources)
             else:  # leave data intact?
                 data[ksf] = sources
 
