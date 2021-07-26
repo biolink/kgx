@@ -340,8 +340,9 @@ def test_transform_knowledge_source_rewrite():
         if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
             assert 'aggregator_knowledge_source' in e
             assert 'infores:string-database' in e['aggregator_knowledge_source']
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'GO:0005576':
+            assert 'aggregator_knowledge_source' in e
             assert 'infores:gene-ontology' in e['aggregator_knowledge_source']
-            break
 
 
 def test_transform2():

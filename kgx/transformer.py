@@ -277,6 +277,10 @@ class Transformer(object):
                 self._infores_catalog[k] = v
 
     def get_infores_catalog(self):
+        """
+        Return catalog of Information Resource mappings
+         aggregated from all Transformer associated sources
+        """
         return self._infores_catalog
 
     def process(

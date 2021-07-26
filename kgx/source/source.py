@@ -20,7 +20,7 @@ class Source(object):
         self.node_properties = set()
         self.edge_properties = set()
         self.prefix_manager = PrefixManager()
-        self.infores: Optional[InfoResContext] = None
+        self.infores_context: Optional[InfoResContext] = None
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -232,23 +232,31 @@ class Source(object):
         generally a Callable function. This operation can be used in the code when the metadata is
         no longer needed, but may cause peculiar Python object persistent problems downstream.
         """
-        self.infores = None
+        self.infores_context = None
 
     def set_provenance_map(self, kwargs):
         """
         Set up a provenance (Knowledge Source to InfoRes) map
         """
-        self.infores = InfoResContext(self)
-        self.infores.set_provenance_map(kwargs)
+        self.infores_context = InfoResContext()
+        self.infores_context.set_provenance_map(kwargs)
 
+    def get_infores_catalog(self) -> Dict[str, str]:
+        """
+        Return the InfoRes Context of the source
+        """
+        if not self.infores_context:
+            return dict()
+        return self.infores_context.get_catalog()
+    
     def set_node_provenance(self, node_data):
         """
         Set a specific node provenance value.
         """
-        self.infores.set_node_provenance(node_data)
+        self.infores_context.set_node_provenance(node_data)
 
     def set_edge_provenance(self, edge_data):
         """
         Set a specific edge provenance value.
         """
-        self.infores.set_edge_provenance(edge_data)
+        self.infores_context.set_edge_provenance(edge_data)
