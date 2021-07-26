@@ -553,7 +553,7 @@ def transform(
                 if isinstance(ksf_spec, tuple):
                     if ksf not in source_dict['input']:
                         source_dict['input'][ksf] = dict()
-                    elif isinstance(source_dict['input'][ksf], dict):
+                    if isinstance(source_dict['input'][ksf], dict):
                         key = ksf_spec[0]
                         source_dict['input'][ksf][key] = ksf_spec
                     else:

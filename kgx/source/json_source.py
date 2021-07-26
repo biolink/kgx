@@ -1,5 +1,5 @@
 import gzip
-from typing import Optional, Generator, Any, Dict
+from typing import Optional, Generator, Any
 
 import ijson
 from itertools import chain

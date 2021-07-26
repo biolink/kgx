@@ -1,5 +1,3 @@
-import os
-
 import docker
 import pytest
 from neo4jrestclient.client import GraphDatabase

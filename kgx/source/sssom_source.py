@@ -1,3 +1,6 @@
+"""
+KGX Source for Simple Standard for Sharing Ontology Mappings ("SSSOM")
+"""
 import gzip
 import re
 
@@ -93,11 +96,11 @@ class SssomSource(Source):
             kwargs['delimiter'] = '\t'
         self.parse_header(filename, compression)
 
-        self.set_provenance_map(kwargs)
-
-        # SSSOM 'mapping provider' may override the default 'provided_by' setting?
+        # SSSOM 'mapping provider' may override the default 'knowledge_source' setting?
         if 'mapping_provider' in self.graph_metadata:
-            self.graph_metadata['provided_by'] = self._infores_default(self.graph_metadata['mapping_provider'])
+            kwargs['knowledge_source'] = self.graph_metadata['mapping_provider']
+
+        self.set_provenance_map(kwargs)
 
         if compression:
             FH = gzip.open(filename, 'rb')
