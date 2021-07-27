@@ -112,6 +112,9 @@ def graph_summary(
         A dictionary with the graph stats
 
     """
+    if not graph_name:
+        graph_name ='Graph'
+
     if report_format and report_format not in get_report_format_types():
         raise ValueError(f"report_format must be one of {get_report_format_types()}")
 
@@ -126,7 +129,7 @@ def graph_summary(
             # rather, the inspector will see the graph data after
             # being injected into the Transformer.transform() workflow
             # graph=transformer.store.graph,
-            name=graph_name if graph_name else 'Graph',
+            name=graph_name,
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
             error_log=error_log
