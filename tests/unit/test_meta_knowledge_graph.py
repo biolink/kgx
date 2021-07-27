@@ -3,7 +3,7 @@ import os
 from sys import stderr
 from typing import List, Dict
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph_operations.meta_knowledge_graph import generate_meta_knowledge_graph, MetaKnowledgeGraph
 from kgx.transformer import Transformer
 
@@ -55,7 +55,10 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
 
     transformer = Transformer(stream=True)
 
-    mkg = MetaKnowledgeGraph('Test Graph - Streamed')
+    mkg = MetaKnowledgeGraph(
+        'Test Graph - Streamed',
+        edge_facet_properties=['aggregator_knowledge_source']
+    )
 
     # We configure the Transformer with a data flow inspector
     # (Deployed in the internal Transformer.process() call)
@@ -64,12 +67,32 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert mkg.get_name() == 'Test Graph - Streamed'
     assert mkg.get_total_nodes_count() == 512
     assert mkg.get_number_of_categories() == 8
-    assert mkg.get_total_edges_count() == 540
+    assert mkg.get_total_edges_count() == 539
     assert mkg.get_edge_mapping_count() == 13
     assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
     assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()
     assert 'HP' in mkg.get_category('biolink:PhenotypicFeature').get_id_prefixes()
-    assert mkg.get_category('biolink:Gene').get_count() == 178
+    gene_category = mkg.get_category('biolink:Gene')
+    assert gene_category.get_count() == 178
+    gene_category.get_count_by_source()
+    assert len(mkg.get_edge_count_by_source("", "", "")) == 0
+    assert len(mkg.get_edge_count_by_source("biolink:Gene", "biolink:affects", "biolink:Disease")) == 0
+    ecbs1 = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:interacts_with", "biolink:Gene",
+        facet='aggregator_knowledge_source'
+    )
+    assert len(ecbs1) == 2
+    assert "biogrid" in ecbs1
+    assert "string" in ecbs1
+
+    ecbs2 = mkg.get_edge_count_by_source(
+        "biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature",
+        facet='aggregator_knowledge_source'
+    )
+    assert len(ecbs2) == 3
+    assert "omim" in ecbs2
+    assert "orphanet" in ecbs2
+    assert "hpoa" in ecbs2
 
 
 #

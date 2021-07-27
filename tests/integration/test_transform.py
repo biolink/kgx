@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.integration import (
@@ -94,13 +94,13 @@ def test_transform_filters1(query):
 @pytest.mark.parametrize(
     'query',
     [
-        ({}, {}, 512, 532),
-        ({'category': {'biolink:Gene'}}, {}, 178, 178),
+        ({}, {}, 512, 531),
+        ({'category': {'biolink:Gene'}}, {}, 178, 177),
         (
             {'category': {'biolink:Gene'}},
             {'subject_category': {'biolink:Gene'}, 'object_category': {'biolink:Gene'}},
             178,
-            178,
+            177,
         ),
         (
             {'category': {'biolink:Gene'}},
@@ -110,10 +110,10 @@ def test_transform_filters1(query):
                 'predicate': {'biolink:orthologous_to'},
             },
             178,
-            13,
+            12,
         ),
         ({'category': {'biolink:Gene'}}, {'predicate': {'biolink:interacts_with'}}, 178, 165),
-        ({}, {'provided_by': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
+        ({}, {'aggregator_knowledge_source': {'omim', 'hpoa', 'orphanet'}}, 512, 166),
         ({}, {'subject_category': {'biolink:Disease'}}, 56, 35),
         ({}, {'object_category': {'biolink:Disease'}}, 22, 20),
     ],
@@ -130,7 +130,7 @@ def test_transform_filters2(query):
         'format': 'tsv',
         'node_filters': query[0],
         'edge_filters': query[1],
-        'lineterminator': None,
+        'lineterminator': None
     }
     t = Transformer()
     t.transform(input_args)
@@ -160,7 +160,6 @@ def test_rdf_transform_with_filters1(query):
     t = Transformer()
     t.transform(input_args)
 
-    assert t.store.graph.number_of_nodes() == query[2]
     assert t.store.graph.number_of_edges() == query[3]
 
 
@@ -339,7 +338,10 @@ def test_rdf_transform3():
     """
     Test parsing an RDF N-triple and round-trip.
     """
-    input_args1 = {'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')], 'format': 'nt'}
+    input_args1 = {
+        'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt')],
+        'format': 'nt'
+    }
     t1 = Transformer()
     t1.transform(input_args1)
     assert t1.store.graph.number_of_nodes() == 2
@@ -401,6 +403,7 @@ def test_rdf_transform4():
         'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test2.nt')],
         'format': 'nt',
         'node_property_predicates': node_property_predicates,
+        'knowledge_source': 'Test Dataset'
     }
     t1 = Transformer()
     t1.transform(input_args1)
@@ -512,10 +515,12 @@ def test_rdf_transform5():
     assert e1t1['relation'] == e1t2['relation'] == 'biolink:interacts_with'
     assert e1t1['type'] == e1t2['type'] == 'biolink:Association'
     assert e1t1['id'] == e1t2['id'] == 'urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518'
+    assert 'test3.nt' in e1t1['knowledge_source']
     assert e1t2['fusion'] == 0.0
     assert e1t2['homology'] == 0.0
     assert e1t2['combined_score'] == 490.0
     assert e1t2['cooccurence'] == 332.0
+    assert 'test3.nt' in e1t2['knowledge_source']
 
 
 def test_transform_inspector():
@@ -529,6 +534,7 @@ def test_transform_inspector():
         ],
         'format': 'tsv',
     }
+
     t = Transformer()
 
     class TestInspector:
@@ -556,3 +562,204 @@ def test_transform_inspector():
 
     assert inspector.get_node_count() == 4
     assert inspector.get_edge_count() == 4
+
+
+def test_transformer_infores_basic_formatting():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': True,
+        'aggregator_knowledge_source': "true"
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' in n1
+    assert len(n1['provided_by']) == 1
+    assert 'infores:flybase-monarch-version-202012' in n1['provided_by']
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' in n2
+    assert len(n2['provided_by']) == 1
+    assert 'infores:gene-ontology-monarch-version-202012' in n2['provided_by']
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'infores:gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
+
+    # irc = t.get_infores_catalog()
+    # assert len(irc) == 2
+    # assert "fixed-gene-ontology-monarch-version-202012" in irc
+    # assert "Gene Ontology (Monarch version 202012)" in irc['fixed-gene-ontology-monarch-version-202012']
+
+
+def test_transformer_infores_suppression():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': "False",
+        'aggregator_knowledge_source': False
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' not in n1
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' not in n2
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'aggregator_knowledge_source' not in et
+
+
+def test_transformer_infores_parser_deletion_rewrite():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': (r"\(.+\)", ''),
+        'aggregator_knowledge_source': (r"\(.+\)", '')
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' in n1
+    assert len(n1['provided_by']) == 1
+    assert 'infores:flybase' in n1['provided_by']
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' in n2
+    assert len(n2['provided_by']) == 1
+    assert 'infores:gene-ontology' in n2['provided_by']
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'infores:gene-ontology' in et['aggregator_knowledge_source']
+
+    irc = t.get_infores_catalog()
+    assert len(irc) == 2
+    assert "Gene Ontology (Monarch version 202012)" in irc
+    assert "infores:gene-ontology" in irc["Gene Ontology (Monarch version 202012)"]
+
+
+def test_transformer_infores_parser_substitution_rewrite():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': (r"\(.+\)", "Monarch"),
+        'aggregator_knowledge_source': (r"\(.+\)", "Monarch")
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' in n1
+    assert len(n1['provided_by']) == 1
+    assert 'infores:flybase-monarch' in n1['provided_by']
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' in n2
+    assert len(n2['provided_by']) == 1
+    assert 'infores:gene-ontology-monarch' in n2['provided_by']
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'infores:gene-ontology-monarch' in et['aggregator_knowledge_source']
+
+    irc = t.get_infores_catalog()
+    assert len(irc) == 2
+    assert "Gene Ontology (Monarch version 202012)" in irc
+    assert "infores:gene-ontology-monarch" in irc["Gene Ontology (Monarch version 202012)"]
+
+
+def test_transformer_infores_parser_prefix_rewrite():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': (r"\(.+\)", "", "Monarch"),
+        'aggregator_knowledge_source': (r"\(.+\)", "", "Monarch")
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' in n1
+    assert len(n1['provided_by']) == 1
+    assert 'infores:monarch-flybase' in n1['provided_by']
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' in n2
+    assert len(n2['provided_by']) == 1
+    assert 'infores:monarch-gene-ontology' in n2['provided_by']
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'infores:monarch-gene-ontology' in et['aggregator_knowledge_source']
+
+    irc = t.get_infores_catalog()
+    assert len(irc) == 2
+    assert "Gene Ontology (Monarch version 202012)" in irc
+    assert "infores:monarch-gene-ontology" in irc["Gene Ontology (Monarch version 202012)"]
+
+
+def test_transformer_infores_simple_prefix_rewrite():
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'test_infores_coercion_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'provided_by': (r"", "", "Fixed"),
+        'aggregator_knowledge_source': (r"", "", "Fixed")
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+
+    n1 = t.store.graph.nodes()['FlyBase:FBgn0000008']
+    assert 'provided_by' in n1
+    assert len(n1['provided_by']) == 1
+    assert 'infores:fixed-flybase-monarch-version-202012' in n1['provided_by']
+
+    n2 = t.store.graph.nodes()['GO:0005912']
+    assert 'provided_by' in n2
+    assert len(n2['provided_by']) == 1
+    assert 'infores:fixed-gene-ontology-monarch-version-202012' in n2['provided_by']
+
+    et = list(
+        t.store.graph.get_edge('FlyBase:FBgn0000008', 'GO:0005912').values()
+    )[0]
+    assert 'infores:fixed-gene-ontology-monarch-version-202012' in et['aggregator_knowledge_source']
+
+    irc = t.get_infores_catalog()
+    assert len(irc) == 2
+    assert "Gene Ontology (Monarch version 202012)" in irc
+    assert "infores:fixed-gene-ontology-monarch-version-202012" in irc["Gene Ontology (Monarch version 202012)"]

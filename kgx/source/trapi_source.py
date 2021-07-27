@@ -25,7 +25,6 @@ class TrapiSource(JsonSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
         **kwargs: Any
     ) -> Generator:
         """
@@ -39,8 +38,6 @@ class TrapiSource(JsonSource):
             The format (``trapi-json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -50,8 +47,9 @@ class TrapiSource(JsonSource):
             A generator for node and edge records
 
         """
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.set_provenance_map(kwargs)
+
         n = self.read_nodes(filename, compression)
         e = self.read_edges(filename, compression)
         yield from chain(n, e)

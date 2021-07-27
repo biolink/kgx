@@ -1,7 +1,7 @@
 import gzip
 import re
 import jsonlines
-from typing import Optional, Any, Generator
+from typing import Optional, Any, Generator, Dict
 
 from kgx.config import get_logger
 log = get_logger()
@@ -23,7 +23,6 @@ class JsonlSource(JsonSource):
         filename: str,
         format: str = 'jsonl',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -37,8 +36,6 @@ class JsonlSource(JsonSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -48,8 +45,9 @@ class JsonlSource(JsonSource):
             A generator for records
 
         """
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.set_provenance_map(kwargs)
+
         if re.search(f'nodes.{format}', filename):
             m = self.read_node
         elif re.search(f'edges.{format}', filename):

@@ -89,8 +89,8 @@ def cli():
 def graph_summary_wrapper(
     inputs: List[str],
     input_format: str,
-    input_compression: str,
-    output: str,
+    input_compression: Optional[str],
+    output: Optional[str],
     report_type: str,
     report_format: str,
     stream: bool,
@@ -115,24 +115,20 @@ def graph_summary_wrapper(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
-    report_format: str
-        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
+    report_format: Optional[str]
+        The summary report format file types: 'yaml' or 'json'  (default is report_type specific)
     stream: bool
         Whether to parse input as a stream
     graph_name: str
-        User specified name of graph being summarized
-    node_facet_properties: Optional[List]
-        A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
-    edge_facet_properties: Optional[List]
-        A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+        User specified name of graph being summarize
+    node_facet_properties: Optional[Set]
+        A list of node properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
+    edge_facet_properties: Optional[Set]
+        A list of edge properties from which to generate counts per value for those properties.
+        For example, ``['knowledge_source']``d
     error_log: str
-        Where to write any graph processing error message (stderr, by default)
-
-    Returns
-    -------
-    Dict
-        A dictionary with the graph stats
-
+        Where to write any graph processing error message (stderr, by default, for empty argument)
     """
     graph_summary(
         inputs,
@@ -409,7 +405,23 @@ def neo4j_upload_wrapper(
 @click.option(
     '--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process'
 )
-@click.option('--processes', '-p', required=False, type=int, default=1, help='Number of processes to use')
+@click.option(
+    '--knowledge-sources',
+    '-k',
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help='A named knowledge source with (string, boolean or tuple rewrite) specification'
+)
+@click.option(
+    '--infores-catalog',
+    required=False,
+    type=click.Path(exists=False),
+    help='Optional dump of a CSV file of InfoRes CURIE to Knowledge Source mappings'
+)
+@click.option(
+    '--processes', '-p', required=False, type=int, default=1, help='Number of processes to use'
+)
 def transform_wrapper(
     inputs: List[str],
     input_format: str,
@@ -418,11 +430,13 @@ def transform_wrapper(
     output_format: str,
     output_compression: str,
     stream: bool,
-    node_filters: Tuple[str, str],
-    edge_filters: Tuple[str, str],
+    node_filters: Optional[List[Tuple[str, str]]],
+    edge_filters: Optional[List[Tuple[str, str]]],
     transform_config: str,
-    source: List,
+    source: Optional[List],
+    knowledge_sources: Optional[List[Tuple[str, str]]],
     processes: int,
+    infores_catalog: Optional[str] = None,
 ):
     """
     Transform a Knowledge Graph from one serialization form to another.
@@ -443,15 +457,19 @@ def transform_wrapper(
     output_compression: str
         The output compression typ
     stream: bool
-        Wheter or not to stream
-    node_filters: Tuple[str, str]
+        Whether or not to stream
+    node_filters: Optional[List[Tuple[str, str]]]
         Node input filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[List[Tuple[str, str]]]
         Edge input filters
     transform_config: str
         Transform config YAML
     source: List
         A list of source(s) to load from the YAML
+    knowledge_sources: Optional[List[Tuple[str, str]]]
+        A list of named knowledge sources with (string, boolean or tuple rewrite) specification
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
     processes: int
         Number of processes to use
 
@@ -468,7 +486,9 @@ def transform_wrapper(
         edge_filters=edge_filters,
         transform_config=transform_config,
         source=source,
+        knowledge_sources=knowledge_sources,
         processes=processes,
+        infores_catalog=infores_catalog
     )
 
 

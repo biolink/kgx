@@ -6,15 +6,13 @@ import click
 import validators
 from bmt import Toolkit
 
-from kgx import GraphEntityType
-
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
     get_toolkit,
     snakecase_to_sentencecase,
     sentencecase_to_snakecase,
-    camelcase_to_sentencecase,
+    camelcase_to_sentencecase, GraphEntityType,
 )
 from kgx.prefix_manager import PrefixManager
 
@@ -111,12 +109,15 @@ class Validator(object):
         Whether the generated report should be verbose or not (default: ``False``)
     progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
         Function given a peek at the current record being processed by the class wrapped Callable.
+    schema: Optional[str]
+        URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
     """
     
     def __init__(
             self,
             verbose: bool = False,
-            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            schema: Optional[str] = None
     ):
         # formal arguments
         self.verbose: bool = verbose
@@ -333,7 +334,7 @@ class Validator(object):
         - Edge properties
         - Edge property type
         - Edge property value type
-        - Edge label
+        - Edge predicate
 
         Parameters
         ----------
@@ -792,21 +793,21 @@ class Validator(object):
             if m:
                 p = toolkit.get_element(snakecase_to_sentencecase(edge_predicate))
                 if p is None:
-                    message = f"Edge label '{edge_predicate}' not in Biolink Model"
+                    message = f"Edge predicate '{edge_predicate}' not in Biolink Model"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}", error_type, message, MessageLevel.ERROR
                         )
                     )
                 elif edge_predicate != p.name and edge_predicate in p.aliases:
-                    message = f"Edge label '{edge_predicate}' is actually an alias for {p.name}; Should replace {edge_predicate} with {p.name}"
+                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; Should replace {edge_predicate} with {p.name}"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}", error_type, message, MessageLevel.ERROR
                         )
                     )
             else:
-                message = f"Edge label '{edge_predicate}' is not in snake_case form"
+                message = f"Edge predicate '{edge_predicate}' is not in snake_case form"
                 errors.append(
                     ValidationError(f"{subject}-{object}", error_type, message, MessageLevel.ERROR)
                 )

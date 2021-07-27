@@ -48,10 +48,14 @@ def test_read_nt1():
 def test_read_nt2():
     """
     Read from an RDF N-Triple file using RdfSource.
-    This test also supplies the provided_by parameter.
+    This test also supplies the knowledge_source parameter.
     """
     s = RdfSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'), provided_by='Test Dataset')
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'rdf', 'test1.nt'),
+        provided_by="Test Dataset",
+        knowledge_source="Test Dataset"
+    )
     nodes, edges = process_stream(g)
     assert len(nodes) == 2
     assert len(edges) == 1
@@ -81,7 +85,7 @@ def test_read_nt2():
     assert e['object'] == 'ENSEMBL:ENSG0000000000002'
     assert e['predicate'] == 'biolink:interacts_with'
     assert e['relation'] == 'biolink:interacts_with'
-    assert 'Test Dataset' in e['provided_by']
+    assert 'Test Dataset' in e['knowledge_source']
 
 
 def test_read_nt3():
@@ -297,14 +301,18 @@ def test_read_nt6():
             {'prop1': [1, 2, 3]},
         ),
         (
-            {'id': 'ABC:123', 'category': ['biolink:NamedThing'], 'provided_by': 'test'},
+            {
+                'id': 'ABC:123',
+                'category': ['biolink:NamedThing'],
+                'provided_by': 'test1'
+            },
             {
                 'id': 'DEF:456',
                 'category': ('biolink:NamedThing', 'biolink:Gene'),
-                'provided_by': 'test',
+                'provided_by': 'test2',
             },
             {'category': ['biolink:NamedThing', 'biolink:Gene']},
-            {'provided_by': ['test']},
+            {'provided_by': ['test1', 'test2']},
         ),
         (
             {
@@ -334,7 +342,7 @@ def test_read_nt6():
                 'predicate': 'biolink:has_phenotype',
                 'id': 'bfada868a8309f2b7849',
                 'type': 'OBAN:association',
-                'source': 'Orphanet:331206',
+                'knowledge_source': 'Orphanet:331206',
             },
             {
                 'subject': 'Orphanet:331206',
@@ -343,10 +351,10 @@ def test_read_nt6():
                 'predicate': 'biolink:has_phenotype',
                 'id': 'bfada868a8309f2b7849',
                 'type': 'OBAN:association',
-                'source': 'Orphanet:331206',
+                'knowledge_source': 'Orphanet:331206',
             },
             {},
-            {'source': ['Orphanet:331206', 'Orphanet:331206']},
+            {'knowledge_source': ['Orphanet:331206']},
         ),
     ],
 )

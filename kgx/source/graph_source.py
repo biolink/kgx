@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Generator, Any
+from typing import Generator, Any, Dict, Optional
 
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
@@ -19,7 +19,11 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(self, graph: BaseGraph, provided_by: str = None, **kwargs: Any) -> Generator:
+    def parse(
+            self,
+            graph: BaseGraph,
+            **kwargs: Any
+    ) -> Generator:
         """
         This method reads from a graph and yields records.
 
@@ -27,8 +31,6 @@ class GraphSource(Source):
         ----------
         graph: kgx.graph.base_graph.BaseGraph
             The graph to read from
-        provided_by: Optional[str]
-            The name of the source providing the graph
         kwargs: Any
             Any additional arguments
 
@@ -39,8 +41,9 @@ class GraphSource(Source):
 
         """
         self.graph = graph
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.set_provenance_map(kwargs)
+
         nodes = self.read_nodes()
         edges = self.read_edges()
         yield from chain(nodes, edges)
@@ -60,8 +63,9 @@ class GraphSource(Source):
                 data['id'] = n
             node_data = validate_node(data)
             node_data = sanitize_import(node_data.copy())
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_node_provenance(node_data)
+
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
                 yield n, node_data
@@ -79,8 +83,9 @@ class GraphSource(Source):
         for u, v, k, data in self.graph.edges(keys=True, data=True):
             edge_data = validate_edge(data)
             edge_data = sanitize_import(edge_data.copy())
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_edge_provenance(edge_data)
+
             if self.check_edge_filter(edge_data):
                 self.node_properties.update(edge_data.keys())
                 yield u, v, k, edge_data

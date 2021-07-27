@@ -22,7 +22,6 @@ class JsonSource(TsvSource):
         filename: str,
         format: str = 'json',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
         **kwargs: Any
     ) -> Generator:
         """
@@ -36,8 +35,6 @@ class JsonSource(TsvSource):
             The format (``json``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -47,8 +44,9 @@ class JsonSource(TsvSource):
             A generator for node and edge records read from the file
 
         """
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.set_provenance_map(kwargs)
+
         self.compression = compression
         n = self.read_nodes(filename)
         e = self.read_edges(filename)

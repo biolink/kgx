@@ -100,7 +100,7 @@ def _stream_transform(query):
             },
             {'filename': os.path.join(TARGET_DIR, 'graph1.json'), 'format': 'json'},
             512,
-            532,
+            531,
         ),
         (
             {
@@ -112,7 +112,7 @@ def _stream_transform(query):
             },
             {'filename': os.path.join(TARGET_DIR, 'graph2'), 'format': 'jsonl'},
             512,
-            532,
+            531,
         ),
         (
             {
@@ -125,7 +125,7 @@ def _stream_transform(query):
             },
             {'filename': os.path.join(TARGET_DIR, 'graph3.nt'), 'format': 'nt'},
             512,
-            532,
+            531,
         ),
         (
             {
@@ -138,7 +138,7 @@ def _stream_transform(query):
             },
             {'filename': os.path.join(TARGET_DIR, 'graph4'), 'format': 'jsonl'},
             178,
-            178,
+            177,
         ),
         (
             {
@@ -189,7 +189,7 @@ def test_transform1(query):
                 'filename': os.path.join(TARGET_DIR, 'graph1s2'),
                 'format': 'tsv',
                 'node_properties': ['id', 'name', 'category', 'taxon'],
-                'edge_properties': ['subject', 'predicate', 'object', 'relation', 'provided_by'],
+                'edge_properties': ['subject', 'predicate', 'object', 'relation', 'knowledge_source'],
             },
             512,
             532,
@@ -237,7 +237,7 @@ def test_transform2(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s3'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': [
                     'subject',
                     'predicate',
@@ -296,7 +296,7 @@ def test_transform3(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s4'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             176,
@@ -353,7 +353,7 @@ def test_transform4(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s5'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             220,
@@ -404,7 +404,7 @@ def test_transform5(query):
             {
                 'filename': os.path.join(TARGET_DIR, 'graph1s6'),
                 'format': 'tsv',
-                'node_properties': ['id', 'name', 'category', 'description', 'provided_by'],
+                'node_properties': ['id', 'name', 'category', 'description', 'knowledge_source'],
                 'edge_properties': ['subject', 'predicate', 'object', 'relation', 'category'],
             },
             4,
@@ -477,7 +477,7 @@ def test_transform6(query):
                 'format': 'neo4j',
             },
             512,
-            532,
+            531,
         ),
         (
             {'filename': [os.path.join(RESOURCE_DIR, 'graph.json')], 'format': 'json'},
@@ -488,7 +488,7 @@ def test_transform6(query):
                 'format': 'neo4j',
             },
             512,
-            532,
+            531,
         ),
         (
             {'filename': [os.path.join(RESOURCE_DIR, 'rdf', 'test3.nt')], 'format': 'nt'},

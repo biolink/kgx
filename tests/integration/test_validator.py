@@ -1,5 +1,5 @@
 import os
-
+from sys import stderr
 from kgx.utils.kgx_utils import get_toolkit
 from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
@@ -56,6 +56,22 @@ def test_validate_json():
     assert len(e) == 0
 
 
+def test_distinct_validator_class_versus_default_toolkit_biolink_version():
+    Validator.set_biolink_model(version="1.8.2")
+    default_tk = get_toolkit()
+    validator_tk = Validator.get_toolkit()
+    assert(default_tk.get_model_version() != validator_tk.get_model_version())
+
+
+def test_distinct_class_versus_validator_instance_biolink_version():
+    Validator.set_biolink_model(version="1.7.0")
+    validator = Validator()
+    Validator.set_biolink_model(version="1.8.2")
+    validator_class_tk = Validator.get_toolkit()
+    validation_instance_version = validator.get_validation_model_version()
+    assert(validation_instance_version != validator_class_tk.get_model_version())
+
+
 def test_validator_explicit_biolink_version():
     """
     A fake test to establish a success condition for validation.
@@ -80,17 +96,36 @@ def test_validator_explicit_biolink_version():
     assert len(e) == 0
 
 
-def test_distinct_validator_class_versus_default_toolkit_biolink_version():
-    Validator.set_biolink_model(version="1.8.2")
-    default_tk = get_toolkit()
-    validator_tk = Validator.get_toolkit()
-    assert(default_tk.get_model_version() != validator_tk.get_model_version())
+def test_validate_by_stream_inspector():
+    """
+    Test generate the validate function by streaming
+    graph data through a graph Transformer.process() Inspector
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'aggregator_knowledge_source': True
+    }
 
+    Validator.set_biolink_model("1.8.2")
 
-def test_distinct_class_versus_validator_instance_biolink_version():
-    Validator.set_biolink_model(version="1.7.0")
+    # Validator assumes the currently set Biolink Release
     validator = Validator()
-    Validator.set_biolink_model(version="1.8.2")
-    validator_class_tk = Validator.get_toolkit()
-    validation_instance_version = validator.get_validation_model_version()
-    assert(validation_instance_version != validator_class_tk.get_model_version())
+
+    transformer = Transformer(stream=True)
+
+    transformer.transform(
+        input_args=input_args,
+        output_args={'format': 'null'},  # streaming processing throws the graph data away
+        # ... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=validator
+    )
+
+    validator.write_report(stderr)
+
+    e = validator.get_errors()
+    assert len(e) == 0

@@ -1,8 +1,9 @@
 import itertools
 import os
-from typing import Dict, Generator, List, Optional, Callable
+from os.path import exists
+from sys import stderr
+from typing import Dict, Generator, List, Optional, Callable, Set
 
-from kgx import GraphEntityType
 from kgx.config import get_logger
 from kgx.source import (
     GraphSource,
@@ -28,7 +29,7 @@ from kgx.sink import (
     NullSink
 )
 
-from kgx.utils.kgx_utils import apply_graph_operations
+from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType, knowledge_provenance_properties
 
 SOURCE_MAP = {
     'tsv': TsvSource,
@@ -69,17 +70,35 @@ class Transformer(object):
     ----------
     stream: bool
         Whether or not to stream
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
 
     """
 
-    def __init__(self, stream: bool = False):
+    def __init__(self, stream: bool = False, infores_catalog: Optional[str] = None):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
+
         self.inspector: Optional[Callable[[GraphEntityType, List], None]] = None
 
         self.store = self.get_source('graph')
         self._seen_nodes = set()
+        self._infores_catalog: Dict[str, str] = dict()
+
+        if infores_catalog and exists(infores_catalog):
+            with open(infores_catalog, 'r') as irc:
+                # entry = irc.readline()
+                # while entry:
+                for entry in irc:
+                    if len(entry):
+                        entry = entry.strip()
+                        if entry:
+                            print("entry: "+entry, file=stderr)
+                            source, infores = entry.split('\t')
+                            self._infores_catalog[source] = infores
+                    # entry = irc.readline()
+
 
     def transform(
             self,
@@ -132,13 +151,14 @@ class Transformer(object):
             source.set_edge_filters(edge_filters)
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
-            if 'provided_by' not in input_args:
-                if 'name' in input_args:
-                    input_args['provided_by'] = input_args['name']
-                else:
-                    if 'uri' in input_args:
-                        input_args['provided_by'] = input_args['uri']
-            g = source.parse(**input_args)
+
+            if 'uri' in input_args:
+                default_provenance = input_args['uri']
+            else:
+                default_provenance = None
+
+            g = source.parse(default_provenance=default_provenance, **input_args)
+
             sources.append(source)
             generators.append(g)
         else:
@@ -155,12 +175,11 @@ class Transformer(object):
                 source.set_edge_filters(edge_filters)
                 self.node_filters = source.node_filters
                 self.edge_filters = source.edge_filters
-                if 'provided_by' not in input_args:
-                    if 'name' in input_args:
-                        input_args['provided_by'] = input_args.pop('name')
-                    else:
-                        input_args['provided_by'] = os.path.basename(f)
-                g = source.parse(f, **input_args)
+
+                default_provenance = os.path.basename(f)
+
+                g = source.parse(f, default_provenance=default_provenance, **input_args)
+
                 sources.append(source)
                 generators.append(g)
 
@@ -204,7 +223,15 @@ class Transformer(object):
                 intermediate_source = self.get_source('graph')
                 intermediate_source.node_properties.update(intermediate_sink.node_properties)
                 intermediate_source.edge_properties.update(intermediate_sink.edge_properties)
-                intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph)
+
+                # Need to propagate knowledge source specifications here?
+                ks_args = dict()
+                for ksf in knowledge_provenance_properties:
+                    if ksf in input_args:
+                        ks_args[ksf] = input_args[ksf]
+
+                # TODO: does this call also need the default_provenance named argument?
+                intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph, **ks_args)
 
                 if output_args['format'] in {'tsv', 'csv'}:
                     if 'node_properties' not in output_args:
@@ -243,6 +270,18 @@ class Transformer(object):
             self.store.node_properties.update(sink.node_properties)
             self.store.edge_properties.update(sink.edge_properties)
             apply_graph_operations(sink.graph, operations)
+
+        # Aggregate the InfoRes catalogs from  all sources
+        for s in sources:
+            for k, v in s.get_infores_catalog().items():
+                self._infores_catalog[k] = v
+
+    def get_infores_catalog(self):
+        """
+        Return catalog of Information Resource mappings
+         aggregated from all Transformer associated sources
+        """
+        return self._infores_catalog
 
     def process(
             self,
@@ -294,6 +333,7 @@ class Transformer(object):
                         self.inspector(GraphEntityType.NODE, rec)
                     sink.write_node(rec[-1])
 
+    # TODO: review whether or not the 'save()' method need to be 'knowledge_source' aware?
     def save(self, output_args: Dict) -> None:
         """
         Save data from the in-memory store to a desired sink.

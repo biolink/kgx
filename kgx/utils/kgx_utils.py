@@ -2,6 +2,7 @@ import importlib
 import re
 import time
 import uuid
+from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from linkml_runtime.linkml_model.meta import (
@@ -34,16 +35,38 @@ CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
 
 LIST_DELIMITER = '|'
 
+
+class GraphEntityType(Enum):
+    GRAPH = "graph"
+    NODE = "node"
+    EDGE = "edge"
+
+
+# Biolink 2.0 "Knowledge Source" association slots,
+# including the deprecated 'provided_by' slot
+
+provenance_slot_types = {
+    'knowledge_source': list,
+    'primary_knowledge_source': str,
+    'original_knowledge_source': str,
+    'aggregator_knowledge_source': list,
+    'supporting_data_source': list,
+    'provided_by': list,
+}
+
 column_types = {
     'publications': list,
     'qualifiers': list,
     'category': list,
     'synonym': list,
-    'provided_by': list,
     'same_as': list,
     'negated': bool,
     'xrefs': list,
 }
+
+column_types.update(provenance_slot_types)
+
+knowledge_provenance_properties = set(provenance_slot_types.keys())
 
 extension_types = {'csv': ',', 'tsv': '\t', 'csv:neo4j': ',', 'tsv:neo4j': '\t'}
 
@@ -59,6 +82,15 @@ archive_format = {
     'w:bz2': 'tar.bz2',
 }
 
+is_provenance_property_multivalued = {
+    'knowledge_source': True,
+    'primary_knowledge_source': False,
+    'original_knowledge_source': False,
+    'aggregator_knowledge_source': True,
+    'supporting_data_source': True,
+    'provided_by': True,
+}
+
 is_property_multivalued = {
     'id': False,
     'subject': False,
@@ -70,12 +102,13 @@ is_property_multivalued = {
     'same_as': True,
     'name': False,
     'has_evidence': False,
-    'provided_by': True,
     'category': True,
     'publications': True,
     'type': False,
     'relation': False,
 }
+
+is_property_multivalued.update(is_provenance_property_multivalued)
 
 
 def camelcase_to_sentencecase(s: str) -> str:

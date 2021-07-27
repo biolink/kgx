@@ -57,7 +57,7 @@ def test_graph_summary1():
     assert summary_stats['node_stats']['total_nodes'] == 512
     assert 'biolink:Gene' in summary_stats['node_stats']['node_categories']
     assert 'biolink:Disease' in summary_stats['node_stats']['node_categories']
-    assert summary_stats['edge_stats']['total_edges'] == 540
+    assert summary_stats['edge_stats']['total_edges'] == 539
     assert 'biolink:has_phenotype' in summary_stats['edge_stats']['predicates']
     assert 'biolink:interacts_with' in summary_stats['edge_stats']['predicates']
 
@@ -86,7 +86,7 @@ def test_graph_summary2a():
     assert 'nodes' in summary_stats
     assert 'edges' in summary_stats
     assert 'name' in summary_stats
-    assert summary_stats['name']  == 'Default Meta-Knowledge-Graph'
+    assert summary_stats['name'] == 'Default Meta-Knowledge-Graph'
 
 
 def test_graph_summary2b():
@@ -152,7 +152,8 @@ def test_validate_non_streaming():
         input_format='json',
         input_compression=None,
         output=output,
-        stream=False
+        stream=False,
+        biolink_release="2.1.0"
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -171,7 +172,8 @@ def test_validate_streaming():
         input_format='json',
         input_compression=None,
         output=output,
-        stream=True
+        stream=True,
+        biolink_release="2.1.0"
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -197,7 +199,7 @@ def test_neo4j_upload(clean_slate):
         stream=False,
     )
     assert t.store.graph.number_of_nodes() == 512
-    assert t.store.graph.number_of_edges() == 532
+    assert t.store.graph.number_of_edges() == 531
 
 
 @pytest.mark.skip()
@@ -245,6 +247,9 @@ def test_transform1():
         os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
     ]
     output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'True'),
+    ]
     transform(
         inputs=inputs,
         input_format='tsv',
@@ -252,13 +257,129 @@ def test_transform1():
         output=output,
         output_format='json',
         output_compression=None,
+        knowledge_sources=knowledge_sources,
     )
     assert os.path.exists(output)
     data = json.load(open(output, 'r'))
     assert 'nodes' in data
     assert 'edges' in data
     assert len(data['nodes']) == 512
-    assert len(data['edges']) == 532
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:string' in e['aggregator_knowledge_source']
+            assert 'infores:biogrid' in e['aggregator_knowledge_source']
+            break
+
+
+def test_transform_knowledge_source_suppression():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'False'),
+        ('knowledge_source', 'False'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' not in e
+            assert 'knowledge_source' not in e
+            break
+
+
+def test_transform_knowledge_source_rewrite():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'string,string database'),
+        ('aggregator_knowledge_source', 'go,gene ontology'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:string-database' in e['aggregator_knowledge_source']
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'GO:0005576':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:gene-ontology' in e['aggregator_knowledge_source']
+
+
+def test_transform_knowledge_source_rewrite_with_prefix():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'string,string database,new'),
+        ('aggregator_knowledge_source', 'go,gene ontology,latest'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:new-string-database' in e['aggregator_knowledge_source']
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'GO:0005576':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:latest-gene-ontology' in e['aggregator_knowledge_source']
 
 
 def test_transform2():
