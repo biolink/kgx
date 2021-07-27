@@ -95,11 +95,11 @@ To help generate and document such InfoRes identifiers, the provenance property 
 
 1. Similar to 2 above, except providing a second string in the tuple which is substituted for the regular expression matched string, followed by simple reformatting.
 
-1. Providing a third string in the tuple to add a prefix string to the name (as a separate word) of all the generated InfoRes identifiers .  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again,  the algorithm  then  applies the simple reformatting rules, but no other internal changes.
+1. Providing a third string in the tuple to add a prefix string to the name (as a separate word) of all the generated InfoRes identifiers.  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again, the algorithm then applies the simple reformatting rules, but no other internal changes.
 
 The unit tests provide examples of these various rewrites, in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
 
-Although not (yet) directly exposed in the KGX CLI, the catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the `Transformer` class.
+The catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the **Transformer** class.  The `transform` call of the CLI now also takes a multi-valued `--knowledge-sources` argument, which either facilitates the aforementioned infores processing. Note that quoted comma-delimited strings demarcate the tuple rewrite specifications noted above.
 
 ## kgx.transformer
 

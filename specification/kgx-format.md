@@ -110,6 +110,8 @@ The `relation` element is used to refer to a more specific relationship that fur
 Usually, this is a term from the [Relations Ontology](http://www.obofoundry.org/ontology/ro.html) but other ontologies,
 thesauri, and controlled vocabularies are allowed.
 
+Note: it is under consideration to deprecate the edge `relation` association slot in Biolink Model release 2.3.0.
+
 #### Edge Provenance
 
 Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original [`provided_by`](https://biolink.github.io/biolink-model/docs/provided_by) property is now deprecated for edges in favor of the Biolink Model 2.0 defined [`knowledge_source`](https://biolink.github.io/biolink-model/docs/knowledge_source) association slot or one of its descendents - [`aggregator_knowledge_source`](https://biolink.github.io/biolink-model/docs/aggregator_knowledge_source),  [`primary_knowledge_source`](https://biolink.github.io/biolink-model/docs/primary_knowledge_source) and [`original_knowledge_source`](https://biolink.github.io/biolink-model/docs/original_knowledge_source) - or the related association slot, [`supporting_data_source`](https://biolink.github.io/biolink-model/docs/supporting_data_source).

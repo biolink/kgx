@@ -345,6 +345,43 @@ def test_transform_knowledge_source_rewrite():
             assert 'infores:gene-ontology' in e['aggregator_knowledge_source']
 
 
+def test_transform_knowledge_source_rewrite_with_prefix():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+        os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+    ]
+    output = os.path.join(TARGET_DIR, 'graph.json')
+    knowledge_sources = [
+        ('aggregator_knowledge_source', 'string,string database,new'),
+        ('aggregator_knowledge_source', 'go,gene ontology,latest'),
+    ]
+    transform(
+        inputs=inputs,
+        input_format='tsv',
+        input_compression=None,
+        output=output,
+        output_format='json',
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, 'r'))
+    assert 'nodes' in data
+    assert 'edges' in data
+    assert len(data['nodes']) == 512
+    assert len(data['edges']) == 531
+    for e in data['edges']:
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'HGNC:20738':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:new-string-database' in e['aggregator_knowledge_source']
+        if e['subject'] == 'HGNC:10848' and e['object'] == 'GO:0005576':
+            assert 'aggregator_knowledge_source' in e
+            assert 'infores:latest-gene-ontology' in e['aggregator_knowledge_source']
+
+
 def test_transform2():
     """
     Transform from a test transform YAML.
