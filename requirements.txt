@@ -8,7 +8,7 @@ pandas>=1.0.3
 pytest>=0.0
 mypy>=0.0
 pystache>=0.0
-rdflib>=0.0
+rdflib==5.0.0
 Click~=7.0
 neo4jrestclient>=0.0
 pyyaml>=0.0
