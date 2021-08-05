@@ -44,6 +44,11 @@ class NeoSink(Sink):
             self.CACHE_SIZE = kwargs['cache_size']
         self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
 
+    def _flush_node_cache(self):
+        self._write_node_cache()
+        self.node_cache.clear()
+        self.node_count = 0
+        
     def write_node(self, record) -> None:
         """
         Cache a node record that is to be written to Neo4j.
@@ -59,9 +64,7 @@ class NeoSink(Sink):
         sanitized_category = self.sanitize_category(record['category'])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
-            self._write_node_cache()
-            self.node_cache.clear()
-            self.node_count = 0
+            self._flush_node_cache()
         if category not in self.node_cache:
             self.node_cache[category] = [record]
         else:
@@ -93,6 +96,12 @@ class NeoSink(Sink):
                 except CypherException as ce:
                     log.error(ce)
 
+    def _flush_edge_cache(self):
+        self._flush_node_cache()
+        self._write_edge_cache()
+        self.edge_cache.clear()
+        self.edge_count = 0
+        
     def write_edge(self, record) -> None:
         """
         Cache an edge record that is to be written to Neo4j.
@@ -106,9 +115,7 @@ class NeoSink(Sink):
 
         """
         if self.edge_count >= self.CACHE_SIZE:
-            self._write_edge_cache()
-            self.edge_cache.clear()
-            self.edge_count = 0
+            self._flush_edge_cache()
         # self.validate_edge(data)
         edge_predicate = record['predicate']
         if edge_predicate in self.edge_cache:
