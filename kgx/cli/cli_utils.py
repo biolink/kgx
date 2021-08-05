@@ -5,7 +5,7 @@ from os.path import dirname, abspath
 
 import sys
 from multiprocessing import Pool
-from typing import List, Tuple, Optional, Dict, Set
+from typing import List, Tuple, Optional, Dict, Set, Any, Union
 import yaml
 
 from kgx.validator import Validator
@@ -15,7 +15,7 @@ from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph
-from kgx.utils.kgx_utils import apply_graph_operations
+from kgx.utils.kgx_utils import apply_graph_operations, knowledge_provenance_properties
 
 
 summary_report_types = {
@@ -73,6 +73,7 @@ def graph_summary(
     report_type: str,
     report_format: Optional[str] = None,
     stream: bool = False,
+    graph_name: Optional[str] = None,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
     error_log: str = ''
@@ -92,10 +93,12 @@ def graph_summary(
         Where to write the output (stdout, by default)
     report_type: str
         The summary report type
-    report_format: str
-        The summary report format file types: 'yaml' or 'json' (default: 'yaml')
+    report_format: Optional[str]
+        The summary report format file types: 'yaml' or 'json'
     stream: bool
         Whether to parse input as a stream
+    graph_name: str
+        User specified name of graph being summarized
     node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
@@ -109,9 +112,12 @@ def graph_summary(
         A dictionary with the graph stats
 
     """
+    if not graph_name:
+        graph_name ='Graph'
+
     if report_format and report_format not in get_report_format_types():
         raise ValueError(f"report_format must be one of {get_report_format_types()}")
-    
+
     if report_type in summary_report_types:
         # New design pattern enabling 'stream' processing of statistics on a small memory footprint
         # by injecting an inspector in the Transformer.process() source-to-sink data flow.
@@ -123,7 +129,7 @@ def graph_summary(
             # rather, the inspector will see the graph data after
             # being injected into the Transformer.transform() workflow
             # graph=transformer.store.graph,
-            name='Graph',
+            name=graph_name,
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
             error_log=error_log
@@ -138,9 +144,13 @@ def graph_summary(
     
     transformer = Transformer(stream=stream)
     transformer.transform(
-        input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+        input_args={
+            'filename': inputs,
+            'format': input_format,
+            'compression': input_compression
+        },
         output_args=output_args,
-        #... Second, we inject the Inspector into the transform() call,
+        # ... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
         inspector=inspector
     )
@@ -161,6 +171,7 @@ def validate(
     input_compression: Optional[str],
     output: Optional[str],
     stream: bool,
+    biolink_release: Optional[str] = None
 ) -> List:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
@@ -177,6 +188,8 @@ def validate(
         Path to output file (stdout, by default)
     stream: bool
          Whether to parse input as a stream.
+    biolink_release: Optional[str] = None
+        SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     Returns
     -------
     List
@@ -189,13 +202,20 @@ def validate(
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
     # In the new "Inspector" design pattern, we need to instantiate it before the Transformer.
     #
+    Validator.set_biolink_model(biolink_release)
+
+    # Validator assumes the currently set Biolink Release
+    validator = Validator()
+
     if stream:
-        validator = Validator()
-        
         transformer = Transformer(stream=stream)
         
         transformer.transform(
-            input_args={'filename': inputs, 'format': input_format, 'compression': input_compression},
+            input_args={
+                'filename': inputs,
+                'format': input_format,
+                'compression': input_compression
+            },
             output_args={'format': 'null'},  # streaming processing throws the graph data away
             # ... Second, we inject the Inspector into the transform() call,
             # for the underlying Transformer.process() to use...
@@ -208,9 +228,12 @@ def validate(
         transformer = Transformer()
         
         transformer.transform(
-            {'filename': inputs, 'format': input_format, 'compression': input_compression},
+            {
+                'filename': inputs,
+                'format': input_format,
+                'compression': input_compression
+            },
         )
-        validator = Validator()
         
         # Slight tweak of classical 'validate' function: that the
         # list of errors are cached internally in the Validator object
@@ -364,6 +387,28 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ''):
     return resolved_files
 
 
+def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
+    if ksf not in knowledge_provenance_properties:
+        log.warning("Unknown Knowledge Source Field: "+ksf+"... ignoring!")
+        return False
+    else:
+        if spec.lower() == 'true':
+            return True
+        elif spec.lower() == 'false':
+            return False
+        else:
+            # If a Tuple, expect a comma-delimited string?
+            spec_parts = spec.split(',')
+            if len(spec_parts) == 1:
+                # assumed to be just a default string value for the knowledge source field
+                return spec_parts[0]
+            else:
+                # assumed to be an InfoRes Tuple rewrite specification
+                if len(spec_parts) > 3:
+                    spec_parts = spec_parts[:2]
+                return tuple(spec_parts)
+
+
 def transform(
     inputs: Optional[List[str]],
     input_format: Optional[str] = None,
@@ -372,14 +417,16 @@ def transform(
     output_format: Optional[str] = None,
     output_compression: Optional[str] = None,
     stream: bool = False,
-    node_filters: Tuple[str, str] = None,
-    edge_filters: Tuple[str, str] = None,
+    node_filters: Optional[List[Tuple[str, str]]] = None,
+    edge_filters: Optional[List[Tuple[str, str]]] = None,
     transform_config: str = None,
     source: Optional[List] = None,
+    knowledge_sources: Optional[List[Tuple[str, str]]] = None,
     # this parameter doesn't get used, but I leave it in
     # for now, in case it signifies an unimplemented concept
     # destination: Optional[List] = None,
     processes: int = 1,
+    infores_catalog: Optional[str] = None
 ) -> None:
     """
     Transform a Knowledge Graph from one serialization form to another.
@@ -400,16 +447,21 @@ def transform(
         The output compression type
     stream: bool
         Whether to parse input as a stream
-    node_filters: Tuple[str, str]
+    node_filters: Optional[List[Tuple[str, str]]]
         Node input filters
-    edge_filters: Tuple[str, str]
+    edge_filters: Optional[List[Tuple[str, str]]]
         Edge input filters
     transform_config: Optional[str]
         The transform config YAML
     source: Optional[List]
         A list of source to load from the YAML
+    knowledge_sources: Optional[List[Tuple[str, str]]]
+        A list of named knowledge sources with (string, boolean or tuple rewrite) specification
     processes: int
         Number of processes to use
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to
+        Knowledge Source mappings (not yet available in transform_config calling mode)
 
     """
     if transform_config and inputs:
@@ -497,8 +549,33 @@ def transform(
                 'filename': output,
             },
         }
+
+        if knowledge_sources:
+            for ksf, spec in knowledge_sources:
+                ksf_spec = _process_knowledge_source(ksf, spec)
+                if isinstance(ksf_spec, tuple):
+                    if ksf not in source_dict['input']:
+                        source_dict['input'][ksf] = dict()
+                    if isinstance(source_dict['input'][ksf], dict):
+                        key = ksf_spec[0]
+                        source_dict['input'][ksf][key] = ksf_spec
+                    else:
+                        # Unexpected condition - mixing static values with tuple specified rewrites?
+                        raise RuntimeError(
+                            "Inconsistent multivalued specifications: make sure that all the  values " +
+                            "of the knowledge source tag '" + ksf + "' are all rewrite specifications!"
+                        )
+                else:
+                    source_dict['input'][ksf] = ksf_spec
+
         name = os.path.basename(inputs[0])
-        transform_source(key=name, source=source_dict, output_directory=None, stream=stream)
+        transform_source(
+            key=name,
+            source=source_dict,
+            output_directory=None,
+            stream=stream,
+            infores_catalog=infores_catalog
+        )
 
 
 def merge(
@@ -715,6 +792,11 @@ def parse_source(
         log.info(f"Writing checkpoint for source '{key}'")
         checkpoint_output = f"{output_directory}/{key}" if output_directory else key
         transformer.save({'filename': checkpoint_output, 'format': 'tsv'})
+
+    # Current "Callable" metadata not needed at this  point
+    # but causes peculiar problems downstream, so we clear it.
+    transformer.store.clear_graph_metadata()
+
     return transformer.store
 
 
@@ -731,6 +813,7 @@ def transform_source(
     checkpoint: bool = False,
     preserve_graph: bool = True,
     stream: bool = False,
+    infores_catalog: Optional[str] = None
 ) -> Sink:
     """
     Transform a source from a transform config YAML.
@@ -762,6 +845,8 @@ def transform_source(
         Whether or not to preserve the graph corresponding to the source
     stream: bool
         Whether to parse input as a stream
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
 
     Returns
     -------
@@ -786,10 +871,19 @@ def transform_source(
         reverse_predicate_mappings,
         property_types,
     )
-    transformer = Transformer(stream=stream)
+    transformer = Transformer(stream=stream, infores_catalog=infores_catalog)
     transformer.transform(input_args, output_args)
+
     if not preserve_graph:
         transformer.store.graph.clear()
+
+    if infores_catalog:
+        with open(infores_catalog, 'w') as irc:
+            catalog: Dict[str, str] = transformer.get_infores_catalog()
+            for source in catalog.keys():
+                infores = catalog.setdefault(source, 'unknown')
+                print(f"{source}\t{infores}", file=irc)
+
     return transformer.store
 
 
@@ -862,7 +956,6 @@ def prepare_input_args(
             'filename': inputs,
             'format': input_format,
             'compression': input_compression,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': source_prefix_map,
@@ -874,7 +967,6 @@ def prepare_input_args(
             'filename': inputs,
             'format': input_format,
             'compression': input_compression,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': source_prefix_map,
@@ -885,13 +977,16 @@ def prepare_input_args(
             'username': source['username'],
             'password': source['password'],
             'format': input_format,
-            'provided_by': source_name,
             'node_filters': node_filters,
             'edge_filters': edge_filters,
             'prefix_map': prefix_map,
         }
     else:
         raise TypeError(f"Type {input_format} not yet supported")
+
+    for ksf in knowledge_provenance_properties:
+        if ksf in source['input']:
+            input_args[ksf] = source['input'][ksf]
 
     input_args['operations'] = source['input'].get('operations', [])
     for o in input_args['operations']:

@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Any, Callable, Set
+
+from typing import Dict, List, Optional, Any, Callable, Set, Tuple, Union
 from sys import stderr
 
 import re
@@ -7,7 +8,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
 
@@ -74,6 +75,8 @@ class MetaKnowledgeGraph:
     def __init__(
             self,
             name='',
+            node_facet_properties: Optional[List] = None,
+            edge_facet_properties: Optional[List] = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
             error_log=None,
             **kwargs
@@ -85,33 +88,55 @@ class MetaKnowledgeGraph:
         ----------
         name: str
             (Graph) name assigned to the summary.
+        node_facet_properties: Optional[List]
+                A list of node properties (e.g. knowledge_source tags) to facet on. For example, ``['provided_by']``
+        edge_facet_properties: Optional[List]
+                A list of edge properties (e.g. knowledge_source tags) to facet on. For example,
+                ``['original_knowledge_source', 'aggregator_knowledge_source']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log:
             Where to write any graph processing error message (stderr, by default).
-
         """
         # formal args
 
         self.name = name
+
+        # these facet properties are used mainly for knowledge_source counting
+        # using Biolink 2.0 'knowledge_source' slot values
+        if node_facet_properties:
+            self.node_facet_properties: Optional[List] = node_facet_properties
+        else:
+            # node counts still default to 'provided_by'
+            self.node_facet_properties: Optional[List] = ['provided_by']
+
+        if edge_facet_properties:
+            self.edge_facet_properties: Optional[List] = edge_facet_properties
+        else:
+            # node counts still default to 'knowledge_source'
+            self.edge_facet_properties: Optional[List] = ['knowledge_source']
+
         self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
 
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, 'w')
 
         # internal attributes
+        # For Nodes...
         self.node_catalog: Dict[str, List[int]] = dict()
-
         self.node_stats: Dict[str, MetaKnowledgeGraph.Category] = dict()
 
         # We no longer track 'unknown' categories in meta-knowledge-graph
         # computations since such nodes are not TRAPI 1.1 compliant categories
         # self.node_stats['unknown'] = self.Category('unknown')
 
+        # For Edges...
         self.edge_record_count: int = 0
         self.predicates: Dict = dict()
         self.association_map: Dict = dict()
         self.edge_stats = []
+
+        # Overall graph statistics
         self.graph_stats: Dict[str, Dict] = dict()
 
     def get_name(self) -> str:
@@ -144,6 +169,34 @@ class MetaKnowledgeGraph:
         else:
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
+    @staticmethod
+    def get_facet_counts(
+            facets: Optional[List],
+            counts_by_source: Dict,
+            data: Dict
+    ):
+        unknown: bool = True
+        for facet in facets:
+            if facet in data:
+                unknown = False
+                if isinstance(data[facet], str):
+                    facet_values = [data[facet]]
+                else:
+                    # assume regular iterable
+                    facet_values = list(data[facet])
+                for s in facet_values:
+                    if facet not in counts_by_source:
+                        counts_by_source[facet] = dict()
+                    if s in counts_by_source[facet]:
+                        counts_by_source[facet][s] += 1
+                    else:
+                        counts_by_source[facet][s] = 1
+        if unknown:
+            if 'unknown' in counts_by_source:
+                counts_by_source['unknown'] += 1
+            else:
+                counts_by_source['unknown'] = 1
+
     class Category:
         """
         Internal class for compiling statistics about a distinct category.
@@ -153,18 +206,19 @@ class MetaKnowledgeGraph:
         # to reduce storage in the main node catalog
         _category_curie_map: List[str] = list()
 
-        def __init__(self, category_curie: str):
+        def __init__(self, category_curie: str, mkg):
             """
             MetaKnowledgeGraph.Category constructor.
 
             category_curie: str
                 Biolink Model category CURIE identifier.
-
             """
             if not (_category_curie_regexp.fullmatch(category_curie) or category_curie == "unknown"):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category_curie)
 
             self.category_curie = category_curie
+            self.mkg = mkg
+            
             if self.category_curie not in self._category_curie_map:
                 self._category_curie_map.append(self.category_curie)
             self.category_stats: Dict[str, Any] = dict()
@@ -223,15 +277,27 @@ class MetaKnowledgeGraph:
             """
             return self.category_stats['count']
 
-        def get_count_by_source(self, source: str = None) -> Dict[str, int]:
+        def get_count_by_source(self, facet: str = 'provided_by', source: str = None) -> Dict[str, Any]:
             """
+            Parameters
+            ----------
+            facet: str
+                Facet tag (default, 'provided_by') from which the count should be returned
+            source: str
+                Source name about which the count is desired.
+
             Returns
             -------
-            Dict[str, int]
-                Count of nodes, by provider_by knowledge source, for this given category.
+            Dict
+                Count of nodes, by node 'provided_by' knowledge source, for a given category.
+                Returns dictionary of all source counts, if input 'source' argument is not specified.
             """
             if source:
-                return {source: self.category_stats['count_by_source'][source]}
+                if facet in self.category_stats['count_by_source']:
+                    if source in self.category_stats['count_by_source'][facet]:
+                        return {source: self.category_stats['count_by_source'][facet][source]}
+                    else:
+                        return {source: 0}
             return self.category_stats['count_by_source']
 
         def _compile_prefix_stats(self, n: str):
@@ -245,18 +311,12 @@ class MetaKnowledgeGraph:
                 if prefix not in self.category_stats['id_prefixes']:
                     self.category_stats['id_prefixes'].add(prefix)
 
-        def _compile_source_stats(self, data: Dict):
-            if 'provided_by' in data:
-                for s in data['provided_by']:
-                    if s in self.category_stats['count_by_source']:
-                        self.category_stats['count_by_source'][s] += 1
-                    else:
-                        self.category_stats['count_by_source'][s] = 1
-            else:
-                if 'unknown' in self.category_stats['count_by_source']:
-                    self.category_stats['count_by_source']['unknown'] += 1
-                else:
-                    self.category_stats['count_by_source']['unknown'] = 1
+        def _compile_category_source_stats(self, data: Dict):
+            self.mkg.get_facet_counts(
+                self.mkg.node_facet_properties,
+                self.category_stats['count_by_source'],
+                data
+            )
 
         def analyse_node_category(self, n, data) -> None:
             """
@@ -272,7 +332,7 @@ class MetaKnowledgeGraph:
             """
             self.category_stats['count'] += 1
             self._compile_prefix_stats(n)
-            self._compile_source_stats(data)
+            self._compile_category_source_stats(data)
 
         def json_object(self):
             """
@@ -314,15 +374,17 @@ class MetaKnowledgeGraph:
         
             if category_curie not in self.node_stats:
                 try:
-                    self.node_stats[category_curie] = self.Category(category_curie)
+                    self.node_stats[category_curie] = self.Category(category_curie, self)
                 except RuntimeError:
                     _parse_warning("Invalid category CURIE", category_curie)
                     continue
         
             category_record = self.node_stats[category_curie]
+            
             category_idx: int = category_record.get_cid()
             if category_idx not in self.node_catalog[n]:
                 self.node_catalog[n].append(category_idx)
+                
             category_record.analyse_node_category(n, data)
     
     def analyse_node(self, n: str, data: Dict) -> None:
@@ -389,6 +451,13 @@ class MetaKnowledgeGraph:
             
         return predicate
 
+    def _compile_triple_source_stats(self, triple: Tuple[str, str, str], data: Dict):
+        self.get_facet_counts(
+            self.edge_facet_properties,
+            self.association_map[triple]['count_by_source'],
+            data
+        )
+
     def _process_triple(self, subject_category: str, predicate: str, object_category: str, data: Dict):
         # Process the 'valid' S-P-O triple here...
         triple = (subject_category, predicate, object_category)
@@ -401,22 +470,13 @@ class MetaKnowledgeGraph:
                 'count_by_source': dict(),
                 'count': 0
             }
-    
-        if data['relation'] not in self.association_map[triple]['relations']:
+
+        if 'relation' in data and data['relation'] not in self.association_map[triple]['relations']:
             self.association_map[triple]['relations'].add(data['relation'])
     
         self.association_map[triple]['count'] += 1
-        if 'provided_by' in data:
-            for s in data['provided_by']:
-                if s not in self.association_map[triple]['count_by_source']:
-                    self.association_map[triple]['count_by_source'][s] = 1
-                else:
-                    self.association_map[triple]['count_by_source'][s] += 1
-        else:
-            if 'unknown' in self.association_map[triple]['count_by_source']:
-                self.association_map[triple]['count_by_source']['unknown'] += 1
-            else:
-                self.association_map[triple]['count_by_source']['unknown'] = 1
+
+        self._compile_triple_source_stats(triple, data)
 
     def analyse_edge(self, u, v, k, data) -> None:
         """
@@ -648,6 +708,43 @@ class MetaKnowledgeGraph:
             count += edge['count']
         return count
 
+    def get_edge_count_by_source(
+            self,
+            subject_category: str,
+            predicate: str,
+            object_category: str,
+            facet: str = 'knowledge_source',
+            source: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Returns count by source for one S-P-O triple (S, O being Biolink categories; P, a Biolink predicate)
+        """
+        if not (subject_category and predicate and object_category):
+            print(
+                "Warning: get_edge_count_by_source() has some empty S-P-O arguments? Don't know what you are counting!",
+                file=MetaKnowledgeGraph.error_log
+            )
+            return dict()
+        triple = (subject_category, predicate, object_category)
+        if triple in self.association_map and 'count_by_source' in self.association_map[triple]:
+            if facet in self.association_map[triple]['count_by_source']:
+                if source:
+                    if source in self.association_map[triple]['count_by_source'][facet]:
+                        return self.association_map[triple]['count_by_source'][facet][source]
+                    else:
+                        return dict()
+                else:
+                    return self.association_map[triple]['count_by_source'][facet]
+            else:
+                return dict()
+        else:
+            print(
+                "Warning: get_edge_count_by_source(): unknown triple " +
+                "("+subject_category+","+predicate+","+object_category+")?",
+                file=MetaKnowledgeGraph.error_log
+            )
+            return dict()
+    
     def summarize_graph_nodes(self, graph: BaseGraph) -> Dict:
         """
         Summarize the nodes in a graph.
@@ -776,7 +873,7 @@ class MetaKnowledgeGraph:
             dump(stats, file, indent=4, default=mkg_default)
         else:
             yaml.dump(stats, file)
-
+    
 
 def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
     """

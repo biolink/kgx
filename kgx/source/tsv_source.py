@@ -1,6 +1,6 @@
 import re
 import tarfile
-from typing import Dict, Tuple, Any, Generator, Optional, Union, List
+from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
 from kgx.config import get_logger
@@ -10,7 +10,6 @@ from kgx.utils.kgx_utils import (
     generate_edge_key,
     extension_types,
     archive_read_mode,
-    remove_null,
     sanitize_import,
     validate_edge,
     validate_node,
@@ -57,7 +56,6 @@ class TsvSource(Source):
         filename: str,
         format: str,
         compression: Optional[str] = None,
-        provided_by: str = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -71,8 +69,6 @@ class TsvSource(Source):
             The format (``tsv``, ``csv``)
         compression: Optional[str]
             The compression type (``tar``, ``tar.gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -92,8 +88,8 @@ class TsvSource(Source):
 
         mode = archive_read_mode[compression] if compression in archive_read_mode else None
 
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+        self.set_provenance_map(kwargs)
+
         if format == 'tsv':
             kwargs['quoting'] = 3  # type: ignore
         if mode:
@@ -175,7 +171,8 @@ class TsvSource(Source):
                     self.edge_properties.update(chunk.columns)
                     yield from self.read_edges(chunk)
             else:
-                raise Exception(f'Unrecognized file: {filename}')
+                # This used to throw an exception but perhaps we should simply ignore it.
+                log.warning(f'Parse function cannot resolve the KGX file type in name {filename}. Skipped...')
 
     def read_nodes(self, df: pd.DataFrame) -> Generator:
         """
@@ -212,9 +209,11 @@ class TsvSource(Source):
         node = validate_node(node)
         node_data = sanitize_import(node.copy())
         if 'id' in node_data:
+
             n = node_data['id']
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_node_provenance(node_data)
+
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -261,8 +260,9 @@ class TsvSource(Source):
             edge_data['id'] = generate_uuid()
         s = edge_data['subject']
         o = edge_data['object']
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-            edge_data['provided_by'] = self.graph_metadata['provided_by']
+
+        self.set_edge_provenance(edge_data)
+
         key = generate_edge_key(s, edge_data['predicate'], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):

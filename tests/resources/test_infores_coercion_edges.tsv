@@ -1,0 +1,2 @@
+subject	predicate	object	aggregator_knowledge_source
+FlyBase:FBgn0000008	biolink:part_of	GO:0005912	Gene Ontology (Monarch version 202012)

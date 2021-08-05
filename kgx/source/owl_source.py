@@ -38,7 +38,6 @@ class OwlSource(RdfSource):
         filename: str,
         format: str = 'owl',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -52,8 +51,6 @@ class OwlSource(RdfSource):
             The format (``owl``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -76,8 +73,7 @@ class OwlSource(RdfSource):
         rdfgraph.parse(filename, format=format)
         log.info("{} parsed with {} triples".format(filename, len(rdfgraph)))
 
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+        self.set_provenance_map(kwargs)
 
         self.start = current_time_in_millis()
         log.info(f"Done parsing {filename}")
@@ -183,19 +179,23 @@ class OwlSource(RdfSource):
             self.dereify(n, data)
 
         for k, data in self.node_cache.items():
+
             node_data = validate_node(data)
             node_data = sanitize_import(node_data)
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data.keys():
-                node_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_node_provenance(node_data)
+
             if self.check_node_filter(node_data):
                 yield k, node_data
+
         self.node_cache.clear()
 
         for k, data in self.edge_cache.items():
             edge_data = validate_edge(data)
             edge_data = sanitize_import(edge_data)
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data.keys():
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+
+            self.set_edge_provenance(edge_data)
+
             if self.check_edge_filter(edge_data):
                 yield k[0], k[1], k[2], edge_data
         self.edge_cache.clear()

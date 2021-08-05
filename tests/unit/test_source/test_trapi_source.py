@@ -36,10 +36,14 @@ def test_read_trapi_json1():
 def test_read_trapi_json2():
     """
     Read from a TRAPI JSON using TrapiSource.
-    This test also supplies the provided_by parameter.
+    This test also supplies the knowledge_source parameter.
     """
     s = TrapiSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'rsa_sample.json'), provided_by='Test TRAPI JSON')
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, 'rsa_sample.json'),
+        provided_by="Test TRAPI JSON",
+        knowledge_source="Test TRAPI JSON"
+    )
     nodes = {}
     edges = {}
     for rec in g:
@@ -62,4 +66,4 @@ def test_read_trapi_json2():
     assert e['subject'] == 'HGNC:11603'
     assert e['object'] == 'MONDO:0005002'
     assert e['predicate'] == 'biolink:related_to'
-    assert 'Test TRAPI JSON' in e['provided_by']
+    assert 'Test TRAPI JSON' in e['knowledge_source']

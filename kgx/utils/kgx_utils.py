@@ -2,6 +2,7 @@ import importlib
 import re
 import time
 import uuid
+from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from linkml_runtime.linkml_model.meta import (
@@ -19,10 +20,9 @@ import numpy as np
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
 
-from kgx.config import get_jsonld_context, get_logger, get_config
+from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
-toolkit = None
 curie_lookup_service = None
 cache = None
 
@@ -35,16 +35,38 @@ CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
 
 LIST_DELIMITER = '|'
 
+
+class GraphEntityType(Enum):
+    GRAPH = "graph"
+    NODE = "node"
+    EDGE = "edge"
+
+
+# Biolink 2.0 "Knowledge Source" association slots,
+# including the deprecated 'provided_by' slot
+
+provenance_slot_types = {
+    'knowledge_source': list,
+    'primary_knowledge_source': str,
+    'original_knowledge_source': str,
+    'aggregator_knowledge_source': list,
+    'supporting_data_source': list,
+    'provided_by': list,
+}
+
 column_types = {
     'publications': list,
     'qualifiers': list,
     'category': list,
     'synonym': list,
-    'provided_by': list,
     'same_as': list,
     'negated': bool,
     'xrefs': list,
 }
+
+column_types.update(provenance_slot_types)
+
+knowledge_provenance_properties = set(provenance_slot_types.keys())
 
 extension_types = {'csv': ',', 'tsv': '\t', 'csv:neo4j': ',', 'tsv:neo4j': '\t'}
 
@@ -60,6 +82,15 @@ archive_format = {
     'w:bz2': 'tar.bz2',
 }
 
+is_provenance_property_multivalued = {
+    'knowledge_source': True,
+    'primary_knowledge_source': False,
+    'original_knowledge_source': False,
+    'aggregator_knowledge_source': True,
+    'supporting_data_source': True,
+    'provided_by': True,
+}
+
 is_property_multivalued = {
     'id': False,
     'subject': False,
@@ -71,12 +102,13 @@ is_property_multivalued = {
     'same_as': True,
     'name': False,
     'has_evidence': False,
-    'provided_by': True,
     'category': True,
     'publications': True,
     'type': False,
     'relation': False,
 }
+
+is_property_multivalued.update(is_provenance_property_multivalued)
 
 
 def camelcase_to_sentencecase(s: str) -> str:
@@ -257,17 +289,39 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
     return uri
 
 
-def get_toolkit(schema: Optional[str] = None) -> Toolkit:
+_default_toolkit = None
+
+# TODO: not sure how threadsafe this simple-minded Toolkit cache is
+_toolkit_versions: Dict[str, Toolkit] = dict()
+
+
+def get_toolkit(biolink_release: Optional[str] = None) -> Toolkit:
     """
     Get an instance of bmt.Toolkit
     If there no instance defined, then one is instantiated and returned.
+
+    Parameters
+    ----------
+    biolink_release: Optional[str]
+        URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
+
     """
-    global toolkit
-    if toolkit is None:
-        if not schema:
-            config = get_config()
-            schema = config['biolink-model']
-        toolkit = Toolkit(schema=schema)
+    global _default_toolkit, _toolkit_versions
+    if biolink_release:
+        if biolink_release in _toolkit_versions:
+            toolkit = _toolkit_versions[biolink_release]
+        else:
+            schema = get_biolink_model_schema(biolink_release)
+            toolkit = Toolkit(schema=schema)
+            _toolkit_versions[biolink_release] = toolkit
+    else:
+        if _default_toolkit is None:
+            _default_toolkit = Toolkit()
+        toolkit = _default_toolkit
+        biolink_release = toolkit.get_model_version()
+        if biolink_release not in _toolkit_versions:
+            _toolkit_versions[biolink_release] = toolkit
+
     return toolkit
 
 
@@ -441,7 +495,7 @@ def get_type_for_property(p: str) -> str:
     """
     Get type for a property.
 
-    TODO: Move this to biolink-model-toolkit
+    TODO: Move this to biolink-model-default_toolkit
 
     Parameters
     ----------

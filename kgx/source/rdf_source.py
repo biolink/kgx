@@ -25,6 +25,7 @@ from kgx.utils.kgx_utils import (
     DEFAULT_EDGE_PREDICATE,
     CORE_NODE_PROPERTIES,
     CORE_EDGE_PROPERTIES,
+    knowledge_provenance_properties
 )
 
 log = get_logger()
@@ -64,7 +65,11 @@ class RdfSource(Source):
         self.node_property_predicates.update(
             set(self.toolkit.get_all_edge_properties(formatted=True))
         )
-        self.node_property_predicates.add(URIRef(self.prefix_manager.expand('biolink:provided_by')))
+
+        # TODO: validate expansion of the scope of this statement to include 'knowledge_source' and its descendants?
+        for ksf in knowledge_provenance_properties:
+            self.node_property_predicates.add(URIRef(self.prefix_manager.expand('biolink:'+ksf)))
+
         self.reification_types = {RDF.Statement, self.BIOLINK.Association, self.OBAN.association}
         self.reification_predicates = {
             self.BIOLINK.subject,
@@ -122,7 +127,6 @@ class RdfSource(Source):
         filename: str,
         format: str = 'nt',
         compression: Optional[str] = None,
-        provided_by: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
         """
@@ -142,8 +146,6 @@ class RdfSource(Source):
             The format (``nt``)
         compression: Optional[str]
             The compression type (``gz``)
-        provided_by: Optional[str]
-            The name of the source providing the input file
         kwargs: Any
             Any additional arguments
 
@@ -154,8 +156,9 @@ class RdfSource(Source):
 
         """
         p = CustomNTriplesParser(self)
-        if provided_by:
-            self.graph_metadata['provided_by'] = [provided_by]
+
+        self.set_provenance_map(kwargs)
+
         if compression == 'gz':
             yield from p.parse(gzip.open(filename, 'rb'))
         else:
@@ -167,30 +170,34 @@ class RdfSource(Source):
             self.dereify(n, data)
 
         for k in self.node_cache.keys():
-            data = self.node_cache[k]
-            if 'category' in data:
-                if 'biolink:NamedThing' not in set(data['category']):
-                    data['category'].append('biolink:NamedThing')
+            node_data = self.node_cache[k]
+            if 'category' in node_data:
+                if 'biolink:NamedThing' not in set(node_data['category']):
+                    node_data['category'].append('biolink:NamedThing')
             else:
-                data['category'] = ["biolink:NamedThing"]
-            data = validate_node(data)
-            data = sanitize_import(data)
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                data['provided_by'] = self.graph_metadata['provided_by']
-            if self.check_node_filter(data):
-                self.node_properties.update(data.keys())
-                yield k, data
+                node_data['category'] = ["biolink:NamedThing"]
+            node_data = validate_node(node_data)
+            node_data = sanitize_import(node_data)
+
+            self.set_node_provenance(node_data)
+
+            if self.check_node_filter(node_data):
+                self.node_properties.update(node_data.keys())
+                yield k, node_data
+
         self.node_cache.clear()
 
         for k in self.edge_cache.keys():
-            data = self.edge_cache[k]
-            data = validate_edge(data)
-            data = sanitize_import(data)
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                data['provided_by'] = self.graph_metadata['provided_by']
-            if self.check_edge_filter(data):
-                self.edge_properties.update(data.keys())
-                yield k[0], k[1], k[2], data
+            edge_data = self.edge_cache[k]
+            edge_data = validate_edge(edge_data)
+            edge_data = sanitize_import(edge_data)
+
+            self.set_edge_provenance(edge_data)
+
+            if self.check_edge_filter(edge_data):
+                self.edge_properties.update(edge_data.keys())
+                yield k[0], k[1], k[2], edge_data
+
         self.edge_cache.clear()
 
     def triple(self, s: URIRef, p: URIRef, o: URIRef) -> None:
@@ -276,8 +283,9 @@ class RdfSource(Source):
                 data = self.edge_cache[k]
                 data = validate_edge(data)
                 data = sanitize_import(data)
-                if 'provided_by' in self.graph_metadata and 'provided_by' not in data.keys():
-                    data['provided_by'] = self.graph_metadata['provided_by']
+
+                self.set_edge_provenance(data)
+
                 if self.check_edge_filter(data):
                     self.edge_properties.update(data.keys())
                     yield k[0], k[1], k[2], data
@@ -305,7 +313,7 @@ class RdfSource(Source):
         if 'subject' in node and 'object' in node:
             self.add_edge(node['subject'], node['object'], node['predicate'], node)
         else:
-            raise ValueError(f"Incomplete node {n} {node}")
+            log.warning(f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge....")
 
     def add_node_attribute(
         self, iri: Union[URIRef, str], key: str, value: Union[str, List]
@@ -417,8 +425,8 @@ class RdfSource(Source):
         else:
             node_data['category'] = ["biolink:NamedThing"]
 
-        if 'provided_by' in self.graph_metadata and 'provided_by' not in node_data:
-            node_data['provided_by'] = self.graph_metadata['provided_by']
+        self.set_node_provenance(node_data)
+
         self.node_cache[n] = node_data
         return node_data
 
@@ -499,8 +507,8 @@ class RdfSource(Source):
             if 'relation' not in edge_data:
                 edge_data['relation'] = predicate
 
-            if 'provided_by' in self.graph_metadata and 'provided_by' not in edge_data:
-                edge_data['provided_by'] = self.graph_metadata['provided_by']
+            self.set_edge_provenance(edge_data)
+
         self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
         return edge_data
 

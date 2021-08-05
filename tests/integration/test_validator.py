@@ -1,5 +1,6 @@
 import os
-
+from sys import stderr
+from kgx.utils.kgx_utils import get_toolkit
 from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
 from kgx.transformer import Transformer
@@ -52,4 +53,79 @@ def test_validate_json():
     t.transform(input_args)
     validator = Validator()
     e = validator.validate(t.store.graph)
+    assert len(e) == 0
+
+
+def test_distinct_validator_class_versus_default_toolkit_biolink_version():
+    Validator.set_biolink_model(version="1.8.2")
+    default_tk = get_toolkit()
+    validator_tk = Validator.get_toolkit()
+    assert(default_tk.get_model_version() != validator_tk.get_model_version())
+
+
+def test_distinct_class_versus_validator_instance_biolink_version():
+    Validator.set_biolink_model(version="1.7.0")
+    validator = Validator()
+    Validator.set_biolink_model(version="1.8.2")
+    validator_class_tk = Validator.get_toolkit()
+    validation_instance_version = validator.get_validation_model_version()
+    assert(validation_instance_version != validator_class_tk.get_model_version())
+
+
+def test_validator_explicit_biolink_version():
+    """
+    A fake test to establish a success condition for validation.
+    """
+    G = NxGraph()
+    G.add_node('CHEMBL.COMPOUND:1222250', id='CHEMBL.COMPOUND:1222250', name='Dextrose', category=['Carbohydrate'])
+    G.add_node('UBERON:0000001', id='UBERON:0000001', name='fake', category=['NamedThing'])
+    G.add_edge(
+        'CHEMBL.COMPOUND:1222250',
+        'UBERON:0000001',
+        id='CHEMBL.COMPOUND:1222250-part_of-UBERON:0000001',
+        relation='RO:1',
+        predicate='part_of',
+        subject='CHEMBL.COMPOUND:1222250',
+        object='UBERON:0000001',
+        category=['biolink:Association'],
+    )
+    Validator.set_biolink_model(version="1.8.2")
+    validator = Validator(verbose=True)
+    e = validator.validate(G)
+    print(validator.report(e))
+    assert len(e) == 0
+
+
+def test_validate_by_stream_inspector():
+    """
+    Test generate the validate function by streaming
+    graph data through a graph Transformer.process() Inspector
+    """
+    input_args = {
+        'filename': [
+            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
+            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        ],
+        'format': 'tsv',
+        'aggregator_knowledge_source': True
+    }
+
+    Validator.set_biolink_model("1.8.2")
+
+    # Validator assumes the currently set Biolink Release
+    validator = Validator()
+
+    transformer = Transformer(stream=True)
+
+    transformer.transform(
+        input_args=input_args,
+        output_args={'format': 'null'},  # streaming processing throws the graph data away
+        # ... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=validator
+    )
+
+    validator.write_report(stderr)
+
+    e = validator.get_errors()
     assert len(e) == 0

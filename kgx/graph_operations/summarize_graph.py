@@ -7,7 +7,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import GraphEntityType
+from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 
@@ -89,8 +89,9 @@ class GraphSummary:
             name='',
             node_facet_properties: Optional[List] = None,
             edge_facet_properties: Optional[List] = None,
-            error_log: str = None,
             progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            error_log: str = None,
+            **kwargs
     ):
         """
         GraphSummary constructor.
@@ -102,7 +103,7 @@ class GraphSummary:
         node_facet_properties: Optional[List]
                 A list of properties to facet on. For example, ``['provided_by']``
         edge_facet_properties: Optional[List]
-                A list of properties to facet on. For example, ``['provided_by']``
+                A list of properties to facet on. For example, ``['knowledge_source']``
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]]
             Function given a peek at the current record being stream processed by the class wrapped Callable.
         error_log: str
@@ -198,6 +199,7 @@ class GraphSummary:
         _category_curie_map: List[str] = list()
 
         def __init__(self, category_curie: str, summary):
+
             """
             GraphSummary.Category constructor.
 
@@ -789,7 +791,7 @@ def generate_graph_stats(
     node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
-        A list of properties to facet on. For example, ``['provided_by']``
+        A list of properties to facet on. For example, ``['knowledge_source']``
 
     """
     stats = summarize_graph(graph, graph_name, node_facet_properties, edge_facet_properties)
@@ -815,7 +817,7 @@ def summarize_graph(
     node_facet_properties: Optional[List]
         A list of properties to facet on. For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
-        A list of properties to facet on. For example, ``['provided_by']``
+        A list of properties to facet on. For example, ``['knowledge_source']``
 
     Returns
     -------

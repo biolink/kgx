@@ -1,5 +1,6 @@
-from typing import Dict, Generator, Any, Union
+from typing import Dict, Union, Optional
 
+from kgx.utils.infores import InfoResContext
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
@@ -19,6 +20,7 @@ class Source(object):
         self.node_properties = set()
         self.edge_properties = set()
         self.prefix_manager = PrefixManager()
+        self.infores_context: Optional[InfoResContext] = None
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -31,22 +33,6 @@ class Source(object):
 
         """
         self.prefix_manager.update_prefix_map(m)
-
-    def parse(self, **kwargs: Any) -> Generator:
-        """
-        This method reads from the underlying store, using the
-        arguments provided in ``config`` and yields records.
-
-        Parameters
-        ----------
-        **kwargs: Any
-
-        Returns
-        -------
-        Generator
-
-        """
-        pass
 
     def check_node_filter(self, node: Dict) -> bool:
         """
@@ -239,3 +225,38 @@ class Source(object):
             self.edge_filters[key].update(value)
         else:
             self.edge_filters[key] = value
+
+    def clear_graph_metadata(self):
+        """
+        Clears a Source graph's internal graph_metadata. The value of such graph metadata is (now)
+        generally a Callable function. This operation can be used in the code when the metadata is
+        no longer needed, but may cause peculiar Python object persistent problems downstream.
+        """
+        self.infores_context = None
+
+    def set_provenance_map(self, kwargs):
+        """
+        Set up a provenance (Knowledge Source to InfoRes) map
+        """
+        self.infores_context = InfoResContext()
+        self.infores_context.set_provenance_map(kwargs)
+
+    def get_infores_catalog(self) -> Dict[str, str]:
+        """
+        Return the InfoRes Context of the source
+        """
+        if not self.infores_context:
+            return dict()
+        return self.infores_context.get_catalog()
+    
+    def set_node_provenance(self, node_data):
+        """
+        Set a specific node provenance value.
+        """
+        self.infores_context.set_node_provenance(node_data)
+
+    def set_edge_provenance(self, edge_data):
+        """
+        Set a specific edge provenance value.
+        """
+        self.infores_context.set_edge_provenance(edge_data)

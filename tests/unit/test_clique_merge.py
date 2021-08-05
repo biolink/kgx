@@ -5,7 +5,7 @@ from kgx.graph_operations.clique_merge import (
     check_all_categories,
     clique_merge,
 )
-from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key
+from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key, get_toolkit
 from tests import print_graph
 
 
@@ -18,9 +18,9 @@ def test_check_categories():
     assert len(ibc) == 0
 
     vbc, ibc, ic = check_categories(
-        ['biolink:GenomicEntity'], get_biolink_ancestors('biolink:Gene'), None
+        ['biolink:BiologicalEntity'], get_biolink_ancestors('biolink:Disease'), None
     )
-    assert 'biolink:GenomicEntity' in vbc
+    assert 'biolink:BiologicalEntity' in vbc
     assert len(ibc) == 0
 
     vbc, ibc, ic = check_categories(
@@ -45,9 +45,12 @@ def test_check_all_categories2():
     """
     Test check_all_categories method.
     """
+    # explicitly pin the release of Biolink to a
+    # specific one with known category ancestry
+    get_toolkit(biolink_release="2.2.0")
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 6
+    assert len(vbc) == 4
     assert len(ibc) == 0
     assert len(ic) == 0
 
@@ -68,10 +71,10 @@ def test_sort_categories():
     """
     Test sort_categories method.
     """
-    categories = ['biolink:NamedThing', 'biolink:GenomicEntity', 'biolink:Gene']
+    categories = ['biolink:NamedThing', 'biolink:BiologicalEntity', 'biolink:Disease']
     sorted_categories = sort_categories(categories)
-    assert sorted_categories.index('biolink:Gene') == 0
-    assert sorted_categories.index('biolink:GenomicEntity') == 1
+    assert sorted_categories.index('biolink:Disease') == 0
+    assert sorted_categories.index('biolink:BiologicalEntity') == 1
     assert sorted_categories.index('biolink:NamedThing') == 2
 
 

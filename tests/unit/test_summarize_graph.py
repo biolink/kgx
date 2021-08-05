@@ -275,11 +275,11 @@ def test_summarize_graph_stream_inspector():
     edge_stats = data['edge_stats']
     assert edge_stats
     assert TOTAL_EDGES in edge_stats
-    assert edge_stats[TOTAL_EDGES] == 540
+    assert edge_stats[TOTAL_EDGES] == 539
 
     assert EDGE_PREDICATES in edge_stats
     assert len(edge_stats[EDGE_PREDICATES]) == 8
-    assert 'biolink:involved_in' in edge_stats[EDGE_PREDICATES]
+    assert 'biolink:actively_involved_in' in edge_stats[EDGE_PREDICATES]
 
     assert COUNT_BY_EDGE_PREDICATES in edge_stats
     assert len(edge_stats[COUNT_BY_EDGE_PREDICATES]) == 9

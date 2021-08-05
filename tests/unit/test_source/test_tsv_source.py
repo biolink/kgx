@@ -12,7 +12,10 @@ def test_read_tsv():
     Read a TSV using TsvSource.
     """
     s = TsvSource()
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test_nodes.tsv'), format='tsv')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test_nodes.tsv'),
+        format='tsv'
+    )
     nodes = []
     for rec in g:
         if rec:
@@ -25,7 +28,10 @@ def test_read_tsv():
     assert 'biolink:Disease' in n1['category']
     assert n1['description'] == '"Node of type Disease, CURIE:456"'
 
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test_edges.tsv'), format='tsv')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test_edges.tsv'),
+        format='tsv'
+    )
     edges = []
     for rec in g:
         if rec:
@@ -44,7 +50,10 @@ def test_read_csv():
     Read a CSV using TsvSource.
     """
     s = TsvSource()
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test_nodes.csv'), format='csv')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test_nodes.csv'),
+        format='csv'
+    )
     nodes = []
     for rec in g:
         if rec:
@@ -57,7 +66,10 @@ def test_read_csv():
     assert 'biolink:Disease' in n1['category']
     assert n1['description'] == 'Node of type Disease, CURIE:456'
 
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test_edges.csv'), format='csv')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test_edges.csv'),
+        format='csv'
+    )
     edges = []
     for rec in g:
         if rec:
@@ -77,7 +89,11 @@ def test_read_tsv_tar_compressed():
     Read a compressed TSV TAR archive using TsvSource.
     """
     s = TsvSource()
-    g = s.parse(filename=os.path.join(RESOURCE_DIR, 'test.tar'), format='tsv', compression='tar')
+    g = s.parse(
+        filename=os.path.join(RESOURCE_DIR, 'test.tar'),
+        format='tsv',
+        compression='tar'
+    )
     nodes = []
     edges = []
     for rec in g:
@@ -96,7 +112,9 @@ def test_read_tsv_tar_gz_compressed():
     """
     s = TsvSource()
     g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'), format='tsv', compression='tar.gz'
+        filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'),
+        format='tsv',
+        compression='tar.gz'
     )
     nodes = []
     edges = []
@@ -116,7 +134,9 @@ def test_read_tsv_tar_gz_compressed_inverted_file_order():
     """
     s = TsvSource()
     g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test-inverse.tar.gz'), format='tsv', compression='tar.gz'
+        filename=os.path.join(RESOURCE_DIR, 'test-inverse.tar.gz'),
+        format='tsv',
+        compression='tar.gz'
     )
     nodes = []
     edges = []
