@@ -30,6 +30,8 @@ from kgx.utils.kgx_utils import (
 
 log = get_logger()
 
+NAMED_THING = 'Biolink:NamedThing'
+
 
 class RdfSource(Source):
     """
@@ -172,10 +174,10 @@ class RdfSource(Source):
         for k in self.node_cache.keys():
             node_data = self.node_cache[k]
             if 'category' in node_data:
-                if 'biolink:NamedThing' not in set(node_data['category']):
-                    node_data['category'].append('biolink:NamedThing')
+                if NAMED_THING not in set(node_data['category']):
+                    node_data['category'].append(NAMED_THING)
             else:
-                node_data['category'] = ["biolink:NamedThing"]
+                node_data['category'] = [NAMED_THING]
             node_data = validate_node(node_data)
             node_data = sanitize_import(node_data)
 
@@ -420,10 +422,10 @@ class RdfSource(Source):
             node_data['id'] = n
 
         if 'category' in node_data:
-            if 'biolink:NamedThing' not in set(node_data['category']):
-                node_data['category'].append('biolink:NamedThing')
+            if NAMED_THING not in set(node_data['category']):
+                node_data['category'].append(NAMED_THING)
         else:
-            node_data['category'] = ["biolink:NamedThing"]
+            node_data['category'] = [NAMED_THING]
 
         self.set_node_provenance(node_data)
 
