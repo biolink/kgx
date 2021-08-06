@@ -500,8 +500,6 @@ def check_categories(
                 log.warning(f"category '{mapped_category}' not in closure: {closure}")
                 if category_mapping:
                     mapped = category_mapping[x] if x in category_mapping.keys() else x
-                    print("mapped")
-                    print(mapped)
                     if mapped not in closure:
                         log.warning(f"category '{mapped_category}' is not in category_mapping.")
                         invalid_biolink_categories.append(x)
