@@ -62,17 +62,17 @@ def test_check_all_categories2():
     assert len(ibc) == 0
     assert len(ic) == 0
 
-    # categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
-    # vbc, ibc, ic = check_all_categories(categories)
-    # assert len(vbc) == 2
-    # assert len(ibc) == 1
-    # assert len(ic) == 0
-    #
-    # categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'Node']
-    # vbc, ibc, ic = check_all_categories(categories)
-    # assert len(vbc) == 1
-    # assert len(ibc) == 1
-    # assert len(ic) == 1
+    categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
+    vbc, ibc, ic = check_all_categories(categories)
+    assert len(vbc) == 3
+    assert len(ibc) == 0
+    assert len(ic) == 0
+
+    categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'Node']
+    vbc, ibc, ic = check_all_categories(categories)
+    assert len(vbc) == 2
+    assert len(ibc) == 0
+    assert len(ic) == 1
 
 
 def test_sort_categories():
