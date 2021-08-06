@@ -13,10 +13,11 @@ from kgx.utils.kgx_utils import (
     current_time_in_millis,
     format_biolink_category,
     generate_edge_key,
+    get_toolkit
 )
 
 log = get_logger()
-
+toolkit = get_toolkit()
 SAME_AS = 'biolink:same_as'
 SUBCLASS_OF = 'biolink:subclass_of'
 LEADER_ANNOTATION = 'clique_leader'
@@ -166,7 +167,7 @@ def elect_leader(
     count = 0
     update_dict = {}
     for clique in cliques:
-        log.debug(
+        log.info(
             f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}"
         )
         update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
@@ -499,6 +500,8 @@ def check_categories(
                 log.warning(f"category '{mapped_category}' not in closure: {closure}")
                 if category_mapping:
                     mapped = category_mapping[x] if x in category_mapping.keys() else x
+                    print("mapped")
+                    print(mapped)
                     if mapped not in closure:
                         log.warning(f"category '{mapped_category}' is not in category_mapping.")
                         invalid_biolink_categories.append(x)
@@ -532,6 +535,9 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     invalid_categories: List = []
     sc: List = sort_categories(categories)
     for c in sc:
+        if toolkit.is_mixin(c):
+            valid_biolink_categories.extend(vbc)
+            continue
         if previous:
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(previous[0]), None)
         else:
