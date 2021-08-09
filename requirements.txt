@@ -2,7 +2,7 @@ bmt~=0.7.3
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
-networkx>=2.2
+networkx>=2.5
 SPARQLWrapper>=1.8.2
 pandas>=1.0.3
 pytest>=0.0

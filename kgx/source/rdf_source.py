@@ -30,7 +30,7 @@ from kgx.utils.kgx_utils import (
 
 log = get_logger()
 
-NAMED_THING = 'Biolink:NamedThing'
+NAMED_THING = 'biolink:NamedThing'
 
 
 class RdfSource(Source):
