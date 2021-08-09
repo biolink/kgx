@@ -292,12 +292,12 @@ class MetaKnowledgeGraph:
                 Count of nodes, by node 'provided_by' knowledge source, for a given category.
                 Returns dictionary of all source counts, if input 'source' argument is not specified.
             """
-            if source and facet in self.category_stats['count_by_source']:
-                if source in self.category_stats['count_by_source'][facet]:
-                    return {source: self.category_stats['count_by_source'][facet][source]}
-                else:
-                    return {source: 0}
-            return self.category_stats['count_by_source']
+            if source:
+                if facet in self.category_stats['count_by_source']:
+                    if source in self.category_stats['count_by_source'][facet]:
+                        return {source: self.category_stats['count_by_source'][facet][source]}
+                    else:
+                        return {source: 0}
 
         def _compile_prefix_stats(self, n: str):
             prefix = PrefixManager.get_prefix(n)
