@@ -297,6 +297,7 @@ class MetaKnowledgeGraph:
                     return {source: self.category_stats['count_by_source'][facet][source]}
                 else:
                     return {source: 0}
+            return self.category_stats['count_by_source']
 
         def _compile_prefix_stats(self, n: str):
             prefix = PrefixManager.get_prefix(n)
