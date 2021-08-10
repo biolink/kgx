@@ -136,12 +136,12 @@ def graph_summary(
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
-    
+
     if stream:
         output_args = {'format': 'null'}  # streaming processing throws the graph data away
     else:
         output_args = None
-    
+
     transformer = Transformer(stream=stream)
     transformer.transform(
         input_args={
@@ -209,7 +209,7 @@ def validate(
 
     if stream:
         transformer = Transformer(stream=stream)
-        
+
         transformer.transform(
             input_args={
                 'filename': inputs,
@@ -224,9 +224,9 @@ def validate(
     else:
         # "Classical" non-streaming mode, with click.progressbar
         # but an unfriendly large memory footprint for large graphs
-        
+
         transformer = Transformer()
-        
+
         transformer.transform(
             {
                 'filename': inputs,
@@ -234,11 +234,11 @@ def validate(
                 'compression': input_compression
             },
         )
-        
+
         # Slight tweak of classical 'validate' function: that the
         # list of errors are cached internally in the Validator object
         validator.validate(transformer.store.graph)
-    
+
     if output:
         validator.write_report(open(output, 'w'))
     else:
@@ -721,7 +721,7 @@ def merge(
                 )
                 if destination_info['format'] == 'nt':
                     output_args['property_types'] = top_level_args['property_types']
-                    if 'property_types' in top_level_args:
+                    if 'property_types' in top_level_args and 'property_types' in destination_info.keys():
                         output_args['property_types'].update(destination_info['property_types'])
                 if destination_info['format'] in {'csv', 'tsv'}:
                     output_args['node_properties'] = node_properties
