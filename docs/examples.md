@@ -34,11 +34,11 @@ Summarizes a graph and generate a YAML report regarding the composition of node 
                       tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
 ```
 
-An alternate summary of a graph generates a TRAPI 1.1-compliant meta knowledge graph JSON report:
+An alternate summary of a graph generates a TRAPI 1.*-compliant meta knowledge graph ("content metadata") JSON report:
 
 ```bash
     kgx graph-summary --input-format tsv \
-                      --output graph_stats.yaml \
+                      --output content_metadata.json \
                       --report-type meta-knowledge-graph \
                       --error-log graph_stats.err \
                       tests/resources/graph_nodes.tsv tests/resources/graph_edges.tsv
