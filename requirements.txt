@@ -33,3 +33,4 @@ recommonmark>=0.7.1
 tox
 flake8
 black
+tox-docker
