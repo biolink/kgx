@@ -88,8 +88,6 @@ class Transformer(object):
 
         if infores_catalog and exists(infores_catalog):
             with open(infores_catalog, 'r') as irc:
-                # entry = irc.readline()
-                # while entry:
                 for entry in irc:
                     if len(entry):
                         entry = entry.strip()
@@ -97,8 +95,6 @@ class Transformer(object):
                             print("entry: "+entry, file=stderr)
                             source, infores = entry.split('\t')
                             self._infores_catalog[source] = infores
-                    # entry = irc.readline()
-
 
     def transform(
             self,

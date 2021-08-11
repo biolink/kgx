@@ -13,10 +13,11 @@ from kgx.utils.kgx_utils import (
     current_time_in_millis,
     format_biolink_category,
     generate_edge_key,
+    get_toolkit
 )
 
 log = get_logger()
-
+toolkit = get_toolkit()
 SAME_AS = 'biolink:same_as'
 SUBCLASS_OF = 'biolink:subclass_of'
 LEADER_ANNOTATION = 'clique_leader'
@@ -166,7 +167,7 @@ def elect_leader(
     count = 0
     update_dict = {}
     for clique in cliques:
-        log.debug(
+        log.info(
             f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}"
         )
         update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
@@ -469,6 +470,8 @@ def check_categories(
 ) -> Tuple[List, List, List]:
     """
     Check categories to ensure whether values in ``categories`` are valid biolink categories.
+    Valid biolink categories are classes that descend from 'NamedThing'.
+    Mixins, while valid ancestors, are not valid categories.
 
     Parameters
     ----------
@@ -488,7 +491,12 @@ def check_categories(
     valid_biolink_categories = []
     invalid_biolink_categories = []
     invalid_categories = []
+    tk = get_toolkit()
     for x in categories:
+        # use the toolkit to check if the declared category is actually a mixin.
+        if tk.is_mixin(x):
+            invalid_categories.append(x)
+            continue
         # get biolink element corresponding to category
         element = get_biolink_element(x)
         if element:
@@ -525,6 +533,10 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     Tuple[List, List, List]
         A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories
 
+    Note: the sort_categories method will re-arrange the passed in category list according to the distance
+    of each list member from the top of their hierarchy.  Each category's hierarchy is made up of its
+    'is_a' and mixin ancestors.
+
     """
     previous: List = []
     valid_biolink_categories: List = []
@@ -559,7 +571,8 @@ def sort_categories(categories: Union[List, Set, OrderedSet]) -> List:
     Returns
     -------
     List
-        A sorted list of categories
+        A sorted list of categories where sorted means that the first element in the list returned
+        has the most number of parents in the class hierarchy.
 
     """
     weighted_categories = []

@@ -5,10 +5,10 @@ from kgx.config import get_biolink_model_schema
 
 def test_valid_biolink_version():
     try:
-        schema = get_biolink_model_schema("2.0.2")
+        schema = get_biolink_model_schema("2.2.1")
     except TypeError as te:
         assert False, "test failure!"
-    assert(schema == 'https://raw.githubusercontent.com/biolink/biolink-model/2.0.2/biolink-model.yaml')
+    assert(schema == 'https://raw.githubusercontent.com/biolink/biolink-model/2.2.1/biolink-model.yaml')
 
 
 def test_invalid_biolink_version():
