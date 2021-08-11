@@ -457,8 +457,8 @@ def get_biolink_ancestors(name: str):
 
     """
     toolkit = get_toolkit()
-    ancestors = toolkit.get_ancestors(name, formatted=True, mixin=False)
-    return ancestors
+    ancestors_mixins = toolkit.get_ancestors(name, formatted=True, mixin=True)
+    return ancestors_mixins
 
 
 def get_biolink_property_types() -> Dict:

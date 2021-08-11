@@ -921,7 +921,6 @@ def prepare_input_args(
     """
     if not key:
         key = os.path.basename(source['input']['filename'][0])
-    source_name = source['name'] if 'name' in source else key
     input_format = source['input']['format']
     input_compression = source['input']['compression'] if 'compression' in source['input'] else None
     inputs = source['input']['filename']
