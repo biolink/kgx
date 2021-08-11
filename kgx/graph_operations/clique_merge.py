@@ -470,6 +470,8 @@ def check_categories(
 ) -> Tuple[List, List, List]:
     """
     Check categories to ensure whether values in ``categories`` are valid biolink categories.
+    Valid biolink categories are classes that descend from 'NamedThing'.
+    Mixins, while valid ancestors, are not valid categories.
 
     Parameters
     ----------
@@ -489,7 +491,12 @@ def check_categories(
     valid_biolink_categories = []
     invalid_biolink_categories = []
     invalid_categories = []
+    tk = get_toolkit()
     for x in categories:
+        # use the toolkit to check if the declared category is actually a mixin.
+        if tk.is_mixin(x):
+            invalid_categories.append(x)
+            continue
         # get biolink element corresponding to category
         element = get_biolink_element(x)
         if element:
@@ -526,6 +533,10 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     Tuple[List, List, List]
         A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories
 
+    Note: the sort_categories method will re-arrange the passed in category list according to the distance
+    of each list member from the top of their hierarchy.  Each category's hierarchy is made up of its
+    'is_a' and mixin ancestors.
+
     """
     previous: List = []
     valid_biolink_categories: List = []
@@ -533,9 +544,6 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     invalid_categories: List = []
     sc: List = sort_categories(categories)
     for c in sc:
-        if toolkit.is_mixin(c):
-            valid_biolink_categories.extend(vbc)
-            continue
         if previous:
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(previous[0]), None)
         else:
@@ -563,7 +571,8 @@ def sort_categories(categories: Union[List, Set, OrderedSet]) -> List:
     Returns
     -------
     List
-        A sorted list of categories
+        A sorted list of categories where sorted means that the first element in the list returned
+        has the most number of parents in the class hierarchy.
 
     """
     weighted_categories = []

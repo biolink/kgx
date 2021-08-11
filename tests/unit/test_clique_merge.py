@@ -38,14 +38,22 @@ def test_check_all_categories1():
     ic = invalid category
     vbc = valid biolink categories
 
-    Note: the first category alphabetically in this test will determine the closure used
-    to determine invalid biolink categories.
+    Note: in the check_categories method called by check_all_categories, the
+    categories list in this test gets sorted to be processed like this:
+    ['biolink:Gene', 'biolink:Disease', 'biolink:NamedThing', 'biolink:GeneOrGeneProduct']
+
+    Which effects which closure is checked for valid biolink categories and is why disease is
+    tagged as an invalid biolink category (even though it descends from biolink:NamedThing).
+
+    GeneOrGeneProduct is a mixin, and therefore not considered a valid 'category' even though it is
+    in the 'biolink:Gene' hierarchy.
+
     """
-    categories = ['biolink:Disease', 'biolink:Gene', 'biolink:NamedThing']
+    categories = ['biolink:Disease', 'biolink:Gene', 'biolink:GeneOrGeneProduct', 'biolink:NamedThing']
     vbc, ibc, ic = check_all_categories(categories)
     assert len(vbc) == 2
     assert len(ibc) == 1 and 'biolink:Disease' in ibc
-    assert len(ic) == 0
+    assert len(ic) == 1  # since biolink:GeneOrGeneProduct is a mixin, it is declared as an invalid category.
 
 
 def test_check_all_categories2():
@@ -58,21 +66,21 @@ def test_check_all_categories2():
     categories = get_biolink_ancestors('biolink:Gene')
     vbc, ibc, ic = check_all_categories(categories)
 
-    assert len(vbc) == 12
+    assert len(vbc) == 4
     assert len(ibc) == 0
-    assert len(ic) == 0
+    assert len(ic) == 8 # mixins are not valid biolink categories, but they are ancestors.
 
     categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'biolink:Gene']
-    vbc, ibc, ic = check_all_categories(categories)
-    assert len(vbc) == 3
-    assert len(ibc) == 0
-    assert len(ic) == 0
-
-    categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'Node']
     vbc, ibc, ic = check_all_categories(categories)
     assert len(vbc) == 2
     assert len(ibc) == 0
     assert len(ic) == 1
+
+    categories = ['biolink:NamedThing', 'biolink:GeneOrGeneProduct', 'Node']
+    vbc, ibc, ic = check_all_categories(categories)
+    assert len(vbc) == 1
+    assert len(ibc) == 0
+    assert len(ic) == 2
 
 
 def test_sort_categories():
