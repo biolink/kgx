@@ -32,7 +32,7 @@ class OwlSource(RdfSource):
         super().__init__()
         self.OWLSTAR = Namespace("http://w3id.org/owlstar/")
         self.excluded_predicates = {
-            URIRef("http://www.geneontology.org/formats/oboInOwl#id")
+            URIRef("https://raw.githubusercontent.com/geneontology/go-ontology/master/contrib/oboInOwl#id")
         }
 
     def parse(
