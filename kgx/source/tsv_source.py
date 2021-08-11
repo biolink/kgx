@@ -78,20 +78,22 @@ class TsvSource(Source):
             A generator for node and edge records
 
         """
-        if 'delimiter' not in kwargs:
+        if "delimiter" not in kwargs:
             # infer delimiter from file format
-            kwargs['delimiter'] = extension_types[format]  # type: ignore
-        if 'lineterminator' not in kwargs:
+            kwargs["delimiter"] = extension_types[format]  # type: ignore
+        if "lineterminator" not in kwargs:
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
-            kwargs['lineterminator'] = '\n'  # type: ignore
+            kwargs["lineterminator"] = "\n"  # type: ignore
 
-        mode = archive_read_mode[compression] if compression in archive_read_mode else None
+        mode = (
+            archive_read_mode[compression] if compression in archive_read_mode else None
+        )
 
         self.set_provenance_map(kwargs)
 
-        if format == 'tsv':
-            kwargs['quoting'] = 3  # type: ignore
+        if format == "tsv":
+            kwargs["quoting"] = 3  # type: ignore
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 # Alas, the order that tar file members is important in some streaming operations
@@ -102,20 +104,24 @@ class TsvSource(Source):
                 node_files: List[str] = list()
                 edge_files: List[str] = list()
                 for name in tar.getnames():
-                    if re.search(f'nodes.{format}', name):
+                    if re.search(f"nodes.{format}", name):
                         node_files.append(name)
-                    elif re.search(f'edges.{format}', name):
+                    elif re.search(f"edges.{format}", name):
                         edge_files.append(name)
                     else:
                         # This used to throw an exception but perhaps we should simply ignore it.
-                        log.warning(f'Tar archive contains an unrecognized file: {name}. Skipped...')
+                        log.warning(
+                            f"Tar archive contains an unrecognized file: {name}. Skipped..."
+                        )
 
                 # Then, first extract and capture contents of the nodes files...
                 for name in node_files:
                     try:
                         member = tar.getmember(name)
                     except KeyError:
-                        log.warning(f"Node file {name} member in archive {filename} could not be accessed? Skipped?")
+                        log.warning(
+                            f"Node file {name} member in archive {filename} could not be accessed? Skipped?"
+                        )
                         continue
 
                     f = tar.extractfile(member)
@@ -137,7 +143,9 @@ class TsvSource(Source):
                     try:
                         member = tar.getmember(name)
                     except KeyError:
-                        log.warning(f"Edge file {name} member in archive {filename} could not be accessed? Skipped?")
+                        log.warning(
+                            f"Edge file {name} member in archive {filename} could not be accessed? Skipped?"
+                        )
                         continue
 
                     f = tar.extractfile(member)
@@ -162,17 +170,19 @@ class TsvSource(Source):
                 keep_default_na=False,
                 **kwargs,
             )
-            if re.search(f'nodes.{format}', filename):
+            if re.search(f"nodes.{format}", filename):
                 for chunk in file_iter:
                     self.node_properties.update(chunk.columns)
                     yield from self.read_nodes(chunk)
-            elif re.search(f'edges.{format}', filename):
+            elif re.search(f"edges.{format}", filename):
                 for chunk in file_iter:
                     self.edge_properties.update(chunk.columns)
                     yield from self.read_edges(chunk)
             else:
                 # This used to throw an exception but perhaps we should simply ignore it.
-                log.warning(f'Parse function cannot resolve the KGX file type in name {filename}. Skipped...')
+                log.warning(
+                    f"Parse function cannot resolve the KGX file type in name {filename}. Skipped..."
+                )
 
     def read_nodes(self, df: pd.DataFrame) -> Generator:
         """
@@ -189,7 +199,7 @@ class TsvSource(Source):
             A generator for node records
 
         """
-        for obj in df.to_dict('records'):
+        for obj in df.to_dict("records"):
             yield self.read_node(obj)
 
     def read_node(self, node: Dict) -> Optional[Tuple[str, Dict]]:
@@ -208,9 +218,9 @@ class TsvSource(Source):
         """
         node = validate_node(node)
         node_data = sanitize_import(node.copy())
-        if 'id' in node_data:
+        if "id" in node_data:
 
-            n = node_data['id']
+            n = node_data["id"]
 
             self.set_node_provenance(node_data)
 
@@ -236,7 +246,7 @@ class TsvSource(Source):
             A generator for edge records
 
         """
-        for obj in df.to_dict('records'):
+        for obj in df.to_dict("records"):
             yield self.read_edge(obj)
 
     def read_edge(self, edge: Dict) -> Optional[Tuple]:
@@ -256,14 +266,14 @@ class TsvSource(Source):
         """
         edge = validate_edge(edge)
         edge_data = sanitize_import(edge.copy())
-        if 'id' not in edge_data:
-            edge_data['id'] = generate_uuid()
-        s = edge_data['subject']
-        o = edge_data['object']
+        if "id" not in edge_data:
+            edge_data["id"] = generate_uuid()
+        s = edge_data["subject"]
+        o = edge_data["object"]
 
         self.set_edge_provenance(edge_data)
 
-        key = generate_edge_key(s, edge_data['predicate'], o)
+        key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
             self.node_properties.update(edge_data.keys())

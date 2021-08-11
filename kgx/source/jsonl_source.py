@@ -4,6 +4,7 @@ import jsonlines
 from typing import Optional, Any, Generator, Dict
 
 from kgx.config import get_logger
+
 log = get_logger()
 
 from kgx.source.json_source import JsonSource
@@ -21,7 +22,7 @@ class JsonlSource(JsonSource):
     def parse(
         self,
         filename: str,
-        format: str = 'jsonl',
+        format: str = "jsonl",
         compression: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
@@ -48,17 +49,19 @@ class JsonlSource(JsonSource):
 
         self.set_provenance_map(kwargs)
 
-        if re.search(f'nodes.{format}', filename):
+        if re.search(f"nodes.{format}", filename):
             m = self.read_node
-        elif re.search(f'edges.{format}', filename):
+        elif re.search(f"edges.{format}", filename):
             m = self.read_edge
         else:
             # This used to throw an exception but perhaps we should simply ignore it.
-            log.warning(f'Parse function cannot resolve the KGX file type in name {filename}. Skipped...')
+            log.warning(
+                f"Parse function cannot resolve the KGX file type in name {filename}. Skipped..."
+            )
             return
 
-        if compression == 'gz':
-            with gzip.open(filename, 'rb') as FH:
+        if compression == "gz":
+            with gzip.open(filename, "rb") as FH:
                 reader = jsonlines.Reader(FH)
                 for obj in reader:
                     yield m(obj)

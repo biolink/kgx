@@ -39,7 +39,7 @@ def remap_node_identifier(
     mapping: Dict = {}
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
-        if 'category' in node_data and category not in node_data['category']:
+        if "category" in node_data and category not in node_data["category"]:
             continue
 
         if alternative_property in node_data:
@@ -49,18 +49,18 @@ def remap_node_identifier(
                     for v in alternative_values:
                         if prefix in v:
                             # take the first occurring value that contains the given prefix
-                            mapping[nid] = {'id': v}
+                            mapping[nid] = {"id": v}
                             break
                 else:
                     # no prefix defined; pick the 1st one from list
-                    mapping[nid] = {'id': next(iter(alternative_values))}
+                    mapping[nid] = {"id": next(iter(alternative_values))}
             elif isinstance(alternative_values, str):
                 if prefix:
                     if alternative_values.startswith(prefix):
-                        mapping[nid] = {'id': alternative_values}
+                        mapping[nid] = {"id": alternative_values}
                 else:
                     # no prefix defined
-                    mapping[nid] = {'id': alternative_values}
+                    mapping[nid] = {"id": alternative_values}
             else:
                 log.error(
                     f"Cannot use {alternative_values} from alternative_property {alternative_property}"
@@ -74,15 +74,15 @@ def remap_node_identifier(
     updated_subject_values = {}
     updated_object_values = {}
     for u, v, k, edge_data in graph.edges(data=True, keys=True):
-        if u is not edge_data['subject']:
-            updated_subject_values[(u, v, k)] = {'subject': u}
+        if u is not edge_data["subject"]:
+            updated_subject_values[(u, v, k)] = {"subject": u}
             update_edge_keys[(u, v, k)] = {
-                'edge_key': generate_edge_key(u, edge_data['predicate'], v)
+                "edge_key": generate_edge_key(u, edge_data["predicate"], v)
             }
-        if v is not edge_data['object']:
-            updated_object_values[(u, v, k)] = {'object': v}
+        if v is not edge_data["object"]:
+            updated_object_values[(u, v, k)] = {"object": v}
             update_edge_keys[(u, v, k)] = {
-                'edge_key': generate_edge_key(u, edge_data['predicate'], v)
+                "edge_key": generate_edge_key(u, edge_data["predicate"], v)
             }
 
     graph.set_edge_attributes(graph, attributes=updated_subject_values)
@@ -118,7 +118,7 @@ def remap_node_property(
 
     for nid, data in graph.nodes(data=True):
         node_data = data.copy()
-        if category in node_data and category not in node_data['category']:
+        if category in node_data and category not in node_data["category"]:
             continue
         if new_property in node_data:
             mapping[nid] = {old_property: node_data[new_property]}
@@ -151,14 +151,16 @@ def remap_edge_property(
         )
     for u, v, k, data in graph.edges(data=True, keys=True):
         edge_data = data.copy()
-        if edge_predicate is not edge_data['predicate']:
+        if edge_predicate is not edge_data["predicate"]:
             continue
         if new_property in edge_data:
             mapping[(u, v, k)] = {old_property: edge_data[new_property]}
     graph.set_edge_attributes(graph, attributes=mapping)
 
 
-def fold_predicate(graph: BaseGraph, predicate: str, remove_prefix: bool = False) -> None:
+def fold_predicate(
+    graph: BaseGraph, predicate: str, remove_prefix: bool = False
+) -> None:
     """
     Fold predicate as node property where every edge with ``predicate``
     will be folded as a node property.
@@ -176,9 +178,9 @@ def fold_predicate(graph: BaseGraph, predicate: str, remove_prefix: bool = False
     node_cache = []
     edge_cache = []
     start = current_time_in_millis()
-    p = predicate.split(':', 1)[1] if remove_prefix else predicate
+    p = predicate.split(":", 1)[1] if remove_prefix else predicate
     for u, v, k, data in graph.edges(keys=True, data=True):
-        if data['predicate'] == predicate:
+        if data["predicate"] == predicate:
             node_cache.append((u, p, v))
             edge_cache.append((u, v, k))
     while node_cache:
@@ -220,7 +222,9 @@ def unfold_node_property(
             node_cache.append((n, node_property))
     while edge_cache:
         e = edge_cache.pop()
-        graph.add_edge(*e, **{'subject': e[0], 'object': e[1], 'predicate': e[2], 'relation': e[2]})
+        graph.add_edge(
+            *e, **{"subject": e[0], "object": e[1], "predicate": e[2], "relation": e[2]}
+        )
     while node_cache:
         n = node_cache.pop()
         del graph.nodes()[n[0]][n[1]]

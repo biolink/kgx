@@ -9,7 +9,7 @@ def test_read_trapi_json1():
     Read from a JSON using TrapiSource.
     """
     s = TrapiSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'rsa_sample.json'))
+    g = s.parse(os.path.join(RESOURCE_DIR, "rsa_sample.json"))
     nodes = {}
     edges = {}
     for rec in g:
@@ -22,15 +22,15 @@ def test_read_trapi_json1():
     assert len(nodes.keys()) == 4
     assert len(edges.keys()) == 3
 
-    n = nodes['HGNC:11603']
-    assert n['id'] == 'HGNC:11603'
-    assert n['name'] == 'TBX4'
-    assert n['category'] == ['biolink:Gene']
+    n = nodes["HGNC:11603"]
+    assert n["id"] == "HGNC:11603"
+    assert n["name"] == "TBX4"
+    assert n["category"] == ["biolink:Gene"]
 
-    e = edges['HGNC:11603', 'MONDO:0005002']
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0005002'
-    assert e['predicate'] == 'biolink:related_to'
+    e = edges["HGNC:11603", "MONDO:0005002"]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0005002"
+    assert e["predicate"] == "biolink:related_to"
 
 
 def test_read_trapi_json2():
@@ -40,9 +40,9 @@ def test_read_trapi_json2():
     """
     s = TrapiSource()
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'rsa_sample.json'),
+        os.path.join(RESOURCE_DIR, "rsa_sample.json"),
         provided_by="Test TRAPI JSON",
-        knowledge_source="Test TRAPI JSON"
+        knowledge_source="Test TRAPI JSON",
     )
     nodes = {}
     edges = {}
@@ -56,14 +56,14 @@ def test_read_trapi_json2():
     assert len(nodes.keys()) == 4
     assert len(edges.keys()) == 3
 
-    n = nodes['HGNC:11603']
-    assert n['id'] == 'HGNC:11603'
-    assert n['name'] == 'TBX4'
-    assert n['category'] == ['biolink:Gene']
-    assert 'Test TRAPI JSON' in n['provided_by']
+    n = nodes["HGNC:11603"]
+    assert n["id"] == "HGNC:11603"
+    assert n["name"] == "TBX4"
+    assert n["category"] == ["biolink:Gene"]
+    assert "Test TRAPI JSON" in n["provided_by"]
 
-    e = edges['HGNC:11603', 'MONDO:0005002']
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0005002'
-    assert e['predicate'] == 'biolink:related_to'
-    assert 'Test TRAPI JSON' in e['knowledge_source']
+    e = edges["HGNC:11603", "MONDO:0005002"]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0005002"
+    assert e["predicate"] == "biolink:related_to"
+    assert "Test TRAPI JSON" in e["knowledge_source"]

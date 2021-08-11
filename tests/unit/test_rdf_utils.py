@@ -8,11 +8,11 @@ from tests import RESOURCE_DIR
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
-        (URIRef('http://purl.obolibrary.org/obo/GO_0007267'), 'biological_process'),
-        (URIRef('http://purl.obolibrary.org/obo/GO_0019899'), 'molecular_function'),
-        (URIRef('http://purl.obolibrary.org/obo/GO_0005739'), 'cellular_component'),
+        (URIRef("http://purl.obolibrary.org/obo/GO_0007267"), "biological_process"),
+        (URIRef("http://purl.obolibrary.org/obo/GO_0019899"), "molecular_function"),
+        (URIRef("http://purl.obolibrary.org/obo/GO_0005739"), "cellular_component"),
     ],
 )
 def test_infer_category(query):
@@ -20,7 +20,7 @@ def test_infer_category(query):
     Test inferring of biolink category for a given IRI.
     """
     graph = Graph()
-    graph.parse(os.path.join(RESOURCE_DIR, 'goslim_generic.owl'))
+    graph.parse(os.path.join(RESOURCE_DIR, "goslim_generic.owl"))
     [c] = infer_category(query[0], graph)
     assert c == query[1]
 
@@ -29,47 +29,59 @@ def test_infer_category(query):
     "query",
     [
         (
-            'http://purl.org/oban/association_has_object',
-            'biolink:object',
-            'rdf:object',
-            'OBAN:association_has_object',
-            'association_has_object',
+            "http://purl.org/oban/association_has_object",
+            "biolink:object",
+            "rdf:object",
+            "OBAN:association_has_object",
+            "association_has_object",
         ),
         (
-            'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-            'biolink:type',
-            'rdf:type',
-            'rdf:type',
-            'type',
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "biolink:type",
+            "rdf:type",
+            "rdf:type",
+            "type",
         ),
         (
-            'https://monarchinitiative.org/frequencyOfPhenotype',
+            "https://monarchinitiative.org/frequencyOfPhenotype",
             None,
             None,
-            'MONARCH:frequencyOfPhenotype',
-            'frequencyOfPhenotype',
+            "MONARCH:frequencyOfPhenotype",
+            "frequencyOfPhenotype",
         ),
         (
-            'http://purl.obolibrary.org/obo/RO_0002200',
-            'biolink:has_phenotype',
-            'biolink:has_phenotype',
-            'RO:0002200',
-            '0002200',
+            "http://purl.obolibrary.org/obo/RO_0002200",
+            "biolink:has_phenotype",
+            "biolink:has_phenotype",
+            "RO:0002200",
+            "0002200",
         ),
         (
-            'http://www.w3.org/2002/07/owl#equivalentClass',
-            'biolink:same_as',
-            'biolink:same_as',
-            'owl:equivalentClass',
-            'equivalentClass',
+            "http://www.w3.org/2002/07/owl#equivalentClass",
+            "biolink:same_as",
+            "biolink:same_as",
+            "owl:equivalentClass",
+            "equivalentClass",
         ),
-        ('https://www.example.org/UNKNOWN/new_prop', None, None, ':new_prop', 'new_prop'),
-        ('http://purl.obolibrary.org/obo/RO_0000091', None, None, 'RO:0000091', '0000091'),
-        ('RO:0000091', None, None, 'RO:0000091', '0000091'),
-        ('category', 'biolink:category', 'biolink:category', ':category', 'category'),
-        ('predicate', 'biolink:predicate', 'rdf:predicate', ':predicate', 'predicate'),
-        ('type', 'biolink:type', 'rdf:type', ':type', 'type'),
-        ('name', 'biolink:name', 'rdfs:label', ':name', 'name'),
+        (
+            "https://www.example.org/UNKNOWN/new_prop",
+            None,
+            None,
+            ":new_prop",
+            "new_prop",
+        ),
+        (
+            "http://purl.obolibrary.org/obo/RO_0000091",
+            None,
+            None,
+            "RO:0000091",
+            "0000091",
+        ),
+        ("RO:0000091", None, None, "RO:0000091", "0000091"),
+        ("category", "biolink:category", "biolink:category", ":category", "category"),
+        ("predicate", "biolink:predicate", "rdf:predicate", ":predicate", "predicate"),
+        ("type", "biolink:type", "rdf:type", ":type", "type"),
+        ("name", "biolink:name", "rdfs:label", ":name", "name"),
     ],
 )
 def test_process_predicate(query):

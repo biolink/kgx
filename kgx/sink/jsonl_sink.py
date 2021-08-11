@@ -26,25 +26,33 @@ class JsonlSink(Sink):
     """
 
     def __init__(
-        self, filename: str, format: str = 'jsonl', compression: Optional[str] = None, **kwargs: Any
+        self,
+        filename: str,
+        format: str = "jsonl",
+        compression: Optional[str] = None,
+        **kwargs: Any,
     ):
         super().__init__()
         dirname = os.path.abspath(os.path.dirname(filename))
         basename = os.path.basename(filename)
-        nodes_filename = os.path.join(dirname if dirname else '', f"{basename}_nodes.{format}")
-        edges_filename = os.path.join(dirname if dirname else '', f"{basename}_edges.{format}")
+        nodes_filename = os.path.join(
+            dirname if dirname else "", f"{basename}_nodes.{format}"
+        )
+        edges_filename = os.path.join(
+            dirname if dirname else "", f"{basename}_edges.{format}"
+        )
         if dirname:
             os.makedirs(dirname, exist_ok=True)
-        if compression == 'gz':
+        if compression == "gz":
             nodes_filename += f".{compression}"
             edges_filename += f".{compression}"
-            NFH = gzip.open(nodes_filename, 'wb')
+            NFH = gzip.open(nodes_filename, "wb")
             self.NFH = jsonlines.Writer(NFH)
-            EFH = gzip.open(edges_filename, 'wb')
+            EFH = gzip.open(edges_filename, "wb")
             self.EFH = jsonlines.Writer(EFH)
         else:
-            self.NFH = jsonlines.open(nodes_filename, 'w')
-            self.EFH = jsonlines.open(edges_filename, 'w')
+            self.NFH = jsonlines.open(nodes_filename, "w")
+            self.EFH = jsonlines.open(edges_filename, "w")
 
     def write_node(self, record: Dict) -> None:
         """

@@ -12,7 +12,7 @@ from kgx.utils.kgx_utils import (
     validate_node,
     validate_edge,
     sanitize_import,
-    knowledge_provenance_properties
+    knowledge_provenance_properties,
 )
 
 log = get_logger()
@@ -77,16 +77,22 @@ class NeoSource(Source):
             A generator for records
 
         """
-        self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
+        self.http_driver: GraphDatabase = GraphDatabase(
+            uri, username=username, password=password
+        )
 
         self.set_provenance_map(kwargs)
 
-        kwargs['is_directed'] = is_directed
+        kwargs["is_directed"] = is_directed
         self.node_filters = node_filters
         self.edge_filters = edge_filters
-        for page in self.get_pages(self.get_nodes, start, end, page_size=page_size, **kwargs):
+        for page in self.get_pages(
+            self.get_nodes, start, end, page_size=page_size, **kwargs
+        ):
             yield from self.load_nodes(page)
-        for page in self.get_pages(self.get_edges, start, end, page_size=page_size, **kwargs):
+        for page in self.get_pages(
+            self.get_edges, start, end, page_size=page_size, **kwargs
+        ):
             yield from self.load_edges(page)
 
     def count(self, is_directed: bool = True) -> int:
@@ -105,28 +111,30 @@ class NeoSource(Source):
             The total count of records
 
         """
-        direction = '->' if is_directed else '-'
+        direction = "->" if is_directed else "-"
         query = f"MATCH (s)-[p]{direction}(o)"
 
         if self.edge_filters:
             qs = []
-            if 'subject_category' in self.edge_filters:
+            if "subject_category" in self.edge_filters:
                 qs.append(
                     f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})"
                 )
-            if 'object_category' in self.edge_filters:
+            if "object_category" in self.edge_filters:
                 qs.append(
                     f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})"
                 )
-            if 'predicate' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
+            if "predicate" in self.edge_filters:
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})"
+                )
             for ksf in knowledge_provenance_properties:
                 if ksf in self.edge_filters:
                     qs.append(
                         f"({self.format_edge_filter(self.edge_filters, ksf, 'p', '.', 'OR')})"
                     )
-            query = ' WHERE '
-            query += ' AND '.join(qs)
+            query = " WHERE "
+            query += " AND ".join(qs)
         query += f" RETURN COUNT(*) AS count"
         log.debug(query)
         query_result: Any
@@ -162,16 +170,16 @@ class NeoSource(Source):
 
         if self.node_filters:
             qs = []
-            if 'category' in self.node_filters:
+            if "category" in self.node_filters:
                 qs.append(
                     f"({self.format_node_filter(self.node_filters, 'category', 'n', ':', 'OR')})"
                 )
-            if 'provided_by' in self.node_filters:
+            if "provided_by" in self.node_filters:
                 qs.append(
                     f"({self.format_node_filter(self.node_filters, 'provided_by', 'n', '.', 'OR')})"
                 )
-            query += ' WHERE '
-            query += ' AND '.join(qs)
+            query += " WHERE "
+            query += " AND ".join(qs)
 
         query += f" RETURN n SKIP {skip}"
 
@@ -188,7 +196,9 @@ class NeoSource(Source):
             log.error(ce)
         return nodes
 
-    def get_edges(self, skip: int = 0, limit: int = 0, is_directed: bool = True, **kwargs: Any) -> List:
+    def get_edges(
+        self, skip: int = 0, limit: int = 0, is_directed: bool = True, **kwargs: Any
+    ) -> List:
         """
         Get a page of edges from the Neo4j database.
 
@@ -209,28 +219,30 @@ class NeoSource(Source):
             A list of 3-tuples
 
         """
-        direction = '->' if is_directed else '-'
+        direction = "->" if is_directed else "-"
         query = f"MATCH (s)-[p]{direction}(o)"
 
         if self.edge_filters:
             qs = []
-            if 'subject_category' in self.edge_filters:
+            if "subject_category" in self.edge_filters:
                 qs.append(
                     f"({self.format_edge_filter(self.edge_filters, 'subject_category', 's', ':', 'OR')})"
                 )
-            if 'object_category' in self.edge_filters:
+            if "object_category" in self.edge_filters:
                 qs.append(
                     f"({self.format_edge_filter(self.edge_filters, 'object_category', 'o', ':', 'OR')})"
                 )
-            if 'predicate' in self.edge_filters:
-                qs.append(f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})")
+            if "predicate" in self.edge_filters:
+                qs.append(
+                    f"({self.format_edge_filter(self.edge_filters, 'predicate', 'p', '.')})"
+                )
             for ksf in knowledge_provenance_properties:
                 if ksf in self.edge_filters:
                     qs.append(
                         f"({self.format_edge_filter(self.edge_filters, ksf, 'p', '.', 'OR')})"
                     )
-            query += ' WHERE '
-            query += ' AND '.join(qs)
+            query += " WHERE "
+            query += " AND ".join(qs)
         query += f" RETURN s, p, o SKIP {skip}"
 
         if limit:
@@ -260,7 +272,7 @@ class NeoSource(Source):
 
         """
         for node in nodes:
-            if node['id'] not in self.seen_nodes:
+            if node["id"] not in self.seen_nodes:
                 yield self.load_node(node)
 
     def load_node(self, node: Dict) -> Tuple:
@@ -280,14 +292,14 @@ class NeoSource(Source):
         """
         self.node_count += 1
         # TODO: remove the seen_nodes
-        self.seen_nodes.add(node['id'])
+        self.seen_nodes.add(node["id"])
 
         self.set_node_provenance(node)
 
         node = validate_node(node)
         node = sanitize_import(node.copy())
         self.node_properties.update(node.keys())
-        return node['id'], node
+        return node["id"], node
 
     def load_edges(self, edges: List) -> None:
         """
@@ -305,10 +317,10 @@ class NeoSource(Source):
             edge = record[1]
             object_node = record[2]
 
-            if 'subject' not in edge:
-                edge['subject'] = subject_node['id']
-            if 'object' not in edge:
-                edge['object'] = object_node['id']
+            if "subject" not in edge:
+                edge["subject"] = subject_node["id"]
+            if "object" not in edge:
+                edge["object"] = object_node["id"]
 
             s = self.load_node(subject_node)
             o = self.load_node(object_node)
@@ -339,13 +351,15 @@ class NeoSource(Source):
 
         self.set_edge_provenance(edge)
 
-        if 'id' not in edge.keys():
-            edge['id'] = generate_uuid()
-        key = generate_edge_key(subject_node['id'], edge['predicate'], object_node['id'])
+        if "id" not in edge.keys():
+            edge["id"] = generate_uuid()
+        key = generate_edge_key(
+            subject_node["id"], edge["predicate"], object_node["id"]
+        )
         edge = validate_edge(edge)
         edge = sanitize_import(edge.copy())
         self.edge_properties.update(edge.keys())
-        return subject_node['id'], object_node['id'], key, edge
+        return subject_node["id"], object_node["id"], key, edge
 
     def get_pages(
         self,
@@ -431,15 +445,16 @@ class NeoSource(Source):
             Value corresponding to the given node filter ``key``, formatted for CQL
 
         """
-        value = ''
+        value = ""
         if key in node_filters and node_filters[key]:
             if isinstance(node_filters[key], (list, set, tuple)):
-                if key in {'category'}:
+                if key in {"category"}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in node_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key == 'provided_by':
+                elif key == "provided_by":
                     formatted = [
-                        f"'{x}' IN {variable}{prefix}{'provided_by'}" for x in node_filters['provided_by']
+                        f"'{x}' IN {variable}{prefix}{'provided_by'}"
+                        for x in node_filters["provided_by"]
                     ]
                     value = f" {op} ".join(formatted)
                 else:
@@ -450,7 +465,9 @@ class NeoSource(Source):
             elif isinstance(node_filters[key], str):
                 value = f"{variable}{prefix}{key} = '{node_filters[key]}'"
             else:
-                log.error(f"Unexpected {key} node filter of type {type(node_filters[key])}")
+                log.error(
+                    f"Unexpected {key} node filter of type {type(node_filters[key])}"
+                )
         return value
 
     @staticmethod
@@ -484,14 +501,14 @@ class NeoSource(Source):
             Value corresponding to the given edge filter ``key``, formatted for CQL
 
         """
-        value = ''
+        value = ""
         if key in edge_filters and edge_filters[key]:
             if isinstance(edge_filters[key], (list, set, tuple)):
-                if key in {'subject_category', 'object_category'}:
+                if key in {"subject_category", "object_category"}:
                     formatted = [f"{variable}{prefix}`{x}`" for x in edge_filters[key]]
                     value = f" {op} ".join(formatted)
-                elif key == 'predicate':
-                    formatted = [f"'{x}'" for x in edge_filters['predicate']]
+                elif key == "predicate":
+                    formatted = [f"'{x}'" for x in edge_filters["predicate"]]
                     value = f"type({variable}) IN [{', '.join(formatted)}]"
                 elif key in knowledge_provenance_properties:
                     formatted = [
@@ -506,5 +523,7 @@ class NeoSource(Source):
             elif isinstance(edge_filters[key], str):
                 value = f"{variable}{prefix}{key} = '{edge_filters[key]}'"
             else:
-                log.error(f"Unexpected {key} edge filter of type {type(edge_filters[key])}")
+                log.error(
+                    f"Unexpected {key} edge filter of type {type(edge_filters[key])}"
+                )
         return value

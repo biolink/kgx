@@ -29,7 +29,11 @@ class JsonSink(Sink):
     """
 
     def __init__(
-        self, filename: str, format: str = 'json', compression: Optional[str] = None, **kwargs: Any
+        self,
+        filename: str,
+        format: str = "json",
+        compression: Optional[str] = None,
+        **kwargs: Any,
     ):
         super().__init__()
         self.filename = filename
@@ -57,7 +61,7 @@ class JsonSink(Sink):
             self.EH.close()
             self.EH = None
         if not self.NH:
-            self.NH = self.FH.subarray('nodes')
+            self.NH = self.FH.subarray("nodes")
         self.NH.write(record)
 
     def write_edge(self, record: Dict) -> None:
@@ -74,7 +78,7 @@ class JsonSink(Sink):
             self.NH.close()
             self.NH = None
         if not self.EH:
-            self.EH = self.FH.subarray('edges')
+            self.EH = self.FH.subarray("edges")
         self.EH.write(record)
 
     def finalize(self) -> None:
@@ -88,7 +92,7 @@ class JsonSink(Sink):
         if self.FH:
             self.FH.close()
         if self.compression:
-            WH = gzip.open(f"{self.filename}.gz", 'wb')
-            with open(self.filename, 'r') as FH:
+            WH = gzip.open(f"{self.filename}.gz", "wb")
+            with open(self.filename, "r") as FH:
                 for line in FH.buffer:
                     WH.write(line)

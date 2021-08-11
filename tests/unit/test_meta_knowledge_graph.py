@@ -4,7 +4,10 @@ from sys import stderr
 from typing import List, Dict
 
 from kgx.utils.kgx_utils import GraphEntityType
-from kgx.graph_operations.meta_knowledge_graph import generate_meta_knowledge_graph, MetaKnowledgeGraph
+from kgx.graph_operations.meta_knowledge_graph import (
+    generate_meta_knowledge_graph,
+    MetaKnowledgeGraph,
+)
 from kgx.transformer import Transformer
 
 from tests import RESOURCE_DIR, TARGET_DIR
@@ -15,29 +18,31 @@ def test_generate_classical_meta_knowledge_graph():
     Test generate meta knowledge graph operation.
     """
     input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        "filename": [
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
         ],
-        'format': 'tsv',
+        "format": "tsv",
     }
-    
+
     transformer = Transformer()
 
     transformer.transform(input_args)
 
-    output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-1.json')
-    
-    generate_meta_knowledge_graph(transformer.store.graph, 'Test Graph', output_filename)
+    output_filename = os.path.join(TARGET_DIR, "test_meta_knowledge_graph-1.json")
+
+    generate_meta_knowledge_graph(
+        transformer.store.graph, "Test Graph", output_filename
+    )
 
     data = json.load(open(output_filename))
-    assert data['name'] == 'Test Graph'
-    assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
-    assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
-    assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
-    assert data['nodes']['biolink:Gene']['count'] == 178
-    assert len(data['nodes']) == 8
-    assert len(data['edges']) == 13
+    assert data["name"] == "Test Graph"
+    assert "NCBIGene" in data["nodes"]["biolink:Gene"]["id_prefixes"]
+    assert "REACT" in data["nodes"]["biolink:Pathway"]["id_prefixes"]
+    assert "HP" in data["nodes"]["biolink:PhenotypicFeature"]["id_prefixes"]
+    assert data["nodes"]["biolink:Gene"]["count"] == 178
+    assert len(data["nodes"]) == 8
+    assert len(data["edges"]) == 13
 
 
 def test_generate_meta_knowledge_graph_by_stream_inspector():
@@ -46,48 +51,58 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     graph data through a graph Transformer.process() Inspector
     """
     input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        "filename": [
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
         ],
-        'format': 'tsv',
+        "format": "tsv",
     }
 
     transformer = Transformer(stream=True)
 
     mkg = MetaKnowledgeGraph(
-        'Test Graph - Streamed',
-        edge_facet_properties=['aggregator_knowledge_source']
+        "Test Graph - Streamed", edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     # We configure the Transformer with a data flow inspector
     # (Deployed in the internal Transformer.process() call)
     transformer.transform(input_args=input_args, inspector=mkg)
 
-    assert mkg.get_name() == 'Test Graph - Streamed'
+    assert mkg.get_name() == "Test Graph - Streamed"
     assert mkg.get_total_nodes_count() == 512
     assert mkg.get_number_of_categories() == 8
     assert mkg.get_total_edges_count() == 539
     assert mkg.get_edge_mapping_count() == 13
-    assert 'NCBIGene' in mkg.get_category('biolink:Gene').get_id_prefixes()
-    assert 'REACT' in mkg.get_category('biolink:Pathway').get_id_prefixes()
-    assert 'HP' in mkg.get_category('biolink:PhenotypicFeature').get_id_prefixes()
-    gene_category = mkg.get_category('biolink:Gene')
+    assert "NCBIGene" in mkg.get_category("biolink:Gene").get_id_prefixes()
+    assert "REACT" in mkg.get_category("biolink:Pathway").get_id_prefixes()
+    assert "HP" in mkg.get_category("biolink:PhenotypicFeature").get_id_prefixes()
+    gene_category = mkg.get_category("biolink:Gene")
     assert gene_category.get_count() == 178
     gene_category.get_count_by_source()
     assert len(mkg.get_edge_count_by_source("", "", "")) == 0
-    assert len(mkg.get_edge_count_by_source("biolink:Gene", "biolink:affects", "biolink:Disease")) == 0
+    assert (
+        len(
+            mkg.get_edge_count_by_source(
+                "biolink:Gene", "biolink:affects", "biolink:Disease"
+            )
+        )
+        == 0
+    )
     ecbs1 = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:interacts_with", "biolink:Gene",
-        facet='aggregator_knowledge_source'
+        "biolink:Gene",
+        "biolink:interacts_with",
+        "biolink:Gene",
+        facet="aggregator_knowledge_source",
     )
     assert len(ecbs1) == 2
     assert "biogrid" in ecbs1
     assert "string" in ecbs1
 
     ecbs2 = mkg.get_edge_count_by_source(
-        "biolink:Gene", "biolink:has_phenotype", "biolink:PhenotypicFeature",
-        facet='aggregator_knowledge_source'
+        "biolink:Gene",
+        "biolink:has_phenotype",
+        "biolink:PhenotypicFeature",
+        facet="aggregator_knowledge_source",
     )
     assert len(ecbs2) == 3
     assert "omim" in ecbs2
@@ -104,55 +119,59 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     MetaKnowledgeGraph as streaming Transformer.transform Inspector
     """
     input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'graph_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_edges.tsv'),
+        "filename": [
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
         ],
-        'format': 'tsv',
+        "format": "tsv",
     }
     t = Transformer(stream=True)
 
     class ProgressMonitor:
-
         def __init__(self):
             self.count: Dict[GraphEntityType, int] = {
                 GraphEntityType.GRAPH: 0,
                 GraphEntityType.NODE: 0,
-                GraphEntityType.EDGE: 0
+                GraphEntityType.EDGE: 0,
             }
 
         def __call__(self, entity_type: GraphEntityType, rec: List):
             self.count[GraphEntityType.GRAPH] += 1
             self.count[entity_type] += 1
             if not (self.count[GraphEntityType.GRAPH] % 100):
-                print(str(self.count[GraphEntityType.GRAPH]) + " records processed...", file=stderr)
+                print(
+                    str(self.count[GraphEntityType.GRAPH]) + " records processed...",
+                    file=stderr,
+                )
 
         def summary(self):
             print(str(self.count[GraphEntityType.NODE]) + " nodes seen.", file=stderr)
             print(str(self.count[GraphEntityType.EDGE]) + " edges seen.", file=stderr)
-            print(str(self.count[GraphEntityType.GRAPH]) + " total records processed...", file=stderr)
+            print(
+                str(self.count[GraphEntityType.GRAPH]) + " total records processed...",
+                file=stderr,
+            )
 
     monitor = ProgressMonitor()
 
     mkg = MetaKnowledgeGraph(
-        name='Test Graph - Streamed, Stats accessed via File',
-        progress_monitor=monitor
+        name="Test Graph - Streamed, Stats accessed via File", progress_monitor=monitor
     )
 
     t.transform(input_args=input_args, inspector=mkg)
 
-    output_filename = os.path.join(TARGET_DIR, 'test_meta_knowledge_graph-2.json')
-    with open(output_filename, 'w') as mkgh:
+    output_filename = os.path.join(TARGET_DIR, "test_meta_knowledge_graph-2.json")
+    with open(output_filename, "w") as mkgh:
         mkg.save(mkgh)
 
     data = json.load(open(output_filename))
-    assert data['name'] == 'Test Graph - Streamed, Stats accessed via File'
-    assert 'NCBIGene' in data['nodes']['biolink:Gene']['id_prefixes']
-    assert 'REACT' in data['nodes']['biolink:Pathway']['id_prefixes']
-    assert 'HP' in data['nodes']['biolink:PhenotypicFeature']['id_prefixes']
-    assert data['nodes']['biolink:Gene']['count'] == 178
-    assert len(data['nodes']) == 8
-    assert len(data['edges']) == 13
+    assert data["name"] == "Test Graph - Streamed, Stats accessed via File"
+    assert "NCBIGene" in data["nodes"]["biolink:Gene"]["id_prefixes"]
+    assert "REACT" in data["nodes"]["biolink:Pathway"]["id_prefixes"]
+    assert "HP" in data["nodes"]["biolink:PhenotypicFeature"]["id_prefixes"]
+    assert data["nodes"]["biolink:Gene"]["count"] == 178
+    assert len(data["nodes"]) == 8
+    assert len(data["edges"]) == 13
 
     monitor.summary()
 
@@ -162,22 +181,20 @@ def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
     Test meta knowledge graph parsing multiple categories
     """
     input_args = {
-        'filename': [
-            os.path.join(RESOURCE_DIR, 'graph_multi_category_nodes.tsv'),
-            os.path.join(RESOURCE_DIR, 'graph_multi_category_edges.tsv'),
+        "filename": [
+            os.path.join(RESOURCE_DIR, "graph_multi_category_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "graph_multi_category_edges.tsv"),
         ],
-        'format': 'tsv',
+        "format": "tsv",
     }
 
     t = Transformer(stream=True)
 
-    mkg = MetaKnowledgeGraph(
-        name='Test Graph - Multiple Node Categories'
-    )
+    mkg = MetaKnowledgeGraph(name="Test Graph - Multiple Node Categories")
 
     t.transform(input_args=input_args, inspector=mkg)
 
-    assert mkg.get_name() == 'Test Graph - Multiple Node Categories'
+    assert mkg.get_name() == "Test Graph - Multiple Node Categories"
 
     assert mkg.get_total_nodes_count() == 10
 

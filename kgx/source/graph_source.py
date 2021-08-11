@@ -19,11 +19,7 @@ class GraphSource(Source):
         super().__init__()
         self.graph = get_graph_store_class()()
 
-    def parse(
-            self,
-            graph: BaseGraph,
-            **kwargs: Any
-    ) -> Generator:
+    def parse(self, graph: BaseGraph, **kwargs: Any) -> Generator:
         """
         This method reads from a graph and yields records.
 
@@ -59,8 +55,8 @@ class GraphSource(Source):
 
         """
         for n, data in self.graph.nodes(data=True):
-            if 'id' not in data:
-                data['id'] = n
+            if "id" not in data:
+                data["id"] = n
             node_data = validate_node(data)
             node_data = sanitize_import(node_data.copy())
 

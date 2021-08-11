@@ -37,54 +37,56 @@ def cli():
     pass
 
 
-@cli.command(name='graph-summary')
-@click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
+@cli.command(name="graph-summary")
+@click.argument("inputs", required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
-    '--input-format',
-    '-i',
+    "--input-format",
+    "-i",
     required=True,
-    help=f'The input format. Can be one of {get_input_file_types()}',
+    help=f"The input format. Can be one of {get_input_file_types()}",
 )
-@click.option('--input-compression', '-c', required=False, help='The input compression type')
-@click.option('--output', '-o', required=True, type=click.Path(exists=False))
 @click.option(
-    '--report-type',
-    '-r',
+    "--input-compression", "-c", required=False, help="The input compression type"
+)
+@click.option("--output", "-o", required=True, type=click.Path(exists=False))
+@click.option(
+    "--report-type",
+    "-r",
     required=False,
     type=str,
-    help=f'The summary report type. Must be one of {tuple(summary_report_types.keys())}',
-    default='kgx-map',
+    help=f"The summary report type. Must be one of {tuple(summary_report_types.keys())}",
+    default="kgx-map",
 )
 @click.option(
-    '--report-format',
-    '-f',
-    help=f'The input format. Can be one of {get_report_format_types()}',
+    "--report-format",
+    "-f",
+    help=f"The input format. Can be one of {get_report_format_types()}",
 )
-@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
-    '--graph-name',
-    '-n',
+    "--graph-name",
+    "-n",
     required=False,
-    help="User specified name of graph being summarized (default: 'Graph')"
+    help="User specified name of graph being summarized (default: 'Graph')",
 )
 @click.option(
-    '--node-facet-properties',
-    required=False,
-    multiple=True,
-    help='A list of node properties from which to generate counts per value for those properties',
-)
-@click.option(
-    '--edge-facet-properties',
+    "--node-facet-properties",
     required=False,
     multiple=True,
-    help='A list of edge properties from which to generate counts per value for those properties',
+    help="A list of node properties from which to generate counts per value for those properties",
 )
 @click.option(
-    '--error-log',
-    '-l',
+    "--edge-facet-properties",
+    required=False,
+    multiple=True,
+    help="A list of edge properties from which to generate counts per value for those properties",
+)
+@click.option(
+    "--error-log",
+    "-l",
     required=False,
     type=click.Path(exists=False),
-    help='File within which to report graph data parsing errors (default: "stderr")'
+    help='File within which to report graph data parsing errors (default: "stderr")',
 )
 def graph_summary_wrapper(
     inputs: List[str],
@@ -97,7 +99,7 @@ def graph_summary_wrapper(
     graph_name: str,
     node_facet_properties: Optional[Set],
     edge_facet_properties: Optional[Set],
-    error_log: str = ''
+    error_log: str = "",
 ):
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -141,39 +143,42 @@ def graph_summary_wrapper(
         graph_name,
         node_facet_properties=list(node_facet_properties),
         edge_facet_properties=list(edge_facet_properties),
-        error_log=error_log
+        error_log=error_log,
     )
 
 
-@cli.command(name='validate')
-@click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
+@cli.command(name="validate")
+@click.argument("inputs", required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
-    '--input-format',
-    '-i',
+    "--input-format",
+    "-i",
     required=True,
-    help=f'The input format. Can be one of {get_input_file_types()}',
+    help=f"The input format. Can be one of {get_input_file_types()}",
 )
-@click.option('--input-compression', '-c', required=False, help='The input compression type')
 @click.option(
-    '--output',
-    '-o',
+    "--input-compression", "-c", required=False, help="The input compression type"
+)
+@click.option(
+    "--output",
+    "-o",
     required=False,
     type=click.Path(exists=False),
-    help='File to write validation reports to',
+    help="File to write validation reports to",
 )
-@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
-@click.option('--biolink-release',
-              '-b',
-              required=False,
-              help='Biolink Model Release (SemVer) used for validation (default: latest Biolink Model Toolkit version)'
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
+@click.option(
+    "--biolink-release",
+    "-b",
+    required=False,
+    help="Biolink Model Release (SemVer) used for validation (default: latest Biolink Model Toolkit version)",
 )
 def validate_wrapper(
-        inputs: List[str],
-        input_format: str,
-        input_compression: str,
-        output: str,
-        stream: bool,
-        biolink_release: str = None
+    inputs: List[str],
+    input_format: str,
+    input_compression: str,
+    output: str,
+    stream: bool,
+    biolink_release: str = None,
 ):
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
@@ -197,40 +202,44 @@ def validate_wrapper(
     validate(inputs, input_format, input_compression, output, stream, biolink_release)
 
 
-@cli.command(name='neo4j-download')
+@cli.command(name="neo4j-download")
 @click.option(
-    '--uri',
-    '-l',
+    "--uri",
+    "-l",
     required=True,
     type=str,
-    help='Neo4j URI to download from. For example, https://localhost:7474',
+    help="Neo4j URI to download from. For example, https://localhost:7474",
 )
-@click.option('--username', '-u', required=True, type=str, help='Neo4j username')
-@click.option('--password', '-p', required=True, type=str, help='Neo4j password')
-@click.option('--output', '-o', required=True, type=click.Path(exists=False), help='Output')
+@click.option("--username", "-u", required=True, type=str, help="Neo4j username")
+@click.option("--password", "-p", required=True, type=str, help="Neo4j password")
 @click.option(
-    '--output-format',
-    '-f',
+    "--output", "-o", required=True, type=click.Path(exists=False), help="Output"
+)
+@click.option(
+    "--output-format",
+    "-f",
     required=True,
-    help=f'The output format. Can be one of {get_input_file_types()}',
+    help=f"The output format. Can be one of {get_input_file_types()}",
 )
-@click.option('--output-compression', '-d', required=False, help='The output compression type')
-@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
 @click.option(
-    '--node-filters',
-    '-n',
+    "--output-compression", "-d", required=False, help="The output compression type"
+)
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
+@click.option(
+    "--node-filters",
+    "-n",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help=f'Filters for filtering nodes from the input graph',
+    help=f"Filters for filtering nodes from the input graph",
 )
 @click.option(
-    '--edge-filters',
-    '-e',
+    "--edge-filters",
+    "-e",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help=f'Filters for filtering edges from the input graph',
+    help=f"Filters for filtering edges from the input graph",
 )
 def neo4j_download_wrapper(
     uri: str,
@@ -282,40 +291,42 @@ def neo4j_download_wrapper(
     )
 
 
-@cli.command(name='neo4j-upload')
-@click.argument('inputs', required=True, type=click.Path(exists=True), nargs=-1)
+@cli.command(name="neo4j-upload")
+@click.argument("inputs", required=True, type=click.Path(exists=True), nargs=-1)
 @click.option(
-    '--input-format',
-    '-i',
+    "--input-format",
+    "-i",
     required=True,
-    help=f'The input format. Can be one of {get_input_file_types()}',
+    help=f"The input format. Can be one of {get_input_file_types()}",
 )
-@click.option('--input-compression', '-c', required=False, help='The input compression type')
 @click.option(
-    '--uri',
-    '-l',
+    "--input-compression", "-c", required=False, help="The input compression type"
+)
+@click.option(
+    "--uri",
+    "-l",
     required=True,
     type=str,
-    help='Neo4j URI to upload to. For example, https://localhost:7474',
+    help="Neo4j URI to upload to. For example, https://localhost:7474",
 )
-@click.option('--username', '-u', required=True, type=str, help='Neo4j username')
-@click.option('--password', '-p', required=True, type=str, help='Neo4j password')
-@click.option('--stream', '-s', is_flag=True, help='Parse input as a stream')
+@click.option("--username", "-u", required=True, type=str, help="Neo4j username")
+@click.option("--password", "-p", required=True, type=str, help="Neo4j password")
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
-    '--node-filters',
-    '-n',
+    "--node-filters",
+    "-n",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help=f'Filters for filtering nodes from the input graph',
+    help=f"Filters for filtering nodes from the input graph",
 )
 @click.option(
-    '--edge-filters',
-    '-e',
+    "--edge-filters",
+    "-e",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help=f'Filters for filtering edges from the input graph',
+    help=f"Filters for filtering edges from the input graph",
 )
 def neo4j_upload_wrapper(
     inputs: List[str],
@@ -367,60 +378,77 @@ def neo4j_upload_wrapper(
     )
 
 
-@cli.command(name='transform')
-@click.argument('inputs', required=False, type=click.Path(exists=True), nargs=-1)
+@cli.command(name="transform")
+@click.argument("inputs", required=False, type=click.Path(exists=True), nargs=-1)
 @click.option(
-    '--input-format',
-    '-i',
+    "--input-format",
+    "-i",
     required=False,
-    help=f'The input format. Can be one of {get_input_file_types()}',
-)
-@click.option('--input-compression', '-c', required=False, help='The input compression type')
-@click.option('--output', '-o', required=False, type=click.Path(exists=False), help='Output')
-@click.option(
-    '--output-format',
-    '-f',
-    required=False,
-    help=f'The output format. Can be one of {get_input_file_types()}',
-)
-@click.option('--output-compression', '-d', required=False, help='The output compression type')
-@click.option('--stream', is_flag=True, help='Parse input as a stream')
-@click.option(
-    '--node-filters',
-    '-n',
-    required=False,
-    type=click.Tuple([str, str]),
-    multiple=True,
-    help=f'Filters for filtering nodes from the input graph',
+    help=f"The input format. Can be one of {get_input_file_types()}",
 )
 @click.option(
-    '--edge-filters',
-    '-e',
+    "--input-compression", "-c", required=False, help="The input compression type"
+)
+@click.option(
+    "--output", "-o", required=False, type=click.Path(exists=False), help="Output"
+)
+@click.option(
+    "--output-format",
+    "-f",
+    required=False,
+    help=f"The output format. Can be one of {get_input_file_types()}",
+)
+@click.option(
+    "--output-compression", "-d", required=False, help="The output compression type"
+)
+@click.option("--stream", is_flag=True, help="Parse input as a stream")
+@click.option(
+    "--node-filters",
+    "-n",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help=f'Filters for filtering edges from the input graph',
-)
-@click.option('--transform-config', required=False, type=str, help=f'Transform config YAML')
-@click.option(
-    '--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process'
+    help=f"Filters for filtering nodes from the input graph",
 )
 @click.option(
-    '--knowledge-sources',
-    '-k',
+    "--edge-filters",
+    "-e",
     required=False,
     type=click.Tuple([str, str]),
     multiple=True,
-    help='A named knowledge source with (string, boolean or tuple rewrite) specification'
+    help=f"Filters for filtering edges from the input graph",
 )
 @click.option(
-    '--infores-catalog',
+    "--transform-config", required=False, type=str, help=f"Transform config YAML"
+)
+@click.option(
+    "--source",
+    required=False,
+    type=str,
+    multiple=True,
+    help="Source(s) from the YAML to process",
+)
+@click.option(
+    "--knowledge-sources",
+    "-k",
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help="A named knowledge source with (string, boolean or tuple rewrite) specification",
+)
+@click.option(
+    "--infores-catalog",
     required=False,
     type=click.Path(exists=False),
-    help='Optional dump of a CSV file of InfoRes CURIE to Knowledge Source mappings'
+    help="Optional dump of a CSV file of InfoRes CURIE to Knowledge Source mappings",
 )
 @click.option(
-    '--processes', '-p', required=False, type=int, default=1, help='Number of processes to use'
+    "--processes",
+    "-p",
+    required=False,
+    type=int,
+    default=1,
+    help="Number of processes to use",
 )
 def transform_wrapper(
     inputs: List[str],
@@ -488,23 +516,34 @@ def transform_wrapper(
         source=source,
         knowledge_sources=knowledge_sources,
         processes=processes,
-        infores_catalog=infores_catalog
+        infores_catalog=infores_catalog,
     )
 
 
-@cli.command(name='merge')
-@click.option('--merge-config', required=True, type=str)
+@cli.command(name="merge")
+@click.option("--merge-config", required=True, type=str)
 @click.option(
-    '--source', required=False, type=str, multiple=True, help='Source(s) from the YAML to process'
-)
-@click.option(
-    '--destination',
+    "--source",
     required=False,
     type=str,
     multiple=True,
-    help='Destination(s) from the YAML to process',
+    help="Source(s) from the YAML to process",
 )
-@click.option('--processes', '-p', required=False, type=int, default=1, help='Number of processes to use')
+@click.option(
+    "--destination",
+    required=False,
+    type=str,
+    multiple=True,
+    help="Destination(s) from the YAML to process",
+)
+@click.option(
+    "--processes",
+    "-p",
+    required=False,
+    type=int,
+    default=1,
+    help="Number of processes to use",
+)
 def merge_wrapper(merge_config: str, source: List, destination: List, processes: int):
     """
     Load nodes and edges from files and KGs, as defined in a config YAML, and merge them into a single graph.

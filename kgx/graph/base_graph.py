@@ -27,7 +27,11 @@ class BaseGraph(object):
         pass
 
     def add_edge(
-        self, subject_node: str, object_node: str, edge_key: Optional[str] = None, **kwargs: Any
+        self,
+        subject_node: str,
+        object_node: str,
+        edge_key: Optional[str] = None,
+        **kwargs: Any
     ) -> Any:
         """
         Add an edge to the graph.
@@ -171,7 +175,9 @@ class BaseGraph(object):
         """
         pass
 
-    def get_edge(self, subject_node: str, object_node: str, edge_key: Optional[str]) -> Dict:
+    def get_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str]
+    ) -> Dict:
         """
         Get an edge and its properties.
 
@@ -350,7 +356,9 @@ class BaseGraph(object):
         """
         pass
 
-    def has_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None) -> bool:
+    def has_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None
+    ) -> bool:
         """
         Check whether a given edge exists in the graph.
 

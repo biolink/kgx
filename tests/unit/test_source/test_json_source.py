@@ -9,7 +9,7 @@ def test_read_json1():
     Read from a JSON using JsonSource.
     """
     s = JsonSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid.json'))
+    g = s.parse(os.path.join(RESOURCE_DIR, "valid.json"))
     nodes = {}
     edges = {}
     for rec in g:
@@ -22,16 +22,16 @@ def test_read_json1():
     assert len(nodes.keys()) == 6
     assert len(edges.keys()) == 5
 
-    n = nodes['MONDO:0017148']
-    assert 'id' in n and n['id'] == 'MONDO:0017148'
-    assert n['name'] == 'heritable pulmonary arterial hypertension'
-    assert n['category'][0] == 'biolink:Disease'
+    n = nodes["MONDO:0017148"]
+    assert "id" in n and n["id"] == "MONDO:0017148"
+    assert n["name"] == "heritable pulmonary arterial hypertension"
+    assert n["category"][0] == "biolink:Disease"
 
-    e = edges[('HGNC:11603', 'MONDO:0017148')]
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0017148'
-    assert e['predicate'] == 'biolink:related_to'
-    assert e['relation'] == 'RO:0004013'
+    e = edges[("HGNC:11603", "MONDO:0017148")]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0017148"
+    assert e["predicate"] == "biolink:related_to"
+    assert e["relation"] == "RO:0004013"
 
 
 def test_read_json2():
@@ -41,9 +41,9 @@ def test_read_json2():
     """
     s = JsonSource()
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'valid.json'),
-        provided_by='Test JSON',
-        knowledge_source='Test JSON'
+        os.path.join(RESOURCE_DIR, "valid.json"),
+        provided_by="Test JSON",
+        knowledge_source="Test JSON",
     )
     nodes = {}
     edges = {}
@@ -57,18 +57,18 @@ def test_read_json2():
     assert len(nodes.keys()) == 6
     assert len(edges.keys()) == 5
 
-    n = nodes['MONDO:0017148']
-    assert 'id' in n and n['id'] == 'MONDO:0017148'
-    assert n['name'] == 'heritable pulmonary arterial hypertension'
-    assert n['category'][0] == 'biolink:Disease'
-    assert 'Test JSON' in n['provided_by']
+    n = nodes["MONDO:0017148"]
+    assert "id" in n and n["id"] == "MONDO:0017148"
+    assert n["name"] == "heritable pulmonary arterial hypertension"
+    assert n["category"][0] == "biolink:Disease"
+    assert "Test JSON" in n["provided_by"]
 
-    e = edges[('HGNC:11603', 'MONDO:0017148')]
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0017148'
-    assert e['predicate'] == 'biolink:related_to'
-    assert e['relation'] == 'RO:0004013'
-    assert 'Test JSON' in e['knowledge_source']
+    e = edges[("HGNC:11603", "MONDO:0017148")]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0017148"
+    assert e["predicate"] == "biolink:related_to"
+    assert e["relation"] == "RO:0004013"
+    assert "Test JSON" in e["knowledge_source"]
 
 
 def test_read_json_compressed():
@@ -76,7 +76,7 @@ def test_read_json_compressed():
     Read from a gzip compressed JSON using JsonSource.
     """
     s = JsonSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid.json.gz'), compression='gz')
+    g = s.parse(os.path.join(RESOURCE_DIR, "valid.json.gz"), compression="gz")
     nodes = {}
     edges = {}
     for rec in g:
@@ -89,13 +89,13 @@ def test_read_json_compressed():
     assert len(nodes.keys()) == 6
     assert len(edges.keys()) == 5
 
-    n = nodes['MONDO:0017148']
-    assert 'id' in n and n['id'] == 'MONDO:0017148'
-    assert n['name'] == 'heritable pulmonary arterial hypertension'
-    assert n['category'][0] == 'biolink:Disease'
+    n = nodes["MONDO:0017148"]
+    assert "id" in n and n["id"] == "MONDO:0017148"
+    assert n["name"] == "heritable pulmonary arterial hypertension"
+    assert n["category"][0] == "biolink:Disease"
 
-    e = edges[('HGNC:11603', 'MONDO:0017148')]
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0017148'
-    assert e['predicate'] == 'biolink:related_to'
-    assert e['relation'] == 'RO:0004013'
+    e = edges[("HGNC:11603", "MONDO:0017148")]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0017148"
+    assert e["predicate"] == "biolink:related_to"
+    assert e["relation"] == "RO:0004013"

@@ -12,8 +12,8 @@ def test_read_obograph1():
     """
     s = ObographSource()
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
-        knowledge_source="GO slim generic"
+        os.path.join(RESOURCE_DIR, "goslim_generic.json"),
+        knowledge_source="GO slim generic",
     )
     nodes = {}
     edges = {}
@@ -27,30 +27,30 @@ def test_read_obograph1():
     assert len(nodes) == 176
     assert len(edges) == 206
 
-    n1 = nodes['GO:0003677']
-    assert n1['id'] == 'GO:0003677'
-    assert n1['name'] == 'DNA binding'
+    n1 = nodes["GO:0003677"]
+    assert n1["id"] == "GO:0003677"
+    assert n1["name"] == "DNA binding"
     assert (
-        n1['description']
-        == 'Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).'
+        n1["description"]
+        == "Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid)."
     )
-    assert n1['category'] == ['biolink:MolecularActivity']
-    assert 'structure-specific DNA binding' in n1['synonym']
-    assert 'structure specific DNA binding' in n1['synonym']
-    assert 'microtubule/chromatin interaction' in n1['synonym']
-    assert 'plasmid binding' in n1['synonym']
+    assert n1["category"] == ["biolink:MolecularActivity"]
+    assert "structure-specific DNA binding" in n1["synonym"]
+    assert "structure specific DNA binding" in n1["synonym"]
+    assert "microtubule/chromatin interaction" in n1["synonym"]
+    assert "plasmid binding" in n1["synonym"]
 
-    n2 = nodes['GO:0005575']
-    assert n2['id'] == 'GO:0005575'
-    assert n2['name'] == 'cellular_component'
+    n2 = nodes["GO:0005575"]
+    assert n2["id"] == "GO:0005575"
+    assert n2["name"] == "cellular_component"
     assert (
-        n2['description']
-        == 'A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome).'
+        n2["description"]
+        == "A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome)."
     )
-    assert n2['category'] == ['biolink:CellularComponent']
-    assert n2['xref'] == ['NIF_Subcellular:sao1337158144']
-    assert 'goslim_chembl' in n2['subsets']
-    assert 'goslim_generic' in n2['subsets']
+    assert n2["category"] == ["biolink:CellularComponent"]
+    assert n2["xref"] == ["NIF_Subcellular:sao1337158144"]
+    assert "goslim_chembl" in n2["subsets"]
+    assert "goslim_generic" in n2["subsets"]
 
 
 def test_read_jsonl2():
@@ -60,9 +60,9 @@ def test_read_jsonl2():
     """
     s = ObographSource()
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'goslim_generic.json'),
-        provided_by='GO slim generic',
-        knowledge_source='GO slim generic'
+        os.path.join(RESOURCE_DIR, "goslim_generic.json"),
+        provided_by="GO slim generic",
+        knowledge_source="GO slim generic",
     )
     nodes = {}
     edges = {}
@@ -76,36 +76,36 @@ def test_read_jsonl2():
     assert len(nodes) == 176
     assert len(edges) == 206
 
-    n1 = nodes['GO:0003677']
-    assert n1['id'] == 'GO:0003677'
-    assert n1['name'] == 'DNA binding'
+    n1 = nodes["GO:0003677"]
+    assert n1["id"] == "GO:0003677"
+    assert n1["name"] == "DNA binding"
     assert (
-        n1['description']
-        == 'Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).'
+        n1["description"]
+        == "Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid)."
     )
-    assert n1['category'] == ['biolink:MolecularActivity']
-    assert 'structure-specific DNA binding' in n1['synonym']
-    assert 'structure specific DNA binding' in n1['synonym']
-    assert 'microtubule/chromatin interaction' in n1['synonym']
-    assert 'plasmid binding' in n1['synonym']
-    assert 'GO slim generic' in n1['provided_by']
+    assert n1["category"] == ["biolink:MolecularActivity"]
+    assert "structure-specific DNA binding" in n1["synonym"]
+    assert "structure specific DNA binding" in n1["synonym"]
+    assert "microtubule/chromatin interaction" in n1["synonym"]
+    assert "plasmid binding" in n1["synonym"]
+    assert "GO slim generic" in n1["provided_by"]
 
-    n2 = nodes['GO:0005575']
-    assert n2['id'] == 'GO:0005575'
-    assert n2['name'] == 'cellular_component'
+    n2 = nodes["GO:0005575"]
+    assert n2["id"] == "GO:0005575"
+    assert n2["name"] == "cellular_component"
     assert (
-        n2['description']
-        == 'A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome).'
+        n2["description"]
+        == "A location, relative to cellular compartments and structures, occupied by a macromolecular machine when it carries out a molecular function. There are two ways in which the gene ontology describes locations of gene products: (1) relative to cellular structures (e.g., cytoplasmic side of plasma membrane) or compartments (e.g., mitochondrion), and (2) the stable macromolecular complexes of which they are parts (e.g., the ribosome)."
     )
-    assert n2['category'] == ['biolink:CellularComponent']
-    assert n2['xref'] == ['NIF_Subcellular:sao1337158144']
-    assert 'goslim_chembl' in n2['subsets']
-    assert 'goslim_generic' in n2['subsets']
-    assert 'GO slim generic' in n2['provided_by']
+    assert n2["category"] == ["biolink:CellularComponent"]
+    assert n2["xref"] == ["NIF_Subcellular:sao1337158144"]
+    assert "goslim_chembl" in n2["subsets"]
+    assert "goslim_generic" in n2["subsets"]
+    assert "GO slim generic" in n2["provided_by"]
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
         (
             {
@@ -121,7 +121,7 @@ def test_read_jsonl2():
                 "type": "CLASS",
                 "lbl": "extracellular space",
             },
-            'biolink:CellularComponent',
+            "biolink:CellularComponent",
         ),
         (
             {
@@ -142,7 +142,7 @@ def test_read_jsonl2():
                     ],
                 },
             },
-            'biolink:MolecularActivity',
+            "biolink:MolecularActivity",
         ),
         (
             {
@@ -163,7 +163,7 @@ def test_read_jsonl2():
                     ],
                 },
             },
-            'biolink:BiologicalProcess',
+            "biolink:BiologicalProcess",
         ),
     ],
 )
@@ -173,5 +173,5 @@ def test_get_category(query):
     """
     node = query[0]
     s = ObographSource()
-    c = s.get_category(node['id'], node)
+    c = s.get_category(node["id"], node)
     assert c == query[1]

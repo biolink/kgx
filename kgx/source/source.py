@@ -93,7 +93,7 @@ class Source(object):
         pass_filter = False
         if self.edge_filters:
             for k, v in self.edge_filters.items():
-                if k in {'subject_category', 'object_category'}:
+                if k in {"subject_category", "object_category"}:
                     pass_filter = True
                     continue
                 if k in edge:
@@ -139,18 +139,20 @@ class Source(object):
             Can be either a string or a set.
 
         """
-        if key == 'category':
+        if key == "category":
             if isinstance(value, set):
-                if 'subject_category' in self.edge_filters:
-                    self.edge_filters['subject_category'].update(value)
+                if "subject_category" in self.edge_filters:
+                    self.edge_filters["subject_category"].update(value)
                 else:
-                    self.edge_filters['subject_category'] = value
-                if 'object_category' in self.edge_filters:
-                    self.edge_filters['object_category'].update(value)
+                    self.edge_filters["subject_category"] = value
+                if "object_category" in self.edge_filters:
+                    self.edge_filters["object_category"].update(value)
                 else:
-                    self.edge_filters['object_category'] = value
+                    self.edge_filters["object_category"] = value
             else:
-                raise TypeError("'category' node filter should have a value of type 'set'")
+                raise TypeError(
+                    "'category' node filter should have a value of type 'set'"
+                )
 
         if key in self.node_filters:
             self.node_filters[key].update(value)
@@ -212,14 +214,16 @@ class Source(object):
             Can be either a string or a set.
 
         """
-        if key in {'subject_category', 'object_category'}:
+        if key in {"subject_category", "object_category"}:
             if isinstance(value, set):
-                if 'category' in self.node_filters:
-                    self.node_filters['category'].update(value)
+                if "category" in self.node_filters:
+                    self.node_filters["category"].update(value)
                 else:
-                    self.node_filters['category'] = value
+                    self.node_filters["category"] = value
             else:
-                raise TypeError(f"'{key}' edge filter should have a value of type 'set'")
+                raise TypeError(
+                    f"'{key}' edge filter should have a value of type 'set'"
+                )
 
         if key in self.edge_filters:
             self.edge_filters[key].update(value)
@@ -248,7 +252,7 @@ class Source(object):
         if not self.infores_context:
             return dict()
         return self.infores_context.get_catalog()
-    
+
     def set_node_provenance(self, node_data):
         """
         Set a specific node provenance value.
