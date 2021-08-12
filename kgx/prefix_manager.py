@@ -18,7 +18,7 @@ class PrefixManager(object):
     biolink types such as Disease
     """
 
-    DEFAULT_NAMESPACE = 'https://www.example.org/UNKNOWN/'
+    DEFAULT_NAMESPACE = "https://www.example.org/UNKNOWN/"
     prefix_map: Dict[str, str]
     reverse_prefix_map: Dict[str, str]
 
@@ -53,27 +53,27 @@ class PrefixManager(object):
             if isinstance(v, str):
                 self.prefix_map[k] = v
             else:
-                self.prefix_map[k] = v.get('@id')
+                self.prefix_map[k] = v.get("@id")
 
-        if 'biolink' not in self.prefix_map:
-            self.prefix_map['biolink'] = (
-                self.prefix_map['@vocab']
-                if '@vocab' in self.prefix_map
-                else 'https://w3id.org/biolink/vocab/'
+        if "biolink" not in self.prefix_map:
+            self.prefix_map["biolink"] = (
+                self.prefix_map["@vocab"]
+                if "@vocab" in self.prefix_map
+                else "https://w3id.org/biolink/vocab/"
             )
-        if 'owlstar' not in self.prefix_map:
-            self.prefix_map['owlstar'] = 'http://w3id.org/owlstar/'
-        if '@vocab' in self.prefix_map:
-            del self.prefix_map['@vocab']
-        if 'MONARCH' not in self.prefix_map:
-            self.prefix_map['MONARCH'] = 'https://monarchinitiative.org/'
-            self.prefix_map['MONARCH_NODE'] = 'https://monarchinitiative.org/MONARCH_'
-        if '' in self.prefix_map:
+        if "owlstar" not in self.prefix_map:
+            self.prefix_map["owlstar"] = "http://w3id.org/owlstar/"
+        if "@vocab" in self.prefix_map:
+            del self.prefix_map["@vocab"]
+        if "MONARCH" not in self.prefix_map:
+            self.prefix_map["MONARCH"] = "https://monarchinitiative.org/"
+            self.prefix_map["MONARCH_NODE"] = "https://monarchinitiative.org/MONARCH_"
+        if "" in self.prefix_map:
             log.info(
                 f"Replacing default prefix mapping from {self.prefix_map['']} to 'www.example.org/UNKNOWN/'"
             )
         else:
-            self.prefix_map[''] = self.DEFAULT_NAMESPACE
+            self.prefix_map[""] = self.DEFAULT_NAMESPACE
         self.reverse_prefix_map = {y: x for x, y in self.prefix_map.items()}
 
     def update_prefix_map(self, m: Dict[str, str]) -> None:
@@ -191,14 +191,14 @@ class PrefixManager(object):
 
         """
         if isinstance(s, str):
-            return s.startswith('http') or s.startswith('https')
+            return s.startswith("http") or s.startswith("https")
         else:
             return False
 
     @staticmethod
     @cached(LRUCache(maxsize=1024))
     def has_urlfragment(s: str) -> bool:
-        if '#' in s:
+        if "#" in s:
             return True
         else:
             return False
@@ -222,7 +222,7 @@ class PrefixManager(object):
         """
         prefix: Optional[str] = None
         if PrefixManager.is_curie(curie):
-            prefix = curie.split(':', 1)[0]
+            prefix = curie.split(":", 1)[0]
         return prefix
 
     @staticmethod
@@ -244,5 +244,5 @@ class PrefixManager(object):
         """
         reference: Optional[str] = None
         if PrefixManager.is_curie(curie):
-            reference = curie.split(':', 1)[1]
+            reference = curie.split(":", 1)[1]
         return reference

@@ -37,8 +37,8 @@ class NxGraph(BaseGraph):
             Any additional node properties
 
         """
-        if 'data' in kwargs:
-            data = kwargs['data']
+        if "data" in kwargs:
+            data = kwargs["data"]
         else:
             data = kwargs
         self.graph.add_node(node, **data)
@@ -61,8 +61,8 @@ class NxGraph(BaseGraph):
             Any additional edge properties
 
         """
-        if 'data' in kwargs:
-            data = kwargs['data']
+        if "data" in kwargs:
+            data = kwargs["data"]
         else:
             data = kwargs
         return self.graph.add_edge(subject_node, object_node, key=edge_key, **data)
@@ -108,7 +108,9 @@ class NxGraph(BaseGraph):
             The attribute value
 
         """
-        self.graph.add_edge(subject_node, object_node, key=edge_key, **{attr_key: attr_value})
+        self.graph.add_edge(
+            subject_node, object_node, key=edge_key, **{attr_key: attr_value}
+        )
 
     def update_node_attribute(
         self, node: str, attr_key: str, attr_value: Any, preserve: bool = False
@@ -134,7 +136,9 @@ class NxGraph(BaseGraph):
 
         """
         node_data = self.graph.nodes[node]
-        updated = prepare_data_dict(node_data, {attr_key: attr_value}, preserve=preserve)
+        updated = prepare_data_dict(
+            node_data, {attr_key: attr_value}, preserve=preserve
+        )
         self.graph.add_node(node, **updated)
         return updated
 
@@ -171,7 +175,9 @@ class NxGraph(BaseGraph):
             A dictionary corresponding to the updated edge properties
 
         """
-        e = self.graph.edges((subject_node, object_node, edge_key), keys=True, data=True)
+        e = self.graph.edges(
+            (subject_node, object_node, edge_key), keys=True, data=True
+        )
         edge_data = list(e)[0][3]
         updated = prepare_data_dict(edge_data, {attr_key: attr_value}, preserve)
         self.graph.add_edge(subject_node, object_node, key=edge_key, **updated)
@@ -197,7 +203,9 @@ class NxGraph(BaseGraph):
             n = self.graph.nodes[node]
         return n
 
-    def get_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None) -> Dict:
+    def get_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None
+    ) -> Dict:
         """
         Get an edge and its properties.
 
@@ -374,7 +382,9 @@ class NxGraph(BaseGraph):
         """
         return self.graph.has_node(node)
 
-    def has_edge(self, subject_node: str, object_node: str, edge_key: Optional[str] = None) -> bool:
+    def has_edge(
+        self, subject_node: str, object_node: str, edge_key: Optional[str] = None
+    ) -> bool:
         """
         Check whether a given edge exists in the graph.
 

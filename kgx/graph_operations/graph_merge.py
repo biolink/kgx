@@ -56,7 +56,9 @@ def merge_all_graphs(graphs: List[BaseGraph], preserve: bool = True) -> BaseGrap
     return merged_graph
 
 
-def merge_graphs(graph: BaseGraph, graphs: List[BaseGraph], preserve: bool = True) -> BaseGraph:
+def merge_graphs(
+    graph: BaseGraph, graphs: List[BaseGraph], preserve: bool = True
+) -> BaseGraph:
     """
     Merge all graphs in ``graphs`` to ``graph``.
 
@@ -77,9 +79,13 @@ def merge_graphs(graph: BaseGraph, graphs: List[BaseGraph], preserve: bool = Tru
     """
     for g in graphs:
         node_merge_count = add_all_nodes(graph, g, preserve)
-        log.info(f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}")
+        log.info(
+            f"Number of nodes merged between {graph.name} and {g.name}: {node_merge_count}"
+        )
         edge_merge_count = add_all_edges(graph, g, preserve)
-        log.info(f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}")
+        log.info(
+            f"Number of edges merged between {graph.name} and {g.name}: {edge_merge_count}"
+        )
     return graph
 
 
@@ -135,7 +141,9 @@ def merge_node(g: BaseGraph, n: str, data: dict, preserve: bool = True) -> dict:
 
     """
     existing_node = g.nodes()[n]
-    new_data = prepare_data_dict(copy.deepcopy(existing_node), copy.deepcopy(data), preserve)
+    new_data = prepare_data_dict(
+        copy.deepcopy(existing_node), copy.deepcopy(data), preserve
+    )
     g.add_node(n, **new_data)
     return existing_node
 
@@ -170,7 +178,9 @@ def add_all_edges(g1: BaseGraph, g2: BaseGraph, preserve: bool = True) -> int:
     return merge_count
 
 
-def merge_edge(g: BaseGraph, u: str, v: str, key: str, data: dict, preserve: bool = True) -> dict:
+def merge_edge(
+    g: BaseGraph, u: str, v: str, key: str, data: dict, preserve: bool = True
+) -> dict:
     """
     Merge edge ``u`` -> ``v`` into graph ``g``.
 
@@ -196,6 +206,8 @@ def merge_edge(g: BaseGraph, u: str, v: str, key: str, data: dict, preserve: boo
 
     """
     existing_edge = g.get_edge(u, v, key)
-    new_data = prepare_data_dict(copy.deepcopy(existing_edge), copy.deepcopy(data), preserve)
+    new_data = prepare_data_dict(
+        copy.deepcopy(existing_edge), copy.deepcopy(data), preserve
+    )
     g.add_edge(u, v, edge_key=key, **new_data)
     return existing_edge

@@ -39,7 +39,7 @@ class GraphSink(Sink):
             A node record
 
         """
-        self.graph.add_node(record['id'], **record)
+        self.graph.add_node(record["id"], **record)
 
     def write_edge(self, record: Dict) -> None:
         """
@@ -52,11 +52,13 @@ class GraphSink(Sink):
 
         """
         key = (
-            record['key']
-            if 'key' in record
-            else generate_edge_key(record['subject'], record['predicate'], record['object'])
+            record["key"]
+            if "key" in record
+            else generate_edge_key(
+                record["subject"], record["predicate"], record["object"]
+            )
         )
-        self.graph.add_edge(record['subject'], record['object'], key, **record)
+        self.graph.add_edge(record["subject"], record["object"], key, **record)
 
     def finalize(self) -> None:
         """

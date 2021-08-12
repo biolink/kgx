@@ -19,8 +19,8 @@ from kgx.utils.kgx_utils import apply_graph_operations, knowledge_provenance_pro
 
 
 summary_report_types = {
-    'kgx-map': summarize_graph.GraphSummary,
-    'meta-knowledge-graph': meta_knowledge_graph.MetaKnowledgeGraph,
+    "kgx-map": summarize_graph.GraphSummary,
+    "meta-knowledge-graph": meta_knowledge_graph.MetaKnowledgeGraph,
 }
 
 log = get_logger()
@@ -62,7 +62,7 @@ def get_report_format_types() -> Tuple:
         A tuple of supported file formats
 
     """
-    return 'yaml', 'json'
+    return "yaml", "json"
 
 
 def graph_summary(
@@ -76,7 +76,7 @@ def graph_summary(
     graph_name: Optional[str] = None,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
-    error_log: str = ''
+    error_log: str = "",
 ) -> Dict:
     """
     Loads and summarizes a knowledge graph from a set of input files.
@@ -113,7 +113,7 @@ def graph_summary(
 
     """
     if not graph_name:
-        graph_name ='Graph'
+        graph_name = "Graph"
 
     if report_format and report_format not in get_report_format_types():
         raise ValueError(f"report_format must be one of {get_report_format_types()}")
@@ -132,31 +132,33 @@ def graph_summary(
             name=graph_name,
             node_facet_properties=node_facet_properties,
             edge_facet_properties=edge_facet_properties,
-            error_log=error_log
+            error_log=error_log,
         )
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
 
     if stream:
-        output_args = {'format': 'null'}  # streaming processing throws the graph data away
+        output_args = {
+            "format": "null"
+        }  # streaming processing throws the graph data away
     else:
         output_args = None
 
     transformer = Transformer(stream=stream)
     transformer.transform(
         input_args={
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
         },
         output_args=output_args,
         # ... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
-        inspector=inspector
+        inspector=inspector,
     )
 
     if output:
-        with open(output, 'w') as gsr:
+        with open(output, "w") as gsr:
             inspector.save(gsr, file_format=report_format)
     else:
         inspector.save(sys.stdout, file_format=report_format)
@@ -171,7 +173,7 @@ def validate(
     input_compression: Optional[str],
     output: Optional[str],
     stream: bool,
-    biolink_release: Optional[str] = None
+    biolink_release: Optional[str] = None,
 ) -> List:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
@@ -212,14 +214,16 @@ def validate(
 
         transformer.transform(
             input_args={
-                'filename': inputs,
-                'format': input_format,
-                'compression': input_compression
+                "filename": inputs,
+                "format": input_format,
+                "compression": input_compression,
             },
-            output_args={'format': 'null'},  # streaming processing throws the graph data away
+            output_args={
+                "format": "null"
+            },  # streaming processing throws the graph data away
             # ... Second, we inject the Inspector into the transform() call,
             # for the underlying Transformer.process() to use...
-            inspector=validator
+            inspector=validator,
         )
     else:
         # "Classical" non-streaming mode, with click.progressbar
@@ -229,9 +233,9 @@ def validate(
 
         transformer.transform(
             {
-                'filename': inputs,
-                'format': input_format,
-                'compression': input_compression
+                "filename": inputs,
+                "format": input_format,
+                "compression": input_compression,
             },
         )
 
@@ -240,7 +244,7 @@ def validate(
         validator.validate(transformer.store.graph)
 
     if output:
-        validator.write_report(open(output, 'w'))
+        validator.write_report(open(output, "w"))
     else:
         validator.write_report(sys.stdout)
 
@@ -292,19 +296,19 @@ def neo4j_download(
     transformer = Transformer(stream=stream)
     transformer.transform(
         {
-            'uri': uri,
-            'username': username,
-            'password': password,
-            'format': 'neo4j',
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
+            "uri": uri,
+            "username": username,
+            "password": password,
+            "format": "neo4j",
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
         }
     )
 
     if not output_format:
-        output_format = 'tsv'
+        output_format = "tsv"
     transformer.save(
-        {'filename': output, 'format': output_format, 'compression': output_compression}
+        {"filename": output, "format": output_format, "compression": output_compression}
     )
     return transformer
 
@@ -353,18 +357,20 @@ def neo4j_upload(
     transformer = Transformer(stream=stream)
     transformer.transform(
         {
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
         }
     )
-    transformer.save({'uri': uri, 'username': username, 'password': password, 'format': 'neo4j'})
+    transformer.save(
+        {"uri": uri, "username": username, "password": password, "format": "neo4j"}
+    )
     return transformer
 
 
-def _validate_files(cwd: str, file_paths: List[str], context: str = ''):
+def _validate_files(cwd: str, file_paths: List[str], context: str = ""):
     """
     Utility method for resolving file paths
     :param cwd: current working directory for resolving possible relative file path names
@@ -380,25 +386,29 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ''):
             # relative to the provided "current working directory"
             f = abspath(cwd + "/" + f)
             if not os.path.exists(f):
-                raise FileNotFoundError(f"Filename '{f}' for source '{context}' does not exist!")
+                raise FileNotFoundError(
+                    f"Filename '{f}' for source '{context}' does not exist!"
+                )
         if not os.path.isfile(f):
-            raise FileNotFoundError(f"Filename '{f}' for source '{context}' is not a file!")
+            raise FileNotFoundError(
+                f"Filename '{f}' for source '{context}' is not a file!"
+            )
         resolved_files.append(f)
     return resolved_files
 
 
 def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
     if ksf not in knowledge_provenance_properties:
-        log.warning("Unknown Knowledge Source Field: "+ksf+"... ignoring!")
+        log.warning("Unknown Knowledge Source Field: " + ksf + "... ignoring!")
         return False
     else:
-        if spec.lower() == 'true':
+        if spec.lower() == "true":
             return True
-        elif spec.lower() == 'false':
+        elif spec.lower() == "false":
             return False
         else:
             # If a Tuple, expect a comma-delimited string?
-            spec_parts = spec.split(',')
+            spec_parts = spec.split(",")
             if len(spec_parts) == 1:
                 # assumed to be just a default string value for the knowledge source field
                 return spec_parts[0]
@@ -426,7 +436,7 @@ def transform(
     # for now, in case it signifies an unimplemented concept
     # destination: Optional[List] = None,
     processes: int = 1,
-    infores_catalog: Optional[str] = None
+    infores_catalog: Optional[str] = None,
 ) -> None:
     """
     Transform a Knowledge Graph from one serialization form to another.
@@ -467,7 +477,7 @@ def transform(
     if transform_config and inputs:
         raise ValueError("Can accept either --transform-config OR inputs, not both")
 
-    output_directory = 'output'
+    output_directory = "output"
 
     if transform_config:
         # Use the directory within which the 'transform_config' file
@@ -476,13 +486,13 @@ def transform(
         cwd = dirname(transform_config)
         cfg = yaml.load(open(transform_config), Loader=yaml.FullLoader)
         top_level_args = {}
-        if 'configuration' in cfg:
-            top_level_args = prepare_top_level_args(cfg['configuration'])
+        if "configuration" in cfg:
+            top_level_args = prepare_top_level_args(cfg["configuration"])
             if (
-                'output_directory' in cfg['configuration']
-                and cfg['configuration']['output_directory']
+                "output_directory" in cfg["configuration"]
+                and cfg["configuration"]["output_directory"]
             ):
-                output_directory = cfg['configuration']['output_directory']
+                output_directory = cfg["configuration"]["output_directory"]
                 if not output_directory.startswith(os.path.sep):
                     # relative path
                     output_directory = f"{os.path.abspath(os.path.dirname(transform_config))}{os.path.sep}{output_directory}"
@@ -491,19 +501,18 @@ def transform(
             os.mkdir(output_directory)
 
         if not source:
-            source = cfg['transform']['source'].keys()
+            source = cfg["transform"]["source"].keys()
         for s in source:
-            source_properties = cfg['transform']['source'][s]
-            if source_properties['input']['format'] in get_input_file_types():
-                source_properties['input']['filename'] = \
-                    _validate_files(
-                        cwd=cwd,
-                        file_paths=source_properties['input']['filename'],
-                        context=s
-                    )
+            source_properties = cfg["transform"]["source"][s]
+            if source_properties["input"]["format"] in get_input_file_types():
+                source_properties["input"]["filename"] = _validate_files(
+                    cwd=cwd,
+                    file_paths=source_properties["input"]["filename"],
+                    context=s,
+                )
 
         source_to_parse = {}
-        for key, val in cfg['transform']['source'].items():
+        for key, val in cfg["transform"]["source"].items():
             if key in source:
                 source_to_parse[key] = val
 
@@ -517,13 +526,13 @@ def transform(
                     k,
                     v,
                     output_directory,
-                    top_level_args['prefix_map'],
-                    top_level_args['node_property_predicates'],
-                    top_level_args['predicate_mappings'],
-                    top_level_args['reverse_prefix_map'],
-                    top_level_args['reverse_predicate_mappings'],
-                    top_level_args['property_types'],
-                    top_level_args['checkpoint'],
+                    top_level_args["prefix_map"],
+                    top_level_args["node_property_predicates"],
+                    top_level_args["predicate_mappings"],
+                    top_level_args["reverse_prefix_map"],
+                    top_level_args["reverse_predicate_mappings"],
+                    top_level_args["property_types"],
+                    top_level_args["checkpoint"],
                     False,
                     stream,
                 ),
@@ -534,19 +543,19 @@ def transform(
         graphs = [r.get() for r in results]
     else:
         source_dict: Dict = {
-            'input': {
-                'format': input_format,
-                'compression': input_compression,
-                'filename': inputs,
-                'filters': {
-                    'node_filters': node_filters,
-                    'edge_filters': edge_filters,
+            "input": {
+                "format": input_format,
+                "compression": input_compression,
+                "filename": inputs,
+                "filters": {
+                    "node_filters": node_filters,
+                    "edge_filters": edge_filters,
                 },
             },
-            'output': {
-                'format': output_format,
-                'compression': output_compression,
-                'filename': output,
+            "output": {
+                "format": output_format,
+                "compression": output_compression,
+                "filename": output,
             },
         }
 
@@ -554,19 +563,21 @@ def transform(
             for ksf, spec in knowledge_sources:
                 ksf_spec = _process_knowledge_source(ksf, spec)
                 if isinstance(ksf_spec, tuple):
-                    if ksf not in source_dict['input']:
-                        source_dict['input'][ksf] = dict()
-                    if isinstance(source_dict['input'][ksf], dict):
+                    if ksf not in source_dict["input"]:
+                        source_dict["input"][ksf] = dict()
+                    if isinstance(source_dict["input"][ksf], dict):
                         key = ksf_spec[0]
-                        source_dict['input'][ksf][key] = ksf_spec
+                        source_dict["input"][ksf][key] = ksf_spec
                     else:
                         # Unexpected condition - mixing static values with tuple specified rewrites?
                         raise RuntimeError(
-                            "Inconsistent multivalued specifications: make sure that all the  values " +
-                            "of the knowledge source tag '" + ksf + "' are all rewrite specifications!"
+                            "Inconsistent multivalued specifications: make sure that all the  values "
+                            + "of the knowledge source tag '"
+                            + ksf
+                            + "' are all rewrite specifications!"
                         )
                 else:
-                    source_dict['input'][ksf] = ksf_spec
+                    source_dict["input"][ksf] = ksf_spec
 
         name = os.path.basename(inputs[0])
         transform_source(
@@ -574,7 +585,7 @@ def transform(
             source=source_dict,
             output_directory=None,
             stream=stream,
-            infores_catalog=infores_catalog
+            infores_catalog=infores_catalog,
         )
 
 
@@ -610,16 +621,19 @@ def merge(
     # resolving relative filename paths in the configuration.
     cwd = dirname(merge_config)
 
-    with open(merge_config, 'r') as YML:
+    with open(merge_config, "r") as YML:
         cfg = yaml.load(YML, Loader=yaml.FullLoader)
 
-    output_directory = 'output'
+    output_directory = "output"
 
     top_level_args = {}
-    if 'configuration' in cfg:
-        top_level_args = prepare_top_level_args(cfg['configuration'])
-        if 'output_directory' in cfg['configuration'] and cfg['configuration']['output_directory']:
-            output_directory = cfg['configuration']['output_directory']
+    if "configuration" in cfg:
+        top_level_args = prepare_top_level_args(cfg["configuration"])
+        if (
+            "output_directory" in cfg["configuration"]
+            and cfg["configuration"]["output_directory"]
+        ):
+            output_directory = cfg["configuration"]["output_directory"]
             if not output_directory.startswith(os.path.sep):
                 # relative path
                 output_directory = f"{os.path.abspath(os.path.dirname(merge_config))}{os.path.sep}{output_directory}"
@@ -628,25 +642,22 @@ def merge(
         os.mkdir(output_directory)
 
     if not source:
-        source = cfg['merged_graph']['source'].keys()
+        source = cfg["merged_graph"]["source"].keys()
 
     if not destination:
-        destination = cfg['merged_graph']['destination'].keys()
+        destination = cfg["merged_graph"]["destination"].keys()
 
     for s in source:
-        source_properties = cfg['merged_graph']['source'][s]
-        if source_properties['input']['format'] in get_input_file_types():
-            source_properties['input']['filename'] = \
-                _validate_files(
-                    cwd=cwd,
-                    file_paths=source_properties['input']['filename'],
-                    context=s
-                )
+        source_properties = cfg["merged_graph"]["source"][s]
+        if source_properties["input"]["format"] in get_input_file_types():
+            source_properties["input"]["filename"] = _validate_files(
+                cwd=cwd, file_paths=source_properties["input"]["filename"], context=s
+            )
 
     sources_to_parse = {}
-    for key in cfg['merged_graph']['source']:
+    for key in cfg["merged_graph"]["source"]:
         if key in source:
-            sources_to_parse[key] = cfg['merged_graph']['source'][key]
+            sources_to_parse[key] = cfg["merged_graph"]["source"][key]
 
     results = []
     pool = Pool(processes=processes)
@@ -658,10 +669,10 @@ def merge(
                 k,
                 v,
                 output_directory,
-                top_level_args['prefix_map'],
-                top_level_args['node_property_predicates'],
-                top_level_args['predicate_mappings'],
-                top_level_args['checkpoint'],
+                top_level_args["prefix_map"],
+                top_level_args["node_property_predicates"],
+                top_level_args["predicate_mappings"],
+                top_level_args["checkpoint"],
             ),
         )
         results.append(result)
@@ -672,15 +683,15 @@ def merge(
     log.info(
         f"Merged graph has {merged_graph.number_of_nodes()} nodes and {merged_graph.number_of_edges()} edges"
     )
-    if 'name' in cfg['merged_graph']:
-        merged_graph.name = cfg['merged_graph']['name']
-    if 'operations' in cfg['merged_graph']:
-        apply_graph_operations(merged_graph, cfg['merged_graph']['operations'])
+    if "name" in cfg["merged_graph"]:
+        merged_graph.name = cfg["merged_graph"]["name"]
+    if "operations" in cfg["merged_graph"]:
+        apply_graph_operations(merged_graph, cfg["merged_graph"]["operations"])
 
     destination_to_write: Dict[str, Dict] = {}
     for d in destination:
-        if d in cfg['merged_graph']['destination']:
-            destination_to_write[d] = cfg['merged_graph']['destination'][d]
+        if d in cfg["merged_graph"]["destination"]:
+            destination_to_write[d] = cfg["merged_graph"]["destination"][d]
         else:
             raise KeyError(f"Cannot find destination '{d}' in YAML")
 
@@ -691,33 +702,39 @@ def merge(
         node_properties.update(s.node_properties)
         edge_properties.update(s.edge_properties)
 
-    input_args = {'graph': merged_graph, 'format': 'graph'}
+    input_args = {"graph": merged_graph, "format": "graph"}
     if destination_to_write:
         for key, destination_info in destination_to_write.items():
             log.info(f"Writing merged graph to {key}")
             output_args = {
-                'format': destination_info['format'],
-                'reverse_prefix_map': top_level_args['reverse_prefix_map'],
-                'reverse_predicate_mappings': top_level_args['reverse_predicate_mappings'],
+                "format": destination_info["format"],
+                "reverse_prefix_map": top_level_args["reverse_prefix_map"],
+                "reverse_predicate_mappings": top_level_args[
+                    "reverse_predicate_mappings"
+                ],
             }
-            if 'reverse_prefix_map' in destination_info:
-                output_args['reverse_prefix_map'].update(destination_info['reverse_prefix_map'])
-            if 'reverse_predicate_mappings' in destination_info:
-                output_args['reverse_predicate_mappings'].update(
-                    destination_info['reverse_predicate_mappings']
+            if "reverse_prefix_map" in destination_info:
+                output_args["reverse_prefix_map"].update(
+                    destination_info["reverse_prefix_map"]
                 )
-            if destination_info['format'] == 'neo4j':
-                output_args['uri'] = destination_info['uri']
-                output_args['username'] = destination_info['username']
-                output_args['password'] = destination_info['password']
-            elif destination_info['format'] in get_input_file_types():
-                filename = destination_info['filename']
+            if "reverse_predicate_mappings" in destination_info:
+                output_args["reverse_predicate_mappings"].update(
+                    destination_info["reverse_predicate_mappings"]
+                )
+            if destination_info["format"] == "neo4j":
+                output_args["uri"] = destination_info["uri"]
+                output_args["username"] = destination_info["username"]
+                output_args["password"] = destination_info["password"]
+            elif destination_info["format"] in get_input_file_types():
+                filename = destination_info["filename"]
                 if isinstance(filename, list):
                     filename = filename[0]
                 destination_filename = f"{output_directory}/{filename}"
-                output_args['filename'] = destination_filename
-                output_args['compression'] = (
-                    destination_info['compression'] if 'compression' in destination_info else None
+                output_args["filename"] = destination_filename
+                output_args["compression"] = (
+                    destination_info["compression"]
+                    if "compression" in destination_info
+                    else None
                 )
                 if destination_info['format'] == 'nt':
                     output_args['property_types'] = top_level_args['property_types']
@@ -776,14 +793,14 @@ def parse_source(
     """
     log.info(f"Processing source '{key}'")
     if not key:
-        key = os.path.basename(source['input']['filename'][0])
+        key = os.path.basename(source["input"]["filename"][0])
     input_args = prepare_input_args(
         key,
         source,
         output_directory,
         prefix_map,
         node_property_predicates,
-        predicate_mappings
+        predicate_mappings,
     )
     transformer = Transformer()
     transformer.transform(input_args)
@@ -791,7 +808,7 @@ def parse_source(
     if checkpoint:
         log.info(f"Writing checkpoint for source '{key}'")
         checkpoint_output = f"{output_directory}/{key}" if output_directory else key
-        transformer.save({'filename': checkpoint_output, 'format': 'tsv'})
+        transformer.save({"filename": checkpoint_output, "format": "tsv"})
 
     # Current "Callable" metadata not needed at this  point
     # but causes peculiar problems downstream, so we clear it.
@@ -813,7 +830,7 @@ def transform_source(
     checkpoint: bool = False,
     preserve_graph: bool = True,
     stream: bool = False,
-    infores_catalog: Optional[str] = None
+    infores_catalog: Optional[str] = None,
 ) -> Sink:
     """
     Transform a source from a transform config YAML.
@@ -861,7 +878,7 @@ def transform_source(
         output_directory,
         prefix_map,
         node_property_predicates,
-        predicate_mappings
+        predicate_mappings,
     )
     output_args = prepare_output_args(
         key,
@@ -878,10 +895,10 @@ def transform_source(
         transformer.store.graph.clear()
 
     if infores_catalog:
-        with open(infores_catalog, 'w') as irc:
+        with open(infores_catalog, "w") as irc:
             catalog: Dict[str, str] = transformer.get_infores_catalog()
             for source in catalog.keys():
-                infores = catalog.setdefault(source, 'unknown')
+                infores = catalog.setdefault(source, "unknown")
                 print(f"{source}\t{infores}", file=irc)
 
     return transformer.store
@@ -920,80 +937,83 @@ def prepare_input_args(
 
     """
     if not key:
-        key = os.path.basename(source['input']['filename'][0])
-    input_format = source['input']['format']
-    input_compression = source['input']['compression'] if 'compression' in source['input'] else None
-    inputs = source['input']['filename']
+        key = os.path.basename(source["input"]["filename"][0])
+    input_format = source["input"]["format"]
+    input_compression = (
+        source["input"]["compression"] if "compression" in source["input"] else None
+    )
+    inputs = source["input"]["filename"]
     filters = (
-        source['input']['filters']
-        if 'filters' in source['input'] and source['input']['filters'] is not None
+        source["input"]["filters"]
+        if "filters" in source["input"] and source["input"]["filters"] is not None
         else {}
     )
-    node_filters = filters['node_filters'] if 'node_filters' in filters else {}
-    edge_filters = filters['edge_filters'] if 'edge_filters' in filters else {}
+    node_filters = filters["node_filters"] if "node_filters" in filters else {}
+    edge_filters = filters["edge_filters"] if "edge_filters" in filters else {}
     source_prefix_map = prefix_map.copy() if prefix_map else {}
     source_prefix_map.update(
-        source['prefix_map'] if 'prefix_map' in source and source['prefix_map'] else {}
+        source["prefix_map"] if "prefix_map" in source and source["prefix_map"] else {}
     )
     source_predicate_mappings = predicate_mappings.copy() if predicate_mappings else {}
     source_predicate_mappings.update(
-        source['predicate_mappings']
-        if 'predicate_mappings' in source and source['predicate_mappings'] is not None
+        source["predicate_mappings"]
+        if "predicate_mappings" in source and source["predicate_mappings"] is not None
         else {}
     )
     source_node_property_predicates = (
         node_property_predicates if node_property_predicates else set()
     )
     source_node_property_predicates.update(
-        source['node_property_predicates']
-        if 'node_property_predicates' in source and source['node_property_predicates'] is not None
+        source["node_property_predicates"]
+        if "node_property_predicates" in source
+        and source["node_property_predicates"] is not None
         else set()
     )
 
-    if input_format in {'nt', 'ttl'}:
+    if input_format in {"nt", "ttl"}:
         input_args = {
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': source_prefix_map,
-            'predicate_mappings': source_predicate_mappings,
-            'node_property_predicates': source_node_property_predicates,
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
+            "prefix_map": source_prefix_map,
+            "predicate_mappings": source_predicate_mappings,
+            "node_property_predicates": source_node_property_predicates,
         }
     elif input_format in get_input_file_types():
         input_args = {
-            'filename': inputs,
-            'format': input_format,
-            'compression': input_compression,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': source_prefix_map,
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
+            "prefix_map": source_prefix_map,
         }
-    elif input_format == 'neo4j':
+    elif input_format == "neo4j":
         input_args = {
-            'uri': source['uri'],
-            'username': source['username'],
-            'password': source['password'],
-            'format': input_format,
-            'node_filters': node_filters,
-            'edge_filters': edge_filters,
-            'prefix_map': prefix_map,
+            "uri": source["uri"],
+            "username": source["username"],
+            "password": source["password"],
+            "format": input_format,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
+            "prefix_map": prefix_map,
         }
     else:
         raise TypeError(f"Type {input_format} not yet supported")
 
     for ksf in knowledge_provenance_properties:
-        if ksf in source['input']:
-            input_args[ksf] = source['input'][ksf]
+        if ksf in source["input"]:
+            input_args[ksf] = source["input"][ksf]
 
-    input_args['operations'] = source['input'].get('operations', [])
-    for o in input_args['operations']:
-        args = o['args']
-        if 'filename' in args:
-            filename = args['filename']
+    input_args["operations"] = source["input"].get("operations", [])
+    for o in input_args["operations"]:
+        args = o["args"]
+        if "filename" in args:
+            filename = args["filename"]
             if not filename.startswith(output_directory):
-                o['args'] = os.path.join(output_directory, filename)
+                o["args"] = os.path.join(output_directory, filename)
     return input_args
 
 
@@ -1030,30 +1050,32 @@ def prepare_output_args(
         Output arguments as dictionary
 
     """
-    output_format = source['output']['format']
+    output_format = source["output"]["format"]
     output_compression = (
-        source['output']['compression'] if 'compression' in source['output'] else None
+        source["output"]["compression"] if "compression" in source["output"] else None
     )
-    output_filename = source['output']['filename'] if 'filename' in source['output'] else key
+    output_filename = (
+        source["output"]["filename"] if "filename" in source["output"] else key
+    )
     source_reverse_prefix_map = reverse_prefix_map.copy() if reverse_prefix_map else {}
     source_reverse_prefix_map.update(
-        source['reverse_prefix_map']
-        if 'reverse_prefix_map' in source and source['reverse_prefix_map']
+        source["reverse_prefix_map"]
+        if "reverse_prefix_map" in source and source["reverse_prefix_map"]
         else {}
     )
     source_reverse_predicate_mappings = (
         reverse_predicate_mappings.copy() if reverse_predicate_mappings else {}
     )
     source_reverse_predicate_mappings.update(
-        source['reverse_predicate_mappings']
-        if 'reverse_predicate_mappings' in source
-        and source['reverse_predicate_mappings'] is not None
+        source["reverse_predicate_mappings"]
+        if "reverse_predicate_mappings" in source
+        and source["reverse_predicate_mappings"] is not None
         else {}
     )
     source_property_types = property_types.copy() if property_types else {}
-    source_property_types.update(source['property_types']) if 'property_types' in source and source[
-        'property_types'
-    ] is not None else {}
+    source_property_types.update(
+        source["property_types"]
+    ) if "property_types" in source and source["property_types"] is not None else {}
 
     if isinstance(output_filename, list):
         output = output_filename[0]
@@ -1061,23 +1083,25 @@ def prepare_output_args(
         output = output_filename
     if output_directory and not output.startswith(output_directory):
         output = os.path.join(output_directory, output)
-    output_args = {'format': output_format}
-    if output_format == 'neo4j':
-        output_args['uri'] = source['output']['uri']
-        output_args['username'] = source['output']['username']
-        output_args['password'] = source['output']['password']
+    output_args = {"format": output_format}
+    if output_format == "neo4j":
+        output_args["uri"] = source["output"]["uri"]
+        output_args["username"] = source["output"]["username"]
+        output_args["password"] = source["output"]["password"]
     elif output_format in get_input_file_types():
-        output_args['filename'] = output
-        output_args['compression'] = output_compression
-        if output_format == 'nt':
-            output_args['reify_all_edges'] = (
-                source['output']['reify_all_edges']
-                if 'reify_all_edges' in source['output']
+        output_args["filename"] = output
+        output_args["compression"] = output_compression
+        if output_format == "nt":
+            output_args["reify_all_edges"] = (
+                source["output"]["reify_all_edges"]
+                if "reify_all_edges" in source["output"]
                 else False
             )
-            output_args['reverse_prefix_map'] = source_reverse_prefix_map
-            output_args['reverse_predicate_mappings'] = source_reverse_predicate_mappings
-            output_args['property_types'] = source_property_types
+            output_args["reverse_prefix_map"] = source_reverse_prefix_map
+            output_args[
+                "reverse_predicate_mappings"
+            ] = source_reverse_predicate_mappings
+            output_args["property_types"] = source_property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
     return output_args
@@ -1100,12 +1124,12 @@ def apply_operations(source: dict, graph: BaseGraph) -> BaseGraph:
         The graph corresponding to the source
 
     """
-    operations = source['operations']
+    operations = source["operations"]
     for operation in operations:
-        op_name = operation['name']
-        op_args = operation['args']
-        module_name = '.'.join(op_name.split('.')[0:-1])
-        function_name = op_name.split('.')[-1]
+        op_name = operation["name"]
+        op_args = operation["args"]
+        module_name = ".".join(op_name.split(".")[0:-1])
+        function_name = op_name.split(".")[-1]
         f = getattr(importlib.import_module(module_name), function_name)
         log.info(f"Applying operation {op_name} with args: {op_args}")
         f(graph, **op_args)
@@ -1128,32 +1152,35 @@ def prepare_top_level_args(d: Dict) -> Dict:
 
     """
     args = {}
-    if 'checkpoint' in d and d['checkpoint'] is not None:
-        args['checkpoint'] = d['checkpoint']
+    if "checkpoint" in d and d["checkpoint"] is not None:
+        args["checkpoint"] = d["checkpoint"]
     else:
-        args['checkpoint'] = False
-    if 'node_property_predicates' in d and d['node_property_predicates']:
-        args['node_property_predicates'] = set(d['node_property_predicates'])
+        args["checkpoint"] = False
+    if "node_property_predicates" in d and d["node_property_predicates"]:
+        args["node_property_predicates"] = set(d["node_property_predicates"])
     else:
-        args['node_property_predicates'] = set()
-    if 'predicate_mappings' in d and d['predicate_mappings']:
-        args['predicate_mappings'] = d['predicate_mappings']
+        args["node_property_predicates"] = set()
+    if "predicate_mappings" in d and d["predicate_mappings"]:
+        args["predicate_mappings"] = d["predicate_mappings"]
     else:
-        args['predicate_mappings'] = {}
-    if 'prefix_map' in d and d['prefix_map']:
-        args['prefix_map'] = d['prefix_map']
+        args["predicate_mappings"] = {}
+    if "prefix_map" in d and d["prefix_map"]:
+        args["prefix_map"] = d["prefix_map"]
     else:
-        args['prefix_map'] = {}
-    if 'reverse_prefix_map' in d and d['reverse_prefix_map'] is not None:
-        args['reverse_prefix_map'] = d['reverse_prefix_map']
+        args["prefix_map"] = {}
+    if "reverse_prefix_map" in d and d["reverse_prefix_map"] is not None:
+        args["reverse_prefix_map"] = d["reverse_prefix_map"]
     else:
-        args['reverse_prefix_map'] = {}
-    if 'reverse_predicate_mappings' in d and d['reverse_predicate_mappings'] is not None:
-        args['reverse_predicate_mappings'] = d['reverse_predicate_mappings']
+        args["reverse_prefix_map"] = {}
+    if (
+        "reverse_predicate_mappings" in d
+        and d["reverse_predicate_mappings"] is not None
+    ):
+        args["reverse_predicate_mappings"] = d["reverse_predicate_mappings"]
     else:
-        args['reverse_predicate_mappings'] = {}
-    if 'property_types' in d and d['property_types']:
-        args['property_types'] = d['property_types']
+        args["reverse_predicate_mappings"] = {}
+    if "property_types" in d and d["property_types"]:
+        args["property_types"] = d["property_types"]
     else:
-        args['property_types'] = {}
+        args["property_types"] = {}
     return args

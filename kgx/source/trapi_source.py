@@ -23,7 +23,7 @@ class TrapiSource(JsonSource):
     def parse(
         self,
         filename: str,
-        format: str = 'json',
+        format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any
     ) -> Generator:
@@ -71,11 +71,11 @@ class TrapiSource(JsonSource):
             A generator for node records
 
         """
-        if compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for n in ijson.items(FH, 'knowledge_graph.nodes.item'):
+            FH = open(filename, "rb")
+        for n in ijson.items(FH, "knowledge_graph.nodes.item"):
             yield self.load_node(n)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:
@@ -95,11 +95,11 @@ class TrapiSource(JsonSource):
             A generator for edge records
 
         """
-        if compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for e in ijson.items(FH, 'knowledge_graph.edges.item'):
+            FH = open(filename, "rb")
+        for e in ijson.items(FH, "knowledge_graph.edges.item"):
             yield self.load_edge(e)
 
     def load_node(self, node: Dict) -> Tuple[str, Dict]:
@@ -116,9 +116,9 @@ class TrapiSource(JsonSource):
 
         """
 
-        if 'type' in node and 'category' not in node:
-            node['category'] = node['type']
-            del node['type']
+        if "type" in node and "category" not in node:
+            node["category"] = node["type"]
+            del node["type"]
         return super().read_node(node)
 
     def load_edge(self, edge: Dict) -> Tuple[str, str, str, Dict]:
@@ -134,10 +134,10 @@ class TrapiSource(JsonSource):
             An edge
 
         """
-        if 'source_id' in edge:
-            edge['subject'] = edge['source_id']
-        if 'target_id' in edge:
-            edge['object'] = edge['target_id']
-        if 'relation_label' in edge:
-            edge['predicate'] = edge['relation_label'][0]
+        if "source_id" in edge:
+            edge["subject"] = edge["source_id"]
+        if "target_id" in edge:
+            edge["object"] = edge["target_id"]
+        if "relation_label" in edge:
+            edge["predicate"] = edge["relation_label"][0]
         return super().read_edge(edge)

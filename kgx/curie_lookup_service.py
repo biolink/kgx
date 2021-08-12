@@ -3,7 +3,7 @@ import rdflib
 from kgx.config import get_logger, get_config
 from kgx.utils.kgx_utils import generate_edge_key, contract
 
-CURIE_MAP = {'BFO:0000054': 'realized_in', 'RO:0000091': 'has_disposition'}
+CURIE_MAP = {"BFO:0000054": "realized_in", "RO:0000091": "has_disposition"}
 
 log = get_logger()
 
@@ -14,7 +14,7 @@ class CurieLookupService(object):
     """
 
     config = get_config()
-    ontologies = config['ontologies']
+    ontologies = config["ontologies"]
     ontology_graph = None
 
     def __init__(self, curie_map: dict = None):
@@ -47,6 +47,6 @@ class CurieLookupService(object):
             for s, p, o in triples:
                 key = contract(s)
                 value = o.value
-                value = value.replace(' ', '_')
+                value = value.replace(" ", "_")
                 self.curie_map[key] = value
                 self.ontology_graph.add_node(key, name=value)

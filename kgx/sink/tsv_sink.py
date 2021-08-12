@@ -13,15 +13,15 @@ from kgx.utils.kgx_utils import (
 )
 
 
-DEFAULT_NODE_COLUMNS = {'id', 'name', 'category', 'description', 'provided_by'}
+DEFAULT_NODE_COLUMNS = {"id", "name", "category", "description", "provided_by"}
 DEFAULT_EDGE_COLUMNS = {
-    'id',
-    'subject',
-    'predicate',
-    'object',
-    'relation',
-    'category',
-    'provided_by',
+    "id",
+    "subject",
+    "predicate",
+    "object",
+    "relation",
+    "category",
+    "provided_by",
 }
 
 
@@ -42,41 +42,49 @@ class TsvSink(Sink):
     """
 
     def __init__(
-        self, filename: str, format: str, compression: Optional[str] = None, **kwargs: Any
+        self,
+        filename: str,
+        format: str,
+        compression: Optional[str] = None,
+        **kwargs: Any,
     ):
         super().__init__()
         if format not in extension_types:
-            raise Exception(f'Unsupported format: {format}')
+            raise Exception(f"Unsupported format: {format}")
         self.delimiter = extension_types[format]
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
-        self.extension = format.split(':')[0]
-        self.mode = archive_write_mode[compression] if compression in archive_write_mode else None
+        self.extension = format.split(":")[0]
+        self.mode = (
+            archive_write_mode[compression]
+            if compression in archive_write_mode
+            else None
+        )
         self.nodes_file_basename = f"{self.basename}_nodes.{self.extension}"
         self.edges_file_basename = f"{self.basename}_edges.{self.extension}"
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
-        if 'node_properties' in kwargs:
-            self.node_properties.update(set(kwargs['node_properties']))
+        if "node_properties" in kwargs:
+            self.node_properties.update(set(kwargs["node_properties"]))
         else:
             self.node_properties.update(DEFAULT_NODE_COLUMNS)
-        if 'edge_properties' in kwargs:
-            self.edge_properties.update(set(kwargs['edge_properties']))
+        if "edge_properties" in kwargs:
+            self.edge_properties.update(set(kwargs["edge_properties"]))
         else:
             self.edge_properties.update(DEFAULT_EDGE_COLUMNS)
         self.ordered_node_columns = TsvSink._order_node_columns(self.node_properties)
         self.ordered_edge_columns = TsvSink._order_edge_columns(self.edge_properties)
 
         self.nodes_file_name = os.path.join(
-            self.dirname if self.dirname else '', self.nodes_file_basename
+            self.dirname if self.dirname else "", self.nodes_file_basename
         )
-        self.NFH = open(self.nodes_file_name, 'w')
-        self.NFH.write(self.delimiter.join(self.ordered_node_columns) + '\n')
+        self.NFH = open(self.nodes_file_name, "w")
+        self.NFH.write(self.delimiter.join(self.ordered_node_columns) + "\n")
         self.edges_file_name = os.path.join(
-            self.dirname if self.dirname else '', self.edges_file_basename
+            self.dirname if self.dirname else "", self.edges_file_basename
         )
-        self.EFH = open(self.edges_file_name, 'w')
-        self.EFH.write(self.delimiter.join(self.ordered_edge_columns) + '\n')
+        self.EFH = open(self.edges_file_name, "w")
+        self.EFH.write(self.delimiter.join(self.ordered_edge_columns) + "\n")
 
     def write_node(self, record: Dict) -> None:
         """
@@ -89,14 +97,14 @@ class TsvSink(Sink):
 
         """
         row = self._build_export_row(record)
-        row['id'] = record['id']
+        row["id"] = record["id"]
         values = []
         for c in self.ordered_node_columns:
             if c in row:
                 values.append(str(row[c]))
             else:
                 values.append("")
-        self.NFH.write(self.delimiter.join(values) + '\n')
+        self.NFH.write(self.delimiter.join(values) + "\n")
 
     def write_edge(self, record: Dict) -> None:
         """
@@ -115,7 +123,7 @@ class TsvSink(Sink):
                 values.append(str(row[c]))
             else:
                 values.append("")
-        self.EFH.write(self.delimiter.join(values) + '\n')
+        self.EFH.write(self.delimiter.join(values) + "\n")
 
     def finalize(self) -> None:
         """
@@ -125,7 +133,9 @@ class TsvSink(Sink):
         self.EFH.close()
         if self.mode:
             archive_basename = f"{self.basename}.{archive_format[self.mode]}"
-            archive_name = os.path.join(self.dirname if self.dirname else '', archive_basename)
+            archive_name = os.path.join(
+                self.dirname if self.dirname else "", archive_basename
+            )
             with tarfile.open(name=archive_name, mode=self.mode) as tar:
                 tar.add(self.nodes_file_name, arcname=self.nodes_file_basename)
                 tar.add(self.edges_file_name, arcname=self.edges_file_basename)
@@ -176,7 +186,7 @@ class TsvSink(Sink):
         """
         node_columns = cols.copy()
         core_columns = OrderedSet(
-            ['id', 'category', 'name', 'description', 'xref', 'provided_by', 'synonym']
+            ["id", "category", "name", "description", "xref", "provided_by", "synonym"]
         )
         ordered_columns = OrderedSet()
         for c in core_columns:
@@ -186,7 +196,7 @@ class TsvSink(Sink):
         internal_columns = set()
         remaining_columns = node_columns.copy()
         for c in node_columns:
-            if c.startswith('_'):
+            if c.startswith("_"):
                 internal_columns.add(c)
                 remaining_columns.remove(c)
         ordered_columns.update(sorted(remaining_columns))
@@ -211,7 +221,15 @@ class TsvSink(Sink):
         """
         edge_columns = cols.copy()
         core_columns = OrderedSet(
-            ['id', 'subject', 'predicate', 'object', 'category', 'relation', 'provided_by']
+            [
+                "id",
+                "subject",
+                "predicate",
+                "object",
+                "category",
+                "relation",
+                "provided_by",
+            ]
         )
         ordered_columns = OrderedSet()
         for c in core_columns:
@@ -221,7 +239,7 @@ class TsvSink(Sink):
         internal_columns = set()
         remaining_columns = edge_columns.copy()
         for c in edge_columns:
-            if c.startswith('_'):
+            if c.startswith("_"):
                 internal_columns.add(c)
                 remaining_columns.remove(c)
         ordered_columns.update(sorted(remaining_columns))

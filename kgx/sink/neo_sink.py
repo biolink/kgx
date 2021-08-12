@@ -34,21 +34,23 @@ class NeoSink(Sink):
     edge_cache = {}
     node_count = 0
     edge_count = 0
-    CATEGORY_DELIMITER = '|'
-    CYPHER_CATEGORY_DELIMITER = ':'
+    CATEGORY_DELIMITER = "|"
+    CYPHER_CATEGORY_DELIMITER = ":"
     _seen_categories = set()
 
     def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
         super().__init__()
-        if 'cache_size' in kwargs:
-            self.CACHE_SIZE = kwargs['cache_size']
-        self.http_driver: GraphDatabase = GraphDatabase(uri, username=username, password=password)
+        if "cache_size" in kwargs:
+            self.CACHE_SIZE = kwargs["cache_size"]
+        self.http_driver: GraphDatabase = GraphDatabase(
+            uri, username=username, password=password
+        )
 
     def _flush_node_cache(self):
         self._write_node_cache()
         self.node_cache.clear()
         self.node_count = 0
-        
+
     def write_node(self, record) -> None:
         """
         Cache a node record that is to be written to Neo4j.
@@ -61,7 +63,7 @@ class NeoSink(Sink):
             A node record
 
         """
-        sanitized_category = self.sanitize_category(record['category'])
+        sanitized_category = self.sanitize_category(record["category"])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
             self._flush_node_cache()
@@ -92,7 +94,7 @@ class NeoSink(Sink):
                 log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
-                    self.http_driver.query(query, params={'nodes': batch})
+                    self.http_driver.query(query, params={"nodes": batch})
                 except CypherException as ce:
                     log.error(ce)
 
@@ -101,7 +103,7 @@ class NeoSink(Sink):
         self._write_edge_cache()
         self.edge_cache.clear()
         self.edge_count = 0
-        
+
     def write_edge(self, record) -> None:
         """
         Cache an edge record that is to be written to Neo4j.
@@ -117,7 +119,7 @@ class NeoSink(Sink):
         if self.edge_count >= self.CACHE_SIZE:
             self._flush_edge_cache()
         # self.validate_edge(data)
-        edge_predicate = record['predicate']
+        edge_predicate = record["predicate"]
         if edge_predicate in self.edge_cache:
             self.edge_cache[edge_predicate].append(record)
         else:

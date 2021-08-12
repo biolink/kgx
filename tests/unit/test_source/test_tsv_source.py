@@ -12,10 +12,7 @@ def test_read_tsv():
     Read a TSV using TsvSource.
     """
     s = TsvSource()
-    g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test_nodes.tsv'),
-        format='tsv'
-    )
+    g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_nodes.tsv"), format="tsv")
     nodes = []
     for rec in g:
         if rec:
@@ -23,26 +20,23 @@ def test_read_tsv():
     assert len(nodes) == 3
     nodes.sort()
     n1 = nodes.pop()[-1]
-    assert n1['id'] == 'CURIE:456'
-    assert n1['name'] == 'Disease 456'
-    assert 'biolink:Disease' in n1['category']
-    assert n1['description'] == '"Node of type Disease, CURIE:456"'
+    assert n1["id"] == "CURIE:456"
+    assert n1["name"] == "Disease 456"
+    assert "biolink:Disease" in n1["category"]
+    assert n1["description"] == '"Node of type Disease, CURIE:456"'
 
-    g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test_edges.tsv'),
-        format='tsv'
-    )
+    g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_edges.tsv"), format="tsv")
     edges = []
     for rec in g:
         if rec:
             edges.append(rec)
     e1 = edges.pop()[-1]
-    assert 'id' in e1
-    assert e1['subject'] == 'CURIE:123'
-    assert e1['object'] == 'CURIE:456'
-    assert e1['predicate'] == 'biolink:related_to'
-    assert e1['relation'] == 'biolink:related_to'
-    assert 'PMID:1' in e1['publications']
+    assert "id" in e1
+    assert e1["subject"] == "CURIE:123"
+    assert e1["object"] == "CURIE:456"
+    assert e1["predicate"] == "biolink:related_to"
+    assert e1["relation"] == "biolink:related_to"
+    assert "PMID:1" in e1["publications"]
 
 
 def test_read_csv():
@@ -50,10 +44,7 @@ def test_read_csv():
     Read a CSV using TsvSource.
     """
     s = TsvSource()
-    g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test_nodes.csv'),
-        format='csv'
-    )
+    g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_nodes.csv"), format="csv")
     nodes = []
     for rec in g:
         if rec:
@@ -61,27 +52,24 @@ def test_read_csv():
     assert len(nodes) == 3
     nodes.sort()
     n1 = nodes.pop()[-1]
-    assert n1['id'] == 'CURIE:456'
-    assert n1['name'] == 'Disease 456'
-    assert 'biolink:Disease' in n1['category']
-    assert n1['description'] == 'Node of type Disease, CURIE:456'
+    assert n1["id"] == "CURIE:456"
+    assert n1["name"] == "Disease 456"
+    assert "biolink:Disease" in n1["category"]
+    assert n1["description"] == "Node of type Disease, CURIE:456"
 
-    g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test_edges.csv'),
-        format='csv'
-    )
+    g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_edges.csv"), format="csv")
     edges = []
     for rec in g:
         if rec:
             print(rec)
             edges.append(rec)
     e1 = edges.pop()[-1]
-    assert 'id' in e1
-    assert e1['subject'] == 'CURIE:123'
-    assert e1['object'] == 'CURIE:456'
-    assert e1['predicate'] == 'biolink:related_to'
-    assert e1['relation'] == 'biolink:related_to'
-    assert 'PMID:1' in e1['publications']
+    assert "id" in e1
+    assert e1["subject"] == "CURIE:123"
+    assert e1["object"] == "CURIE:456"
+    assert e1["predicate"] == "biolink:related_to"
+    assert e1["relation"] == "biolink:related_to"
+    assert "PMID:1" in e1["publications"]
 
 
 def test_read_tsv_tar_compressed():
@@ -90,9 +78,7 @@ def test_read_tsv_tar_compressed():
     """
     s = TsvSource()
     g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test.tar'),
-        format='tsv',
-        compression='tar'
+        filename=os.path.join(RESOURCE_DIR, "test.tar"), format="tsv", compression="tar"
     )
     nodes = []
     edges = []
@@ -112,9 +98,9 @@ def test_read_tsv_tar_gz_compressed():
     """
     s = TsvSource()
     g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test.tar.gz'),
-        format='tsv',
-        compression='tar.gz'
+        filename=os.path.join(RESOURCE_DIR, "test.tar.gz"),
+        format="tsv",
+        compression="tar.gz",
     )
     nodes = []
     edges = []
@@ -134,9 +120,9 @@ def test_read_tsv_tar_gz_compressed_inverted_file_order():
     """
     s = TsvSource()
     g = s.parse(
-        filename=os.path.join(RESOURCE_DIR, 'test-inverse.tar.gz'),
-        format='tsv',
-        compression='tar.gz'
+        filename=os.path.join(RESOURCE_DIR, "test-inverse.tar.gz"),
+        format="tsv",
+        compression="tar.gz",
     )
     nodes = []
     edges = []

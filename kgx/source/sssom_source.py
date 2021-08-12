@@ -24,10 +24,10 @@ from kgx.utils.rdf_utils import process_predicate
 log = get_logger()
 
 SSSOM_NODE_PROPERTY_MAPPING = {
-    'subject_id': 'id',
-    'subject_category': 'category',
-    'object_id': 'id',
-    'object_category': 'category',
+    "subject_id": "id",
+    "subject_category": "category",
+    "object_id": "id",
+    "object_category": "category",
 }
 
 
@@ -92,23 +92,23 @@ class SssomSource(Source):
             A generator for node and edge records
 
         """
-        if 'delimiter' not in kwargs:
-            kwargs['delimiter'] = '\t'
+        if "delimiter" not in kwargs:
+            kwargs["delimiter"] = "\t"
         self.parse_header(filename, compression)
 
         # SSSOM 'mapping provider' may override the default 'knowledge_source' setting?
-        if 'mapping_provider' in self.graph_metadata:
-            kwargs['knowledge_source'] = self.graph_metadata['mapping_provider']
+        if "mapping_provider" in self.graph_metadata:
+            kwargs["knowledge_source"] = self.graph_metadata["mapping_provider"]
 
         self.set_provenance_map(kwargs)
 
         if compression:
-            FH = gzip.open(filename, 'rb')
+            FH = gzip.open(filename, "rb")
         else:
             FH = open(filename)
         file_iter = pd.read_csv(
             FH,
-            comment='#',
+            comment="#",
             dtype=str,
             chunksize=10000,
             low_memory=False,
@@ -132,19 +132,19 @@ class SssomSource(Source):
         """
         yamlstr = ""
         if compression:
-            FH = gzip.open(filename, 'rb')
+            FH = gzip.open(filename, "rb")
         else:
             FH = open(filename)
         for line in FH:
-            if line.startswith('#'):
-                yamlstr += re.sub('^#', '', line)
+            if line.startswith("#"):
+                yamlstr += re.sub("^#", "", line)
             else:
                 break
         if yamlstr:
             metadata = yaml.safe_load(yamlstr)
             log.info(f"Metadata: {metadata}")
-            if 'curie_map' in metadata:
-                self.prefix_manager.update_prefix_map(metadata['curie_map'])
+            if "curie_map" in metadata:
+                self.prefix_manager.update_prefix_map(metadata["curie_map"])
             for k, v in metadata.items():
                 self.graph_metadata[k] = v
 
@@ -165,8 +165,8 @@ class SssomSource(Source):
         """
         node = validate_node(node)
         node_data = sanitize_import(node.copy())
-        if 'id' in node_data:
-            n = node_data['id']
+        if "id" in node_data:
+            n = node_data["id"]
 
             self.set_node_provenance(node_data)
 
@@ -190,7 +190,7 @@ class SssomSource(Source):
             A generator for edge records
 
         """
-        for obj in df.to_dict('records'):
+        for obj in df.to_dict("records"):
             yield from self.load_edge(obj)
 
     def load_edge(self, edge: Dict) -> Generator:
@@ -209,7 +209,7 @@ class SssomSource(Source):
 
         """
         (element_uri, canonical_uri, predicate, property_name) = process_predicate(
-            self.prefix_manager, edge['predicate_id'], self.predicate_mapping
+            self.prefix_manager, edge["predicate_id"], self.predicate_mapping
         )
         if element_uri:
             edge_predicate = element_uri
@@ -220,24 +220,24 @@ class SssomSource(Source):
         if canonical_uri:
             edge_predicate = element_uri
         data = {
-            'subject': edge['subject_id'],
-            'predicate': edge_predicate,
-            'object': edge['object_id'],
+            "subject": edge["subject_id"],
+            "predicate": edge_predicate,
+            "object": edge["object_id"],
         }
-        del edge['predicate_id']
+        del edge["predicate_id"]
         data = validate_edge(data)
         subject_node = {}
         object_node = {}
         for k, v in edge.items():
             if k in SSSOM_NODE_PROPERTY_MAPPING:
-                if k.startswith('subject'):
+                if k.startswith("subject"):
                     mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
-                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                    if mapped_k == "category" and not PrefixManager.is_curie(v):
                         v = f"biolink:OntologyClass"
                     subject_node[mapped_k] = v
-                elif k.startswith('object'):
+                elif k.startswith("object"):
                     mapped_k = SSSOM_NODE_PROPERTY_MAPPING[k]
-                    if mapped_k == 'category' and not PrefixManager.is_curie(v):
+                    if mapped_k == "category" and not PrefixManager.is_curie(v):
                         v = f"biolink:OntologyClass"
                     object_node[mapped_k] = v
                 else:
@@ -248,24 +248,26 @@ class SssomSource(Source):
         objs = [self.load_node(subject_node), self.load_node(object_node)]
 
         for k, v in self.graph_metadata.items():
-            if k not in {'curie_map'}:
+            if k not in {"curie_map"}:
                 data[k] = v
 
         edge_data = sanitize_import(data.copy())
-        if 'subject' in edge_data and 'object' in edge_data:
-            if 'id' not in edge_data:
-                edge_data['id'] = generate_uuid()
-            s = edge_data['subject']
-            o = edge_data['object']
+        if "subject" in edge_data and "object" in edge_data:
+            if "id" not in edge_data:
+                edge_data["id"] = generate_uuid()
+            s = edge_data["subject"]
+            o = edge_data["object"]
 
             self.set_edge_provenance(edge_data)
 
-            key = generate_edge_key(s, edge_data['predicate'], o)
+            key = generate_edge_key(s, edge_data["predicate"], o)
             self.edge_properties.update(list(edge_data.keys()))
             objs.append((s, o, key, edge_data))
         else:
             log.info(
-                "Ignoring edge with either a missing 'subject' or 'object': {}".format(edge_data)
+                "Ignoring edge with either a missing 'subject' or 'object': {}".format(
+                    edge_data
+                )
             )
 
         for o in objs:

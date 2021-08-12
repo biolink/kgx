@@ -25,12 +25,12 @@ from kgx.utils.kgx_utils import (
     DEFAULT_EDGE_PREDICATE,
     CORE_NODE_PROPERTIES,
     CORE_EDGE_PROPERTIES,
-    knowledge_provenance_properties
+    knowledge_provenance_properties,
 )
 
 log = get_logger()
 
-NAMED_THING = 'biolink:NamedThing'
+NAMED_THING = "biolink:NamedThing"
 
 
 class RdfSource(Source):
@@ -45,13 +45,13 @@ class RdfSource(Source):
 
     def __init__(self):
         super().__init__()
-        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[''])
+        self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # TODO: use OBO IRI from biolink model context once
         #  https://github.com/biolink/biolink-model/issues/211 is resolved
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
-        self.OBAN = Namespace(self.prefix_manager.prefix_map['OBAN'])
-        self.PMID = Namespace(self.prefix_manager.prefix_map['PMID'])
-        self.BIOLINK = Namespace(self.prefix_manager.prefix_map['biolink'])
+        self.OBAN = Namespace(self.prefix_manager.prefix_map["OBAN"])
+        self.PMID = Namespace(self.prefix_manager.prefix_map["PMID"])
+        self.BIOLINK = Namespace(self.prefix_manager.prefix_map["biolink"])
         self.predicate_mapping = {}
         self.cache: Dict = {}
         self.toolkit = get_toolkit()
@@ -70,9 +70,15 @@ class RdfSource(Source):
 
         # TODO: validate expansion of the scope of this statement to include 'knowledge_source' and its descendants?
         for ksf in knowledge_provenance_properties:
-            self.node_property_predicates.add(URIRef(self.prefix_manager.expand('biolink:'+ksf)))
+            self.node_property_predicates.add(
+                URIRef(self.prefix_manager.expand("biolink:" + ksf))
+            )
 
-        self.reification_types = {RDF.Statement, self.BIOLINK.Association, self.OBAN.association}
+        self.reification_types = {
+            RDF.Statement,
+            self.BIOLINK.Association,
+            self.OBAN.association,
+        }
         self.reification_predicates = {
             self.BIOLINK.subject,
             self.BIOLINK.predicate,
@@ -127,7 +133,7 @@ class RdfSource(Source):
     def parse(
         self,
         filename: str,
-        format: str = 'nt',
+        format: str = "nt",
         compression: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
@@ -161,10 +167,10 @@ class RdfSource(Source):
 
         self.set_provenance_map(kwargs)
 
-        if compression == 'gz':
-            yield from p.parse(gzip.open(filename, 'rb'))
+        if compression == "gz":
+            yield from p.parse(gzip.open(filename, "rb"))
         else:
-            yield from p.parse(open(filename, 'rb'))
+            yield from p.parse(open(filename, "rb"))
         log.info(f"Done parsing {filename}")
 
         for n in self.reified_nodes:
@@ -173,11 +179,11 @@ class RdfSource(Source):
 
         for k in self.node_cache.keys():
             node_data = self.node_cache[k]
-            if 'category' in node_data:
-                if NAMED_THING not in set(node_data['category']):
-                    node_data['category'].append(NAMED_THING)
+            if "category" in node_data:
+                if NAMED_THING not in set(node_data["category"]):
+                    node_data["category"].append(NAMED_THING)
             else:
-                node_data['category'] = [NAMED_THING]
+                node_data["category"] = [NAMED_THING]
             node_data = validate_node(node_data)
             node_data = sanitize_import(node_data)
 
@@ -217,7 +223,9 @@ class RdfSource(Source):
 
         """
         self.count += 1
-        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(p)
+        (element_uri, canonical_uri, predicate, property_name) = self.process_predicate(
+            p
+        )
         if element_uri:
             prop_uri = element_uri
         elif predicate:
@@ -226,7 +234,7 @@ class RdfSource(Source):
             prop_uri = property_name
 
         s_curie = self.prefix_manager.contract(s)
-        if s_curie.startswith('biolink') or s_curie.startswith('OBAN'):
+        if s_curie.startswith("biolink") or s_curie.startswith("OBAN"):
             log.warning(f"Skipping {s} {p} {o}")
         elif s_curie in self.reified_nodes:
             # subject is a reified node
@@ -235,7 +243,13 @@ class RdfSource(Source):
             # subject is a reified node
             self.reified_nodes.add(s_curie)
             self.add_node_attribute(s, key=prop_uri, value=o)
-        elif property_name in {'subject', 'predicate', 'object', 'predicate', 'relation'}:
+        elif property_name in {
+            "subject",
+            "predicate",
+            "object",
+            "predicate",
+            "relation",
+        }:
             # subject is a reified node
             self.reified_nodes.add(s_curie)
             self.add_node_attribute(s, key=prop_uri, value=o)
@@ -275,13 +289,16 @@ class RdfSource(Source):
             self._incomplete_nodes.clear()
 
             for k in self.edge_cache.keys():
-                if 'id' not in self.edge_cache[k] and 'association_id' not in self.edge_cache[k]:
+                if (
+                    "id" not in self.edge_cache[k]
+                    and "association_id" not in self.edge_cache[k]
+                ):
                     edge_key = generate_edge_key(
-                        self.edge_cache[k]['subject'],
-                        self.edge_cache[k]['predicate'],
-                        self.edge_cache[k]['object'],
+                        self.edge_cache[k]["subject"],
+                        self.edge_cache[k]["predicate"],
+                        self.edge_cache[k]["object"],
                     )
-                    self.edge_cache[k]['id'] = edge_key
+                    self.edge_cache[k]["id"] = edge_key
                 data = self.edge_cache[k]
                 data = validate_edge(data)
                 data = sanitize_import(data)
@@ -306,16 +323,18 @@ class RdfSource(Source):
             Node data
 
         """
-        if 'predicate' not in node:
-            node['predicate'] = "biolink:related_to"
-        if 'relation' not in node:
-            node['relation'] = node['predicate']
+        if "predicate" not in node:
+            node["predicate"] = "biolink:related_to"
+        if "relation" not in node:
+            node["relation"] = node["predicate"]
         # if 'category' in node:
         #     del node['category']
-        if 'subject' in node and 'object' in node:
-            self.add_edge(node['subject'], node['object'], node['predicate'], node)
+        if "subject" in node and "object" in node:
+            self.add_edge(node["subject"], node["object"], node["predicate"], node)
         else:
-            log.warning(f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge....")
+            log.warning(
+                f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge...."
+            )
 
     def add_node_attribute(
         self, iri: Union[URIRef, str], key: str, value: Union[str, List]
@@ -368,7 +387,10 @@ class RdfSource(Source):
                 value = value_curie
             else:
                 value = value.toPython()
-        if mapped_key in is_property_multivalued and is_property_multivalued[mapped_key]:
+        if (
+            mapped_key in is_property_multivalued
+            and is_property_multivalued[mapped_key]
+        ):
             value = [value]
         if mapped_key in self.node_record:
             if isinstance(self.node_record[mapped_key], str):
@@ -386,7 +408,7 @@ class RdfSource(Source):
             else:
                 self.node_cache[curie][mapped_key] = value
         else:
-            self.node_cache[curie] = {'id': curie, mapped_key: value}
+            self.node_cache[curie] = {"id": curie, mapped_key: value}
 
     def add_node(self, iri: URIRef, data: Optional[Dict] = None) -> Dict:
         """
@@ -419,13 +441,13 @@ class RdfSource(Source):
                 node_data = data
             else:
                 node_data = {}
-            node_data['id'] = n
+            node_data["id"] = n
 
-        if 'category' in node_data:
-            if NAMED_THING not in set(node_data['category']):
-                node_data['category'].append(NAMED_THING)
+        if "category" in node_data:
+            if NAMED_THING not in set(node_data["category"]):
+                node_data["category"].append(NAMED_THING)
         else:
-            node_data['category'] = [NAMED_THING]
+            node_data["category"] = [NAMED_THING]
 
         self.set_node_provenance(node_data)
 
@@ -477,12 +499,12 @@ class RdfSource(Source):
         if not edge_predicate:
             edge_predicate = property_name
 
-        if ' ' in edge_predicate:
+        if " " in edge_predicate:
             log.debug(
                 f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that not in snake_case form; replacing ' ' with '_'"
             )
         edge_predicate_prefix = self.prefix_manager.get_prefix(edge_predicate)
-        if edge_predicate_prefix not in {'biolink', 'rdf', 'rdfs', 'skos', 'owl'}:
+        if edge_predicate_prefix not in {"biolink", "rdf", "rdfs", "skos", "owl"}:
             if PrefixManager.is_curie(edge_predicate):
                 # name = curie_lookup(edge_predicate)
                 # if name:
@@ -492,26 +514,30 @@ class RdfSource(Source):
                 #     log.debug(f"predicate IRI '{predicate_iri}' yields edge_predicate '{edge_predicate}' that is actually a CURIE; defaulting back to {self.DEFAULT_EDGE_PREDICATE}")
                 edge_predicate = DEFAULT_EDGE_PREDICATE
 
-        edge_key = generate_edge_key(subject_node['id'], edge_predicate, object_node['id'])
-        if (subject_node['id'], object_node['id'], edge_key) in self.edge_cache:
+        edge_key = generate_edge_key(
+            subject_node["id"], edge_predicate, object_node["id"]
+        )
+        if (subject_node["id"], object_node["id"], edge_key) in self.edge_cache:
             # edge already exists; process kwargs and update the edge
-            edge_data = self.update_edge(subject_node['id'], object_node['id'], edge_key, data)
+            edge_data = self.update_edge(
+                subject_node["id"], object_node["id"], edge_key, data
+            )
         else:
             # add a new edge
             edge_data = data if data else {}
             edge_data.update(
                 {
-                    'subject': subject_node['id'],
-                    'predicate': f"{edge_predicate}",
-                    'object': object_node['id'],
+                    "subject": subject_node["id"],
+                    "predicate": f"{edge_predicate}",
+                    "object": object_node["id"],
                 }
             )
-            if 'relation' not in edge_data:
-                edge_data['relation'] = predicate
+            if "relation" not in edge_data:
+                edge_data["relation"] = predicate
 
             self.set_edge_provenance(edge_data)
 
-        self.edge_cache[(subject_node['id'], object_node['id'], edge_key)] = edge_data
+        self.edge_cache[(subject_node["id"], object_node["id"], edge_key)] = edge_data
         return edge_data
 
     def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple:
@@ -532,10 +558,10 @@ class RdfSource(Source):
         """
         if p in self.cache:
             # already processed this predicate before; pull from cache
-            element_uri = self.cache[p]['element_uri']
-            canonical_uri = self.cache[p]['canonical_uri']
-            predicate = self.cache[p]['predicate']
-            property_name = self.cache[p]['property_name']
+            element_uri = self.cache[p]["element_uri"]
+            canonical_uri = self.cache[p]["canonical_uri"]
+            predicate = self.cache[p]["predicate"]
+            property_name = self.cache[p]["property_name"]
         else:
             # haven't seen this property before; map to element
             if self.prefix_manager.is_iri(p):
@@ -557,9 +583,13 @@ class RdfSource(Source):
                 if isinstance(element, SlotDefinition):
                     # predicate corresponds to a biolink slot
                     if element.definition_uri:
-                        element_uri = self.prefix_manager.contract(element.definition_uri)
+                        element_uri = self.prefix_manager.contract(
+                            element.definition_uri
+                        )
                     else:
-                        element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+                        element_uri = (
+                            f"biolink:{sentencecase_to_snakecase(element.name)}"
+                        )
                     if element.slot_uri:
                         canonical_uri = element.slot_uri
                 elif isinstance(element, ClassDefinition):
@@ -568,7 +598,7 @@ class RdfSource(Source):
                     element_uri = self.prefix_manager.contract(element.class_uri)
                 else:
                     element_uri = f"biolink:{sentencecase_to_camelcase(element.name)}"
-                if 'biolink:Attribute' in get_biolink_ancestors(element.name):
+                if "biolink:Attribute" in get_biolink_ancestors(element.name):
                     element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
                 if not predicate:
                     predicate = element_uri
@@ -580,10 +610,10 @@ class RdfSource(Source):
                     property_name = self.predicate_mapping[p]
                     predicate = f":{property_name}"
             self.cache[p] = {
-                'element_uri': element_uri,
-                'canonical_uri': canonical_uri,
-                'predicate': predicate,
-                'property_name': property_name,
+                "element_uri": element_uri,
+                "canonical_uri": canonical_uri,
+                "predicate": predicate,
+                "property_name": property_name,
             }
         return element_uri, canonical_uri, predicate, property_name
 
@@ -611,7 +641,11 @@ class RdfSource(Source):
         return node_data
 
     def update_edge(
-        self, subject_curie: str, object_curie: str, edge_key: str, data: Optional[Dict[Any, Any]]
+        self,
+        subject_curie: str,
+        object_curie: str,
+        edge_key: str,
+        data: Optional[Dict[Any, Any]],
     ) -> Dict:
         """
         Update an edge with properties.
@@ -669,7 +703,9 @@ class RdfSource(Source):
         for key, value in d2.items():
             if isinstance(value, (list, set, tuple)):
                 new_value = [
-                    self.prefix_manager.contract(x) if self.prefix_manager.is_iri(x) else x
+                    self.prefix_manager.contract(x)
+                    if self.prefix_manager.is_iri(x)
+                    else x
                     for x in value
                 ]
             else:
@@ -688,12 +724,17 @@ class RdfSource(Source):
                             # existing key has value type list
                             new_data[key] = d1[key]
                             if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                new_data[key] += [
+                                    x for x in new_value if x not in new_data[key]
+                                ]
                             else:
                                 if new_value not in new_data[key]:
                                     new_data[key].append(new_value)
                         else:
-                            if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
+                            if (
+                                key in CORE_NODE_PROPERTIES
+                                or key in CORE_EDGE_PROPERTIES
+                            ):
                                 log.debug(
                                     f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
                                 )
@@ -723,7 +764,10 @@ class RdfSource(Source):
                             else:
                                 new_data[key].append(new_value)
                         else:
-                            if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
+                            if (
+                                key in CORE_NODE_PROPERTIES
+                                or key in CORE_EDGE_PROPERTIES
+                            ):
                                 log.debug(
                                     f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
                                 )
@@ -736,20 +780,26 @@ class RdfSource(Source):
                 if key in d1:
                     # key is in data
                     if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
-                        log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                        log.debug(
+                            f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
+                        )
                     else:
                         if isinstance(d1[key], list):
                             # existing key has value type list
                             new_data[key] = d1[key]
                             if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                new_data[key] += [
+                                    x for x in new_value if x not in new_data[key]
+                                ]
                             else:
                                 new_data[key].append(new_value)
                         else:
                             # existing key does not have value type list; converting to list
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                new_data[key] += [
+                                    x for x in new_value if x not in new_data[key]
+                                ]
                             else:
                                 new_data[key].append(new_value)
                 else:
