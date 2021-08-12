@@ -736,15 +736,13 @@ def merge(
                     if "compression" in destination_info
                     else None
                 )
-                if destination_info["format"] == "nt":
-                    output_args["property_types"] = top_level_args["property_types"]
-                    if "property_types" in top_level_args:
-                        output_args["property_types"].update(
-                            destination_info["property_types"]
-                        )
-                if destination_info["format"] in {"csv", "tsv"}:
-                    output_args["node_properties"] = node_properties
-                    output_args["edge_properties"] = edge_properties
+                if destination_info['format'] == 'nt':
+                    output_args['property_types'] = top_level_args['property_types']
+                    if 'property_types' in top_level_args and 'property_types' in destination_info.keys():
+                        output_args['property_types'].update(destination_info['property_types'])
+                if destination_info['format'] in {'csv', 'tsv'}:
+                    output_args['node_properties'] = node_properties
+                    output_args['edge_properties'] = edge_properties
             else:
                 raise TypeError(
                     f"type {destination_info['format']} not yet supported for KGX merge operation."
