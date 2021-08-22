@@ -311,6 +311,7 @@ class RdfSource(Source):
         # if 'category' in node:
         #     del node['category']
         if 'subject' in node and 'object' in node:
+            self.edge_properties.update(node.keys())
             self.add_edge(node['subject'], node['object'], node['predicate'], node)
         else:
             log.warning(f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge....")

@@ -28,7 +28,6 @@ from kgx.sink import (
     RdfSink,
     NullSink
 )
-
 from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType, knowledge_provenance_properties
 
 SOURCE_MAP = {
