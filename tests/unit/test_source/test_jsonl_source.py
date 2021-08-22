@@ -9,13 +9,13 @@ def test_read_jsonl1():
     Read from JSON Lines using JsonlSource.
     """
     s = JsonlSource()
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'))
+    g = s.parse(os.path.join(RESOURCE_DIR, "valid_nodes.jsonl"))
     nodes = {}
     for rec in g:
         if rec:
             nodes[rec[0]] = rec[1]
 
-    g = s.parse(os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'))
+    g = s.parse(os.path.join(RESOURCE_DIR, "valid_edges.jsonl"))
     edges = {}
     for rec in g:
         if rec:
@@ -24,16 +24,16 @@ def test_read_jsonl1():
     assert len(nodes.keys()) == 6
     assert len(edges.keys()) == 5
 
-    n = nodes['MONDO:0017148']
-    assert 'id' in n and n['id'] == 'MONDO:0017148'
-    assert n['name'] == 'heritable pulmonary arterial hypertension'
-    assert n['category'][0] == 'biolink:Disease'
+    n = nodes["MONDO:0017148"]
+    assert "id" in n and n["id"] == "MONDO:0017148"
+    assert n["name"] == "heritable pulmonary arterial hypertension"
+    assert n["category"][0] == "biolink:Disease"
 
-    e = edges[('HGNC:11603', 'MONDO:0017148')]
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0017148'
-    assert e['predicate'] == 'biolink:related_to'
-    assert e['relation'] == 'RO:0004013'
+    e = edges[("HGNC:11603", "MONDO:0017148")]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0017148"
+    assert e["predicate"] == "biolink:related_to"
+    assert e["relation"] == "RO:0004013"
 
 
 def test_read_jsonl2():
@@ -43,9 +43,9 @@ def test_read_jsonl2():
     """
     s = JsonlSource()
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'valid_nodes.jsonl'),
-        provided_by='Test JSON',
-        knowledge_source='Test JSON'
+        os.path.join(RESOURCE_DIR, "valid_nodes.jsonl"),
+        provided_by="Test JSON",
+        knowledge_source="Test JSON",
     )
     nodes = {}
     for rec in g:
@@ -53,9 +53,9 @@ def test_read_jsonl2():
             nodes[rec[0]] = rec[1]
 
     g = s.parse(
-        os.path.join(RESOURCE_DIR, 'valid_edges.jsonl'),
-        provided_by='Test JSON',
-        knowledge_source='Test JSON'
+        os.path.join(RESOURCE_DIR, "valid_edges.jsonl"),
+        provided_by="Test JSON",
+        knowledge_source="Test JSON",
     )
     edges = {}
     for rec in g:
@@ -65,15 +65,15 @@ def test_read_jsonl2():
     assert len(nodes.keys()) == 6
     assert len(edges.keys()) == 5
 
-    n = nodes['MONDO:0017148']
-    assert 'id' in n and n['id'] == 'MONDO:0017148'
-    assert n['name'] == 'heritable pulmonary arterial hypertension'
-    assert n['category'][0] == 'biolink:Disease'
-    assert 'Test JSON' in n['provided_by']
+    n = nodes["MONDO:0017148"]
+    assert "id" in n and n["id"] == "MONDO:0017148"
+    assert n["name"] == "heritable pulmonary arterial hypertension"
+    assert n["category"][0] == "biolink:Disease"
+    assert "Test JSON" in n["provided_by"]
 
-    e = edges[('HGNC:11603', 'MONDO:0017148')]
-    assert e['subject'] == 'HGNC:11603'
-    assert e['object'] == 'MONDO:0017148'
-    assert e['predicate'] == 'biolink:related_to'
-    assert e['relation'] == 'RO:0004013'
-    assert 'Test JSON' in e['knowledge_source']
+    e = edges[("HGNC:11603", "MONDO:0017148")]
+    assert e["subject"] == "HGNC:11603"
+    assert e["object"] == "MONDO:0017148"
+    assert e["predicate"] == "biolink:related_to"
+    assert e["relation"] == "RO:0004013"
+    assert "Test JSON" in e["knowledge_source"]

@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 NAME = 'kgx'
 DESCRIPTION = 'A Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the Biolink Model.'
 URL = 'https://github.com/NCATS-Tangerine/kgx'
-AUTHOR = 'Deepak Unni'
-EMAIL = 'deepak.unni3@gmail.com'
+AUTHOR = 'Deepak Unni, Sierra Moxon, Richard Bruskiewich'
+EMAIL = 'deepak.unni3@gmail.com, smoxon@lbl.gov, richard.bruskiewich@delphinai.com'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '1.4.0'
+VERSION = '1.5.0'
 LICENSE = 'BSD'
 
 with open("requirements.txt", "r") as FH:

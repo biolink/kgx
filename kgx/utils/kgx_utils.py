@@ -28,12 +28,12 @@ cache = None
 
 log = get_logger()
 
-DEFAULT_NODE_CATEGORY = 'biolink:NamedThing'
-DEFAULT_EDGE_PREDICATE = 'biolink:related_to'
-CORE_NODE_PROPERTIES = {'id', 'name'}
-CORE_EDGE_PROPERTIES = {'id', 'subject', 'predicate', 'object', 'type'}
+DEFAULT_NODE_CATEGORY = "biolink:NamedThing"
+DEFAULT_EDGE_PREDICATE = "biolink:related_to"
+CORE_NODE_PROPERTIES = {"id", "name"}
+CORE_EDGE_PROPERTIES = {"id", "subject", "predicate", "object", "type"}
 
-LIST_DELIMITER = '|'
+LIST_DELIMITER = "|"
 
 
 class GraphEntityType(Enum):
@@ -46,66 +46,66 @@ class GraphEntityType(Enum):
 # including the deprecated 'provided_by' slot
 
 provenance_slot_types = {
-    'knowledge_source': list,
-    'primary_knowledge_source': str,
-    'original_knowledge_source': str,
-    'aggregator_knowledge_source': list,
-    'supporting_data_source': list,
-    'provided_by': list,
+    "knowledge_source": list,
+    "primary_knowledge_source": str,
+    "original_knowledge_source": str,
+    "aggregator_knowledge_source": list,
+    "supporting_data_source": list,
+    "provided_by": list,
 }
 
 column_types = {
-    'publications': list,
-    'qualifiers': list,
-    'category': list,
-    'synonym': list,
-    'same_as': list,
-    'negated': bool,
-    'xrefs': list,
+    "publications": list,
+    "qualifiers": list,
+    "category": list,
+    "synonym": list,
+    "same_as": list,
+    "negated": bool,
+    "xrefs": list,
 }
 
 column_types.update(provenance_slot_types)
 
 knowledge_provenance_properties = set(provenance_slot_types.keys())
 
-extension_types = {'csv': ',', 'tsv': '\t', 'csv:neo4j': ',', 'tsv:neo4j': '\t'}
+extension_types = {"csv": ",", "tsv": "\t", "csv:neo4j": ",", "tsv:neo4j": "\t"}
 
-archive_read_mode = {'tar': 'r', 'tar.gz': 'r:gz', 'tar.bz2': 'r:bz2'}
-archive_write_mode = {'tar': 'w', 'tar.gz': 'w:gz', 'tar.bz2': 'w:bz2'}
+archive_read_mode = {"tar": "r", "tar.gz": "r:gz", "tar.bz2": "r:bz2"}
+archive_write_mode = {"tar": "w", "tar.gz": "w:gz", "tar.bz2": "w:bz2"}
 
 archive_format = {
-    'r': 'tar',
-    'r:gz': 'tar.gz',
-    'r:bz2': 'tar.bz2',
-    'w': 'tar',
-    'w:gz': 'tar.gz',
-    'w:bz2': 'tar.bz2',
+    "r": "tar",
+    "r:gz": "tar.gz",
+    "r:bz2": "tar.bz2",
+    "w": "tar",
+    "w:gz": "tar.gz",
+    "w:bz2": "tar.bz2",
 }
 
 is_provenance_property_multivalued = {
-    'knowledge_source': True,
-    'primary_knowledge_source': False,
-    'original_knowledge_source': False,
-    'aggregator_knowledge_source': True,
-    'supporting_data_source': True,
-    'provided_by': True,
+    "knowledge_source": True,
+    "primary_knowledge_source": False,
+    "original_knowledge_source": False,
+    "aggregator_knowledge_source": True,
+    "supporting_data_source": True,
+    "provided_by": True,
 }
 
 is_property_multivalued = {
-    'id': False,
-    'subject': False,
-    'object': False,
-    'predicate': False,
-    'description': False,
-    'synonym': True,
-    'in_taxon': False,
-    'same_as': True,
-    'name': False,
-    'has_evidence': False,
-    'category': True,
-    'publications': True,
-    'type': False,
-    'relation': False,
+    "id": False,
+    "subject": False,
+    "object": False,
+    "predicate": False,
+    "description": False,
+    "synonym": True,
+    "in_taxon": False,
+    "same_as": True,
+    "name": False,
+    "has_evidence": False,
+    "category": True,
+    "publications": True,
+    "type": False,
+    "relation": False,
 }
 
 is_property_multivalued.update(is_provenance_property_multivalued)
@@ -214,7 +214,9 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
-def contract(uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True) -> str:
+def contract(
+    uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True
+) -> str:
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
     If no prefix map is provided then will use defaults from prefixcommons-py.
@@ -238,7 +240,10 @@ def contract(uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool 
 
     """
     curie = uri
-    default_curie_maps = [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')]
+    default_curie_maps = [
+        get_jsonld_context("monarch_context"),
+        get_jsonld_context("obo_context"),
+    ]
     if prefix_maps:
         curie_list = contract_uri(uri, prefix_maps)
         if len(curie_list) == 0:
@@ -256,7 +261,9 @@ def contract(uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool 
     return curie
 
 
-def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool = True) -> str:
+def expand(
+    curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool = True
+) -> str:
     """
     Expand a given CURIE to an URI, based on mappings from `prefix_map`.
 
@@ -278,7 +285,10 @@ def expand(curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool 
         A URI corresponding to the CURIE
 
     """
-    default_curie_maps = [get_jsonld_context('monarch_context'), get_jsonld_context('obo_context')]
+    default_curie_maps = [
+        get_jsonld_context("monarch_context"),
+        get_jsonld_context("obo_context"),
+    ]
     if prefix_maps:
         uri = expand_uri(curie, prefix_maps)
         if uri == curie and fallback:
@@ -344,7 +354,7 @@ def generate_edge_key(s: str, edge_predicate: str, o: str) -> str:
         Edge key as a string
 
     """
-    return '{}-{}-{}'.format(s, edge_predicate, o)
+    return "{}-{}-{}".format(s, edge_predicate, o)
 
 
 def get_curie_lookup_service():
@@ -411,11 +421,11 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     toolkit = get_toolkit()
     prefix_prioritization_map = {}
     # TODO: Lookup via Biolink CURIE should be supported in bmt
-    descendants = toolkit.get_descendants('named thing')
-    descendants.append('named thing')
+    descendants = toolkit.get_descendants("named thing")
+    descendants.append("named thing")
     for d in descendants:
         element = toolkit.get_element(d)
-        if element and 'id_prefixes' in element:
+        if element and "id_prefixes" in element:
             prefixes = element.id_prefixes
             key = format_biolink_category(element.name)
             prefix_prioritization_map[key] = prefixes
@@ -457,8 +467,8 @@ def get_biolink_ancestors(name: str):
 
     """
     toolkit = get_toolkit()
-    ancestors = toolkit.get_ancestors(name, formatted=True, mixin=False)
-    return ancestors
+    ancestors_mixins = toolkit.get_ancestors(name, formatted=True, mixin=True)
+    return ancestors_mixins
 
 
 def get_biolink_property_types() -> Dict:
@@ -486,8 +496,8 @@ def get_biolink_property_types() -> Dict:
         types[p] = property_type
 
     # TODO: this should be moved to biolink model
-    types['biolink:predicate'] = 'uriorcurie'
-    types['biolink:edge_label'] = 'uriorcurie'
+    types["biolink:predicate"] = "uriorcurie"
+    types["biolink:edge_label"] = "uriorcurie"
     return types
 
 
@@ -509,7 +519,7 @@ def get_type_for_property(p: str) -> str:
     """
     toolkit = get_toolkit()
     e = toolkit.get_element(p)
-    t = 'xsd:string'
+    t = "xsd:string"
     if e:
         if isinstance(e, ClassDefinition):
             t = "uriorcurie"
@@ -569,7 +579,9 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                         # existing key has value type list
                         new_data[key] = d1[key]
                         if isinstance(new_value, (list, set, tuple)):
-                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            new_data[key] += [
+                                x for x in new_value if x not in new_data[key]
+                            ]
                         else:
                             if new_value not in new_data[key]:
                                 new_data[key].append(new_value)
@@ -582,7 +594,9 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                             # existing key does not have value type list; converting to list
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                new_data[key] += [
+                                    x for x in new_value if x not in new_data[key]
+                                ]
                             else:
                                 if new_value not in new_data[key]:
                                     new_data[key].append(new_value)
@@ -624,13 +638,17 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
             if key in d1:
                 # key is in data
                 if key in CORE_NODE_PROPERTIES or key in CORE_EDGE_PROPERTIES:
-                    log.debug(f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}")
+                    log.debug(
+                        f"cannot modify core property '{key}': {d2[key]} vs {d1[key]}"
+                    )
                 else:
                     if isinstance(d1[key], (list, set, tuple)):
                         # existing key has value type list
                         new_data[key] = d1[key]
                         if isinstance(new_value, (list, set, tuple)):
-                            new_data[key] += [x for x in new_value if x not in new_data[key]]
+                            new_data[key] += [
+                                x for x in new_value if x not in new_data[key]
+                            ]
                         else:
                             new_data[key].append(new_value)
                     else:
@@ -638,7 +656,9 @@ def prepare_data_dict(d1: Dict, d2: Dict, preserve: bool = True) -> Dict:
                         if preserve:
                             new_data[key] = [d1[key]]
                             if isinstance(new_value, (list, set, tuple)):
-                                new_data[key] += [x for x in new_value if x not in new_data[key]]
+                                new_data[key] += [
+                                    x for x in new_value if x not in new_data[key]
+                                ]
                             else:
                                 new_data[key].append(new_value)
                         else:
@@ -675,7 +695,9 @@ def apply_filters(
     apply_edge_filters(graph, edge_filters)
 
 
-def apply_node_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_node_filters(
+    graph: BaseGraph, node_filters: Dict[str, Union[str, Set]]
+) -> None:
     """
     Apply filters to graph and remove nodes that do not pass given filters.
 
@@ -691,7 +713,7 @@ def apply_node_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]
     for node, node_data in graph.nodes(data=True):
         pass_filter = True
         for k, v in node_filters.items():
-            if k == 'category':
+            if k == "category":
                 if not any(x in node_data[k] for x in v):
                     pass_filter = False
         if not pass_filter:
@@ -703,7 +725,9 @@ def apply_node_filters(graph: BaseGraph, node_filters: Dict[str, Union[str, Set]
         graph.remove_node(node)
 
 
-def apply_edge_filters(graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]]) -> None:
+def apply_edge_filters(
+    graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]]
+) -> None:
     """
     Apply filters to graph and remove edges that do not pass given filters.
 
@@ -719,10 +743,10 @@ def apply_edge_filters(graph: BaseGraph, edge_filters: Dict[str, Union[str, Set]
     for subject_node, object_node, key, data in graph.edges(keys=True, data=True):
         pass_filter = True
         for k, v in edge_filters.items():
-            if k == 'predicate':
+            if k == "predicate":
                 if data[k] not in v:
                     pass_filter = False
-            elif k == 'relation':
+            elif k == "relation":
                 if data[k] not in v:
                     pass_filter = False
         if not pass_filter:
@@ -754,15 +778,15 @@ def validate_node(node: Dict) -> Dict:
     if len(node) == 0:
         log.debug(f"Empty node encountered: {node}")
     else:
-        if 'id' not in node:
+        if "id" not in node:
             raise KeyError(f"node does not have 'id' property: {node}")
-        if 'name' not in node:
+        if "name" not in node:
             log.debug(f"node does not have 'name' property: {node}")
-        if 'category' not in node:
+        if "category" not in node:
             log.debug(
                 f"node does not have 'category' property: {node}\nUsing {DEFAULT_NODE_CATEGORY} as default"
             )
-            node['category'] = [DEFAULT_NODE_CATEGORY]
+            node["category"] = [DEFAULT_NODE_CATEGORY]
     return node
 
 
@@ -782,11 +806,11 @@ def validate_edge(edge: Dict) -> Dict:
     Dict
         An edge represented as a dict, with default assumptions applied.
     """
-    if 'subject' not in edge:
+    if "subject" not in edge:
         raise KeyError(f"edge does not have 'subject' property: {edge}")
-    if 'predicate' not in edge:
+    if "predicate" not in edge:
         raise KeyError(f"edge does not have 'predicate' property: {edge}")
-    if 'object' not in edge:
+    if "object" not in edge:
         raise KeyError(f"edge does not have 'object' property: {edge}")
     return edge
 
@@ -815,8 +839,8 @@ def generate_edge_identifiers(graph: BaseGraph):
 
     """
     for u, v, data in graph.edges(data=True):
-        if 'id' not in data:
-            data['id'] = generate_uuid()
+        if "id" not in data:
+            data["id"] = generate_uuid()
 
 
 def sanitize_import(data: Dict) -> Dict:
@@ -864,15 +888,15 @@ def _sanitize_import(key: str, value: Any) -> Any:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
                 value = [
-                    v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v
+                    v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
                     for v in value
                 ]
                 new_value = list(value)
             elif isinstance(value, str):
-                value = value.replace('\n', ' ').replace('\t', ' ')
+                value = value.replace("\n", " ").replace("\t", " ")
                 new_value = [x for x in value.split(LIST_DELIMITER) if x]
             else:
-                new_value = [str(value).replace('\n', ' ').replace('\t', ' ')]
+                new_value = [str(value).replace("\n", " ").replace("\t", " ")]
         elif column_types[key] == bool:
             try:
                 new_value = bool(value)
@@ -881,19 +905,20 @@ def _sanitize_import(key: str, value: Any) -> Any:
         elif isinstance(value, (str, float)):
             new_value = value
         else:
-            new_value = str(value).replace('\n', ' ').replace('\t', ' ')
+            new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
             value = [
-                v.replace('\n', ' ').replace('\t', ' ') if isinstance(v, str) else v for v in value
+                v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
+                for v in value
             ]
             new_value = list(value)
         elif isinstance(value, str):
             if LIST_DELIMITER in value:
-                value = value.replace('\n', ' ').replace('\t', ' ')
+                value = value.replace("\n", " ").replace("\t", " ")
                 new_value = [x for x in value.split(LIST_DELIMITER) if x]
             else:
-                new_value = value.replace('\n', ' ').replace('\t', ' ')
+                new_value = value.replace("\n", " ").replace("\t", " ")
         elif isinstance(value, bool):
             try:
                 new_value = bool(value)
@@ -902,7 +927,7 @@ def _sanitize_import(key: str, value: Any) -> Any:
         elif isinstance(value, (str, float)):
             new_value = value
         else:
-            new_value = str(value).replace('\n', ' ').replace('\t', ' ')
+            new_value = str(value).replace("\n", " ").replace("\t", " ")
     return new_value
 
 
@@ -928,25 +953,31 @@ def _sanitize_export(key: str, value: Any) -> Any:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
                 value = [
-                    v.replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+                    v.replace("\n", " ").replace('\\"', "").replace("\t", " ")
                     if isinstance(v, str)
                     else v
                     for v in value
                 ]
                 new_value = LIST_DELIMITER.join([str(x) for x in value])
             else:
-                new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+                new_value = (
+                    str(value).replace("\n", " ").replace('\\"', "").replace("\t", " ")
+                )
         elif column_types[key] == bool:
             try:
                 new_value = bool(value)
             except:
                 new_value = False
         else:
-            new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+            new_value = (
+                str(value).replace("\n", " ").replace('\\"', "").replace("\t", " ")
+            )
     else:
         if type(value) == list:
             new_value = LIST_DELIMITER.join([str(x) for x in value])
-            new_value = new_value.replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+            new_value = (
+                new_value.replace("\n", " ").replace('\\"', "").replace("\t", " ")
+            )
             column_types[key] = list
         elif type(value) == bool:
             try:
@@ -955,7 +986,9 @@ def _sanitize_export(key: str, value: Any) -> Any:
             except:
                 new_value = False
         else:
-            new_value = str(value).replace('\n', ' ').replace('\\"', '').replace('\t', ' ')
+            new_value = (
+                str(value).replace("\n", " ").replace('\\"', "").replace("\t", " ")
+            )
     return new_value
 
 
@@ -1058,9 +1091,9 @@ def apply_graph_operations(graph: BaseGraph, operations: List) -> None:
 
     """
     for operation in operations:
-        op_name = operation['name']
-        op_args = operation['args']
-        module_name = '.'.join(op_name.split('.')[0:-1])
-        function_name = op_name.split('.')[-1]
+        op_name = operation["name"]
+        op_args = operation["args"]
+        module_name = ".".join(op_name.split(".")[0:-1])
+        function_name = op_name.split(".")[-1]
         f = getattr(importlib.import_module(module_name), function_name)
         f(graph, **op_args)

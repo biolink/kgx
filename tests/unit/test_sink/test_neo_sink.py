@@ -21,13 +21,13 @@ def test_sanitize_category():
     """
     Test to ensure behavior of sanitze_category.
     """
-    categories = ['biolink:Gene', 'biolink:GeneOrGeneProduct']
+    categories = ["biolink:Gene", "biolink:GeneOrGeneProduct"]
     s = NeoSink.sanitize_category(categories)
-    assert s == ['`biolink:Gene`', '`biolink:GeneOrGeneProduct`']
+    assert s == ["`biolink:Gene`", "`biolink:GeneOrGeneProduct`"]
 
 
 @pytest.mark.parametrize(
-    'category', ['biolink:Gene', 'biolink:GeneOrGeneProduct', 'biolink:NamedThing']
+    "category", ["biolink:Gene", "biolink:GeneOrGeneProduct", "biolink:NamedThing"]
 )
 def test_create_constraint_query(category):
     """
@@ -39,14 +39,18 @@ def test_create_constraint_query(category):
 
 
 @pytest.mark.skip()
-@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 def test_write_neo1(clean_slate):
     """
     Write a graph to a Neo4j instance using NeoSink.
     """
-    graph = get_graph('test')[0]
+    graph = get_graph("test")[0]
     s = NeoSink(
-        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -55,27 +59,32 @@ def test_write_neo1(clean_slate):
     s.finalize()
 
     d = GraphDatabase(
-        DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
 
     try:
-        results = d.query('MATCH (n) RETURN COUNT(*)')
+        results = d.query("MATCH (n) RETURN COUNT(*)")
         number_of_nodes = results[0][0]
         assert number_of_nodes == 3
     except CypherException as ce:
         print(ce)
 
     try:
-        results = d.query('MATCH (s)-->(o) RETURN COUNT(*)')
+        results = d.query("MATCH (s)-->(o) RETURN COUNT(*)")
         number_of_edges = results[0][0]
         assert number_of_edges == 1
     except CypherException as ce:
         print(ce)
 
 
-@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 @pytest.mark.parametrize(
-    'query', [(get_graph('kgx-unit-test')[0], 3, 1), (get_graph('kgx-unit-test')[1], 6, 6)]
+    "query",
+    [(get_graph("kgx-unit-test")[0], 3, 1), (get_graph("kgx-unit-test")[1], 6, 6)],
 )
 def test_write_neo2(clean_slate, query):
     """
@@ -83,7 +92,9 @@ def test_write_neo2(clean_slate, query):
     """
     graph = query[0]
     sink = NeoSink(
-        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
     for n, data in graph.nodes(data=True):
         sink.write_node(data)
@@ -101,15 +112,19 @@ def test_write_neo2(clean_slate, query):
     sink.http_driver.flush()
 
 
-@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 def test_write_neo3(clean_slate):
     """
     Test writing a graph and then writing a slightly
     modified version of the graph to the same Neo4j instance.
     """
-    graph = get_graph('kgx-unit-test')[2]
+    graph = get_graph("kgx-unit-test")[2]
     sink = NeoSink(
-        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
     for n, data in graph.nodes(data=True):
         sink.write_node(data)
@@ -117,11 +132,15 @@ def test_write_neo3(clean_slate):
         sink.write_edge(data)
     sink.finalize()
 
-    graph.add_node('B', id='B', publications=['PMID:1', 'PMID:2'], category=['biolink:NamedThing'])
-    graph.add_node('C', id='C', category=['biolink:NamedThing'], source='kgx-unit-test')
-    e = graph.get_edge('A', 'B')
+    graph.add_node(
+        "B", id="B", publications=["PMID:1", "PMID:2"], category=["biolink:NamedThing"]
+    )
+    graph.add_node("C", id="C", category=["biolink:NamedThing"], source="kgx-unit-test")
+    e = graph.get_edge("A", "B")
     edge_key = list(e.keys())[0]
-    graph.add_edge_attribute('A', 'B', edge_key, attr_key='test_prop', attr_value='VAL123')
+    graph.add_edge_attribute(
+        "A", "B", edge_key, attr_key="test_prop", attr_value="VAL123"
+    )
     print_graph(graph)
     assert graph.number_of_nodes() == 3
     assert graph.number_of_edges() == 1
@@ -139,7 +158,9 @@ def test_write_neo3(clean_slate):
 
     edges = []
     er = sink.http_driver.query(
-        "MATCH ()-[p]-() RETURN p", data_contents=True, returns=(Node, Relationship, Node)
+        "MATCH ()-[p]-() RETURN p",
+        data_contents=True,
+        returns=(Node, Relationship, Node),
     )
     for edge in er:
         edges.append(edge)

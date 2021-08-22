@@ -17,7 +17,7 @@ logger: Optional[logging.Logger] = None
 graph_store_class: Optional[BaseGraph] = None
 jsonld_context_map: Dict = {}
 
-CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), 'config.yml')
+CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), "config.yml")
 
 
 def get_config(filename: str = CONFIG_FILENAME) -> Dict:
@@ -55,23 +55,23 @@ def get_jsonld_context(name: str = "biolink"):
     if name in jsonld_context_map:
         content = jsonld_context_map[name]
     else:
-        filepath = config['jsonld-context'][name]  # type: ignore
-        if filepath.startswith('http'):
+        filepath = config["jsonld-context"][name]  # type: ignore
+        if filepath.startswith("http"):
             try:
                 content = requests.get(filepath).json()
             except ConnectionError:
-                raise Exception(f'Unable to download JSON-LD context from {filepath}')
+                raise Exception(f"Unable to download JSON-LD context from {filepath}")
         else:
             if path.exists(filepath):
                 content = json.load(open(filepath))
 
-        if '@context' in content:
-            content = content['@context']
+        if "@context" in content:
+            content = content["@context"]
             jsonld_context_map[name] = content
     return content
 
 
-def get_logger(name: str = 'KGX') -> logging.Logger:
+def get_logger(name: str = "KGX") -> logging.Logger:
     """
     Get an instance of logger.
 
@@ -91,10 +91,10 @@ def get_logger(name: str = 'KGX') -> logging.Logger:
         config = get_config()
         logger = logging.getLogger(name)
         handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(config['logging']['format'])
+        formatter = logging.Formatter(config["logging"]["format"])
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(config['logging']['level'])
+        logger.setLevel(config["logging"]["level"])
         logger.propagate = False
     return logger
 
@@ -113,12 +113,12 @@ def get_graph_store_class() -> Any:
     global graph_store_class
     if not graph_store_class:
         config = get_config()
-        if 'graph_store' in config:
-            name = config['graph_store']
+        if "graph_store" in config:
+            name = config["graph_store"]
         else:
-            name = 'kgx.graph.nx_graph.NxGraph'
-        module_name = '.'.join(name.split('.')[0:-1])
-        class_name = name.split('.')[-1]
+            name = "kgx.graph.nx_graph.NxGraph"
+        module_name = ".".join(name.split(".")[0:-1])
+        class_name = name.split(".")[-1]
         graph_store_class = getattr(importlib.import_module(module_name), class_name)
     return graph_store_class
 
@@ -131,8 +131,10 @@ def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[
     if biolink_release:
         if not semver_pattern.fullmatch(biolink_release):
             raise TypeError(
-                "The 'biolink_release' argument '"+biolink_release+
-                "' is not a properly formatted 'major.minor.patch' semantic version?")
+                "The 'biolink_release' argument '"
+                + biolink_release
+                + "' is not a properly formatted 'major.minor.patch' semantic version?"
+            )
         schema = f"https://raw.githubusercontent.com/biolink/biolink-model/{biolink_release}/biolink-model.yaml"
         return schema
     else:

@@ -11,14 +11,15 @@ class InfoResContext:
     """
     Information Resource CURIE management context for knowledge sources.
     """
+
     def __init__(self):
-        
-        self.default_provenance = 'Graph'
-        
+
+        self.default_provenance = "Graph"
+
         # this dictionary captures the operational mappings
         # for a specified knowledge source field in the graph
         self.mapping: Dict[str, Any] = dict()
-        
+
         # this dictionary records specific knowledge source
         # name to infores associations for the given graph
         self.catalog: Dict[str, str] = dict()
@@ -34,13 +35,13 @@ class InfoResContext:
 
         """
         return self.catalog
-    
+
     class InfoResMapping:
         """
         Knowledge Source mapping onto an Information Resource identifier.
         """
 
-        def __init__(self, context,  ksf: str):
+        def __init__(self, context, ksf: str):
             """
             InfoRes mapping specification for a single knowledge_source (or related) field
 
@@ -55,8 +56,8 @@ class InfoResContext:
             self.context = context  # parent InfoRes context
             self.ksf = ksf  # Biolink 2.* 'Knowledge Source Field' slot name
             self.filter = None
-            self.substr = ''
-            self.prefix = ''
+            self.substr = ""
+            self.prefix = ""
 
         def processor(self, infores_rewrite_filter: Optional[Tuple] = None) -> Callable:
             """
@@ -89,9 +90,17 @@ class InfoResContext:
             """
             # Check for non-empty infores_rewrite_filter
             if infores_rewrite_filter:
-                self.filter = re.compile(infores_rewrite_filter[0]) if infores_rewrite_filter[0] else None
-                self.substr = infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ''
-                self.prefix = infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ''
+                self.filter = (
+                    re.compile(infores_rewrite_filter[0])
+                    if infores_rewrite_filter[0]
+                    else None
+                )
+                self.substr = (
+                    infores_rewrite_filter[1] if len(infores_rewrite_filter) > 1 else ""
+                )
+                self.prefix = (
+                    infores_rewrite_filter[2] if len(infores_rewrite_filter) > 2 else ""
+                )
 
             def _get_infores(source: str) -> str:
                 """
@@ -117,8 +126,8 @@ class InfoResContext:
                         self.context.catalog[source] = infores
                         return infores
                     else:
-                        return ''
-                    
+                        return ""
+
             def _process_infores(source: str) -> str:
                 """
                 Process a single knowledge Source name  string into an infores, by applying rules
@@ -136,24 +145,24 @@ class InfoResContext:
 
                 """
                 # don't touch something that already looks like an infores CURIE
-                if source.startswith('infores:'):
+                if source.startswith("infores:"):
                     return source
-    
+
                 if self.filter:
                     infores = self.filter.sub(self.substr, source)
                 else:
                     infores = source
-                infores = self.prefix + ' ' + infores
+                infores = self.prefix + " " + infores
                 infores = infores.strip()
                 infores = infores.lower()
                 infores = re.sub(r"\s+", "_", infores)
                 infores = re.sub(r"\.+", "_", infores)
                 infores = re.sub(r"[\W]", "", infores)
                 infores = re.sub(r"_", "-", infores)
-    
+
                 # TODO: to be fully compliant, the InfoRes needs to have the 'infores' prefix?
                 infores = "infores:" + infores
-    
+
                 return infores
 
             def parser_list(sources: Optional[List[str]] = None) -> List[str]:
@@ -195,7 +204,11 @@ class InfoResContext:
                     Source name string transformed into an infores CURIE, using _process_infores().
 
                 """
-                return self.context.default_provenance if not source else _get_infores(source)
+                return (
+                    self.context.default_provenance
+                    if not source
+                    else _get_infores(source)
+                )
 
             if self.ksf in column_types and column_types[self.ksf] == list:
                 return parser_list
@@ -220,7 +233,7 @@ class InfoResContext:
                 (possibly empty) into a suitable (possibly default) infores string identifier.
 
             """
-    
+
             def default_value_list(sources: List[str] = None):
                 """
                 Infores default method for a list of input knowledge source names.
@@ -242,7 +255,7 @@ class InfoResContext:
                     return [default]
                 else:
                     return sources
-    
+
             def default_value_scalar(source=None):
                 """
                 Infores default method for single input knowledge source name.
@@ -264,7 +277,7 @@ class InfoResContext:
                     return default
                 else:
                     return source
-    
+
             if self.ksf in column_types and column_types[self.ksf] == list:
                 return default_value_list
             else:
@@ -277,9 +290,9 @@ class InfoResContext:
             """
             if isinstance(ksf_value, str):
                 ksf_value = ksf_value.strip()
-                if ksf_value.lower() == 'true':
+                if ksf_value.lower() == "true":
                     mapping = self.processor()
-                elif ksf_value.lower() == 'false':
+                elif ksf_value.lower() == "false":
                     mapping = self.default()  # source suppressed
                 else:
                     mapping = self.default(ksf_value)
@@ -294,7 +307,7 @@ class InfoResContext:
                 # Not sure what to do here... just return the original ksf_value?
                 mapping = ksf_value
             return mapping
-        
+
     def get_mapping(self, ksf: str) -> InfoResMapping:
         """
         InfoRes mapping for a specified knolwedge source field ('ksf').
@@ -303,7 +316,7 @@ class InfoResContext:
         ----------
         ksf: str
             Knowledge Source Field whose mapping is being managed.
-        
+
         """
         irm = self.InfoResMapping(self, ksf)
         return irm
@@ -322,9 +335,9 @@ class InfoResContext:
             static defaults or rewrite rules for knowledge_source slot InfoRes value processing.
 
         """
-        if 'default_provenance' in kwargs:
-            self.default_provenance = kwargs.pop('default_provenance')
-    
+        if "default_provenance" in kwargs:
+            self.default_provenance = kwargs.pop("default_provenance")
+
         # Biolink 2.0 knowledge_source 'knowledge_source' derived fields
         ksf_found = False
         for ksf in knowledge_provenance_properties:
@@ -339,36 +352,37 @@ class InfoResContext:
                         if ksf not in self.mapping:
                             self.mapping[ksf] = dict()
                         ir = self.get_mapping(ksf)
-                        self.mapping[ksf][ksf_pattern] = \
-                            ir.set_provenance_map_entry(ksf_value[ksf_pattern])
+                        self.mapping[ksf][ksf_pattern] = ir.set_provenance_map_entry(
+                            ksf_value[ksf_pattern]
+                        )
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-    
+
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
-            ksf_found = 'knowledge_source'  # knowledge source field 'ksf' is set, one way or another
+            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
             ir = self.get_mapping(ksf_found)
-            if 'name' in kwargs:
-                self.mapping['knowledge_source'] = ir.default(kwargs['name'])
+            if "name" in kwargs:
+                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
-                self.mapping['knowledge_source'] = ir.default(self.default_provenance)
-    
+                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+
         # TODO: better to lobby the team to totally deprecated this, even for Nodes?
-        if 'provided_by' not in self.mapping:
-            self.mapping['provided_by'] = self.mapping[ksf_found]
+        if "provided_by" not in self.mapping:
+            self.mapping["provided_by"] = self.mapping[ksf_found]
 
     def set_provenance(self, ksf: str, data: Dict):
         """
-            Compute the knowledge_source value for the current node or edge data, using the
-            infores rewrite context previously established by a call to set_provenance_map().
+        Compute the knowledge_source value for the current node or edge data, using the
+        infores rewrite context previously established by a call to set_provenance_map().
 
-            Parameters
-            ----------
-            ksf: str
-                Knowledge source field being processed.
-            data: Dict
-                Current node or edge data entry being processed.
+        Parameters
+        ----------
+        ksf: str
+            Knowledge source field being processed.
+        data: Dict
+            Current node or edge data entry being processed.
 
         """
         if ksf not in data.keys():
@@ -422,7 +436,7 @@ class InfoResContext:
             Current node data entry being processed.
 
         """
-        self.set_provenance('provided_by', node_data)
+        self.set_provenance("provided_by", node_data)
 
     # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
@@ -444,5 +458,5 @@ class InfoResContext:
                 self.set_provenance(ksf, edge_data)
         if not ksf_found:
             for ksf in self.mapping:
-                if ksf != 'provided_by':
+                if ksf != "provided_by":
                     self.set_provenance(ksf, edge_data)

@@ -1,14 +1,14 @@
-bmt~=0.7.2
+bmt~=0.7.3
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
-networkx>=2.2
+networkx>=2.5
 SPARQLWrapper>=1.8.2
 pandas>=1.0.3
 pytest>=0.0
 mypy>=0.0
 pystache>=0.0
-rdflib>=0.0
+rdflib~=5.0.0
 Click~=7.0
 neo4jrestclient>=0.0
 pyyaml>=0.0
@@ -30,3 +30,7 @@ jsonstreams>=0.5.0
 ijson>=3.1.3
 deprecation>=2.1.0
 recommonmark>=0.7.1
+tox
+flake8
+black
+tox-docker

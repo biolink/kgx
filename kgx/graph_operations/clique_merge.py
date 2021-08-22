@@ -13,15 +13,16 @@ from kgx.utils.kgx_utils import (
     current_time_in_millis,
     format_biolink_category,
     generate_edge_key,
+    get_toolkit,
 )
 
 log = get_logger()
-
-SAME_AS = 'biolink:same_as'
-SUBCLASS_OF = 'biolink:subclass_of'
-LEADER_ANNOTATION = 'clique_leader'
-ORIGINAL_SUBJECT_PROPERTY = '_original_subject'
-ORIGINAL_OBJECT_PROPERTY = '_original_object'
+toolkit = get_toolkit()
+SAME_AS = "biolink:same_as"
+SUBCLASS_OF = "biolink:subclass_of"
+LEADER_ANNOTATION = "clique_leader"
+ORIGINAL_SUBJECT_PROPERTY = "_original_subject"
+ORIGINAL_OBJECT_PROPERTY = "_original_object"
 
 
 def clique_merge(
@@ -101,31 +102,35 @@ def build_cliques(target_graph: BaseGraph) -> nx.MultiDiGraph:
     """
     clique_graph = nx.MultiDiGraph()
     for n, data in target_graph.nodes(data=True):
-        if 'same_as' in data:
+        if "same_as" in data:
             new_data = copy.deepcopy(data)
-            del new_data['same_as']
+            del new_data["same_as"]
             clique_graph.add_node(n, **new_data)
-            for s in data['same_as']:
-                edge_data1 = {'subject': n, 'predicate': SAME_AS, 'object': s}
-                if 'provided_by' in data:
-                    edge_data1['provided_by'] = data['provided_by']
+            for s in data["same_as"]:
+                edge_data1 = {"subject": n, "predicate": SAME_AS, "object": s}
+                if "provided_by" in data:
+                    edge_data1["provided_by"] = data["provided_by"]
                 clique_graph.add_edge(n, s, **edge_data1)
-                edge_data2 = {'subject': s, 'predicate': SAME_AS, 'object': n}
-                if 'provided_by' in data:
-                    edge_data2['provided_by'] = data['provided_by']
+                edge_data2 = {"subject": s, "predicate": SAME_AS, "object": n}
+                if "provided_by" in data:
+                    edge_data2["provided_by"] = data["provided_by"]
                 clique_graph.add_edge(s, n, **edge_data2)
     for u, v, data in target_graph.edges(data=True):
-        if 'predicate' in data and data['predicate'] == SAME_AS:
+        if "predicate" in data and data["predicate"] == SAME_AS:
             # load all biolink:same_as edges to clique_graph
             clique_graph.add_node(u, **target_graph.nodes()[u])
             clique_graph.add_node(v, **target_graph.nodes()[v])
             clique_graph.add_edge(u, v, **data)
-            clique_graph.add_edge(v, u, **{
-                'subject': v,
-                'predicate': data['predicate'],
-                'object': v,
-                'relation': data['relation']
-            })
+            clique_graph.add_edge(
+                v,
+                u,
+                **{
+                    "subject": v,
+                    "predicate": data["predicate"],
+                    "object": v,
+                    "relation": data["relation"],
+                },
+            )
     return clique_graph
 
 
@@ -166,20 +171,26 @@ def elect_leader(
     count = 0
     update_dict = {}
     for clique in cliques:
-        log.debug(
+        log.info(
             f"Processing clique: {clique} with {[clique_graph.nodes()[x]['category'] if 'category' in clique_graph.nodes()[x] else None for x in clique]}"
         )
-        update_node_categories(target_graph, clique_graph, clique, category_mapping, strict)
-        clique_category, clique_category_ancestors = get_clique_category(clique_graph, clique)
+        update_node_categories(
+            target_graph, clique_graph, clique, category_mapping, strict
+        )
+        clique_category, clique_category_ancestors = get_clique_category(
+            clique_graph, clique
+        )
         log.debug(f"Clique category: {clique_category}")
         invalid_nodes = set()
         for n in clique:
             data = clique_graph.nodes()[n]
-            if '_excluded_from_clique' in data and data['_excluded_from_clique']:
-                log.info(f"Removing invalid node {n} from clique graph; node marked to be excluded")
+            if "_excluded_from_clique" in data and data["_excluded_from_clique"]:
+                log.info(
+                    f"Removing invalid node {n} from clique graph; node marked to be excluded"
+                )
                 clique_graph.remove_node(n)
                 invalid_nodes.add(n)
-            if data['category'][0] not in clique_category_ancestors:
+            if data["category"][0] not in clique_category_ancestors:
                 log.info(
                     f"Removing invalid node {n} from the clique graph; node category {data['category'][0]} not in CCA: {clique_category_ancestors}"
                 )
@@ -228,7 +239,7 @@ def elect_leader(
                 )
                 update_dict[leader] = {
                     LEADER_ANNOTATION: True,
-                    'election_strategy': election_strategy,
+                    "election_strategy": election_strategy,
                 }
                 count += 1
 
@@ -280,8 +291,12 @@ def consolidate_edges(
             target_graph,
             {
                 leader: {
-                    leader_annotation: clique_graph.nodes()[leader].get(leader_annotation),
-                    'election_strategy': clique_graph.nodes()[leader].get('election_strategy'),
+                    leader_annotation: clique_graph.nodes()[leader].get(
+                        leader_annotation
+                    ),
+                    "election_strategy": clique_graph.nodes()[leader].get(
+                        "election_strategy"
+                    ),
                 }
             },
         )
@@ -291,41 +306,45 @@ def consolidate_edges(
                 continue
             log.debug(f"Looking for in_edges for {node}")
             in_edges = target_graph.in_edges(node, keys=False, data=True)
-            filtered_in_edges = [x for x in in_edges if x[2]['predicate'] != SAME_AS]
-            equiv_in_edges = [x for x in in_edges if x[2]['predicate'] == SAME_AS]
+            filtered_in_edges = [x for x in in_edges if x[2]["predicate"] != SAME_AS]
+            equiv_in_edges = [x for x in in_edges if x[2]["predicate"] == SAME_AS]
             log.debug(f"Moving {len(in_edges)} in-edges from {node} to {leader}")
             for u, v, edge_data in filtered_in_edges:
-                key = generate_edge_key(u, edge_data['predicate'], v)
+                key = generate_edge_key(u, edge_data["predicate"], v)
                 target_graph.remove_edge(u, v, edge_key=key)
-                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
-                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
-                edge_data['object'] = leader
-                key = generate_edge_key(u, edge_data['predicate'], leader)
+                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data["subject"]
+                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data["object"]
+                edge_data["object"] = leader
+                key = generate_edge_key(u, edge_data["predicate"], leader)
                 if (
-                    edge_data['subject'] == edge_data['object']
-                    and edge_data['predicate'] == SUBCLASS_OF
+                    edge_data["subject"] == edge_data["object"]
+                    and edge_data["predicate"] == SUBCLASS_OF
                 ):
                     continue
-                target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
+                target_graph.add_edge(
+                    edge_data["subject"], edge_data["object"], key, **edge_data
+                )
 
             log.debug(f"Looking for out_edges for {node}")
             out_edges = target_graph.out_edges(node, keys=False, data=True)
-            filtered_out_edges = [x for x in out_edges if x[2]['predicate'] != SAME_AS]
-            equiv_out_edges = [x for x in out_edges if x[2]['predicate'] == SAME_AS]
+            filtered_out_edges = [x for x in out_edges if x[2]["predicate"] != SAME_AS]
+            equiv_out_edges = [x for x in out_edges if x[2]["predicate"] == SAME_AS]
             log.debug(f"Moving {len(out_edges)} out-edges from {node} to {leader}")
             for u, v, edge_data in filtered_out_edges:
-                key = generate_edge_key(u, edge_data['predicate'], v)
+                key = generate_edge_key(u, edge_data["predicate"], v)
                 target_graph.remove_edge(u, v, edge_key=key)
-                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data['subject']
-                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data['object']
-                edge_data['subject'] = leader
-                key = generate_edge_key(leader, edge_data['predicate'], v)
+                edge_data[ORIGINAL_SUBJECT_PROPERTY] = edge_data["subject"]
+                edge_data[ORIGINAL_OBJECT_PROPERTY] = edge_data["object"]
+                edge_data["subject"] = leader
+                key = generate_edge_key(leader, edge_data["predicate"], v)
                 if (
-                    edge_data['subject'] == edge_data['object']
-                    and edge_data['predicate'] == SUBCLASS_OF
+                    edge_data["subject"] == edge_data["object"]
+                    and edge_data["predicate"] == SUBCLASS_OF
                 ):
                     continue
-                target_graph.add_edge(edge_data['subject'], edge_data['object'], key, **edge_data)
+                target_graph.add_edge(
+                    edge_data["subject"], edge_data["object"], key, **edge_data
+                )
 
             log.debug(f"equiv out edges: {equiv_out_edges}")
             equivalent_identifiers = set()
@@ -334,7 +353,9 @@ def consolidate_edges(
                     equivalent_identifiers.add(u)
                 if v != leader:
                     equivalent_identifiers.add(v)
-                target_graph.remove_edge(u, v, edge_key=generate_edge_key(u, SAME_AS, v))
+                target_graph.remove_edge(
+                    u, v, edge_key=generate_edge_key(u, SAME_AS, v)
+                )
 
             log.debug(f"equiv out edges: {equiv_out_edges}")
             for u, v, edge_data in equiv_out_edges:
@@ -344,15 +365,21 @@ def consolidate_edges(
                 if v != leader:
                     log.debug(f"{v} is an equivalent identifier of leader {leader}")
                     equivalent_identifiers.add(v)
-                target_graph.remove_edge(u, v, edge_key=generate_edge_key(u, SAME_AS, v))
+                target_graph.remove_edge(
+                    u, v, edge_key=generate_edge_key(u, SAME_AS, v)
+                )
 
             leader_equivalent_identifiers.update(equivalent_identifiers)
 
-        log.debug(f"setting same_as property to leader node with {leader_equivalent_identifiers}")
-        target_graph.set_node_attributes(
-            target_graph, {leader: {'same_as': list(leader_equivalent_identifiers)}}
+        log.debug(
+            f"setting same_as property to leader node with {leader_equivalent_identifiers}"
         )
-        log.debug(f"removing equivalent nodes of leader: {leader_equivalent_identifiers}")
+        target_graph.set_node_attributes(
+            target_graph, {leader: {"same_as": list(leader_equivalent_identifiers)}}
+        )
+        log.debug(
+            f"removing equivalent nodes of leader: {leader_equivalent_identifiers}"
+        )
         for n in leader_equivalent_identifiers:
             target_graph.remove_node(n)
     return target_graph
@@ -395,10 +422,12 @@ def update_node_categories(
     for node in clique:
         # For each node in a clique, get its category property
         data = clique_graph.nodes()[node]
-        if 'category' in data:
-            categories = data['category']
+        if "category" in data:
+            categories = data["category"]
         else:
-            categories = get_category_from_equivalence(target_graph, clique_graph, node, data)
+            categories = get_category_from_equivalence(
+                target_graph, clique_graph, node, data
+            )
 
         # differentiate between valid and invalid categories
         (
@@ -416,19 +445,23 @@ def update_node_categories(
             if len(ancestors) > len(extended_categories):
                 extended_categories.extend(ancestors)
         log.debug(f"Extended categories: {extended_categories}")
-        clique_graph_update_dict: Dict = {'category': list(extended_categories)}
+        clique_graph_update_dict: Dict = {"category": list(extended_categories)}
         target_graph_update_dict: Dict = {}
 
         if invalid_biolink_categories:
             if strict:
-                clique_graph_update_dict['_excluded_from_clique'] = True
-                target_graph_update_dict['_excluded_from_clique'] = True
-            clique_graph_update_dict['invalid_biolink_category'] = invalid_biolink_categories
-            target_graph_update_dict['invalid_biolink_category'] = invalid_biolink_categories
+                clique_graph_update_dict["_excluded_from_clique"] = True
+                target_graph_update_dict["_excluded_from_clique"] = True
+            clique_graph_update_dict[
+                "invalid_biolink_category"
+            ] = invalid_biolink_categories
+            target_graph_update_dict[
+                "invalid_biolink_category"
+            ] = invalid_biolink_categories
 
         if invalid_categories:
-            clique_graph_update_dict['_invalid_category'] = invalid_categories
-            target_graph_update_dict['_invalid_category'] = invalid_categories
+            clique_graph_update_dict["_invalid_category"] = invalid_categories
+            target_graph_update_dict["_invalid_category"] = invalid_categories
 
         updated_clique_graph_properties[node] = clique_graph_update_dict
         updated_target_graph_properties[node] = target_graph_update_dict
@@ -438,7 +471,9 @@ def update_node_categories(
     return clique
 
 
-def get_clique_category(clique_graph: nx.MultiDiGraph, clique: List) -> Tuple[str, List]:
+def get_clique_category(
+    clique_graph: nx.MultiDiGraph, clique: List
+) -> Tuple[str, List]:
     """
     Given a clique, identify the category of the clique.
 
@@ -455,7 +490,7 @@ def get_clique_category(clique_graph: nx.MultiDiGraph, clique: List) -> Tuple[st
         A tuple of clique category and its ancestors
 
     """
-    l = [clique_graph.nodes()[x]['category'] for x in clique]
+    l = [clique_graph.nodes()[x]["category"] for x in clique]
     u = OrderedSet.union(*l)
     uo = sort_categories(u)
     log.debug(f"outcome of union (sorted): {uo}")
@@ -469,6 +504,8 @@ def check_categories(
 ) -> Tuple[List, List, List]:
     """
     Check categories to ensure whether values in ``categories`` are valid biolink categories.
+    Valid biolink categories are classes that descend from 'NamedThing'.
+    Mixins, while valid ancestors, are not valid categories.
 
     Parameters
     ----------
@@ -488,11 +525,16 @@ def check_categories(
     valid_biolink_categories = []
     invalid_biolink_categories = []
     invalid_categories = []
+    tk = get_toolkit()
     for x in categories:
+        # use the toolkit to check if the declared category is actually a mixin.
+        if tk.is_mixin(x):
+            invalid_categories.append(x)
+            continue
         # get biolink element corresponding to category
         element = get_biolink_element(x)
         if element:
-            mapped_category = format_biolink_category(element['name'])
+            mapped_category = format_biolink_category(element["name"])
             if mapped_category in closure:
                 valid_biolink_categories.append(x)
             else:
@@ -500,7 +542,9 @@ def check_categories(
                 if category_mapping:
                     mapped = category_mapping[x] if x in category_mapping.keys() else x
                     if mapped not in closure:
-                        log.warning(f"category '{mapped_category}' is not in category_mapping.")
+                        log.warning(
+                            f"category '{mapped_category}' is not in category_mapping."
+                        )
                         invalid_biolink_categories.append(x)
                 else:
                     invalid_biolink_categories.append(x)
@@ -525,6 +569,10 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     Tuple[List, List, List]
         A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories
 
+    Note: the sort_categories method will re-arrange the passed in category list according to the distance
+    of each list member from the top of their hierarchy.  Each category's hierarchy is made up of its
+    'is_a' and mixin ancestors.
+
     """
     previous: List = []
     valid_biolink_categories: List = []
@@ -533,7 +581,9 @@ def check_all_categories(categories) -> Tuple[List, List, List]:
     sc: List = sort_categories(categories)
     for c in sc:
         if previous:
-            vbc, ibc, ic = check_categories([c], get_biolink_ancestors(previous[0]), None)
+            vbc, ibc, ic = check_categories(
+                [c], get_biolink_ancestors(previous[0]), None
+            )
         else:
             vbc, ibc, ic = check_categories([c], get_biolink_ancestors(c), None)
         if vbc:
@@ -559,7 +609,8 @@ def sort_categories(categories: Union[List, Set, OrderedSet]) -> List:
     Returns
     -------
     List
-        A sorted list of categories
+        A sorted list of categories where sorted means that the first element in the list returned
+        has the most number of parents in the class hierarchy.
 
     """
     weighted_categories = []
@@ -594,22 +645,25 @@ def get_category_from_equivalence(
     """
     category: List = []
     for u, v, data in clique_graph.edges(node, data=True):
-        if data['predicate'] == SAME_AS:
+        if data["predicate"] == SAME_AS:
             if u == node:
-                if 'category' in clique_graph.nodes()[v]:
-                    category = clique_graph.nodes()[v]['category']
+                if "category" in clique_graph.nodes()[v]:
+                    category = clique_graph.nodes()[v]["category"]
                     break
             elif v == node:
-                if 'category' in clique_graph.nodes()[u]:
-                    category = clique_graph.nodes()[u]['category']
+                if "category" in clique_graph.nodes()[u]:
+                    category = clique_graph.nodes()[u]["category"]
                     break
-            update = {node: {'category': category}}
+            update = {node: {"category": category}}
             nx.set_node_attributes(clique_graph, update)
     return category
 
 
 def get_leader_by_annotation(
-    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, clique: List, leader_annotation: str
+    target_graph: BaseGraph,
+    clique_graph: nx.MultiDiGraph,
+    clique: List,
+    leader_annotation: str,
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader by searching for leader annotation property in any of the nodes in a given clique.
@@ -653,14 +707,17 @@ def get_leader_by_annotation(
                 if eval(str(v)):
                     leader = node
     if leader:
-        election_strategy = 'LEADER_ANNOTATION'
+        election_strategy = "LEADER_ANNOTATION"
         log.debug(f"Elected leader '{leader}' via LEADER_ANNOTATION")
 
     return leader, election_strategy
 
 
 def get_leader_by_prefix_priority(
-    target_graph: BaseGraph, clique_graph: nx.MultiDiGraph, clique: List, prefix_priority_list: List
+    target_graph: BaseGraph,
+    clique_graph: nx.MultiDiGraph,
+    clique: List,
+    prefix_priority_list: List,
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Get leader from clique based on a given prefix priority.
@@ -715,8 +772,8 @@ def get_leader_by_sort(
         A tuple containing the node that has been elected as the leader and the election strategy
 
     """
-    election_strategy = 'ALPHABETICAL_SORT'
-    prefixes = [x.split(':', 1)[0] for x in clique]
+    election_strategy = "ALPHABETICAL_SORT"
+    prefixes = [x.split(":", 1)[0] for x in clique]
     prefixes.sort()
     leader_prefix = prefixes[0]
     log.debug(f"clique: {clique} leader_prefix: {leader_prefix}")

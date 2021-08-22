@@ -19,8 +19,8 @@ class ObographSource(JsonSource):
     from an OBO Graph JSON.
     """
 
-    HAS_OBO_NAMESPACE = 'http://www.geneontology.org/formats/oboInOwl#hasOBONamespace'
-    SKOS_EXACT_MATCH = 'http://www.w3.org/2004/02/skos/core#exactMatch'
+    HAS_OBO_NAMESPACE = "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace"
+    SKOS_EXACT_MATCH = "http://www.w3.org/2004/02/skos/core#exactMatch"
 
     def __init__(self):
         super().__init__()
@@ -30,7 +30,7 @@ class ObographSource(JsonSource):
     def parse(
         self,
         filename: str,
-        format: str = 'json',
+        format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
@@ -77,11 +77,11 @@ class ObographSource(JsonSource):
             A generator for node records
 
         """
-        if compression and compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if compression and compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for n in ijson.items(FH, 'graphs.item.nodes.item'):
+            FH = open(filename, "rb")
+        for n in ijson.items(FH, "graphs.item.nodes.item"):
             yield self.read_node(n)
 
     def read_node(self, node: Dict) -> Dict:
@@ -99,35 +99,35 @@ class ObographSource(JsonSource):
             The processed node
 
         """
-        curie = self.prefix_manager.contract(node['id'])
+        curie = self.prefix_manager.contract(node["id"])
         node_properties = {}
-        if 'meta' in node:
-            node_properties = self.parse_meta(node['id'], node['meta'])
+        if "meta" in node:
+            node_properties = self.parse_meta(node["id"], node["meta"])
 
         fixed_node = dict()
-        fixed_node['id'] = curie
-        if 'lbl' in node:
-            fixed_node['name'] = node['lbl']
-        fixed_node['iri'] = node['id']
+        fixed_node["id"] = curie
+        if "lbl" in node:
+            fixed_node["name"] = node["lbl"]
+        fixed_node["iri"] = node["id"]
 
-        if 'description' in node_properties:
-            fixed_node['description'] = node_properties['description']
-        if 'synonym' in node_properties:
-            fixed_node['synonym'] = node_properties['synonym']
-        if 'xrefs' in node_properties:
-            fixed_node['xref'] = node_properties['xrefs']
-        if 'subsets' in node_properties:
-            fixed_node['subsets'] = node_properties['subsets']
+        if "description" in node_properties:
+            fixed_node["description"] = node_properties["description"]
+        if "synonym" in node_properties:
+            fixed_node["synonym"] = node_properties["synonym"]
+        if "xrefs" in node_properties:
+            fixed_node["xref"] = node_properties["xrefs"]
+        if "subsets" in node_properties:
+            fixed_node["subsets"] = node_properties["subsets"]
 
-        if 'category' not in node:
+        if "category" not in node:
             category = self.get_category(curie, node)
             if category:
-                fixed_node['category'] = [category]
+                fixed_node["category"] = [category]
             else:
-                fixed_node['category'] = ['biolink:OntologyClass']
-        if 'equivalent_nodes' in node_properties:
-            equivalent_nodes = node_properties['equivalent_nodes']
-            fixed_node['same_as'] = equivalent_nodes
+                fixed_node["category"] = ["biolink:OntologyClass"]
+        if "equivalent_nodes" in node_properties:
+            equivalent_nodes = node_properties["equivalent_nodes"]
+            fixed_node["same_as"] = equivalent_nodes
             # for n in node_properties['equivalent_nodes']:
             #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as',
             #     'object': n, 'relation': 'owl:sameAs'}
@@ -152,11 +152,11 @@ class ObographSource(JsonSource):
             A generator for edge records
 
         """
-        if compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for e in ijson.items(FH, 'graphs.item.edges.item'):
+            FH = open(filename, "rb")
+        for e in ijson.items(FH, "graphs.item.edges.item"):
             yield self.read_edge(e)
 
     def read_edge(self, edge: Dict) -> Dict:
@@ -175,46 +175,46 @@ class ObographSource(JsonSource):
 
         """
         fixed_edge = dict()
-        fixed_edge['subject'] = self.prefix_manager.contract(edge['sub'])
-        if PrefixManager.is_iri(edge['pred']):
-            curie = self.prefix_manager.contract(edge['pred'])
+        fixed_edge["subject"] = self.prefix_manager.contract(edge["sub"])
+        if PrefixManager.is_iri(edge["pred"]):
+            curie = self.prefix_manager.contract(edge["pred"])
             if curie in self.ecache:
                 edge_predicate = self.ecache[curie]
             else:
                 element = get_biolink_element(curie)
                 if not element:
                     try:
-                        mapping = self.toolkit.get_element_by_mapping(edge['pred'])
+                        mapping = self.toolkit.get_element_by_mapping(edge["pred"])
                         if mapping:
                             element = self.toolkit.get_element(mapping)
                     except ValueError as e:
                         log.error(e)
 
                 if element:
-                    edge_predicate = format_biolink_slots(element.name.replace(',', ''))
-                    fixed_edge['predicate'] = edge_predicate
+                    edge_predicate = format_biolink_slots(element.name.replace(",", ""))
+                    fixed_edge["predicate"] = edge_predicate
                 else:
-                    edge_predicate = 'biolink:related_to'
+                    edge_predicate = "biolink:related_to"
                 self.ecache[curie] = edge_predicate
-            fixed_edge['predicate'] = edge_predicate
-            fixed_edge['relation'] = curie
+            fixed_edge["predicate"] = edge_predicate
+            fixed_edge["relation"] = curie
         else:
-            if edge['pred'] == 'is_a':
-                fixed_edge['predicate'] = 'biolink:subclass_of'
-                fixed_edge['relation'] = 'rdfs:subClassOf'
-            elif edge['pred'] == 'has_part':
-                fixed_edge['predicate'] = 'biolink:has_part'
-                fixed_edge['relation'] = "BFO:0000051"
-            elif edge['pred'] == 'part_of':
-                fixed_edge['predicate'] = 'biolink:part_of'
-                fixed_edge['relation'] = "BFO:0000050"
+            if edge["pred"] == "is_a":
+                fixed_edge["predicate"] = "biolink:subclass_of"
+                fixed_edge["relation"] = "rdfs:subClassOf"
+            elif edge["pred"] == "has_part":
+                fixed_edge["predicate"] = "biolink:has_part"
+                fixed_edge["relation"] = "BFO:0000051"
+            elif edge["pred"] == "part_of":
+                fixed_edge["predicate"] = "biolink:part_of"
+                fixed_edge["relation"] = "BFO:0000050"
             else:
-                fixed_edge['predicate'] = f"biolink:{edge['pred'].replace(' ', '_')}"
-                fixed_edge['relation'] = edge['pred']
+                fixed_edge["predicate"] = f"biolink:{edge['pred'].replace(' ', '_')}"
+                fixed_edge["relation"] = edge["pred"]
 
-        fixed_edge['object'] = self.prefix_manager.contract(edge['obj'])
+        fixed_edge["object"] = self.prefix_manager.contract(edge["obj"])
         for x in edge.keys():
-            if x not in {'sub', 'pred', 'obj'}:
+            if x not in {"sub", "pred", "obj"}:
                 fixed_edge[x] = edge[x]
         return super().read_edge(fixed_edge)
 
@@ -237,40 +237,38 @@ class ObographSource(JsonSource):
         """
         category = None
         # use meta.basicPropertyValues
-        if 'meta' in node and 'basicPropertyValues' in node['meta']:
-            for p in node['meta']['basicPropertyValues']:
-                if p['pred'] == self.HAS_OBO_NAMESPACE:
-                    category = p['val']
+        if "meta" in node and "basicPropertyValues" in node["meta"]:
+            for p in node["meta"]["basicPropertyValues"]:
+                if p["pred"] == self.HAS_OBO_NAMESPACE:
+                    category = p["val"]
                     element = self.toolkit.get_element(category)
                     if element:
-                        category = (
-                            f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
-                        )
+                        category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
                     else:
                         element = self.toolkit.get_element_by_mapping(category)
                         if element:
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
                         else:
-                            category = 'biolink:OntologyClass'
+                            category = "biolink:OntologyClass"
 
-        if not category or category == 'biolink:OntologyClass':
+        if not category or category == "biolink:OntologyClass":
             prefix = PrefixManager.get_prefix(curie)
             # TODO: the mapping should be via biolink-model lookups
-            if prefix == 'HP':
+            if prefix == "HP":
                 category = "biolink:PhenotypicFeature"
-            elif prefix == 'CHEBI':
+            elif prefix == "CHEBI":
                 category = "biolink:ChemicalSubstance"
-            elif prefix == 'MONDO':
+            elif prefix == "MONDO":
                 category = "biolink:Disease"
-            elif prefix == 'UBERON':
+            elif prefix == "UBERON":
                 category = "biolink:AnatomicalEntity"
-            elif prefix == 'SO':
+            elif prefix == "SO":
                 category = "biolink:SequenceFeature"
-            elif prefix == 'CL':
+            elif prefix == "CL":
                 category = "biolink:Cell"
-            elif prefix == 'PR':
+            elif prefix == "PR":
                 category = "biolink:Protein"
-            elif prefix == 'NCBITaxon':
+            elif prefix == "NCBITaxon":
                 category = "biolink:OrganismalEntity"
             else:
                 log.debug(
@@ -300,38 +298,40 @@ class ObographSource(JsonSource):
         # do not put assumptions in code; import as much as possible
 
         properties = {}
-        if 'definition' in meta:
+        if "definition" in meta:
             # parse 'definition' as 'description'
-            description = meta['definition']['val']
-            properties['description'] = description
+            description = meta["definition"]["val"]
+            properties["description"] = description
 
-        if 'subsets' in meta:
+        if "subsets" in meta:
             # parse 'subsets'
-            subsets = meta['subsets']
-            properties['subsets'] = [x.split('#')[1] if '#' in x else x for x in subsets]
+            subsets = meta["subsets"]
+            properties["subsets"] = [
+                x.split("#")[1] if "#" in x else x for x in subsets
+            ]
 
-        if 'synonyms' in meta:
+        if "synonyms" in meta:
             # parse 'synonyms' as 'synonym'
-            synonyms = [s['val'] for s in meta['synonyms']]
-            properties['synonym'] = synonyms
+            synonyms = [s["val"] for s in meta["synonyms"]]
+            properties["synonym"] = synonyms
 
-        if 'xrefs' in meta:
+        if "xrefs" in meta:
             # parse 'xrefs' as 'xrefs'
-            xrefs = [x['val'] for x in meta['xrefs']]
-            properties['xrefs'] = xrefs
+            xrefs = [x["val"] for x in meta["xrefs"]]
+            properties["xrefs"] = xrefs
 
-        if 'deprecated' in meta:
+        if "deprecated" in meta:
             # parse 'deprecated' flag
-            properties['deprecated'] = meta['deprecated']
+            properties["deprecated"] = meta["deprecated"]
 
         equivalent_nodes = []
-        if 'basicPropertyValues' in meta:
+        if "basicPropertyValues" in meta:
             # parse SKOS_EXACT_MATCH entries as 'equivalent_nodes'
-            for p in meta['basicPropertyValues']:
-                if p['pred'] in {self.SKOS_EXACT_MATCH}:
-                    n = self.prefix_manager.contract(p['val'])
+            for p in meta["basicPropertyValues"]:
+                if p["pred"] in {self.SKOS_EXACT_MATCH}:
+                    n = self.prefix_manager.contract(p["val"])
                     if not n:
-                        n = p['val']
+                        n = p["val"]
                     equivalent_nodes.append(n)
-        properties['equivalent_nodes'] = equivalent_nodes
+        properties["equivalent_nodes"] = equivalent_nodes
         return properties

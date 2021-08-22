@@ -7,7 +7,9 @@ from tests.unit import (
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
-    process_stream, check_container, CONTAINER_NAME,
+    process_stream,
+    check_container,
+    CONTAINER_NAME,
 )
 
 
@@ -30,31 +32,37 @@ queries = [
 ]
 
 
-@pytest.mark.skipif(not check_container(), reason=f'Container {CONTAINER_NAME} is not running')
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 def test_read_neo(clean_slate):
     """
     Read a graph from a Neo4j instance.
     """
     driver = GraphDatabase(
-        DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
     for q in queries:
         driver.query(q)
     s = NeoSource()
     g = s.parse(
-        uri=DEFAULT_NEO4J_URL, username=DEFAULT_NEO4J_USERNAME, password=DEFAULT_NEO4J_PASSWORD
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
     )
     nodes, edges = process_stream(g)
     assert len(nodes.keys()) == 3
     assert len(edges.keys()) == 2
 
-    n1 = nodes['A']
-    assert n1['id'] == 'A'
-    assert n1['name'] == 'A'
-    assert 'category' in n1 and 'biolink:NamedThing' in n1['category']
+    n1 = nodes["A"]
+    assert n1["id"] == "A"
+    assert n1["name"] == "A"
+    assert "category" in n1 and "biolink:NamedThing" in n1["category"]
 
-    e1 = edges[('A', 'C')][0]
-    assert e1['subject'] == 'A'
-    assert e1['object'] == 'C'
-    assert e1['predicate'] == 'biolink:related_to'
-    assert e1['relation'] == 'biolink:related_to'
+    e1 = edges[("A", "C")][0]
+    assert e1["subject"] == "A"
+    assert e1["object"] == "C"
+    assert e1["predicate"] == "biolink:related_to"
+    assert e1["relation"] == "biolink:related_to"

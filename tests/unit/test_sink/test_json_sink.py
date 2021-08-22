@@ -11,7 +11,7 @@ def test_write_json1():
     Write a graph as JSON using JsonSink.
     """
     graph = get_graph()
-    filename = os.path.join(TARGET_DIR, 'test_graph1.json')
+    filename = os.path.join(TARGET_DIR, "test_graph1.json")
     s = JsonSink(filename=filename)
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -26,8 +26,8 @@ def test_write_json2():
     Write a graph as a compressed JSON using JsonSink.
     """
     graph = get_graph()
-    filename = os.path.join(TARGET_DIR, 'test_graph2.json')
-    s = JsonSink(filename=filename, compression='gz')
+    filename = os.path.join(TARGET_DIR, "test_graph2.json")
+    s = JsonSink(filename=filename, compression="gz")
     for n, data in graph.nodes(data=True):
         s.write_node(data)
     for u, v, k, data in graph.edges(data=True, keys=True):

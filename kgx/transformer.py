@@ -16,7 +16,7 @@ from kgx.source import (
     NeoSource,
     RdfSource,
     OwlSource,
-    SssomSource
+    SssomSource,
 )
 from kgx.sink import (
     Sink,
@@ -26,34 +26,38 @@ from kgx.sink import (
     JsonlSink,
     NeoSink,
     RdfSink,
-    NullSink
+    NullSink,
 )
-from kgx.utils.kgx_utils import apply_graph_operations, GraphEntityType, knowledge_provenance_properties
+from kgx.utils.kgx_utils import (
+    apply_graph_operations,
+    GraphEntityType,
+    knowledge_provenance_properties,
+)
 
 SOURCE_MAP = {
-    'tsv': TsvSource,
-    'csv': TsvSource,
-    'graph': GraphSource,
-    'json': JsonSource,
-    'jsonl': JsonlSource,
-    'obojson': ObographSource,
-    'obo-json': ObographSource,
-    'trapi-json': TrapiSource,
-    'neo4j': NeoSource,
-    'nt': RdfSource,
-    'owl': OwlSource,
-    'sssom': SssomSource,
+    "tsv": TsvSource,
+    "csv": TsvSource,
+    "graph": GraphSource,
+    "json": JsonSource,
+    "jsonl": JsonlSource,
+    "obojson": ObographSource,
+    "obo-json": ObographSource,
+    "trapi-json": TrapiSource,
+    "neo4j": NeoSource,
+    "nt": RdfSource,
+    "owl": OwlSource,
+    "sssom": SssomSource,
 }
 
 SINK_MAP = {
-    'tsv': TsvSink,
-    'csv': TsvSink,
-    'graph': GraphSink,
-    'json': JsonSink,
-    'jsonl': JsonlSink,
-    'neo4j': NeoSink,
-    'nt': RdfSink,
-    'null': NullSink
+    "tsv": TsvSink,
+    "csv": TsvSink,
+    "graph": GraphSink,
+    "json": JsonSink,
+    "jsonl": JsonlSink,
+    "neo4j": NeoSink,
+    "nt": RdfSink,
+    "null": NullSink,
 }
 
 
@@ -81,29 +85,25 @@ class Transformer(object):
 
         self.inspector: Optional[Callable[[GraphEntityType, List], None]] = None
 
-        self.store = self.get_source('graph')
+        self.store = self.get_source("graph")
         self._seen_nodes = set()
         self._infores_catalog: Dict[str, str] = dict()
 
         if infores_catalog and exists(infores_catalog):
-            with open(infores_catalog, 'r') as irc:
-                # entry = irc.readline()
-                # while entry:
+            with open(infores_catalog, "r") as irc:
                 for entry in irc:
                     if len(entry):
                         entry = entry.strip()
                         if entry:
-                            print("entry: "+entry, file=stderr)
-                            source, infores = entry.split('\t')
+                            print("entry: " + entry, file=stderr)
+                            source, infores = entry.split("\t")
                             self._infores_catalog[source] = infores
-                    # entry = irc.readline()
-
 
     def transform(
-            self,
-            input_args: Dict,
-            output_args: Optional[Dict] = None,
-            inspector: Optional[Callable[[GraphEntityType, List], None]] = None
+        self,
+        input_args: Dict,
+        output_args: Optional[Dict] = None,
+        inspector: Optional[Callable[[GraphEntityType, List], None]] = None,
     ) -> None:
         """
         Transform an input source and write to an output sink.
@@ -130,18 +130,18 @@ class Transformer(object):
         """
         sources = []
         generators = []
-        input_format = input_args['format']
-        prefix_map = input_args.pop('prefix_map', {})
-        predicate_mappings = input_args.pop('predicate_mappings', {})
-        node_property_predicates = input_args.pop('node_property_predicates', {})
-        node_filters = input_args.pop('node_filters', {})
-        edge_filters = input_args.pop('edge_filters', {})
-        operations = input_args.pop('operations', [])
+        input_format = input_args["format"]
+        prefix_map = input_args.pop("prefix_map", {})
+        predicate_mappings = input_args.pop("predicate_mappings", {})
+        node_property_predicates = input_args.pop("node_property_predicates", {})
+        node_filters = input_args.pop("node_filters", {})
+        edge_filters = input_args.pop("edge_filters", {})
+        operations = input_args.pop("operations", [])
 
         # Optional process() data stream inspector
         self.inspector = inspector
 
-        if input_format in {'neo4j', 'graph'}:
+        if input_format in {"neo4j", "graph"}:
             source = self.get_source(input_format)
             source.set_prefix_map(prefix_map)
             source.set_node_filters(node_filters)
@@ -151,8 +151,8 @@ class Transformer(object):
             self.node_filters = source.node_filters
             self.edge_filters = source.edge_filters
 
-            if 'uri' in input_args:
-                default_provenance = input_args['uri']
+            if "uri" in input_args:
+                default_provenance = input_args["uri"]
             else:
                 default_provenance = None
 
@@ -161,7 +161,7 @@ class Transformer(object):
             sources.append(source)
             generators.append(g)
         else:
-            filename = input_args.pop('filename', {})
+            filename = input_args.pop("filename", {})
             for f in filename:
                 source = self.get_source(input_format)
                 source.set_prefix_map(prefix_map)
@@ -186,25 +186,27 @@ class Transformer(object):
 
         if output_args:
             if self.stream:
-                if output_args['format'] in {'tsv', 'csv'}:
-                    if 'node_properties' not in output_args:
+                if output_args["format"] in {"tsv", "csv"}:
+                    if "node_properties" not in output_args:
                         log.warning(
                             f"'node_properties' not defined for output while streaming. "
                             f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
-                    if 'edge_properties' not in output_args:
+                    if "edge_properties" not in output_args:
                         log.warning(
                             f"'edge_properties' not defined for output while streaming. "
                             f"The exported {output_args['format']} will be limited to a subset of the columns."
                         )
                 sink = self.get_sink(**output_args)
-                if 'reverse_prefix_map' in output_args:
-                    sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+                if "reverse_prefix_map" in output_args:
+                    sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
                 if isinstance(sink, RdfSink):
-                    if 'reverse_predicate_mapping' in output_args:
-                        sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
-                    if 'property_types' in output_args:
-                        sink.set_property_types(output_args['property_types'])
+                    if "reverse_predicate_mapping" in output_args:
+                        sink.set_reverse_predicate_mapping(
+                            output_args["reverse_predicate_mapping"]
+                        )
+                    if "property_types" in output_args:
+                        sink.set_property_types(output_args["property_types"])
                 # stream from source to sink
                 self.process(source_generator, sink)
                 sink.finalize()
@@ -219,9 +221,13 @@ class Transformer(object):
                     intermediate_sink.edge_properties.update(s.edge_properties)
                 apply_graph_operations(intermediate_sink.graph, operations)
                 # stream from intermediate to output sink
-                intermediate_source = self.get_source('graph')
-                intermediate_source.node_properties.update(intermediate_sink.node_properties)
-                intermediate_source.edge_properties.update(intermediate_sink.edge_properties)
+                intermediate_source = self.get_source("graph")
+                intermediate_source.node_properties.update(
+                    intermediate_sink.node_properties
+                )
+                intermediate_source.edge_properties.update(
+                    intermediate_sink.edge_properties
+                )
 
                 # Need to propagate knowledge source specifications here?
                 ks_args = dict()
@@ -230,23 +236,29 @@ class Transformer(object):
                         ks_args[ksf] = input_args[ksf]
 
                 # TODO: does this call also need the default_provenance named argument?
-                intermediate_source_generator = intermediate_source.parse(intermediate_sink.graph, **ks_args)
+                intermediate_source_generator = intermediate_source.parse(
+                    intermediate_sink.graph, **ks_args
+                )
 
-                if output_args['format'] in {'tsv', 'csv'}:
-                    if 'node_properties' not in output_args:
-                        output_args['node_properties'] = intermediate_source.node_properties
-                    if 'edge_properties' not in output_args:
-                        output_args['edge_properties'] = intermediate_source.edge_properties
+                if output_args["format"] in {"tsv", "csv"}:
+                    if "node_properties" not in output_args:
+                        output_args[
+                            "node_properties"
+                        ] = intermediate_source.node_properties
+                    if "edge_properties" not in output_args:
+                        output_args[
+                            "edge_properties"
+                        ] = intermediate_source.edge_properties
                     sink = self.get_sink(**output_args)
-                    if 'reverse_prefix_map' in output_args:
-                        sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+                    if "reverse_prefix_map" in output_args:
+                        sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
                     if isinstance(sink, RdfSink):
-                        if 'reverse_predicate_mapping' in output_args:
+                        if "reverse_predicate_mapping" in output_args:
                             sink.set_reverse_predicate_mapping(
-                                output_args['reverse_predicate_mapping']
+                                output_args["reverse_predicate_mapping"]
                             )
-                    if 'property_types' in output_args:
-                        sink.set_property_types(output_args['property_types'])
+                    if "property_types" in output_args:
+                        sink.set_property_types(output_args["property_types"])
                 else:
                     sink = self.get_sink(**output_args)
                     sink.node_properties.update(intermediate_source.node_properties)
@@ -282,11 +294,7 @@ class Transformer(object):
         """
         return self._infores_catalog
 
-    def process(
-            self,
-            source: Generator,
-            sink: Sink
-    ) -> None:
+    def process(self, source: Generator, sink: Sink) -> None:
         """
         This method is responsible for reading from ``source``
         and writing to ``sink`` by calling the relevant methods
@@ -307,14 +315,14 @@ class Transformer(object):
             if rec:
                 if len(rec) == 4:  # infer an edge record
                     write_edge = True
-                    if 'subject_category' in self.edge_filters:
+                    if "subject_category" in self.edge_filters:
                         if rec[0] in self._seen_nodes:
                             write_edge = True
                         else:
                             write_edge = False
-                    if 'object_category' in self.edge_filters:
+                    if "object_category" in self.edge_filters:
                         if rec[1] in self._seen_nodes:
-                            if 'subject_category' in self.edge_filters:
+                            if "subject_category" in self.edge_filters:
                                 if write_edge:
                                     write_edge = True
                             else:
@@ -326,7 +334,7 @@ class Transformer(object):
                             self.inspector(GraphEntityType.EDGE, rec)
                         sink.write_edge(rec[-1])
                 else:  # infer a node record
-                    if 'category' in self.node_filters:
+                    if "category" in self.node_filters:
                         self._seen_nodes.add(rec[0])
                     if self.inspector:
                         self.inspector(GraphEntityType.NODE, rec)
@@ -349,20 +357,22 @@ class Transformer(object):
         source.node_properties.update(self.store.node_properties)
         source.edge_properties.update(self.store.edge_properties)
         source_generator = source.parse(self.store.graph)
-        if 'node_properties' not in output_args:
-            output_args['node_properties'] = source.node_properties
-        if 'edge_properties' not in output_args:
-            output_args['edge_properties'] = source.edge_properties
+        if "node_properties" not in output_args:
+            output_args["node_properties"] = source.node_properties
+        if "edge_properties" not in output_args:
+            output_args["edge_properties"] = source.edge_properties
         sink = self.get_sink(**output_args)
         sink.node_properties.update(source.node_properties)
         sink.edge_properties.update(source.edge_properties)
-        if 'reverse_prefix_map' in output_args:
-            sink.set_reverse_prefix_map(output_args['reverse_prefix_map'])
+        if "reverse_prefix_map" in output_args:
+            sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
         if isinstance(sink, RdfSink):
-            if 'reverse_predicate_mapping' in output_args:
-                sink.set_reverse_predicate_mapping(output_args['reverse_predicate_mapping'])
-            if 'property_types' in output_args:
-                sink.set_property_types(output_args['property_types'])
+            if "reverse_predicate_mapping" in output_args:
+                sink.set_reverse_predicate_mapping(
+                    output_args["reverse_predicate_mapping"]
+                )
+            if "property_types" in output_args:
+                sink.set_property_types(output_args["property_types"])
         self.process(source_generator, sink)
         sink.finalize()
 
@@ -402,8 +412,8 @@ class Transformer(object):
             An instance of kgx.sink.Sink
 
         """
-        if kwargs['format'] in SINK_MAP:
-            s = SINK_MAP[kwargs['format']]
+        if kwargs["format"] in SINK_MAP:
+            s = SINK_MAP[kwargs["format"]]
             return s(**kwargs)
         else:
             raise TypeError(f"{kwargs['format']} in an unrecognized format")
