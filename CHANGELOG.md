@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 (2021-08-23)
+
+- Keep track of edge properties in owl source
+
 ## 1.5.0 (2021-08-12)
 
 - Support mixins in ancestors hierarchy
