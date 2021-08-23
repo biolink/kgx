@@ -95,8 +95,8 @@ def graph_summary_wrapper(
     report_format: str,
     stream: bool,
     graph_name: str,
-    node_facet_properties: Optional[Set],
-    edge_facet_properties: Optional[Set],
+    node_facet_properties: Optional[List],
+    edge_facet_properties: Optional[List],
     error_log: str = ''
 ):
     """
@@ -121,12 +121,12 @@ def graph_summary_wrapper(
         Whether to parse input as a stream
     graph_name: str
         User specified name of graph being summarize
-    node_facet_properties: Optional[Set]
+    node_facet_properties: Optional[List]
         A list of node properties from which to generate counts per value for those properties.
         For example, ``['provided_by']``
-    edge_facet_properties: Optional[Set]
+    edge_facet_properties: Optional[List]
         A list of edge properties from which to generate counts per value for those properties.
-        For example, ``['knowledge_source']``d
+        For example, ``['original_knowledge_source', 'aggregator_knowledge_source']``
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
     """

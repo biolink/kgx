@@ -100,9 +100,11 @@ def graph_summary(
     graph_name: str
         User specified name of graph being summarized
     node_facet_properties: Optional[List]
-        A list of node properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+        A list of node properties from which to generate counts per value for those properties.
+        For example, ``['provided_by']``
     edge_facet_properties: Optional[List]
-        A list of edge properties from which to generate counts per value for those properties. For example, ``['provided_by']``
+        A list of edge properties (e.g. knowledge_source tags) to facet on.
+        For example, ``['original_knowledge_source', 'aggregator_knowledge_source']``
     error_log: str
         Where to write any graph processing error message (stderr, by default)
 

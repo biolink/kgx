@@ -1,0 +1,294 @@
+{
+    "nodes": {
+        "biolink:Gene": {
+            "id_prefixes": [
+                "MGI",
+                "ENSEMBL",
+                "RGD",
+                "HGNC",
+                "NCBIGene",
+                "ZFIN",
+                "FB"
+            ],
+            "count": 178,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 178
+                }
+            }
+        },
+        "biolink:CellularComponent": {
+            "id_prefixes": [
+                "GO"
+            ],
+            "count": 8,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 8
+                }
+            }
+        },
+        "biolink:BiologicalProcess": {
+            "id_prefixes": [
+                "GO"
+            ],
+            "count": 143,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 143
+                }
+            }
+        },
+        "biolink:MolecularActivity": {
+            "id_prefixes": [
+                "GO"
+            ],
+            "count": 8,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 8
+                }
+            }
+        },
+        "biolink:Pathway": {
+            "id_prefixes": [
+                "REACT"
+            ],
+            "count": 22,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 22
+                }
+            }
+        },
+        "biolink:AnatomicalEntity": {
+            "id_prefixes": [
+                "UBERON"
+            ],
+            "count": 20,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 20
+                }
+            }
+        },
+        "biolink:PhenotypicFeature": {
+            "id_prefixes": [
+                "HP",
+                "EFO"
+            ],
+            "count": 112,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 112
+                }
+            }
+        },
+        "biolink:Disease": {
+            "id_prefixes": [
+                "MONDO"
+            ],
+            "count": 21,
+            "count_by_source": {
+                "provided_by": {
+                    "graph_nodes.tsv": 21
+                }
+            }
+        }
+    },
+    "edges": [
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:interacts_with",
+            "object": "biolink:Gene",
+            "relations": [
+                "RO:0002434"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "biogrid": 9,
+                    "string": 159
+                }
+            },
+            "count": 165
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:part_of",
+            "object": "biolink:CellularComponent",
+            "relations": [
+                "BFO:0000050"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "go": 8
+                }
+            },
+            "count": 8
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:related_to",
+            "object": "biolink:BiologicalProcess",
+            "relations": [
+                "RO:0002331"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "go": 143
+                }
+            },
+            "count": 143
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:related_to",
+            "object": "biolink:MolecularActivity",
+            "relations": [
+                "RO:0002327"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "go": 8
+                }
+            },
+            "count": 8
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:related_to",
+            "object": "biolink:Pathway",
+            "relations": [
+                "RO:0002331"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "reactome": 16
+                }
+            },
+            "count": 16
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:orthologous_to",
+            "object": "biolink:Gene",
+            "relations": [
+                "RO:HOM0000020",
+                "RO:HOM0000017"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "panther": 12,
+                    "zfin": 2
+                }
+            },
+            "count": 12
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:expressed_in",
+            "object": "biolink:AnatomicalEntity",
+            "relations": [
+                "RO:0002206"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "bgee": 20
+                }
+            },
+            "count": 20
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:has_phenotype",
+            "object": "biolink:PhenotypicFeature",
+            "relations": [
+                "RO:0002200"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "omim": 54,
+                    "hpoa": 111,
+                    "orphanet": 72
+                }
+            },
+            "count": 111
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:contributes_to",
+            "object": "biolink:PhenotypicFeature",
+            "relations": [
+                "RO:0003304"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "gwascatalog": 1
+                }
+            },
+            "count": 1
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:related_to",
+            "object": "biolink:Disease",
+            "relations": [
+                "RO:0003303",
+                "RO:0004013",
+                "RO:0004015"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "omim": 4,
+                    "orphanet": 14
+                }
+            },
+            "count": 18
+        },
+        {
+            "subject": "biolink:Gene",
+            "predicate": "biolink:contributes_to",
+            "object": "biolink:Disease",
+            "relations": [
+                "RO:0003304"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "omim": 2
+                }
+            },
+            "count": 2
+        },
+        {
+            "subject": "biolink:Disease",
+            "predicate": "biolink:actively_involved_in",
+            "object": "biolink:Pathway",
+            "relations": [
+                "RO:0002331"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "omim": 8,
+                    "reactome": 22,
+                    "orphanet": 14
+                }
+            },
+            "count": 22
+        },
+        {
+            "subject": "biolink:Disease",
+            "predicate": "biolink:has_phenotype",
+            "object": "biolink:PhenotypicFeature",
+            "relations": [
+                "RO:0002200"
+            ],
+            "count_by_source": {
+                "aggregator_knowledge_source": {
+                    "hpoa": 13
+                }
+            },
+            "count": 13
+        }
+    ],
+    "name": "Graph"
+}
