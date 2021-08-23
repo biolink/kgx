@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 (2021-08-23)
+- Update to bmt 0.7.4 
+- add error reporting for empty lines in nt parser
+
 ## 1.5.1 (2021-08-23)
 
 - Keep track of edge properties in owl source
