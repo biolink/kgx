@@ -185,23 +185,19 @@ class OwlSource(RdfSource):
             self.dereify(n, data)
 
         for k, data in self.node_cache.items():
-
             node_data = validate_node(data)
             node_data = sanitize_import(node_data)
-
             self.set_node_provenance(node_data)
-
             if self.check_node_filter(node_data):
+                self.node_properties.update(node_data.keys())
                 yield k, node_data
-
         self.node_cache.clear()
 
         for k, data in self.edge_cache.items():
             edge_data = validate_edge(data)
             edge_data = sanitize_import(edge_data)
-
             self.set_edge_provenance(edge_data)
-
             if self.check_edge_filter(edge_data):
+                self.edge_properties.update(edge_data.keys())
                 yield k[0], k[1], k[2], edge_data
         self.edge_cache.clear()

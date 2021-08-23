@@ -14,7 +14,7 @@ class CurieLookupService(object):
     """
 
     config = get_config()
-    ontologies = config["ontologies"]
+    ontologies = config['ontologies'] if 'ontologies' in config else {}
     ontology_graph = None
 
     def __init__(self, curie_map: dict = None):
