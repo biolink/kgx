@@ -30,13 +30,15 @@ class OwlSource(RdfSource):
     def __init__(self):
         self.imported: Set = set()
         super().__init__()
-        self.OWLSTAR = Namespace('http://w3id.org/owlstar/')
-        self.excluded_predicates = {URIRef('http://www.geneontology.org/formats/oboInOwl#id')}
+        self.OWLSTAR = Namespace("http://w3id.org/owlstar/")
+        self.excluded_predicates = {
+            URIRef("https://raw.githubusercontent.com/geneontology/go-ontology/master/contrib/oboInOwl#id")
+        }
 
     def parse(
         self,
         filename: str,
-        format: str = 'owl',
+        format: str = "owl",
         compression: Optional[str] = None,
         **kwargs: Any,
     ) -> Generator:
@@ -66,8 +68,8 @@ class OwlSource(RdfSource):
         if format is None:
             format = rdflib.util.guess_format(filename)
 
-        if format == 'owl':
-            format = 'xml'
+        if format == "owl":
+            format = "xml"
 
         log.info("Parsing {} with '{}' format".format(filename, format))
         rdfgraph.parse(filename, format=format)
@@ -120,7 +122,7 @@ class OwlSource(RdfSource):
                     pred = x
                 # owl:someValuesFrom
                 for x in rdfgraph.objects(o, OWL.someValuesFrom):
-                    os_interpretation = self.OWLSTAR.term('AllSomeInterpretation')
+                    os_interpretation = self.OWLSTAR.term("AllSomeInterpretation")
                     parent = x
                 # owl:allValuesFrom
                 for x in rdfgraph.objects(o, OWL.allValuesFrom):
@@ -141,13 +143,17 @@ class OwlSource(RdfSource):
                 eid = generate_uuid()
                 self.reified_nodes.add(eid)
                 yield from self.triple(
-                    URIRef(eid), self.BIOLINK.term('category'), self.BIOLINK.Association
+                    URIRef(eid), self.BIOLINK.term("category"), self.BIOLINK.Association
                 )
-                yield from self.triple(URIRef(eid), self.BIOLINK.term('subject'), s)
-                yield from self.triple(URIRef(eid), self.BIOLINK.term('predicate'), pred)
-                yield from self.triple(URIRef(eid), self.BIOLINK.term('object'), parent)
+                yield from self.triple(URIRef(eid), self.BIOLINK.term("subject"), s)
                 yield from self.triple(
-                    URIRef(eid), self.BIOLINK.term('logical_interpretation'), os_interpretation
+                    URIRef(eid), self.BIOLINK.term("predicate"), pred
+                )
+                yield from self.triple(URIRef(eid), self.BIOLINK.term("object"), parent)
+                yield from self.triple(
+                    URIRef(eid),
+                    self.BIOLINK.term("logical_interpretation"),
+                    os_interpretation,
                 )
             else:
                 yield from self.triple(s, pred, parent)

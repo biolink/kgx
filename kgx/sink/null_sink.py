@@ -12,7 +12,7 @@ class NullSink(Sink):
      (in particular, not in memory, where the huge
      memory footprint may be problematics, e.g. when
      stream processing huge graphs).
-     
+
     Parameters
     ----------
     n/a (**kwargs allowed, but ignored)

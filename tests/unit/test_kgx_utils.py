@@ -36,7 +36,7 @@ def test_get_toolkit():
     """
     tk = get_toolkit()
     assert isinstance(tk, Toolkit)
-    assert(tk.get_model_version() == Toolkit().get_model_version())
+    assert tk.get_model_version() == Toolkit().get_model_version()
 
 
 def test_get_curie_lookup_service():
@@ -52,20 +52,20 @@ def test_get_prefix_prioritization_map():
     Test to get a prefix prioritization map.
     """
     prioritization_map = get_prefix_prioritization_map()
-    assert 'biolink:Gene' in prioritization_map.keys()
-    assert 'biolink:Protein' in prioritization_map.keys()
-    assert 'biolink:Disease' in prioritization_map.keys()
+    assert "biolink:Gene" in prioritization_map.keys()
+    assert "biolink:Protein" in prioritization_map.keys()
+    assert "biolink:Disease" in prioritization_map.keys()
 
 
 @pytest.mark.parametrize(
     "query",
     [
-        ('gene', 'gene'),
-        ('disease', 'disease'),
-        ('related_to', 'related to'),
-        ('causes', 'causes'),
-        ('biolink:Gene', 'gene'),
-        ('biolink:causes', 'causes'),
+        ("gene", "gene"),
+        ("disease", "disease"),
+        ("related_to", "related to"),
+        ("causes", "causes"),
+        ("biolink:Gene", "gene"),
+        ("biolink:causes", "causes"),
     ],
 )
 def test_get_biolink_element(query):
@@ -81,58 +81,59 @@ def test_get_biolink_ancestors():
     """
     Test to get biolink ancestors.
     """
-    ancestors1 = get_biolink_ancestors('phenotypic feature')
+    ancestors1 = get_biolink_ancestors("phenotypic feature")
     assert ancestors1 is not None
-    assert len(ancestors1) == 5
+    # changed to 6 from 5 when biolink model updated to 2.2.1 and mixins are included in ancestry
+    assert len(ancestors1) == 6
 
 
 def test_generate_edge_key():
     """
     Test generation of edge key via generate_edge_key method.
     """
-    key = generate_edge_key('S:CURIE', 'related_to', 'O:CURIE')
-    assert key == 'S:CURIE-related_to-O:CURIE'
+    key = generate_edge_key("S:CURIE", "related_to", "O:CURIE")
+    assert key == "S:CURIE-related_to-O:CURIE"
 
 
 def test_camelcase_to_sentencecase():
     """
     Test conversion of CamelCase to sentence case.
     """
-    s = camelcase_to_sentencecase('NamedThing')
-    assert s == 'named thing'
+    s = camelcase_to_sentencecase("NamedThing")
+    assert s == "named thing"
 
 
 def test_snakecase_to_sentencecase():
     """
     Test conversion of a snake_case to sentence case.
     """
-    s = snakecase_to_sentencecase('named_thing')
-    assert s == 'named thing'
+    s = snakecase_to_sentencecase("named_thing")
+    assert s == "named thing"
 
 
 def test_sentencecase_to_snakecase():
     """
     Test conversion of a sentence case text to snake_case.
     """
-    s = sentencecase_to_snakecase('named thing')
-    assert s == 'named_thing'
+    s = sentencecase_to_snakecase("named thing")
+    assert s == "named_thing"
 
 
 def test_sentencecase_to_camelcase():
     """
     Test conversion of a sentence case text to CamelCase.
     """
-    s = sentencecase_to_camelcase('named thing')
-    assert s == 'NamedThing'
+    s = sentencecase_to_camelcase("named thing")
+    assert s == "NamedThing"
 
 
 @pytest.mark.parametrize(
     "query",
     [
         (
-            'HGNC:11603',
-            'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=11603',
-            'https://identifiers.org/hgnc:11603',
+            "HGNC:11603",
+            "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=11603",
+            "https://identifiers.org/hgnc:11603",
         )
     ],
 )
@@ -146,14 +147,16 @@ def test_contract(query):
 
     # provide custom prefix_maps, with fallback
     curie = contract(
-        query[2], prefix_maps=[{'HGNC': 'https://identifiers.org/hgnc:'}], fallback=True
+        query[2], prefix_maps=[{"HGNC": "https://identifiers.org/hgnc:"}], fallback=True
     )
     # get the CURIE
     assert curie == query[0]
 
     # provide custom prefix_maps, but no fallback
     curie = contract(
-        query[2], prefix_maps=[{'HGNC': 'https://identifiers.org/hgnc:'}], fallback=False
+        query[2],
+        prefix_maps=[{"HGNC": "https://identifiers.org/hgnc:"}],
+        fallback=False,
     )
     # get the CURIE
     assert curie == query[0]
@@ -168,9 +171,9 @@ def test_contract(query):
     "query",
     [
         (
-            'HGNC:11603',
-            'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=11603',
-            'https://identifiers.org/hgnc:11603',
+            "HGNC:11603",
+            "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=11603",
+            "https://identifiers.org/hgnc:11603",
         )
     ],
 )
@@ -183,12 +186,16 @@ def test_expand(query):
     assert iri == query[1]
 
     # provide custom prefix_maps, with fallback
-    iri = expand(query[0], prefix_maps=[{'HGNC': 'https://identifiers.org/hgnc:'}], fallback=True)
+    iri = expand(
+        query[0], prefix_maps=[{"HGNC": "https://identifiers.org/hgnc:"}], fallback=True
+    )
     # get the alternate IRI
     assert iri == query[2]
 
     # provide custom prefix_maps, but no fallback
-    iri = expand(query[0], prefix_maps=[{'hgnc': 'https://example.org/hgnc:'}], fallback=False)
+    iri = expand(
+        query[0], prefix_maps=[{"hgnc": "https://example.org/hgnc:"}], fallback=False
+    )
     # get back the CURIE
     assert iri == query[0]
 
@@ -203,20 +210,20 @@ def test_generate_uuid():
     Test generation of UUID by generate_uuid method.
     """
     s = generate_uuid()
-    assert s.startswith('urn:uuid:')
+    assert s.startswith("urn:uuid:")
 
 
 @pytest.mark.parametrize(
     "query",
     [
         (
-            {'id': 'HGNC:11603', 'name': 'Some Gene', 'provided_by': ['Dataset A']},
-            {'id': 'HGNC:11603', 'name': 'Some Gene', 'provided_by': 'Dataset B'},
-            {'id': 'HGNC:11603', 'name': 'Some Gene', 'provided_by': ['Dataset C']},
+            {"id": "HGNC:11603", "name": "Some Gene", "provided_by": ["Dataset A"]},
+            {"id": "HGNC:11603", "name": "Some Gene", "provided_by": "Dataset B"},
+            {"id": "HGNC:11603", "name": "Some Gene", "provided_by": ["Dataset C"]},
         ),
         (
-            {'id': 'HGNC:11603', 'name': 'Some Gene', 'provided_by': ['Dataset A']},
-            {'id': 'HGNC:11603', 'name': 'Some Gene', 'provided_by': 'Dataset B'},
+            {"id": "HGNC:11603", "name": "Some Gene", "provided_by": ["Dataset A"]},
+            {"id": "HGNC:11603", "name": "Some Gene", "provided_by": "Dataset B"},
             {},
         ),
     ],
@@ -231,32 +238,44 @@ def test_prepare_data_dict(query):
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
-        ({'id': 'A', 'name': 'Node A'}, {'id': 'A', 'name': 'Node A'}),
-        ({'id': 'A', 'name': 'Node A', 'description': None}, {'id': 'A', 'name': 'Node A'}),
+        ({"id": "A", "name": "Node A"}, {"id": "A", "name": "Node A"}),
         (
-            {
-                'id': 'A',
-                'name': 'Node A',
-                'description': None,
-                'publications': 'PMID:1234|PMID:1456|PMID:3466',
-            },
-            {'id': 'A', 'name': 'Node A', 'publications': ['PMID:1234', 'PMID:1456', 'PMID:3466']},
-        ),
-        (
-            {'id': 'A', 'name': 'Node A', 'description': None, 'property': [pd.NA, 123, 'ABC']},
-            {'id': 'A', 'name': 'Node A', 'property': [123, 'ABC']},
+            {"id": "A", "name": "Node A", "description": None},
+            {"id": "A", "name": "Node A"},
         ),
         (
             {
-                'id': 'A',
-                'name': 'Node A',
-                'description': None,
-                'property': [pd.NA, 123, 'ABC'],
-                'score': 0.0,
+                "id": "A",
+                "name": "Node A",
+                "description": None,
+                "publications": "PMID:1234|PMID:1456|PMID:3466",
             },
-            {'id': 'A', 'name': 'Node A', 'property': [123, 'ABC'], 'score': 0.0},
+            {
+                "id": "A",
+                "name": "Node A",
+                "publications": ["PMID:1234", "PMID:1456", "PMID:3466"],
+            },
+        ),
+        (
+            {
+                "id": "A",
+                "name": "Node A",
+                "description": None,
+                "property": [pd.NA, 123, "ABC"],
+            },
+            {"id": "A", "name": "Node A", "property": [123, "ABC"]},
+        ),
+        (
+            {
+                "id": "A",
+                "name": "Node A",
+                "description": None,
+                "property": [pd.NA, 123, "ABC"],
+                "score": 0.0,
+            },
+            {"id": "A", "name": "Node A", "property": [123, "ABC"], "score": 0.0},
         ),
     ],
 )
@@ -272,19 +291,22 @@ def test_sanitize_import1(query):
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
-        (('category', 'biolink:Gene'), ['biolink:Gene']),
-        (('publications', 'PMID:123|PMID:456|PMID:789'), ['PMID:123', 'PMID:456', 'PMID:789']),
-        (('negated', 'True'), True),
-        (('negated', True), True),
-        (('negated', True), True),
-        (('xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
-        (('xref', 'a|b|c'), ['a', 'b', 'c']),
-        (('valid', 'True'), 'True'),
-        (('valid', True), True),
-        (('alias', 'xyz'), 'xyz'),
-        (('description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
+        (("category", "biolink:Gene"), ["biolink:Gene"]),
+        (
+            ("publications", "PMID:123|PMID:456|PMID:789"),
+            ["PMID:123", "PMID:456", "PMID:789"],
+        ),
+        (("negated", "True"), True),
+        (("negated", True), True),
+        (("negated", True), True),
+        (("xref", {"a", "b", "c"}), ["a", "b", "c"]),
+        (("xref", "a|b|c"), ["a", "b", "c"]),
+        (("valid", "True"), "True"),
+        (("valid", True), True),
+        (("alias", "xyz"), "xyz"),
+        (("description", "Line 1\nLine 2\nLine 3"), "Line 1 Line 2 Line 3"),
     ],
 )
 def test_sanitize_import2(query):
@@ -304,24 +326,32 @@ def test_sanitize_import2(query):
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
         (
-            {'id': 'A', 'name': 'Node A', 'category': ['biolink:NamedThing', 'biolink:Gene']},
-            {'id': 'A', 'name': 'Node A', 'category': 'biolink:NamedThing|biolink:Gene'},
+            {
+                "id": "A",
+                "name": "Node A",
+                "category": ["biolink:NamedThing", "biolink:Gene"],
+            },
+            {
+                "id": "A",
+                "name": "Node A",
+                "category": "biolink:NamedThing|biolink:Gene",
+            },
         ),
         (
             {
-                'id': 'A',
-                'name': 'Node A',
-                'category': ['biolink:NamedThing', 'biolink:Gene'],
-                'xrefs': [np.nan, 'UniProtKB:123', None, 'NCBIGene:456'],
+                "id": "A",
+                "name": "Node A",
+                "category": ["biolink:NamedThing", "biolink:Gene"],
+                "xrefs": [np.nan, "UniProtKB:123", None, "NCBIGene:456"],
             },
             {
-                'id': 'A',
-                'name': 'Node A',
-                'category': 'biolink:NamedThing|biolink:Gene',
-                'xrefs': 'UniProtKB:123|NCBIGene:456',
+                "id": "A",
+                "name": "Node A",
+                "category": "biolink:NamedThing|biolink:Gene",
+                "xrefs": "UniProtKB:123|NCBIGene:456",
             },
         ),
     ],
@@ -337,19 +367,22 @@ def test_build_export_row(query):
 
 
 @pytest.mark.parametrize(
-    'query',
+    "query",
     [
-        (('category', 'biolink:Gene'), ['biolink:Gene']),
-        (('publications', ['PMID:123', 'PMID:456', 'PMID:789']), 'PMID:123|PMID:456|PMID:789'),
-        (('negated', 'True'), True),
-        (('negated', True), True),
-        (('negated', True), True),
-        (('xref', {'a', 'b', 'c'}), ['a', 'b', 'c']),
-        (('xref', ['a', 'b', 'c']), 'a|b|c'),
-        (('valid', 'True'), 'True'),
-        (('valid', True), True),
-        (('alias', 'xyz'), 'xyz'),
-        (('description', 'Line 1\nLine 2\nLine 3'), 'Line 1 Line 2 Line 3'),
+        (("category", "biolink:Gene"), ["biolink:Gene"]),
+        (
+            ("publications", ["PMID:123", "PMID:456", "PMID:789"]),
+            "PMID:123|PMID:456|PMID:789",
+        ),
+        (("negated", "True"), True),
+        (("negated", True), True),
+        (("negated", True), True),
+        (("xref", {"a", "b", "c"}), ["a", "b", "c"]),
+        (("xref", ["a", "b", "c"]), "a|b|c"),
+        (("valid", "True"), "True"),
+        (("valid", True), True),
+        (("alias", "xyz"), "xyz"),
+        (("description", "Line 1\nLine 2\nLine 3"), "Line 1 Line 2 Line 3"),
     ],
 )
 def test_sanitize_export(query):
@@ -369,11 +402,11 @@ def test_sanitize_export(query):
 
 
 @pytest.mark.parametrize(
-    'node',
+    "node",
     [
-        {'name': 'Node A', 'description': 'Node without an ID'},
-        {'node_id': 'A', 'description': 'Node without an ID and name'},
-        {'name': 'Node A', 'description': 'Node A', 'category': 'biolink:NamedThing'},
+        {"name": "Node A", "description": "Node without an ID"},
+        {"node_id": "A", "description": "Node without an ID and name"},
+        {"name": "Node A", "description": "Node A", "category": "biolink:NamedThing"},
     ],
 )
 def test_validate_incorrect_node(node):
@@ -385,10 +418,15 @@ def test_validate_incorrect_node(node):
 
 
 @pytest.mark.parametrize(
-    'node',
+    "node",
     [
-        {'id': 'A', 'name': 'Node A', 'description': 'Node A', 'category': ['biolink:NamedThing']},
-        {'id': 'A', 'name': 'Node A', 'description': 'Node A'},
+        {
+            "id": "A",
+            "name": "Node A",
+            "description": "Node A",
+            "category": ["biolink:NamedThing"],
+        },
+        {"id": "A", "name": "Node A", "description": "Node A"},
     ],
 )
 def test_validate_correct_node(node):
@@ -397,16 +435,16 @@ def test_validate_correct_node(node):
     """
     n = validate_node(node)
     assert n is not None
-    assert 'category' in n
-    assert n['category'][0] == DEFAULT_NODE_CATEGORY
+    assert "category" in n
+    assert n["category"][0] == DEFAULT_NODE_CATEGORY
 
 
 @pytest.mark.parametrize(
-    'edge',
+    "edge",
     [
-        {'predicate': 'biolink:related_to'},
-        {'subject': 'A', 'predicate': 'biolink:related_to'},
-        {'subject': 'A', 'object': 'B'},
+        {"predicate": "biolink:related_to"},
+        {"subject": "A", "predicate": "biolink:related_to"},
+        {"subject": "A", "object": "B"},
     ],
 )
 def test_validate_incorrect_edge(edge):
@@ -418,10 +456,15 @@ def test_validate_incorrect_edge(edge):
 
 
 @pytest.mark.parametrize(
-    'edge',
+    "edge",
     [
-        {'subject': 'A', 'object': 'B', 'predicate': 'biolink:related_to'},
-        {'subject': 'A', 'object': 'B', 'predicate': 'biolink:related_to', 'relation': 'RO:000000'},
+        {"subject": "A", "object": "B", "predicate": "biolink:related_to"},
+        {
+            "subject": "A",
+            "object": "B",
+            "predicate": "biolink:related_to",
+            "relation": "RO:000000",
+        },
     ],
 )
 def test_validate_correct_edge(edge):

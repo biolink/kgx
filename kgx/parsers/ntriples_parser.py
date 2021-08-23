@@ -26,19 +26,19 @@ class CustomNTriplesParser(NTriplesParser):
             A generator for triples
 
         """
-        if not hasattr(filename, 'read'):
+        if not hasattr(filename, "read"):
             raise ParseError("Item to parse must be a file-like object.")
 
         # since N-Triples 1.1 files can and should be utf-8 encoded
-        f = codecs.getreader('utf-8')(filename)
+        f = codecs.getreader("utf-8")(filename)
 
         self.file = f
-        self.buffer = ''
+        self.buffer = ""
         while True:
             self.line = self.readline()
             if self.line is None:
                 break
-            if self.line == '':
+            if self.line == "":
                 break
             try:
                 yield from self.parseline()
@@ -57,7 +57,7 @@ class CustomNTriplesParser(NTriplesParser):
         """
         print(self.line)
         self.eat(r_wspace)
-        if self.line or not self.line.startswith('#'):
+        if self.line or not self.line.startswith("#"):
             subject = self.subject()
             self.eat(r_wspaces)
 

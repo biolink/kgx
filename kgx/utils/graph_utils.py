@@ -4,11 +4,7 @@ from cachetools import cached
 
 from kgx.config import get_logger
 from kgx.graph.base_graph import BaseGraph
-from kgx.utils.kgx_utils import (
-    get_toolkit,
-    get_cache,
-    get_curie_lookup_service
-)
+from kgx.utils.kgx_utils import get_toolkit, get_cache, get_curie_lookup_service
 from kgx.prefix_manager import PrefixManager
 
 ONTOLOGY_PREFIX_MAP: Dict = {}
@@ -42,11 +38,13 @@ def get_parents(graph: BaseGraph, node: str, relations: List[str] = None) -> Lis
         if relations is None:
             parents = [x[1] for x in out_edges]
         else:
-            parents = [x[1] for x in out_edges if x[2]['predicate'] in relations]
+            parents = [x[1] for x in out_edges if x[2]["predicate"] in relations]
     return parents
 
 
-def get_ancestors(graph: BaseGraph, node: str, relations: List[str] = None) -> List[str]:
+def get_ancestors(
+    graph: BaseGraph, node: str, relations: List[str] = None
+) -> List[str]:
     """
     Return all `ancestors` of specified node, filtered by ``relations``.
 
@@ -104,11 +102,13 @@ def get_category_via_superclass(
     new_categories = []
     toolkit = get_toolkit()
     if PrefixManager.is_curie(curie):
-        ancestors = get_ancestors(graph, curie, relations=['subclass_of'])
+        ancestors = get_ancestors(graph, curie, relations=["subclass_of"])
         if len(ancestors) == 0 and load_ontology:
             cls = get_curie_lookup_service()
             ontology_graph = cls.ontology_graph
-            new_categories += [x for x in get_category_via_superclass(ontology_graph, curie, False)]
+            new_categories += [
+                x for x in get_category_via_superclass(ontology_graph, curie, False)
+            ]
         log.debug("Ancestors for CURIE {} via subClassOf: {}".format(curie, ancestors))
         seen = []
         for anc in ancestors:
@@ -117,7 +117,9 @@ def get_category_via_superclass(
             if mapping:
                 # there is direct mapping to BioLink Model
                 log.debug("Ancestor {} mapped to {}".format(anc, mapping))
-                seen_labels = [graph.nodes()[x]['name'] for x in seen if 'name' in graph.nodes()[x]]
+                seen_labels = [
+                    graph.nodes()[x]["name"] for x in seen if "name" in graph.nodes()[x]
+                ]
                 new_categories += [x for x in seen_labels]
                 new_categories += [x for x in toolkit.ancestors(mapping)]
                 break
@@ -146,10 +148,10 @@ def curie_lookup(curie: str) -> Optional[str]:
     cls = get_curie_lookup_service()
     name: Optional[str] = None
     prefix = PrefixManager.get_prefix(curie)
-    if prefix in ['OIO', 'OWL', 'owl', 'OBO', 'rdfs']:
-        name = stringcase.snakecase(curie.split(':', 1)[1])
+    if prefix in ["OIO", "OWL", "owl", "OBO", "rdfs"]:
+        name = stringcase.snakecase(curie.split(":", 1)[1])
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
-        name = cls.ontology_graph.nodes()[curie]['name']
+        name = cls.ontology_graph.nodes()[curie]["name"]
     return name

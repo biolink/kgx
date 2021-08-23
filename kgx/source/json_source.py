@@ -20,7 +20,7 @@ class JsonSource(TsvSource):
     def parse(
         self,
         filename: str,
-        format: str = 'json',
+        format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any
     ) -> Generator:
@@ -67,11 +67,11 @@ class JsonSource(TsvSource):
             A generator for node records
 
         """
-        if self.compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if self.compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for n in ijson.items(FH, 'nodes.item'):
+            FH = open(filename, "rb")
+        for n in ijson.items(FH, "nodes.item"):
             yield self.read_node(n)
 
     def read_edges(self, filename: str) -> Generator:
@@ -89,9 +89,9 @@ class JsonSource(TsvSource):
             A generator for edge records
 
         """
-        if self.compression == 'gz':
-            FH = gzip.open(filename, 'rb')
+        if self.compression == "gz":
+            FH = gzip.open(filename, "rb")
         else:
-            FH = open(filename, 'rb')
-        for e in ijson.items(FH, 'edges.item'):
+            FH = open(filename, "rb")
+        for e in ijson.items(FH, "edges.item"):
             yield self.read_edge(e)

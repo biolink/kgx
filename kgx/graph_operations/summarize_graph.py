@@ -11,21 +11,21 @@ from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
 
-TOTAL_NODES = 'total_nodes'
-NODE_CATEGORIES = 'node_categories'
+TOTAL_NODES = "total_nodes"
+NODE_CATEGORIES = "node_categories"
 
-NODE_ID_PREFIXES_BY_CATEGORY = 'node_id_prefixes_by_category'
-NODE_ID_PREFIXES = 'node_id_prefixes'
+NODE_ID_PREFIXES_BY_CATEGORY = "node_id_prefixes_by_category"
+NODE_ID_PREFIXES = "node_id_prefixes"
 
-COUNT_BY_CATEGORY = 'count_by_category'
+COUNT_BY_CATEGORY = "count_by_category"
 
-COUNT_BY_ID_PREFIXES_BY_CATEGORY = 'count_by_id_prefixes_by_category'
-COUNT_BY_ID_PREFIXES = 'count_by_id_prefixes'
+COUNT_BY_ID_PREFIXES_BY_CATEGORY = "count_by_id_prefixes_by_category"
+COUNT_BY_ID_PREFIXES = "count_by_id_prefixes"
 
-TOTAL_EDGES = 'total_edges'
-EDGE_PREDICATES = 'predicates'
-COUNT_BY_EDGE_PREDICATES = 'count_by_predicates'
-COUNT_BY_SPO = 'count_by_spo'
+TOTAL_EDGES = "total_edges"
+EDGE_PREDICATES = "predicates"
+COUNT_BY_EDGE_PREDICATES = "count_by_predicates"
+COUNT_BY_SPO = "count_by_spo"
 
 
 # Note: the format of the stats generated might change in the future
@@ -33,6 +33,7 @@ COUNT_BY_SPO = 'count_by_spo'
 ####################################################################################
 # New "Inspector Class" design pattern for KGX stream data processing
 ####################################################################################
+
 
 def gs_default(o):
     """
@@ -59,8 +60,8 @@ _predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 # DRY parse warning message
 def _parse_warning(prefix: str, item: str, suffix: str = None):
     print(
-        prefix + " '" + item + "'" + (" "+suffix if suffix else '') + "? Ignoring...",
-        file=GraphSummary.error_log
+        prefix + " '" + item + "'" + (" " + suffix if suffix else "") + "? Ignoring...",
+        file=GraphSummary.error_log,
     )
 
 
@@ -85,13 +86,13 @@ class GraphSummary:
     error_log = stderr
 
     def __init__(
-            self,
-            name='',
-            node_facet_properties: Optional[List] = None,
-            edge_facet_properties: Optional[List] = None,
-            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
-            error_log: str = None,
-            **kwargs
+        self,
+        name="",
+        node_facet_properties: Optional[List] = None,
+        edge_facet_properties: Optional[List] = None,
+        progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+        error_log: str = None,
+        **kwargs,
     ):
         """
         GraphSummary constructor.
@@ -130,24 +131,26 @@ class GraphSummary:
         self.edge_stats: Dict = {
             TOTAL_EDGES: 0,
             EDGE_PREDICATES: set(),
-            COUNT_BY_EDGE_PREDICATES: {'unknown': {'count': 0}},
+            COUNT_BY_EDGE_PREDICATES: {"unknown": {"count": 0}},
             COUNT_BY_SPO: {},
         }
-        
+
         self.node_facet_properties: Optional[List] = node_facet_properties
         if self.node_facet_properties:
             for facet_property in self.node_facet_properties:
                 self.add_node_stat(facet_property, set())
-                
+
         self.edge_facet_properties: Optional[List] = edge_facet_properties
         if self.edge_facet_properties:
             for facet_property in self.edge_facet_properties:
                 self.edge_stats[facet_property] = set()
 
-        self.progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = progress_monitor
+        self.progress_monitor: Optional[
+            Callable[[GraphEntityType, List], None]
+        ] = progress_monitor
 
         if error_log:
-            GraphSummary.error_log = open(error_log, mode='w')
+            GraphSummary.error_log = open(error_log, mode="w")
 
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
@@ -155,7 +158,7 @@ class GraphSummary:
         self.node_categories: Dict[str, GraphSummary.Category] = dict()
 
         # indexed internally with category index id '0'
-        self.node_categories['unknown'] = GraphSummary.Category('unknown', self)
+        self.node_categories["unknown"] = GraphSummary.Category("unknown", self)
 
         self.graph_stats: Dict[str, Dict] = dict()
 
@@ -193,6 +196,7 @@ class GraphSummary:
         """
         Internal class for compiling statistics about a distinct category.
         """
+
         # The 'category map' just associates a unique int catalog
         # index ('cid') value as a proxy for the full curie string,
         # to reduce storage in the main node catalog
@@ -207,7 +211,10 @@ class GraphSummary:
                 Biolink Model category curie identifier.
 
             """
-            if not (_category_curie_regexp.fullmatch(category_curie) or category_curie == "unknown"):
+            if not (
+                _category_curie_regexp.fullmatch(category_curie)
+                or category_curie == "unknown"
+            ):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category_curie)
 
             # generally, a Biolink  category class CURIE but also 'unknown'
@@ -220,17 +227,21 @@ class GraphSummary:
             # ...so that Category related entries at that
             # higher level may be properly initialized
             # for subsequent facet metadata access
-            if not self.category_curie == 'unknown':
+            if not self.category_curie == "unknown":
                 self.summary.node_stats[NODE_CATEGORIES].add(self.category_curie)
-            self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][self.category_curie] = set()
-            self.summary.node_stats[COUNT_BY_CATEGORY][self.category_curie] = {'count': 0}
+            self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][
+                self.category_curie
+            ] = set()
+            self.summary.node_stats[COUNT_BY_CATEGORY][self.category_curie] = {
+                "count": 0
+            }
 
             if self.category_curie not in self._category_curie_map:
                 self._category_curie_map.append(self.category_curie)
             self.category_stats: Dict[str, Any] = dict()
-            self.category_stats['count']: int = 0
-            self.category_stats['count_by_source']: Dict[str, int] = {'unknown': 0}
-            self.category_stats['count_by_id_prefix']: Dict[str, int] = dict()
+            self.category_stats["count"]: int = 0
+            self.category_stats["count_by_source"]: Dict[str, int] = {"unknown": 0}
+            self.category_stats["count_by_id_prefix"]: Dict[str, int] = dict()
 
         def get_name(self) -> str:
             """
@@ -272,7 +283,7 @@ class GraphSummary:
             Set[str]
                 Set of identifier prefix (strings) used by nodes of this Category.
             """
-            return set(self.category_stats['count_by_id_prefix'].keys())
+            return set(self.category_stats["count_by_id_prefix"].keys())
 
         def get_count_by_id_prefixes(self):
             """
@@ -281,7 +292,7 @@ class GraphSummary:
             int
                 Count of nodes by id_prefixes for nodes which have this category.
             """
-            return self.category_stats['count_by_id_prefix']
+            return self.category_stats["count_by_id_prefix"]
 
         def get_count(self):
             """
@@ -290,31 +301,31 @@ class GraphSummary:
             int
                 Count of nodes which have this category.
             """
-            return self.category_stats['count']
+            return self.category_stats["count"]
 
         def _capture_prefix(self, n: str):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 print(
                     f"Warning: node id {n} has no CURIE prefix",
-                    file=GraphSummary.error_log
+                    file=GraphSummary.error_log,
                 )
             else:
-                if prefix in self.category_stats['count_by_id_prefix']:
-                    self.category_stats['count_by_id_prefix'][prefix] += 1
+                if prefix in self.category_stats["count_by_id_prefix"]:
+                    self.category_stats["count_by_id_prefix"][prefix] += 1
                 else:
-                    self.category_stats['count_by_id_prefix'][prefix] = 1
-        
+                    self.category_stats["count_by_id_prefix"][prefix] = 1
+
         def _capture_knowledge_source(self, data: Dict):
-            if 'provided_by' in data:
-                for s in data['provided_by']:
-                    if s in self.category_stats['count_by_source']:
-                        self.category_stats['count_by_source'][s] += 1
+            if "provided_by" in data:
+                for s in data["provided_by"]:
+                    if s in self.category_stats["count_by_source"]:
+                        self.category_stats["count_by_source"][s] += 1
                     else:
-                        self.category_stats['count_by_source'][s] = 1
+                        self.category_stats["count_by_source"][s] = 1
             else:
-                self.category_stats['count_by_source']['unknown'] += 1
-        
+                self.category_stats["count_by_source"]["unknown"] += 1
+
         def analyse_node_category(self, summary, n, data):
             """
             Analyse metadata of a given graph node record of this category.
@@ -329,16 +340,20 @@ class GraphSummary:
                 Complete data dictionary of node record fields.
 
             """
-            self.category_stats['count'] += 1
+            self.category_stats["count"] += 1
 
             self._capture_prefix(n)
 
             self._capture_knowledge_source(data)
-            
+
             if summary.node_facet_properties:
                 for facet_property in summary.node_facet_properties:
                     summary.node_stats = summary.get_facet_counts(
-                        data, summary.node_stats, COUNT_BY_CATEGORY, self.category_curie, facet_property
+                        data,
+                        summary.node_stats,
+                        COUNT_BY_CATEGORY,
+                        self.category_curie,
+                        facet_property,
                     )
 
         def json_object(self):
@@ -349,10 +364,10 @@ class GraphSummary:
                 Returns JSON friendly metadata for this category.,
             """
             return {
-                'id_prefixes': list(self.category_stats['count_by_id_prefix'].keys()),
-                'count': self.category_stats['count'],
-                'count_by_source': self.category_stats['count_by_source'],
-                'count_by_id_prefix': self.category_stats['count_by_id_prefix']
+                "id_prefixes": list(self.category_stats["count_by_id_prefix"].keys()),
+                "count": self.category_stats["count"],
+                "count_by_source": self.category_stats["count_by_source"],
+                "count_by_id_prefix": self.category_stats["count_by_id_prefix"],
             }
 
     def get_category(self, category_curie: str) -> Category:
@@ -373,27 +388,29 @@ class GraphSummary:
         return self.node_stats[category_curie]
 
     def _process_category_field(self, category_field: str, n: str, data: Dict):
-    
+
         # we note here that category_curie *may be*
         # a piped '|' set of Biolink category CURIE values
         category_list = category_field.split("|")
-    
+
         # analyse them each independently...
         for category_curie in category_list:
-        
+
             if category_curie not in self.node_categories:
                 try:
-                    self.node_categories[category_curie] = self.Category(category_curie, self)
+                    self.node_categories[category_curie] = self.Category(
+                        category_curie, self
+                    )
                 except RuntimeError:
                     _parse_warning("Invalid category CURIE", category_curie)
                     continue
-        
+
             category_record = self.node_categories[category_curie]
             category_idx: int = category_record.get_cid()
             if category_idx not in self.node_catalog[n]:
                 self.node_catalog[n].append(category_idx)
             category_record.analyse_node_category(self, n, data)
-    
+
         #
         # Moved this computation from the 'analyse_node_category() method above
         #
@@ -402,7 +419,7 @@ class GraphSummary:
         #         self.node_stats = self.get_facet_counts(
         #             data, self.node_stats, COUNT_BY_CATEGORY, category_curie, facet_property
         #         )
-    
+
     def analyse_node(self, n, data):
         """
         Analyse metadata of one graph node record.
@@ -417,63 +434,74 @@ class GraphSummary:
         """
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            _parse_warning("Duplicate node identifier", n, "encountered in input node data")
+            _parse_warning(
+                "Duplicate node identifier", n, "encountered in input node data"
+            )
             return
         else:
             self.node_catalog[n] = list()
-        
-        if 'category' in data and data['category']:
-            categories = data['category']
+
+        if "category" in data and data["category"]:
+            categories = data["category"]
 
         else:
-            categories = ['unknown']
+            categories = ["unknown"]
             print(
-                "Node with identifier '" + n + "' is missing its 'category' value? Tagging it as 'unknown'",
-                file=GraphSummary.error_log
+                "Node with identifier '"
+                + n
+                + "' is missing its 'category' value? Tagging it as 'unknown'",
+                file=GraphSummary.error_log,
             )
 
         # analyse them each independently...
         for category_field in categories:
             self._process_category_field(category_field, n, data)
-    
+
     def _capture_predicate(self, data: Dict) -> Optional[str]:
-        if 'predicate' not in data:
-            self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] += 1
+        if "predicate" not in data:
+            self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] += 1
             predicate = "unknown"
         else:
-            predicate = data['predicate']
-        
+            predicate = data["predicate"]
+
             if not _predicate_curie_regexp.fullmatch(predicate):
                 _parse_warning("Invalid  predicate CURIE", predicate)
                 return None
-        
+
             self.edge_stats[EDGE_PREDICATES].add(predicate)
             if predicate in self.edge_stats[COUNT_BY_EDGE_PREDICATES]:
-                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate]['count'] += 1
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate]["count"] += 1
             else:
-                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate] = {'count': 1}
-        
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES][predicate] = {"count": 1}
+
             if self.edge_facet_properties:
                 for facet_property in self.edge_facet_properties:
                     self.edge_stats = self.get_facet_counts(
-                        data, self.edge_stats, COUNT_BY_EDGE_PREDICATES, predicate, facet_property
+                        data,
+                        self.edge_stats,
+                        COUNT_BY_EDGE_PREDICATES,
+                        predicate,
+                        facet_property,
                     )
-                    
+
         return predicate
 
-    def _process_triple(self, subject_category: str, predicate: str, object_category: str, data: Dict):
+    def _process_triple(
+        self, subject_category: str, predicate: str, object_category: str, data: Dict
+    ):
         # Process the 'valid' S-P-O triple here...
         key = f"{subject_category}-{predicate}-{object_category}"
         if key in self.edge_stats[COUNT_BY_SPO]:
-            self.edge_stats[COUNT_BY_SPO][key]['count'] += 1
+            self.edge_stats[COUNT_BY_SPO][key]["count"] += 1
         else:
-            self.edge_stats[COUNT_BY_SPO][key] = {'count': 1}
-    
+            self.edge_stats[COUNT_BY_SPO][key] = {"count": 1}
+
         if self.edge_facet_properties:
             for facet_property in self.edge_facet_properties:
-                self.edge_stats = \
-                    self.get_facet_counts(data, self.edge_stats, COUNT_BY_SPO, key, facet_property)
-    
+                self.edge_stats = self.get_facet_counts(
+                    data, self.edge_stats, COUNT_BY_SPO, key, facet_property
+                )
+
     def analyse_edge(self, u: str, v: str, k: str, data: Dict):
         """
         Analyse metadata of one graph edge record.
@@ -498,12 +526,12 @@ class GraphSummary:
         self.edge_stats[TOTAL_EDGES] += 1
 
         predicate: str = self._capture_predicate(data)
-        
+
         if u not in self.node_catalog:
             _parse_warning("Edge 'subject' node ID", u, "not found in node catalog")
             # removing from edge count
             self.edge_stats[TOTAL_EDGES] -= 1
-            self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
+            self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
             return
 
         for subj_cat_idx in self.node_catalog[u]:
@@ -513,35 +541,42 @@ class GraphSummary:
             if v not in self.node_catalog:
                 _parse_warning("Edge 'object' node ID", v, "not found in node catalog")
                 self.edge_stats[TOTAL_EDGES] -= 1
-                self.edge_stats[COUNT_BY_EDGE_PREDICATES]['unknown']['count'] -= 1
+                self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
                 return
 
             for obj_cat_idx in self.node_catalog[v]:
 
-                object_category = self.Category._get_category_curie_by_index(obj_cat_idx)
+                object_category = self.Category._get_category_curie_by_index(
+                    obj_cat_idx
+                )
 
                 self._process_triple(subject_category, predicate, object_category, data)
-    
+
     def _compile_prefix_stats_by_category(self, category_curie: str):
         for prefix in self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie]:
             if prefix not in self.node_stats[COUNT_BY_ID_PREFIXES]:
                 self.node_stats[COUNT_BY_ID_PREFIXES][prefix] = 0
-            self.node_stats[COUNT_BY_ID_PREFIXES][prefix] += \
-                self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie][prefix]
-    
+            self.node_stats[COUNT_BY_ID_PREFIXES][prefix] += self.node_stats[
+                COUNT_BY_ID_PREFIXES_BY_CATEGORY
+            ][category_curie][prefix]
+
     def _compile_category_stats(self, node_category: Category):
         category_curie = node_category.get_name()
-    
-        self.node_stats[COUNT_BY_CATEGORY][category_curie]['count'] = node_category.get_count()
-    
+
+        self.node_stats[COUNT_BY_CATEGORY][category_curie][
+            "count"
+        ] = node_category.get_count()
+
         id_prefixes = node_category.get_id_prefixes()
         self.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][category_curie] = id_prefixes
         self.node_stats[NODE_ID_PREFIXES].update(id_prefixes)
-    
-        self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][category_curie] = node_category.get_count_by_id_prefixes()
-    
+
+        self.node_stats[COUNT_BY_ID_PREFIXES_BY_CATEGORY][
+            category_curie
+        ] = node_category.get_count_by_id_prefixes()
+
         self._compile_prefix_stats_by_category(category_curie)
-    
+
     def get_node_stats(self) -> Dict[str, Any]:
         """
         Returns
@@ -550,23 +585,27 @@ class GraphSummary:
             Statistics for the nodes in the graph.
         """
         if not self.nodes_processed:
-            
+
             self.nodes_processed = True
 
             for node_category in self.node_categories.values():
                 self._compile_category_stats(node_category)
 
-            self.node_stats[NODE_CATEGORIES] = sorted(list(self.node_stats[NODE_CATEGORIES]))
+            self.node_stats[NODE_CATEGORIES] = sorted(
+                list(self.node_stats[NODE_CATEGORIES])
+            )
 
             if self.node_facet_properties:
                 for facet_property in self.node_facet_properties:
-                    self.node_stats[facet_property] = sorted(list(self.node_stats[facet_property]))
+                    self.node_stats[facet_property] = sorted(
+                        list(self.node_stats[facet_property])
+                    )
 
             if not self.node_stats[TOTAL_NODES]:
                 self.node_stats[TOTAL_NODES] = len(self.node_catalog)
 
         return self.node_stats
-    
+
     def add_node_stat(self, tag: str, value: Any):
         """
         Compile/add a nodes statistic for a given tag = value annotation of the node.
@@ -584,33 +623,37 @@ class GraphSummary:
 
         """
         self.node_stats[tag] = value
-    
+
     def get_edge_stats(self) -> Dict[str, Any]:
         # Not sure if this is "safe" but assume that edge_stats may be finalized
         # and cached once after the first time the edge stats are accessed
         if not self.edges_processed:
             self.edges_processed = True
 
-            self.edge_stats[EDGE_PREDICATES] = sorted(list(self.edge_stats[EDGE_PREDICATES]))
+            self.edge_stats[EDGE_PREDICATES] = sorted(
+                list(self.edge_stats[EDGE_PREDICATES])
+            )
 
             if self.edge_facet_properties:
                 for facet_property in self.edge_facet_properties:
-                    self.edge_stats[facet_property] = sorted(list(self.edge_stats[facet_property]))
-        
+                    self.edge_stats[facet_property] = sorted(
+                        list(self.edge_stats[facet_property])
+                    )
+
         return self.edge_stats
 
     def _wrap_graph_stats(
-            self,
-            graph_name: str,
-            node_stats: Dict[str, Any],
-            edge_stats: Dict[str, Any],
+        self,
+        graph_name: str,
+        node_stats: Dict[str, Any],
+        edge_stats: Dict[str, Any],
     ):
         # Utility wrapper function to support DRY code below.
         if not self.graph_stats:
             self.graph_stats = {
-                'graph_name': graph_name,
-                'node_stats': node_stats,
-                'edge_stats': edge_stats,
+                "graph_name": graph_name,
+                "node_stats": node_stats,
+                "edge_stats": edge_stats,
             }
         return self.graph_stats
 
@@ -636,13 +679,10 @@ class GraphSummary:
         return self._wrap_graph_stats(
             graph_name=name if name else self.name,
             node_stats=self.get_node_stats(),
-            edge_stats=self.get_edge_stats()
+            edge_stats=self.get_edge_stats(),
         )
-    
-    def summarize_graph(
-            self,
-            graph: BaseGraph
-    ) -> Dict:
+
+    def summarize_graph(self, graph: BaseGraph) -> Dict:
         """
         Summarize the entire graph.
 
@@ -660,9 +700,9 @@ class GraphSummary:
         return self._wrap_graph_stats(
             graph_name=self.name if self.name else graph.name,
             node_stats=self.summarize_graph_nodes(graph),
-            edge_stats=self.summarize_graph_edges(graph)
+            edge_stats=self.summarize_graph_edges(graph),
         )
-    
+
     def summarize_graph_nodes(self, graph: BaseGraph) -> Dict:
         """
         Summarize the nodes in a graph.
@@ -679,9 +719,9 @@ class GraphSummary:
         """
         for n, data in graph.nodes(data=True):
             self.analyse_node(n, data)
-        
+
         return self.get_node_stats()
-    
+
     def summarize_graph_edges(self, graph: BaseGraph) -> Dict:
         """
         Summarize the edges in a graph.
@@ -698,21 +738,25 @@ class GraphSummary:
         """
         for u, v, k, data in graph.edges(keys=True, data=True):
             self.analyse_edge(u, v, k, data)
-        
+
         return self.get_edge_stats()
-    
-    def _compile_facet_stats(self, stats: Dict, x: str, y: str, facet_property: str, value: str):
-    
+
+    def _compile_facet_stats(
+        self, stats: Dict, x: str, y: str, facet_property: str, value: str
+    ):
+
         if facet_property not in stats[x][y]:
             stats[x][y][facet_property] = {}
-    
+
         if value in stats[x][y][facet_property]:
-            stats[x][y][facet_property][value]['count'] += 1
+            stats[x][y][facet_property][value]["count"] += 1
         else:
-            stats[x][y][facet_property][value] = {'count': 1}
+            stats[x][y][facet_property][value] = {"count": 1}
             stats[facet_property].update([value])
-    
-    def get_facet_counts(self, data: Dict, stats: Dict, x: str, y: str, facet_property: str) -> Dict:
+
+    def get_facet_counts(
+        self, data: Dict, stats: Dict, x: str, y: str, facet_property: str
+    ) -> Dict:
         """
         Facet on ``facet_property`` and record the count for ``stats[x][y][facet_property]``.
 
@@ -743,10 +787,10 @@ class GraphSummary:
                 k = data[facet_property]
                 self._compile_facet_stats(stats, x, y, facet_property, k)
         else:
-            self._compile_facet_stats(stats, x, y, facet_property, 'unknown')
+            self._compile_facet_stats(stats, x, y, facet_property, "unknown")
         return stats
-    
-    def save(self, file, name: str = None, file_format: str = 'yaml'):
+
+    def save(self, file, name: str = None, file_format: str = "yaml"):
         """
         Save the current GraphSummary to a specified (open) file (device).
 
@@ -764,18 +808,18 @@ class GraphSummary:
         None
         """
         stats = self.get_graph_summary(name)
-        if not file_format or file_format == 'yaml':
+        if not file_format or file_format == "yaml":
             yaml.dump(stats, file)
         else:
             dump(stats, file, indent=4, default=gs_default)
 
 
 def generate_graph_stats(
-        graph: BaseGraph,
-        graph_name: str,
-        filename: str,
-        node_facet_properties: Optional[List] = None,
-        edge_facet_properties: Optional[List] = None,
+    graph: BaseGraph,
+    graph_name: str,
+    filename: str,
+    node_facet_properties: Optional[List] = None,
+    edge_facet_properties: Optional[List] = None,
 ) -> None:
     """
     Generate stats from Graph.
@@ -794,16 +838,18 @@ def generate_graph_stats(
         A list of properties to facet on. For example, ``['knowledge_source']``
 
     """
-    stats = summarize_graph(graph, graph_name, node_facet_properties, edge_facet_properties)
-    with open(filename, 'w') as gsh:
+    stats = summarize_graph(
+        graph, graph_name, node_facet_properties, edge_facet_properties
+    )
+    with open(filename, "w") as gsh:
         yaml.dump(stats, gsh)
 
 
 def summarize_graph(
-        graph: BaseGraph,
-        name: str = None,
-        node_facet_properties: Optional[List] = None,
-        edge_facet_properties: Optional[List] = None,
+    graph: BaseGraph,
+    name: str = None,
+    node_facet_properties: Optional[List] = None,
+    edge_facet_properties: Optional[List] = None,
 ) -> Dict:
     """
     Summarize the entire graph.
