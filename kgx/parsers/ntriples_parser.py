@@ -39,6 +39,7 @@ class CustomNTriplesParser(NTriplesParser):
             if self.line is None:
                 break
             if self.line == "":
+                raise ParseError(f"Empty line encountered in {filename}")
                 break
             try:
                 yield from self.parseline()
