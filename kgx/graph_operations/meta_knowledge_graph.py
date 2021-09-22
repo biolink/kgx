@@ -471,7 +471,7 @@ class MetaKnowledgeGraph:
 
     @staticmethod
     def _normalize_and_hash_field(name, field) -> Union[str, Tuple]:
-        if isinstance(field, List):
+        if isinstance(field, List) or isinstance(field, Tuple):
             # eliminate duplicate terms
             field_set = set(field)
             if len(field_set) == 1:
