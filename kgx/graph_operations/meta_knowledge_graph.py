@@ -469,6 +469,22 @@ class MetaKnowledgeGraph:
             data,
         )
 
+    @staticmethod
+    def _normalize_and_hash_field(name, field) -> Union[str, Tuple]:
+        if isinstance(field, List):
+            # eliminate duplicate terms
+            field_set = set(field)
+            if len(field_set) == 1:
+                # if only one element left, return as a scalar
+                return field_set.pop()
+            else:
+                # otherwise, make the set of term a hashable immutable
+                return tuple(field_set)
+        elif isinstance(field, str):
+            return field
+        else:
+            raise TypeError(f"Unexpected KGX '{name}' edge data field of type '{type(field)}'")
+
     def _process_triple(
         self, subject_category: str, predicate: str, object_category: str, data: Dict
     ):
@@ -484,11 +500,13 @@ class MetaKnowledgeGraph:
                 "count": 0,
             }
 
-        if (
-            "relation" in data
-            and data["relation"] not in self.association_map[triple]["relations"]
-        ):
-            self.association_map[triple]["relations"].add(data["relation"])
+        # patch for observed defect in some ETL's such as the July 2021 SRI Reference graph
+        # in which the relation field ends up being a list of terms, sometimes duplicated
+
+        if "relation" in data:
+            data["relation"] = self._normalize_and_hash_field("relation", data["relation"])
+            if data["relation"] not in self.association_map[triple]["relations"]:
+                self.association_map[triple]["relations"].add(data["relation"])
 
         self.association_map[triple]["count"] += 1
 
@@ -902,10 +920,10 @@ class MetaKnowledgeGraph:
             yaml.dump(stats, file)
 
 
-def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
+def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str, **kwargs) -> None:
     """
-    Generate a knowledge map that describes the composition of the graph
-    and write to ``filename``.
+    Generate a knowledge map that describes
+    the composition of the graph and write to ``filename``.
 
     Parameters
     ----------
@@ -917,7 +935,7 @@ def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) ->
         The file to write the knowledge map to
 
     """
-    graph_stats = summarize_graph(graph, name)
+    graph_stats = summarize_graph(graph, name, **kwargs)
     with open(filename, mode="w") as mkgh:
         dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
@@ -940,5 +958,5 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     Dict
         A TRAPI 1.1 compliant meta knowledge graph of the knowledge graph returned as a dictionary.
     """
-    mkg = MetaKnowledgeGraph(name)
+    mkg = MetaKnowledgeGraph(name, **kwargs)
     return mkg.summarize_graph(graph)
