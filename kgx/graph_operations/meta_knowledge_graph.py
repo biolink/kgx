@@ -73,13 +73,13 @@ class MetaKnowledgeGraph:
     error_log = stderr
 
     def __init__(
-        self,
-        name="",
-        node_facet_properties: Optional[List] = None,
-        edge_facet_properties: Optional[List] = None,
-        progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
-        error_log=None,
-        **kwargs,
+            self,
+            name="",
+            node_facet_properties: Optional[List] = None,
+            edge_facet_properties: Optional[List] = None,
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            error_log=None,
+            **kwargs,
     ):
         """
             MetaKnowledgeGraph constructor.
@@ -213,8 +213,8 @@ class MetaKnowledgeGraph:
                 Biolink Model category CURIE identifier.
             """
             if not (
-                _category_curie_regexp.fullmatch(category_curie)
-                or category_curie == "unknown"
+                    _category_curie_regexp.fullmatch(category_curie)
+                    or category_curie == "unknown"
             ):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category_curie)
 
@@ -280,7 +280,7 @@ class MetaKnowledgeGraph:
             return self.category_stats["count"]
 
         def get_count_by_source(
-            self, facet: str = "provided_by", source: str = None
+                self, facet: str = "provided_by", source: str = None
         ) -> Dict[str, Any]:
             """
             Parameters
@@ -470,23 +470,23 @@ class MetaKnowledgeGraph:
         )
 
     @staticmethod
-    def _normalize_and_hash_field(name, field) -> Union[str, Tuple]:
-        if isinstance(field, List) or isinstance(field, Tuple):
+    def _normalize_relation_field(field) -> Set:
+        # various non-string iterables...
+        if isinstance(field, List) or \
+                isinstance(field, Tuple) or \
+                isinstance(field, Set):
             # eliminate duplicate terms
-            field_set = set(field)
-            if len(field_set) == 1:
-                # if only one element left, return as a scalar
-                return field_set.pop()
-            else:
-                # otherwise, make the set of term a hashable immutable
-                return tuple(field_set)
+            # and normalize to a set
+            return set(field)
         elif isinstance(field, str):
-            return field
+            # for uniformity, we coerce
+            # to a set of one element
+            return {field}
         else:
-            raise TypeError(f"Unexpected KGX '{name}' edge data field of type '{type(field)}'")
+            raise TypeError(f"Unexpected KGX edge 'relation' data field of type '{type(field)}'")
 
     def _process_triple(
-        self, subject_category: str, predicate: str, object_category: str, data: Dict
+            self, subject_category: str, predicate: str, object_category: str, data: Dict
     ):
         # Process the 'valid' S-P-O triple here...
         triple = (subject_category, predicate, object_category)
@@ -504,9 +504,9 @@ class MetaKnowledgeGraph:
         # in which the relation field ends up being a list of terms, sometimes duplicated
 
         if "relation" in data:
-            data["relation"] = self._normalize_and_hash_field("relation", data["relation"])
-            if data["relation"] not in self.association_map[triple]["relations"]:
-                self.association_map[triple]["relations"].add(data["relation"])
+            # input data["relation"] is normalized to a Set here
+            data["relation"] = self._normalize_relation_field(data["relation"])
+            self.association_map[triple]["relations"].update(data["relation"])
 
         self.association_map[triple]["count"] += 1
 
@@ -563,7 +563,6 @@ class MetaKnowledgeGraph:
                 return
 
             for obj_cat_idx in self.node_catalog[v]:
-
                 object_category: str = self.Category.get_category_curie_from_index(
                     obj_cat_idx
                 )
@@ -751,12 +750,12 @@ class MetaKnowledgeGraph:
         return count
 
     def get_edge_count_by_source(
-        self,
-        subject_category: str,
-        predicate: str,
-        object_category: str,
-        facet: str = "knowledge_source",
-        source: Optional[str] = None,
+            self,
+            subject_category: str,
+            predicate: str,
+            object_category: str,
+            facet: str = "knowledge_source",
+            source: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Returns count by source for one S-P-O triple (S, O being Biolink categories; P, a Biolink predicate)
@@ -769,8 +768,8 @@ class MetaKnowledgeGraph:
             return dict()
         triple = (subject_category, predicate, object_category)
         if (
-            triple in self.association_map
-            and "count_by_source" in self.association_map[triple]
+                triple in self.association_map
+                and "count_by_source" in self.association_map[triple]
         ):
             if facet in self.association_map[triple]["count_by_source"]:
                 if source:
