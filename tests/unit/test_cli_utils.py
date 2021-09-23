@@ -44,7 +44,15 @@ def test_graph_summary1():
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
     output = os.path.join(TARGET_DIR, "graph_stats1.yaml")
-    summary_stats = graph_summary(inputs, "tsv", None, output, report_type="kgx-map")
+    summary_stats = graph_summary(
+        inputs,
+        "tsv",
+        None,
+        output,
+        node_facet_properties=["provided_by"],
+        edge_facet_properties=["aggregator_knowledge_source"],
+        report_type="kgx-map"
+    )
 
     assert os.path.exists(output)
     assert summary_stats
@@ -74,6 +82,8 @@ def test_graph_summary2a():
         None,
         output,
         report_type="meta-knowledge-graph",
+        node_facet_properties=["provided_by"],
+        edge_facet_properties=["aggregator_knowledge_source"],
         graph_name="Default Meta-Knowledge-Graph",
     )
 
@@ -101,6 +111,8 @@ def test_graph_summary2b():
         None,
         output,
         report_type="meta-knowledge-graph",
+        node_facet_properties=["provided_by"],
+        edge_facet_properties=["aggregator_knowledge_source"],
         report_format="yaml",
     )
 
@@ -126,6 +138,8 @@ def test_graph_summary2c():
         input_compression=None,
         output=output,
         report_type="meta-knowledge-graph",
+        node_facet_properties=["provided_by"],
+        edge_facet_properties=["aggregator_knowledge_source"],
         stream=True,
     )
 

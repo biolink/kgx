@@ -1,0 +1,10 @@
+id	name	category	taxon
+HGNC:10848	SHH (human)	biolink:Gene	NCBITaxon:9606
+NCBIGene:6469	SHH	biolink:Gene	NCBITaxon:9606
+HGNC:9398	OLIG2	biolink:Gene	NCBITaxon:9606
+HGNC:9399	PRKCD	biolink:Gene	NCBITaxon:9606
+HGNC:16265	WNT5B	biolink:Gene	NCBITaxon:9606
+HGNC:16466	SUFU	biolink:Gene	NCBITaxon:9606
+HGNC:16787	EDEM3	biolink:Gene	NCBITaxon:9606
+GO:0009986	cell surface	biolink:CellularComponent
+GO:0097190	apoptotic signaling pathway	biolink:BiologicalProcess
