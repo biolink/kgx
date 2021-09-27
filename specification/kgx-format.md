@@ -203,6 +203,28 @@ Few noted caveats of the TSV serialization:
 - If you have a large graph where some nodes have certain specialized properties but most of them do not, then you end up with a sparse TSV for nodes with several columns that have no value.
 - The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.
 
+## KGX format as JSONLINES
+
+The KGX Jsonlines format is similar to the TSV format in that there are two files - one for nodes and another for edges.
+
+- `nodes.jsonl`: each row corresponds to a Node record.
+- `edges.jsonl`: each row corresponds to an Edge record.
+
+A sample KGX Jsonlines that represents a graph with 2 nodes and 1 edge:
+
+nodes.jsonl
+```jsonlines
+{ "id": "HGNC:11603", "name": "TBX4", "category": ["biolink:Gene"],"provided_by": ["MonarchArchive:gwascatalog"] }
+{ "id": "MONDO:0005002", "name": "chronic obstructive pulmonary disease", "category": ["biolink:Disease"], "provided_by": ["MonarchArchive:gwascatalog"] }
+```
+
+edges.jsonl
+```jsonlines
+{ "id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e", "subject": "HGNC:11603", "predicate": "biolink:contributes_to", "object": "MONDO:0005002", "relation": "RO:0003304", "category": ["biolink:GeneToDiseaseAssociation"], "primary_knowledge_source": ["MonarchArchive:gwascatalog"], "publications": ["PMID:26634245", "PMID:26634244"] }
+```
+
+- The structure of jsonl nodes and edges is the same as the structures in the JSON representation,  but with one node or edge per line.
+- The jsonl is more streamable than json, without creating the sparseness of the TSV files.
 
 
 ## KGX format as RDF Turtle
