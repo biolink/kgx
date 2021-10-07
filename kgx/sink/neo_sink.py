@@ -1,6 +1,6 @@
 from typing import List, Union, Any
 
-from neo4j import GraphDatabase, Neo4jDriver
+from neo4j import GraphDatabase, Neo4jDriver, Session
 
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
@@ -44,6 +44,7 @@ class NeoSink(Sink):
         self.http_driver:Neo4jDriver = GraphDatabase.driver(
             uri, auth=(username, password)
         )
+        self.session:Session = self.http_driver.session()
 
     def _flush_node_cache(self):
         self._write_node_cache()
@@ -86,6 +87,7 @@ class NeoSink(Sink):
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
             query = self.generate_unwind_node_query(cypher_category)
+
             log.debug(query)
             nodes = self.node_cache[category]
             for x in range(0, len(nodes), batch_size):
@@ -93,7 +95,7 @@ class NeoSink(Sink):
                 log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
-                    self.http_driver.query(query, params={"nodes": batch})
+                    self.session.run(query, parameters={"nodes": batch})
                 except Exception as e:
                     log.error(e)
 
@@ -139,8 +141,8 @@ class NeoSink(Sink):
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
                 try:
-                    self.http_driver.query(
-                        query, params={"relationship": predicate, "edges": batch}
+                    self.session.run(
+                        query, parameters={"relationship": predicate, "edges": batch}
                     )
                 except Exception as e:
                     log.error(e)
@@ -247,7 +249,7 @@ class NeoSink(Sink):
             else:
                 query = NeoSink.create_constraint_query(category)
                 try:
-                    self.http_driver.query(query)
+                    self.session.run(query)
                     self._seen_categories.add(category)
                 except Exception as e:
                     log.error(e)
