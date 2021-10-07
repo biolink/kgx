@@ -60,16 +60,16 @@ def test_write_neo1(clean_slate):
     d = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
-
+    session = d.session()
     try:
-        results = d.query("MATCH (n) RETURN COUNT(*)")
+        results = session.run("MATCH (n) RETURN COUNT(*)")
         number_of_nodes = results[0][0]
         assert number_of_nodes == 3
     except Exception as e:
         print(e)
 
     try:
-        results = d.query("MATCH (s)-->(o) RETURN COUNT(*)")
+        results = session.run("MATCH (s)-->(o) RETURN COUNT(*)")
         number_of_edges = results[0][0]
         assert number_of_edges == 1
     except Exception as e:
@@ -99,14 +99,14 @@ def test_write_neo2(clean_slate, query):
         sink.write_edge(data)
     sink.finalize()
 
-    nr = sink.http_driver.query("MATCH (n) RETURN count(n)")
+    nr = sink.session.run("MATCH (n) RETURN count(n)")
     [node_counts] = [x for x in nr][0]
     assert node_counts >= query[1]
 
-    er = sink.http_driver.query("MATCH ()-[p]->() RETURN count(p)")
+    er = sink.sesssion.run("MATCH ()-[p]->() RETURN count(p)")
     [edge_counts] = [x for x in er][0]
     assert edge_counts >= query[2]
-    sink.http_driver.flush()
+
 
 
 @pytest.mark.skipif(
@@ -148,13 +148,13 @@ def test_write_neo3(clean_slate):
         sink.write_edge(data)
     sink.finalize()
 
-    nr = sink.http_driver.query("MATCH (n) RETURN n")
+    nr = sink.session.run("MATCH (n) RETURN n")
     nodes = []
     for node in nr:
         nodes.append(node)
 
     edges = []
-    er = sink.http_driver.query(
+    er = sink.session.run(
         "MATCH ()-[p]-() RETURN p",
         data_contents=True,
 #        returns=(Node, Relationship, Node),

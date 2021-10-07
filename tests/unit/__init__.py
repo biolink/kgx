@@ -5,7 +5,7 @@ from neo4j import GraphDatabase
 from kgx.graph.nx_graph import NxGraph
 
 CONTAINER_NAME = "kgx-neo4j-unit-test"
-DEFAULT_NEO4J_URL = "http://localhost:8484"
+DEFAULT_NEO4J_URL = "neo4j://localhost:7687"
 DEFAULT_NEO4J_USERNAME = "neo4j"
 DEFAULT_NEO4J_PASSWORD = "test"
 

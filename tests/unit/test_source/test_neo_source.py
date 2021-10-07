@@ -42,8 +42,9 @@ def test_read_neo(clean_slate):
     driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
+    session = driver.session()
     for q in queries:
-        driver.query(q)
+        session.run(q)
     s = NeoSource()
     g = s.parse(
         uri=DEFAULT_NEO4J_URL,

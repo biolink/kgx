@@ -139,7 +139,7 @@ class NeoSource(Source):
         query_result: Any
         counts: int = 0
         try:
-            query_result = self.http_driver.query(query)
+            query_result = self.session.run(query)
             for result in query_result:
                 counts = result[0]
         except Exception as e:
@@ -188,8 +188,7 @@ class NeoSource(Source):
         log.debug(query)
         nodes = []
         try:
-#            results = self.http_driver.query(query, returns=Node, data_contents=True)
-            results = self.http_driver.query(query)
+            results = self.session.run(query)
             if results:
                 nodes = [node[0] for node in results.rows]
         except Exception as e:
@@ -251,8 +250,7 @@ class NeoSource(Source):
         log.debug(query)
         edges = []
         try:
-            results = self.http_driver.query(
-#                query, returns=(Node, Relationship, Node), data_contents=True
+            results = self.session.run(
                 query
             )
             if results:

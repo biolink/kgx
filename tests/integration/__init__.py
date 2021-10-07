@@ -5,7 +5,7 @@ from neo4j import GraphDatabase
 from kgx.graph.nx_graph import NxGraph
 
 CONTAINER_NAME = "kgx-neo4j-integration-test"
-DEFAULT_NEO4J_URL = "http://localhost:7474"
+DEFAULT_NEO4J_URL = "neo4j://localhost:7687"
 DEFAULT_NEO4J_USERNAME = "neo4j"
 DEFAULT_NEO4J_PASSWORD = "test"
 
@@ -33,7 +33,7 @@ def clean_slate():
 
     q = "MATCH (n) DETACH DELETE (n)"
     try:
-        http_driver.query(q)
+        http_driver.session().run(q)
     except Exception as e:
         print(e)
 
