@@ -1,7 +1,6 @@
 from typing import List, Union, Any
 
-from neo4jrestclient.client import GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase, Neo4jDriver
 
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
@@ -42,8 +41,8 @@ class NeoSink(Sink):
         super().__init__()
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
+        self.http_driver:Neo4jDriver = GraphDatabase.driver(
+            uri, auth=(username, password)
         )
 
     def _flush_node_cache(self):
@@ -95,8 +94,8 @@ class NeoSink(Sink):
                 batch = nodes[x:y]
                 try:
                     self.http_driver.query(query, params={"nodes": batch})
-                except CypherException as ce:
-                    log.error(ce)
+                except Exception as e:
+                    log.error(e)
 
     def _flush_edge_cache(self):
         self._flush_node_cache()
@@ -143,8 +142,8 @@ class NeoSink(Sink):
                     self.http_driver.query(
                         query, params={"relationship": predicate, "edges": batch}
                     )
-                except CypherException as ce:
-                    log.error(ce)
+                except Exception as e:
+                    log.error(e)
 
     def finalize(self) -> None:
         """
@@ -250,8 +249,8 @@ class NeoSink(Sink):
                 try:
                     self.http_driver.query(query)
                     self._seen_categories.add(category)
-                except CypherException as ce:
-                    log.error(ce)
+                except Exception as e:
+                    log.error(e)
 
     @staticmethod
     def create_constraint_query(category: str) -> str:

@@ -1,7 +1,6 @@
 import docker
 import pytest
-from neo4jrestclient.client import GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase
 
 from kgx.graph.nx_graph import NxGraph
 
@@ -35,16 +34,14 @@ def clean_slate():
     """
     Delete all nodes and edges in Neo4j test container.
     """
-    http_driver = GraphDatabase(
-        DEFAULT_NEO4J_URL,
-        username=DEFAULT_NEO4J_USERNAME,
-        password=DEFAULT_NEO4J_PASSWORD,
+    http_driver = GraphDatabase.driver(
+        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
     q = "MATCH (n) DETACH DELETE (n)"
     try:
         http_driver.query(q)
-    except CypherException as ce:
-        print(ce)
+    except Exception as e:
+        print(e)
 
 
 def process_stream(g):

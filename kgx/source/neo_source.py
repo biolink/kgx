@@ -1,8 +1,7 @@
 import itertools
 from typing import Any, Dict, List, Optional, Iterator, Tuple, Generator
 
-from neo4jrestclient.client import Node, Relationship, GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase, Neo4jDriver
 
 from kgx.config import get_logger
 from kgx.source.source import Source
@@ -77,8 +76,8 @@ class NeoSource(Source):
             A generator for records
 
         """
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
+        self.http_driver:Neo4jDriver = GraphDatabase.driver(
+            uri, auth=(username, password)
         )
 
         self.set_provenance_map(kwargs)
@@ -143,8 +142,8 @@ class NeoSource(Source):
             query_result = self.http_driver.query(query)
             for result in query_result:
                 counts = result[0]
-        except CypherException as ce:
-            log.error(ce)
+        except Exception as e:
+            log.error(e)
         return counts
 
     def get_nodes(self, skip: int = 0, limit: int = 0, **kwargs: Any) -> List:
@@ -189,11 +188,12 @@ class NeoSource(Source):
         log.debug(query)
         nodes = []
         try:
-            results = self.http_driver.query(query, returns=Node, data_contents=True)
+#            results = self.http_driver.query(query, returns=Node, data_contents=True)
+            results = self.http_driver.query(query)
             if results:
                 nodes = [node[0] for node in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+        except Exception as e:
+            log.error(e)
         return nodes
 
     def get_edges(
@@ -252,12 +252,13 @@ class NeoSource(Source):
         edges = []
         try:
             results = self.http_driver.query(
-                query, returns=(Node, Relationship, Node), data_contents=True
+#                query, returns=(Node, Relationship, Node), data_contents=True
+                query
             )
             if results:
                 edges = [x for x in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+        except Exception as e:
+            log.error(e)
 
         return edges
 

@@ -1,5 +1,5 @@
 import pytest
-from neo4jrestclient.client import GraphDatabase
+from neo4j import GraphDatabase
 
 from kgx.source import NeoSource
 from tests.unit import (
@@ -39,10 +39,8 @@ def test_read_neo(clean_slate):
     """
     Read a graph from a Neo4j instance.
     """
-    driver = GraphDatabase(
-        DEFAULT_NEO4J_URL,
-        username=DEFAULT_NEO4J_USERNAME,
-        password=DEFAULT_NEO4J_PASSWORD,
+    driver = GraphDatabase.driver(
+        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
     for q in queries:
         driver.query(q)
