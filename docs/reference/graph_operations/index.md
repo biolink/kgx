@@ -13,6 +13,7 @@ nodes and/or edges of that graph.
    clique_merge
    graph_merge
    summarize_graph
+   meta_knowledge_graph
    knowledge_map
    remap_node_identifiers
    remap_node_property
