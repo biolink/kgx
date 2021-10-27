@@ -8,6 +8,7 @@ CONTAINER_NAME = "kgx-neo4j-unit-test"
 DEFAULT_NEO4J_URL = "neo4j://localhost:7687"
 DEFAULT_NEO4J_USERNAME = "neo4j"
 DEFAULT_NEO4J_PASSWORD = "test"
+DEFAULT_NEO4J_DATABASE = "neo4j"
 
 
 def check_container():
@@ -30,21 +31,33 @@ def check_container():
 
 
 @pytest.fixture(scope="function")
-def clean_slate():
+def clean_driver():
     """
     Delete all nodes and edges in Neo4j test container.
     """
     http_driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
+    # The following Cipher command would be better to clean the database completely
+    # before reuse, but alas, it is not supported in the Neo4j Community version?
+    #
+    # q = f"CREATE OR REPLACE DATABASE {DEFAULT_NEO4J_DATABASE}"
+    #
     q = "MATCH (n) DETACH DELETE (n)"
     try:
-        http_driver.query(q)
+        session = http_driver.session()
+        session.run(q)
     except Exception as e:
         print(e)
+        return None
+
+    return http_driver
 
 
-def process_stream(g):
+# TODO: this is a bit of misnomer: yes, it processes a stream
+#       but then loads it into in memory data structures.
+#       This could be problematic for huge graphs?
+def load_graph_dictionary(g):
     """
     Process a given stream into a nodes and edges dictionary.
     """

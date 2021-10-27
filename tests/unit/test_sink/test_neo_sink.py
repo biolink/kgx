@@ -6,7 +6,7 @@ from neo4j import GraphDatabase
 from kgx.sink import NeoSink
 from tests import print_graph
 from tests.unit import (
-    clean_slate,
+    clean_driver,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,

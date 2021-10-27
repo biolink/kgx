@@ -6,7 +6,7 @@ from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform,
 from kgx.cli import get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_slate,
+    clean_driver,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,

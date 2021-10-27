@@ -1,15 +1,14 @@
 import pytest
-from neo4j import GraphDatabase
 
 from kgx.source import NeoSource
 from tests.unit import (
-    clean_slate,
+    clean_driver,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
-    process_stream,
+    load_graph_dictionary,
     check_container,
-    CONTAINER_NAME,
+    CONTAINER_NAME
 )
 
 
@@ -35,23 +34,25 @@ queries = [
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_read_neo(clean_slate):
+def test_read_neo(clean_driver):
     """
     Read a graph from a Neo4j instance.
     """
-    driver = GraphDatabase.driver(
-        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
-    )
-    session = driver.session()
+    session = clean_driver.session()
     for q in queries:
         session.run(q)
+    clean_driver.close()
+
+    # Establish a fresh "Source" connection to the database
     s = NeoSource()
     g = s.parse(
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
     )
-    nodes, edges = process_stream(g)
+
+    nodes, edges = load_graph_dictionary(g)
+
     assert len(nodes.keys()) == 3
     assert len(edges.keys()) == 2
 

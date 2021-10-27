@@ -5,7 +5,7 @@ import pytest
 
 from kgx.source import RdfSource
 from tests import RESOURCE_DIR
-from tests.unit import process_stream
+from tests.unit import load_graph_dictionary
 
 
 def test_read_nt1():
@@ -14,7 +14,7 @@ def test_read_nt1():
     """
     s = RdfSource()
     g = s.parse(os.path.join(RESOURCE_DIR, "rdf", "test1.nt"))
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes) == 2
     assert len(edges) == 1
 
@@ -56,7 +56,7 @@ def test_read_nt2():
         provided_by="Test Dataset",
         knowledge_source="Test Dataset",
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes) == 2
     assert len(edges) == 1
 
@@ -102,7 +102,7 @@ def test_read_nt3():
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "rdf", "test2.nt"), format="nt"
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes) == 4
     assert len(edges) == 3
 
@@ -153,7 +153,7 @@ def test_read_nt4():
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "rdf", "test3.nt"), format="nt"
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes.keys()) == 7
     assert len(edges.keys()) == 6
 
@@ -220,7 +220,7 @@ def test_read_nt5():
     source.set_prefix_map(prefix_map)
     source.set_node_property_predicates(node_property_predicates)
     g = source.parse(filename=filename, format="nt")
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
 
     assert len(nodes.keys()) == 14
     assert len(edges.keys()) == 7
@@ -265,7 +265,7 @@ def test_read_nt6():
     source.set_predicate_mapping(predicate_mapping)
 
     g = source.parse(filename=filename, format="nt")
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
 
     assert len(nodes.keys()) == 14
     assert len(edges.keys()) == 7
