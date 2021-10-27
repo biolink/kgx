@@ -31,27 +31,25 @@ def check_container():
 
 
 @pytest.fixture(scope="function")
-def clean_driver():
+def clean_database():
     """
     Delete all nodes and edges in Neo4j test container.
     """
-    http_driver = GraphDatabase.driver(
-        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
-    )
-    # The following Cipher command would be better to clean the database completely
-    # before reuse, but alas, it is not supported in the Neo4j Community version?
-    #
-    # q = f"CREATE OR REPLACE DATABASE {DEFAULT_NEO4J_DATABASE}"
-    #
-    q = "MATCH (n) DETACH DELETE (n)"
-    try:
-        session = http_driver.session()
-        session.run(q)
-    except Exception as e:
-        print(e)
-        return None
-
-    return http_driver
+    with GraphDatabase.driver(
+            DEFAULT_NEO4J_URL,
+            auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
+    ) as http_driver:
+        # The following Cipher command would be better to clean the database completely
+        # before reuse, but alas, it is not supported in the Neo4j Community version?
+        #
+        # q = f"CREATE OR REPLACE DATABASE {DEFAULT_NEO4J_DATABASE}"
+        #
+        q = "MATCH (n) DETACH DELETE (n)"
+        try:
+            session = http_driver.session()
+            session.run(q)
+        except Exception as e:
+            print(e)
 
 
 # TODO: this is a bit of misnomer: yes, it processes a stream

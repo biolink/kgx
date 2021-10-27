@@ -6,7 +6,7 @@ from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform,
 from kgx.cli import get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_driver,
+    clean_database,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
@@ -192,7 +192,7 @@ def test_validate_streaming():
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_upload(clean_driver):
+def test_neo4j_upload(clean_database):
     """
     Test upload to Neo4j.
     """
@@ -218,7 +218,7 @@ def test_neo4j_upload(clean_driver):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_download(clean_slate):
+def test_neo4j_download(clean_database):
     """
     Test download from Neo4j.
     """

@@ -6,7 +6,7 @@ from neo4j import GraphDatabase
 from kgx.sink import NeoSink
 from tests import print_graph
 from tests.unit import (
-    clean_driver,
+    clean_database,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
@@ -41,7 +41,7 @@ def test_create_constraint_query(category):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo1(clean_driver):
+def test_write_neo1(clean_database):
     """
     Write a graph to a Neo4j instance using NeoSink.
     """
@@ -83,7 +83,7 @@ def test_write_neo1(clean_driver):
     "query",
     [(get_graph("kgx-unit-test")[0], 3, 1), (get_graph("kgx-unit-test")[1], 6, 6)],
 )
-def test_write_neo2(clean_driver, query):
+def test_write_neo2(clean_database, query):
     """
     Test writing a graph to a Neo4j instance.
     """
@@ -112,7 +112,7 @@ def test_write_neo2(clean_driver, query):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo3(clean_driver):
+def test_write_neo3(clean_database):
     """
     Test writing a graph and then writing a slightly
     modified version of the graph to the same Neo4j instance.
