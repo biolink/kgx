@@ -106,7 +106,9 @@ pip install .
 python setup.py install
 ```
 
-### Setting up a testing environment
+### Setting up a testing environment for Neo4j
+
+The current release of KGX supports graph source and sink transactions with the 4.3 release of Neo4j.
 
 KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.
 
