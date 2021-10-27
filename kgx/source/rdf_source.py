@@ -273,7 +273,7 @@ class RdfSource(Source):
             # treating predicate as an edge
             self.add_edge(s, o, p)
 
-        if len(self.edge_cache) >= self.CACHE_SIZE:
+        if self.edge_cache and len(self.edge_cache) <= self.CACHE_SIZE:
             while self.reified_nodes:
                 n = self.reified_nodes.pop()
                 data = self.node_cache.pop(n)
