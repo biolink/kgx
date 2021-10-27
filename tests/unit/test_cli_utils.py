@@ -192,7 +192,7 @@ def test_validate_streaming():
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_upload(clean_slate):
+def test_neo4j_upload(clean_driver):
     """
     Test upload to Neo4j.
     """

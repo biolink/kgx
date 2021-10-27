@@ -41,7 +41,7 @@ def test_create_constraint_query(category):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo1(clean_slate):
+def test_write_neo1(clean_driver):
     """
     Write a graph to a Neo4j instance using NeoSink.
     """
@@ -83,7 +83,7 @@ def test_write_neo1(clean_slate):
     "query",
     [(get_graph("kgx-unit-test")[0], 3, 1), (get_graph("kgx-unit-test")[1], 6, 6)],
 )
-def test_write_neo2(clean_slate, query):
+def test_write_neo2(clean_driver, query):
     """
     Test writing a graph to a Neo4j instance.
     """
@@ -103,7 +103,7 @@ def test_write_neo2(clean_slate, query):
     [node_counts] = [x for x in nr][0]
     assert node_counts >= query[1]
 
-    er = sink.sesssion.run("MATCH ()-[p]->() RETURN count(p)")
+    er = sink.session.run("MATCH ()-[p]->() RETURN count(p)")
     [edge_counts] = [x for x in er][0]
     assert edge_counts >= query[2]
 
@@ -112,7 +112,7 @@ def test_write_neo2(clean_slate, query):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo3(clean_slate):
+def test_write_neo3(clean_driver):
     """
     Test writing a graph and then writing a slightly
     modified version of the graph to the same Neo4j instance.
