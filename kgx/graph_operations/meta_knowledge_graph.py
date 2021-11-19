@@ -593,6 +593,15 @@ class MetaKnowledgeGraph:
         # We no longer track 'unknown' node category counts - non TRAPI 1.1. compliant output
         # if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
         #     self.node_stats.pop('unknown')
+        
+        # Here we assume that the node_stats are complete and will now be
+        # exported in a graph summary for the module, thus we aim to clean
+        # up the internal data structure to facilitate output
+        
+        # Convert id_prefixes Set into a sorted List
+        for category in self.node_stats.values():
+            category.category_stats["id_prefixes"] = sorted(category.category_stats["id_prefixes"])
+        
         return self.node_stats
 
     def get_edge_stats(self) -> List[Dict[str, Any]]:
