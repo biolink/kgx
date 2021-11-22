@@ -1,7 +1,8 @@
-import kgx
+from sys import exit
+from typing import List, Tuple, Optional
 import click
-from typing import List, Tuple, Optional, Set
 
+import kgx
 from kgx.config import get_logger, get_config
 from kgx.cli.cli_utils import (
     get_input_file_types,
@@ -16,6 +17,7 @@ from kgx.cli.cli_utils import (
     summary_report_types,
     get_report_format_types,
 )
+from kgx.validator import ValidationError, MessageLevel, ErrorType
 
 log = get_logger()
 config = get_config()
@@ -132,19 +134,24 @@ def graph_summary_wrapper(
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
     """
-    graph_summary(
-        inputs,
-        input_format,
-        input_compression,
-        output,
-        report_type,
-        report_format,
-        stream,
-        graph_name,
-        node_facet_properties=list(node_facet_properties),
-        edge_facet_properties=list(edge_facet_properties),
-        error_log=error_log,
-    )
+    try:
+        graph_summary(
+            inputs,
+            input_format,
+            input_compression,
+            output,
+            report_type,
+            report_format,
+            stream,
+            graph_name,
+            node_facet_properties=list(node_facet_properties),
+            edge_facet_properties=list(edge_facet_properties),
+            error_log=error_log,
+        )
+        exit(0)
+    except Exception as gse:
+        get_logger().error(f"kgx.graph_summary error: {str(gse)}")
+        exit(1)
 
 
 @cli.command(name="validate")
@@ -199,7 +206,20 @@ def validate_wrapper(
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    validate(inputs, input_format, input_compression, output, stream, biolink_release)
+    errors: List[ValidationError] = []
+    try:
+        errors: List[ValidationError] = validate(
+            inputs, input_format, input_compression, output, stream, biolink_release
+        )
+    except Exception as ex:
+        ve = ValidationError("Graph", ErrorType.VALIDATION_SYSTEM_ERROR, str(ex), MessageLevel.ERROR)
+        errors.append(ve)
+    
+    if errors:
+        get_logger().error("kgx.validate() errors encountered... check the error log")
+        exit(1)
+    else:
+        exit(0)
 
 
 @cli.command(name="neo4j-download")
