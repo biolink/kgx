@@ -152,21 +152,46 @@ def test_meta_knowledge_graph_as_json_streamed():
     assert "edges" in summary_stats
 
 
-def test_validate_error_exit_codes():
+def test_validate_exception_triggered_error_exit_code():
     """
     Test graph validate error exit code.
     """
+    test_input = os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
     runner = CliRunner()
     result = runner.invoke(
         cli,
         [
             "validate",
-            "-i tsv",
+            "-i", "tsv",
             "-b not.a.semver",
-            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+            test_input
         ]
     )
     assert result.exit_code == 1
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        ("graph_nodes.tsv", 0),
+        ("test_nodes.tsv", 1),
+    ],
+)
+def test_validate_parsing_triggered_error_exit_code(query):
+    """
+    Test graph validate error exit code.
+    """
+    test_input = os.path.join(RESOURCE_DIR, query[0])
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "validate",
+            "-i", "tsv",
+            test_input
+        ]
+    )
+    assert result.exit_code == query[1]
 
 
 def test_validate_non_streaming():
