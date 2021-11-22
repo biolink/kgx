@@ -35,7 +35,7 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
-def test_graph_summary1():
+def test_kgx_graph_summary():
     """
     Test graph summary, where the output report type is kgx-map.
     """
@@ -66,16 +66,16 @@ def test_graph_summary1():
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
 
-def test_graph_summary2a():
+def test_meta_knowledge_graph_as_json():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, default JSON report format type.
+    Test graph summary, where the output report type is a meta-knowledge-graph,
+    with results output as the default JSON report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2.json")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph.json")
     summary_stats = graph_summary(
         inputs,
         "tsv",
@@ -95,16 +95,16 @@ def test_graph_summary2a():
     assert summary_stats["name"] == "Default Meta-Knowledge-Graph"
 
 
-def test_graph_summary2b():
+def test_meta_knowledge_graph_as_yaml():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, set as YAML report format type.
+    Test graph summary, where the output report type is a meta-knowledge-graph,
+    with results output as the YAML report output format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2.yaml")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph.yaml")
     summary_stats = graph_summary(
         inputs,
         "tsv",
@@ -113,7 +113,7 @@ def test_graph_summary2b():
         report_type="meta-knowledge-graph",
         node_facet_properties=["provided_by"],
         edge_facet_properties=["aggregator_knowledge_source"],
-        report_format="yaml",
+        report_format="yaml"
     )
 
     assert os.path.exists(output)
@@ -122,16 +122,16 @@ def test_graph_summary2b():
     assert "edges" in summary_stats
 
 
-def test_graph_summary2c():
+def test_meta_knowledge_graph_as_json_streamed():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, set as YAML report format type.
+    Test graph summary processed in stream mode, where the output report type
+    is meta-knowledge-graph, output as the default JSON report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2c.json")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph-streamed.json")
     summary_stats = graph_summary(
         inputs=inputs,
         input_format="tsv",

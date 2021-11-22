@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Any, Callable, Set
+from typing import Dict, List, Optional, Any, Callable
 from sys import stderr
 
 import re
@@ -39,6 +39,7 @@ def gs_default(o):
     """
     JSONEncoder 'default' function override to
     properly serialize 'Set' objects (into 'List')
+    :param o
     """
     if isinstance(o, GraphSummary.Category):
         return o.json_object()
@@ -231,7 +232,7 @@ class GraphSummary:
                 self.summary.node_stats[NODE_CATEGORIES].add(self.category_curie)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][
                 self.category_curie
-            ] = set()
+            ] = list()
             self.summary.node_stats[COUNT_BY_CATEGORY][self.category_curie] = {
                 "count": 0
             }
@@ -276,14 +277,14 @@ class GraphSummary:
             """
             return cls._category_curie_map[cid]
 
-        def get_id_prefixes(self) -> Set:
+        def get_id_prefixes(self) -> List:
             """
             Returns
             -------
-            Set[str]
-                Set of identifier prefix (strings) used by nodes of this Category.
+            List[str]
+                List of identifier prefix (strings) used by nodes of this Category.
             """
-            return set(self.category_stats["count_by_id_prefix"].keys())
+            return list(self.category_stats["count_by_id_prefix"].keys())
 
         def get_count_by_id_prefixes(self):
             """
@@ -591,9 +592,8 @@ class GraphSummary:
             for node_category in self.node_categories.values():
                 self._compile_category_stats(node_category)
 
-            self.node_stats[NODE_CATEGORIES] = sorted(
-                list(self.node_stats[NODE_CATEGORIES])
-            )
+            self.node_stats[NODE_CATEGORIES] = sorted(self.node_stats[NODE_CATEGORIES])
+            self.node_stats[NODE_ID_PREFIXES] = sorted(self.node_stats[NODE_ID_PREFIXES])
 
             if self.node_facet_properties:
                 for facet_property in self.node_facet_properties:

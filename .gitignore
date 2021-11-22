@@ -1,6 +1,7 @@
 env/
 py*/
 __pycache__
+.pytest_cache
 *.pyc
 *.egg-info
 tests/logs/*.log
