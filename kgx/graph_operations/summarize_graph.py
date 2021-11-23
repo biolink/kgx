@@ -10,6 +10,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from kgx import ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
@@ -62,7 +63,7 @@ _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
 _predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 
 
-class GraphSummary:
+class GraphSummary(ErrorDetecting):
     """
     Class for generating a "classical" knowledge graph summary.
 
@@ -108,6 +109,8 @@ class GraphSummary:
             Where to write any graph processing error message (stderr, by default)
 
         """
+        ErrorDetecting.__init__(self)
+        
         # formal arguments
         self.name = name
 
@@ -146,7 +149,6 @@ class GraphSummary:
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
-        self.errors: List[ValidationError] = list()
         if error_log:
             GraphSummary.error_log = open(error_log, mode="w")
 
@@ -161,7 +163,7 @@ class GraphSummary:
         self.graph_stats: Dict[str, Dict] = dict()
 
     # DRY parse warning message
-    def parse_warning(
+    def parse_error(
             self,
             entity: str,
             error_type: ErrorType,
@@ -170,17 +172,20 @@ class GraphSummary:
             suffix: str = None,
             message_level: MessageLevel = MessageLevel.ERROR,
     ):
+        """
+        Logs a parse warning or error.
+        
+        :param entity: source of parse error
+        :param error_type: ValidationError ErrorType,
+        :param prefix: message string preceeding item identifier
+        :param item: item identifier
+        :param suffix: message string succeeding item identifier (default: empty)
+        :param  message_level: ValidationError MessageLevel
+        """
         suffix = " " + suffix if suffix else ""
         errmsg = f"{prefix} '{item}' {suffix}? Ignoring..."
-        ve = ValidationError(entity, error_type, errmsg, message_level)
-        self.errors.append(ve)
+        self.log_error(entity, error_type, errmsg, message_level)
         print(errmsg, file=GraphSummary.error_log)
-    
-    def get_errors(self):
-        """
-        Get list of ValidationError records
-        """
-        return self.errors
     
     def get_name(self):
         """
@@ -327,7 +332,7 @@ class GraphSummary:
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
-                self.summary.parse_warning(
+                self.summary.parse_error(
                     entity=f"Node {n}",
                     error_type=error_type,
                     prefix="Warning: node id",
@@ -428,7 +433,7 @@ class GraphSummary:
                     )
                 except RuntimeError:
                     error_type = ErrorType.INVALID_CATEGORY
-                    self.parse_warning(
+                    self.parse_error(
                         entity=f"Node {n}",
                         error_type=error_type,
                         prefix="Invalid category CURIE",
@@ -466,7 +471,7 @@ class GraphSummary:
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
             error_type = ErrorType.DUPLICATE_NODE
-            self.parse_warning(
+            self.parse_error(
                 entity=f"Node {n}",
                 error_type=error_type,
                 prefix="Duplicate node identifier",
@@ -483,7 +488,7 @@ class GraphSummary:
 
         else:
             error_type = ErrorType.NO_CATEGORY
-            self.parse_warning(
+            self.parse_error(
                 entity=f"Node {n}",
                 error_type=error_type,
                 prefix="Node with identifier '",
@@ -505,7 +510,7 @@ class GraphSummary:
 
             if not _predicate_curie_regexp.fullmatch(predicate):
                 error_type = ErrorType.INVALID_EDGE_PREDICATE
-                self.parse_warning(
+                self.parse_error(
                     entity=f"Edge predicate {predicate}",
                     error_type=error_type,
                     prefix="Invalid predicate CURIE '",
@@ -574,7 +579,7 @@ class GraphSummary:
 
         if u not in self.node_catalog:
             error_type = ErrorType.MISSING_NODE
-            self.parse_warning(
+            self.parse_error(
                 entity=f"Subject {u}",
                 error_type=error_type,
                 prefix="Edge 'subject' node ID",
@@ -593,7 +598,7 @@ class GraphSummary:
 
             if v not in self.node_catalog:
                 error_type = ErrorType.MISSING_NODE
-                self.parse_warning(
+                self.parse_error(
                     entity=f"Subject {v}",
                     error_type=error_type,
                     prefix="Edge 'object' node ID",
