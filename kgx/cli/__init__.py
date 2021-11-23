@@ -298,17 +298,22 @@ def neo4j_download_wrapper(
         Edge filters
 
     """
-    neo4j_download(
-        uri,
-        username,
-        password,
-        output,
-        output_format,
-        output_compression,
-        stream,
-        node_filters,
-        edge_filters,
-    )
+    try:
+        neo4j_download(
+            uri,
+            username,
+            password,
+            output,
+            output_format,
+            output_compression,
+            stream,
+            node_filters,
+            edge_filters,
+        )
+        exit(0)
+    except Exception as nde:
+        get_logger().error(f"kgx.neo4j_download error: {str(nde)}")
+        exit(1)
 
 
 @cli.command(name="neo4j-upload")
@@ -385,17 +390,22 @@ def neo4j_upload_wrapper(
         Edge filters
 
     """
-    neo4j_upload(
-        inputs,
-        input_format,
-        input_compression,
-        uri,
-        username,
-        password,
-        stream,
-        node_filters,
-        edge_filters,
-    )
+    try:
+        neo4j_upload(
+            inputs,
+            input_format,
+            input_compression,
+            uri,
+            username,
+            password,
+            stream,
+            node_filters,
+            edge_filters,
+        )
+        exit(0)
+    except Exception as nue:
+        get_logger().error(f"kgx.neo4j_upload error: {str(nue)}")
+        exit(1)
 
 
 @cli.command(name="transform")
@@ -522,22 +532,28 @@ def transform_wrapper(
         Number of processes to use
 
     """
-    transform(
-        inputs,
-        input_format=input_format,
-        input_compression=input_compression,
-        output=output,
-        output_format=output_format,
-        output_compression=output_compression,
-        stream=stream,
-        node_filters=node_filters,
-        edge_filters=edge_filters,
-        transform_config=transform_config,
-        source=source,
-        knowledge_sources=knowledge_sources,
-        processes=processes,
-        infores_catalog=infores_catalog,
-    )
+    try:
+        transform(
+            inputs,
+            input_format=input_format,
+            input_compression=input_compression,
+            output=output,
+            output_format=output_format,
+            output_compression=output_compression,
+            stream=stream,
+            node_filters=node_filters,
+            edge_filters=edge_filters,
+            transform_config=transform_config,
+            source=source,
+            knowledge_sources=knowledge_sources,
+            processes=processes,
+            infores_catalog=infores_catalog,
+        )
+        exit(0)
+    except Exception as te:
+        get_logger().error(f"kgx.transform error: {str(te)}")
+        exit(1)
+
 
 
 @cli.command(name="merge")
@@ -585,4 +601,9 @@ def merge_wrapper(merge_config: str, source: List, destination: List, processes:
         Number of processes to use
 
     """
-    merge(merge_config, source, destination, processes)
+    try:
+        merge(merge_config, source, destination, processes)
+        exit(0)
+    except Exception as me:
+        get_logger().error(f"kgx.merge error: {str(me)}")
+        exit(1)
