@@ -35,6 +35,9 @@ class ErrorType(Enum):
     INVALID_CATEGORY = 8
     NO_EDGE_PREDICATE = 9
     INVALID_EDGE_PREDICATE = 10
+    MISSING_NODE_CURIE_PREFIX = 11
+    DUPLICATE_NODE = 12
+    MISSING_NODE = 13,
     VALIDATION_SYSTEM_ERROR = 99
 
 
@@ -711,7 +714,8 @@ class Validator(object):
         else:
             prefix = PrefixManager.get_prefix(node)
             if prefix and prefix not in Validator.get_all_prefixes():
-                message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}' is not represented in Biolink Model JSON-LD context"
+                message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}'" +\
+                          f" is not represented in Biolink Model JSON-LD context"
                 errors.append(
                     ValidationError(node, error_type, message, MessageLevel.ERROR)
                 )
@@ -744,7 +748,8 @@ class Validator(object):
         if PrefixManager.is_curie(subject):
             prefix = PrefixManager.get_prefix(subject)
             if prefix and prefix not in prefixes:
-                message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix " +\
+                          f"'{prefix}' that is not represented in Biolink Model JSON-LD context"
                 errors.append(
                     ValidationError(
                         f"{subject}-{object}", error_type, message, MessageLevel.ERROR
@@ -761,7 +766,8 @@ class Validator(object):
         if PrefixManager.is_curie(object):
             prefix = PrefixManager.get_prefix(object)
             if prefix not in prefixes:
-                message = f"Edge property 'object' has a value '{object}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                message = f"Edge property 'object' has a value '{object}' with a CURIE " +\
+                          f"prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
                 errors.append(
                     ValidationError(
                         f"{subject}-{object}", error_type, message, MessageLevel.ERROR
@@ -778,7 +784,8 @@ class Validator(object):
             if PrefixManager.is_curie(data["relation"]):
                 prefix = PrefixManager.get_prefix(data["relation"])
                 if prefix not in prefixes:
-                    message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
+                    message = f"Edge property 'relation' has a value '{data['relation']}' with a CURIE " +\
+                              f"prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}",
@@ -862,7 +869,8 @@ class Validator(object):
                     c = toolkit.get_element(formatted_category.lower())
                     if c:
                         if category != c.name and category in c.aliases:
-                            message = f"Category {category} is actually an alias for {c.name}; Should replace '{category}' with '{c.name}'"
+                            message = f"Category {category} is actually an alias for {c.name}; " +\
+                                      f"Should replace '{category}' with '{c.name}'"
                             errors.append(
                                 ValidationError(
                                     node, error_type, message, MessageLevel.ERROR
@@ -930,7 +938,8 @@ class Validator(object):
                         )
                     )
                 elif edge_predicate != p.name and edge_predicate in p.aliases:
-                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; Should replace {edge_predicate} with {p.name}"
+                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; " +\
+                              f"Should replace {edge_predicate} with {p.name}"
                     errors.append(
                         ValidationError(
                             f"{subject}-{object}",

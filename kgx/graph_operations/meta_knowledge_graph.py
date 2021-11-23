@@ -1,4 +1,7 @@
-from typing import Dict, List, Optional, Any, Callable, Set, Tuple, Union
+"""
+Translator Reasoner API 'meta-knowledge-graph' endpoint analogous graph summary module.
+"""
+from typing import Dict, List, Optional, Any, Callable, Set, Tuple
 from sys import stderr
 
 import re
@@ -10,6 +13,7 @@ from json.encoder import JSONEncoder
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
+from kgx.validator import ValidationError
 
 """
 Generate a knowledge map that corresponds to TRAPI KnowledgeMap.
@@ -120,6 +124,7 @@ class MetaKnowledgeGraph:
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
+        self.errors: List[ValidationError] = list()
         if error_log:
             MetaKnowledgeGraph.error_log = open(error_log, "w")
 
@@ -173,6 +178,9 @@ class MetaKnowledgeGraph:
 
     @staticmethod
     def get_facet_counts(facets: Optional[List], counts_by_source: Dict, data: Dict):
+        """
+        Get node or edge facet counts
+        """
         unknown: bool = True
         for facet in facets:
             if facet in data:

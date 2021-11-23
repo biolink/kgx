@@ -1,3 +1,6 @@
+"""
+Classical KGX graph summary module.
+"""
 from typing import Dict, List, Optional, Any, Callable
 from sys import stderr
 
@@ -10,6 +13,7 @@ from json.encoder import JSONEncoder
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
+from kgx.validator import ValidationError, MessageLevel, ErrorType
 
 TOTAL_NODES = "total_nodes"
 NODE_CATEGORIES = "node_categories"
@@ -56,14 +60,6 @@ def gs_default(o):
 
 _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
 _predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
-
-
-# DRY parse warning message
-def _parse_warning(prefix: str, item: str, suffix: str = None):
-    print(
-        prefix + " '" + item + "'" + (" " + suffix if suffix else "") + "? Ignoring...",
-        file=GraphSummary.error_log,
-    )
 
 
 class GraphSummary:
@@ -150,6 +146,7 @@ class GraphSummary:
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
+        self.errors: List[ValidationError] = list()
         if error_log:
             GraphSummary.error_log = open(error_log, mode="w")
 
@@ -163,6 +160,28 @@ class GraphSummary:
 
         self.graph_stats: Dict[str, Dict] = dict()
 
+    # DRY parse warning message
+    def parse_warning(
+            self,
+            entity: str,
+            error_type: ErrorType,
+            prefix: str, 
+            item: str,
+            suffix: str = None,
+            message_level: MessageLevel = MessageLevel.ERROR,
+    ):
+        suffix = " " + suffix if suffix else ""
+        errmsg = f"{prefix} '{item}' {suffix}? Ignoring..."
+        ve = ValidationError(entity, error_type, errmsg, message_level)
+        self.errors.append(ve)
+        print(errmsg, file=GraphSummary.error_log)
+    
+    def get_errors(self):
+        """
+        Get list of ValidationError records
+        """
+        return self.errors
+    
     def get_name(self):
         """
         Returns
@@ -307,9 +326,14 @@ class GraphSummary:
         def _capture_prefix(self, n: str):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(
-                    f"Warning: node id {n} has no CURIE prefix",
-                    file=GraphSummary.error_log,
+                error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
+                self.summary.parse_warning(
+                    entity=f"Node {n}",
+                    error_type=error_type,
+                    prefix="Warning: node id",
+                    item=n,
+                    suffix="has no CURIE prefix",
+                    message_level=MessageLevel.WARNING
                 )
             else:
                 if prefix in self.category_stats["count_by_id_prefix"]:
@@ -403,7 +427,13 @@ class GraphSummary:
                         category_curie, self
                     )
                 except RuntimeError:
-                    _parse_warning("Invalid category CURIE", category_curie)
+                    error_type = ErrorType.INVALID_CATEGORY
+                    self.parse_warning(
+                        entity=f"Node {n}",
+                        error_type=error_type,
+                        prefix="Invalid category CURIE",
+                        item=category_curie
+                    )
                     continue
 
             category_record = self.node_categories[category_curie]
@@ -435,8 +465,14 @@ class GraphSummary:
         """
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            _parse_warning(
-                "Duplicate node identifier", n, "encountered in input node data"
+            error_type = ErrorType.DUPLICATE_NODE
+            self.parse_warning(
+                entity=f"Node {n}",
+                error_type=error_type,
+                prefix="Duplicate node identifier",
+                item=n,
+                suffix="encountered in input node data",
+                message_level=MessageLevel.WARNING
             )
             return
         else:
@@ -446,13 +482,15 @@ class GraphSummary:
             categories = data["category"]
 
         else:
-            categories = ["unknown"]
-            print(
-                "Node with identifier '"
-                + n
-                + "' is missing its 'category' value? Tagging it as 'unknown'",
-                file=GraphSummary.error_log,
+            error_type = ErrorType.NO_CATEGORY
+            self.parse_warning(
+                entity=f"Node {n}",
+                error_type=error_type,
+                prefix="Node with identifier '",
+                item=n,
+                suffix="' is missing its 'category' value? Tagging it as 'unknown'."
             )
+            categories = ["unknown"]
 
         # analyse them each independently...
         for category_field in categories:
@@ -466,7 +504,13 @@ class GraphSummary:
             predicate = data["predicate"]
 
             if not _predicate_curie_regexp.fullmatch(predicate):
-                _parse_warning("Invalid  predicate CURIE", predicate)
+                error_type = ErrorType.INVALID_EDGE_PREDICATE
+                self.parse_warning(
+                    entity=f"Edge predicate {predicate}",
+                    error_type=error_type,
+                    prefix="Invalid predicate CURIE '",
+                    item=str(predicate)
+                )
                 return None
 
             self.edge_stats[EDGE_PREDICATES].add(predicate)
@@ -529,7 +573,15 @@ class GraphSummary:
         predicate: str = self._capture_predicate(data)
 
         if u not in self.node_catalog:
-            _parse_warning("Edge 'subject' node ID", u, "not found in node catalog")
+            error_type = ErrorType.MISSING_NODE
+            self.parse_warning(
+                entity=f"Subject {u}",
+                error_type=error_type,
+                prefix="Edge 'subject' node ID",
+                item=u,
+                suffix="not found in node catalog"
+            )
+            
             # removing from edge count
             self.edge_stats[TOTAL_EDGES] -= 1
             self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
@@ -540,7 +592,15 @@ class GraphSummary:
             subject_category = self.Category._get_category_curie_by_index(subj_cat_idx)
 
             if v not in self.node_catalog:
-                _parse_warning("Edge 'object' node ID", v, "not found in node catalog")
+                error_type = ErrorType.MISSING_NODE
+                self.parse_warning(
+                    entity=f"Subject {v}",
+                    error_type=error_type,
+                    prefix="Edge 'object' node ID",
+                    item=v,
+                    suffix="not found in node catalog"
+                )
+                
                 self.edge_stats[TOTAL_EDGES] -= 1
                 self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
                 return
