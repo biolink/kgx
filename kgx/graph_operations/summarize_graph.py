@@ -2,7 +2,6 @@
 Classical KGX graph summary module.
 """
 from typing import Dict, List, Optional, Any, Callable
-from sys import stderr
 
 import re
 
@@ -14,7 +13,7 @@ from kgx import ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
-from kgx.validator import ValidationError, MessageLevel, ErrorType
+from kgx.validator import MessageLevel, ErrorType
 
 TOTAL_NODES = "total_nodes"
 NODE_CATEGORIES = "node_categories"
@@ -81,8 +80,6 @@ class GraphSummary(ErrorDetecting):
     complexity, so as not to introduce a large computational overhead to validation!
     """
 
-    error_log = stderr
-
     def __init__(
         self,
         name="",
@@ -109,7 +106,7 @@ class GraphSummary(ErrorDetecting):
             Where to write any graph processing error message (stderr, by default)
 
         """
-        ErrorDetecting.__init__(self)
+        ErrorDetecting.__init__(self, error_log)
         
         # formal arguments
         self.name = name
@@ -149,9 +146,6 @@ class GraphSummary(ErrorDetecting):
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
-        if error_log:
-            GraphSummary.error_log = open(error_log, mode="w")
-
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
 
@@ -161,31 +155,6 @@ class GraphSummary(ErrorDetecting):
         self.node_categories["unknown"] = GraphSummary.Category("unknown", self)
 
         self.graph_stats: Dict[str, Dict] = dict()
-
-    # DRY parse warning message
-    def parse_error(
-            self,
-            entity: str,
-            error_type: ErrorType,
-            prefix: str, 
-            item: str,
-            suffix: str = None,
-            message_level: MessageLevel = MessageLevel.ERROR,
-    ):
-        """
-        Logs a parse warning or error.
-        
-        :param entity: source of parse error
-        :param error_type: ValidationError ErrorType,
-        :param prefix: message string preceeding item identifier
-        :param item: item identifier
-        :param suffix: message string succeeding item identifier (default: empty)
-        :param  message_level: ValidationError MessageLevel
-        """
-        suffix = " " + suffix if suffix else ""
-        errmsg = f"{prefix} '{item}' {suffix}? Ignoring..."
-        self.log_error(entity, error_type, errmsg, message_level)
-        print(errmsg, file=GraphSummary.error_log)
     
     def get_name(self):
         """
@@ -287,7 +256,7 @@ class GraphSummary(ErrorDetecting):
             return self._category_curie_map.index(self.category_curie)
 
         @classmethod
-        def _get_category_curie_by_index(cls, cid: int) -> str:
+        def get_category_curie_by_index(cls, cid: int) -> str:
             """
             Parameters
             ----------
@@ -594,7 +563,7 @@ class GraphSummary(ErrorDetecting):
 
         for subj_cat_idx in self.node_catalog[u]:
 
-            subject_category = self.Category._get_category_curie_by_index(subj_cat_idx)
+            subject_category = self.Category.get_category_curie_by_index(subj_cat_idx)
 
             if v not in self.node_catalog:
                 error_type = ErrorType.MISSING_NODE
@@ -612,7 +581,7 @@ class GraphSummary(ErrorDetecting):
 
             for obj_cat_idx in self.node_catalog[v]:
 
-                object_category = self.Category._get_category_curie_by_index(
+                object_category = self.Category.get_category_curie_by_index(
                     obj_cat_idx
                 )
 
