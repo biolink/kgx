@@ -300,12 +300,10 @@ class GraphSummary(ErrorDetecting):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
-                self.summary.parse_error(
+                self.summary.log_error(
                     entity=f"Node {n}",
                     error_type=error_type,
-                    prefix="Warning: node id",
-                    item=n,
-                    suffix="has no CURIE prefix",
+                    message="Warning: node id has no CURIE prefix",
                     message_level=MessageLevel.WARNING
                 )
             else:
@@ -401,11 +399,10 @@ class GraphSummary(ErrorDetecting):
                     )
                 except RuntimeError:
                     error_type = ErrorType.INVALID_CATEGORY
-                    self.parse_error(
+                    self.log_error(
                         entity=f"Node {n}",
                         error_type=error_type,
-                        prefix="Invalid category CURIE",
-                        item=category_curie
+                        message=f"Invalid category CURIE {category_curie}"
                     )
                     continue
 
@@ -439,12 +436,10 @@ class GraphSummary(ErrorDetecting):
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
             error_type = ErrorType.DUPLICATE_NODE
-            self.parse_error(
+            self.log_error(
                 entity=f"Node {n}",
                 error_type=error_type,
-                prefix="Duplicate node identifier",
-                item=n,
-                suffix="encountered in input node data",
+                message="Duplicate node identifier encountered in input node data",
                 message_level=MessageLevel.WARNING
             )
             return
@@ -456,12 +451,10 @@ class GraphSummary(ErrorDetecting):
 
         else:
             error_type = ErrorType.NO_CATEGORY
-            self.parse_error(
+            self.log_error(
                 entity=f"Node {n}",
                 error_type=error_type,
-                prefix="Node with identifier '",
-                item=n,
-                suffix="' is missing its 'category' value? Tagging it as 'unknown'."
+                message="Node is missing its 'category' value? Tagging it as 'unknown'."
             )
             categories = ["unknown"]
 
@@ -478,11 +471,10 @@ class GraphSummary(ErrorDetecting):
 
             if not _predicate_curie_regexp.fullmatch(predicate):
                 error_type = ErrorType.INVALID_EDGE_PREDICATE
-                self.parse_error(
+                self.log_error(
                     entity=f"Edge predicate {predicate}",
                     error_type=error_type,
-                    prefix="Invalid predicate CURIE '",
-                    item=str(predicate)
+                    message="Invalid predicate CURIE?"
                 )
                 return None
 
@@ -547,12 +539,10 @@ class GraphSummary(ErrorDetecting):
 
         if u not in self.node_catalog:
             error_type = ErrorType.MISSING_NODE
-            self.parse_error(
-                entity=f"Subject {u}",
+            self.log_error(
+                entity=f"Edge Subject {u}",
                 error_type=error_type,
-                prefix="Edge 'subject' node ID",
-                item=u,
-                suffix="not found in node catalog"
+                message="Node ID not found in the node catalog"
             )
             
             # removing from edge count
@@ -566,12 +556,10 @@ class GraphSummary(ErrorDetecting):
 
             if v not in self.node_catalog:
                 error_type = ErrorType.MISSING_NODE
-                self.parse_error(
-                    entity=f"Subject {v}",
+                self.log_error(
+                    entity=f"Edge object {v}",
                     error_type=error_type,
-                    prefix="Edge 'object' node ID",
-                    item=v,
-                    suffix="not found in node catalog"
+                    message="Node ID not found in the node catalog"
                 )
                 
                 self.edge_stats[TOTAL_EDGES] -= 1

@@ -125,7 +125,7 @@ class ErrorDetecting(object):
         entity: str,
         error_type: ErrorType,
         message: str,
-        message_level: MessageLevel,
+        message_level: MessageLevel = MessageLevel.ERROR,
     ):
         """
         Log an error to the list of such errors.
@@ -151,29 +151,6 @@ class ErrorDetecting(object):
                 # ... but replace with more severe error message?
                 ve = ValidationError(entity, error_type, message, message_level)
                 self.errors[entity][error_type] = ve
-
-    def parse_error(
-            self,
-            entity: str,
-            error_type: ErrorType,
-            prefix: str,
-            item: str,
-            suffix: str = None,
-            message_level: MessageLevel = MessageLevel.ERROR,
-    ):
-        """
-        Logs a parse warning or error.
-
-        :param entity: source of parse error
-        :param error_type: ValidationError ErrorType,
-        :param prefix: message string preceeding item identifier
-        :param item: item identifier
-        :param suffix: message string succeeding item identifier (default: empty)
-        :param  message_level: ValidationError MessageLevel
-        """
-        suffix = " " + suffix if suffix else ""
-        errmsg = f"{prefix} '{item}' {suffix}? Ignoring..."
-        self.log_error(entity, error_type, errmsg, message_level)
 
     def get_errors(self) -> List[str]:
         """

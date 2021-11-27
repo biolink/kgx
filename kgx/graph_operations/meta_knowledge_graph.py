@@ -304,12 +304,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
                 error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
-                self.mkg.parse_error(
+                self.mkg.log_error(
                     entity=f"Node {n}",
                     error_type=error_type,
-                    prefix="Warning: node id",
-                    item=n,
-                    suffix="has no CURIE prefix",
+                    message="Warning: node id has no CURIE prefix",
                     message_level=MessageLevel.WARNING
                 )
             else:
@@ -384,11 +382,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
                     )
                 except RuntimeError:
                     error_type = ErrorType.INVALID_CATEGORY
-                    self.parse_error(
+                    self.log_error(
                         entity=f"Node {n}",
                         error_type=error_type,
-                        prefix="Invalid category CURIE",
-                        item=category_curie
+                        message=f"Invalid category CURIE {category_curie}"
                     )
                     continue
 
@@ -418,12 +415,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
             error_type = ErrorType.DUPLICATE_NODE
-            self.parse_error(
+            self.log_error(
                 entity=f"Node {n}",
                 error_type=error_type,
-                prefix="Duplicate node identifier",
-                item=n,
-                suffix="encountered in input node data",
+                message="Duplicate node identifier encountered in input node data",
                 message_level=MessageLevel.WARNING
             )
             return
@@ -436,12 +431,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
             # category = self.node_stats['unknown']
             # category.analyse_node_category(n, data)
             error_type = ErrorType.NO_CATEGORY
-            self.parse_error(
+            self.log_error(
                 entity=f"Node {n}",
                 error_type=error_type,
-                prefix="Node with identifier '",
-                item=n,
-                suffix="' is missing its 'category' value?"
+                message="Node missing its 'category' value?"
             )
             return
 
@@ -459,11 +452,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
             # self.predicates['unknown'] += 1
             # predicate = "unknown"
             error_type = ErrorType.NO_EDGE_PREDICATE
-            self.parse_error(
+            self.log_error(
                 entity=f"Edge {subj_obj_label}",
                 error_type=error_type,
-                prefix="Empty predicate CURIE in edge data",
-                item=subj_obj_label,
+                message="Empty predicate CURIE in edge data",
                 message_level=MessageLevel.ERROR
             )
             self.edge_record_count -= 1
@@ -473,11 +465,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
 
             if not _predicate_curie_regexp.fullmatch(predicate):
                 error_type = ErrorType.INVALID_EDGE_PREDICATE
-                self.parse_error(
+                self.log_error(
                     entity=f"Edge {subj_obj_label}",
                     error_type=error_type,
-                    prefix="Invalid predicate CURIE",
-                    item=predicate,
+                    message=f"Invalid predicate CURIE {predicate}",
                     message_level=MessageLevel.ERROR
                 )
                 self.edge_record_count -= 1
@@ -574,12 +565,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
 
         if u not in self.node_catalog:
             error_type = ErrorType.MISSING_NODE
-            self.parse_error(
-                entity=f"Subject {u}",
+            self.log_error(
+                entity=f"Edge Subject {u}",
                 error_type=error_type,
-                prefix="Edge 'subject' node ID",
-                item=u,
-                suffix="not found in node catalog"
+                message="Node ID not found in node catalog"
             )
             # removing from edge count
             self.edge_record_count -= 1
@@ -594,12 +583,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
 
             if v not in self.node_catalog:
                 error_type = ErrorType.MISSING_NODE
-                self.parse_error(
-                    entity=f"Subject {v}",
+                self.log_error(
+                    entity=f"Edge Object {v}",
                     error_type=error_type,
-                    prefix="Edge 'object' node ID",
-                    item=v,
-                    suffix="not found in node catalog"
+                    message="Node ID not found in node catalog"
                 )
                 self.edge_record_count -= 1
                 self.predicates[predicate] -= 1
@@ -820,12 +807,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
         spo_label = f"Edge {str(subject_category)}-{str(predicate)}->{str(object_category)}"
         if not (subject_category and predicate and object_category):
             error_type = ErrorType.MISSING_EDGE_PROPERTY
-            self.parse_error(
+            self.log_error(
                 entity=f"Edge {spo_label}",
                 error_type=error_type,
-                prefix="get_edge_count_by_source(",
-                item=spo_label,
-                suffix=") has some empty S-P-O arguments? We don't know what you are counting!",
+                message="get_edge_count_by_source() S-P-O incomplete?",
                 message_level=MessageLevel.WARNING
             )
             return dict()
@@ -850,12 +835,10 @@ class MetaKnowledgeGraph(ErrorDetecting):
                 return dict()
         else:
             error_type = ErrorType.INVALID_EDGE_TRIPLE
-            self.parse_error(
+            self.log_error(
                 entity=f"Edge {spo_label}",
                 error_type=error_type,
-                prefix="get_edge_count_by_source(",
-                item=spo_label,
-                suffix="): unknown triple.",
+                message="get_edge_count_by_source(): unknown triple?",
                 message_level=MessageLevel.WARNING
             )
             return dict()
