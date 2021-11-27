@@ -93,7 +93,7 @@ class ValidationError(object):
         }
 
 
-class ErrorDetecting:
+class ErrorDetecting(object):
     """
     Class of object which can log internal ValidationError events.
     

@@ -1,3 +1,6 @@
+"""
+KGX Validator class
+"""
 import re
 from typing import List, TextIO, Optional, Dict, Set, Callable
 
@@ -5,7 +8,7 @@ import click
 import validators
 from bmt import Toolkit
 
-from kgx import ErrorType, MessageLevel, ValidationError
+from kgx import ErrorType, MessageLevel, ValidationError, ErrorDetecting
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
@@ -20,7 +23,7 @@ from kgx.prefix_manager import PrefixManager
 logger = get_logger()
 
 
-class Validator(object):
+class Validator(ErrorDetecting):
     """
     Class for validating a property graph.
 
@@ -45,6 +48,8 @@ class Validator(object):
         Function given a peek at the current record being processed by the class wrapped Callable.
     schema: Optional[str]
         URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)
+    error_log: str
+        Where to write any graph processing error message (stderr, by default)
     """
 
     def __init__(
@@ -52,12 +57,18 @@ class Validator(object):
         verbose: bool = False,
         progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
         schema: Optional[str] = None,
+        error_log: str = None
     ):
+        ErrorDetecting.__init__(self, error_log)
+        
         # formal arguments
         self.verbose: bool = verbose
         self.progress_monitor: Optional[
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
+        
+        # TODO: fix... this attribute is not used anywhere at the moment?
+        self.schema: Optional[str] = schema
 
         # internal attributes
         # associated currently active _currently_active_toolkit with this Validator instance
@@ -67,7 +78,6 @@ class Validator(object):
         self.prefixes = Validator.get_all_prefixes(self.jsonld)
         self.required_node_properties = Validator.get_required_node_properties()
         self.required_edge_properties = Validator.get_required_edge_properties()
-        self.errors: List[ValidationError] = list()
 
     def __call__(self, entity_type: GraphEntityType, rec: List):
         """
@@ -93,12 +103,6 @@ class Validator(object):
         Get Validating Biolink Model version
         """
         return self.validating_toolkit.get_model_version()
-
-    def get_errors(self):
-        """
-        Get list of ValidationError records
-        """
-        return self.errors
 
     _currently_active_toolkit: Optional[Toolkit] = None
 
