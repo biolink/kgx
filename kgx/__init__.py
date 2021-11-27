@@ -8,6 +8,7 @@ __version__ = "1.5.4"
 from enum import Enum
 from typing import List, TextIO, Dict, Optional
 from sys import stderr
+from json import dump as json_dump
 
 from kgx.config import get_logger
 
@@ -101,7 +102,16 @@ class ErrorDetecting(object):
     """
     def __init__(self, error_log=stderr):
         
-        self.errors: Dict[str, Dict[ErrorType, ValidationError]] = dict()
+        self.errors: Dict[
+            MessageLevel,
+            Dict[
+                ErrorType,
+                Dict[
+                    str,
+                    List[str]
+                ]
+            ]
+        ] = dict()
 
         if error_log:
             if isinstance(error_log, str):
@@ -139,37 +149,37 @@ class ErrorDetecting(object):
         :param  message_level: ValidationError MessageLevel
         """
         # index errors by entity identifier
-        entity = entity.strip()  # sanitize entity name...
-        if entity not in self.errors:
-            self.errors[entity] = dict()
+        level = message_level.name
+        error = error_type.name
         
-        # don't record duplicate instances of
-        # error type for a given entity identifier...
-        if error_type not in self.errors[entity]:
-            ve = ValidationError(entity, error_type, message, message_level)
-            self.errors[entity][error_type] = ve
-        else:
-            existing_ve = self.errors[entity][error_type]
-            if existing_ve.message_level.value < message_level.value:
-                # ... but replace with more severe error message?
-                ve = ValidationError(entity, error_type, message, message_level)
-                self.errors[entity][error_type] = ve
+        # clean up entity name string...
+        entity = entity.strip()
 
-    def get_errors(self) -> List[str]:
+        if level not in self.errors:
+            self.errors[level] = dict()
+
+        if error not in self.errors[level]:
+            self.errors[level][error] = dict()
+        
+        # don't record duplicate instances of error type and
+        # messages for entity identifiers...
+        if message not in self.errors[level][error]:
+            self.errors[level][error][message] = [entity]
+        else:
+            if entity not in self.errors[level][error][message]:
+                self.errors[level][error][message].append(entity)
+
+    def get_errors(self) -> Dict:
         """
-        Prepare get_errors list of distinct (unduplicated) string error messages.
+        Get the index list of distinct error messages.
 
         Returns
         -------
-        List
-            A list of formatted distinct errors
+        Dict
+            A dictionary of error messages indexed by [message_level][error_type][entity]
 
         """
-        error_messages: List[str] = list()
-        for entity, entry in self.errors.items():
-            for error_type in entry:
-                error_messages.append(str(entry[error_type]))
-        return error_messages
+        return self.errors
 
     def write_report(self, outstream: Optional[TextIO] = None) -> None:
         """
@@ -185,7 +195,8 @@ class ErrorDetecting(object):
         if not outstream and self.error_log:
             outstream = self.error_log
         else:
+            # safe here to default to stderr?
             outstream = stderr
             
-        for x in self.get_errors():
-            outstream.write(f"{x}\n")
+        json_dump(self.get_errors(), outstream, indent=4)
+        outstream.write("\n")  # print a trailing newline(?)

@@ -85,7 +85,8 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     # (Deployed in the internal Transformer.process() call)
     transformer.transform(input_args=input_args, inspector=mkg)
 
-    print("*** graph-summary error log:")
+    # Dump a report to stderr ... will be a JSON document now
+    print("\n*** meta-knowledge-graph graph-summary error log:", file=stderr)
     mkg.write_report()
     
     assert mkg.get_name() == "Test Graph - Streamed"

@@ -1,5 +1,5 @@
 from sys import exit
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 import click
 
 import kgx
@@ -17,7 +17,6 @@ from kgx.cli.cli_utils import (
     summary_report_types,
     get_report_format_types,
 )
-from kgx import ErrorType, MessageLevel, ValidationError
 
 log = get_logger()
 config = get_config()
@@ -206,14 +205,14 @@ def validate_wrapper(
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    errors: List[ValidationError] = []
+    errors: Dict = []
     try:
-        errors: List[ValidationError] = validate(
+        errors = validate(
             inputs, input_format, input_compression, output, stream, biolink_release
         )
     except Exception as ex:
-        ve = ValidationError("Graph", ErrorType.VALIDATION_SYSTEM_ERROR, str(ex), MessageLevel.ERROR)
-        errors.append(ve)
+        get_logger().error(str(ex))
+        exit(2)
     
     if errors:
         get_logger().error("kgx.validate() errors encountered... check the error log")

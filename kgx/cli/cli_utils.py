@@ -176,7 +176,7 @@ def validate(
     output: Optional[str],
     stream: bool,
     biolink_release: Optional[str] = None,
-) -> List:
+) -> Dict:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
 
@@ -196,8 +196,8 @@ def validate(
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     Returns
     -------
-    List
-        Returns a list of errors, if any
+    Dict
+        A dictionary of error messages indexed by [message_level][error_type][entity]
 
     """
     # New design pattern enabling 'stream' processing of statistics on a small memory footprint

@@ -1,3 +1,5 @@
+from sys import stderr
+
 import pytest
 
 from kgx.validator import Validator
@@ -113,7 +115,11 @@ def test_validate_edge_properties(query):
     validator.validate_edge_properties(
         query[0], query[1], query[2], required_properties
     )
-    print(validator.get_errors())
+    
+    # Dump a report to stderr ... will be a JSON document now
+    print("\n*** validator error log:", file=stderr)
+    validator.write_report()
+    
     assert (len(validator.get_errors()) == 0) == query[3]
 
 

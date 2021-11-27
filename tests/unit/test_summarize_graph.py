@@ -246,7 +246,8 @@ def test_summarize_graph_stream_inspector():
         TARGET_DIR, "test_graph-summary-from-inspection.yaml"
     )
 
-    print("*** graph-summary error log:")
+    # Dump a report to stderr ... will be a JSON document now
+    print("\n*** kgx-graph graph-summary error log:", file=stderr)
     inspector.write_report()
     
     with open(output_filename, "w") as gsh:
