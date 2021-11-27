@@ -113,8 +113,6 @@ class MetaKnowledgeGraph(ErrorDetecting):
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
-        self.errors: List[ValidationError] = list()
-
         # internal attributes
         # For Nodes...
         self.node_catalog: Dict[str, List[int]] = dict()
