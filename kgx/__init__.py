@@ -114,6 +114,12 @@ class ErrorDetecting(object):
         Get list of ValidationError records
         """
         return self.errors
+    
+    def clear_errors(self):
+        """
+        Clears the current error log list
+        """
+        self.errors.clear()
 
     def log_error(
         self,

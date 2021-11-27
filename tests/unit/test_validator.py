@@ -9,6 +9,7 @@ def test_get_all_prefixes(prefix):
     Test get_all_prefixes in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     prefixes = validator.get_all_prefixes()
     assert prefix in prefixes
 
@@ -19,6 +20,7 @@ def test_get_required_node_properties(property):
     Test get_required_node_properties in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     properties = validator.get_required_node_properties()
     assert property in properties
 
@@ -29,6 +31,7 @@ def test_get_required_edge_properties(property):
     Test get_required_edge_properties in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     properties = validator.get_required_edge_properties()
     assert property in properties
 
@@ -51,6 +54,7 @@ def test_validate_node_properties(query):
     Test validate_node_properties in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     required_properties = validator.get_required_node_properties()
     validator.validate_node_properties(query[0], query[1], required_properties)
     assert (len(validator.get_errors()) == 0) == query[2]
@@ -104,6 +108,7 @@ def test_validate_edge_properties(query):
     Test validate_edge_properties in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     required_properties = validator.get_required_edge_properties()
     validator.validate_edge_properties(
         query[0], query[1], query[2], required_properties
@@ -157,6 +162,7 @@ def test_validate_node_property_types(query):
     Test validate_node_property_types in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_node_property_types(query[0], query[1])
     assert (len(validator.get_errors()) == 0) == query[2]
 
@@ -191,7 +197,7 @@ def test_validate_node_property_types(query):
             "X:1",
             {
                 "id": "A:123-biolink:related_to-X:1",
-                "subject": "A:123",
+                "subject": ["A:123"],
                 "object": "X:1",
                 "predicate": "biolink:related_to",
             },
@@ -204,6 +210,7 @@ def test_validate_edge_property_types(query):
     Test validate_edge_property_types in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_edge_property_types(query[0], query[1], query[2])
     assert (len(validator.get_errors()) == 0) == query[3]
 
@@ -241,6 +248,7 @@ def test_validate_node_property_values(query):
     Test validate_node_property_values in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_node_property_values(query[0], query[1])
     assert (len(validator.get_errors()) == 0) == query[2]
 
@@ -299,6 +307,7 @@ def test_validate_edge_property_values(query):
     Test validate_edge_property_values in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_edge_property_values(query[0], query[1], query[2])
     assert (len(validator.get_errors()) == 0) == query[3]
 
@@ -338,6 +347,7 @@ def test_validate_categories(query):
     Test validate_categories in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_categories(query[0], query[1])
     assert (len(validator.get_errors()) == 0) == query[2]
 
@@ -396,5 +406,6 @@ def test_validate_edge_label(query):
     Test validate_edge_predicate in Validator.
     """
     validator = Validator.get_the_validator()
+    validator.clear_errors()
     validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
     assert (len(validator.get_errors()) == 0) == query[3]
