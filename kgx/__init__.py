@@ -6,7 +6,7 @@ Some global error handling classes placed here in the default package.
 __version__ = "1.5.4"
 
 from enum import Enum
-from typing import List
+from typing import List, TextIO
 from sys import stderr
 
 from kgx.config import get_logger
@@ -158,3 +158,29 @@ class ErrorDetecting(object):
         self.log_error(entity, error_type, errmsg, message_level)
         logger.debug(errmsg)
         print(errmsg, file=self.error_log)
+
+    def report(self) -> List:
+        """
+        Prepare error report.
+
+        Returns
+        -------
+        List
+            A list of formatted errors
+
+        """
+        return [str(x) for x in self.errors]
+
+
+    def write_report(self, outstream: TextIO) -> None:
+        """
+        Write error report to a file
+
+        Parameters
+        ----------
+        outstream: TextIO
+            The stream to write to
+
+        """
+        for x in self.report():
+            outstream.write(f"{x}\n")
