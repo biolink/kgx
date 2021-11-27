@@ -52,8 +52,8 @@ def test_validate_node_properties(query):
     """
     validator = Validator.get_the_validator()
     required_properties = validator.get_required_node_properties()
-    e = validator.validate_node_properties(query[0], query[1], required_properties)
-    assert (len(e) == 0) == query[2]
+    validator.validate_node_properties(query[0], query[1], required_properties)
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -105,11 +105,11 @@ def test_validate_edge_properties(query):
     """
     validator = Validator.get_the_validator()
     required_properties = validator.get_required_edge_properties()
-    e = validator.validate_edge_properties(
+    validator.validate_edge_properties(
         query[0], query[1], query[2], required_properties
     )
     print(validator.report())
-    assert (len(e) == 0) == query[3]
+    assert (len(validator.get_errors()) == 0) == query[3]
 
 
 @pytest.mark.parametrize(
@@ -157,8 +157,8 @@ def test_validate_node_property_types(query):
     Test validate_node_property_types in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_node_property_types(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator.validate_node_property_types(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -204,8 +204,8 @@ def test_validate_edge_property_types(query):
     Test validate_edge_property_types in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_edge_property_types(query[0], query[1], query[2])
-    assert (len(e) == 0) == query[3]
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert (len(validator.get_errors()) == 0) == query[3]
 
 
 @pytest.mark.parametrize(
@@ -241,8 +241,8 @@ def test_validate_node_property_values(query):
     Test validate_node_property_values in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_node_property_values(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator.validate_node_property_values(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -299,8 +299,8 @@ def test_validate_edge_property_values(query):
     Test validate_edge_property_values in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_edge_property_values(query[0], query[1], query[2])
-    assert (len(e) == 0) == query[3]
+    validator.validate_edge_property_values(query[0], query[1], query[2])
+    assert (len(validator.get_errors()) == 0) == query[3]
 
 
 @pytest.mark.parametrize(
@@ -338,8 +338,8 @@ def test_validate_categories(query):
     Test validate_categories in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_categories(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator.validate_categories(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -396,5 +396,5 @@ def test_validate_edge_label(query):
     Test validate_edge_predicate in Validator.
     """
     validator = Validator.get_the_validator()
-    e = validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
-    assert (len(e) == 0) == query[3]
+    validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
+    assert (len(validator.get_errors()) == 0) == query[3]
