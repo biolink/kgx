@@ -46,7 +46,7 @@ def test_validator_good():
     )
     validator = Validator(verbose=True)
     validator.validate(G)
-    print(validator.report())
+    print(validator.get_errors())
     assert len(validator.get_errors()) == 0
 
 
@@ -108,7 +108,7 @@ def test_validator_explicit_biolink_version():
     Validator.set_biolink_model(version="1.8.2")
     validator = Validator(verbose=True)
     validator.validate(G)
-    print(validator.report())
+    print(validator.get_errors())
     assert len(validator.get_errors()) == 0
 
 

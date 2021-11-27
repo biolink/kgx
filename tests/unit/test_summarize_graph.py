@@ -1,5 +1,5 @@
 import os
-
+from sys import stderr
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
@@ -246,6 +246,9 @@ def test_summarize_graph_stream_inspector():
         TARGET_DIR, "test_graph-summary-from-inspection.yaml"
     )
 
+    print("*** graph-summary error log:")
+    inspector.write_report(stderr)
+    
     with open(output_filename, "w") as gsh:
         inspector.save(gsh)
 

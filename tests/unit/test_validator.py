@@ -113,7 +113,7 @@ def test_validate_edge_properties(query):
     validator.validate_edge_properties(
         query[0], query[1], query[2], required_properties
     )
-    print(validator.report())
+    print(validator.get_errors())
     assert (len(validator.get_errors()) == 0) == query[3]
 
 

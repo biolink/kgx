@@ -52,15 +52,15 @@ def cli():
 )
 @click.option("--output", "-o", required=True, type=click.Path(exists=False))
 @click.option(
-    "--report-type",
+    "--get_errors-type",
     "-r",
     required=False,
     type=str,
-    help=f"The summary report type. Must be one of {tuple(summary_report_types.keys())}",
+    help=f"The summary get_errors type. Must be one of {tuple(summary_report_types.keys())}",
     default="kgx-map",
 )
 @click.option(
-    "--report-format",
+    "--get_errors-format",
     "-f",
     help=f"The input format. Can be one of {get_report_format_types()}",
 )
@@ -88,7 +88,7 @@ def cli():
     "-l",
     required=False,
     type=click.Path(exists=False),
-    help='File within which to report graph data parsing errors (default: "stderr")',
+    help='File within which to get_errors graph data parsing errors (default: "stderr")',
 )
 def graph_summary_wrapper(
     inputs: List[str],
@@ -118,9 +118,9 @@ def graph_summary_wrapper(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary report type
+        The summary get_errors type
     report_format: Optional[str]
-        The summary report format file types: 'yaml' or 'json'  (default is report_type specific)
+        The summary get_errors format file types: 'yaml' or 'json'  (default is report_type specific)
     stream: bool
         Whether to parse input as a stream
     graph_name: str
