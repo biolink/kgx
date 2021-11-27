@@ -17,7 +17,7 @@ from kgx.cli.cli_utils import (
     summary_report_types,
     get_report_format_types,
 )
-from kgx.validator import ValidationError, MessageLevel, ErrorType
+from kgx import ErrorType, MessageLevel, ValidationError
 
 log = get_logger()
 config = get_config()

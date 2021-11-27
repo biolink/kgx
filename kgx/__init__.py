@@ -1,12 +1,96 @@
+"""
+KGX Package
+
+Some global error handling classes placed here in the default package.
+"""
 __version__ = "1.5.4"
 
+from enum import Enum
 from typing import List
 from sys import stderr
 
 from kgx.config import get_logger
-from kgx.validator import ValidationError, ErrorType, MessageLevel
 
 logger = get_logger()
+
+
+class ErrorType(Enum):
+    """
+    Validation error types
+    """
+
+    MISSING_NODE_PROPERTY = 1
+    MISSING_EDGE_PROPERTY = 2
+    INVALID_NODE_PROPERTY_VALUE_TYPE = 3
+    INVALID_NODE_PROPERTY_VALUE = 4
+    INVALID_EDGE_PROPERTY_VALUE_TYPE = 5
+    INVALID_EDGE_PROPERTY_VALUE = 6
+    NO_CATEGORY = 7
+    INVALID_CATEGORY = 8
+    NO_EDGE_PREDICATE = 9
+    INVALID_EDGE_PREDICATE = 10
+    MISSING_NODE_CURIE_PREFIX = 11
+    DUPLICATE_NODE = 12
+    MISSING_NODE = 13,
+    INVALID_EDGE_TRIPLE = 14,
+    VALIDATION_SYSTEM_ERROR = 99
+
+
+class MessageLevel(Enum):
+    """
+    Message level for validation reports
+    """
+
+    # Recommendations
+    INFO = 1
+    # Message to convey 'should'
+    WARNING = 2
+    # Message to convey 'must'
+    ERROR = 3
+
+
+class ValidationError(object):
+    """
+    ValidationError class that represents an error.
+
+    Parameters
+    ----------
+    entity: str
+        The node or edge entity that is failing validation
+    error_type: kgx.ErrorType
+        The nature of the error
+    message: str
+        The error message
+    message_level: kgx.MessageLevel
+        The message level
+
+    """
+
+    def __init__(
+        self,
+        entity: str,
+        error_type: ErrorType,
+        message: str,
+        message_level: MessageLevel,
+    ):
+        self.entity = entity
+        self.error_type = error_type
+        self.message = message
+        self.message_level = message_level
+
+    def __str__(self):
+        return f"[{self.message_level.name}][{self.error_type.name}] {self.entity} - {self.message}"
+
+    def as_dict(self):
+        """
+        Return Validation Error object attributes as a dictionary
+        """
+        return {
+            "entity": self.entity,
+            "error_type": self.error_type.name,
+            "message": self.message,
+            "message_level": self.message_level.name,
+        }
 
 
 class ErrorDetecting:
