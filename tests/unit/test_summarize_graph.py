@@ -247,7 +247,7 @@ def test_summarize_graph_stream_inspector():
     )
 
     print("*** graph-summary error log:")
-    inspector.write_report(stderr)
+    inspector.write_report()
     
     with open(output_filename, "w") as gsh:
         inspector.save(gsh)

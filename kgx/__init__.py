@@ -6,7 +6,7 @@ Some global error handling classes placed here in the default package.
 __version__ = "1.5.4"
 
 from enum import Enum
-from typing import List, TextIO, Dict
+from typing import List, TextIO, Dict, Optional
 from sys import stderr
 
 from kgx.config import get_logger
@@ -103,10 +103,13 @@ class ErrorDetecting(object):
         
         self.errors: Dict[str, Dict[ErrorType, ValidationError]] = dict()
 
-        if error_log and isinstance(error_log, str):
-            self.error_log = open(error_log, mode="w")
+        if error_log:
+            if isinstance(error_log, str):
+                self.error_log = open(error_log, mode="w")
+            else:
+                self.error_log = error_log
         else:
-            self.error_log = error_log
+            self.error_log = None
 
     def get_error_catalog(self) -> Dict:
         """
@@ -168,7 +171,7 @@ class ErrorDetecting(object):
                 error_messages.append(str(entry[error_type]))
         return error_messages
 
-    def write_report(self, outstream: TextIO) -> None:
+    def write_report(self, outstream: Optional[TextIO] = None) -> None:
         """
         Write error get_errors to a file
 
@@ -178,5 +181,11 @@ class ErrorDetecting(object):
             The stream to which to write
 
         """
+        # default error log used if not given
+        if not outstream and self.error_log:
+            outstream = self.error_log
+        else:
+            outstream = stderr
+            
         for x in self.get_errors():
             outstream.write(f"{x}\n")

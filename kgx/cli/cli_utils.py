@@ -3,7 +3,7 @@ import importlib
 import os
 from os.path import dirname, abspath
 
-import sys
+from sys import stdout
 from multiprocessing import Pool
 from typing import List, Tuple, Optional, Dict, Set, Any, Union
 import yaml
@@ -163,7 +163,7 @@ def graph_summary(
         with open(output, "w") as gsr:
             inspector.save(gsr, file_format=report_format)
     else:
-        inspector.save(sys.stdout, file_format=report_format)
+        inspector.save(stdout, file_format=report_format)
 
     # ... Third, we directly return the graph statistics to the caller.
     return inspector.get_graph_summary()
@@ -248,7 +248,7 @@ def validate(
     if output:
         validator.write_report(open(output, "w"))
     else:
-        validator.write_report(sys.stdout)
+        validator.write_report(stdout)
 
     # ... Third, we return directly any validation errors to the caller
     return validator.get_errors()

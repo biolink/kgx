@@ -143,7 +143,7 @@ def test_validate_by_stream_inspector():
         inspector=validator,
     )
 
-    validator.write_report(stderr)
+    validator.write_report()
 
     e = validator.get_errors()
     assert len(e) == 0

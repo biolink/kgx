@@ -86,7 +86,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     transformer.transform(input_args=input_args, inspector=mkg)
 
     print("*** graph-summary error log:")
-    mkg.write_report(stderr)
+    mkg.write_report()
     
     assert mkg.get_name() == "Test Graph - Streamed"
     assert mkg.get_total_nodes_count() == 512
