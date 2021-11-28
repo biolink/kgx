@@ -167,7 +167,7 @@ def test_validate_exception_triggered_error_exit_code():
             test_input
         ]
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 2
 
 
 @pytest.mark.parametrize(

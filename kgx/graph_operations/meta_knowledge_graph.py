@@ -8,7 +8,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
-from kgx import ErrorDetecting, ErrorType, MessageLevel, ValidationError
+from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph

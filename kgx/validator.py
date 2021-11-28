@@ -8,7 +8,7 @@ import click
 import validators
 from bmt import Toolkit
 
-from kgx import ErrorType, MessageLevel, ErrorDetecting
+from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.config import get_jsonld_context, get_logger
 from kgx.graph.base_graph import BaseGraph
 from kgx.utils.kgx_utils import (
@@ -66,6 +66,9 @@ class Validator(ErrorDetecting):
         Creates and manages a default singleton Validator in the module, when called
         """
         if not cls._the_validator:
+            # TODO: This may need to be adjusted periodically,
+            #       but for now, we reset the model to a recent version
+            cls.set_biolink_model("2.2.11")
             cls._the_validator = Validator(
                 verbose=verbose,
                 progress_monitor=progress_monitor,
