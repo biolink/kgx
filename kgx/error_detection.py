@@ -44,13 +44,26 @@ class MessageLevel(Enum):
 
 class ErrorDetecting(object):
     """
-    Class of object which can log internal ValidationError events.
+    Class of object which can capture internal graph parsing error events.
     
     Superclass parent of KGX 'validate' and 'graph-summary'
     operational classes (perhaps more KGX operations later?)
     """
     def __init__(self, error_log=stderr):
-        
+        """
+        Run KGX validator on an input file to check for Biolink Model compliance.
+
+        Parameters
+        ----------
+        error_log: str or TextIO handle
+            Output target for logging.
+            
+        Returns
+        -------
+        Dict
+            A dictionary of entities which have parse errors indexed by [message_level][error_type][message]
+
+        """
         self.errors: Dict[
             MessageLevel,
             Dict[
@@ -69,12 +82,6 @@ class ErrorDetecting(object):
                 self.error_log = error_log
         else:
             self.error_log = None
-
-    def get_error_catalog(self) -> Dict:
-        """
-        Get dictionary of indexed ValidationError records
-        """
-        return self.errors
     
     def clear_errors(self):
         """
@@ -125,7 +132,7 @@ class ErrorDetecting(object):
         Returns
         -------
         Dict
-            A dictionary of error messages indexed by [message_level][error_type][entity]
+            A raw dictionary of entities indexed by [message_level][error_type][message]
 
         """
         return self.errors

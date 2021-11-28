@@ -194,10 +194,11 @@ def validate(
          Whether to parse input as a stream.
     biolink_release: Optional[str] = None
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
+
     Returns
     -------
     Dict
-        A dictionary of error messages indexed by [message_level][error_type][entity]
+        A dictionary of entities which have parse errors indexed by [message_level][error_type][message]
 
     """
     # New design pattern enabling 'stream' processing of statistics on a small memory footprint
