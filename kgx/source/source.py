@@ -13,7 +13,8 @@ class Source(object):
     from a store where the store is a file or a database.
     """
 
-    def __init__(self):
+    def __init__(self, owner):
+        self.owner = owner
         self.graph_metadata: Dict = {}
         self.node_filters = {}
         self.edge_filters = {}

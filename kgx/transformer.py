@@ -5,6 +5,7 @@ from sys import stderr
 from typing import Dict, Generator, List, Optional, Callable, Set
 
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.source import (
     GraphSource,
     Source,
@@ -64,7 +65,7 @@ SINK_MAP = {
 log = get_logger()
 
 
-class Transformer(object):
+class Transformer(ErrorDetecting):
     """
     The Transformer class is responsible for transforming data from one
     form to another.
@@ -75,10 +76,30 @@ class Transformer(object):
         Whether or not to stream
     infores_catalog: Optional[str]
         Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
+    error_log:
+        Where to write any graph processing error message (stderr, by default).
 
     """
 
-    def __init__(self, stream: bool = False, infores_catalog: Optional[str] = None):
+    def __init__(
+            self,
+            stream: bool = False,
+            infores_catalog: Optional[str] = None,
+            error_log=None
+    ):
+        """
+
+    stream: bool
+        Whether or not to stream
+    infores_catalog: Optional[str]
+        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
+    error_log:
+        Where to write any graph processing error message (stderr, by default).
+
+        """
+
+        ErrorDetecting.__init__(self, error_log)
+
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
@@ -188,14 +209,22 @@ class Transformer(object):
             if self.stream:
                 if output_args["format"] in {"tsv", "csv"}:
                     if "node_properties" not in output_args:
-                        log.warning(
-                            f"'node_properties' not defined for output while streaming. "
-                            f"The exported {output_args['format']} will be limited to a subset of the columns."
+                        error_type = ErrorType.MISSING_NODE_PROPERTY
+                        self.log_error(
+                            entity=f"{output_args['format']} stream",
+                            error_type=error_type,
+                            message=f"'node_properties' not defined for output while streaming. " +
+                                    f"The exported format will be limited to a subset of the columns.",
+                            message_level=MessageLevel.WARNING
                         )
                     if "edge_properties" not in output_args:
-                        log.warning(
-                            f"'edge_properties' not defined for output while streaming. "
-                            f"The exported {output_args['format']} will be limited to a subset of the columns."
+                        error_type = ErrorType.MISSING_EDGE_PROPERTY
+                        self.log_error(
+                            entity=f"{output_args['format']} stream",
+                            error_type=error_type,
+                            message=f"'edge_properties' not defined for output while streaming. " +
+                                    f"The exported format will be limited to a subset of the columns.",
+                            message_level=MessageLevel.WARNING
                         )
                 sink = self.get_sink(**output_args)
                 if "reverse_prefix_map" in output_args:
@@ -212,7 +241,7 @@ class Transformer(object):
                 sink.finalize()
             else:
                 # stream from source to intermediate
-                intermediate_sink = GraphSink(self.store.graph)
+                intermediate_sink = GraphSink(self)
                 intermediate_sink.node_properties.update(self.store.node_properties)
                 intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
@@ -270,7 +299,7 @@ class Transformer(object):
                 self.store.edge_properties.update(sink.edge_properties)
         else:
             # stream from source to intermediate
-            sink = GraphSink(self.store.graph)
+            sink = GraphSink(self)
             self.process(source_generator, sink)
             sink.node_properties.update(self.store.node_properties)
             sink.edge_properties.update(self.store.edge_properties)
@@ -393,7 +422,7 @@ class Transformer(object):
         """
         if format in SOURCE_MAP:
             s = SOURCE_MAP[format]
-            return s()
+            return s(self)
         else:
             raise TypeError(f"{format} in an unrecognized format")
 
@@ -414,6 +443,6 @@ class Transformer(object):
         """
         if kwargs["format"] in SINK_MAP:
             s = SINK_MAP[kwargs["format"]]
-            return s(**kwargs)
+            return s(self, **kwargs)
         else:
             raise TypeError(f"{kwargs['format']} in an unrecognized format")

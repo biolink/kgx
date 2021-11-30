@@ -3,6 +3,7 @@ import os
 import pytest
 
 from kgx.source import ObographSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -10,7 +11,8 @@ def test_read_obograph1():
     """
     Read from an Obograph JSON using ObographSource.
     """
-    s = ObographSource()
+    t = Transformer()
+    s = ObographSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.json"),
         knowledge_source="GO slim generic",
@@ -58,7 +60,8 @@ def test_read_jsonl2():
     Read from an Obograph JSON using ObographSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = ObographSource()
+    t = Transformer()
+    s = ObographSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.json"),
         provided_by="GO slim generic",
@@ -172,6 +175,9 @@ def test_get_category(query):
     Test to guess the appropriate category for a sample OBO Graph JSON.
     """
     node = query[0]
-    s = ObographSource()
+
+    t = Transformer()
+    s = ObographSource(t)
+
     c = s.get_category(node["id"], node)
     assert c == query[1]

@@ -17,6 +17,8 @@ class NeoSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     uri: str
         The URI for the Neo4j instance.
         For example, http://localhost:7474
@@ -38,8 +40,8 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ":"
     _seen_categories = set()
 
-    def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
-        super().__init__()
+    def __init__(self, owner, uri: str, username: str, password: str, **kwargs: Any):
+        super().__init__(owner)
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
         self.http_driver: GraphDatabase = GraphDatabase(

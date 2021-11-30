@@ -4,6 +4,7 @@ import pprint
 import pytest
 
 from kgx.source import TsvSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -11,7 +12,9 @@ def test_read_tsv():
     """
     Read a TSV using TsvSource.
     """
-    s = TsvSource()
+    t = Transformer()
+    s = TsvSource(t)
+
     g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_nodes.tsv"), format="tsv")
     nodes = []
     for rec in g:
@@ -43,7 +46,9 @@ def test_read_csv():
     """
     Read a CSV using TsvSource.
     """
-    s = TsvSource()
+    t = Transformer()
+    s = TsvSource(t)
+
     g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_nodes.csv"), format="csv")
     nodes = []
     for rec in g:
@@ -76,7 +81,9 @@ def test_read_tsv_tar_compressed():
     """
     Read a compressed TSV TAR archive using TsvSource.
     """
-    s = TsvSource()
+    t = Transformer()
+    s = TsvSource(t)
+
     g = s.parse(
         filename=os.path.join(RESOURCE_DIR, "test.tar"), format="tsv", compression="tar"
     )
@@ -96,7 +103,9 @@ def test_read_tsv_tar_gz_compressed():
     """
     Read a compressed TSV TAR archive using TsvSource.
     """
-    s = TsvSource()
+    t = Transformer()
+    s = TsvSource(t)
+
     g = s.parse(
         filename=os.path.join(RESOURCE_DIR, "test.tar.gz"),
         format="tsv",
@@ -118,7 +127,9 @@ def test_read_tsv_tar_gz_compressed_inverted_file_order():
     """
     Read a compressed TSV TAR archive using TsvSource, where source tar archive has edge file first, node second.
     """
-    s = TsvSource()
+    t = Transformer()
+    s = TsvSource(t)
+
     g = s.parse(
         filename=os.path.join(RESOURCE_DIR, "test-inverse.tar.gz"),
         format="tsv",

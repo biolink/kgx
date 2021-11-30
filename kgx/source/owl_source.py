@@ -27,9 +27,9 @@ class OwlSource(RdfSource):
 
     """
 
-    def __init__(self):
+    def __init__(self, owner):
+        super().__init__(owner)
         self.imported: Set = set()
-        super().__init__()
         self.OWLSTAR = Namespace("http://w3id.org/owlstar/")
         self.excluded_predicates = {
             URIRef("https://raw.githubusercontent.com/geneontology/go-ontology/master/contrib/oboInOwl#id")

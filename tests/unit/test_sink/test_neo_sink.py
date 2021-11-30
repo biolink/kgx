@@ -5,6 +5,7 @@ from neo4jrestclient.client import GraphDatabase, Node, Relationship
 from neo4jrestclient.query import CypherException
 
 from kgx.sink import NeoSink
+from kgx.transformer import Transformer
 from tests import print_graph
 from tests.unit import (
     clean_slate,
@@ -91,7 +92,9 @@ def test_write_neo2(clean_slate, query):
     Test writing a graph to a Neo4j instance.
     """
     graph = query[0]
+    t = Transformer()
     sink = NeoSink(
+        owner=t,
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
@@ -121,7 +124,9 @@ def test_write_neo3(clean_slate):
     modified version of the graph to the same Neo4j instance.
     """
     graph = get_graph("kgx-unit-test")[2]
+    t = Transformer()
     sink = NeoSink(
+        owner=t,
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,

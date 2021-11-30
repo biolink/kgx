@@ -7,10 +7,11 @@ import pytest
 from click.testing import CliRunner
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, validate_wrapper
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     check_container,
+    clean_slate,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,

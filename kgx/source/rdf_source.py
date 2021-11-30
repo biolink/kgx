@@ -43,8 +43,8 @@ class RdfSource(Source):
 
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # TODO: use OBO IRI from biolink model context once
         #  https://github.com/biolink/biolink-model/issues/211 is resolved

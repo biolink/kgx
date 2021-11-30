@@ -22,8 +22,8 @@ class ObographSource(JsonSource):
     HAS_OBO_NAMESPACE = "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace"
     SKOS_EXACT_MATCH = "http://www.w3.org/2004/02/skos/core#exactMatch"
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
 

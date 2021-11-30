@@ -2,6 +2,7 @@ import os
 
 from kgx.graph.nx_graph import NxGraph
 from kgx.sink import TsvSink
+from kgx.transformer import Transformer
 from tests import TARGET_DIR
 
 
@@ -35,7 +36,9 @@ def test_write_tsv1():
         "F", "D", **{"subject": "F", "object": "D", "predicate": "biolink:sub_class_of"}
     )
 
+    t = Transformer()
     s = TsvSink(
+        owner=t,
         filename=os.path.join(TARGET_DIR, "test_graph"),
         format="tsv",
         node_properties={"id", "name"},
@@ -88,7 +91,9 @@ def test_write_tsv2():
         "F", "D", **{"subject": "F", "object": "D", "predicate": "biolink:sub_class_of"}
     )
 
+    t = Transformer()
     s = TsvSink(
+        owner=t,
         filename=os.path.join(TARGET_DIR, "test_graph"),
         format="tsv",
         compression="tar",
@@ -102,8 +107,9 @@ def test_write_tsv2():
     s.finalize()
 
     assert os.path.exists(os.path.join(TARGET_DIR, "test_graph.tar"))
-
+    t = Transformer()
     s = TsvSink(
+        owner=t,
         filename=os.path.join(TARGET_DIR, "test_graph"),
         format="tsv",
         compression="tar.gz",

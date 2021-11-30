@@ -31,6 +31,8 @@ class TsvSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     filename: str
         The filename to write to
     format: str
@@ -43,12 +45,13 @@ class TsvSink(Sink):
 
     def __init__(
         self,
+        owner,
         filename: str,
         format: str,
         compression: Optional[str] = None,
         **kwargs: Any,
     ):
-        super().__init__()
+        super().__init__(owner)
         if format not in extension_types:
             raise Exception(f"Unsupported format: {format}")
         self.delimiter = extension_types[format]

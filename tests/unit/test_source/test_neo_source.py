@@ -2,6 +2,7 @@ import pytest
 from neo4jrestclient.client import GraphDatabase
 
 from kgx.source import NeoSource
+from kgx.transformer import Transformer
 from tests.unit import (
     clean_slate,
     DEFAULT_NEO4J_URL,
@@ -46,7 +47,9 @@ def test_read_neo(clean_slate):
     )
     for q in queries:
         driver.query(q)
-    s = NeoSource()
+
+    t = Transformer()
+    s = NeoSource(t)
     g = s.parse(
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,

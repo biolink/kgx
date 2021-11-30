@@ -15,8 +15,8 @@ class TrapiSource(JsonSource):
     from a TRAPI JSON.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self._node_properties = set()
         self._edge_properties = set()
 

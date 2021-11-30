@@ -1,6 +1,7 @@
 import os
 
 from kgx.source.sssom_source import SssomSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 from tests.unit import process_stream
 
@@ -9,7 +10,9 @@ def test_load1():
     """
     Read a SSSOM formatted file.
     """
-    source = SssomSource()
+    t = Transformer()
+    source = SssomSource(t)
+
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example1.tsv"), format="sssom"
     )
@@ -31,7 +34,9 @@ def test_load2():
     """
     Read a SSSOM formatted file, with more metadata on mappings.
     """
-    source = SssomSource()
+    t = Transformer()
+    source = SssomSource(t)
+
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example2.tsv"), format="sssom"
     )
@@ -59,7 +64,9 @@ def test_load3():
     """
     Read a SSSOM formatted file that has metadata provided in headers.
     """
-    source = SssomSource()
+    t = Transformer()
+    source = SssomSource(t)
+
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example3.tsv"), format="sssom"
     )

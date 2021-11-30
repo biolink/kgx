@@ -17,6 +17,8 @@ class JsonSink(Sink):
 
     Parameters
     ----------
+    wner: Transformer
+        Transformer to which the GraphSink belongs
     filename: str
         The filename to write to
     format: str
@@ -30,12 +32,13 @@ class JsonSink(Sink):
 
     def __init__(
         self,
+        owner,
         filename: str,
         format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any,
     ):
-        super().__init__()
+        super().__init__(owner)
         self.filename = filename
         if compression:
             self.compression = compression

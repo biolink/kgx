@@ -15,8 +15,8 @@ class GraphSource(Source):
     The underlying store must be an instance of ``kgx.graph.base_graph.BaseGraph``
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.graph = get_graph_store_class()()
 
     def parse(self, graph: BaseGraph, **kwargs: Any) -> Generator:

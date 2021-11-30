@@ -24,8 +24,8 @@ class TsvSource(Source):
     from a TSV/CSV.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
 
     def set_prefix_map(self, m: Dict) -> None:
         """

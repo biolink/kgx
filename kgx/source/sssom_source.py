@@ -37,8 +37,8 @@ class SssomSource(Source):
     from an SSSOM file.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.predicate_mapping = {}
 
     def set_prefix_map(self, m: Dict) -> None:

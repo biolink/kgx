@@ -24,8 +24,8 @@ class NeoSource(Source):
     from a Neo4j instance.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.http_driver = None
         self.node_count = 0
         self.edge_count = 0
