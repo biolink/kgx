@@ -1,12 +1,15 @@
+"""
+Test CLI Utils
+"""
 import json
 import os
 import pytest
+from click.testing import CliRunner
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import get_input_file_types, graph_summary, get_report_format_types
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, validate_wrapper
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_slate,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
@@ -147,6 +150,48 @@ def test_meta_knowledge_graph_as_json_streamed():
     assert summary_stats
     assert "nodes" in summary_stats
     assert "edges" in summary_stats
+
+
+def test_validate_exception_triggered_error_exit_code():
+    """
+    Test graph validate error exit code.
+    """
+    test_input = os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "validate",
+            "-i", "tsv",
+            "-b not.a.semver",
+            test_input
+        ]
+    )
+    assert result.exit_code == 1
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        ("graph_nodes.tsv", 0),
+        ("test_nodes.tsv", 1),
+    ],
+)
+def test_validate_parsing_triggered_error_exit_code(query):
+    """
+    Test graph validate error exit code.
+    """
+    test_input = os.path.join(RESOURCE_DIR, query[0])
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "validate",
+            "-i", "tsv",
+            test_input
+        ]
+    )
+    assert result.exit_code == query[1]
 
 
 def test_validate_non_streaming():
