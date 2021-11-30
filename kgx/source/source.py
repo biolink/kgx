@@ -1,5 +1,6 @@
 from typing import Dict, Union, Optional
 
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.utils.infores import InfoResContext
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
@@ -66,7 +67,12 @@ class Source(object):
                         else:
                             return False
                     else:
-                        log.error(f"Unexpected {k} node filter of type {type(v)}")
+                        error_type = ErrorType.INVALID_NODE_PROPERTY
+                        self.owner.log_error(
+                            entity=node["id"],
+                            error_type=error_type,
+                            message=f"Unexpected {k} node filter of type {type(v)}"
+                        )
                         return False
                 else:
                     # filter key does not exist in node
@@ -110,7 +116,13 @@ class Source(object):
                         else:
                             return False
                     else:
-                        log.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        error_type = ErrorType.INVALID_EDGE_PROPERTY
+                        subobj = f"{edge['subject']}->{edge['object']}"
+                        self.owner.log_error(
+                            entity=subobj,
+                            error_type=error_type,
+                            message=f"Unexpected {k} edge filter of type {type(v)}"
+                        )
                         return False
                 else:
                     # filter does not exist in edge

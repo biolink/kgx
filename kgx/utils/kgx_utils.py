@@ -779,6 +779,7 @@ def validate_node(node: Dict) -> Dict:
         log.debug(f"Empty node encountered: {node}")
     else:
         if "id" not in node:
+            # This probably won't happen since callers generally set/fix the 'id'?
             raise KeyError(f"node does not have 'id' property: {node}")
         if "name" not in node:
             log.debug(f"node does not have 'name' property: {node}")
