@@ -189,10 +189,9 @@ class ObographSource(JsonSource):
                         if mapping:
                             element = self.toolkit.get_element(mapping)
                     except ValueError as e:
-                        error_type = ErrorType.INVALID_EDGE_PREDICATE
                         self.owner.log_error(
                             entity=str(edge["pred"]),
-                            error_type=error_type,
+                            error_type=ErrorType.INVALID_EDGE_PREDICATE,
                             message=str(e)
                         )
                         element = None

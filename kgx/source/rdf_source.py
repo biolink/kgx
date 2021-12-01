@@ -285,10 +285,9 @@ class RdfSource(Source):
                 try:
                     self.dereify(n, data)
                 except ValueError as e:
-                    error_type = ErrorType.INVALID_EDGE_PROPERTY
                     self.owner.log_error(
                         entity=str(data),
-                        error_type=error_type,
+                        error_type=ErrorType.INVALID_EDGE_PROPERTY,
                         message=str(e),
                         message_level=MessageLevel.WARNING
                     )
@@ -344,10 +343,9 @@ class RdfSource(Source):
             self.edge_properties.update(node.keys())
             self.add_edge(node["subject"], node["object"], node["predicate"], node)
         else:
-            error_type = ErrorType.NO_CATEGORY
             self.owner.log_error(
                 entity=str(node),
-                error_type=error_type,
+                error_type=ErrorType.NO_CATEGORY,
                 message=f"Missing 'subject' or 'object' in reified edge node",
                 message_level=MessageLevel.WARNING
             )
@@ -853,10 +851,9 @@ class RdfSource(Source):
                 if mapping:
                     element = toolkit.get_element(mapping)
             except ValueError as e:
-                error_type = ErrorType.INVALID_EDGE_PREDICATE
                 self.owner.log_error(
                     entity=str(predicate),
-                    error_type=error_type,
+                    error_type=ErrorType.INVALID_EDGE_PREDICATE,
                     message=str(e)
                 )
                 element = None

@@ -4,6 +4,7 @@ from neo4jrestclient.client import GraphDatabase
 from neo4jrestclient.query import CypherException
 
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
 from kgx.source.source import DEFAULT_NODE_CATEGORY
 
@@ -98,7 +99,12 @@ class NeoSink(Sink):
                 try:
                     self.http_driver.query(query, params={"nodes": batch})
                 except CypherException as ce:
-                    log.error(ce)
+                    query_target = f"{category} Nodes {batch}"
+                    self.owner.log_error(
+                        entity=query_target,
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(ce)
+                    )
 
     def _flush_edge_cache(self):
         self._flush_node_cache()
@@ -146,7 +152,12 @@ class NeoSink(Sink):
                         query, params={"relationship": predicate, "edges": batch}
                     )
                 except CypherException as ce:
-                    log.error(ce)
+                    query_target = f"{predicate} Edges {batch}"
+                    self.owner.log_error(
+                        entity=query_target,
+                        error_type=ErrorType.INVALID_EDGE_PREDICATE,
+                        message=str(ce)
+                    )
 
     def finalize(self) -> None:
         """
@@ -253,7 +264,11 @@ class NeoSink(Sink):
                     self.http_driver.query(query)
                     self._seen_categories.add(category)
                 except CypherException as ce:
-                    log.error(ce)
+                    self.owner.log_error(
+                        entity=category,
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(ce)
+                    )
 
     @staticmethod
     def create_constraint_query(category: str) -> str:

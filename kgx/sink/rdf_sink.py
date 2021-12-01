@@ -8,6 +8,7 @@ from rdflib import URIRef, Literal, Namespace, RDF
 from rdflib.plugins.serializers.nt import _nt_row
 from rdflib.term import _is_valid_uri
 
+from kgx.error_detection import ErrorType
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
@@ -524,7 +525,12 @@ class RdfSink(Sink):
                 if mapping:
                     element = toolkit.get_element(mapping)
             except ValueError as e:
-                log.error(e)
+                self.owner.log_error(
+                    entity=str(predicate),
+                    error_type=ErrorType.INVALID_EDGE_PREDICATE,
+                    message=str(e)
+                )
+                element = None
         return element
 
     def reify(self, u: str, v: str, data: Dict) -> Dict:
