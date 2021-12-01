@@ -70,10 +70,9 @@ class Source(object):
                         else:
                             return False
                     else:
-                        error_type = ErrorType.INVALID_NODE_PROPERTY
                         self.owner.log_error(
                             entity=node["id"],
-                            error_type=error_type,
+                            error_type=ErrorType.INVALID_NODE_PROPERTY,
                             message=f"Unexpected {k} node filter of type {type(v)}"
                         )
                         return False
@@ -119,11 +118,10 @@ class Source(object):
                         else:
                             return False
                     else:
-                        error_type = ErrorType.INVALID_EDGE_PROPERTY
                         subobj = f"{edge['subject']}->{edge['object']}"
                         self.owner.log_error(
                             entity=subobj,
-                            error_type=error_type,
+                            error_type=ErrorType.INVALID_EDGE_PROPERTY,
                             message=f"Unexpected {k} edge filter of type {type(v)}"
                         )
                         return False
@@ -299,25 +297,22 @@ class Source(object):
 
         """
         if "id" not in node:
-            error_type = ErrorType.MISSING_NODE_PROPERTY
             self.owner.log_error(
                 entity=str(node),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
                 message=f"Node missing 'id' property"
             )
             return None
         if "name" not in node:
-            error_type = ErrorType.MISSING_NODE_PROPERTY
             self.owner.log_error(
                 entity=node["id"],
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
                 message=f"Node missing 'name' property"
             )
         if "category" not in node:
-            error_type = ErrorType.NO_CATEGORY
             self.owner.log_error(
                 entity=node["id"],
-                error_type=error_type,
+                error_type=ErrorType.NO_CATEGORY,
                 message=f"Node missing 'category' property? Using '{DEFAULT_NODE_CATEGORY}' as default.",
                 message_level=MessageLevel.WARNING
             )
@@ -343,24 +338,21 @@ class Source(object):
 
         """
         if "subject" not in edge or not edge["subject"]:
-            error_type = ErrorType.MISSING_NODE
             self.owner.log_error(
                 entity=str(edge),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE,
                 message=f"Edge missing 'subject'?"
             )
         elif "predicate" not in edge or not edge["predicate"]:
-            error_type = ErrorType.NO_EDGE_PREDICATE
             self.owner.log_error(
                 entity=str(edge),
-                error_type=error_type,
+                error_type=ErrorType.NO_EDGE_PREDICATE,
                 message=f"Edge missing 'predicate'?"
             )
         elif "object" not in edge or not edge["object"]:
-            error_type = ErrorType.MISSING_NODE
             self.owner.log_error(
                 entity=str(edge),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE,
                 message=f"Edge missing 'object'?"
             )
         else:

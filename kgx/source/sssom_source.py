@@ -175,10 +175,9 @@ class SssomSource(Source):
             self.node_properties.update(list(node_data.keys()))
             return n, node_data
         else:
-            error_type = ErrorType.MISSING_NODE_PROPERTY
             self.owner.log_error(
                 entity=str(node_data),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
                 message="Ignoring node with no 'id'",
                 message_level=MessageLevel.WARNING
             )
@@ -281,10 +280,9 @@ class SssomSource(Source):
             self.edge_properties.update(list(edge_data.keys()))
             objs.append((s, o, key, edge_data))
         else:
-            error_type = ErrorType.MISSING_NODE
             self.owner.log_error(
                 entity=str(edge_data),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE,
                 message="Ignoring edge with either a missing 'subject' or 'object'",
                 message_level=MessageLevel.WARNING
             )

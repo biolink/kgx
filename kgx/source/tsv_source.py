@@ -230,10 +230,9 @@ class TsvSource(Source):
                 self.node_properties.update(node_data.keys())
                 return n, node_data
         else:
-            error_type = ErrorType.MISSING_NODE_PROPERTY
             self.owner.log_error(
                 entity=str(node_data),
-                error_type=error_type,
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
                 message="Ignoring node with no 'id'",
                 message_level=MessageLevel.WARNING
             )
