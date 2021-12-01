@@ -9,13 +9,12 @@ from typing import Optional, Generator, Any, Dict, Tuple
 
 import yaml
 
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source import Source
 from kgx.utils.kgx_utils import (
-    validate_node,
     sanitize_import,
-    validate_edge,
     generate_uuid,
     generate_edge_key,
 )
@@ -148,13 +147,13 @@ class SssomSource(Source):
             for k, v in metadata.items():
                 self.graph_metadata[k] = v
 
-    def load_node(self, node: Dict) -> Tuple[str, Dict]:
+    def load_node(self, node_data: Dict) -> Optional[Tuple[str, Dict]]:
         """
         Load a node into an instance of BaseGraph
 
         Parameters
         ----------
-        node: Dict
+        node_data: Dict
             A node
 
         Returns
@@ -163,8 +162,11 @@ class SssomSource(Source):
             A tuple that contains node id and node data
 
         """
-        node = validate_node(node)
-        node_data = sanitize_import(node.copy())
+        node_data = self.validate_node(node_data)
+        if not node_data:
+            return None
+
+        node_data = sanitize_import(node_data.copy())
         if "id" in node_data:
             n = node_data["id"]
 
@@ -173,7 +175,13 @@ class SssomSource(Source):
             self.node_properties.update(list(node_data.keys()))
             return n, node_data
         else:
-            log.info("Ignoring node with no 'id': {}".format(node))
+            error_type = ErrorType.MISSING_NODE_PROPERTY
+            self.owner.log_error(
+                entity=str(node_data),
+                error_type=error_type,
+                message="Ignoring node with no 'id'",
+                message_level=MessageLevel.WARNING
+            )
 
     def load_edges(self, df: pd.DataFrame) -> Generator:
         """
@@ -219,13 +227,18 @@ class SssomSource(Source):
             edge_predicate = property_name
         if canonical_uri:
             edge_predicate = element_uri
+
         data = {
             "subject": edge["subject_id"],
             "predicate": edge_predicate,
             "object": edge["object_id"],
         }
         del edge["predicate_id"]
-        data = validate_edge(data)
+
+        data = self.validate_edge(data)
+        if not data:
+            return  # ?
+
         subject_node = {}
         object_node = {}
         for k, v in edge.items():
@@ -245,7 +258,11 @@ class SssomSource(Source):
             else:
                 data[k] = v
 
-        objs = [self.load_node(subject_node), self.load_node(object_node)]
+        subject_node = self.load_node(subject_node)
+        object_node = self.load_node(object_node)
+        if not (subject_node and object_node):
+            return  # ?
+        objs = [subject_node, object_node]
 
         for k, v in self.graph_metadata.items():
             if k not in {"curie_map"}:
@@ -264,10 +281,12 @@ class SssomSource(Source):
             self.edge_properties.update(list(edge_data.keys()))
             objs.append((s, o, key, edge_data))
         else:
-            log.info(
-                "Ignoring edge with either a missing 'subject' or 'object': {}".format(
-                    edge_data
-                )
+            error_type = ErrorType.MISSING_NODE
+            self.owner.log_error(
+                entity=str(edge_data),
+                error_type=error_type,
+                message="Ignoring edge with either a missing 'subject' or 'object'",
+                message_level=MessageLevel.WARNING
             )
 
         for o in objs:

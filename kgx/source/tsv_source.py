@@ -4,15 +4,14 @@ from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
     generate_uuid,
     generate_edge_key,
     extension_types,
     archive_read_mode,
-    sanitize_import,
-    validate_edge,
-    validate_node,
+    sanitize_import
 )
 
 log = get_logger()
@@ -218,7 +217,7 @@ class TsvSource(Source):
         Optional[Tuple[str, Dict]]
             A tuple that contains node id and node data
         """
-        node = validate_node(node)
+        node = self.validate_node(node)
         node_data = sanitize_import(node.copy())
         if "id" in node_data:
 
@@ -231,7 +230,13 @@ class TsvSource(Source):
                 self.node_properties.update(node_data.keys())
                 return n, node_data
         else:
-            log.info(f"Ignoring node with no 'id': {node}")
+            error_type = ErrorType.MISSING_NODE_PROPERTY
+            self.owner.log_error(
+                entity=str(node_data),
+                error_type=error_type,
+                message="Ignoring node with no 'id'",
+                message_level=MessageLevel.WARNING
+            )
 
     def read_edges(self, df: pd.DataFrame) -> Generator:
         """
@@ -266,7 +271,10 @@ class TsvSource(Source):
             A tuple that contains subject id, object id, edge key, and edge data
 
         """
-        edge = validate_edge(edge)
+        edge = self.validate_edge(edge)
+        if not edge:
+            return None
+
         edge_data = sanitize_import(edge.copy())
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()

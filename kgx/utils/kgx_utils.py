@@ -28,8 +28,6 @@ cache = None
 
 log = get_logger()
 
-DEFAULT_NODE_CATEGORY = "biolink:NamedThing"
-DEFAULT_EDGE_PREDICATE = "biolink:related_to"
 CORE_NODE_PROPERTIES = {"id", "name"}
 CORE_EDGE_PROPERTIES = {"id", "subject", "predicate", "object", "type"}
 
@@ -756,64 +754,6 @@ def apply_edge_filters(
         # removing edge that fails edge filters
         log.debug(f"Removing edge {edge}")
         graph.remove_edge(edge[0], edge[1], edge[2])
-
-
-def validate_node(node: Dict) -> Dict:
-    """
-    Given a node as a dictionary, check for required properties.
-    This method will return the node dictionary with default
-    assumptions applied, if any.
-
-    Parameters
-    ----------
-    node: Dict
-        A node represented as a dict
-
-    Returns
-    -------
-    Dict
-        A node represented as a dict, with default assumptions applied.
-
-    """
-    if len(node) == 0:
-        log.debug(f"Empty node encountered: {node}")
-    else:
-        if "id" not in node:
-            # This probably won't happen since callers generally set/fix the 'id'?
-            raise KeyError(f"node does not have 'id' property: {node}")
-        if "name" not in node:
-            log.debug(f"node does not have 'name' property: {node}")
-        if "category" not in node:
-            log.debug(
-                f"node does not have 'category' property: {node}\nUsing {DEFAULT_NODE_CATEGORY} as default"
-            )
-            node["category"] = [DEFAULT_NODE_CATEGORY]
-    return node
-
-
-def validate_edge(edge: Dict) -> Dict:
-    """
-    Given an edge as a dictionary, check for required properties.
-    This method will return the edge dictionary with default
-    assumptions applied, if any.
-
-    Parameters
-    ----------
-    edge: Dict
-        An edge represented as a dict
-
-    Returns
-    -------
-    Dict
-        An edge represented as a dict, with default assumptions applied.
-    """
-    if "subject" not in edge:
-        raise KeyError(f"edge does not have 'subject' property: {edge}")
-    if "predicate" not in edge:
-        raise KeyError(f"edge does not have 'predicate' property: {edge}")
-    if "object" not in edge:
-        raise KeyError(f"edge does not have 'object' property: {edge}")
-    return edge
 
 
 def generate_uuid():

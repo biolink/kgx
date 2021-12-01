@@ -5,24 +5,21 @@ import rdflib
 from linkml_runtime.linkml_model.meta import SlotDefinition, ClassDefinition, Element
 from rdflib import URIRef, RDF, Namespace
 
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.parsers.ntriples_parser import CustomNTriplesParser
-from kgx.source.source import Source
+from kgx.source.source import Source, DEFAULT_EDGE_PREDICATE
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import (
     get_toolkit,
-    get_biolink_property_types,
     is_property_multivalued,
     generate_edge_key,
     sentencecase_to_snakecase,
     sentencecase_to_camelcase,
     get_biolink_ancestors,
-    validate_edge,
-    validate_node,
     sanitize_import,
     prepare_data_dict,
-    DEFAULT_EDGE_PREDICATE,
     CORE_NODE_PROPERTIES,
     CORE_EDGE_PROPERTIES,
     knowledge_provenance_properties,
@@ -184,7 +181,11 @@ class RdfSource(Source):
                     node_data["category"].append(NAMED_THING)
             else:
                 node_data["category"] = [NAMED_THING]
-            node_data = validate_node(node_data)
+
+            node_data = self.validate_node(node_data)
+            if not node_data:
+                continue
+
             node_data = sanitize_import(node_data)
 
             self.set_node_provenance(node_data)
@@ -197,7 +198,11 @@ class RdfSource(Source):
 
         for k in self.edge_cache.keys():
             edge_data = self.edge_cache[k]
-            edge_data = validate_edge(edge_data)
+
+            edge_data = self.validate_edge(edge_data)
+            if not edge_data:
+                continue
+
             edge_data = sanitize_import(edge_data)
 
             self.set_edge_provenance(edge_data)
@@ -280,7 +285,13 @@ class RdfSource(Source):
                 try:
                     self.dereify(n, data)
                 except ValueError as e:
-                    log.info(e)
+                    error_type = ErrorType.INVALID_EDGE_PROPERTY
+                    self.owner.log_error(
+                        entity=str(data),
+                        error_type=error_type,
+                        message=str(e),
+                        message_level=MessageLevel.WARNING
+                    )
                     self._incomplete_nodes[n] = data
 
             for n in self._incomplete_nodes.keys():
@@ -300,7 +311,7 @@ class RdfSource(Source):
                     )
                     self.edge_cache[k]["id"] = edge_key
                 data = self.edge_cache[k]
-                data = validate_edge(data)
+                data = self.validate_edge(data)
                 data = sanitize_import(data)
 
                 self.set_edge_provenance(data)
@@ -333,8 +344,12 @@ class RdfSource(Source):
             self.edge_properties.update(node.keys())
             self.add_edge(node["subject"], node["object"], node["predicate"], node)
         else:
-            log.warning(
-                f"Missing 'subject' or 'object' in reified edge node {n} {node}. Ignoring the edge...."
+            error_type = ErrorType.NO_CATEGORY
+            self.owner.log_error(
+                entity=str(node),
+                error_type=error_type,
+                message=f"Missing 'subject' or 'object' in reified edge node",
+                message_level=MessageLevel.WARNING
             )
 
     def add_node_attribute(
@@ -838,5 +853,11 @@ class RdfSource(Source):
                 if mapping:
                     element = toolkit.get_element(mapping)
             except ValueError as e:
-                log.error(e)
+                error_type = ErrorType.INVALID_EDGE_PREDICATE
+                self.owner.log_error(
+                    entity=str(predicate),
+                    error_type=error_type,
+                    message=str(e)
+                )
+                element = None
         return element

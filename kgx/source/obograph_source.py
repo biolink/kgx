@@ -5,6 +5,7 @@ import ijson
 import stringcase
 from bmt import Toolkit
 
+from kgx.error_detection import ErrorType
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
@@ -188,7 +189,13 @@ class ObographSource(JsonSource):
                         if mapping:
                             element = self.toolkit.get_element(mapping)
                     except ValueError as e:
-                        log.error(e)
+                        error_type = ErrorType.INVALID_EDGE_PREDICATE
+                        self.owner.log_error(
+                            entity=str(edge["pred"]),
+                            error_type=error_type,
+                            message=str(e)
+                        )
+                        element = None
 
                 if element:
                     edge_predicate = format_biolink_slots(element.name.replace(",", ""))

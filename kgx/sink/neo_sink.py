@@ -5,7 +5,7 @@ from neo4jrestclient.query import CypherException
 
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
-from kgx.utils.kgx_utils import DEFAULT_NODE_CATEGORY
+from kgx.source.source import DEFAULT_NODE_CATEGORY
 
 log = get_logger()
 

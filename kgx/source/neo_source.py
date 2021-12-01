@@ -9,8 +9,6 @@ from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
     generate_uuid,
     generate_edge_key,
-    validate_node,
-    validate_edge,
     sanitize_import,
     knowledge_provenance_properties,
 )
@@ -271,17 +269,23 @@ class NeoSource(Source):
             A list of nodes
 
         """
-        for node in nodes:
-            if node["id"] not in self.seen_nodes:
-                yield self.load_node(node)
+        for node_data in nodes:
+            if node_data["id"] not in self.seen_nodes:
 
-    def load_node(self, node: Dict) -> Tuple:
+                node_data = self.load_node(node_data)
+                if not node_data:
+                    continue
+
+                yield node_data
+
+
+    def load_node(self, node_data: Dict) -> Optional[Tuple]:
         """
         Load node into an instance of BaseGraph
 
         Parameters
         ----------
-        node: Dict
+        node_data: Dict
             A node
 
         Returns
@@ -292,14 +296,17 @@ class NeoSource(Source):
         """
         self.node_count += 1
         # TODO: remove the seen_nodes
-        self.seen_nodes.add(node["id"])
+        self.seen_nodes.add(node_data["id"])
 
-        self.set_node_provenance(node)
+        self.set_node_provenance(node_data)
 
-        node = validate_node(node)
-        node = sanitize_import(node.copy())
-        self.node_properties.update(node.keys())
-        return node["id"], node
+        node_data = self.validate_node(node_data)
+        if not node_data:
+            return None
+
+        node_data = sanitize_import(node_data.copy())
+        self.node_properties.update(node_data.keys())
+        return node_data["id"], node_data
 
     def load_edges(self, edges: List) -> None:
         """
@@ -323,9 +330,21 @@ class NeoSource(Source):
                 edge["object"] = object_node["id"]
 
             s = self.load_node(subject_node)
+            if not s:
+                continue
+
             o = self.load_node(object_node)
+            if not o:
+                continue
+
             objs = [s, o]
-            objs.append(self.load_edge([s[1], edge, o[1]]))
+
+            edge_data = self.load_edge([s[1], edge, o[1]])
+            if not edge_data:
+                continue
+
+            objs.append(edge_data)
+
             for o in objs:
                 yield o
 
@@ -346,20 +365,24 @@ class NeoSource(Source):
         """
 
         subject_node = edge_record[0]
-        edge = edge_record[1]
+        edge_data = edge_record[1]
         object_node = edge_record[2]
 
-        self.set_edge_provenance(edge)
+        self.set_edge_provenance(edge_data)
 
-        if "id" not in edge.keys():
-            edge["id"] = generate_uuid()
+        if "id" not in edge_data.keys():
+            edge_data["id"] = generate_uuid()
         key = generate_edge_key(
-            subject_node["id"], edge["predicate"], object_node["id"]
+            subject_node["id"], edge_data["predicate"], object_node["id"]
         )
-        edge = validate_edge(edge)
-        edge = sanitize_import(edge.copy())
-        self.edge_properties.update(edge.keys())
-        return subject_node["id"], object_node["id"], key, edge
+
+        edge_data = self.validate_edge(edge_data)
+        if not edge_data:
+            return ()
+
+        edge_data = sanitize_import(edge_data.copy())
+        self.edge_properties.update(edge_data.keys())
+        return subject_node["id"], object_node["id"], key, edge_data
 
     def get_pages(
         self,

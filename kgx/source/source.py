@@ -7,6 +7,9 @@ from kgx.config import get_logger
 
 log = get_logger()
 
+DEFAULT_NODE_CATEGORY = "biolink:NamedThing"
+DEFAULT_EDGE_PREDICATE = "biolink:related_to"
+
 
 class Source(object):
     """
@@ -277,3 +280,91 @@ class Source(object):
         Set a specific edge provenance value.
         """
         self.infores_context.set_edge_provenance(edge_data)
+
+    def validate_node(self, node: Dict) -> Optional[Dict]:
+        """
+        Given a node as a dictionary, check for required properties.
+        This method will return the node dictionary with default
+        assumptions applied, if any.
+
+        Parameters
+        ----------
+        node: Dict
+            A node represented as a dict
+
+        Returns
+        -------
+        Dict
+            A node represented as a dict, with default assumptions applied.
+
+        """
+        if "id" not in node:
+            error_type = ErrorType.MISSING_NODE_PROPERTY
+            self.owner.log_error(
+                entity=str(node),
+                error_type=error_type,
+                message=f"Node missing 'id' property"
+            )
+            return None
+        if "name" not in node:
+            error_type = ErrorType.MISSING_NODE_PROPERTY
+            self.owner.log_error(
+                entity=node["id"],
+                error_type=error_type,
+                message=f"Node missing 'name' property"
+            )
+        if "category" not in node:
+            error_type = ErrorType.NO_CATEGORY
+            self.owner.log_error(
+                entity=node["id"],
+                error_type=error_type,
+                message=f"Node missing 'category' property? Using '{DEFAULT_NODE_CATEGORY}' as default.",
+                message_level=MessageLevel.WARNING
+            )
+            node["category"] = [DEFAULT_NODE_CATEGORY]
+
+        return node
+
+    def validate_edge(self, edge: Dict) -> Optional[Dict]:
+        """
+        Given an edge as a dictionary, check for required properties.
+        This method will return the edge dictionary with default
+        assumptions applied, if any.
+
+        Parameters
+        ----------
+        edge: Dict
+            An edge represented as a dict
+
+        Returns
+        -------
+        Dict
+            An edge represented as a dict, with default assumptions applied.
+
+        """
+        if "subject" not in edge or not edge["subject"]:
+            error_type = ErrorType.MISSING_NODE
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=error_type,
+                message=f"Edge missing 'subject'?"
+            )
+        elif "predicate" not in edge or not edge["predicate"]:
+            error_type = ErrorType.NO_EDGE_PREDICATE
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=error_type,
+                message=f"Edge missing 'predicate'?"
+            )
+        elif "object" not in edge or not edge["object"]:
+            error_type = ErrorType.MISSING_NODE
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=error_type,
+                message=f"Edge missing 'object'?"
+            )
+        else:
+            return edge
+
+        # if you get this far, then signal that the edge was incomplete
+        return None
