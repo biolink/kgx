@@ -247,8 +247,10 @@ def test_summarize_graph_stream_inspector():
     )
 
     # Dump a report to stderr ... will be a JSON document now
-    print("\n*** kgx-graph graph-summary error log:", file=stderr)
-    inspector.write_report()
+    if len(inspector.get_errors()) > 0:
+        assert len(inspector.get_errors("Error")) == 0
+        assert len(inspector.get_errors("Warning")) > 0
+        inspector.write_report(None, "Warning")
     
     with open(output_filename, "w") as gsh:
         inspector.save(gsh)
