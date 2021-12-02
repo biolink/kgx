@@ -1,4 +1,6 @@
 import pytest
+
+from kgx.error_detection import MessageLevel
 from kgx.transformer import Transformer
 from kgx.source.source import DEFAULT_NODE_CATEGORY, Source
 
@@ -18,6 +20,8 @@ def test_validate_incorrect_node(node):
     t = Transformer()
     s = Source(t)
     assert not s.validate_node(node)
+    assert len(t.get_errors("Error")) > 0
+    t.write_report()
 
 
 @pytest.mark.parametrize(
@@ -29,7 +33,11 @@ def test_validate_incorrect_node(node):
             "description": "Node A",
             "category": ["biolink:NamedThing"],
         },
-        {"id": "A", "name": "Node A", "description": "Node A"},
+        {
+            "id": "A",
+            "name": "Node A",
+            "description": "Node A"
+        },
     ],
 )
 def test_validate_correct_node(node):
@@ -42,6 +50,10 @@ def test_validate_correct_node(node):
     assert n is not None
     assert "category" in n
     assert n["category"][0] == DEFAULT_NODE_CATEGORY
+    if len(t.get_errors()) > 0:
+        assert len(t.get_errors("Error")) == 0
+        assert len(t.get_errors("Warning")) > 0
+        t.write_report(None, "Warning")
 
 
 @pytest.mark.parametrize(
@@ -59,6 +71,8 @@ def test_validate_incorrect_edge(edge):
     t = Transformer()
     s = Source(t)
     assert not s.validate_edge(edge)
+    assert len(t.get_errors()) > 0
+    t.write_report()
 
 
 @pytest.mark.parametrize(
@@ -81,3 +95,5 @@ def test_validate_correct_edge(edge):
     s = Source(t)
     e = s.validate_edge(edge)
     assert e is not None
+    assert len(t.get_errors()) == 0
+    t.write_report()

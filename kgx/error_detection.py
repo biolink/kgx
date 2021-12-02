@@ -67,9 +67,9 @@ class ErrorDetecting(object):
 
         """
         self.errors: Dict[
-            MessageLevel,
+            str,  # MessageLevel.name
             Dict[
-                ErrorType,
+                str,  # ErrorType.name
                 Dict[
                     str,
                     List[str]
@@ -127,19 +127,34 @@ class ErrorDetecting(object):
             if entity not in self.errors[level][error][message]:
                 self.errors[level][error][message].append(entity)
 
-    def get_errors(self) -> Dict:
+    def get_errors(self, level: str = None) -> Dict:
         """
         Get the index list of distinct error messages.
+
+        Parameters
+        ----------
+        level: str
+            Optional filter (case insensitive) name of error message level (generally either "Error" or "Warning")
 
         Returns
         -------
         Dict
-            A raw dictionary of entities indexed by [message_level][error_type][message]
+            A raw dictionary of entities indexed by [message_level][error_type][message] or
+            only just [error_type][message] specific to a given message level if the optional level filter is given
 
         """
-        return self.errors
+        if not level:
+            return self.errors  # default to return all errors
 
-    def write_report(self, outstream: Optional[TextIO] = None) -> None:
+        # ... or filter on error type
+        level = level.upper()
+        if level in self.errors:
+            return self.errors[level]
+        else:
+            # if errors of a given error_type don't exist, return an  empty dictionary
+            return dict()
+
+    def write_report(self, outstream: Optional[TextIO] = None, level: str = None) -> None:
         """
         Write error get_errors to a file
 
@@ -147,7 +162,8 @@ class ErrorDetecting(object):
         ----------
         outstream: TextIO
             The stream to which to write
-
+        level: str
+            Optional filter (case insensitive) name of error message level (generally either "Error" or "Warning")
         """
         # default error log used if not given
         if not outstream and self.error_log:
@@ -155,6 +171,8 @@ class ErrorDetecting(object):
         else:
             # safe here to default to stderr?
             outstream = stderr
-            
-        json_dump(self.get_errors(), outstream, indent=4)
+
+        if level:
+            outstream.write(f"\nMessages at the '{level}' level:\n")
+        json_dump(self.get_errors(level), outstream, indent=4)
         outstream.write("\n")  # print a trailing newline(?)
