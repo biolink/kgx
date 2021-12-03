@@ -218,8 +218,9 @@ class TsvSource(Source):
             A tuple that contains node id and node data
         """
         node = self.validate_node(node)
-        node_data = sanitize_import(node.copy())
-        if "id" in node_data:
+        if node:
+            # if not None, assumed to have an "id" here...
+            node_data = sanitize_import(node.copy())
 
             n = node_data["id"]
 
@@ -229,13 +230,6 @@ class TsvSource(Source):
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
                 return n, node_data
-        else:
-            self.owner.log_error(
-                entity=str(node_data),
-                error_type=ErrorType.MISSING_NODE_PROPERTY,
-                message="Ignoring node with no 'id'",
-                message_level=MessageLevel.WARNING
-            )
 
     def read_edges(self, df: pd.DataFrame) -> Generator:
         """

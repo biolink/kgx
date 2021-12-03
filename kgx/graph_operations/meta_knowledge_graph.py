@@ -449,7 +449,7 @@ class MetaKnowledgeGraph(ErrorDetecting):
             # since those would not be TRAPI 1.1 JSON compliant...
             # self.predicates['unknown'] += 1
             # predicate = "unknown"
-            error_type = ErrorType.NO_EDGE_PREDICATE
+            error_type = ErrorType.MISSING_EDGE_PREDICATE
             self.log_error(
                 entity=subj_obj_label,
                 error_type=error_type,

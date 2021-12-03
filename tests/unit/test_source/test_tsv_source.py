@@ -1,7 +1,4 @@
 import os
-import pprint
-
-import pytest
 
 from kgx.source import TsvSource
 from kgx.transformer import Transformer
@@ -145,3 +142,17 @@ def test_read_tsv_tar_gz_compressed_inverted_file_order():
                 nodes.append(nodes)
     assert len(nodes) == 3
     assert len(edges) == 1
+
+
+def test_incorrect_nodes():
+    """
+    Test basic validation of a node, where the node is invalid.
+    """
+    t = Transformer()
+    s = TsvSource(t)
+    g = s.parse(filename=os.path.join(RESOURCE_DIR, "incomplete_nodes.tsv"), format="tsv")
+    nodes = []
+    for rec in g:
+        if rec:
+            nodes.append(rec)
+    t.write_report()
