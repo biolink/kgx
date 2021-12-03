@@ -1,11 +1,11 @@
 import gzip
 from itertools import chain
-from typing import Optional, Dict, Generator, Any
+from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
 from bmt import Toolkit
 
-from kgx.error_detection import ErrorType
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
@@ -85,7 +85,7 @@ class ObographSource(JsonSource):
         for n in ijson.items(FH, "graphs.item.nodes.item"):
             yield self.read_node(n)
 
-    def read_node(self, node: Dict) -> Dict:
+    def read_node(self, node: Dict) -> Optional[Tuple[str, Dict]]:
         """
         Read and parse a node record.
 
@@ -160,7 +160,7 @@ class ObographSource(JsonSource):
         for e in ijson.items(FH, "graphs.item.edges.item"):
             yield self.read_edge(e)
 
-    def read_edge(self, edge: Dict) -> Dict:
+    def read_edge(self, edge: Dict) -> Optional[Tuple]:
         """
         Read and parse an edge record.
 
@@ -188,6 +188,8 @@ class ObographSource(JsonSource):
                         mapping = self.toolkit.get_element_by_mapping(edge["pred"])
                         if mapping:
                             element = self.toolkit.get_element(mapping)
+
+                    #  TODO: not sure how this exception would be thrown here.. under what conditions?
                     except ValueError as e:
                         self.owner.log_error(
                             entity=str(edge["pred"]),
@@ -253,7 +255,7 @@ class ObographSource(JsonSource):
                     else:
                         element = self.toolkit.get_element_by_mapping(category)
                         if element:
-                            category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
+                            category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
                         else:
                             category = "biolink:OntologyClass"
 
@@ -277,8 +279,11 @@ class ObographSource(JsonSource):
             elif prefix == "NCBITaxon":
                 category = "biolink:OrganismalEntity"
             else:
-                log.debug(
-                    f"{curie} Could not find a category mapping for '{category}'; Defaulting to 'biolink:OntologyClass'"
+                self.owner.log_error(
+                    entity=f"{str(category)} for node {curie}",
+                    error_type=ErrorType.MISSING_CATEGORY,
+                    message=f"Missing category; Defaulting to 'biolink:OntologyClass'",
+                    message_level=MessageLevel.WARNING
                 )
         return category
 

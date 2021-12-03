@@ -312,7 +312,7 @@ class Source(object):
         if "category" not in node:
             self.owner.log_error(
                 entity=node["id"],
-                error_type=ErrorType.NO_CATEGORY,
+                error_type=ErrorType.MISSING_CATEGORY,
                 message=f"Node missing 'category' property? Using '{DEFAULT_NODE_CATEGORY}' as default.",
                 message_level=MessageLevel.WARNING
             )

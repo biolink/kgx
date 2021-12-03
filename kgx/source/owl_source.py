@@ -1,4 +1,4 @@
-from typing import Set, Optional, Generator, Any, Dict
+from typing import Set, Optional, Generator, Any
 
 import rdflib
 from rdflib import Namespace, URIRef, OWL, RDFS, RDF

@@ -345,7 +345,7 @@ class RdfSource(Source):
         else:
             self.owner.log_error(
                 entity=str(node),
-                error_type=ErrorType.NO_CATEGORY,
+                error_type=ErrorType.MISSING_CATEGORY,
                 message=f"Missing 'subject' or 'object' in reified edge node",
                 message_level=MessageLevel.WARNING
             )

@@ -450,7 +450,7 @@ class GraphSummary(ErrorDetecting):
             categories = data["category"]
 
         else:
-            error_type = ErrorType.NO_CATEGORY
+            error_type = ErrorType.MISSING_CATEGORY
             self.log_error(
                 entity=n,
                 error_type=error_type,

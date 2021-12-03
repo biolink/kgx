@@ -181,3 +181,26 @@ def test_get_category(query):
 
     c = s.get_category(node["id"], node)
     assert c == query[1]
+
+
+def test_error_detection():
+    t = Transformer()
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "obo_error_detection.json"),
+        knowledge_source="Sample OBO",
+    )
+    nodes = {}
+    edges = {}
+    for rec in g:
+        if rec:
+            if len(rec) == 4:
+                edges[(rec[0], rec[1], rec[2])] = rec[3]
+            else:
+                nodes[rec[0]] = rec[1]
+
+    assert len(t.get_errors()) > 0
+    if len(t.get_errors("Error")) > 0:
+        t.write_report(None, "Error")
+    if len(t.get_errors("Warning")) > 0:
+        t.write_report(None, "Warning")

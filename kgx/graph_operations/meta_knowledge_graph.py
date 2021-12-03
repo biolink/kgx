@@ -428,7 +428,7 @@ class MetaKnowledgeGraph(ErrorDetecting):
             # of 'unknown' in the  meta_knowledge_graph output  is considered invalid.
             # category = self.node_stats['unknown']
             # category.analyse_node_category(n, data)
-            error_type = ErrorType.NO_CATEGORY
+            error_type = ErrorType.MISSING_CATEGORY
             self.log_error(
                 entity=n,
                 error_type=error_type,
