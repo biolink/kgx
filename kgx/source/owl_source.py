@@ -121,7 +121,6 @@ class OwlSource(RdfSource):
                 # C SubClassOf R some D
                 for x in rdfgraph.objects(o, OWL.onProperty):
                     pred = x
-                    print(pred)
                 # owl:someValuesFrom
                 for x in rdfgraph.objects(o, OWL.someValuesFrom):
                     os_interpretation = self.OWLSTAR.term("AllSomeInterpretation")
@@ -139,7 +138,6 @@ class OwlSource(RdfSource):
             else:
                 # C rdfs:subClassOf D (where C and D are named classes)
                 pred = p
-                print(pred)
                 parent = o
             if os_interpretation:
                 # reify edges that have logical interpretation
