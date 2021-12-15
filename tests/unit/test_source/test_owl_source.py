@@ -13,7 +13,7 @@ def test_read_owl1():
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.owl"),
         provided_by="GO slim generic",
-        knowledge_source="GO slim generic",
+        knowledge_source="GO slim generic"
     )
     nodes = {}
     edges = {}
