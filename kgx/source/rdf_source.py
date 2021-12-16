@@ -64,6 +64,7 @@ class RdfSource(Source):
         self.node_property_predicates.update(
             set(self.toolkit.get_all_node_properties(formatted=True))
         )
+
         self.node_property_predicates.update(
             set(self.toolkit.get_all_edge_properties(formatted=True))
         )
@@ -558,15 +559,24 @@ class RdfSource(Source):
 
         """
         if p in self.cache:
+            print("in cache")
+            print(p)
             # already processed this predicate before; pull from cache
             element_uri = self.cache[p]["element_uri"]
             canonical_uri = self.cache[p]["canonical_uri"]
             predicate = self.cache[p]["predicate"]
             property_name = self.cache[p]["property_name"]
+            print(property_name)
+            print(predicate)
+            print(element_uri)
+            print(canonical_uri)
         else:
             # haven't seen this property before; map to element
             if self.prefix_manager.is_iri(p):
                 predicate = self.prefix_manager.contract(str(p))
+                print("is_iri")
+                print(p)
+                print(predicate)
             else:
                 predicate = None
             if self.prefix_manager.is_curie(p):
@@ -587,6 +597,8 @@ class RdfSource(Source):
                         element_uri = self.prefix_manager.contract(
                             element.definition_uri
                         )
+                        print("definition_uri")
+                        print(element_uri)
                     else:
                         element_uri = (
                             f"biolink:{sentencecase_to_snakecase(element.name)}"
@@ -604,6 +616,7 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
+                print("no mapping to biolinkmodel")
                 # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None

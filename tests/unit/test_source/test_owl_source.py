@@ -46,6 +46,7 @@ def test_read_owl1():
     assert "has_alternative_id" in n3 and "GO:0008372" in n3["has_alternative_id"]
 
     e1 = edges["GO:0008289", "GO:0003674"]
+    print(e1)
     assert e1["subject"] == "GO:0008289"
     assert e1["predicate"] == "biolink:subclass_of"
     assert e1["object"] == "GO:0003674"

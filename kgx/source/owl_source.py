@@ -85,7 +85,6 @@ class OwlSource(RdfSource):
             # Load all imports first
             if p == OWL.imports:
                 if o not in self.imported:
-                    print(o)
                     input_format = rdflib.util.guess_format(o)
                     imported_rdfgraph = rdflib.Graph()
                     log.info(f"Parsing OWL import: {o}")
