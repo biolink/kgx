@@ -25,7 +25,6 @@ def test_read_owl1():
                 nodes[rec[0]] = rec[1]
 
     n1 = nodes["GO:0008150"]
-    print(n1)
     assert n1.get("name") == "biological_process"
     assert "synonym" in n1 and "biological process" in n1["synonym"]
     assert "description" in n1
@@ -47,7 +46,6 @@ def test_read_owl1():
     assert "has_alternative_id" in n3 and "GO:0008372" in n3["has_alternative_id"]
 
     e1 = edges["GO:0008289", "GO:0003674"]
-    print(e1)
     assert e1["subject"] == "GO:0008289"
     assert e1["predicate"] == "biolink:subclass_of"
     assert e1["object"] == "GO:0003674"
@@ -135,7 +133,6 @@ def test_read_owl3():
                 nodes[rec[0]] = rec[-1]
 
     n1 = nodes["GO:0008150"]
-    print(n1)
     assert n1["name"] == "biological_process"
     assert "subsets" in n1 and "GOP:goslim_generic" in n1["subsets"]
     assert "synonym" in n1 and "biological process" in n1["synonym"]
