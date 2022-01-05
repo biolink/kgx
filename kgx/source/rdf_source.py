@@ -604,6 +604,7 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
+                # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
