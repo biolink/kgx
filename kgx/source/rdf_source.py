@@ -64,7 +64,6 @@ class RdfSource(Source):
         self.node_property_predicates.update(
             set(self.toolkit.get_all_node_properties(formatted=True))
         )
-
         self.node_property_predicates.update(
             set(self.toolkit.get_all_edge_properties(formatted=True))
         )
@@ -172,7 +171,7 @@ class RdfSource(Source):
             yield from p.parse(gzip.open(filename, "rb"))
         else:
             yield from p.parse(open(filename, "rb"))
-        log.debug(f"Done parsing {filename}")
+        log.info(f"Done parsing {filename}")
 
         for n in self.reified_nodes:
             data = self.node_cache.pop(n)
@@ -605,7 +604,6 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
-                log.debug("no mapping to biolink model")
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
@@ -823,22 +821,17 @@ class RdfSource(Source):
             The corresponding Biolink Model element
 
         """
-        log.debug("predicate is")
-        log.debug(predicate)
         toolkit = get_toolkit()
         if self.prefix_manager.is_iri(predicate):
-            log.debug("is iri")
             predicate_curie = self.prefix_manager.contract(predicate)
         else:
             predicate_curie = predicate
         if self.prefix_manager.is_curie(predicate_curie):
-            log.debug("is curie")
             reference = self.prefix_manager.get_reference(predicate_curie)
         else:
             reference = predicate_curie
         element = toolkit.get_element(reference)
         if not element:
-            log.debug("not an element")
             try:
                 mapping = toolkit.get_element_by_mapping(predicate)
                 if mapping:

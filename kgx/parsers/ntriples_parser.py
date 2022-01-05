@@ -58,7 +58,7 @@ class CustomNTriplesParser(NTriplesParser):
             A generator
 
         """
-        # print(self.line)
+        print(self.line)
         self.eat(r_wspace)
         if self.line or not self.line.startswith("#"):
             subject = self.subject()
