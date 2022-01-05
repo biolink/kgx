@@ -209,7 +209,7 @@ def test_validate_non_streaming():
         input_compression=None,
         output=output,
         stream=False,
-        biolink_release="2.2.13",
+        biolink_release="2.1.0",
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -229,7 +229,7 @@ def test_validate_streaming():
         input_compression=None,
         output=output,
         stream=True,
-        biolink_release="2.2.13",
+        biolink_release="2.1.0",
     )
     assert os.path.exists(output)
     assert len(errors) == 0
