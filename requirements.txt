@@ -30,6 +30,7 @@ recommonmark>=0.7.1
 tox
 flake8
 black
+bmt>=0.8.1
 tox-docker
 linkml
 linkml-runtime
