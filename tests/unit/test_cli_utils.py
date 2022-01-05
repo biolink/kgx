@@ -7,7 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, validate_wrapper
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     check_container,
@@ -296,7 +296,6 @@ def test_neo4j_download(clean_slate):
     assert os.path.exists(f"{output}_edges.tsv")
     assert t1.store.graph.number_of_nodes() == t2.store.graph.number_of_nodes()
     assert t1.store.graph.number_of_edges() == t2.store.graph.number_of_edges()
-
 
 def test_transform1():
     """
