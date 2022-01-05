@@ -1,9 +1,7 @@
-bmt
-linkml
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
-networkx>=2.5
+networkx
 SPARQLWrapper>=1.8.2
 pandas>=1.0.3
 pytest>=0.0
@@ -33,3 +31,5 @@ tox
 flake8
 black
 tox-docker
+linkml
+linkml-runtime

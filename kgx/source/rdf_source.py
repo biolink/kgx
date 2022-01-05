@@ -559,24 +559,15 @@ class RdfSource(Source):
 
         """
         if p in self.cache:
-            print("in cache")
-            print(p)
             # already processed this predicate before; pull from cache
             element_uri = self.cache[p]["element_uri"]
             canonical_uri = self.cache[p]["canonical_uri"]
             predicate = self.cache[p]["predicate"]
             property_name = self.cache[p]["property_name"]
-            print(property_name)
-            print(predicate)
-            print(element_uri)
-            print(canonical_uri)
         else:
             # haven't seen this property before; map to element
             if self.prefix_manager.is_iri(p):
                 predicate = self.prefix_manager.contract(str(p))
-                print("is_iri")
-                print(p)
-                print(predicate)
             else:
                 predicate = None
             if self.prefix_manager.is_curie(p):
@@ -597,8 +588,6 @@ class RdfSource(Source):
                         element_uri = self.prefix_manager.contract(
                             element.definition_uri
                         )
-                        print("definition_uri")
-                        print(element_uri)
                     else:
                         element_uri = (
                             f"biolink:{sentencecase_to_snakecase(element.name)}"
@@ -616,8 +605,7 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
-                print("no mapping to biolinkmodel")
-                # no mapping to biolink model;
+                log.debug("no mapping to biolink model")
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
@@ -835,17 +823,22 @@ class RdfSource(Source):
             The corresponding Biolink Model element
 
         """
+        log.debug("predicate is")
+        log.debug(predicate)
         toolkit = get_toolkit()
         if self.prefix_manager.is_iri(predicate):
+            log.debug("is iri")
             predicate_curie = self.prefix_manager.contract(predicate)
         else:
             predicate_curie = predicate
         if self.prefix_manager.is_curie(predicate_curie):
+            log.debug("is curie")
             reference = self.prefix_manager.get_reference(predicate_curie)
         else:
             reference = predicate_curie
         element = toolkit.get_element(reference)
         if not element:
+            log.debug("not an element")
             try:
                 mapping = toolkit.get_element_by_mapping(predicate)
                 if mapping:

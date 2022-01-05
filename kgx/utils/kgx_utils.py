@@ -782,16 +782,16 @@ def validate_node(node: Dict) -> Dict:
             raise KeyError(f"node does not have 'id' property: {node}")
         if "name" not in node:
             log.debug(f"node does not have 'name' property: {node}")
-            if "label" in node:
-                node["name"] = node["label"]
+            # if "label" in node:
+            #     node["name"] = node["label"]
         if "category" not in node:
             log.debug(
                 f"node does not have 'category' property: {node}\nUsing {DEFAULT_NODE_CATEGORY} as default"
             )
             node["category"] = [DEFAULT_NODE_CATEGORY]
-        if "description" not in node:
-            if "definition" in node:
-                node["description"] = node["definition"]
+        # if "description" not in node:
+        #     if "definition" in node:
+        #         node["description"] = node["definition"]
     return node
 
 
