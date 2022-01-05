@@ -192,7 +192,6 @@ def test_validate_parsing_triggered_error_exit_code(query):
             test_input
         ]
     )
-    print(result)
     assert result.exit_code == query[1]
 
 
