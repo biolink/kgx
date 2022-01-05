@@ -172,7 +172,7 @@ class RdfSource(Source):
             yield from p.parse(gzip.open(filename, "rb"))
         else:
             yield from p.parse(open(filename, "rb"))
-        log.info(f"Done parsing {filename}")
+        log.debug(f"Done parsing {filename}")
 
         for n in self.reified_nodes:
             data = self.node_cache.pop(n)
