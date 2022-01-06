@@ -7,7 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, validate_wrapper
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     check_container,
@@ -56,7 +56,7 @@ def test_graph_summary_wrapper():
             "-o", output,
             "-f", "tsv",
             "-u", DEFAULT_NEO4J_USERNAME,
-            "-p", DEFAULT_NEO4J_PASSWORD,
+            "-p", DEFAULT_NEO4J_PASSWORD
         ]
     )
 
@@ -306,6 +306,7 @@ def test_neo4j_download_wrapper(clean_slate):
     assert os.path.exists(f"{output}_edges.tsv")
 
     assert result.exit_code == 0
+
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
