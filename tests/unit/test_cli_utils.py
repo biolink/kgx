@@ -39,6 +39,30 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
+def test_graph_summary_wrapper():
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph_stats1.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", inputs,
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", DEFAULT_NEO4J_USERNAME,
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert os.path.exists(output)
+
+
 def test_kgx_graph_summary():
     """
     Test graph summary, where the output report type is kgx-map.
