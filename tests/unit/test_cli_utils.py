@@ -60,7 +60,7 @@ def test_graph_summary_wrapper():
         ]
     )
 
-    assert result.exit_code >= 0
+    assert result.exit_code == 0
 
 
 def test_kgx_graph_summary():
@@ -306,6 +306,27 @@ def test_neo4j_download_wrapper(clean_slate):
     assert os.path.exists(f"{output}_edges.tsv")
 
     assert result.exit_code == 0
+
+
+def test_download_exception_triggered_error_exit_code():
+    """
+    Test graph download error exit code.
+    """
+
+    output = os.path.join(TARGET_DIR, "neo_download")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", "not a user name",
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+    assert result.exit_code == 1
 
 
 @pytest.mark.skipif(
