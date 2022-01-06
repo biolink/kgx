@@ -346,10 +346,12 @@ def test_neo4j_upload_wrapper(clean_slate):
         cli,
         [
             "neo4j-upload",
-            "-i", inputs,
-            "-f", "tsv",
+            "-i", "tsv",
+            "-inputs", inputs,
+            "-l", DEFAULT_NEO4J_URL,
             "-u", DEFAULT_NEO4J_USERNAME,
             "-p", DEFAULT_NEO4J_PASSWORD,
+            "-s", "False"
         ]
     )
 
@@ -360,17 +362,13 @@ def test_neo4j_upload_wrapper(clean_slate):
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
 def test_neo4j_upload_wrapper_error(clean_slate):
-    inputs = [
-        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
-        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
-    ]
     runner = CliRunner()
     result = runner.invoke(
         cli,
         [
             "neo4j-upload",
-            "-i", inputs,
-            "-f", "tsv",
+            "-i", "tsv",
+            "inputs", "not_a_path"
             "-u", "not a user",
             "-p", DEFAULT_NEO4J_PASSWORD,
         ]
