@@ -38,7 +38,9 @@ def test_get_report_format_types():
     assert "yaml" in format_types
     assert "json" in format_types
 
-
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 def test_graph_summary_wrapper():
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
@@ -307,7 +309,9 @@ def test_neo4j_download_wrapper(clean_slate):
 
     assert result.exit_code == 0
 
-
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 def test_download_exception_triggered_error_exit_code():
     """
     Test graph download error exit code.
