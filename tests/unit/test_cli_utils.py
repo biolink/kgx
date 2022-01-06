@@ -38,6 +38,7 @@ def test_get_report_format_types():
     assert "yaml" in format_types
     assert "json" in format_types
 
+@pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -46,22 +47,19 @@ def test_graph_summary_wrapper():
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats1.yaml")
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
 
     runner = CliRunner()
     result = runner.invoke(
         cli,
         [
             "graph-summary",
-            "-i", inputs,
-            "-l", DEFAULT_NEO4J_URL,
+            "-i", "tsv",
             "-o", output,
-            "-f", "tsv",
-            "-u", DEFAULT_NEO4J_USERNAME,
-            "-p", DEFAULT_NEO4J_PASSWORD
+            inputs
         ]
     )
-    assert result
+    assert result.exit_code == 0
 
 
 def test_kgx_graph_summary():
@@ -289,7 +287,7 @@ def test_neo4j_upload(clean_slate):
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
 def test_neo4j_download_wrapper(clean_slate):
-    output = os.path.join(TARGET_DIR, "neo_download")
+    output = os.path.join(TARGET_DIR, "neo_download2")
     runner = CliRunner()
     result = runner.invoke(
         cli,
@@ -331,7 +329,7 @@ def test_download_exception_triggered_error_exit_code():
     )
     assert result.exit_code == 1
 
-
+@pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -345,16 +343,15 @@ def test_neo4j_upload_wrapper(clean_slate):
         cli,
         [
             "neo4j-upload",
-            "-i", "tsv",
-            "-inputs", inputs,
-            "-l", DEFAULT_NEO4J_URL,
-            "-u", DEFAULT_NEO4J_USERNAME,
-            "-p", DEFAULT_NEO4J_PASSWORD,
-            "-s", "False"
+            "--input-format", "tsv",
+            "--uri", DEFAULT_NEO4J_URL,
+            "--username", DEFAULT_NEO4J_USERNAME,
+            "--password", DEFAULT_NEO4J_PASSWORD,
+            inputs
         ]
     )
 
-    assert result.exit_code >= 0
+    assert result.exit_code == 0
 
 
 @pytest.mark.skipif(
