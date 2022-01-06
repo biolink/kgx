@@ -260,6 +260,52 @@ def test_neo4j_upload(clean_slate):
     assert t.store.graph.number_of_edges() == 531
 
 
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_download_wrapper(clean_slate):
+    output = os.path.join(TARGET_DIR, "neo_download")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", DEFAULT_NEO4J_USERNAME,
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert os.path.exists(f"{output}_nodes.tsv")
+    assert os.path.exists(f"{output}_edges.tsv")
+
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_upload_wrapper(clean_slate):
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-upload",
+            "-i", inputs,
+            "-f", "tsv",
+            "-u", DEFAULT_NEO4J_USERNAME,
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert result.exit_code == 2
+
+
 @pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
