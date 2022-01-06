@@ -61,7 +61,6 @@ def test_graph_summary_wrapper():
             "-p", DEFAULT_NEO4J_PASSWORD
         ]
     )
-    assert os.path.exists(output)
     assert result
 
 
