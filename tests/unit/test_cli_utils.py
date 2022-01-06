@@ -61,6 +61,57 @@ def test_graph_summary_wrapper():
     )
     assert result.exit_code == 0
 
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_transform_wrapper():
+    """
+        Transform graph from TSV to JSON.
+        """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "grapht.json")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "transform",
+            "-i", "tsv",
+            "-o", output,
+            "-f", "json",
+            inputs
+        ]
+    )
+
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge",
+            "--merge-config", merge_config
+        ]
+    )
+
+    assert result.exit_code == 0
+    assert os.path.join(TARGET_DIR, "merged-graph_nodes.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph_edges.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph.json")
+
+
 
 def test_kgx_graph_summary():
     """

@@ -150,7 +150,6 @@ def graph_summary_wrapper(
         )
         exit(0)
     except Exception as gse:
-        print(str(gse))
         get_logger().error(f"kgx.graph_summary error: {str(gse)}")
         exit(1)
 
@@ -554,7 +553,6 @@ def transform_wrapper(
     except Exception as te:
         get_logger().error(f"kgx.transform error: {str(te)}")
         exit(1)
-
 
 
 @cli.command(name="merge")
