@@ -15,7 +15,7 @@ from tests.unit import (
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
-    DEFAULT_NEO4J_PASSWORD,
+    DEFAULT_NEO4J_PASSWORD
 )
 
 
@@ -37,6 +37,117 @@ def test_get_report_format_types():
     format_types = get_report_format_types()
     assert "yaml" in format_types
     assert "json" in format_types
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_graph_summary_wrapper():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_graph_summary_wrapper_error():
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            inputs
+        ]
+    )
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_transform_wrapper():
+    """
+        Transform graph from TSV to JSON.
+        """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "grapht.json")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "transform",
+            "-i", "tsv",
+            "-o", output,
+            "-f", "json",
+            inputs
+        ]
+    )
+
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge",
+            "--merge-config", merge_config
+        ]
+    )
+
+    assert result.exit_code == 0
+    assert os.path.join(TARGET_DIR, "merged-graph_nodes.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph_edges.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph.json")
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper_error():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge"
+        ]
+    )
+
+    assert result.exit_code == 2
 
 
 def test_kgx_graph_summary():
@@ -259,6 +370,94 @@ def test_neo4j_upload(clean_slate):
     assert t.store.graph.number_of_nodes() == 512
     assert t.store.graph.number_of_edges() == 531
 
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_download_wrapper(clean_slate):
+    output = os.path.join(TARGET_DIR, "neo_download2")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", DEFAULT_NEO4J_USERNAME,
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert os.path.exists(f"{output}_nodes.tsv")
+    assert os.path.exists(f"{output}_edges.tsv")
+
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_download_exception_triggered_error_exit_code():
+    """
+    Test graph download error exit code.
+    """
+
+    output = os.path.join(TARGET_DIR, "neo_download")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", "not a user name",
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_upload_wrapper(clean_slate):
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-upload",
+            "--input-format", "tsv",
+            "--uri", DEFAULT_NEO4J_URL,
+            "--username", DEFAULT_NEO4J_USERNAME,
+            "--password", DEFAULT_NEO4J_PASSWORD,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+
+    assert result.exit_code == 0
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_upload_wrapper_error(clean_slate):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-upload",
+            "-i", "tsv",
+            "inputs", "not_a_path"
+            "-u", "not a user",
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert result.exit_code == 2
 
 @pytest.mark.skip()
 @pytest.mark.skipif(
