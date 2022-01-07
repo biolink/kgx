@@ -583,7 +583,7 @@ class MetaKnowledgeGraph:
         # return len([c for c in self.node_stats.keys() if c != 'unknown'])
         return len(self.node_stats.keys())
 
-    def get_node_stats(self) -> Dict[str, Category]:
+    def get_node_stats(self) -> Dict[str, Dict]:
         """
         Returns
         -------
@@ -593,7 +593,21 @@ class MetaKnowledgeGraph:
         # We no longer track 'unknown' node category counts - non TRAPI 1.1. compliant output
         # if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
         #     self.node_stats.pop('unknown')
-        return self.node_stats
+        
+        # Here we assume that the node_stats are complete and will now
+        # be exported in a graph summary for the module, thus we aim to
+        # Convert the 'MetaKnowledgeGraph.Category' object into vanilla
+        # Python dictionary and lists, to facilitate output
+        category_stats = dict()
+        for category_curie in self.node_stats.keys():
+            category_obj = self.node_stats[category_curie]
+            category_stats[category_curie] = dict()
+            # Convert id_prefixes Set into a sorted List
+            category_stats[category_curie]["id_prefixes"] = sorted(category_obj.category_stats["id_prefixes"])
+            category_stats[category_curie]["count"] = category_obj.category_stats["count"]
+            category_stats[category_curie]["count_by_source"] = category_obj.category_stats["count_by_source"]
+
+        return category_stats
 
     def get_edge_stats(self) -> List[Dict[str, Any]]:
         """
@@ -914,7 +928,7 @@ class MetaKnowledgeGraph:
         """
         stats = self.get_graph_summary(name)
         if not file_format or file_format == "json":
-            dump(stats, file, indent=4, default=mkg_default)
+            dump(stats, file, indent=4)
         else:
             yaml.dump(stats, file)
 

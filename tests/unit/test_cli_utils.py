@@ -1,9 +1,13 @@
+"""
+Test CLI Utils
+"""
 import json
 import os
 import pytest
+from click.testing import CliRunner
 
 from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
-from kgx.cli import get_input_file_types, graph_summary, get_report_format_types
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     clean_database,
@@ -11,7 +15,7 @@ from tests.unit import (
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
-    DEFAULT_NEO4J_PASSWORD,
+    DEFAULT_NEO4J_PASSWORD
 )
 
 
@@ -35,7 +39,118 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
-def test_graph_summary1():
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_graph_summary_wrapper():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_graph_summary_wrapper_error():
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            inputs
+        ]
+    )
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_transform_wrapper():
+    """
+        Transform graph from TSV to JSON.
+        """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "grapht.json")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "transform",
+            "-i", "tsv",
+            "-o", output,
+            "-f", "json",
+            inputs
+        ]
+    )
+
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge",
+            "--merge-config", merge_config
+        ]
+    )
+
+    assert result.exit_code == 0
+    assert os.path.join(TARGET_DIR, "merged-graph_nodes.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph_edges.tsv")
+    assert os.path.join(TARGET_DIR, "merged-graph.json")
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper_error():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge"
+        ]
+    )
+
+    assert result.exit_code == 2
+
+
+def test_kgx_graph_summary():
     """
     Test graph summary, where the output report type is kgx-map.
     """
@@ -66,16 +181,16 @@ def test_graph_summary1():
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
 
-def test_graph_summary2a():
+def test_meta_knowledge_graph_as_json():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, default JSON report format type.
+    Test graph summary, where the output report type is a meta-knowledge-graph,
+    with results output as the default JSON report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2.json")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph.json")
     summary_stats = graph_summary(
         inputs,
         "tsv",
@@ -95,16 +210,16 @@ def test_graph_summary2a():
     assert summary_stats["name"] == "Default Meta-Knowledge-Graph"
 
 
-def test_graph_summary2b():
+def test_meta_knowledge_graph_as_yaml():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, set as YAML report format type.
+    Test graph summary, where the output report type is a meta-knowledge-graph,
+    with results output as the YAML report output format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2.yaml")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph.yaml")
     summary_stats = graph_summary(
         inputs,
         "tsv",
@@ -113,7 +228,7 @@ def test_graph_summary2b():
         report_type="meta-knowledge-graph",
         node_facet_properties=["provided_by"],
         edge_facet_properties=["aggregator_knowledge_source"],
-        report_format="yaml",
+        report_format="yaml"
     )
 
     assert os.path.exists(output)
@@ -122,16 +237,16 @@ def test_graph_summary2b():
     assert "edges" in summary_stats
 
 
-def test_graph_summary2c():
+def test_meta_knowledge_graph_as_json_streamed():
     """
-    Test graph summary, where the output report type
-    is meta-knowledge-graph, set as YAML report format type.
+    Test graph summary processed in stream mode, where the output report type
+    is meta-knowledge-graph, output as the default JSON report format type.
     """
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
     ]
-    output = os.path.join(TARGET_DIR, "graph_stats2c.json")
+    output = os.path.join(TARGET_DIR, "meta-knowledge-graph-streamed.json")
     summary_stats = graph_summary(
         inputs=inputs,
         input_format="tsv",
@@ -147,6 +262,48 @@ def test_graph_summary2c():
     assert summary_stats
     assert "nodes" in summary_stats
     assert "edges" in summary_stats
+
+
+def test_validate_exception_triggered_error_exit_code():
+    """
+    Test graph validate error exit code.
+    """
+    test_input = os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "validate",
+            "-i", "tsv",
+            "-b not.a.semver",
+            test_input
+        ]
+    )
+    assert result.exit_code == 1
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        ("graph_nodes.tsv", 0),
+        ("test_nodes.tsv", 1),
+    ],
+)
+def test_validate_parsing_triggered_error_exit_code(query):
+    """
+    Test graph validate error exit code.
+    """
+    test_input = os.path.join(RESOURCE_DIR, query[0])
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "validate",
+            "-i", "tsv",
+            test_input
+        ]
+    )
+    assert result.exit_code == query[1]
 
 
 def test_validate_non_streaming():
@@ -213,6 +370,94 @@ def test_neo4j_upload(clean_database):
     assert t.store.graph.number_of_nodes() == 512
     assert t.store.graph.number_of_edges() == 531
 
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_download_wrapper(clean_database):
+    output = os.path.join(TARGET_DIR, "neo_download2")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", DEFAULT_NEO4J_USERNAME,
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert os.path.exists(f"{output}_nodes.tsv")
+    assert os.path.exists(f"{output}_edges.tsv")
+
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_download_exception_triggered_error_exit_code():
+    """
+    Test graph download error exit code.
+    """
+
+    output = os.path.join(TARGET_DIR, "neo_download")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-download",
+            "-l", DEFAULT_NEO4J_URL,
+            "-o", output,
+            "-f", "tsv",
+            "-u", "not a user name",
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+    assert result.exit_code == 1
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_upload_wrapper(clean_database):
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-upload",
+            "--input-format", "tsv",
+            "--uri", DEFAULT_NEO4J_URL,
+            "--username", DEFAULT_NEO4J_USERNAME,
+            "--password", DEFAULT_NEO4J_PASSWORD,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+
+    assert result.exit_code == 0
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_upload_wrapper_error(clean_database):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "neo4j-upload",
+            "-i", "tsv",
+            "inputs", "not_a_path"
+            "-u", "not a user",
+            "-p", DEFAULT_NEO4J_PASSWORD,
+        ]
+    )
+
+    assert result.exit_code == 2
 
 @pytest.mark.skip()
 @pytest.mark.skipif(

@@ -1,7 +1,8 @@
-import kgx
+from sys import exit
+from typing import List, Tuple, Optional
 import click
-from typing import List, Tuple, Optional, Set
 
+import kgx
 from kgx.config import get_logger, get_config
 from kgx.cli.cli_utils import (
     get_input_file_types,
@@ -16,6 +17,7 @@ from kgx.cli.cli_utils import (
     summary_report_types,
     get_report_format_types,
 )
+from kgx.validator import ValidationError, MessageLevel, ErrorType
 
 log = get_logger()
 config = get_config()
@@ -132,19 +134,24 @@ def graph_summary_wrapper(
     error_log: str
         Where to write any graph processing error message (stderr, by default, for empty argument)
     """
-    graph_summary(
-        inputs,
-        input_format,
-        input_compression,
-        output,
-        report_type,
-        report_format,
-        stream,
-        graph_name,
-        node_facet_properties=list(node_facet_properties),
-        edge_facet_properties=list(edge_facet_properties),
-        error_log=error_log,
-    )
+    try:
+        graph_summary(
+            inputs,
+            input_format,
+            input_compression,
+            output,
+            report_type,
+            report_format,
+            stream,
+            graph_name,
+            node_facet_properties=list(node_facet_properties),
+            edge_facet_properties=list(edge_facet_properties),
+            error_log=error_log,
+        )
+        exit(0)
+    except Exception as gse:
+        get_logger().error(f"kgx.graph_summary error: {str(gse)}")
+        exit(1)
 
 
 @cli.command(name="validate")
@@ -199,7 +206,20 @@ def validate_wrapper(
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    validate(inputs, input_format, input_compression, output, stream, biolink_release)
+    errors: List[ValidationError] = []
+    try:
+        errors: List[ValidationError] = validate(
+            inputs, input_format, input_compression, output, stream, biolink_release
+        )
+    except Exception as ex:
+        ve = ValidationError("Graph", ErrorType.VALIDATION_SYSTEM_ERROR, str(ex), MessageLevel.ERROR)
+        errors.append(ve)
+    
+    if errors:
+        get_logger().error("kgx.validate() errors encountered... check the error log")
+        exit(1)
+    else:
+        exit(0)
 
 
 @cli.command(name="neo4j-download")
@@ -278,17 +298,22 @@ def neo4j_download_wrapper(
         Edge filters
 
     """
-    neo4j_download(
-        uri,
-        username,
-        password,
-        output,
-        output_format,
-        output_compression,
-        stream,
-        node_filters,
-        edge_filters,
-    )
+    try:
+        neo4j_download(
+            uri,
+            username,
+            password,
+            output,
+            output_format,
+            output_compression,
+            stream,
+            node_filters,
+            edge_filters,
+        )
+        exit(0)
+    except Exception as nde:
+        get_logger().error(f"kgx.neo4j_download error: {str(nde)}")
+        exit(1)
 
 
 @cli.command(name="neo4j-upload")
@@ -365,17 +390,22 @@ def neo4j_upload_wrapper(
         Edge filters
 
     """
-    neo4j_upload(
-        inputs,
-        input_format,
-        input_compression,
-        uri,
-        username,
-        password,
-        stream,
-        node_filters,
-        edge_filters,
-    )
+    try:
+        neo4j_upload(
+            inputs,
+            input_format,
+            input_compression,
+            uri,
+            username,
+            password,
+            stream,
+            node_filters,
+            edge_filters,
+        )
+        exit(0)
+    except Exception as nue:
+        get_logger().error(f"kgx.neo4j_upload error: {str(nue)}")
+        exit(1)
 
 
 @cli.command(name="transform")
@@ -502,22 +532,27 @@ def transform_wrapper(
         Number of processes to use
 
     """
-    transform(
-        inputs,
-        input_format=input_format,
-        input_compression=input_compression,
-        output=output,
-        output_format=output_format,
-        output_compression=output_compression,
-        stream=stream,
-        node_filters=node_filters,
-        edge_filters=edge_filters,
-        transform_config=transform_config,
-        source=source,
-        knowledge_sources=knowledge_sources,
-        processes=processes,
-        infores_catalog=infores_catalog,
-    )
+    try:
+        transform(
+            inputs,
+            input_format=input_format,
+            input_compression=input_compression,
+            output=output,
+            output_format=output_format,
+            output_compression=output_compression,
+            stream=stream,
+            node_filters=node_filters,
+            edge_filters=edge_filters,
+            transform_config=transform_config,
+            source=source,
+            knowledge_sources=knowledge_sources,
+            processes=processes,
+            infores_catalog=infores_catalog,
+        )
+        exit(0)
+    except Exception as te:
+        get_logger().error(f"kgx.transform error: {str(te)}")
+        exit(1)
 
 
 @cli.command(name="merge")
@@ -565,4 +600,9 @@ def merge_wrapper(merge_config: str, source: List, destination: List, processes:
         Number of processes to use
 
     """
-    merge(merge_config, source, destination, processes)
+    try:
+        merge(merge_config, source, destination, processes)
+        exit(0)
+    except Exception as me:
+        get_logger().error(f"kgx.merge error: {str(me)}")
+        exit(1)

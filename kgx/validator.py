@@ -35,6 +35,7 @@ class ErrorType(Enum):
     INVALID_CATEGORY = 8
     NO_EDGE_PREDICATE = 9
     INVALID_EDGE_PREDICATE = 10
+    VALIDATION_SYSTEM_ERROR = 99
 
 
 class MessageLevel(Enum):
@@ -154,22 +155,37 @@ class Validator(object):
             raise RuntimeError("Unexpected GraphEntityType: " + str(entity_type))
 
     def get_validating_toolkit(self):
+        """
+        Get Validating Biolink Model toolkit
+        """
         return self.validating_toolkit
 
     def get_validation_model_version(self):
+        """
+        Get Validating Biolink Model version
+        """
         return self.validating_toolkit.get_model_version()
 
     def get_errors(self):
+        """
+        Get list of ValidationError records
+        """
         return self.errors
 
     _currently_active_toolkit: Optional[Toolkit] = None
 
     @classmethod
     def set_biolink_model(cls, version: Optional[str]):
+        """
+        Set Biolink Model version of Validator Toolkit
+        """
         cls._currently_active_toolkit = get_toolkit(biolink_release=version)
 
     @classmethod
     def get_toolkit(cls) -> Toolkit:
+        """
+        Get the current default Validator Toolkit
+        """
         if not cls._currently_active_toolkit:
             cls._currently_active_toolkit = get_toolkit()
         return cls._currently_active_toolkit
@@ -178,6 +194,9 @@ class Validator(object):
 
     @classmethod
     def get_default_model_version(cls):
+        """
+        Get the Default Biolink Model version
+        """
         if not cls._default_model_version:
             # get default Biolink version from BMT
             cls._default_model_version = get_toolkit().get_model_version()
