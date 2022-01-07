@@ -38,11 +38,29 @@ def test_get_report_format_types():
     assert "yaml" in format_types
     assert "json" in format_types
 
-@pytest.mark.skip()
+
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
 def test_graph_summary_wrapper():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 0
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_graph_summary_wrapper_error():
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
@@ -59,7 +77,7 @@ def test_graph_summary_wrapper():
             inputs
         ]
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 1
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
@@ -111,6 +129,25 @@ def test_merge_wrapper():
     assert os.path.join(TARGET_DIR, "merged-graph_edges.tsv")
     assert os.path.join(TARGET_DIR, "merged-graph.json")
 
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_merge_wrapper_error():
+
+    """
+    Transform from test merge YAML.
+    """
+    merge_config = os.path.join(RESOURCE_DIR, "test-merge.yaml")
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "merge"
+        ]
+    )
+
+    assert result.exit_code == 2
 
 
 def test_kgx_graph_summary():
