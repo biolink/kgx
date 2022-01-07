@@ -1,5 +1,4 @@
 import os
-import pprint
 
 from kgx.source import OwlSource
 from tests import RESOURCE_DIR
@@ -9,11 +8,12 @@ def test_read_owl1():
     """
     Read an OWL ontology using OwlSource.
     """
+
     s = OwlSource()
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.owl"),
         provided_by="GO slim generic",
-        knowledge_source="GO slim generic",
+        knowledge_source="GO slim generic"
     )
     nodes = {}
     edges = {}
@@ -133,7 +133,6 @@ def test_read_owl3():
                 nodes[rec[0]] = rec[-1]
 
     n1 = nodes["GO:0008150"]
-    pprint.pprint(n1)
     assert n1["name"] == "biological_process"
     assert "subsets" in n1 and "GOP:goslim_generic" in n1["subsets"]
     assert "synonym" in n1 and "biological process" in n1["synonym"]

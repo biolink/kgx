@@ -21,7 +21,7 @@ def test_get_required_node_properties(property):
     assert property in properties
 
 
-@pytest.mark.parametrize("property", ["subject", "object", "predicate", "relation"])
+@pytest.mark.parametrize("property", ["subject", "object", "predicate"])
 def test_get_required_edge_properties(property):
     """
     Test get_required_edge_properties in Validator.
