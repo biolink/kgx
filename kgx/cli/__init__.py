@@ -554,7 +554,6 @@ def transform_wrapper(
         exit(1)
 
 
-
 @cli.command(name="merge")
 @click.option("--merge-config", required=True, type=str)
 @click.option(

@@ -1,9 +1,8 @@
-bmt~=0.7.7
 python-dateutil>=2.8.1
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
-networkx>=2.5
+networkx
 SPARQLWrapper>=1.8.2
 pandas>=1.0.3
 pytest>=0.0
@@ -12,7 +11,6 @@ rdflib~=5.0.0
 Click~=7.0
 neo4jrestclient>=0.0
 pyyaml>=0.0
-linkml>=1.1.13
 prologterms>=0.0.5
 shexjsg>=0.6.5
 terminaltables>=3.1.0
@@ -33,4 +31,7 @@ recommonmark>=0.7.1
 tox
 flake8
 black
+bmt>=0.8.1
 tox-docker
+linkml
+linkml-runtime
