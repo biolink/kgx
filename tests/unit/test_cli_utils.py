@@ -417,7 +417,6 @@ def test_download_exception_triggered_error_exit_code():
     )
     assert result.exit_code == 1
 
-@pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -435,7 +434,7 @@ def test_neo4j_upload_wrapper(clean_slate):
             "--uri", DEFAULT_NEO4J_URL,
             "--username", DEFAULT_NEO4J_USERNAME,
             "--password", DEFAULT_NEO4J_PASSWORD,
-            inputs
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
         ]
     )
 
