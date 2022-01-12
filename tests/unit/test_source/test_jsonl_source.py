@@ -21,13 +21,17 @@ def test_read_jsonl1():
         if rec:
             edges[(rec[0], rec[1])] = rec[3]
 
-    assert len(nodes.keys()) == 6
+    assert len(nodes.keys()) == 7
     assert len(edges.keys()) == 5
 
     n = nodes["MONDO:0017148"]
     assert "id" in n and n["id"] == "MONDO:0017148"
     assert n["name"] == "heritable pulmonary arterial hypertension"
     assert n["category"][0] == "biolink:Disease"
+
+    n2 = nodes["PUBCHEM.COMPOUND:10429502"]
+    assert "id" in n2 and n2["id"] == "PUBCHEM.COMPOUND:10429502"
+    assert n2["name"] == "16|A-Methyl Prednisolone"
 
     e = edges[("HGNC:11603", "MONDO:0017148")]
     assert e["subject"] == "HGNC:11603"
@@ -62,7 +66,7 @@ def test_read_jsonl2():
         if rec:
             edges[(rec[0], rec[1])] = rec[3]
 
-    assert len(nodes.keys()) == 6
+    assert len(nodes.keys()) == 7
     assert len(edges.keys()) == 5
 
     n = nodes["MONDO:0017148"]

@@ -23,6 +23,7 @@ def test_read_tsv():
     assert n1["id"] == "CURIE:456"
     assert n1["name"] == "Disease 456"
     assert "biolink:Disease" in n1["category"]
+    assert "biolink:NamedThing" in n1["category"]
     assert n1["description"] == '"Node of type Disease, CURIE:456"'
 
     g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_edges.tsv"), format="tsv")
@@ -55,6 +56,7 @@ def test_read_csv():
     assert n1["id"] == "CURIE:456"
     assert n1["name"] == "Disease 456"
     assert "biolink:Disease" in n1["category"]
+    assert "biolink:NamedThing" in n1["category"]
     assert n1["description"] == "Node of type Disease, CURIE:456"
 
     g = s.parse(filename=os.path.join(RESOURCE_DIR, "test_edges.csv"), format="csv")
