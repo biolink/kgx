@@ -18,6 +18,7 @@ class JsonlSource(JsonSource):
 
     def __init__(self):
         super().__init__()
+        self.list_delimiter = None
 
     def parse(
         self,

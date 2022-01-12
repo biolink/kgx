@@ -10,12 +10,12 @@ def test_write_tsv1():
     Write a graph to a TSV file using TsvSink.
     """
     graph = NxGraph()
-    graph.add_node("A", id="A", **{"name": "Node A"})
-    graph.add_node("B", id="B", **{"name": "Node B"})
-    graph.add_node("C", id="C", **{"name": "Node C"})
-    graph.add_node("D", id="D", **{"name": "Node D"})
-    graph.add_node("E", id="E", **{"name": "Node E"})
-    graph.add_node("F", id="F", **{"name": "Node F"})
+    graph.add_node("A", id="A", **{"name": "Node A", "category": ["biolink:NamedThing", "biolink:Gene"]})
+    graph.add_node("B", id="B", **{"name": "Node B", "category": ["biolink:NamedThing"]})
+    graph.add_node("C", id="C", **{"name": "Node C", "category": ["biolink:NamedThing"]})
+    graph.add_node("D", id="D", **{"name": "Node D", "category": ["biolink:NamedThing"]})
+    graph.add_node("E", id="E", **{"name": "Node E", "category": ["biolink:NamedThing"]})
+    graph.add_node("F", id="F", **{"name": "Node F", "category": ["biolink:NamedThing"]})
     graph.add_edge(
         "B", "A", **{"subject": "B", "object": "A", "predicate": "biolink:sub_class_of"}
     )
@@ -38,7 +38,7 @@ def test_write_tsv1():
     s = TsvSink(
         filename=os.path.join(TARGET_DIR, "test_graph"),
         format="tsv",
-        node_properties={"id", "name"},
+        node_properties={"id", "name", "category"},
         edge_properties={"subject", "predicate", "object", "relation"},
     )
     for n, data in graph.nodes(data=True):
@@ -53,7 +53,7 @@ def test_write_tsv1():
     assert len(edge_lines) == 7
 
     for n in node_lines:
-        assert len(n.split("\t")) == 2
+        assert len(n.split("\t")) == 3
     for e in edge_lines:
         assert len(e.split("\t")) == 4
 
@@ -63,7 +63,7 @@ def test_write_tsv2():
     Write a graph to a TSV archive using TsvSink.
     """
     graph = NxGraph()
-    graph.add_node("A", id="A", **{"name": "Node A"})
+    graph.add_node("A", id="A", **{"name": "Node A", "category": ["biolink:NamedThing", "biolink:Gene"]})
     graph.add_node("B", id="B", **{"name": "Node B"})
     graph.add_node("C", id="C", **{"name": "Node C"})
     graph.add_node("D", id="D", **{"name": "Node D"})
@@ -89,7 +89,7 @@ def test_write_tsv2():
     )
 
     s = TsvSink(
-        filename=os.path.join(TARGET_DIR, "test_graph"),
+        filename=os.path.join(TARGET_DIR, "test_graph_archive"),
         format="tsv",
         compression="tar",
         node_properties={"id", "name"},
@@ -101,10 +101,10 @@ def test_write_tsv2():
         s.write_edge(data)
     s.finalize()
 
-    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph.tar"))
+    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph_archive.tar"))
 
     s = TsvSink(
-        filename=os.path.join(TARGET_DIR, "test_graph"),
+        filename=os.path.join(TARGET_DIR, "test_graph_archive"),
         format="tsv",
         compression="tar.gz",
         node_properties={"id", "name"},
@@ -116,4 +116,4 @@ def test_write_tsv2():
         s.write_edge(data)
     s.finalize()
 
-    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph.tar.gz"))
+    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph_archive.tar.gz"))

@@ -15,10 +15,14 @@
       ]
     },
     {
-      "id": "MONDO:0005002",
-      "name": "chronic obstructive pulmonary disease",
+      "id": "PUBCHEM.COMPOUND:10429502",
+      "name": "16|A-Methyl Prednisolone",
       "category": [
-        "biolink:Disease"
+        "biolink:ChemicalEntity",
+        "biolink:NamedThing"
+      ],
+      "equivalent_identifiers": [
+        "CHEMBL.COMPOUND:CHEMBL1940557"
       ]
     },
     {
