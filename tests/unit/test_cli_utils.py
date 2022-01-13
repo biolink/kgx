@@ -410,7 +410,7 @@ def test_download_exception_triggered_error_exit_code():
             "neo4j-download",
             "-l", DEFAULT_NEO4J_URL,
             "-o", output,
-            "-f", "tsv",
+            "-f", "tsvr",
             "-u", "not a user name",
             "-p", DEFAULT_NEO4J_PASSWORD,
         ]
