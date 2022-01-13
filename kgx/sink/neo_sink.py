@@ -98,7 +98,7 @@ class NeoSink(Sink):
                 log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
-                    self.http_driver.query(query, params={"nodes": batch})
+                    self.session.run(query, params={"nodes": batch})
                 except CypherSyntaxError as ce:
                     query_target = f"{category} Nodes {batch}"
                     self.owner.log_error(

@@ -35,7 +35,7 @@ def test_create_constraint_query(category):
     """
     sanitized_category = NeoSink.sanitize_category([category])
     q = NeoSink.create_constraint_query(sanitized_category)
-    assert q == f"CREATE CONSTRAINT ON (n:{sanitized_category}) ASSERT n.id IS UNIQUE"
+    assert q == f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{sanitized_category}) ASSERT n.id IS UNIQUE"
 
 
 @pytest.mark.skip()
