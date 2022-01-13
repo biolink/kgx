@@ -1,7 +1,7 @@
 from typing import List, Union, Any
 
 from neo4j import GraphDatabase, Neo4jDriver, Session
-
+from neo4j.exceptions import CypherSyntaxError
 from kgx.config import get_logger
 from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
@@ -99,7 +99,7 @@ class NeoSink(Sink):
                 batch = nodes[x:y]
                 try:
                     self.http_driver.query(query, params={"nodes": batch})
-                except CypherException as ce:
+                except CypherSyntaxError as ce:
                     query_target = f"{category} Nodes {batch}"
                     self.owner.log_error(
                         entity=query_target,
@@ -152,7 +152,7 @@ class NeoSink(Sink):
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
                     )
-                except CypherException as ce:
+                except CypherSyntaxError as ce:
                     query_target = f"{predicate} Edges {batch}"
                     self.owner.log_error(
                         entity=query_target,
@@ -264,7 +264,7 @@ class NeoSink(Sink):
                 try:
                     self.session.run(query)
                     self._seen_categories.add(category)
-                except CypherException as ce:
+                except CypherSyntaxError as ce:
                     self.owner.log_error(
                         entity=category,
                         error_type=ErrorType.INVALID_CATEGORY,
@@ -287,5 +287,5 @@ class NeoSink(Sink):
             The Cypher CONSTRAINT query
 
         """
-        query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
+        query = f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{category}) ASSERT n.id IS UNIQUE"
         return query

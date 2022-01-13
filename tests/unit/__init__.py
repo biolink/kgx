@@ -44,7 +44,10 @@ def clean_database():
         #
         # q = f"CREATE OR REPLACE DATABASE {DEFAULT_NEO4J_DATABASE}"
         #
-        q = "MATCH (n) DETACH DELETE (n)"
+        q = """
+                CALL apoc.schema.assert({}, {})
+                MATCH (n) DETACH DELETE (n)
+            """
         try:
             session = http_driver.session()
             session.run(q)
