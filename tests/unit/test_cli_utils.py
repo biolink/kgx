@@ -382,6 +382,7 @@ def test_neo4j_download_wrapper(clean_slate):
 
     assert result.exit_code == 0
 
+
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -404,6 +405,7 @@ def test_download_exception_triggered_error_exit_code():
         ]
     )
     assert result.exit_code == 1
+
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
@@ -446,6 +448,7 @@ def test_neo4j_upload_wrapper_error(clean_slate):
     )
 
     assert result.exit_code == 2
+
 
 @pytest.mark.skip()
 @pytest.mark.skipif(
