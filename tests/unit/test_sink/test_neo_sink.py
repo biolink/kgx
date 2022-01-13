@@ -1,13 +1,12 @@
 from time import sleep
 
 import pytest
-from neo4jrestclient.client import GraphDatabase, Node, Relationship
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase
 
 from kgx.sink import NeoSink
 from tests import print_graph
 from tests.unit import (
-    clean_slate,
+    clean_database,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
@@ -42,7 +41,7 @@ def test_create_constraint_query(category):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo1(clean_slate):
+def test_write_neo1(clean_database):
     """
     Write a graph to a Neo4j instance using NeoSink.
     """
@@ -58,25 +57,23 @@ def test_write_neo1(clean_slate):
         s.write_edge(data)
     s.finalize()
 
-    d = GraphDatabase(
-        DEFAULT_NEO4J_URL,
-        username=DEFAULT_NEO4J_USERNAME,
-        password=DEFAULT_NEO4J_PASSWORD,
+    d = GraphDatabase.driver(
+        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
-
+    session = d.session()
     try:
-        results = d.query("MATCH (n) RETURN COUNT(*)")
+        results = session.run("MATCH (n) RETURN COUNT(*)")
         number_of_nodes = results[0][0]
         assert number_of_nodes == 3
-    except CypherException as ce:
-        print(ce)
+    except Exception as e:
+        print(e)
 
     try:
-        results = d.query("MATCH (s)-->(o) RETURN COUNT(*)")
+        results = session.run("MATCH (s)-->(o) RETURN COUNT(*)")
         number_of_edges = results[0][0]
         assert number_of_edges == 1
-    except CypherException as ce:
-        print(ce)
+    except Exception as e:
+        print(e)
 
 
 @pytest.mark.skipif(
@@ -86,7 +83,7 @@ def test_write_neo1(clean_slate):
     "query",
     [(get_graph("kgx-unit-test")[0], 3, 1), (get_graph("kgx-unit-test")[1], 6, 6)],
 )
-def test_write_neo2(clean_slate, query):
+def test_write_neo2(clean_database, query):
     """
     Test writing a graph to a Neo4j instance.
     """
@@ -102,20 +99,20 @@ def test_write_neo2(clean_slate, query):
         sink.write_edge(data)
     sink.finalize()
 
-    nr = sink.http_driver.query("MATCH (n) RETURN count(n)")
+    nr = sink.session.run("MATCH (n) RETURN count(n)")
     [node_counts] = [x for x in nr][0]
     assert node_counts >= query[1]
 
-    er = sink.http_driver.query("MATCH ()-[p]->() RETURN count(p)")
+    er = sink.session.run("MATCH ()-[p]->() RETURN count(p)")
     [edge_counts] = [x for x in er][0]
     assert edge_counts >= query[2]
-    sink.http_driver.flush()
+
 
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_write_neo3(clean_slate):
+def test_write_neo3(clean_database):
     """
     Test writing a graph and then writing a slightly
     modified version of the graph to the same Neo4j instance.
@@ -151,16 +148,16 @@ def test_write_neo3(clean_slate):
         sink.write_edge(data)
     sink.finalize()
 
-    nr = sink.http_driver.query("MATCH (n) RETURN n")
+    nr = sink.session.run("MATCH (n) RETURN n")
     nodes = []
     for node in nr:
         nodes.append(node)
 
     edges = []
-    er = sink.http_driver.query(
+    er = sink.session.run(
         "MATCH ()-[p]-() RETURN p",
         data_contents=True,
-        returns=(Node, Relationship, Node),
+#        returns=(Node, Relationship, Node),
     )
     for edge in er:
         edges.append(edge)

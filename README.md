@@ -108,9 +108,7 @@ python setup.py install
 
 ### Setting up a testing environment for Neo4j
 
-The current release of KGX supports graph source and sink transactions with the 3.5 release of Neo4j. 
-
-**_Note:**_ Support for release 4.3 of Neo4j is pending in the next KGX release (see the [neo4j-client-upgrade](https://github.com/biolink/kgx/tree/neo4j-client-upgrade]) for the beta release of this code).
+This release of KGX supports graph source and sink transactions with the 4.3 release of Neo4j.
 
 KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.
 
@@ -120,17 +118,17 @@ on your local machine.
 Once Docker is up and running, run the following commands:
 
 ```bash
-docker run -d --name kgx-neo4j-integration-test \
+docker run -d --rm --name kgx-neo4j-integration-test \
             -p 7474:7474 -p 7687:7687 \
             --env NEO4J_AUTH=neo4j/test  \
-            neo4j:3.5.25
+            neo4j:4.3
 ```
 
 ```bash
-docker run -d --name kgx-neo4j-unit-test  \
+docker run -d --rm --name kgx-neo4j-unit-test  \
             -p 8484:7474 -p 8888:7687 \
             --env NEO4J_AUTH=neo4j/test \
-            neo4j:3.5.25
+            neo4j:4.3
 ```
 
 

@@ -10,8 +10,8 @@ from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform,
 from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
+    clean_database,
     check_container,
-    clean_slate,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
@@ -349,7 +349,7 @@ def test_validate_streaming():
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_upload(clean_slate):
+def test_neo4j_upload(clean_database):
     """
     Test upload to Neo4j.
     """
@@ -374,7 +374,7 @@ def test_neo4j_upload(clean_slate):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_download_wrapper(clean_slate):
+def test_neo4j_download_wrapper(clean_database):
     output = os.path.join(TARGET_DIR, "neo_download2")
     runner = CliRunner()
     result = runner.invoke(
@@ -410,7 +410,7 @@ def test_download_exception_triggered_error_exit_code():
             "neo4j-download",
             "-l", DEFAULT_NEO4J_URL,
             "-o", output,
-            "-f", "tsv",
+            "-f", "tsvr",
             "-u", "not a user name",
             "-p", DEFAULT_NEO4J_PASSWORD,
         ]
@@ -420,7 +420,7 @@ def test_download_exception_triggered_error_exit_code():
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_upload_wrapper(clean_slate):
+def test_neo4j_upload_wrapper(clean_database):
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
         os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
@@ -444,7 +444,7 @@ def test_neo4j_upload_wrapper(clean_slate):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_upload_wrapper_error(clean_slate):
+def test_neo4j_upload_wrapper_error(clean_database):
     runner = CliRunner()
     result = runner.invoke(
         cli,
@@ -463,7 +463,7 @@ def test_neo4j_upload_wrapper_error(clean_slate):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_neo4j_download(clean_slate):
+def test_neo4j_download(clean_database):
     """
     Test download from Neo4j.
     """

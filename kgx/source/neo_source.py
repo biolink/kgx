@@ -1,8 +1,8 @@
 import itertools
 from typing import Any, Dict, List, Optional, Iterator, Tuple, Generator
 
-from neo4jrestclient.client import Node, Relationship, GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase, Neo4jDriver
+from neo4j.graph import Node, Relationship
 
 from kgx.config import get_logger
 from kgx.source.source import Source
@@ -26,10 +26,17 @@ class NeoSource(Source):
 
     def __init__(self):
         super().__init__()
-        self.http_driver = None
+        self.http_driver: Optional[Neo4jDriver] = None
+        self.session = None
         self.node_count = 0
         self.edge_count = 0
         self.seen_nodes = set()
+
+    def _connect_db(self, uri: str, username: str, password: str):
+        self.http_driver = GraphDatabase.driver(
+            uri, auth=(username, password)
+        )
+        self.session = self.http_driver.session()
 
     def parse(
         self,
@@ -77,9 +84,7 @@ class NeoSource(Source):
             A generator for records
 
         """
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
-        )
+        self._connect_db(uri, username, password)
 
         self.set_provenance_map(kwargs)
 
@@ -140,11 +145,11 @@ class NeoSource(Source):
         query_result: Any
         counts: int = 0
         try:
-            query_result = self.http_driver.query(query)
+            query_result = self.session.run(query)
             for result in query_result:
                 counts = result[0]
-        except CypherException as ce:
-            log.error(ce)
+        except Exception as e:
+            log.error(e)
         return counts
 
     def get_nodes(self, skip: int = 0, limit: int = 0, **kwargs: Any) -> List:
@@ -189,11 +194,19 @@ class NeoSource(Source):
         log.debug(query)
         nodes = []
         try:
-            results = self.http_driver.query(query, returns=Node, data_contents=True)
+            results = self.session.run(query)
             if results:
-                nodes = [node[0] for node in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+                nodes = [
+                    {
+                        "id": node[0].get('id', f"{node[0].id}"),
+                        "name": node[0].get('name', ''),
+                        "category": node[0].get('category', ['biolink:NamedThing'])
+                    }
+                    for node in results.values()
+                ]
+
+        except Exception as e:
+            log.error(e)
         return nodes
 
     def get_edges(
@@ -251,13 +264,43 @@ class NeoSource(Source):
         log.debug(query)
         edges = []
         try:
-            results = self.http_driver.query(
-                query, returns=(Node, Relationship, Node), data_contents=True
+            results = self.session.run(
+                query
             )
             if results:
-                edges = [x for x in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+                edges = list()
+                for entry in results.values():
+                    edge = list()
+                    # subject
+                    edge.append(
+                        {
+                            "id": entry[0].get('id', f"{entry[0].id}"),
+                            "name": entry[0].get('name', ''),
+                            "category": entry[0].get('category', ['biolink:NamedThing'])
+                        }
+                    )
+
+                    # edge
+                    edge.append(
+                        {
+                             "subject":  entry[1].get('subject', f"{entry[0].id}"),
+                             "predicate": entry[1].get('predicate', "biolink:related_to"),
+                             "relation": entry[1].get('relation', "biolink:related_to"),
+                             "object": entry[1].get('object', f"{entry[2].id}")
+                        }
+                    )
+
+                    # object
+                    edge.append(
+                        {
+                            "id": entry[2].get('id', f"{entry[2].id}"),
+                            "name": entry[2].get('name', ''),
+                            "category": entry[2].get('category', ['biolink:NamedThing'])
+                        }
+                    )
+                    edges.append(edge)
+        except Exception as e:
+            log.error(e)
 
         return edges
 
