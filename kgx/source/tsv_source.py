@@ -16,6 +16,8 @@ from kgx.utils.kgx_utils import (
 
 log = get_logger()
 
+DEFAULT_LIST_DELIMITER = "|"
+
 
 class TsvSource(Source):
     """
@@ -25,6 +27,7 @@ class TsvSource(Source):
 
     def __init__(self, owner):
         super().__init__(owner)
+        self.list_delimiter = DEFAULT_LIST_DELIMITER
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -84,6 +87,8 @@ class TsvSource(Source):
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
             kwargs["lineterminator"] = "\n"  # type: ignore
+        if "list_delimeter" in kwargs:
+            self.list_delimiter = kwargs["list_delimiter"]
 
         mode = (
             archive_read_mode[compression] if compression in archive_read_mode else None
@@ -269,6 +274,7 @@ class TsvSource(Source):
             return None
 
         edge_data = sanitize_import(edge.copy())
+
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]

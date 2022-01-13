@@ -16,6 +16,7 @@ class JsonSource(TsvSource):
     def __init__(self, owner):
         super().__init__(owner)
         self.compression = None
+        self.list_delimiter = None
 
     def parse(
         self,

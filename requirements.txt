@@ -9,7 +9,7 @@ pytest>=0.0
 mypy>=0.0
 rdflib~=5.0.0
 Click~=7.0
-neo4jrestclient>=0.0
+neo4j==4.3
 pyyaml>=0.0
 prologterms>=0.0.5
 shexjsg>=0.6.5

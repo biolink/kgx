@@ -31,8 +31,6 @@ log = get_logger()
 CORE_NODE_PROPERTIES = {"id", "name"}
 CORE_EDGE_PROPERTIES = {"id", "subject", "predicate", "object", "type"}
 
-LIST_DELIMITER = "|"
-
 
 class GraphEntityType(Enum):
     GRAPH = "graph"
@@ -784,14 +782,17 @@ def generate_edge_identifiers(graph: BaseGraph):
             data["id"] = generate_uuid()
 
 
-def sanitize_import(data: Dict) -> Dict:
+def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
     """
     Sanitize key-value pairs in dictionary.
+    This should be used to ensure proper syntax and types for node and edge data as it is imported.
 
     Parameters
     ----------
     data: Dict
         A dictionary containing key-value pairs
+    list_delimiter: str
+        Optionally provide a delimiter character or string to be used to split strings into lists.
 
     Returns
     -------
@@ -803,13 +804,18 @@ def sanitize_import(data: Dict) -> Dict:
     for key, value in data.items():
         new_value = remove_null(value)
         if new_value is not None:
-            tidy_data[key] = _sanitize_import(key, new_value)
+            tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
     return tidy_data
 
 
-def _sanitize_import(key: str, value: Any) -> Any:
+def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
     """
     Sanitize value for a key for the purpose of import.
+
+    Casts all values to primitive types like str or bool according to the
+    specified type in ``column_types``.
+
+    If a list_delimiter is provided lists will be converted into strings using the delimiter.
 
     Parameters
     ----------
@@ -824,7 +830,6 @@ def _sanitize_import(key: str, value: Any) -> Any:
         Sanitized value
 
     """
-    new_value: Any
     if key in column_types:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
@@ -835,7 +840,7 @@ def _sanitize_import(key: str, value: Any) -> Any:
                 new_value = list(value)
             elif isinstance(value, str):
                 value = value.replace("\n", " ").replace("\t", " ")
-                new_value = [x for x in value.split(LIST_DELIMITER) if x]
+                new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else value
             else:
                 new_value = [str(value).replace("\n", " ").replace("\t", " ")]
         elif column_types[key] == bool:
@@ -843,9 +848,12 @@ def _sanitize_import(key: str, value: Any) -> Any:
                 new_value = bool(value)
             except:
                 new_value = False
+        # the rest of this if/else block doesn't seem right:
+        # it's not checking the type against the expected type even though one exists
         elif isinstance(value, (str, float)):
             new_value = value
         else:
+            # we might want to raise an exception or somehow indicate a type mismatch in the input data
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
@@ -855,9 +863,9 @@ def _sanitize_import(key: str, value: Any) -> Any:
             ]
             new_value = list(value)
         elif isinstance(value, str):
-            if LIST_DELIMITER in value:
+            if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
-                new_value = [x for x in value.split(LIST_DELIMITER) if x]
+                new_value = [x for x in value.split(list_delimiter) if x]
             else:
                 new_value = value.replace("\n", " ").replace("\t", " ")
         elif isinstance(value, bool):
@@ -872,9 +880,40 @@ def _sanitize_import(key: str, value: Any) -> Any:
     return new_value
 
 
-def _sanitize_export(key: str, value: Any) -> Any:
+def build_export_row(data: Dict, list_delimiter: str=None) -> Dict:
+    """
+    Sanitize key-value pairs in dictionary.
+    This should be used to ensure proper syntax and types for node and edge data as it is exported.
+
+    Parameters
+    ----------
+    data: Dict
+        A dictionary containing key-value pairs
+    list_delimiter: str
+        Optionally provide a delimiter character or string to be used to convert lists into strings.
+
+    Returns
+    -------
+    Dict
+        A dictionary containing processed key-value pairs
+
+    """
+    tidy_data = {}
+    for key, value in data.items():
+        new_value = remove_null(value)
+        if new_value:
+            tidy_data[key] = _sanitize_export_property(key, new_value, list_delimiter)
+    return tidy_data
+
+
+def _sanitize_export_property(key: str, value: Any, list_delimiter: str=None) -> Any:
     """
     Sanitize value for a key for the purpose of export.
+
+    Casts all values to primitive types like str or bool according to the
+    specified type in ``column_types``.
+
+    If a list_delimiter is provided lists will be converted into strings using the delimiter.
 
     Parameters
     ----------
@@ -882,6 +921,8 @@ def _sanitize_export(key: str, value: Any) -> Any:
         Key corresponding to a node/edge property
     value: Any
         Value corresponding to the key
+    list_delimiter: str
+        Optionally provide a delimiter character or string to be used to convert lists into strings.
 
     Returns
     -------
@@ -889,7 +930,6 @@ def _sanitize_export(key: str, value: Any) -> Any:
         Sanitized value
 
     """
-    new_value: Any
     if key in column_types:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
@@ -899,7 +939,7 @@ def _sanitize_export(key: str, value: Any) -> Any:
                     else v
                     for v in value
                 ]
-                new_value = LIST_DELIMITER.join([str(x) for x in value])
+                new_value = list_delimiter.join([str(x) for x in value]) if list_delimiter else value
             else:
                 new_value = (
                     str(value).replace("\n", " ").replace('\\"', "").replace("\t", " ")
@@ -915,15 +955,18 @@ def _sanitize_export(key: str, value: Any) -> Any:
             )
     else:
         if type(value) == list:
-            new_value = LIST_DELIMITER.join([str(x) for x in value])
-            new_value = (
-                new_value.replace("\n", " ").replace('\\"', "").replace("\t", " ")
-            )
+            value = [
+                v.replace("\n", " ").replace('\\"', "").replace("\t", " ")
+                if isinstance(v, str)
+                else v
+                for v in value
+            ]
+            new_value = list_delimiter.join([str(x) for x in value]) if list_delimiter else value
             column_types[key] = list
         elif type(value) == bool:
             try:
                 new_value = bool(value)
-                column_types[key] = bool
+                column_types[key] = bool  # this doesn't seem right, shouldn't column_types come from the biolink model?
             except:
                 new_value = False
         else:
@@ -931,30 +974,6 @@ def _sanitize_export(key: str, value: Any) -> Any:
                 str(value).replace("\n", " ").replace('\\"', "").replace("\t", " ")
             )
     return new_value
-
-
-def _build_export_row(data: Dict) -> Dict:
-    """
-    Casts all values to primitive types like str or bool according to the
-    specified type in ``_column_types``. Lists become pipe delimited strings.
-
-    Parameters
-    ----------
-    data: Dict
-        A dictionary containing key-value pairs
-
-    Returns
-    -------
-    Dict
-        A dictionary containing processed key-value pairs
-
-    """
-    tidy_data = {}
-    for key, value in data.items():
-        new_value = remove_null(value)
-        if new_value:
-            tidy_data[key] = _sanitize_export(key, new_value)
-    return tidy_data
 
 
 def remove_null(input: Any) -> Any:

@@ -3,7 +3,7 @@ import os
 from kgx.source.sssom_source import SssomSource
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
-from tests.unit import process_stream
+from tests.unit import load_graph_dictionary
 
 
 def test_load1():
@@ -16,7 +16,7 @@ def test_load1():
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example1.tsv"), format="sssom"
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes.keys()) == 18
     assert len(edges.keys()) == 9
 
@@ -40,7 +40,7 @@ def test_load2():
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example2.tsv"), format="sssom"
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes.keys()) == 18
     assert len(edges.keys()) == 9
 
@@ -70,7 +70,7 @@ def test_load3():
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "sssom_example3.tsv"), format="sssom"
     )
-    nodes, edges = process_stream(g)
+    nodes, edges = load_graph_dictionary(g)
     assert len(nodes) == 20
     assert len(edges) == 10
 

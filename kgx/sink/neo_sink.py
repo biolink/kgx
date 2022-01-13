@@ -1,7 +1,6 @@
 from typing import List, Union, Any
 
-from neo4jrestclient.client import GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase, Neo4jDriver, Session
 
 from kgx.config import get_logger
 from kgx.error_detection import ErrorType
@@ -45,9 +44,10 @@ class NeoSink(Sink):
         super().__init__(owner)
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
+        self.http_driver:Neo4jDriver = GraphDatabase.driver(
+            uri, auth=(username, password)
         )
+        self.session:Session = self.http_driver.session()
 
     def _flush_node_cache(self):
         self._write_node_cache()
@@ -90,6 +90,7 @@ class NeoSink(Sink):
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
             query = self.generate_unwind_node_query(cypher_category)
+
             log.debug(query)
             nodes = self.node_cache[category]
             for x in range(0, len(nodes), batch_size):
@@ -148,8 +149,8 @@ class NeoSink(Sink):
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
                 try:
-                    self.http_driver.query(
-                        query, params={"relationship": predicate, "edges": batch}
+                    self.session.run(
+                        query, parameters={"relationship": predicate, "edges": batch}
                     )
                 except CypherException as ce:
                     query_target = f"{predicate} Edges {batch}"
@@ -261,7 +262,7 @@ class NeoSink(Sink):
             else:
                 query = NeoSink.create_constraint_query(category)
                 try:
-                    self.http_driver.query(query)
+                    self.session.run(query)
                     self._seen_categories.add(category)
                 except CypherException as ce:
                     self.owner.log_error(

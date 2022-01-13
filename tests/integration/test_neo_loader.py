@@ -3,6 +3,9 @@ import pytest
 
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
+from tests.unit import clean_database
+from kgx.config import get_logger
+
 from tests.integration import (
     check_container,
     CONTAINER_NAME,
@@ -11,14 +14,17 @@ from tests.integration import (
     DEFAULT_NEO4J_PASSWORD,
 )
 
+logger = get_logger()
+
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_csv_to_neo_load():
+def test_csv_to_neo4j_load_to_graph_transform(clean_database):
     """
-    Test to load a CSV to Neo4j.
+    Test to load a csv KGX file into Neo4j.
     """
+    logger.debug("test_csv_to_neo4j_load...")
     input_args1 = {
         "filename": [
             os.path.join(RESOURCE_DIR, "cm_nodes.csv"),
@@ -37,14 +43,10 @@ def test_csv_to_neo_load():
     }
     t1.save(output_args)
 
-
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
-def test_neo_to_graph_transform():
     """
-    Test to read from Neo4j and write to CSV.
+    Continue sequentially to test read from Neo4j to write out back to CSV.
     """
+    logger.debug("test_neo4j_to_graph_transform")
     input_args = {
         "uri": DEFAULT_NEO4J_URL,
         "username": DEFAULT_NEO4J_USERNAME,

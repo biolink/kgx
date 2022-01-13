@@ -8,8 +8,7 @@ from kgx.utils.kgx_utils import (
     extension_types,
     archive_write_mode,
     archive_format,
-    remove_null,
-    _sanitize_export,
+    build_export_row
 )
 
 
@@ -23,6 +22,7 @@ DEFAULT_EDGE_COLUMNS = {
     "category",
     "provided_by",
 }
+DEFAULT_LIST_DELIMITER = "|"
 
 
 class TsvSink(Sink):
@@ -63,6 +63,7 @@ class TsvSink(Sink):
             if compression in archive_write_mode
             else None
         )
+        self.list_delimiter = kwargs["list_delimiter"] if "list_delimiter" in kwargs else DEFAULT_LIST_DELIMITER
         self.nodes_file_basename = f"{self.basename}_nodes.{self.extension}"
         self.edges_file_basename = f"{self.basename}_edges.{self.extension}"
         if self.dirname:
@@ -99,7 +100,7 @@ class TsvSink(Sink):
             A node record
 
         """
-        row = self._build_export_row(record)
+        row = build_export_row(record, list_delimiter=self.list_delimiter)
         row["id"] = record["id"]
         values = []
         for c in self.ordered_node_columns:
@@ -119,7 +120,7 @@ class TsvSink(Sink):
             An edge record
 
         """
-        row = self._build_export_row(record)
+        row = build_export_row(record, list_delimiter=self.list_delimiter)
         values = []
         for c in self.ordered_edge_columns:
             if c in row:
@@ -146,30 +147,6 @@ class TsvSink(Sink):
                     os.remove(self.nodes_file_name)
                 if os.path.isfile(self.edges_file_name):
                     os.remove(self.edges_file_name)
-
-    @staticmethod
-    def _build_export_row(data: Dict) -> Dict:
-        """
-        Casts all values to primitive types like str or bool according to the
-        specified type in ``_column_types``. Lists become pipe delimited strings.
-
-        Parameters
-        ----------
-        data: Dict
-            A dictionary containing key-value pairs
-
-        Returns
-        -------
-        Dict
-            A dictionary containing processed key-value pairs
-
-        """
-        tidy_data = {}
-        for key, value in data.items():
-            new_value = remove_null(value)
-            if new_value:
-                tidy_data[key] = _sanitize_export(key, new_value)
-        return tidy_data
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:

@@ -280,8 +280,7 @@ def test_sanitize_import1(query):
     """
     Test sanitize_import method.
     """
-
-    d = sanitize_import(query[0])
+    d = sanitize_import(query[0], list_delimiter='|')
     for k, v in query[1].items():
         assert k in d
         assert d[k] == v
@@ -310,7 +309,7 @@ def test_sanitize_import2(query):
     """
     Test internal sanitize_import method.
     """
-    value = _sanitize_import(query[0][0], query[0][1])
+    value = _sanitize_import_property(query[0][0], query[0][1], list_delimiter='|')
     if isinstance(query[1], str):
         assert value == query[1]
     elif isinstance(query[1], (list, set, tuple)):
@@ -357,7 +356,7 @@ def test_build_export_row(query):
     """
     Test build_export_row method.
     """
-    d = _build_export_row(query[0])
+    d = build_export_row(query[0], list_delimiter="|")
     for k, v in query[1].items():
         assert k in d
         assert d[k] == v
@@ -382,11 +381,11 @@ def test_build_export_row(query):
         (("description", "Line 1\nLine 2\nLine 3"), "Line 1 Line 2 Line 3"),
     ],
 )
-def test_sanitize_export(query):
+def test_sanitize_export_property(query):
     """
     Test sanitize_export method.
     """
-    value = _sanitize_export(query[0][0], query[0][1])
+    value = _sanitize_export_property(query[0][0], query[0][1], list_delimiter='|')
     if isinstance(query[1], str):
         assert value == query[1]
     elif isinstance(query[1], (list, set, tuple)):
