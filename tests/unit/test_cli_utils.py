@@ -39,9 +39,6 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
 def test_graph_summary_wrapper():
     output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
 
@@ -57,9 +54,7 @@ def test_graph_summary_wrapper():
     )
     assert result.exit_code == 0
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
 def test_graph_summary_wrapper_error():
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
@@ -79,9 +74,7 @@ def test_graph_summary_wrapper_error():
     )
     assert result.exit_code == 1
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -106,9 +99,7 @@ def test_transform_wrapper():
 
     assert result.exit_code == 1
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
 def test_merge_wrapper():
 
     """
@@ -130,9 +121,6 @@ def test_merge_wrapper():
     assert os.path.join(TARGET_DIR, "merged-graph.json")
 
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
 def test_merge_wrapper_error():
 
     """
@@ -394,6 +382,7 @@ def test_neo4j_download_wrapper(clean_slate):
 
     assert result.exit_code == 0
 
+
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -416,6 +405,7 @@ def test_download_exception_triggered_error_exit_code():
         ]
     )
     assert result.exit_code == 1
+
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
@@ -458,6 +448,7 @@ def test_neo4j_upload_wrapper_error(clean_slate):
     )
 
     assert result.exit_code == 2
+
 
 @pytest.mark.skip()
 @pytest.mark.skipif(
