@@ -94,7 +94,7 @@ def test_write_tsv2():
     t = Transformer()
     s = TsvSink(
         owner=t,
-        filename=os.path.join(TARGET_DIR, "test_graph"),
+        filename=os.path.join(TARGET_DIR, "test_graph_archive"),
         format="tsv",
         compression="tar",
         node_properties={"id", "name"},
@@ -106,12 +106,42 @@ def test_write_tsv2():
         s.write_edge(data)
     s.finalize()
 
-    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph.tar"))
+    assert os.path.exists(os.path.join(TARGET_DIR, "test_graph_archive.tar"))
+
+
+def test_write_tsv3():
+    """
+        Write a graph to a TSV archive using TsvSink.
+    """
+    graph = NxGraph()
+    graph.add_node("A", id="A", **{"name": "Node A", "category": ["biolink:NamedThing", "biolink:Gene"]})
+    graph.add_node("B", id="B", **{"name": "Node B"})
+    graph.add_node("C", id="C", **{"name": "Node C"})
+    graph.add_node("D", id="D", **{"name": "Node D"})
+    graph.add_node("E", id="E", **{"name": "Node E"})
+    graph.add_node("F", id="F", **{"name": "Node F"})
+    graph.add_edge(
+        "B", "A", **{"subject": "B", "object": "A", "predicate": "biolink:sub_class_of"}
+    )
+    graph.add_edge(
+        "C", "B", **{"subject": "C", "object": "B", "predicate": "biolink:sub_class_of"}
+    )
+    graph.add_edge(
+        "D", "C", **{"subject": "D", "object": "C", "predicate": "biolink:sub_class_of"}
+    )
+    graph.add_edge(
+        "D", "A", **{"subject": "D", "object": "A", "predicate": "biolink:related_to"}
+    )
+    graph.add_edge(
+        "E", "D", **{"subject": "E", "object": "D", "predicate": "biolink:sub_class_of"}
+    )
+    graph.add_edge(
+        "F", "D", **{"subject": "F", "object": "D", "predicate": "biolink:sub_class_of"}
+    )
     t = Transformer()
     s = TsvSink(
         owner=t,
-        filename=os.path.join(TARGET_DIR, "test_graph"),
-
+        filename=os.path.join(TARGET_DIR, "test_graph_archive"),
         format="tsv",
         compression="tar.gz",
         node_properties={"id", "name"},
