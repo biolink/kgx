@@ -411,7 +411,9 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
             return False
         else:
             # If a Tuple, expect a comma-delimited string?
+            print(spec)
             spec_parts = spec.split(",")
+            print(spec_parts)
             if len(spec_parts) == 1:
                 # assumed to be just a default string value for the knowledge source field
                 return spec_parts[0]
@@ -419,6 +421,7 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
                 # assumed to be an InfoRes Tuple rewrite specification
                 if len(spec_parts) > 3:
                     spec_parts = spec_parts[:2]
+                    print(spec_parts)
                 return tuple(spec_parts)
 
 

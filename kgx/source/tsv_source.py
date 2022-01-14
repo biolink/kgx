@@ -225,7 +225,7 @@ class TsvSource(Source):
         node = self.validate_node(node)
         if node:
             # if not None, assumed to have an "id" here...
-            node_data = sanitize_import(node.copy())
+            node_data = sanitize_import(node.copy(), self.list_delimiter)
 
             n = node_data["id"]
 
@@ -273,7 +273,7 @@ class TsvSource(Source):
         if not edge:
             return None
 
-        edge_data = sanitize_import(edge.copy())
+        edge_data = sanitize_import(edge.copy(), self.list_delimiter)
 
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()

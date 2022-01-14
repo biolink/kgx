@@ -804,6 +804,7 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
     for key, value in data.items():
         new_value = remove_null(value)
         if new_value is not None:
+            print(list_delimiter)
             tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
     return tidy_data
 

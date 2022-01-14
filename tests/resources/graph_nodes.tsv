@@ -164,173 +164,173 @@ HGNC:6840	MAP2K1	biolink:Gene	NCBITaxon:9606
 HGNC:6081	INS (human)	biolink:Gene	NCBITaxon:9606
 HGNC:6132	ISL1	biolink:Gene	NCBITaxon:9606
 HGNC:6189	JAG2	biolink:Gene	NCBITaxon:9606
-GO:0005576	extracellular region	biolink:CellularComponent	
-GO:0005886	plasma membrane	biolink:CellularComponent	
-GO:0009986	cell surface	biolink:CellularComponent	
-GO:0097190	apoptotic signaling pathway	biolink:BiologicalProcess	
-GO:0009953	dorsal/ventral pattern formation	biolink:BiologicalProcess	
-GO:0009880	embryonic pattern specification	biolink:BiologicalProcess	
-GO:0060070	canonical Wnt signaling pathway	biolink:BiologicalProcess	
-GO:0008233	peptidase activity	biolink:MolecularActivity	
-GO:0060445	branching involved in salivary gland morphogenesis	biolink:BiologicalProcess	
-GO:0060447	bud outgrowth involved in lung branching	biolink:BiologicalProcess	
-GO:0001708	cell fate specification	biolink:BiologicalProcess	
-GO:0060916	mesenchymal cell proliferation involved in lung development	biolink:BiologicalProcess	
-GO:0005829	cytosol	biolink:CellularComponent	
-GO:0005788	endoplasmic reticulum lumen	biolink:CellularComponent	
-GO:0007267	cell-cell signaling	biolink:BiologicalProcess	
-GO:0005615	extracellular space	biolink:CellularComponent	
-GO:0005539	glycosaminoglycan binding	biolink:MolecularActivity	
-GO:0005509	calcium ion binding	biolink:MolecularActivity	
-GO:0005515	protein binding	biolink:MolecularActivity	
-GO:0048754	branching morphogenesis of an epithelial tube	biolink:BiologicalProcess	
-GO:1900175	regulation of nodal signaling pathway involved in determination of lateral mesoderm left/right asymmetry	biolink:BiologicalProcess	
-GO:1900180	regulation of protein localization to nucleus	biolink:BiologicalProcess	
-GO:0005113	patched binding	biolink:MolecularActivity	
-GO:0007224	smoothened signaling pathway	biolink:BiologicalProcess	
-GO:0007228	positive regulation of hh target transcription factor activity	biolink:BiologicalProcess	
-GO:0048468	cell development	biolink:BiologicalProcess	
-GO:0060439	trachea morphogenesis	biolink:BiologicalProcess	
-GO:0060463	lung lobe morphogenesis	biolink:BiologicalProcess	
-GO:0060484	lung-associated mesenchyme development	biolink:BiologicalProcess	
-GO:0071542	dopaminergic neuron differentiation	biolink:BiologicalProcess	
-GO:0007389	pattern specification process	biolink:BiologicalProcess	
-GO:0071285	cellular response to lithium ion	biolink:BiologicalProcess	
-GO:0060021	roof of mouth development	biolink:BiologicalProcess	
-GO:0060020	Bergmann glial cell differentiation	biolink:BiologicalProcess	
-GO:0060840	artery development	biolink:BiologicalProcess	
-GO:1904339	negative regulation of dopaminergic neuron differentiation	biolink:BiologicalProcess	
-GO:0006897	endocytosis	biolink:BiologicalProcess	
-GO:0060428	lung epithelium development	biolink:BiologicalProcess	
-GO:0008270	zinc ion binding	biolink:MolecularActivity	
-GO:0008284	positive regulation of cell population proliferation	biolink:BiologicalProcess	
-GO:0008209	androgen metabolic process	biolink:BiologicalProcess	
-GO:0061053	somite development	biolink:BiologicalProcess	
-GO:0045893	positive regulation of transcription, DNA-templated	biolink:BiologicalProcess	
-GO:0072205	metanephric collecting duct development	biolink:BiologicalProcess	
-GO:0072136	metanephric mesenchymal cell proliferation involved in metanephros development	biolink:BiologicalProcess	
-GO:0000122	negative regulation of transcription by RNA polymerase II	biolink:BiologicalProcess	
-GO:0001570	vasculogenesis	biolink:BiologicalProcess	
-GO:0030010	establishment of cell polarity	biolink:BiologicalProcess	
-GO:0007507	heart development	biolink:BiologicalProcess	
-GO:0007596	blood coagulation	biolink:BiologicalProcess	
-GO:0007405	neuroblast proliferation	biolink:BiologicalProcess	
-GO:0007411	axon guidance	biolink:BiologicalProcess	
-GO:0007417	central nervous system development	biolink:BiologicalProcess	
-GO:0007418	ventral midline development	biolink:BiologicalProcess	
-GO:0007442	hindgut morphogenesis	biolink:BiologicalProcess	
-GO:0007398	ectoderm development	biolink:BiologicalProcess	
-GO:0014902	myotube differentiation	biolink:BiologicalProcess	
-GO:0042127	regulation of cell population proliferation	biolink:BiologicalProcess	
-GO:0060738	epithelial-mesenchymal signaling involved in prostate gland development	biolink:BiologicalProcess	
-GO:0060783	mesenchymal smoothened signaling pathway involved in prostate gland development	biolink:BiologicalProcess	
-GO:0060782	regulation of mesenchymal cell proliferation involved in prostate gland development	biolink:BiologicalProcess	
-GO:0060769	positive regulation of epithelial cell proliferation involved in prostate gland development	biolink:BiologicalProcess	
-GO:0060662	salivary gland cavitation	biolink:BiologicalProcess	
-GO:0060664	epithelial cell proliferation involved in salivary gland morphogenesis	biolink:BiologicalProcess	
-GO:0060685	regulation of prostatic bud formation	biolink:BiologicalProcess	
-GO:0060516	primary prostatic bud elongation	biolink:BiologicalProcess	
-GO:0060523	prostate epithelial cord elongation	biolink:BiologicalProcess	
-GO:0060458	right lung development	biolink:BiologicalProcess	
-GO:0060459	left lung development	biolink:BiologicalProcess	
-GO:0060174	limb bud formation	biolink:BiologicalProcess	
-GO:0042481	regulation of odontogenesis	biolink:BiologicalProcess	
-GO:1905327	tracheoesophageal septum formation	biolink:BiologicalProcess	
-GO:0045121	membrane raft	biolink:CellularComponent	
-GO:0009949	polarity specification of anterior/posterior axis	biolink:BiologicalProcess	
-GO:0042733	embryonic digit morphogenesis	biolink:BiologicalProcess	
-GO:0043010	camera-type eye development	biolink:BiologicalProcess	
-GO:0043066	negative regulation of apoptotic process	biolink:BiologicalProcess	
-GO:0042475	odontogenesis of dentin-containing tooth	biolink:BiologicalProcess	
-GO:0061189	positive regulation of sclerotome development	biolink:BiologicalProcess	
-GO:0030177	positive regulation of Wnt signaling pathway	biolink:BiologicalProcess	
-GO:0030902	hindbrain development	biolink:BiologicalProcess	
-GO:0030901	midbrain development	biolink:BiologicalProcess	
-GO:0030900	forebrain development	biolink:BiologicalProcess	
-GO:0030878	thyroid gland development	biolink:BiologicalProcess	
-GO:0062023	collagen-containing extracellular matrix	biolink:CellularComponent	
-GO:0045944	positive regulation of transcription by RNA polymerase II	biolink:BiologicalProcess	
-GO:0030850	prostate gland development	biolink:BiologicalProcess	
-GO:0031016	pancreas development	biolink:BiologicalProcess	
-GO:0031069	hair follicle morphogenesis	biolink:BiologicalProcess	
-GO:0030324	lung development	biolink:BiologicalProcess	
-GO:0030326	embryonic limb morphogenesis	biolink:BiologicalProcess	
-GO:0030539	male genitalia development	biolink:BiologicalProcess	
-GO:0045445	myoblast differentiation	biolink:BiologicalProcess	
-GO:0021522	spinal cord motor neuron differentiation	biolink:BiologicalProcess	
-GO:0048645	animal organ formation	biolink:BiologicalProcess	
-GO:0033077	T cell differentiation in thymus	biolink:BiologicalProcess	
-GO:0051781	positive regulation of cell division	biolink:BiologicalProcess	
-GO:0051155	positive regulation of striated muscle cell differentiation	biolink:BiologicalProcess	
-GO:0042130	negative regulation of T cell proliferation	biolink:BiologicalProcess	
-GO:0034504	protein localization to nucleus	biolink:BiologicalProcess	
-GO:0048663	neuron fate commitment	biolink:BiologicalProcess	
-GO:0048557	embryonic digestive tract morphogenesis	biolink:BiologicalProcess	
-GO:0048538	thymus development	biolink:BiologicalProcess	
-GO:0001755	neural crest cell migration	biolink:BiologicalProcess	
-GO:0048839	inner ear development	biolink:BiologicalProcess	
-GO:0048859	formation of anatomical boundary	biolink:BiologicalProcess	
-GO:0048709	oligodendrocyte differentiation	biolink:BiologicalProcess	
-GO:0048706	embryonic skeletal system development	biolink:BiologicalProcess	
-GO:0048745	smooth muscle tissue development	biolink:BiologicalProcess	
-GO:0045596	negative regulation of cell differentiation	biolink:BiologicalProcess	
-GO:0045880	positive regulation of smoothened signaling pathway	biolink:BiologicalProcess	
-GO:0035116	embryonic hindlimb morphogenesis	biolink:BiologicalProcess	
-GO:0021904	dorsal/ventral neural tube patterning	biolink:BiologicalProcess	
-GO:0021930	cerebellar granule cell precursor proliferation	biolink:BiologicalProcess	
-GO:0021513	spinal cord dorsal/ventral patterning	biolink:BiologicalProcess	
-GO:0021794	thalamus development	biolink:BiologicalProcess	
-GO:0045059	positive thymic T cell selection	biolink:BiologicalProcess	
-GO:0030162	regulation of proteolysis	biolink:BiologicalProcess	
-GO:0030336	negative regulation of cell migration	biolink:BiologicalProcess	
-GO:0032435	negative regulation of proteasomal ubiquitin-dependent protein catabolic process	biolink:BiologicalProcess	
-GO:0010468	regulation of gene expression	biolink:BiologicalProcess	
-GO:0014003	oligodendrocyte development	biolink:BiologicalProcess	
-GO:0021978	telencephalon regionalization	biolink:BiologicalProcess	
-GO:0042307	positive regulation of protein import into nucleus	biolink:BiologicalProcess	
-GO:0090090	negative regulation of canonical Wnt signaling pathway	biolink:BiologicalProcess	
-GO:0043369	CD4-positive or CD8-positive, alpha-beta T cell lineage commitment	biolink:BiologicalProcess	
-GO:0043237	laminin-1 binding	biolink:MolecularActivity	
-GO:0001569	branching involved in blood vessel morphogenesis	biolink:BiologicalProcess	
-GO:0045109	intermediate filament organization	biolink:BiologicalProcess	
-GO:0045060	negative thymic T cell selection	biolink:BiologicalProcess	
-GO:0048864	stem cell development	biolink:BiologicalProcess	
-GO:0001947	heart looping	biolink:BiologicalProcess	
-GO:0046639	negative regulation of alpha-beta T cell differentiation	biolink:BiologicalProcess	
-GO:0046638	positive regulation of alpha-beta T cell differentiation	biolink:BiologicalProcess	
-GO:0003140	determination of left/right asymmetry in lateral mesoderm	biolink:BiologicalProcess	
-GO:0014706	striated muscle tissue development	biolink:BiologicalProcess	
-GO:0033092	positive regulation of immature T cell proliferation in thymus	biolink:BiologicalProcess	
-GO:0033089	positive regulation of T cell differentiation in thymus	biolink:BiologicalProcess	
-GO:0001658	branching involved in ureteric bud morphogenesis	biolink:BiologicalProcess	
-GO:0034244	negative regulation of transcription elongation from RNA polymerase II promoter	biolink:BiologicalProcess	
-GO:0048714	positive regulation of oligodendrocyte differentiation	biolink:BiologicalProcess	
-GO:0048617	embryonic foregut morphogenesis	biolink:BiologicalProcess	
-GO:0048643	positive regulation of skeletal muscle tissue development	biolink:BiologicalProcess	
-GO:2000358	positive regulation of kidney smooth muscle cell differentiation	biolink:BiologicalProcess	
-GO:2000357	negative regulation of kidney smooth muscle cell differentiation	biolink:BiologicalProcess	
-GO:2000729	positive regulation of mesenchymal cell proliferation involved in ureter development	biolink:BiologicalProcess	
-GO:0002320	lymphoid progenitor cell differentiation	biolink:BiologicalProcess	
-GO:2000062	negative regulation of ureter smooth muscle cell differentiation	biolink:BiologicalProcess	
-GO:2000063	positive regulation of ureter smooth muscle cell differentiation	biolink:BiologicalProcess	
-GO:0001656	metanephros development	biolink:BiologicalProcess	
-GO:0035115	embryonic forelimb morphogenesis	biolink:BiologicalProcess	
-GO:0021938	smoothened signaling pathway involved in regulation of cerebellar granule cell precursor cell proliferation	biolink:BiologicalProcess	
-GO:0016539	intein-mediated protein splicing	biolink:BiologicalProcess	
-GO:2001054	negative regulation of mesenchymal cell apoptotic process	biolink:BiologicalProcess	
-GO:0090370	negative regulation of cholesterol efflux	biolink:BiologicalProcess	
-GO:0014858	positive regulation of skeletal muscle cell proliferation	biolink:BiologicalProcess	
-GO:0002076	osteoblast development	biolink:BiologicalProcess	
-GO:0002052	positive regulation of neuroblast proliferation	biolink:BiologicalProcess	
-GO:0016015	morphogen activity	biolink:MolecularActivity	
-REACT:R-HSA-5635838	Activation of SMO	biolink:Pathway	
-REACT:R-HSA-373080	Class B/2 (Secretin family receptors)	biolink:Pathway	
-REACT:R-HSA-5358346	Hedgehog ligand biogenesis	biolink:Pathway	
-REACT:R-HSA-5658034	HHAT G278V abrogates palmitoylation of Hh-Np	biolink:Pathway	
-REACT:R-HSA-5632681	Ligand-receptor interactions	biolink:Pathway	
-REACT:R-HSA-5632684	Hedgehog 'on' state	biolink:Pathway	
-REACT:R-HSA-5362768	Hh mutants that don't undergo autocatalytic processing are degraded by ERAD	biolink:Pathway	
-REACT:R-HSA-5362798	Release of Hh-Np from the secreting cell	biolink:Pathway	
+GO:0005576	extracellular region	biolink:CellularComponent
+GO:0005886	plasma membrane	biolink:CellularComponent
+GO:0009986	cell surface	biolink:CellularComponent
+GO:0097190	apoptotic signaling pathway	biolink:BiologicalProcess
+GO:0009953	dorsal/ventral pattern formation	biolink:BiologicalProcess
+GO:0009880	embryonic pattern specification	biolink:BiologicalProcess
+GO:0060070	canonical Wnt signaling pathway	biolink:BiologicalProcess
+GO:0008233	peptidase activity	biolink:MolecularActivity
+GO:0060445	branching involved in salivary gland morphogenesis	biolink:BiologicalProcess
+GO:0060447	bud outgrowth involved in lung branching	biolink:BiologicalProcess
+GO:0001708	cell fate specification	biolink:BiologicalProcess
+GO:0060916	mesenchymal cell proliferation involved in lung development	biolink:BiologicalProcess
+GO:0005829	cytosol	biolink:CellularComponent
+GO:0005788	endoplasmic reticulum lumen	biolink:CellularComponent
+GO:0007267	cell-cell signaling	biolink:BiologicalProcess
+GO:0005615	extracellular space	biolink:CellularComponent
+GO:0005539	glycosaminoglycan binding	biolink:MolecularActivity
+GO:0005509	calcium ion binding	biolink:MolecularActivity
+GO:0005515	protein binding	biolink:MolecularActivity
+GO:0048754	branching morphogenesis of an epithelial tube	biolink:BiologicalProcess
+GO:1900175	regulation of nodal signaling pathway involved in determination of lateral mesoderm left/right asymmetry	biolink:BiologicalProcess
+GO:1900180	regulation of protein localization to nucleus	biolink:BiologicalProcess
+GO:0005113	patched binding	biolink:MolecularActivity
+GO:0007224	smoothened signaling pathway	biolink:BiologicalProcess
+GO:0007228	positive regulation of hh target transcription factor activity	biolink:BiologicalProcess
+GO:0048468	cell development	biolink:BiologicalProcess
+GO:0060439	trachea morphogenesis	biolink:BiologicalProcess
+GO:0060463	lung lobe morphogenesis	biolink:BiologicalProcess
+GO:0060484	lung-associated mesenchyme development	biolink:BiologicalProcess
+GO:0071542	dopaminergic neuron differentiation	biolink:BiologicalProcess
+GO:0007389	pattern specification process	biolink:BiologicalProcess
+GO:0071285	cellular response to lithium ion	biolink:BiologicalProcess
+GO:0060021	roof of mouth development	biolink:BiologicalProcess
+GO:0060020	Bergmann glial cell differentiation	biolink:BiologicalProcess
+GO:0060840	artery development	biolink:BiologicalProcess
+GO:1904339	negative regulation of dopaminergic neuron differentiation	biolink:BiologicalProcess
+GO:0006897	endocytosis	biolink:BiologicalProcess
+GO:0060428	lung epithelium development	biolink:BiologicalProcess
+GO:0008270	zinc ion binding	biolink:MolecularActivity
+GO:0008284	positive regulation of cell population proliferation	biolink:BiologicalProcess
+GO:0008209	androgen metabolic process	biolink:BiologicalProcess
+GO:0061053	somite development	biolink:BiologicalProcess
+GO:0045893	positive regulation of transcription, DNA-templated	biolink:BiologicalProcess
+GO:0072205	metanephric collecting duct development	biolink:BiologicalProcess
+GO:0072136	metanephric mesenchymal cell proliferation involved in metanephros development	biolink:BiologicalProcess
+GO:0000122	negative regulation of transcription by RNA polymerase II	biolink:BiologicalProcess
+GO:0001570	vasculogenesis	biolink:BiologicalProcess
+GO:0030010	establishment of cell polarity	biolink:BiologicalProcess
+GO:0007507	heart development	biolink:BiologicalProcess
+GO:0007596	blood coagulation	biolink:BiologicalProcess
+GO:0007405	neuroblast proliferation	biolink:BiologicalProcess
+GO:0007411	axon guidance	biolink:BiologicalProcess
+GO:0007417	central nervous system development	biolink:BiologicalProcess
+GO:0007418	ventral midline development	biolink:BiologicalProcess
+GO:0007442	hindgut morphogenesis	biolink:BiologicalProcess
+GO:0007398	ectoderm development	biolink:BiologicalProcess
+GO:0014902	myotube differentiation	biolink:BiologicalProcess
+GO:0042127	regulation of cell population proliferation	biolink:BiologicalProcess
+GO:0060738	epithelial-mesenchymal signaling involved in prostate gland development	biolink:BiologicalProcess
+GO:0060783	mesenchymal smoothened signaling pathway involved in prostate gland development	biolink:BiologicalProcess
+GO:0060782	regulation of mesenchymal cell proliferation involved in prostate gland development	biolink:BiologicalProcess
+GO:0060769	positive regulation of epithelial cell proliferation involved in prostate gland development	biolink:BiologicalProcess
+GO:0060662	salivary gland cavitation	biolink:BiologicalProcess
+GO:0060664	epithelial cell proliferation involved in salivary gland morphogenesis	biolink:BiologicalProcess
+GO:0060685	regulation of prostatic bud formation	biolink:BiologicalProcess
+GO:0060516	primary prostatic bud elongation	biolink:BiologicalProcess
+GO:0060523	prostate epithelial cord elongation	biolink:BiologicalProcess
+GO:0060458	right lung development	biolink:BiologicalProcess
+GO:0060459	left lung development	biolink:BiologicalProcess
+GO:0060174	limb bud formation	biolink:BiologicalProcess
+GO:0042481	regulation of odontogenesis	biolink:BiologicalProcess
+GO:1905327	tracheoesophageal septum formation	biolink:BiologicalProcess
+GO:0045121	membrane raft	biolink:CellularComponent
+GO:0009949	polarity specification of anterior/posterior axis	biolink:BiologicalProcess
+GO:0042733	embryonic digit morphogenesis	biolink:BiologicalProcess
+GO:0043010	camera-type eye development	biolink:BiologicalProcess
+GO:0043066	negative regulation of apoptotic process	biolink:BiologicalProcess
+GO:0042475	odontogenesis of dentin-containing tooth	biolink:BiologicalProcess
+GO:0061189	positive regulation of sclerotome development	biolink:BiologicalProcess
+GO:0030177	positive regulation of Wnt signaling pathway	biolink:BiologicalProcess
+GO:0030902	hindbrain development	biolink:BiologicalProcess
+GO:0030901	midbrain development	biolink:BiologicalProcess
+GO:0030900	forebrain development	biolink:BiologicalProcess
+GO:0030878	thyroid gland development	biolink:BiologicalProcess
+GO:0062023	collagen-containing extracellular matrix	biolink:CellularComponent
+GO:0045944	positive regulation of transcription by RNA polymerase II	biolink:BiologicalProcess
+GO:0030850	prostate gland development	biolink:BiologicalProcess
+GO:0031016	pancreas development	biolink:BiologicalProcess
+GO:0031069	hair follicle morphogenesis	biolink:BiologicalProcess
+GO:0030324	lung development	biolink:BiologicalProcess
+GO:0030326	embryonic limb morphogenesis	biolink:BiologicalProcess
+GO:0030539	male genitalia development	biolink:BiologicalProcess
+GO:0045445	myoblast differentiation	biolink:BiologicalProcess
+GO:0021522	spinal cord motor neuron differentiation	biolink:BiologicalProcess
+GO:0048645	animal organ formation	biolink:BiologicalProcess
+GO:0033077	T cell differentiation in thymus	biolink:BiologicalProcess
+GO:0051781	positive regulation of cell division	biolink:BiologicalProcess
+GO:0051155	positive regulation of striated muscle cell differentiation	biolink:BiologicalProcess
+GO:0042130	negative regulation of T cell proliferation	biolink:BiologicalProcess
+GO:0034504	protein localization to nucleus	biolink:BiologicalProcess
+GO:0048663	neuron fate commitment	biolink:BiologicalProcess
+GO:0048557	embryonic digestive tract morphogenesis	biolink:BiologicalProcess
+GO:0048538	thymus development	biolink:BiologicalProcess
+GO:0001755	neural crest cell migration	biolink:BiologicalProcess
+GO:0048839	inner ear development	biolink:BiologicalProcess
+GO:0048859	formation of anatomical boundary	biolink:BiologicalProcess
+GO:0048709	oligodendrocyte differentiation	biolink:BiologicalProcess
+GO:0048706	embryonic skeletal system development	biolink:BiologicalProcess
+GO:0048745	smooth muscle tissue development	biolink:BiologicalProcess
+GO:0045596	negative regulation of cell differentiation	biolink:BiologicalProcess
+GO:0045880	positive regulation of smoothened signaling pathway	biolink:BiologicalProcess
+GO:0035116	embryonic hindlimb morphogenesis	biolink:BiologicalProcess
+GO:0021904	dorsal/ventral neural tube patterning	biolink:BiologicalProcess
+GO:0021930	cerebellar granule cell precursor proliferation	biolink:BiologicalProcess
+GO:0021513	spinal cord dorsal/ventral patterning	biolink:BiologicalProcess
+GO:0021794	thalamus development	biolink:BiologicalProcess
+GO:0045059	positive thymic T cell selection	biolink:BiologicalProcess
+GO:0030162	regulation of proteolysis	biolink:BiologicalProcess
+GO:0030336	negative regulation of cell migration	biolink:BiologicalProcess
+GO:0032435	negative regulation of proteasomal ubiquitin-dependent protein catabolic process	biolink:BiologicalProcess
+GO:0010468	regulation of gene expression	biolink:BiologicalProcess
+GO:0014003	oligodendrocyte development	biolink:BiologicalProcess
+GO:0021978	telencephalon regionalization	biolink:BiologicalProcess
+GO:0042307	positive regulation of protein import into nucleus	biolink:BiologicalProcess
+GO:0090090	negative regulation of canonical Wnt signaling pathway	biolink:BiologicalProcess
+GO:0043369	CD4-positive or CD8-positive, alpha-beta T cell lineage commitment	biolink:BiologicalProcess
+GO:0043237	laminin-1 binding	biolink:MolecularActivity
+GO:0001569	branching involved in blood vessel morphogenesis	biolink:BiologicalProcess
+GO:0045109	intermediate filament organization	biolink:BiologicalProcess
+GO:0045060	negative thymic T cell selection	biolink:BiologicalProcess
+GO:0048864	stem cell development	biolink:BiologicalProcess
+GO:0001947	heart looping	biolink:BiologicalProcess
+GO:0046639	negative regulation of alpha-beta T cell differentiation	biolink:BiologicalProcess
+GO:0046638	positive regulation of alpha-beta T cell differentiation	biolink:BiologicalProcess
+GO:0003140	determination of left/right asymmetry in lateral mesoderm	biolink:BiologicalProcess
+GO:0014706	striated muscle tissue development	biolink:BiologicalProcess
+GO:0033092	positive regulation of immature T cell proliferation in thymus	biolink:BiologicalProcess
+GO:0033089	positive regulation of T cell differentiation in thymus	biolink:BiologicalProcess
+GO:0001658	branching involved in ureteric bud morphogenesis	biolink:BiologicalProcess
+GO:0034244	negative regulation of transcription elongation from RNA polymerase II promoter	biolink:BiologicalProcess
+GO:0048714	positive regulation of oligodendrocyte differentiation	biolink:BiologicalProcess
+GO:0048617	embryonic foregut morphogenesis	biolink:BiologicalProcess
+GO:0048643	positive regulation of skeletal muscle tissue development	biolink:BiologicalProcess
+GO:2000358	positive regulation of kidney smooth muscle cell differentiation	biolink:BiologicalProcess
+GO:2000357	negative regulation of kidney smooth muscle cell differentiation	biolink:BiologicalProcess
+GO:2000729	positive regulation of mesenchymal cell proliferation involved in ureter development	biolink:BiologicalProcess
+GO:0002320	lymphoid progenitor cell differentiation	biolink:BiologicalProcess
+GO:2000062	negative regulation of ureter smooth muscle cell differentiation	biolink:BiologicalProcess
+GO:2000063	positive regulation of ureter smooth muscle cell differentiation	biolink:BiologicalProcess
+GO:0001656	metanephros development	biolink:BiologicalProcess
+GO:0035115	embryonic forelimb morphogenesis	biolink:BiologicalProcess
+GO:0021938	smoothened signaling pathway involved in regulation of cerebellar granule cell precursor cell proliferation	biolink:BiologicalProcess
+GO:0016539	intein-mediated protein splicing	biolink:BiologicalProcess
+GO:2001054	negative regulation of mesenchymal cell apoptotic process	biolink:BiologicalProcess
+GO:0090370	negative regulation of cholesterol efflux	biolink:BiologicalProcess
+GO:0014858	positive regulation of skeletal muscle cell proliferation	biolink:BiologicalProcess
+GO:0002076	osteoblast development	biolink:BiologicalProcess
+GO:0002052	positive regulation of neuroblast proliferation	biolink:BiologicalProcess
+GO:0016015	morphogen activity	biolink:MolecularActivity
+REACT:R-HSA-5635838	Activation of SMO	biolink:Pathway
+REACT:R-HSA-373080	Class B/2 (Secretin family receptors)	biolink:Pathway
+REACT:R-HSA-5358346	Hedgehog ligand biogenesis	biolink:Pathway
+REACT:R-HSA-5658034	HHAT G278V abrogates palmitoylation of Hh-Np	biolink:Pathway
+REACT:R-HSA-5632681	Ligand-receptor interactions	biolink:Pathway
+REACT:R-HSA-5632684	Hedgehog 'on' state	biolink:Pathway
+REACT:R-HSA-5362768	Hh mutants that don't undergo autocatalytic processing are degraded by ERAD	biolink:Pathway
+REACT:R-HSA-5362798	Release of Hh-Np from the secreting cell	biolink:Pathway
 ZFIN:ZDB-GENE-980526-41	shhb	biolink:Gene	NCBITaxon:7955
 ZFIN:ZDB-GENE-980526-166	shha	biolink:Gene	NCBITaxon:7955
 MGI:98297	Shh	biolink:Gene	NCBITaxon:10090
@@ -344,192 +344,192 @@ RGD:3673	Shh	biolink:Gene	NCBITaxon:10116
 ENSEMBL:ENSCAFG00000029968	SHH	biolink:Gene	NCBITaxon:9615
 ENSEMBL:ENSFCAG00000041187	ENSEMBL:ENSFCAG00000041187	biolink:Gene	NCBITaxon:9685
 ENSEMBL:ENSMMUG00000007356	ENSEMBL:ENSMMUG00000007356	biolink:Gene	NCBITaxon:9544
-UBERON:0001150	body of pancreas	biolink:AnatomicalEntity	
+UBERON:0001150	body of pancreas	biolink:AnatomicalEntity
 UBERON:0001388	gastrocnemius	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0001416	skin of abdomen	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0001626	left coronary artery	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0001951	epithelium of nasopharynx	biolink:AnatomicalEntity	NCBITaxon:40674
-UBERON:0000465	material biolink:AnatomicalEntity	biolink:AnatomicalEntity	
+UBERON:0000465	material biolink:AnatomicalEntity	biolink:AnatomicalEntity
 UBERON:0035805	muscle layer of sigmoid colon	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0035841	esophagogastric junction muscularis propria	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0035833	lower esophagus muscularis layer	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0002106	spleen	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0002190	subcutaneous adipose tissue	biolink:AnatomicalEntity	NCBITaxon:40674
-UBERON:0002245	cerebellar hemisphere	biolink:AnatomicalEntity	
+UBERON:0002245	cerebellar hemisphere	biolink:AnatomicalEntity
 UBERON:0002469	esophagus mucosa	biolink:AnatomicalEntity	NCBITaxon:40674
 UBERON:0001511	skin of leg	biolink:AnatomicalEntity	NCBITaxon:40674
-UBERON:0014890	right hemisphere of cerebellum	biolink:AnatomicalEntity	
-UBERON:0004533	left testis	biolink:AnatomicalEntity	
-UBERON:0004534	right testis	biolink:AnatomicalEntity	
-UBERON:0009853	body of uterus	biolink:AnatomicalEntity	
+UBERON:0014890	right hemisphere of cerebellum	biolink:AnatomicalEntity
+UBERON:0004533	left testis	biolink:AnatomicalEntity
+UBERON:0004534	right testis	biolink:AnatomicalEntity
+UBERON:0009853	body of uterus	biolink:AnatomicalEntity
 UBERON:0007610	tibial artery	biolink:AnatomicalEntity	NCBITaxon:40674
-UBERON:0008948	upper lobe of lung	biolink:AnatomicalEntity	
-HP:0009932	Single naris	biolink:PhenotypicFeature	
-HP:0009942	Duplication of thumb phalanx	biolink:PhenotypicFeature	
-HP:0004322	Short stature	biolink:PhenotypicFeature	
-HP:0002708	Prominent median palatal raphe	biolink:PhenotypicFeature	
-HP:0009800	Maternal diabetes	biolink:PhenotypicFeature	
-HP:0004252	Abnormality of the trapezium	biolink:PhenotypicFeature	
-HP:0004243	Abnormality of the scaphoid	biolink:PhenotypicFeature	
-HP:0004209	Clinodactyly of the 5th finger	biolink:PhenotypicFeature	
-HP:0003458	EMG: myopathic abnormalities	biolink:PhenotypicFeature	
-HP:0002991	Abnormality of fibula morphology	biolink:PhenotypicFeature	
-HP:0002916	Abnormality of chromosome segregation	biolink:PhenotypicFeature	
-HP:0009606	Complete duplication of distal phalanx of the thumb	biolink:PhenotypicFeature	
-HP:0009601	Aplasia/Hypoplasia of the thumb	biolink:PhenotypicFeature	
-HP:0410030	Cleft lip	biolink:PhenotypicFeature	
-HP:0009484	Deviation of the hand or of fingers of the hand	biolink:PhenotypicFeature	
-HP:0009914	Cyclopia	biolink:PhenotypicFeature	
-HP:0012806	Proboscis	biolink:PhenotypicFeature	
-HP:0002510	Spastic tetraplegia	biolink:PhenotypicFeature	
-HP:0002247	Duodenal atresia	biolink:PhenotypicFeature	
-HP:0002132	Porencephalic cyst	biolink:PhenotypicFeature	
-HP:0002120	Cerebral cortical atrophy	biolink:PhenotypicFeature	
-HP:0002119	Ventriculomegaly	biolink:PhenotypicFeature	
-HP:0002099	Asthma	biolink:PhenotypicFeature	
-HP:0002000	Short columella	biolink:PhenotypicFeature	
-HP:0000871	Panhypopituitarism	biolink:PhenotypicFeature	
-HP:0012107	Increased fibular diameter	biolink:PhenotypicFeature	
-HP:0006487	Bowing of the long bones	biolink:PhenotypicFeature	
-HP:0000589	Coloboma	biolink:PhenotypicFeature	
-HP:0000528	Anophthalmia	biolink:PhenotypicFeature	
-HP:0000567	Chorioretinal coloboma	biolink:PhenotypicFeature	
-HP:0010708	1-5 finger syndactyly	biolink:PhenotypicFeature	
-HP:0000486	Strabismus	biolink:PhenotypicFeature	
-HP:0000463	Anteverted nares	biolink:PhenotypicFeature	
-HP:0000458	Anosmia	biolink:PhenotypicFeature	
-HP:0000453	Choanal atresia	biolink:PhenotypicFeature	
-HP:0000446	Narrow nasal bridge	biolink:PhenotypicFeature	
-HP:0010644	Midnasal stenosis	biolink:PhenotypicFeature	
-HP:0010636	Schizencephaly	biolink:PhenotypicFeature	
-HP:0005917	Supernumerary metacarpal bones	biolink:PhenotypicFeature	
-HP:0000322	Short philtrum	biolink:PhenotypicFeature	
-HP:0010503	Fibular duplication	biolink:PhenotypicFeature	
-HP:0000252	Microcephaly	biolink:PhenotypicFeature	
-HP:0000204	Cleft upper lip	biolink:PhenotypicFeature	
-HP:0000202	Oral cleft	biolink:PhenotypicFeature	
-HP:0010442	Polydactyly	biolink:PhenotypicFeature	
-HP:0000193	Bifid uvula	biolink:PhenotypicFeature	
-HP:0005736	Short tibia	biolink:PhenotypicFeature	
-HP:0000104	Renal agenesis	biolink:PhenotypicFeature	
-HP:0001328	Specific learning disability	biolink:PhenotypicFeature	
-HP:0001376	Limitation of joint mobility	biolink:PhenotypicFeature	
-HP:0000062	Ambiguous genitalia	biolink:PhenotypicFeature	
-HP:0001501	6 metacarpals	biolink:PhenotypicFeature	
-HP:0001511	Intrauterine growth retardation	biolink:PhenotypicFeature	
-HP:0030680	Abnormality of cardiovascular system morphology	biolink:PhenotypicFeature	
-HP:0007370	Aplasia/Hypoplasia of the corpus callosum	biolink:PhenotypicFeature	
-HP:0001622	Premature birth	biolink:PhenotypicFeature	
-HP:0010066	Duplication of phalanx of hallux	biolink:PhenotypicFeature	
-HP:0010035	Aplasia of the 1st metacarpal	biolink:PhenotypicFeature	
-HP:0005280	Depressed nasal bridge	biolink:PhenotypicFeature	
-HP:0001841	Preaxial foot polydactyly	biolink:PhenotypicFeature	
-HP:0000366	Abnormality of the nose	biolink:PhenotypicFeature	
-HP:0000821	Hypothyroidism	biolink:PhenotypicFeature	
-HP:0025011	Pyriform aperture stenosis	biolink:PhenotypicFeature	
-HP:0008736	Hypoplasia of penis	biolink:PhenotypicFeature	
-HP:0003196	Short nose	biolink:PhenotypicFeature	
-HP:0001250	Seizures	biolink:PhenotypicFeature	
-HP:0001829	Foot polydactyly	biolink:PhenotypicFeature	
-HP:0001830	Postaxial foot polydactyly	biolink:PhenotypicFeature	
-HP:0100789	Torus palatinus	biolink:PhenotypicFeature	
-HP:0001770	Toe syndactyly	biolink:PhenotypicFeature	
-HP:0001739	Abnormality of the nasopharynx	biolink:PhenotypicFeature	
-HP:0001636	Tetralogy of Fallot	biolink:PhenotypicFeature	
-HP:0011800	Midface retrusion	biolink:PhenotypicFeature	
-HP:0000824	Growth hormone deficiency	biolink:PhenotypicFeature	
-HP:0100490	Camptodactyly of finger	biolink:PhenotypicFeature	
-HP:0001360	Holoprosencephaly	biolink:PhenotypicFeature	
-HP:0000175	Cleft palate	biolink:PhenotypicFeature	
-HP:0000126	Hydronephrosis	biolink:PhenotypicFeature	
-HP:0100259	Postaxial polydactyly	biolink:PhenotypicFeature	
-HP:0001269	Hemiparesis	biolink:PhenotypicFeature	
-HP:0001263	Global developmental delay	biolink:PhenotypicFeature	
-HP:0001257	Spasticity	biolink:PhenotypicFeature	
-HP:0001256	Intellectual disability, mild	biolink:PhenotypicFeature	
-HP:0001249	Intellectual disability	biolink:PhenotypicFeature	
-HP:0001274	Agenesis of corpus callosum	biolink:PhenotypicFeature	
-HP:0000272	Malar flattening	biolink:PhenotypicFeature	
-HP:0005866	Opposable triphalangeal thumb	biolink:PhenotypicFeature	
-HP:0001199	Triphalangeal thumb	biolink:PhenotypicFeature	
-HP:0001177	Preaxial hand polydactyly	biolink:PhenotypicFeature	
-HP:0001172	Abnormal thumb morphology	biolink:PhenotypicFeature	
-HP:0001162	Postaxial hand polydactyly	biolink:PhenotypicFeature	
-HP:0001161	Hand polydactyly	biolink:PhenotypicFeature	
-HP:0001159	Syndactyly	biolink:PhenotypicFeature	
-HP:0001028	Hemangioma	biolink:PhenotypicFeature	
-HP:0000437	Depressed nasal tip	biolink:PhenotypicFeature	
-HP:0006501	Aplasia/Hypoplasia of the radius	biolink:PhenotypicFeature	
-HP:0000504	Abnormality of vision	biolink:PhenotypicFeature	
-HP:0000520	Proptosis	biolink:PhenotypicFeature	
-HP:0000568	Microphthalmia	biolink:PhenotypicFeature	
-HP:0010804	Tented upper lip vermilion	biolink:PhenotypicFeature	
-HP:0000601	Hypotelorism	biolink:PhenotypicFeature	
-HP:0000612	Iris coloboma	biolink:PhenotypicFeature	
-HP:0006315	Single median maxillary incisor	biolink:PhenotypicFeature	
-HP:0000830	Anterior hypopituitarism	biolink:PhenotypicFeature	
-HP:0000863	Central diabetes insipidus	biolink:PhenotypicFeature	
-HP:0006101	Finger syndactyly	biolink:PhenotypicFeature	
-HP:0007633	Bilateral microphthalmos	biolink:PhenotypicFeature	
-HP:0006088	1-5 finger complete cutaneous syndactyly	biolink:PhenotypicFeature	
-HP:0002353	EEG abnormality	biolink:PhenotypicFeature	
-HP:0004691	2-3 toe syndactyly	biolink:PhenotypicFeature	
-HP:0002650	Scoliosis	biolink:PhenotypicFeature	
-EFO:0004713	FEV/FEC ratio	biolink:PhenotypicFeature	
-MONDO:0010011	schizencephaly	biolink:Disease	
-MONDO:0010303	colobomatous microphthalmia	biolink:Disease	
-MONDO:0012709	microphthalmia, isolated, with coloboma 5	biolink:Disease	
-MONDO:0016355	semilobar holoprosencephaly	biolink:Disease	
-MONDO:0017454	triphalangeal thumb-polysyndactyly syndrome	biolink:Disease	
-MONDO:0017218	septopreoptic holoprosencephaly	biolink:Disease	
-MONDO:0017219	microform holoprosencephaly	biolink:Disease	
-MONDO:0018777	autosomal dominant preaxial polydactyly-upperback hypertrichosis syndrome	biolink:Disease	
-MONDO:0018052	hypoplastic tibiae-postaxial polydactyly syndrome	biolink:Disease	
-MONDO:0019756	lobar holoprosencephaly	biolink:Disease	
-MONDO:0019758	midline interhemispheric variant of holoprosencephaly	biolink:Disease	
-MONDO:0019757	alobar holoprosencephaly	biolink:Disease	
-MONDO:0019671	radial hemimelia	biolink:Disease	
-MONDO:0007819	solitary median maxillary central incisor syndrome	biolink:Disease	
-MONDO:0007733	holoprosencephaly 3	biolink:Disease	
-MONDO:0008515	syndactyly type 4	biolink:Disease	
-MONDO:0008270	polydactyly of a triphalangeal thumb	biolink:Disease	
-MONDO:0016296	holoprosencephaly	biolink:Disease	
-MONDO:0000170	microphthalmia, isolated, with coloboma	biolink:Disease	
-MONDO:0018839	acquired schizencephaly	biolink:Disease	
-MONDO:0010011	schizencephaly	biolink:Disease	
-REACT:R-HSA-5635838	Activation of SMO	biolink:Pathway	
-REACT:R-HSA-373080	Class B/2 (Secretin family receptors)	biolink:Pathway	
-REACT:R-HSA-5358346	Hedgehog ligand biogenesis	biolink:Pathway	
-REACT:R-HSA-5658034	HHAT G278V abrogates palmitoylation of Hh-Np	biolink:Pathway	
-REACT:R-HSA-5632681	Ligand-receptor interactions	biolink:Pathway	
-REACT:R-HSA-5632684	Hedgehog 'on' state	biolink:Pathway	
-REACT:R-HSA-5362768	Hh mutants that don't undergo autocatalytic processing are degraded by ERAD	biolink:Pathway	
-REACT:R-HSA-5362798	Release of Hh-Np from the secreting cell	biolink:Pathway	
-MONDO:0018829	familial schizencephaly	biolink:Disease	
-REACT:R-HSA-8948216	Collagen chain trimerization	biolink:Pathway	
-REACT:R-HSA-419037	NCAM1 interactions	biolink:Pathway	
-REACT:R-HSA-216083	Integrin cell surface interactions	biolink:Pathway	
-REACT:R-HSA-1442490	Collagen degradation	biolink:Pathway	
-REACT:R-HSA-2214320	Anchoring fibril formation	biolink:Pathway	
-REACT:R-HSA-1650814	Collagen biosynthesis and modifying enzymes	biolink:Pathway	
-REACT:R-HSA-186797	Signaling by PDGF	biolink:Pathway	
-REACT:R-HSA-2022090	Assembly of collagen fibrils and other multimeric structures	biolink:Pathway	
-REACT:R-HSA-2243919	Crosslinking of collagen fibrils	biolink:Pathway	
-REACT:R-HSA-3000480	Scavenging by Class A Receptors	biolink:Pathway	
-REACT:R-HSA-1474244	Extracellular matrix organization	biolink:Pathway	
-REACT:R-HSA-3000171	Non-integrin membrane-ECM interactions	biolink:Pathway	
-REACT:R-HSA-3000157	Laminin interactions	biolink:Pathway	
-REACT:R-HSA-3000178	ECM proteoglycans	biolink:Pathway	
-HP:0002510	Spastic tetraplegia	biolink:PhenotypicFeature	
-HP:0002132	Porencephalic cyst	biolink:PhenotypicFeature	
-HP:0002120	Cerebral cortical atrophy	biolink:PhenotypicFeature	
-HP:0000486	Strabismus	biolink:PhenotypicFeature	
-HP:0010636	Schizencephaly	biolink:PhenotypicFeature	
-HP:0007370	Aplasia/Hypoplasia of the corpus callosum	biolink:PhenotypicFeature	
-HP:0001250	Seizures	biolink:PhenotypicFeature	
-HP:0001269	Hemiparesis	biolink:PhenotypicFeature	
-HP:0001263	Global developmental delay	biolink:PhenotypicFeature	
-HP:0001257	Spasticity	biolink:PhenotypicFeature	
-HP:0001249	Intellectual disability	biolink:PhenotypicFeature	
-HP:0001274	Agenesis of corpus callosum	biolink:PhenotypicFeature	
-HP:0002353	EEG abnormality	biolink:PhenotypicFeature	
+UBERON:0008948	upper lobe of lung	biolink:AnatomicalEntity
+HP:0009932	Single naris	biolink:PhenotypicFeature
+HP:0009942	Duplication of thumb phalanx	biolink:PhenotypicFeature
+HP:0004322	Short stature	biolink:PhenotypicFeature
+HP:0002708	Prominent median palatal raphe	biolink:PhenotypicFeature
+HP:0009800	Maternal diabetes	biolink:PhenotypicFeature
+HP:0004252	Abnormality of the trapezium	biolink:PhenotypicFeature
+HP:0004243	Abnormality of the scaphoid	biolink:PhenotypicFeature
+HP:0004209	Clinodactyly of the 5th finger	biolink:PhenotypicFeature
+HP:0003458	EMG: myopathic abnormalities	biolink:PhenotypicFeature
+HP:0002991	Abnormality of fibula morphology	biolink:PhenotypicFeature
+HP:0002916	Abnormality of chromosome segregation	biolink:PhenotypicFeature
+HP:0009606	Complete duplication of distal phalanx of the thumb	biolink:PhenotypicFeature
+HP:0009601	Aplasia/Hypoplasia of the thumb	biolink:PhenotypicFeature
+HP:0410030	Cleft lip	biolink:PhenotypicFeature
+HP:0009484	Deviation of the hand or of fingers of the hand	biolink:PhenotypicFeature
+HP:0009914	Cyclopia	biolink:PhenotypicFeature
+HP:0012806	Proboscis	biolink:PhenotypicFeature
+HP:0002510	Spastic tetraplegia	biolink:PhenotypicFeature
+HP:0002247	Duodenal atresia	biolink:PhenotypicFeature
+HP:0002132	Porencephalic cyst	biolink:PhenotypicFeature
+HP:0002120	Cerebral cortical atrophy	biolink:PhenotypicFeature
+HP:0002119	Ventriculomegaly	biolink:PhenotypicFeature
+HP:0002099	Asthma	biolink:PhenotypicFeature
+HP:0002000	Short columella	biolink:PhenotypicFeature
+HP:0000871	Panhypopituitarism	biolink:PhenotypicFeature
+HP:0012107	Increased fibular diameter	biolink:PhenotypicFeature
+HP:0006487	Bowing of the long bones	biolink:PhenotypicFeature
+HP:0000589	Coloboma	biolink:PhenotypicFeature
+HP:0000528	Anophthalmia	biolink:PhenotypicFeature
+HP:0000567	Chorioretinal coloboma	biolink:PhenotypicFeature
+HP:0010708	1-5 finger syndactyly	biolink:PhenotypicFeature
+HP:0000486	Strabismus	biolink:PhenotypicFeature
+HP:0000463	Anteverted nares	biolink:PhenotypicFeature
+HP:0000458	Anosmia	biolink:PhenotypicFeature
+HP:0000453	Choanal atresia	biolink:PhenotypicFeature
+HP:0000446	Narrow nasal bridge	biolink:PhenotypicFeature
+HP:0010644	Midnasal stenosis	biolink:PhenotypicFeature
+HP:0010636	Schizencephaly	biolink:PhenotypicFeature
+HP:0005917	Supernumerary metacarpal bones	biolink:PhenotypicFeature
+HP:0000322	Short philtrum	biolink:PhenotypicFeature
+HP:0010503	Fibular duplication	biolink:PhenotypicFeature
+HP:0000252	Microcephaly	biolink:PhenotypicFeature
+HP:0000204	Cleft upper lip	biolink:PhenotypicFeature
+HP:0000202	Oral cleft	biolink:PhenotypicFeature
+HP:0010442	Polydactyly	biolink:PhenotypicFeature
+HP:0000193	Bifid uvula	biolink:PhenotypicFeature
+HP:0005736	Short tibia	biolink:PhenotypicFeature
+HP:0000104	Renal agenesis	biolink:PhenotypicFeature
+HP:0001328	Specific learning disability	biolink:PhenotypicFeature
+HP:0001376	Limitation of joint mobility	biolink:PhenotypicFeature
+HP:0000062	Ambiguous genitalia	biolink:PhenotypicFeature
+HP:0001501	6 metacarpals	biolink:PhenotypicFeature
+HP:0001511	Intrauterine growth retardation	biolink:PhenotypicFeature
+HP:0030680	Abnormality of cardiovascular system morphology	biolink:PhenotypicFeature
+HP:0007370	Aplasia/Hypoplasia of the corpus callosum	biolink:PhenotypicFeature
+HP:0001622	Premature birth	biolink:PhenotypicFeature
+HP:0010066	Duplication of phalanx of hallux	biolink:PhenotypicFeature
+HP:0010035	Aplasia of the 1st metacarpal	biolink:PhenotypicFeature
+HP:0005280	Depressed nasal bridge	biolink:PhenotypicFeature
+HP:0001841	Preaxial foot polydactyly	biolink:PhenotypicFeature
+HP:0000366	Abnormality of the nose	biolink:PhenotypicFeature
+HP:0000821	Hypothyroidism	biolink:PhenotypicFeature
+HP:0025011	Pyriform aperture stenosis	biolink:PhenotypicFeature
+HP:0008736	Hypoplasia of penis	biolink:PhenotypicFeature
+HP:0003196	Short nose	biolink:PhenotypicFeature
+HP:0001250	Seizures	biolink:PhenotypicFeature
+HP:0001829	Foot polydactyly	biolink:PhenotypicFeature
+HP:0001830	Postaxial foot polydactyly	biolink:PhenotypicFeature
+HP:0100789	Torus palatinus	biolink:PhenotypicFeature
+HP:0001770	Toe syndactyly	biolink:PhenotypicFeature
+HP:0001739	Abnormality of the nasopharynx	biolink:PhenotypicFeature
+HP:0001636	Tetralogy of Fallot	biolink:PhenotypicFeature
+HP:0011800	Midface retrusion	biolink:PhenotypicFeature
+HP:0000824	Growth hormone deficiency	biolink:PhenotypicFeature
+HP:0100490	Camptodactyly of finger	biolink:PhenotypicFeature
+HP:0001360	Holoprosencephaly	biolink:PhenotypicFeature
+HP:0000175	Cleft palate	biolink:PhenotypicFeature
+HP:0000126	Hydronephrosis	biolink:PhenotypicFeature
+HP:0100259	Postaxial polydactyly	biolink:PhenotypicFeature
+HP:0001269	Hemiparesis	biolink:PhenotypicFeature
+HP:0001263	Global developmental delay	biolink:PhenotypicFeature
+HP:0001257	Spasticity	biolink:PhenotypicFeature
+HP:0001256	Intellectual disability, mild	biolink:PhenotypicFeature
+HP:0001249	Intellectual disability	biolink:PhenotypicFeature
+HP:0001274	Agenesis of corpus callosum	biolink:PhenotypicFeature
+HP:0000272	Malar flattening	biolink:PhenotypicFeature
+HP:0005866	Opposable triphalangeal thumb	biolink:PhenotypicFeature
+HP:0001199	Triphalangeal thumb	biolink:PhenotypicFeature
+HP:0001177	Preaxial hand polydactyly	biolink:PhenotypicFeature
+HP:0001172	Abnormal thumb morphology	biolink:PhenotypicFeature
+HP:0001162	Postaxial hand polydactyly	biolink:PhenotypicFeature
+HP:0001161	Hand polydactyly	biolink:PhenotypicFeature
+HP:0001159	Syndactyly	biolink:PhenotypicFeature
+HP:0001028	Hemangioma	biolink:PhenotypicFeature
+HP:0000437	Depressed nasal tip	biolink:PhenotypicFeature
+HP:0006501	Aplasia/Hypoplasia of the radius	biolink:PhenotypicFeature
+HP:0000504	Abnormality of vision	biolink:PhenotypicFeature
+HP:0000520	Proptosis	biolink:PhenotypicFeature
+HP:0000568	Microphthalmia	biolink:PhenotypicFeature
+HP:0010804	Tented upper lip vermilion	biolink:PhenotypicFeature
+HP:0000601	Hypotelorism	biolink:PhenotypicFeature
+HP:0000612	Iris coloboma	biolink:PhenotypicFeature
+HP:0006315	Single median maxillary incisor	biolink:PhenotypicFeature
+HP:0000830	Anterior hypopituitarism	biolink:PhenotypicFeature
+HP:0000863	Central diabetes insipidus	biolink:PhenotypicFeature
+HP:0006101	Finger syndactyly	biolink:PhenotypicFeature
+HP:0007633	Bilateral microphthalmos	biolink:PhenotypicFeature
+HP:0006088	1-5 finger complete cutaneous syndactyly	biolink:PhenotypicFeature
+HP:0002353	EEG abnormality	biolink:PhenotypicFeature
+HP:0004691	2-3 toe syndactyly	biolink:PhenotypicFeature
+HP:0002650	Scoliosis	biolink:PhenotypicFeature
+EFO:0004713	FEV/FEC ratio	biolink:PhenotypicFeature
+MONDO:0010011	schizencephaly	biolink:Disease
+MONDO:0010303	colobomatous microphthalmia	biolink:Disease
+MONDO:0012709	microphthalmia, isolated, with coloboma 5	biolink:Disease
+MONDO:0016355	semilobar holoprosencephaly	biolink:Disease
+MONDO:0017454	triphalangeal thumb-polysyndactyly syndrome	biolink:Disease
+MONDO:0017218	septopreoptic holoprosencephaly	biolink:Disease
+MONDO:0017219	microform holoprosencephaly	biolink:Disease
+MONDO:0018777	autosomal dominant preaxial polydactyly-upperback hypertrichosis syndrome	biolink:Disease
+MONDO:0018052	hypoplastic tibiae-postaxial polydactyly syndrome	biolink:Disease
+MONDO:0019756	lobar holoprosencephaly	biolink:Disease
+MONDO:0019758	midline interhemispheric variant of holoprosencephaly	biolink:Disease
+MONDO:0019757	alobar holoprosencephaly	biolink:Disease
+MONDO:0019671	radial hemimelia	biolink:Disease
+MONDO:0007819	solitary median maxillary central incisor syndrome	biolink:Disease
+MONDO:0007733	holoprosencephaly 3	biolink:Disease
+MONDO:0008515	syndactyly type 4	biolink:Disease
+MONDO:0008270	polydactyly of a triphalangeal thumb	biolink:Disease
+MONDO:0016296	holoprosencephaly	biolink:Disease
+MONDO:0000170	microphthalmia, isolated, with coloboma	biolink:Disease
+MONDO:0018839	acquired schizencephaly	biolink:Disease
+MONDO:0010011	schizencephaly	biolink:Disease
+REACT:R-HSA-5635838	Activation of SMO	biolink:Pathway
+REACT:R-HSA-373080	Class B/2 (Secretin family receptors)	biolink:Pathway
+REACT:R-HSA-5358346	Hedgehog ligand biogenesis	biolink:Pathway
+REACT:R-HSA-5658034	HHAT G278V abrogates palmitoylation of Hh-Np	biolink:Pathway
+REACT:R-HSA-5632681	Ligand-receptor interactions	biolink:Pathway
+REACT:R-HSA-5632684	Hedgehog 'on' state	biolink:Pathway
+REACT:R-HSA-5362768	Hh mutants that don't undergo autocatalytic processing are degraded by ERAD	biolink:Pathway
+REACT:R-HSA-5362798	Release of Hh-Np from the secreting cell	biolink:Pathway
+MONDO:0018829	familial schizencephaly	biolink:Disease
+REACT:R-HSA-8948216	Collagen chain trimerization	biolink:Pathway
+REACT:R-HSA-419037	NCAM1 interactions	biolink:Pathway
+REACT:R-HSA-216083	Integrin cell surface interactions	biolink:Pathway
+REACT:R-HSA-1442490	Collagen degradation	biolink:Pathway
+REACT:R-HSA-2214320	Anchoring fibril formation	biolink:Pathway
+REACT:R-HSA-1650814	Collagen biosynthesis and modifying enzymes	biolink:Pathway
+REACT:R-HSA-186797	Signaling by PDGF	biolink:Pathway
+REACT:R-HSA-2022090	Assembly of collagen fibrils and other multimeric structures	biolink:Pathway
+REACT:R-HSA-2243919	Crosslinking of collagen fibrils	biolink:Pathway
+REACT:R-HSA-3000480	Scavenging by Class A Receptors	biolink:Pathway
+REACT:R-HSA-1474244	Extracellular matrix organization	biolink:Pathway
+REACT:R-HSA-3000171	Non-integrin membrane-ECM interactions	biolink:Pathway
+REACT:R-HSA-3000157	Laminin interactions	biolink:Pathway
+REACT:R-HSA-3000178	ECM proteoglycans	biolink:Pathway
+HP:0002510	Spastic tetraplegia	biolink:PhenotypicFeature
+HP:0002132	Porencephalic cyst	biolink:PhenotypicFeature
+HP:0002120	Cerebral cortical atrophy	biolink:PhenotypicFeature
+HP:0000486	Strabismus	biolink:PhenotypicFeature
+HP:0010636	Schizencephaly	biolink:PhenotypicFeature
+HP:0007370	Aplasia/Hypoplasia of the corpus callosum	biolink:PhenotypicFeature
+HP:0001250	Seizures	biolink:PhenotypicFeature
+HP:0001269	Hemiparesis	biolink:PhenotypicFeature
+HP:0001263	Global developmental delay	biolink:PhenotypicFeature
+HP:0001257	Spasticity	biolink:PhenotypicFeature
+HP:0001249	Intellectual disability	biolink:PhenotypicFeature
+HP:0001274	Agenesis of corpus callosum	biolink:PhenotypicFeature
+HP:0002353	EEG abnormality	biolink:PhenotypicFeature
