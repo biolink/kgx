@@ -41,13 +41,13 @@ class NeoSink(Sink):
     _seen_categories = set()
 
     def __init__(self, owner, uri: str, username: str, password: str, **kwargs: Any):
-        super().__init__(owner)
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
         self.http_driver:Neo4jDriver = GraphDatabase.driver(
             uri, auth=(username, password)
         )
         self.session:Session = self.http_driver.session()
+        super().__init__(owner)
 
     def _flush_node_cache(self):
         self._write_node_cache()
@@ -98,13 +98,13 @@ class NeoSink(Sink):
                 log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
-                    self.session.run(query, params={"nodes": batch})
-                except CypherSyntaxError as ce:
-                    query_target = f"{category} Nodes {batch}"
+                    self.session.run(query, parameters={"nodes": batch})
+                except Exception as e:
+                    print(e)
                     self.owner.log_error(
-                        entity=query_target,
+                        entity=f"{category} Nodes {batch}",
                         error_type=ErrorType.INVALID_CATEGORY,
-                        message=str(ce)
+                        message=str(e)
                     )
 
     def _flush_edge_cache(self):
@@ -152,12 +152,11 @@ class NeoSink(Sink):
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
                     )
-                except CypherSyntaxError as ce:
-                    query_target = f"{predicate} Edges {batch}"
+                except Exception as e:
                     self.owner.log_error(
-                        entity=query_target,
-                        error_type=ErrorType.INVALID_EDGE_PREDICATE,
-                        message=str(ce)
+                        entity=f"{predicate} Edges {batch}",
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
                     )
 
     def finalize(self) -> None:
@@ -264,11 +263,11 @@ class NeoSink(Sink):
                 try:
                     self.session.run(query)
                     self._seen_categories.add(category)
-                except CypherSyntaxError as ce:
+                except Exception as e:
                     self.owner.log_error(
                         entity=category,
                         error_type=ErrorType.INVALID_CATEGORY,
-                        message=str(ce)
+                        message=str(e)
                     )
 
     @staticmethod
