@@ -28,7 +28,7 @@ def _check_mkg_json_contents(data):
     edge1_cbs = edge1["count_by_source"]
     assert "aggregator_knowledge_source" in edge1_cbs
     edge1_cbs_aks = edge1_cbs["aggregator_knowledge_source"]
-    assert edge1_cbs_aks["string"] == 159
+    assert edge1_cbs_aks["string"] == 160
 
 
 def test_generate_classical_meta_knowledge_graph():
@@ -120,7 +120,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert len(ecbs1) == 2
     assert "biogrid" in ecbs1
     assert "string" in ecbs1
-    assert ecbs1["string"] == 159
+    assert ecbs1["string"] == 160
 
     ecbs2 = mkg.get_edge_count_by_source(
         "biolink:Gene",
