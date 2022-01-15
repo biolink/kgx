@@ -168,6 +168,7 @@ def test_read_jsonl2():
             },
             "biolink:BiologicalProcess",
         ),
+
     ],
 )
 def test_get_category(query):

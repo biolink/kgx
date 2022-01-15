@@ -258,6 +258,7 @@ def test_validate_edge_property_object_is_int_type_error(query):
     assert validator.get_default_model_version() is not None
     assert validator.get_errors() is not None
 
+
 @pytest.mark.parametrize(
     "query",
     [

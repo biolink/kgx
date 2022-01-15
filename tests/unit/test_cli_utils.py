@@ -52,7 +52,7 @@ def test_graph_summary_wrapper():
             os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
         ]
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 0
 
 
 def test_graph_summary_wrapper_error():
