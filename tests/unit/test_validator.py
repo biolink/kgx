@@ -198,27 +198,6 @@ def test_validate_node_property_id_types_error(query):
     [
         (
                 "a:123",
-                {"name": "Node A:123", "category": ["biolink:NamedThing"]},
-                False
-        )
-    ]
-)
-def test_validate_node_property_id_types_error(query):
-    """
-    Test validate_node_property_types in Validator.
-    """
-    validator = Validator.get_the_validator()
-    validator.clear_errors()
-    required_properties = validator.get_required_node_properties()
-    validator.validate_edge_properties(query[0], query[1], query[2], required_properties)
-    print(validator.get_errors())
-    assert validator.get_errors() is not None
-
-@pytest.mark.parametrize(
-    "query",
-    [
-        (
-                "a:123",
                 {"id": "sweet:123", "name": "Node A:123", "category": 123},
                 False,
         )
