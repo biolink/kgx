@@ -302,7 +302,7 @@ class NeoSource(Source):
 
         return edges
 
-    def load_nodes(self, nodes: List) -> None:
+    def load_nodes(self, nodes: List) -> Generator:
         """
         Load nodes into an instance of BaseGraph
 

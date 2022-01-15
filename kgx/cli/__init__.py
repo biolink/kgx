@@ -205,7 +205,7 @@ def validate_wrapper(
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    errors: Dict = []
+    errors = []
     try:
         errors = validate(
             inputs, input_format, input_compression, output, stream, biolink_release
