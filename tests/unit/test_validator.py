@@ -183,7 +183,46 @@ def test_validate_node_property_types(query):
         )
     ]
 )
-def test_validate_node_property_types_error(query):
+def test_validate_node_property_id_types_error(query):
+    """
+    Test validate_node_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert validator.get_errors() is not None
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                "a:123",
+                {"id": "sweet:123", "name": "Node A:123", "category": 123},
+                False,
+        )
+    ]
+)
+def test_validate_node_property_id_str_is_int_types_error(query):
+    """
+    Test validate_node_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert validator.get_errors() is not None
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                "a:123",
+                {"id": 123, "name": "Node A:123", "category": ["biolink:NamedThing"]},
+                False,
+        )
+    ]
+)
+def test_validate_node_property_uriorcurie_types_error(query):
     """
     Test validate_node_property_types in Validator.
     """
