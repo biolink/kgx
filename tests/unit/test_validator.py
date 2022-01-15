@@ -267,6 +267,15 @@ def test_validate_node_property_uriorcurie_types_error(query):
                 "predicate": "biolink:related_to",
             },
             False,
+        ),(
+            "A:123",
+            "X:1",
+            {
+                "subject": ["A:123"],
+                "object": "X:1",
+                "predicate": "biolink:related_to",
+            },
+            False,
         ),
     ],
 )
