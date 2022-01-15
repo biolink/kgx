@@ -75,6 +75,23 @@ def test_graph_summary_wrapper_error():
     assert result.exit_code == 1
 
 
+def test_graph_summary_wrapper():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            "-r", "testoutput",
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 1
+
+
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -172,6 +189,9 @@ def test_kgx_graph_summary():
     assert summary_stats["edge_stats"]["total_edges"] == 539
     assert "biolink:has_phenotype" in summary_stats["edge_stats"]["predicates"]
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
+
+
+
 
 
 def test_meta_knowledge_graph_as_json():
