@@ -100,7 +100,6 @@ class NeoSink(Sink):
                 try:
                     self.session.run(query, parameters={"nodes": batch})
                 except Exception as e:
-                    print(e)
                     self.owner.log_error(
                         entity=f"{category} Nodes {batch}",
                         error_type=ErrorType.INVALID_CATEGORY,

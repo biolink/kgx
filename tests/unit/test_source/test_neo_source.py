@@ -59,6 +59,8 @@ def test_read_neo(clean_database):
 
     nodes, edges = load_graph_dictionary(g)
 
+    count = s.count()
+    assert count > 0
     assert len(nodes.keys()) == 3
     assert len(edges.keys()) == 2
 
