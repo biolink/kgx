@@ -493,7 +493,6 @@ def test_neo4j_upload_wrapper_error(clean_database):
     assert result.exit_code == 2
 
 
-@pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -521,7 +520,7 @@ def test_neo4j_download(clean_database):
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
         output=output,
-        output_format="tsv",
+        output_format="",
         output_compression=None,
         stream=False,
     )
@@ -565,6 +564,33 @@ def test_transform1():
             assert "infores:biogrid" in e["aggregator_knowledge_source"]
             break
 
+
+def test_transform_error():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph.json")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "True"),
+    ]
+    try: {
+        transform(
+            transform_config="out.txt",
+            inputs=inputs,
+            input_format="tsv",
+            input_compression=None,
+            output=output,
+            output_format="json",
+            output_compression=None,
+            knowledge_sources=knowledge_sources,
+        )
+    }
+    except ValueError:
+        assert ValueError
 
 def test_transform_knowledge_source_suppression():
     """
