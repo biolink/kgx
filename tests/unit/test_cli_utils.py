@@ -520,7 +520,7 @@ def test_neo4j_download(clean_database):
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
         output=output,
-        output_format="",
+        output_format="tsv",
         output_compression=None,
         stream=False,
     )
@@ -528,6 +528,40 @@ def test_neo4j_download(clean_database):
     assert os.path.exists(f"{output}_edges.tsv")
     assert t1.store.graph.number_of_nodes() == t2.store.graph.number_of_nodes()
     assert t1.store.graph.number_of_edges() == t2.store.graph.number_of_edges()
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_download(clean_database):
+    """
+    Test download from Neo4j.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "neo_download")
+    # upload
+    t1 = neo4j_upload(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
+        stream=False,
+    )
+    t2 = neo4j_download(
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
+        output=output,
+        output_format="",
+        output_compression=None,
+        stream=False,
+    )
+    assert os.path.exists(f"{output}_nodes.tsv")
 
 
 def test_transform1():
