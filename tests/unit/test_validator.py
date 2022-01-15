@@ -279,6 +279,7 @@ def test_validate_edge_property_types(query):
     validator.validate_edge_property_types(query[0], query[1], query[2])
     assert validator.get_default_model_version() is not None
     assert (len(validator.get_errors()) == 0) == query[3]
+    assert "biolink" in validator.get_all_prefixes()
 
 
 @pytest.mark.parametrize(
