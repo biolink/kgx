@@ -51,7 +51,7 @@ def cli():
 )
 @click.option("--output", "-o", required=True, type=click.Path(exists=False))
 @click.option(
-    "--get_errors-type",
+    "--report-type",
     "-r",
     required=False,
     type=str,
@@ -59,7 +59,7 @@ def cli():
     default="kgx-map",
 )
 @click.option(
-    "--get_errors-format",
+    "--report-format",
     "-f",
     help=f"The input format. Can be one of {get_report_format_types()}",
 )
