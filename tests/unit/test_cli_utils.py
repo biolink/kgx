@@ -6,7 +6,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge, get_output_file_types
 from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
@@ -119,6 +119,11 @@ def test_merge_wrapper():
     assert os.path.join(TARGET_DIR, "merged-graph_nodes.tsv")
     assert os.path.join(TARGET_DIR, "merged-graph_edges.tsv")
     assert os.path.join(TARGET_DIR, "merged-graph.json")
+
+
+def test_get_output_file_types():
+    format_types = get_output_file_types()
+    assert format_types is not None
 
 
 def test_merge_wrapper_error():
