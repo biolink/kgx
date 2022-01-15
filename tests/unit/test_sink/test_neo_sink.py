@@ -38,7 +38,6 @@ def test_create_constraint_query(category):
     assert q == f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{sanitized_category}) ASSERT n.id IS UNIQUE"
 
 
-@pytest.mark.skip()
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -47,17 +46,20 @@ def test_write_neo1(clean_database):
     Write a graph to a Neo4j instance using NeoSink.
     """
     graph = get_graph("test")[0]
+    t = Transformer()
     s = NeoSink(
+        owner=t,
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
         password=DEFAULT_NEO4J_PASSWORD,
+        cache_size=1000
     )
     for n, data in graph.nodes(data=True):
         s.write_node(data)
     for u, v, k, data in graph.edges(data=True, keys=True):
         s.write_edge(data)
     s.finalize()
-
+    assert s.CACHE_SIZE is not None
     d = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
