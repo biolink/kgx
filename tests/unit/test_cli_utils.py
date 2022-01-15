@@ -75,7 +75,7 @@ def test_graph_summary_wrapper_error():
     assert result.exit_code == 1
 
 
-def test_graph_summary_wrapper():
+def test_graph_summary_report_type_wrapper_error():
     output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
 
     runner = CliRunner()
@@ -90,6 +90,24 @@ def test_graph_summary_wrapper():
         ]
     )
     assert result.exit_code == 1
+
+
+def test_graph_summary_report_format_wrapper_error():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            "-f", "notaformat",
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 1
+
 
 
 def test_transform_wrapper():
