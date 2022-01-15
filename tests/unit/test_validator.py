@@ -232,6 +232,35 @@ def test_validate_node_property_uriorcurie_types_error(query):
     assert validator.get_errors() is not None
 
 
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+(
+            "A:123",
+            "X:1",
+            {
+                "id": "A:123",
+                "subject": 123,
+                "object": "X:1",
+                "predicate": "biolink:related_to",
+            },
+            False,
+        ),
+    ],
+)
+def test_validate_edge_property_subject_is_int_type_error(query):
+    """
+    Test validate_edge_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
+    assert validator.get_errors() is not None
+
+
 @pytest.mark.parametrize(
     "query",
     [
@@ -267,7 +296,8 @@ def test_validate_node_property_uriorcurie_types_error(query):
                 "predicate": "biolink:related_to",
             },
             False,
-        ),(
+        ),
+        (
             "A:123",
             "X:1",
             {
@@ -279,7 +309,7 @@ def test_validate_node_property_uriorcurie_types_error(query):
         ),
     ],
 )
-def test_validate_edge_property_types(query):
+def test_validate_edge_property_types_and_prefixes(query):
     """
     Test validate_edge_property_types in Validator.
     """
