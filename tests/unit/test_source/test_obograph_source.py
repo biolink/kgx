@@ -3,6 +3,7 @@ import os
 import pytest
 
 from kgx.source import ObographSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -10,7 +11,8 @@ def test_read_obograph1():
     """
     Read from an Obograph JSON using ObographSource.
     """
-    s = ObographSource()
+    t = Transformer()
+    s = ObographSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.json"),
         knowledge_source="GO slim generic",
@@ -58,7 +60,8 @@ def test_read_jsonl2():
     Read from an Obograph JSON using ObographSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = ObographSource()
+    t = Transformer()
+    s = ObographSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.json"),
         provided_by="GO slim generic",
@@ -165,6 +168,7 @@ def test_read_jsonl2():
             },
             "biolink:BiologicalProcess",
         ),
+
     ],
 )
 def test_get_category(query):
@@ -172,6 +176,32 @@ def test_get_category(query):
     Test to guess the appropriate category for a sample OBO Graph JSON.
     """
     node = query[0]
-    s = ObographSource()
+
+    t = Transformer()
+    s = ObographSource(t)
+
     c = s.get_category(node["id"], node)
     assert c == query[1]
+
+
+def test_error_detection():
+    t = Transformer()
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "obo_error_detection.json"),
+        knowledge_source="Sample OBO",
+    )
+    nodes = {}
+    edges = {}
+    for rec in g:
+        if rec:
+            if len(rec) == 4:
+                edges[(rec[0], rec[1], rec[2])] = rec[3]
+            else:
+                nodes[rec[0]] = rec[1]
+
+    assert len(t.get_errors()) > 0
+    if len(t.get_errors("Error")) > 0:
+        t.write_report(None, "Error")
+    if len(t.get_errors("Warning")) > 0:
+        t.write_report(None, "Warning")

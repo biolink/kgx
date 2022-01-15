@@ -1,6 +1,7 @@
 import os
 
 from kgx.source import JsonSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -8,7 +9,8 @@ def test_read_json1():
     """
     Read from a JSON using JsonSource.
     """
-    s = JsonSource()
+    t = Transformer()
+    s = JsonSource(t)
     g = s.parse(os.path.join(RESOURCE_DIR, "valid.json"))
     nodes = {}
     edges = {}
@@ -43,7 +45,8 @@ def test_read_json2():
     Read from a JSON using JsonSource.
     This test also supplies the provided_by parameter.
     """
-    s = JsonSource()
+    t = Transformer()
+    s = JsonSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "valid.json"),
         provided_by="Test JSON",
@@ -79,7 +82,8 @@ def test_read_json_compressed():
     """
     Read from a gzip compressed JSON using JsonSource.
     """
-    s = JsonSource()
+    t = Transformer()
+    s = JsonSource(t)
     g = s.parse(os.path.join(RESOURCE_DIR, "valid.json.gz"), compression="gz")
     nodes = {}
     edges = {}

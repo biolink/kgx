@@ -1,6 +1,7 @@
 import os
 
 from kgx.source import TrapiSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -8,7 +9,9 @@ def test_read_trapi_json1():
     """
     Read from a JSON using TrapiSource.
     """
-    s = TrapiSource()
+    t = Transformer()
+    s = TrapiSource(t)
+
     g = s.parse(os.path.join(RESOURCE_DIR, "rsa_sample.json"))
     nodes = {}
     edges = {}
@@ -38,7 +41,9 @@ def test_read_trapi_json2():
     Read from a TRAPI JSON using TrapiSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = TrapiSource()
+    t = Transformer()
+    s = TrapiSource(t)
+
     g = s.parse(
         os.path.join(RESOURCE_DIR, "rsa_sample.json"),
         provided_by="Test TRAPI JSON",

@@ -1,0 +1,90 @@
+{
+  "graphs": [ {
+      "nodes": [
+        {
+          "id" : "http://purl.obolibrary.org/obo/GO_0001234",
+          "meta" : {
+            "basicPropertyValues" : [ {
+              "pred" : "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+              "val" : "no_such_category_term"
+            } ]
+          },
+          "type" : "CLASS",
+          "lbl" : "extracellular space"
+        }, {
+          "id" : "http://purl.obolibrary.org/obo/GO_0005615",
+          "meta" : {
+            "definition" : {
+              "val" : "That part of a multicellular organism outside the cells proper, usually taken to be outside the plasma membranes, and occupied by fluid.",
+              "xrefs" : [ "ISBN:0198547684" ]
+            },
+            "comments" : [ "Note that for multicellular organisms, the extracellular space refers to everything outside a cell, but still within the organism (excluding the extracellular matrix). Gene products from a multi-cellular organism that are secreted from a cell into the interstitial fluid or blood can therefore be annotated to this term." ],
+            "subsets" : [ "http://purl.obolibrary.org/obo/go#goslim_drosophila", "http://purl.obolibrary.org/obo/go#goslim_generic", "http://purl.obolibrary.org/obo/go#goslim_chembl" ],
+            "xrefs" : [ {
+              "val" : "NIF_Subcellular:sao1425028079"
+            } ],
+            "synonyms" : [ {
+              "pred" : "hasRelatedSynonym",
+              "val" : "intercellular space",
+              "xrefs" : [ ]
+            } ],
+            "basicPropertyValues" : [ {
+              "pred" : "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+              "val" : "cellular_component"
+            } ]
+          },
+          "type" : "CLASS",
+          "lbl" : "extracellular space"
+        }, {
+          "id" : "http://purl.obolibrary.org/obo/GO_0003677",
+          "meta" : {
+            "definition" : {
+              "val" : "Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).",
+              "xrefs" : [ "GOC:dph", "GOC:jl", "GOC:tb", "GOC:vw" ]
+            },
+            "subsets" : [ "http://purl.obolibrary.org/obo/go#goslim_aspergillus", "http://purl.obolibrary.org/obo/go#goslim_flybase_ribbon", "http://purl.obolibrary.org/obo/go#goslim_mouse", "http://purl.obolibrary.org/obo/go#goslim_generic", "http://purl.obolibrary.org/obo/go#goslim_plant", "http://purl.obolibrary.org/obo/go#goslim_chembl", "http://purl.obolibrary.org/obo/go#goslim_candida", "http://purl.obolibrary.org/obo/go#goslim_yeast", "http://purl.obolibrary.org/obo/go#goslim_drosophila", "http://purl.obolibrary.org/obo/go#goslim_agr" ],
+            "synonyms" : [ {
+              "pred" : "hasRelatedSynonym",
+              "val" : "structure-specific DNA binding",
+              "xrefs" : [ ]
+            }, {
+              "pred" : "hasRelatedSynonym",
+              "val" : "structure specific DNA binding",
+              "xrefs" : [ ]
+            }, {
+              "pred" : "hasRelatedSynonym",
+              "val" : "microtubule/chromatin interaction",
+              "xrefs" : [ ]
+            }, {
+              "pred" : "hasNarrowSynonym",
+              "val" : "plasmid binding",
+              "xrefs" : [ ]
+            } ],
+            "basicPropertyValues" : [ {
+              "pred" : "http://www.geneontology.org/formats/oboInOwl#hasAlternativeId",
+              "val" : "GO:0043566"
+            }, {
+              "pred" : "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+              "val" : "molecular_function"
+            } ]
+          },
+          "type" : "CLASS",
+          "lbl" : "DNA binding"
+        }
+      ],
+    "edges" : [
+      {
+      "sub" : "http://purl.obolibrary.org/obo/GO_0005615",
+      "pred" : "http://kgx.biolink.org/nonsense_predicate",
+      "obj" : "http://purl.obolibrary.org/obo/GO_0003677"
+      },
+            {
+      "sub" : "http://purl.obolibrary.org/obo/GO_0005615",
+      "pred" : "is_a",
+      "obj" : "http://purl.obolibrary.org/obo/GO_0003677"
+      }
+
+    ],
+    "id" : "http://kgx.biolink.org/obo_error_detection.owl"
+  } ]
+}

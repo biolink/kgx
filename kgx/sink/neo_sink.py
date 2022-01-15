@@ -1,10 +1,11 @@
 from typing import List, Union, Any
 
 from neo4j import GraphDatabase, Neo4jDriver, Session
-
+from neo4j.exceptions import CypherSyntaxError
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
-from kgx.utils.kgx_utils import DEFAULT_NODE_CATEGORY
+from kgx.source.source import DEFAULT_NODE_CATEGORY
 
 log = get_logger()
 
@@ -16,6 +17,8 @@ class NeoSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     uri: str
         The URI for the Neo4j instance.
         For example, http://localhost:7474
@@ -37,14 +40,14 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ":"
     _seen_categories = set()
 
-    def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
-        super().__init__()
+    def __init__(self, owner, uri: str, username: str, password: str, **kwargs: Any):
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
         self.http_driver:Neo4jDriver = GraphDatabase.driver(
             uri, auth=(username, password)
         )
         self.session:Session = self.http_driver.session()
+        super().__init__(owner)
 
     def _flush_node_cache(self):
         self._write_node_cache()
@@ -97,7 +100,11 @@ class NeoSink(Sink):
                 try:
                     self.session.run(query, parameters={"nodes": batch})
                 except Exception as e:
-                    log.error(e)
+                    self.owner.log_error(
+                        entity=f"{category} Nodes {batch}",
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     def _flush_edge_cache(self):
         self._flush_node_cache()
@@ -145,7 +152,11 @@ class NeoSink(Sink):
                         query, parameters={"relationship": predicate, "edges": batch}
                     )
                 except Exception as e:
-                    log.error(e)
+                    self.owner.log_error(
+                        entity=f"{predicate} Edges {batch}",
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     def finalize(self) -> None:
         """
@@ -252,7 +263,11 @@ class NeoSink(Sink):
                     self.session.run(query)
                     self._seen_categories.add(category)
                 except Exception as e:
-                    log.error(e)
+                    self.owner.log_error(
+                        entity=category,
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     @staticmethod
     def create_constraint_query(category: str) -> str:
@@ -270,5 +285,5 @@ class NeoSink(Sink):
             The Cypher CONSTRAINT query
 
         """
-        query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
+        query = f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{category}) ASSERT n.id IS UNIQUE"
         return query

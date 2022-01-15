@@ -2,6 +2,7 @@ import pytest
 from neo4j import GraphDatabase
 
 from kgx.source import NeoSource
+from kgx.transformer import Transformer
 from tests.unit import (
     clean_database,
     DEFAULT_NEO4J_URL,
@@ -47,8 +48,9 @@ def test_read_neo(clean_database):
         for q in queries:
             session.run(q)
 
-    # Establish a fresh "Source" connection to the database
-    s = NeoSource()
+    t = Transformer()
+    s = NeoSource(t)
+
     g = s.parse(
         uri=DEFAULT_NEO4J_URL,
         username=DEFAULT_NEO4J_USERNAME,
@@ -57,6 +59,8 @@ def test_read_neo(clean_database):
 
     nodes, edges = load_graph_dictionary(g)
 
+    count = s.count()
+    assert count > 0
     assert len(nodes.keys()) == 3
     assert len(edges.keys()) == 2
 

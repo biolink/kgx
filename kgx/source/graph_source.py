@@ -4,7 +4,7 @@ from typing import Generator, Any, Dict, Optional
 from kgx.config import get_graph_store_class
 from kgx.graph.base_graph import BaseGraph
 from kgx.source.source import Source
-from kgx.utils.kgx_utils import validate_node, validate_edge, sanitize_import
+from kgx.utils.kgx_utils import sanitize_import
 
 
 class GraphSource(Source):
@@ -15,8 +15,8 @@ class GraphSource(Source):
     The underlying store must be an instance of ``kgx.graph.base_graph.BaseGraph``
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.graph = get_graph_store_class()()
 
     def parse(self, graph: BaseGraph, **kwargs: Any) -> Generator:
@@ -57,7 +57,11 @@ class GraphSource(Source):
         for n, data in self.graph.nodes(data=True):
             if "id" not in data:
                 data["id"] = n
-            node_data = validate_node(data)
+
+            node_data = self.validate_node(data)
+            if not node_data:
+                continue
+
             node_data = sanitize_import(node_data.copy())
 
             self.set_node_provenance(node_data)
@@ -77,7 +81,11 @@ class GraphSource(Source):
 
         """
         for u, v, k, data in self.graph.edges(keys=True, data=True):
-            edge_data = validate_edge(data)
+
+            edge_data = self.validate_edge(data)
+            if not edge_data:
+                continue
+
             edge_data = sanitize_import(edge_data.copy())
 
             self.set_edge_provenance(edge_data)

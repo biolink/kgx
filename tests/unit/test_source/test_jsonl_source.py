@@ -1,6 +1,7 @@
 import os
 
 from kgx.source import JsonlSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -8,7 +9,8 @@ def test_read_jsonl1():
     """
     Read from JSON Lines using JsonlSource.
     """
-    s = JsonlSource()
+    t = Transformer()
+    s = JsonlSource(t)
     g = s.parse(os.path.join(RESOURCE_DIR, "valid_nodes.jsonl"))
     nodes = {}
     for rec in g:
@@ -45,7 +47,8 @@ def test_read_jsonl2():
     Read from JSON Lines using JsonlSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = JsonlSource()
+    t = Transformer()
+    s = JsonlSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "valid_nodes.jsonl"),
         provided_by="Test JSON",

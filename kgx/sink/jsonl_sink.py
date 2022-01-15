@@ -14,6 +14,8 @@ class JsonlSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     filename: str
         The filename to write to
     format: str
@@ -27,12 +29,13 @@ class JsonlSink(Sink):
 
     def __init__(
         self,
+        owner,
         filename: str,
         format: str = "jsonl",
         compression: Optional[str] = None,
         **kwargs: Any,
     ):
-        super().__init__()
+        super().__init__(owner)
         dirname = os.path.abspath(os.path.dirname(filename))
         basename = os.path.basename(filename)
         nodes_filename = os.path.join(

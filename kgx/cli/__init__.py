@@ -1,5 +1,5 @@
 from sys import exit
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 import click
 
 import kgx
@@ -17,7 +17,6 @@ from kgx.cli.cli_utils import (
     summary_report_types,
     get_report_format_types,
 )
-from kgx.validator import ValidationError, MessageLevel, ErrorType
 
 log = get_logger()
 config = get_config()
@@ -56,7 +55,7 @@ def cli():
     "-r",
     required=False,
     type=str,
-    help=f"The summary report type. Must be one of {tuple(summary_report_types.keys())}",
+    help=f"The summary get_errors type. Must be one of {tuple(summary_report_types.keys())}",
     default="kgx-map",
 )
 @click.option(
@@ -88,7 +87,7 @@ def cli():
     "-l",
     required=False,
     type=click.Path(exists=False),
-    help='File within which to report graph data parsing errors (default: "stderr")',
+    help='File within which to get_errors graph data parsing errors (default: "stderr")',
 )
 def graph_summary_wrapper(
     inputs: List[str],
@@ -118,9 +117,9 @@ def graph_summary_wrapper(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary report type
+        The summary get_errors type
     report_format: Optional[str]
-        The summary report format file types: 'yaml' or 'json'  (default is report_type specific)
+        The summary get_errors format file types: 'yaml' or 'json'  (default is report_type specific)
     stream: bool
         Whether to parse input as a stream
     graph_name: str
@@ -206,14 +205,14 @@ def validate_wrapper(
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
-    errors: List[ValidationError] = []
+    errors = []
     try:
-        errors: List[ValidationError] = validate(
+        errors = validate(
             inputs, input_format, input_compression, output, stream, biolink_release
         )
     except Exception as ex:
-        ve = ValidationError("Graph", ErrorType.VALIDATION_SYSTEM_ERROR, str(ex), MessageLevel.ERROR)
-        errors.append(ve)
+        get_logger().error(str(ex))
+        exit(2)
     
     if errors:
         get_logger().error("kgx.validate() errors encountered... check the error log")

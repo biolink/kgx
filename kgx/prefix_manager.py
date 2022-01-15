@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Optional, Any
+from typing import Dict, Optional
 
 import prefixcommons.curie_util as cu
 from cachetools import LRUCache, cached

@@ -4,6 +4,7 @@ import pprint
 import pytest
 
 from kgx.source import RdfSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 from tests.unit import load_graph_dictionary
 
@@ -12,7 +13,9 @@ def test_read_nt1():
     """
     Read from an RDF N-Triple file using RdfSource.
     """
-    s = RdfSource()
+    t = Transformer()
+    s = RdfSource(t)
+
     g = s.parse(os.path.join(RESOURCE_DIR, "rdf", "test1.nt"))
     nodes, edges = load_graph_dictionary(g)
     assert len(nodes) == 2
@@ -50,7 +53,9 @@ def test_read_nt2():
     Read from an RDF N-Triple file using RdfSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = RdfSource()
+    t = Transformer()
+    s = RdfSource(t)
+
     g = s.parse(
         os.path.join(RESOURCE_DIR, "rdf", "test1.nt"),
         provided_by="Test Dataset",
@@ -97,7 +102,10 @@ def test_read_nt3():
         f"https://www.example.org/UNKNOWN/{x}"
         for x in ["fusion", "homology", "combined_score", "cooccurence"]
     }
-    source = RdfSource()
+
+    t = Transformer()
+    source = RdfSource(t)
+
     source.set_node_property_predicates(node_property_predicates)
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "rdf", "test2.nt"), format="nt"
@@ -148,7 +156,10 @@ def test_read_nt4():
         f"https://www.example.org/UNKNOWN/{x}"
         for x in ["fusion", "homology", "combined_score", "cooccurence"]
     }
-    source = RdfSource()
+
+    t = Transformer()
+    source = RdfSource(t)
+
     source.set_node_property_predicates(node_property_predicates)
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "rdf", "test3.nt"), format="nt"
@@ -216,7 +227,10 @@ def test_read_nt5():
         "https://monarchinitiative.org/frequencyOfPhenotype",
     }
     filename = os.path.join(RESOURCE_DIR, "rdf", "oban-test.nt")
-    source = RdfSource()
+
+    t = Transformer()
+    source = RdfSource(t)
+
     source.set_prefix_map(prefix_map)
     source.set_node_property_predicates(node_property_predicates)
     g = source.parse(filename=filename, format="nt")
@@ -259,7 +273,9 @@ def test_read_nt6():
     }
     filename = os.path.join(RESOURCE_DIR, "rdf", "oban-test.nt")
 
-    source = RdfSource()
+    t = Transformer()
+    source = RdfSource(t)
+
     source.set_prefix_map(prefix_map)
     source.set_node_property_predicates(node_property_predicates)
     source.set_predicate_mapping(predicate_mapping)
@@ -366,7 +382,8 @@ def test_prepare_data_dict(query):
     """
     Test for internal _prepare_data_dict method in RdfSource.
     """
-    source = RdfSource()
+    t = Transformer()
+    source = RdfSource(t)
     new_data = source._prepare_data_dict(query[0], query[1])
     for k, v in query[2].items():
         assert new_data[k] == v

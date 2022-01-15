@@ -4,15 +4,14 @@ from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
     generate_uuid,
     generate_edge_key,
     extension_types,
     archive_read_mode,
-    sanitize_import,
-    validate_edge,
-    validate_node,
+    sanitize_import
 )
 
 log = get_logger()
@@ -26,8 +25,8 @@ class TsvSource(Source):
     from a TSV/CSV.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.list_delimiter = DEFAULT_LIST_DELIMITER
 
     def set_prefix_map(self, m: Dict) -> None:
@@ -223,9 +222,10 @@ class TsvSource(Source):
         Optional[Tuple[str, Dict]]
             A tuple that contains node id and node data
         """
-        node = validate_node(node)
-        node_data = sanitize_import(node.copy(), list_delimiter=self.list_delimiter)
-        if "id" in node_data:
+        node = self.validate_node(node)
+        if node:
+            # if not None, assumed to have an "id" here...
+            node_data = sanitize_import(node.copy(), self.list_delimiter)
 
             n = node_data["id"]
 
@@ -235,8 +235,6 @@ class TsvSource(Source):
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
                 return n, node_data
-        else:
-            log.info(f"Ignoring node with no 'id': {node}")
 
     def read_edges(self, df: pd.DataFrame) -> Generator:
         """
@@ -271,8 +269,12 @@ class TsvSource(Source):
             A tuple that contains subject id, object id, edge key, and edge data
 
         """
-        edge = validate_edge(edge)
-        edge_data = sanitize_import(edge.copy(), list_delimiter=self.list_delimiter)
+        edge = self.validate_edge(edge)
+        if not edge:
+            return None
+
+        edge_data = sanitize_import(edge.copy(), self.list_delimiter)
+
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]

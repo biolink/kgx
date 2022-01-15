@@ -1,10 +1,14 @@
 from typing import Dict, Union, Optional
 
+from kgx.error_detection import ErrorType, MessageLevel
 from kgx.utils.infores import InfoResContext
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 
 log = get_logger()
+
+DEFAULT_NODE_CATEGORY = "biolink:NamedThing"
+DEFAULT_EDGE_PREDICATE = "biolink:related_to"
 
 
 class Source(object):
@@ -13,7 +17,8 @@ class Source(object):
     from a store where the store is a file or a database.
     """
 
-    def __init__(self):
+    def __init__(self, owner):
+        self.owner = owner
         self.graph_metadata: Dict = {}
         self.node_filters = {}
         self.edge_filters = {}
@@ -65,7 +70,11 @@ class Source(object):
                         else:
                             return False
                     else:
-                        log.error(f"Unexpected {k} node filter of type {type(v)}")
+                        self.owner.log_error(
+                            entity=node["id"],
+                            error_type=ErrorType.INVALID_NODE_PROPERTY,
+                            message=f"Unexpected '{k}' node filter of type '{type(v)}'"
+                        )
                         return False
                 else:
                     # filter key does not exist in node
@@ -109,7 +118,12 @@ class Source(object):
                         else:
                             return False
                     else:
-                        log.error(f"Unexpected {k} edge filter of type {type(v)}")
+                        subobj = f"{edge['subject']}->{edge['object']}"
+                        self.owner.log_error(
+                            entity=subobj,
+                            error_type=ErrorType.INVALID_EDGE_PROPERTY,
+                            message=f"Unexpected '{k}' edge filter of type '{type(v)}'"
+                        )
                         return False
                 else:
                     # filter does not exist in edge
@@ -264,3 +278,90 @@ class Source(object):
         Set a specific edge provenance value.
         """
         self.infores_context.set_edge_provenance(edge_data)
+
+    def validate_node(self, node: Dict) -> Optional[Dict]:
+        """
+        Given a node as a dictionary, check for required properties.
+        This method will return the node dictionary with default
+        assumptions applied, if any.
+
+        Parameters
+        ----------
+        node: Dict
+            A node represented as a dict
+
+        Returns
+        -------
+        Dict
+            A node represented as a dict, with default assumptions applied.
+
+        """
+        if "id" not in node or not node["id"]:
+            self.owner.log_error(
+                entity=str(node),
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
+                message=f"Node missing 'id' property or empty 'id' value"
+            )
+            return None
+        if "name" not in node:
+            self.owner.log_error(
+                entity=node["id"],
+                error_type=ErrorType.MISSING_NODE_PROPERTY,
+                message=f"Node missing 'name' property",
+                message_level=MessageLevel.WARNING
+            )
+        if "category" not in node:
+            self.owner.log_error(
+                entity=node["id"],
+                error_type=ErrorType.MISSING_CATEGORY,
+                message=f"Node missing 'category' property? Using '{DEFAULT_NODE_CATEGORY}' as default.",
+                message_level=MessageLevel.WARNING
+            )
+            node["category"] = [DEFAULT_NODE_CATEGORY]
+
+        return node
+
+    def validate_edge(self, edge: Dict) -> Optional[Dict]:
+        """
+        Given an edge as a dictionary, check for required properties.
+        This method will return the edge dictionary with default
+        assumptions applied, if any.
+
+        Parameters
+        ----------
+        edge: Dict
+            An edge represented as a dict
+
+        Returns
+        -------
+        Dict
+            An edge represented as a dict, with default assumptions applied.
+
+        """
+        incomplete_edge: bool = False
+        if "subject" not in edge or not edge["subject"]:
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=ErrorType.MISSING_NODE,
+                message=f"Edge missing 'subject'?"
+            )
+            incomplete_edge = True
+        if "predicate" not in edge or not edge["predicate"]:
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=ErrorType.MISSING_EDGE_PREDICATE,
+                message=f"Edge missing 'predicate'?"
+            )
+            incomplete_edge = True
+        if "object" not in edge or not edge["object"]:
+            self.owner.log_error(
+                entity=str(edge),
+                error_type=ErrorType.MISSING_NODE,
+                message=f"Edge missing 'object'?"
+            )
+            incomplete_edge = True
+
+        if not incomplete_edge:
+            return edge
+        else:
+            return None

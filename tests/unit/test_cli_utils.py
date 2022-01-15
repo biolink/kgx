@@ -6,7 +6,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge, get_output_file_types
 from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
@@ -39,9 +39,6 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
 def test_graph_summary_wrapper():
     output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
 
@@ -57,9 +54,7 @@ def test_graph_summary_wrapper():
     )
     assert result.exit_code == 0
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
 def test_graph_summary_wrapper_error():
     inputs = [
         os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
@@ -79,9 +74,42 @@ def test_graph_summary_wrapper_error():
     )
     assert result.exit_code == 1
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
+def test_graph_summary_report_type_wrapper_error():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            "-r", "testoutput",
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 1
+
+
+def test_graph_summary_report_format_wrapper_error():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            "-f", "notaformat",
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 1
+
+
+
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -106,9 +134,7 @@ def test_transform_wrapper():
 
     assert result.exit_code == 1
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+
 def test_merge_wrapper():
 
     """
@@ -130,9 +156,11 @@ def test_merge_wrapper():
     assert os.path.join(TARGET_DIR, "merged-graph.json")
 
 
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
+def test_get_output_file_types():
+    format_types = get_output_file_types()
+    assert format_types is not None
+
+
 def test_merge_wrapper_error():
 
     """
@@ -179,6 +207,9 @@ def test_kgx_graph_summary():
     assert summary_stats["edge_stats"]["total_edges"] == 539
     assert "biolink:has_phenotype" in summary_stats["edge_stats"]["predicates"]
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
+
+
+
 
 
 def test_meta_knowledge_graph_as_json():
@@ -279,7 +310,7 @@ def test_validate_exception_triggered_error_exit_code():
             test_input
         ]
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 2
 
 
 @pytest.mark.parametrize(
@@ -394,6 +425,7 @@ def test_neo4j_download_wrapper(clean_database):
 
     assert result.exit_code == 0
 
+
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -416,6 +448,7 @@ def test_download_exception_triggered_error_exit_code():
         ]
     )
     assert result.exit_code == 1
+
 
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
@@ -459,7 +492,7 @@ def test_neo4j_upload_wrapper_error(clean_database):
 
     assert result.exit_code == 2
 
-@pytest.mark.skip()
+
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
@@ -497,6 +530,40 @@ def test_neo4j_download(clean_database):
     assert t1.store.graph.number_of_edges() == t2.store.graph.number_of_edges()
 
 
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_neo4j_download(clean_database):
+    """
+    Test download from Neo4j.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "neo_download")
+    # upload
+    t1 = neo4j_upload(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
+        stream=False,
+    )
+    t2 = neo4j_download(
+        uri=DEFAULT_NEO4J_URL,
+        username=DEFAULT_NEO4J_USERNAME,
+        password=DEFAULT_NEO4J_PASSWORD,
+        output=output,
+        output_format="",
+        output_compression=None,
+        stream=False,
+    )
+    assert os.path.exists(f"{output}_nodes.tsv")
+
+
 def test_transform1():
     """
     Transform graph from TSV to JSON.
@@ -531,6 +598,33 @@ def test_transform1():
             assert "infores:biogrid" in e["aggregator_knowledge_source"]
             break
 
+
+def test_transform_error():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph.json")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "True"),
+    ]
+    try: {
+        transform(
+            transform_config="out.txt",
+            inputs=inputs,
+            input_format="tsv",
+            input_compression=None,
+            output=output,
+            output_format="json",
+            output_compression=None,
+            knowledge_sources=knowledge_sources,
+        )
+    }
+    except ValueError:
+        assert ValueError
 
 def test_transform_knowledge_source_suppression():
     """

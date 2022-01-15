@@ -23,9 +23,6 @@ from kgx.utils.kgx_utils import (
     build_export_row,
     _sanitize_import_property,
     _sanitize_export_property,
-    validate_node,
-    DEFAULT_NODE_CATEGORY,
-    validate_edge,
 )
 
 
@@ -398,77 +395,3 @@ def test_sanitize_export_property(query):
         assert query[1] == value
     else:
         assert query[1] in value
-
-
-@pytest.mark.parametrize(
-    "node",
-    [
-        {"name": "Node A", "description": "Node without an ID"},
-        {"node_id": "A", "description": "Node without an ID and name"},
-        {"name": "Node A", "description": "Node A", "category": "biolink:NamedThing"},
-    ],
-)
-def test_validate_incorrect_node(node):
-    """
-    Test basic validation of a node, where the node is invalid.
-    """
-    with pytest.raises(KeyError):
-        validate_node(node)
-
-
-@pytest.mark.parametrize(
-    "node",
-    [
-        {
-            "id": "A",
-            "name": "Node A",
-            "description": "Node A",
-            "category": ["biolink:NamedThing"],
-        },
-        {"id": "A", "name": "Node A", "description": "Node A"},
-    ],
-)
-def test_validate_correct_node(node):
-    """
-    Test basic validation of a node, where the node is valid.
-    """
-    n = validate_node(node)
-    assert n is not None
-    assert "category" in n
-    assert n["category"][0] == DEFAULT_NODE_CATEGORY
-
-
-@pytest.mark.parametrize(
-    "edge",
-    [
-        {"predicate": "biolink:related_to"},
-        {"subject": "A", "predicate": "biolink:related_to"},
-        {"subject": "A", "object": "B"},
-    ],
-)
-def test_validate_incorrect_edge(edge):
-    """
-    Test basic validation of an edge, where the edge is invalid.
-    """
-    with pytest.raises(KeyError):
-        validate_edge(edge)
-
-
-@pytest.mark.parametrize(
-    "edge",
-    [
-        {"subject": "A", "object": "B", "predicate": "biolink:related_to"},
-        {
-            "subject": "A",
-            "object": "B",
-            "predicate": "biolink:related_to",
-            "relation": "RO:000000",
-        },
-    ],
-)
-def test_validate_correct_edge(edge):
-    """
-    Test basic validation of an edge, where the edge is valid.
-    """
-    e = validate_edge(edge)
-    assert e is not None

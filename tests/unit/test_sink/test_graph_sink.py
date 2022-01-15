@@ -1,11 +1,13 @@
 from kgx.sink import GraphSink
+from kgx.transformer import Transformer
 
 
 def test_write_graph():
     """
     Write a graph via GraphSink.
     """
-    s = GraphSink()
+    t = Transformer()
+    s = GraphSink(t)
     s.write_node({"id": "A", "name": "Node A", "category": ["biolink:NamedThing"]})
     s.write_node({"id": "B", "name": "Node B", "category": ["biolink:NamedThing"]})
     s.write_node({"id": "C", "name": "Node C", "category": ["biolink:NamedThing"]})

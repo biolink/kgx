@@ -1,3 +1,5 @@
+from sys import stderr
+
 import pytest
 
 from kgx.validator import Validator
@@ -8,7 +10,9 @@ def test_get_all_prefixes(prefix):
     """
     Test get_all_prefixes in Validator.
     """
-    prefixes = Validator.get_all_prefixes()
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    prefixes = validator.get_all_prefixes()
     assert prefix in prefixes
 
 
@@ -17,16 +21,20 @@ def test_get_required_node_properties(property):
     """
     Test get_required_node_properties in Validator.
     """
-    properties = Validator.get_required_node_properties()
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    properties = validator.get_required_node_properties()
     assert property in properties
 
 
-@pytest.mark.parametrize("property", ["subject", "object", "predicate"])
+@pytest.mark.parametrize("property", ["id", "subject", "object", "predicate"])
 def test_get_required_edge_properties(property):
     """
     Test get_required_edge_properties in Validator.
     """
-    properties = Validator.get_required_edge_properties()
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    properties = validator.get_required_edge_properties()
     assert property in properties
 
 
@@ -47,9 +55,11 @@ def test_validate_node_properties(query):
     """
     Test validate_node_properties in Validator.
     """
-    required_properties = Validator.get_required_node_properties()
-    e = Validator.validate_node_properties(query[0], query[1], required_properties)
-    assert (len(e) == 0) == query[2]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    required_properties = validator.get_required_node_properties()
+    validator.validate_node_properties(query[0], query[1], required_properties)
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -77,7 +87,6 @@ def test_validate_node_properties(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
                 "category": ["biolink:Association"],
             },
             True,
@@ -90,7 +99,6 @@ def test_validate_node_properties(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
                 "category": ["biolink:Association"],
             },
             True,
@@ -101,12 +109,18 @@ def test_validate_edge_properties(query):
     """
     Test validate_edge_properties in Validator.
     """
-    required_properties = Validator.get_required_edge_properties()
-    e = Validator.validate_edge_properties(
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    required_properties = validator.get_required_edge_properties()
+    validator.validate_edge_properties(
         query[0], query[1], query[2], required_properties
     )
-    print(Validator.report(e))
-    assert (len(e) == 0) == query[3]
+    
+    # Dump a report to stderr ... will be a JSON document now
+    print("\n*** validator error log:", file=stderr)
+    validator.write_report()
+    
+    assert (len(validator.get_errors()) == 0) == query[3]
 
 
 @pytest.mark.parametrize(
@@ -153,8 +167,124 @@ def test_validate_node_property_types(query):
     """
     Test validate_node_property_types in Validator.
     """
-    e = Validator.validate_node_property_types(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                123,
+                {"id": 123, "name": "Node A:123", "category": ["biolink:NamedThing"]},
+                False,
+        )
+    ]
+)
+def test_validate_node_property_id_types_error(query):
+    """
+    Test validate_node_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert validator.get_errors() is not None
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                "a:123",
+                {"id": "sweet:123", "name": "Node A:123", "category": 123},
+                False,
+        )
+    ]
+)
+def test_validate_node_property_id_str_is_int_types_error(query):
+    """
+    Test validate_node_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert validator.get_errors() is not None
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                "a:123",
+                {"id": 123, "name": "Node A:123", "category": ["biolink:NamedThing"]},
+                False,
+        )
+    ]
+)
+def test_validate_node_property_uriorcurie_types_error(query):
+    """
+    Test validate_node_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_types(query[0], query[1])
+    assert validator.get_errors() is not None
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+(
+            "A:123",
+            "X:1",
+            {
+                "id": "A:123",
+                "subject": "a:123",
+                "object": 123,
+                "predicate": "biolink:related_to",
+            },
+            False,
+        ),
+    ],
+)
+def test_validate_edge_property_object_is_int_type_error(query):
+    """
+    Test validate_edge_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
+    assert validator.get_errors() is not None
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+(
+            "A:123",
+            "X:1",
+            {
+                "id": "A:123",
+                "subject": 123,
+                "object": "X:1",
+                "predicate": "biolink:related_to",
+            },
+            False,
+        ),
+    ],
+)
+def test_validate_edge_property_subject_is_int_type_error(query):
+    """
+    Test validate_edge_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
+    assert validator.get_errors() is not None
 
 
 @pytest.mark.parametrize(
@@ -168,7 +298,6 @@ def test_validate_node_property_types(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             True,
         ),
@@ -180,7 +309,6 @@ def test_validate_node_property_types(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": ["biolink:related_to"],
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -189,21 +317,34 @@ def test_validate_node_property_types(query):
             "X:1",
             {
                 "id": "A:123-biolink:related_to-X:1",
-                "subject": "A:123",
+                "subject": ["A:123"],
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": ["biolink:related_to"],
+            },
+            False,
+        ),
+        (
+            "A:123",
+            "X:1",
+            {
+                "subject": ["A:123"],
+                "object": "X:1",
+                "predicate": "biolink:related_to",
             },
             False,
         ),
     ],
 )
-def test_validate_edge_property_types(query):
+def test_validate_edge_property_types_and_prefixes(query):
     """
     Test validate_edge_property_types in Validator.
     """
-    e = Validator.validate_edge_property_types(query[0], query[1], query[2])
-    assert (len(e) == 0) == query[3]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
+    assert (len(validator.get_errors()) == 0) == query[3]
+    assert "biolink" in validator.get_all_prefixes()
 
 
 @pytest.mark.parametrize(
@@ -238,8 +379,10 @@ def test_validate_node_property_values(query):
     """
     Test validate_node_property_values in Validator.
     """
-    e = Validator.validate_node_property_values(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_node_property_values(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -253,7 +396,6 @@ def test_validate_node_property_values(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -265,7 +407,6 @@ def test_validate_node_property_values(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -277,7 +418,6 @@ def test_validate_node_property_values(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             True,
         ),
@@ -289,7 +429,6 @@ def test_validate_node_property_values(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -299,8 +438,10 @@ def test_validate_edge_property_values(query):
     """
     Test validate_edge_property_values in Validator.
     """
-    e = Validator.validate_edge_property_values(query[0], query[1], query[2])
-    assert (len(e) == 0) == query[3]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_values(query[0], query[1], query[2])
+    assert (len(validator.get_errors()) == 0) == query[3]
 
 
 @pytest.mark.parametrize(
@@ -337,8 +478,10 @@ def test_validate_categories(query):
     """
     Test validate_categories in Validator.
     """
-    e = Validator.validate_categories(query[0], query[1])
-    assert (len(e) == 0) == query[2]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_categories(query[0], query[1])
+    assert (len(validator.get_errors()) == 0) == query[2]
 
 
 @pytest.mark.parametrize(
@@ -352,7 +495,6 @@ def test_validate_categories(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "biolink:related_to",
-                "relation": "biolink:related_to",
             },
             True,
         ),
@@ -364,7 +506,6 @@ def test_validate_categories(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "related_to",
-                "relation": "biolink:related_to",
             },
             True,
         ),
@@ -376,7 +517,6 @@ def test_validate_categories(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "related to",
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -388,7 +528,6 @@ def test_validate_categories(query):
                 "subject": "A:123",
                 "object": "X:1",
                 "predicate": "xyz",
-                "relation": "biolink:related_to",
             },
             False,
         ),
@@ -398,5 +537,7 @@ def test_validate_edge_label(query):
     """
     Test validate_edge_predicate in Validator.
     """
-    e = Validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
-    assert (len(e) == 0) == query[3]
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_predicate(query[0], query[1], dict(query[2]))
+    assert (len(validator.get_errors()) == 0) == query[3]
