@@ -232,7 +232,31 @@ def test_validate_node_property_uriorcurie_types_error(query):
     assert validator.get_errors() is not None
 
 
-
+@pytest.mark.parametrize(
+    "query",
+    [
+(
+            "A:123",
+            "X:1",
+            {
+                "id": "A:123",
+                "subject": "a:123",
+                "object": 123,
+                "predicate": "biolink:related_to",
+            },
+            False,
+        ),
+    ],
+)
+def test_validate_edge_property_object_is_int_type_error(query):
+    """
+    Test validate_edge_property_types in Validator.
+    """
+    validator = Validator.get_the_validator()
+    validator.clear_errors()
+    validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
+    assert validator.get_errors() is not None
 
 @pytest.mark.parametrize(
     "query",
