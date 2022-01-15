@@ -425,6 +425,7 @@ class Validator(ErrorDetecting):
             toolkit = Validator.get_toolkit()
 
         error_type = ErrorType.INVALID_NODE_PROPERTY_VALUE_TYPE
+        print(node)
         if not isinstance(node, str):
             message = "Node property 'id' is expected to be of type 'string'"
             self.log_error(node, error_type, message, MessageLevel.ERROR)

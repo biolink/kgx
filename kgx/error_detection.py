@@ -111,7 +111,7 @@ class ErrorDetecting(object):
         error = error_type.name
         
         # clean up entity name string...
-        entity = entity.strip()
+        entity = str(entity).strip()
 
         if level not in self.errors:
             self.errors[level] = dict()
