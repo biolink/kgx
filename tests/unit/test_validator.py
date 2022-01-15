@@ -277,6 +277,7 @@ def test_validate_edge_property_types(query):
     validator = Validator.get_the_validator()
     validator.clear_errors()
     validator.validate_edge_property_types(query[0], query[1], query[2])
+    assert validator.get_default_model_version() is not None
     assert (len(validator.get_errors()) == 0) == query[3]
 
 
