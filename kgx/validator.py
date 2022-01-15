@@ -53,7 +53,7 @@ class Validator(ErrorDetecting):
     """
 
     _the_validator = None
-    
+
     @classmethod
     def get_the_validator(
             cls,
@@ -76,22 +76,22 @@ class Validator(ErrorDetecting):
                 error_log=error_log
             )
         return cls._the_validator
-    
+
     def __init__(
-        self,
-        verbose: bool = False,
-        progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
-        schema: Optional[str] = None,
-        error_log: str = None
+            self,
+            verbose: bool = False,
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            schema: Optional[str] = None,
+            error_log: str = None
     ):
         ErrorDetecting.__init__(self, error_log)
-        
+
         # formal arguments
         self.verbose: bool = verbose
         self.progress_monitor: Optional[
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
-        
+
         # TODO: fix... this attribute is not used anywhere at the moment?
         self.schema: Optional[str] = schema
 
@@ -305,7 +305,7 @@ class Validator(ErrorDetecting):
 
         """
         with click.progressbar(
-            graph.nodes(data=True), label="Validating nodes in graph"
+                graph.nodes(data=True), label="Validating nodes in graph"
         ) as bar:
             for n, data in bar:
                 self.analyse_node(n, data)
@@ -327,7 +327,7 @@ class Validator(ErrorDetecting):
 
         """
         with click.progressbar(
-            graph.edges(data=True), label="Validate edges in graph"
+                graph.edges(data=True), label="Validate edges in graph"
         ) as bar:
             for u, v, data in bar:
                 self.analyse_edge(u, v, None, data)
@@ -433,20 +433,18 @@ class Validator(ErrorDetecting):
             element = toolkit.get_element(key)
             if element:
                 if hasattr(element, "typeof"):
-                    if element.typeof == "string" and not isinstance(value, str):
+                    if (element.typeof == "string" and not isinstance(value, str)) or ( \
+                                    element.typeof == "double" and not isinstance(
+                                value, (int, float)
+                            )):
                         message = f"Node property '{key}' is expected to be of type '{element.typeof}'"
                         self.log_error(node, error_type, message, MessageLevel.ERROR)
                     elif (
-                        element.typeof == "uriorcurie"
-                        and not isinstance(value, str)
-                        and not validators.url(value)
+                            element.typeof == "uriorcurie"
+                            and not isinstance(value, str)
+                            and not validators.url(value)
                     ):
                         message = f"Node property '{key}' is expected to be of type 'uri' or 'CURIE'"
-                        self.log_error(node, error_type, message, MessageLevel.ERROR)
-                    elif element.typeof == "double" and not isinstance(
-                        value, (int, float)
-                    ):
-                        message = f"Node property '{key}' is expected to be of type '{element.typeof}'"
                         self.log_error(node, error_type, message, MessageLevel.ERROR)
                     else:
                         logger.warning(
@@ -492,12 +490,12 @@ class Validator(ErrorDetecting):
         if not isinstance(subject, str):
             message = "'subject' of an edge is expected to be of type 'string'"
             self.log_error(
-                    f"{subject}->{object}", error_type, message, MessageLevel.ERROR
+                f"{subject}->{object}", error_type, message, MessageLevel.ERROR
             )
         if not isinstance(object, str):
             message = "'object' of an edge is expected to be of type 'string'"
             self.log_error(
-                    f"{subject}->{object}", error_type, message, MessageLevel.ERROR
+                f"{subject}->{object}", error_type, message, MessageLevel.ERROR
             )
 
         for key, value in data.items():
@@ -509,34 +507,34 @@ class Validator(ErrorDetecting):
                             f"Edge property '{key}' is expected to be of type 'string'"
                         )
                         self.log_error(
-                                f"{subject}->{object}",
-                                error_type,
-                                message,
-                                MessageLevel.ERROR,
+                            f"{subject}->{object}",
+                            error_type,
+                            message,
+                            MessageLevel.ERROR,
                         )
                     elif (
-                        element.typeof == "uriorcurie"
-                        and not isinstance(value, str)
-                        and not validators.url(value)
+                            element.typeof == "uriorcurie"
+                            and not isinstance(value, str)
+                            and not validators.url(value)
                     ):
                         message = f"Edge property '{key}' is expected to be of type 'uri' or 'CURIE'"
                         self.log_error(
-                                f"{subject}->{object}",
-                                error_type,
-                                message,
-                                MessageLevel.ERROR,
+                            f"{subject}->{object}",
+                            error_type,
+                            message,
+                            MessageLevel.ERROR,
                         )
                     elif element.typeof == "double" and not isinstance(
-                        value, (int, float)
+                            value, (int, float)
                     ):
                         message = (
                             f"Edge property '{key}' is expected to be of type 'double'"
                         )
                         self.log_error(
-                                f"{subject}->{object}",
-                                error_type,
-                                message,
-                                MessageLevel.ERROR,
+                            f"{subject}->{object}",
+                            error_type,
+                            message,
+                            MessageLevel.ERROR,
                         )
                     else:
                         logger.warning(
@@ -549,19 +547,19 @@ class Validator(ErrorDetecting):
                         if not isinstance(value, list):
                             message = f"Multi-valued edge property '{key}' is expected to be of type 'list'"
                             self.log_error(
-                                    f"{subject}->{object}",
-                                    error_type,
-                                    message,
-                                    MessageLevel.ERROR,
+                                f"{subject}->{object}",
+                                error_type,
+                                message,
+                                MessageLevel.ERROR,
                             )
                     else:
                         if isinstance(value, (list, set, tuple)):
                             message = f"Single-valued edge property '{key}' is expected to be of type 'str'"
                             self.log_error(
-                                    f"{subject}->{object}",
-                                    error_type,
-                                    message,
-                                    MessageLevel.ERROR,
+                                f"{subject}->{object}",
+                                error_type,
+                                message,
+                                MessageLevel.ERROR,
                             )
 
     def validate_node_property_values(
@@ -587,7 +585,7 @@ class Validator(ErrorDetecting):
         else:
             prefix = PrefixManager.get_prefix(node)
             if prefix and prefix not in self.get_all_prefixes():
-                message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}'" +\
+                message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}'" + \
                           f" is not represented in Biolink Model JSON-LD context"
                 self.log_error(node, error_type, message, MessageLevel.ERROR)
 
@@ -616,7 +614,7 @@ class Validator(ErrorDetecting):
         if PrefixManager.is_curie(subject):
             prefix = PrefixManager.get_prefix(subject)
             if prefix and prefix not in prefixes:
-                message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix " +\
+                message = f"Edge property 'subject' has a value '{subject}' with a CURIE prefix " + \
                           f"'{prefix}' that is not represented in Biolink Model JSON-LD context"
                 self.log_error(f"{subject}->{object}", error_type, message, MessageLevel.ERROR)
         else:
@@ -626,7 +624,7 @@ class Validator(ErrorDetecting):
         if PrefixManager.is_curie(object):
             prefix = PrefixManager.get_prefix(object)
             if prefix not in prefixes:
-                message = f"Edge property 'object' has a value '{object}' with a CURIE " +\
+                message = f"Edge property 'object' has a value '{object}' with a CURIE " + \
                           f"prefix '{prefix}' that is not represented in Biolink Model JSON-LD context"
                 self.log_error(f"{subject}->{object}", error_type, message, MessageLevel.ERROR)
         else:
@@ -654,7 +652,7 @@ class Validator(ErrorDetecting):
         """
         if not toolkit:
             toolkit = Validator.get_toolkit()
-        
+
         error_type = ErrorType.INVALID_CATEGORY
         categories = data.get("category")
         if categories is None:
@@ -686,7 +684,7 @@ class Validator(ErrorDetecting):
                     c = toolkit.get_element(formatted_category.lower())
                     if c:
                         if category != c.name and category in c.aliases:
-                            message = f"Category {category} is actually an alias for {c.name}; " +\
+                            message = f"Category {category} is actually an alias for {c.name}; " + \
                                       f"Should replace '{category}' with '{c.name}'"
                             self.log_error(node, error_type, message, MessageLevel.ERROR)
 
@@ -714,7 +712,7 @@ class Validator(ErrorDetecting):
         """
         if not toolkit:
             toolkit = Validator.get_toolkit()
-            
+
         error_type = ErrorType.INVALID_EDGE_PREDICATE
         edge_predicate = data.get("predicate")
         if edge_predicate is None:
@@ -732,19 +730,19 @@ class Validator(ErrorDetecting):
                 if p is None:
                     message = f"Edge predicate '{edge_predicate}' is not in Biolink Model"
                     self.log_error(
-                            f"{subject}->{object}",
-                            error_type,
-                            message,
-                            MessageLevel.ERROR,
+                        f"{subject}->{object}",
+                        error_type,
+                        message,
+                        MessageLevel.ERROR,
                     )
                 elif edge_predicate != p.name and edge_predicate in p.aliases:
-                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; " +\
+                    message = f"Edge predicate '{edge_predicate}' is actually an alias for {p.name}; " + \
                               f"Should replace {edge_predicate} with {p.name}"
                     self.log_error(
-                            f"{subject}->{object}",
-                            error_type,
-                            message,
-                            MessageLevel.ERROR,
+                        f"{subject}->{object}",
+                        error_type,
+                        message,
+                        MessageLevel.ERROR,
                     )
             else:
                 message = f"Edge predicate '{edge_predicate}' is not in snake_case form"
