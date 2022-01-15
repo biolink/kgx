@@ -39,21 +39,21 @@ def test_get_report_format_types():
     assert "json" in format_types
 
 
-# def test_graph_summary_wrapper():
-#     output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
-#
-#     runner = CliRunner()
-#     result = runner.invoke(
-#         cli,
-#         [
-#             "graph-summary",
-#             "-i", "tsv",
-#             "-o", output,
-#             os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
-#         ]
-#     )
-#     assert result.exit_code == 0
-#
+def test_graph_summary_wrapper():
+    output = os.path.join(TARGET_DIR, "graph_stats3.yaml")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "graph-summary",
+            "-i", "tsv",
+            "-o", output,
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+        ]
+    )
+    assert result.exit_code == 1
+
 
 def test_graph_summary_wrapper_error():
     inputs = [
