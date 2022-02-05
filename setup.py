@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import re
 
 NAME = 'kgx'
 DESCRIPTION = 'A Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the Biolink Model.'
@@ -13,6 +14,17 @@ with open("requirements.txt", "r") as FH:
     REQUIREMENTS = FH.readlines()
 
 EXTRAS = {}
+
+
+INSTALL_REQUIRES = list()
+for r in REQUIREMENTS:
+    if not r.strip() or r.startswith("#"):
+        continue
+    m = re.search(r"#egg=(.+)$", r)
+    if m:
+        INSTALL_REQUIRES.append(m.group(1))
+    else:
+        INSTALL_REQUIRES.append(r)
 
 setup(
     name=NAME,
@@ -34,7 +46,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3'
     ],
-    install_requires=[r for r in REQUIREMENTS if not r.startswith("#")],
+    install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS,
     include_package_data=True,
     entry_points={
