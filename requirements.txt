@@ -33,5 +33,10 @@ flake8
 black
 bmt>=0.8.1
 tox-docker
-linkml
+
+# temporary workaround for testing (linkml has the same conflict
+# with the 'black' package as kgx with respect to click dependency)
+# linkml
+-e git+https://github.com/linkml/linkml.git@issue-592-patch#egg=linkml
+
 linkml-runtime
