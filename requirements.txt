@@ -33,5 +33,5 @@ flake8
 black
 bmt>=0.8.1
 tox-docker
-linkml>=1.1.18
+linkml
 linkml-runtime
