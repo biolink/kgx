@@ -20,11 +20,13 @@ INSTALL_REQUIRES = list()
 for r in REQUIREMENTS:
     if not r.strip() or r.startswith("#"):
         continue
-    m = re.search(r"#egg=(.+)$", r)
-    if m:
-        INSTALL_REQUIRES.append(m.group(1))
-    else:
-        INSTALL_REQUIRES.append(r)
+    # Leaving this here just for the moment in case developers
+    # need to use git package overrides in the requirements.txt file
+    # m = re.search(r"#egg=(.+)$", r)
+    # if m:
+    #    INSTALL_REQUIRES.append(m.group(1))
+    # else:
+    INSTALL_REQUIRES.append(r)
 
 setup(
     name=NAME,
