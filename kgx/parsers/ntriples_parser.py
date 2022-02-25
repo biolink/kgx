@@ -11,14 +11,20 @@ class CustomNTriplesParser(NTriplesParser):
     that parses N-Triples and yields triples.
     """
 
-    def parse(self, filename: str) -> Generator:
+    def __init__(self, sink):
+        NTriplesParser.__init__(sink)
+        self.file = None
+        self.buffer = ""
+        self.line = ""
+    
+    def parse(self, f) -> Generator:
         """
         Parses an N-Triples file and yields triples.
 
         Parameters
         ----------
-        filename: str
-            The filename to parse
+        f:
+            The file-like object to parse
 
         Returns
         -------
@@ -26,11 +32,11 @@ class CustomNTriplesParser(NTriplesParser):
             A generator for triples
 
         """
-        if not hasattr(filename, "read"):
+        if not hasattr(f, "read"):
             raise ParseError("Item to parse must be a file-like object.")
 
         # since N-Triples 1.1 files can and should be utf-8 encoded
-        f = codecs.getreader("utf-8")(filename)
+        f = codecs.getreader("utf-8")(f)
 
         self.file = f
         self.buffer = ""
@@ -39,10 +45,9 @@ class CustomNTriplesParser(NTriplesParser):
             if self.line is None:
                 break
             if self.line == "":
-                raise ParseError(f"Empty line encountered in {filename}. "
+                raise ParseError(f"Empty line encountered in {str(f)}. "
                                  f"Ensure that no leading or trailing empty lines persist "
                                  f"in the N-Triples file.")
-                break
             try:
                 yield from self.parseline()
             except ParseError:

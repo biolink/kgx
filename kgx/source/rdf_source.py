@@ -127,6 +127,19 @@ class RdfSource(Source):
         for p in predicates:
             self.node_property_predicates.add(URIRef(p))
 
+    @staticmethod
+    def _add_named_thing_category(node_data):
+        """
+        Adds the NAMED_THING category to node_data if missing.
+        """
+        # TODO: does Biolink Model compliance dictate adding all
+        #       ancestors of a category, not just 'NAMED_THING"?
+        if "category" in node_data:
+            if NAMED_THING not in set(node_data["category"]):
+                node_data["category"].append(NAMED_THING)
+        else:
+            node_data["category"] = [NAMED_THING]
+    
     def parse(
         self,
         filename: str,
@@ -168,6 +181,7 @@ class RdfSource(Source):
             yield from p.parse(gzip.open(filename, "rb"))
         else:
             yield from p.parse(open(filename, "rb"))
+        
         log.info(f"Done parsing {filename}")
 
         for n in self.reified_nodes:
@@ -176,11 +190,8 @@ class RdfSource(Source):
 
         for k in self.node_cache.keys():
             node_data = self.node_cache[k]
-            if "category" in node_data:
-                if NAMED_THING not in set(node_data["category"]):
-                    node_data["category"].append(NAMED_THING)
-            else:
-                node_data["category"] = [NAMED_THING]
+            
+            self._add_named_thing_category(node_data)
 
             node_data = self.validate_node(node_data)
             if not node_data:

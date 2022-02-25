@@ -160,6 +160,45 @@ class ObographSource(JsonSource):
         for e in ijson.items(FH, "graphs.item.edges.item"):
             yield self.read_edge(e)
 
+    def _search_element_by_mapping(self, edge) -> Optional[str]:
+        """
+        Retrieves an element by assuming that the 'pred' value
+        of the edge is a Biolink Model mapped ontology term.
+        """
+        element: Optional[str] = None
+        try:
+            mapping = self.toolkit.get_element_by_mapping(edge["pred"])
+            if mapping:
+                element = self.toolkit.get_element(mapping)
+
+        #  TODO: not sure how this exception would be thrown here.. under what conditions?
+        except ValueError as e:
+            self.owner.log_error(
+                entity=str(edge["pred"]),
+                error_type=ErrorType.INVALID_EDGE_PREDICATE,
+                message=str(e)
+            )
+            
+        return element
+    
+    @staticmethod
+    def _extract_non_iri_predicate(edge, fixed_edge):
+        """
+        Extracts non-IRI predicate
+        """
+        if edge["pred"] == "is_a":
+            fixed_edge["predicate"] = "biolink:subclass_of"
+            fixed_edge["relation"] = "rdfs:subClassOf"
+        elif edge["pred"] == "has_part":
+            fixed_edge["predicate"] = "biolink:has_part"
+            fixed_edge["relation"] = "BFO:0000051"
+        elif edge["pred"] == "part_of":
+            fixed_edge["predicate"] = "biolink:part_of"
+            fixed_edge["relation"] = "BFO:0000050"
+        else:
+            fixed_edge["predicate"] = f"biolink:{edge['pred'].replace(' ', '_')}"
+            fixed_edge["relation"] = edge["pred"]
+
     def read_edge(self, edge: Dict) -> Optional[Tuple]:
         """
         Read and parse an edge record.
@@ -184,41 +223,20 @@ class ObographSource(JsonSource):
             else:
                 element = get_biolink_element(curie)
                 if not element:
-                    try:
-                        mapping = self.toolkit.get_element_by_mapping(edge["pred"])
-                        if mapping:
-                            element = self.toolkit.get_element(mapping)
-
-                    #  TODO: not sure how this exception would be thrown here.. under what conditions?
-                    except ValueError as e:
-                        self.owner.log_error(
-                            entity=str(edge["pred"]),
-                            error_type=ErrorType.INVALID_EDGE_PREDICATE,
-                            message=str(e)
-                        )
-                        element = None
+                    element = self._search_element_by_mapping(edge)
 
                 if element:
                     edge_predicate = format_biolink_slots(element.name.replace(",", ""))
                     fixed_edge["predicate"] = edge_predicate
                 else:
                     edge_predicate = "biolink:related_to"
+
                 self.ecache[curie] = edge_predicate
+                
             fixed_edge["predicate"] = edge_predicate
             fixed_edge["relation"] = curie
         else:
-            if edge["pred"] == "is_a":
-                fixed_edge["predicate"] = "biolink:subclass_of"
-                fixed_edge["relation"] = "rdfs:subClassOf"
-            elif edge["pred"] == "has_part":
-                fixed_edge["predicate"] = "biolink:has_part"
-                fixed_edge["relation"] = "BFO:0000051"
-            elif edge["pred"] == "part_of":
-                fixed_edge["predicate"] = "biolink:part_of"
-                fixed_edge["relation"] = "BFO:0000050"
-            else:
-                fixed_edge["predicate"] = f"biolink:{edge['pred'].replace(' ', '_')}"
-                fixed_edge["relation"] = edge["pred"]
+            self._extract_non_iri_predicate(edge, fixed_edge)
 
         fixed_edge["object"] = self.prefix_manager.contract(edge["obj"])
         for x in edge.keys():
