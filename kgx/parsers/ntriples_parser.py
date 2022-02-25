@@ -64,8 +64,10 @@ class CustomNTriplesParser(NTriplesParser):
 
         """
         self.eat(r_wspace)
-        if not hasattr(self, 'sink') and self.sink and (self.line or not self.line.startswith("#")):
+        if hasattr(self, 'sink') and self.sink and (self.line or not self.line.startswith("#")):
+            
             subject = self.subject()
+            
             self.eat(r_wspaces)
 
             predicate = self.predicate()
