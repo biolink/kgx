@@ -1,4 +1,10 @@
 # Changelog
+## 1.5.5 (2022-01-18)
+- upgrade neo4j support to neo4j 4.3.0
+- enhance logging support
+
+## 1.5.3 (2021-09-14)
+- remove pystache requirement
 
 ## 1.5.2 (2021-08-23)
 - Update to bmt 0.7.4 

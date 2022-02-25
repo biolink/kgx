@@ -20,12 +20,9 @@ from kgx.utils.kgx_utils import (
     generate_uuid,
     prepare_data_dict,
     sanitize_import,
-    _build_export_row,
-    _sanitize_import,
-    _sanitize_export,
-    validate_node,
-    DEFAULT_NODE_CATEGORY,
-    validate_edge,
+    build_export_row,
+    _sanitize_import_property,
+    _sanitize_export_property,
 )
 
 
@@ -283,8 +280,7 @@ def test_sanitize_import1(query):
     """
     Test sanitize_import method.
     """
-
-    d = sanitize_import(query[0])
+    d = sanitize_import(query[0], list_delimiter='|')
     for k, v in query[1].items():
         assert k in d
         assert d[k] == v
@@ -313,7 +309,7 @@ def test_sanitize_import2(query):
     """
     Test internal sanitize_import method.
     """
-    value = _sanitize_import(query[0][0], query[0][1])
+    value = _sanitize_import_property(query[0][0], query[0][1], list_delimiter='|')
     if isinstance(query[1], str):
         assert value == query[1]
     elif isinstance(query[1], (list, set, tuple)):
@@ -360,7 +356,7 @@ def test_build_export_row(query):
     """
     Test build_export_row method.
     """
-    d = _build_export_row(query[0])
+    d = build_export_row(query[0], list_delimiter="|")
     for k, v in query[1].items():
         assert k in d
         assert d[k] == v
@@ -385,11 +381,11 @@ def test_build_export_row(query):
         (("description", "Line 1\nLine 2\nLine 3"), "Line 1 Line 2 Line 3"),
     ],
 )
-def test_sanitize_export(query):
+def test_sanitize_export_property(query):
     """
     Test sanitize_export method.
     """
-    value = _sanitize_export(query[0][0], query[0][1])
+    value = _sanitize_export_property(query[0][0], query[0][1], list_delimiter='|')
     if isinstance(query[1], str):
         assert value == query[1]
     elif isinstance(query[1], (list, set, tuple)):
@@ -399,77 +395,3 @@ def test_sanitize_export(query):
         assert query[1] == value
     else:
         assert query[1] in value
-
-
-@pytest.mark.parametrize(
-    "node",
-    [
-        {"name": "Node A", "description": "Node without an ID"},
-        {"node_id": "A", "description": "Node without an ID and name"},
-        {"name": "Node A", "description": "Node A", "category": "biolink:NamedThing"},
-    ],
-)
-def test_validate_incorrect_node(node):
-    """
-    Test basic validation of a node, where the node is invalid.
-    """
-    with pytest.raises(KeyError):
-        validate_node(node)
-
-
-@pytest.mark.parametrize(
-    "node",
-    [
-        {
-            "id": "A",
-            "name": "Node A",
-            "description": "Node A",
-            "category": ["biolink:NamedThing"],
-        },
-        {"id": "A", "name": "Node A", "description": "Node A"},
-    ],
-)
-def test_validate_correct_node(node):
-    """
-    Test basic validation of a node, where the node is valid.
-    """
-    n = validate_node(node)
-    assert n is not None
-    assert "category" in n
-    assert n["category"][0] == DEFAULT_NODE_CATEGORY
-
-
-@pytest.mark.parametrize(
-    "edge",
-    [
-        {"predicate": "biolink:related_to"},
-        {"subject": "A", "predicate": "biolink:related_to"},
-        {"subject": "A", "object": "B"},
-    ],
-)
-def test_validate_incorrect_edge(edge):
-    """
-    Test basic validation of an edge, where the edge is invalid.
-    """
-    with pytest.raises(KeyError):
-        validate_edge(edge)
-
-
-@pytest.mark.parametrize(
-    "edge",
-    [
-        {"subject": "A", "object": "B", "predicate": "biolink:related_to"},
-        {
-            "subject": "A",
-            "object": "B",
-            "predicate": "biolink:related_to",
-            "relation": "RO:000000",
-        },
-    ],
-)
-def test_validate_correct_edge(edge):
-    """
-    Test basic validation of an edge, where the edge is valid.
-    """
-    e = validate_edge(edge)
-    assert e is not None

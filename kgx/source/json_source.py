@@ -13,9 +13,10 @@ class JsonSource(TsvSource):
     from a JSON.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
         self.compression = None
+        self.list_delimiter = None
 
     def parse(
         self,

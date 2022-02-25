@@ -1,12 +1,14 @@
-from typing import Dict, List, Optional, Any, Callable, Set, Tuple, Union
-from sys import stderr
-
+"""
+Translator Reasoner API 'meta-knowledge-graph' endpoint analogous graph summary module.
+"""
+from typing import Dict, List, Optional, Any, Callable, Set, Tuple
 import re
 
 import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.prefix_manager import PrefixManager
 from kgx.graph.base_graph import BaseGraph
@@ -44,15 +46,7 @@ _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
 _predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 
 
-# DRY parse warning message
-def _parse_warning(prefix: str, item: str, suffix: str = None):
-    print(
-        prefix + " '" + item + "'" + (" " + suffix if suffix else "") + "? Ignoring...",
-        file=MetaKnowledgeGraph.error_log,
-    )
-
-
-class MetaKnowledgeGraph:
+class MetaKnowledgeGraph(ErrorDetecting):
     """
     Class for generating a TRAPI 1.1 style of "meta knowledge graph" summary.
 
@@ -69,17 +63,14 @@ class MetaKnowledgeGraph:
     Callable (function/callable class) should not modify the record and should be of low
     complexity, so as not to introduce a large computational overhead to validation!
     """
-
-    error_log = stderr
-
     def __init__(
-        self,
-        name="",
-        node_facet_properties: Optional[List] = None,
-        edge_facet_properties: Optional[List] = None,
-        progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
-        error_log=None,
-        **kwargs,
+            self,
+            name="",
+            node_facet_properties: Optional[List] = None,
+            edge_facet_properties: Optional[List] = None,
+            progress_monitor: Optional[Callable[[GraphEntityType, List], None]] = None,
+            error_log=None,
+            **kwargs,
     ):
         """
             MetaKnowledgeGraph constructor.
@@ -98,8 +89,10 @@ class MetaKnowledgeGraph:
         error_log:
             Where to write any graph processing error message (stderr, by default).
         """
+        
+        ErrorDetecting.__init__(self, error_log)
+        
         # formal args
-
         self.name = name
 
         # these facet properties are used mainly for knowledge_source counting
@@ -119,9 +112,6 @@ class MetaKnowledgeGraph:
         self.progress_monitor: Optional[
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
-
-        if error_log:
-            MetaKnowledgeGraph.error_log = open(error_log, "w")
 
         # internal attributes
         # For Nodes...
@@ -173,6 +163,9 @@ class MetaKnowledgeGraph:
 
     @staticmethod
     def get_facet_counts(facets: Optional[List], counts_by_source: Dict, data: Dict):
+        """
+        Get node or edge facet counts
+        """
         unknown: bool = True
         for facet in facets:
             if facet in data:
@@ -213,8 +206,8 @@ class MetaKnowledgeGraph:
                 Biolink Model category CURIE identifier.
             """
             if not (
-                _category_curie_regexp.fullmatch(category_curie)
-                or category_curie == "unknown"
+                    _category_curie_regexp.fullmatch(category_curie)
+                    or category_curie == "unknown"
             ):
                 raise RuntimeError("Invalid Biolink category CURIE: " + category_curie)
 
@@ -280,7 +273,7 @@ class MetaKnowledgeGraph:
             return self.category_stats["count"]
 
         def get_count_by_source(
-            self, facet: str = "provided_by", source: str = None
+                self, facet: str = "provided_by", source: str = None
         ) -> Dict[str, Any]:
             """
             Parameters
@@ -308,9 +301,12 @@ class MetaKnowledgeGraph:
         def _compile_prefix_stats(self, n: str):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(
-                    f"Warning: node id {n} has no CURIE prefix",
-                    file=MetaKnowledgeGraph.error_log,
+                error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
+                self.mkg.log_error(
+                    entity=n,
+                    error_type=error_type,
+                    message="Node 'id' has no CURIE prefix",
+                    message_level=MessageLevel.WARNING
                 )
             else:
                 if prefix not in self.category_stats["id_prefixes"]:
@@ -383,7 +379,12 @@ class MetaKnowledgeGraph:
                         category_curie, self
                     )
                 except RuntimeError:
-                    _parse_warning("Invalid category CURIE", category_curie)
+                    error_type = ErrorType.INVALID_CATEGORY
+                    self.log_error(
+                        entity=n,
+                        error_type=error_type,
+                        message=f"Invalid node 'category' CURIE: '{category_curie}'"
+                    )
                     continue
 
             category_record = self.node_stats[category_curie]
@@ -411,8 +412,12 @@ class MetaKnowledgeGraph:
         # However, this may perhaps sometimes result in duplicate counting and conflation of prefixes(?).
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            _parse_warning(
-                "Duplicate node identifier", n, "encountered in input node data?"
+            error_type = ErrorType.DUPLICATE_NODE
+            self.log_error(
+                entity=n,
+                error_type=error_type,
+                message="Node 'id' duplicated in input data",
+                message_level=MessageLevel.WARNING
             )
             return
         else:
@@ -423,11 +428,11 @@ class MetaKnowledgeGraph:
             # of 'unknown' in the  meta_knowledge_graph output  is considered invalid.
             # category = self.node_stats['unknown']
             # category.analyse_node_category(n, data)
-            print(
-                "Node with identifier '"
-                + n
-                + "' is missing its 'category' value? Ignoring in the analysis...",
-                file=MetaKnowledgeGraph.error_log,
+            error_type = ErrorType.MISSING_CATEGORY
+            self.log_error(
+                entity=n,
+                error_type=error_type,
+                message="Missing node 'category'"
             )
             return
 
@@ -437,20 +442,33 @@ class MetaKnowledgeGraph:
         for category_field in categories:
             self._process_category_field(category_field, n, data)
 
-    def _capture_predicate(self, data: Dict) -> Optional[str]:
+    def _capture_predicate(self, subj, obj, data: Dict) -> Optional[str]:
+        subj_obj_label = f"{str(subj)}->{str(obj)}"
         if "predicate" not in data:
             # We no longer track edges with 'unknown' predicates,
             # since those would not be TRAPI 1.1 JSON compliant...
             # self.predicates['unknown'] += 1
             # predicate = "unknown"
-            _parse_warning("Empty predicate CURIE in edge data", str(data))
+            error_type = ErrorType.MISSING_EDGE_PREDICATE
+            self.log_error(
+                entity=subj_obj_label,
+                error_type=error_type,
+                message="Empty predicate CURIE in edge data",
+                message_level=MessageLevel.ERROR
+            )
             self.edge_record_count -= 1
             return None
         else:
             predicate = data["predicate"]
 
             if not _predicate_curie_regexp.fullmatch(predicate):
-                _parse_warning("Invalid predicate CURIE", predicate)
+                error_type = ErrorType.INVALID_EDGE_PREDICATE
+                self.log_error(
+                    entity=subj_obj_label,
+                    error_type=error_type,
+                    message=f"Invalid predicate CURIE: '{predicate}'",
+                    message_level=MessageLevel.ERROR
+                )
                 self.edge_record_count -= 1
                 return None
 
@@ -469,8 +487,24 @@ class MetaKnowledgeGraph:
             data,
         )
 
+    @staticmethod
+    def _normalize_relation_field(field) -> Set:
+        # various non-string iterables...
+        if isinstance(field, List) or \
+                isinstance(field, Tuple) or \
+                isinstance(field, Set):
+            # eliminate duplicate terms
+            # and normalize to a set
+            return set(field)
+        elif isinstance(field, str):
+            # for uniformity, we coerce
+            # to a set of one element
+            return {field}
+        else:
+            raise TypeError(f"Unexpected KGX edge 'relation' data field of type '{type(field)}'")
+
     def _process_triple(
-        self, subject_category: str, predicate: str, object_category: str, data: Dict
+            self, subject_category: str, predicate: str, object_category: str, data: Dict
     ):
         # Process the 'valid' S-P-O triple here...
         triple = (subject_category, predicate, object_category)
@@ -484,11 +518,13 @@ class MetaKnowledgeGraph:
                 "count": 0,
             }
 
-        if (
-            "relation" in data
-            and data["relation"] not in self.association_map[triple]["relations"]
-        ):
-            self.association_map[triple]["relations"].add(data["relation"])
+        # patch for observed defect in some ETL's such as the July 2021 SRI Reference graph
+        # in which the relation field ends up being a list of terms, sometimes duplicated
+
+        if "relation" in data:
+            # input data["relation"] is normalized to a Set here
+            data["relation"] = self._normalize_relation_field(data["relation"])
+            self.association_map[triple]["relations"].update(data["relation"])
 
         self.association_map[triple]["count"] += 1
 
@@ -520,13 +556,18 @@ class MetaKnowledgeGraph:
         #
         self.edge_record_count += 1
 
-        predicate: str = self._capture_predicate(data)
+        predicate: str = self._capture_predicate(u, v, data)
         if not predicate:
             # relationship needs a predicate to process?
             return
 
         if u not in self.node_catalog:
-            _parse_warning("Edge 'subject' node ID", u, "not found in node catalog")
+            error_type = ErrorType.MISSING_NODE
+            self.log_error(
+                entity=u,
+                error_type=error_type,
+                message="Subject 'id' not found in the node catalog"
+            )
             # removing from edge count
             self.edge_record_count -= 1
             self.predicates[predicate] -= 1
@@ -539,13 +580,17 @@ class MetaKnowledgeGraph:
             )
 
             if v not in self.node_catalog:
-                _parse_warning("Edge 'object' node ID", v, "not found in node catalog")
+                error_type = ErrorType.MISSING_NODE
+                self.log_error(
+                    entity=v,
+                    error_type=error_type,
+                    message="Object 'id' not found in the node catalog"
+                )
                 self.edge_record_count -= 1
                 self.predicates[predicate] -= 1
                 return
 
             for obj_cat_idx in self.node_catalog[v]:
-
                 object_category: str = self.Category.get_category_curie_from_index(
                     obj_cat_idx
                 )
@@ -566,7 +611,7 @@ class MetaKnowledgeGraph:
         # return len([c for c in self.node_stats.keys() if c != 'unknown'])
         return len(self.node_stats.keys())
 
-    def get_node_stats(self) -> Dict[str, Category]:
+    def get_node_stats(self) -> Dict[str, Dict]:
         """
         Returns
         -------
@@ -576,7 +621,21 @@ class MetaKnowledgeGraph:
         # We no longer track 'unknown' node category counts - non TRAPI 1.1. compliant output
         # if 'unknown' in self.node_stats and not self.node_stats['unknown'].get_count():
         #     self.node_stats.pop('unknown')
-        return self.node_stats
+        
+        # Here we assume that the node_stats are complete and will now
+        # be exported in a graph summary for the module, thus we aim to
+        # Convert the 'MetaKnowledgeGraph.Category' object into vanilla
+        # Python dictionary and lists, to facilitate output
+        category_stats = dict()
+        for category_curie in self.node_stats.keys():
+            category_obj = self.node_stats[category_curie]
+            category_stats[category_curie] = dict()
+            # Convert id_prefixes Set into a sorted List
+            category_stats[category_curie]["id_prefixes"] = sorted(category_obj.category_stats["id_prefixes"])
+            category_stats[category_curie]["count"] = category_obj.category_stats["count"]
+            category_stats[category_curie]["count_by_source"] = category_obj.category_stats["count_by_source"]
+
+        return category_stats
 
     def get_edge_stats(self) -> List[Dict[str, Any]]:
         """
@@ -733,26 +792,32 @@ class MetaKnowledgeGraph:
         return count
 
     def get_edge_count_by_source(
-        self,
-        subject_category: str,
-        predicate: str,
-        object_category: str,
-        facet: str = "knowledge_source",
-        source: Optional[str] = None,
+            self,
+            subject_category: str,
+            predicate: str,
+            object_category: str,
+            facet: str = "knowledge_source",
+            source: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Returns count by source for one S-P-O triple (S, O being Biolink categories; P, a Biolink predicate)
         """
+        spo_label = f"Edge {str(subject_category)}-{str(predicate)}->{str(object_category)}"
         if not (subject_category and predicate and object_category):
-            print(
-                "Warning: get_edge_count_by_source() has some empty S-P-O arguments? Don't know what you are counting!",
-                file=MetaKnowledgeGraph.error_log,
+            error_type = ErrorType.MISSING_EDGE_PROPERTY
+            self.log_error(
+                entity=spo_label,
+                error_type=error_type,
+                message="Incomplete S-P-O triple",
+                message_level=MessageLevel.WARNING
             )
             return dict()
+        
         triple = (subject_category, predicate, object_category)
+        
         if (
-            triple in self.association_map
-            and "count_by_source" in self.association_map[triple]
+                triple in self.association_map
+                and "count_by_source" in self.association_map[triple]
         ):
             if facet in self.association_map[triple]["count_by_source"]:
                 if source:
@@ -767,16 +832,12 @@ class MetaKnowledgeGraph:
             else:
                 return dict()
         else:
-            print(
-                "Warning: get_edge_count_by_source(): unknown triple "
-                + "("
-                + subject_category
-                + ","
-                + predicate
-                + ","
-                + object_category
-                + ")?",
-                file=MetaKnowledgeGraph.error_log,
+            error_type = ErrorType.INVALID_EDGE_TRIPLE
+            self.log_error(
+                entity=spo_label,
+                error_type=error_type,
+                message="Unknown S-P-O triple?",
+                message_level=MessageLevel.WARNING
             )
             return dict()
 
@@ -897,15 +958,15 @@ class MetaKnowledgeGraph:
         """
         stats = self.get_graph_summary(name)
         if not file_format or file_format == "json":
-            dump(stats, file, indent=4, default=mkg_default)
+            dump(stats, file, indent=4)
         else:
             yaml.dump(stats, file)
 
 
-def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) -> None:
+def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str, **kwargs) -> None:
     """
-    Generate a knowledge map that describes the composition of the graph
-    and write to ``filename``.
+    Generate a knowledge map that describes
+    the composition of the graph and write to ``filename``.
 
     Parameters
     ----------
@@ -917,7 +978,7 @@ def generate_meta_knowledge_graph(graph: BaseGraph, name: str, filename: str) ->
         The file to write the knowledge map to
 
     """
-    graph_stats = summarize_graph(graph, name)
+    graph_stats = summarize_graph(graph, name, **kwargs)
     with open(filename, mode="w") as mkgh:
         dump(graph_stats, mkgh, indent=4, default=mkg_default)
 
@@ -940,5 +1001,5 @@ def summarize_graph(graph: BaseGraph, name: str = None, **kwargs) -> Dict:
     Dict
         A TRAPI 1.1 compliant meta knowledge graph of the knowledge graph returned as a dictionary.
     """
-    mkg = MetaKnowledgeGraph(name)
+    mkg = MetaKnowledgeGraph(name, **kwargs)
     return mkg.summarize_graph(graph)

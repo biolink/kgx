@@ -1,4 +1,4 @@
-from typing import Set, Optional, Generator, Any, Dict
+from typing import Set, Optional, Generator, Any
 
 import rdflib
 from rdflib import Namespace, URIRef, OWL, RDFS, RDF
@@ -8,10 +8,7 @@ from kgx.source import RdfSource
 from kgx.utils.kgx_utils import (
     current_time_in_millis,
     generate_uuid,
-    generate_edge_identifiers,
-    validate_node,
-    sanitize_import,
-    validate_edge,
+    sanitize_import
 )
 
 log = get_logger()
@@ -27,9 +24,9 @@ class OwlSource(RdfSource):
 
     """
 
-    def __init__(self):
+    def __init__(self, owner):
+        super().__init__(owner)
         self.imported: Set = set()
-        super().__init__()
         self.OWLSTAR = Namespace("http://w3id.org/owlstar/")
         self.excluded_predicates = {
             URIRef("https://raw.githubusercontent.com/geneontology/go-ontology/master/contrib/oboInOwl#id")
@@ -185,7 +182,11 @@ class OwlSource(RdfSource):
             self.dereify(n, data)
 
         for k, data in self.node_cache.items():
-            node_data = validate_node(data)
+
+            node_data = self.validate_node(data)
+            if not node_data:
+                continue
+
             node_data = sanitize_import(node_data)
             self.set_node_provenance(node_data)
             if self.check_node_filter(node_data):
@@ -194,7 +195,11 @@ class OwlSource(RdfSource):
         self.node_cache.clear()
 
         for k, data in self.edge_cache.items():
-            edge_data = validate_edge(data)
+
+            edge_data = self.validate_edge(data)
+            if not edge_data:
+                continue
+
             edge_data = sanitize_import(edge_data)
             self.set_edge_provenance(edge_data)
             if self.check_edge_filter(edge_data):

@@ -1,1 +1,4 @@
-__version__ = "1.5.2"
+"""
+KGX Package
+"""
+__version__ = "1.5.5"

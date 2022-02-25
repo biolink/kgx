@@ -1,5 +1,6 @@
 from kgx.graph.nx_graph import NxGraph
 from kgx.source import GraphSource
+from kgx.transformer import Transformer
 
 
 def test_read_graph1():
@@ -20,7 +21,9 @@ def test_read_graph1():
             "relation": "biolink:related_to",
         }
     )
-    s = GraphSource()
+    t = Transformer()
+    s = GraphSource(t)
+
     g = s.parse(graph=graph)
     nodes = {}
     edges = {}
@@ -63,7 +66,9 @@ def test_read_graph2():
             "relation": "biolink:related_to",
         }
     )
-    s = GraphSource()
+    t = Transformer()
+    s = GraphSource(t)
+
     g = s.parse(graph=graph, provided_by="Test Graph", knowledge_source="Test Graph")
     nodes = {}
     edges = {}

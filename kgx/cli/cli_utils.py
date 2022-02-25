@@ -3,7 +3,7 @@ import importlib
 import os
 from os.path import dirname, abspath
 
-import sys
+from sys import stdout
 from multiprocessing import Pool
 from typing import List, Tuple, Optional, Dict, Set, Any, Union
 import yaml
@@ -163,7 +163,7 @@ def graph_summary(
         with open(output, "w") as gsr:
             inspector.save(gsr, file_format=report_format)
     else:
-        inspector.save(sys.stdout, file_format=report_format)
+        inspector.save(stdout, file_format=report_format)
 
     # ... Third, we directly return the graph statistics to the caller.
     return inspector.get_graph_summary()
@@ -176,7 +176,7 @@ def validate(
     output: Optional[str],
     stream: bool,
     biolink_release: Optional[str] = None,
-) -> List:
+) -> Dict:
     """
     Run KGX validator on an input file to check for Biolink Model compliance.
 
@@ -194,10 +194,11 @@ def validate(
          Whether to parse input as a stream.
     biolink_release: Optional[str] = None
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
+
     Returns
     -------
-    List
-        Returns a list of errors, if any
+    Dict
+        A dictionary of entities which have parse errors indexed by [message_level][error_type][message]
 
     """
     # New design pattern enabling 'stream' processing of statistics on a small memory footprint
@@ -248,7 +249,7 @@ def validate(
     if output:
         validator.write_report(open(output, "w"))
     else:
-        validator.write_report(sys.stdout)
+        validator.write_report(stdout)
 
     # ... Third, we return directly any validation errors to the caller
     return validator.get_errors()

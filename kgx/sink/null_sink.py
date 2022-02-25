@@ -15,11 +15,13 @@ class NullSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     n/a (**kwargs allowed, but ignored)
     """
 
-    def __init__(self, **kwargs: Any):
-        super().__init__()
+    def __init__(self, owner, **kwargs: Any):
+        super().__init__(owner)
 
     def write_node(self, record) -> None:
         """

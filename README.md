@@ -22,7 +22,6 @@ KGX allows conversion to and from:
  * Reasoner Standard API format
  * OBOGraph JSON format
 
-
 KGX will also provide validation, to ensure the KGs are conformant to the Biolink Model: making sure nodes are
 categorized using Biolink classes, edges are labeled using valid Biolink relationship types, and valid properties are used.
 
@@ -32,6 +31,85 @@ The structure of this graph is expected to conform to the Biolink Model standard
 
 In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 
+### Error Detection and Reporting
+
+Non-redundant JSON-formatted structured error logging is now provided in KGX Transformer, Validator, GraphSummary and MetaKnowledgeGraph operations.  See the various unit tests for the general design pattern (using the Validator as an example here):
+
+```python
+from kgx.validator import Validator
+from kgx.transformer import Transformer
+
+Validator.set_biolink_model("2.11.0")
+
+# Validator assumes the currently set Biolink Release
+validator = Validator()
+
+transformer = Transformer(stream=True)
+
+transformer.transform(
+    input_args = {
+        "filename": [
+            "graph_nodes.tsv",
+            "graph_edges.tsv",
+        ],
+        "format": "tsv",
+    }
+    output_args={
+        "format": "null"
+    },
+    inspector=validator,
+)
+
+# Both the Validator and the Transformer can independently capture errors
+
+# The Validator, from the overall semantics of the graph...
+# Here, we just report severe Errors from the Validator (no Warnings)
+validator.write_report(open("validation_errors.json", "w"), "Error")
+
+# The Transformer, from the syntax of the input files... 
+# Here, we catch *all* Errors and Warnings (by not providing a filter)
+transformer.write_report(open("input_errors.json", "w"))
+```
+
+The JSON error outputs will look something like this:
+
+```json
+{
+    "ERROR": {
+        "MISSING_EDGE_PROPERTY": {
+            "Required edge property 'id' is missing": [
+                "A:123->X:1",
+                "B:456->Y:2"
+            ],
+            "Required edge property 'object' is missing": [
+                "A:123->X:1"
+            ],
+            "Required edge property 'predicate' is missing": [
+                "A:123->X:1"
+            ],
+            "Required edge property 'subject' is missing": [
+                "A:123->X:1",
+                "B:456->Y:2"
+            ]
+        }
+    },
+    "WARNING": {
+        "DUPLICATE_NODE": {
+          "Node 'id' duplicated in input data": [
+            "MONDO:0010011",
+            "REACT:R-HSA-5635838"
+          ]
+        }
+    }
+}
+
+```
+
+This system reduces the significant redundancies of earlier line-oriented KGX  logging text output files, in that graph entities with the same class of error are simply aggregated in lists of names/identifiers at the leaf level of the JSON structure.
+
+The top level JSON tags originate from the `MessageLevel` class and the second level tags from the `ErrorType` class in the [error_detection](kgx/error_detection.py) module, while the third level messages are hard coded as `log_error` method messages in the code.  
+
+It is likely that additional error conditions within KGX can be efficiently captured and reported in the future using this general framework.
 
 ## Installation
 
@@ -106,7 +184,9 @@ pip install .
 python setup.py install
 ```
 
-### Setting up a testing environment
+### Setting up a testing environment for Neo4j
+
+This release of KGX supports graph source and sink transactions with the 4.3 release of Neo4j.
 
 KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.
 
@@ -116,17 +196,17 @@ on your local machine.
 Once Docker is up and running, run the following commands:
 
 ```bash
-docker run -d --name kgx-neo4j-integration-test \
+docker run -d --rm --name kgx-neo4j-integration-test \
             -p 7474:7474 -p 7687:7687 \
             --env NEO4J_AUTH=neo4j/test  \
-            neo4j:3.5.25
+            neo4j:4.3
 ```
 
 ```bash
-docker run -d --name kgx-neo4j-unit-test  \
+docker run -d --rm --name kgx-neo4j-unit-test  \
             -p 8484:7474 -p 8888:7687 \
             --env NEO4J_AUTH=neo4j/test \
-            neo4j:3.5.25
+            neo4j:4.3
 ```
 
 

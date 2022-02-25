@@ -1,5 +1,5 @@
 import os
-
+from sys import stderr
 import pytest
 
 from kgx.graph.nx_graph import NxGraph
@@ -246,6 +246,12 @@ def test_summarize_graph_stream_inspector():
         TARGET_DIR, "test_graph-summary-from-inspection.yaml"
     )
 
+    # Dump a report to stderr ... will be a JSON document now
+    if len(inspector.get_errors()) > 0:
+        assert len(inspector.get_errors("Error")) == 0
+        assert len(inspector.get_errors("Warning")) > 0
+        inspector.write_report(None, "Warning")
+    
     with open(output_filename, "w") as gsh:
         inspector.save(gsh)
 

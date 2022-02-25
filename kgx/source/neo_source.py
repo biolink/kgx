@@ -1,16 +1,14 @@
 import itertools
 from typing import Any, Dict, List, Optional, Iterator, Tuple, Generator
 
-from neo4jrestclient.client import Node, Relationship, GraphDatabase
-from neo4jrestclient.query import CypherException
+from neo4j import GraphDatabase, Neo4jDriver
+from neo4j.graph import Node, Relationship
 
 from kgx.config import get_logger
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
     generate_uuid,
     generate_edge_key,
-    validate_node,
-    validate_edge,
     sanitize_import,
     knowledge_provenance_properties,
 )
@@ -24,12 +22,19 @@ class NeoSource(Source):
     from a Neo4j instance.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.http_driver = None
+    def __init__(self, owner):
+        super().__init__(owner)        
+        self.http_driver: Optional[Neo4jDriver] = None
+        self.session = None
         self.node_count = 0
         self.edge_count = 0
         self.seen_nodes = set()
+
+    def _connect_db(self, uri: str, username: str, password: str):
+        self.http_driver = GraphDatabase.driver(
+            uri, auth=(username, password)
+        )
+        self.session = self.http_driver.session()
 
     def parse(
         self,
@@ -77,9 +82,7 @@ class NeoSource(Source):
             A generator for records
 
         """
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
-        )
+        self._connect_db(uri, username, password)
 
         self.set_provenance_map(kwargs)
 
@@ -140,11 +143,11 @@ class NeoSource(Source):
         query_result: Any
         counts: int = 0
         try:
-            query_result = self.http_driver.query(query)
+            query_result = self.session.run(query)
             for result in query_result:
                 counts = result[0]
-        except CypherException as ce:
-            log.error(ce)
+        except Exception as e:
+            log.error(e)
         return counts
 
     def get_nodes(self, skip: int = 0, limit: int = 0, **kwargs: Any) -> List:
@@ -189,11 +192,19 @@ class NeoSource(Source):
         log.debug(query)
         nodes = []
         try:
-            results = self.http_driver.query(query, returns=Node, data_contents=True)
+            results = self.session.run(query)
             if results:
-                nodes = [node[0] for node in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+                nodes = [
+                    {
+                        "id": node[0].get('id', f"{node[0].id}"),
+                        "name": node[0].get('name', ''),
+                        "category": node[0].get('category', ['biolink:NamedThing'])
+                    }
+                    for node in results.values()
+                ]
+
+        except Exception as e:
+            log.error(e)
         return nodes
 
     def get_edges(
@@ -251,17 +262,47 @@ class NeoSource(Source):
         log.debug(query)
         edges = []
         try:
-            results = self.http_driver.query(
-                query, returns=(Node, Relationship, Node), data_contents=True
+            results = self.session.run(
+                query
             )
             if results:
-                edges = [x for x in results.rows]
-        except CypherException as ce:
-            log.error(ce)
+                edges = list()
+                for entry in results.values():
+                    edge = list()
+                    # subject
+                    edge.append(
+                        {
+                            "id": entry[0].get('id', f"{entry[0].id}"),
+                            "name": entry[0].get('name', ''),
+                            "category": entry[0].get('category', ['biolink:NamedThing'])
+                        }
+                    )
+
+                    # edge
+                    edge.append(
+                        {
+                             "subject":  entry[1].get('subject', f"{entry[0].id}"),
+                             "predicate": entry[1].get('predicate', "biolink:related_to"),
+                             "relation": entry[1].get('relation', "biolink:related_to"),
+                             "object": entry[1].get('object', f"{entry[2].id}")
+                        }
+                    )
+
+                    # object
+                    edge.append(
+                        {
+                            "id": entry[2].get('id', f"{entry[2].id}"),
+                            "name": entry[2].get('name', ''),
+                            "category": entry[2].get('category', ['biolink:NamedThing'])
+                        }
+                    )
+                    edges.append(edge)
+        except Exception as e:
+            log.error(e)
 
         return edges
 
-    def load_nodes(self, nodes: List) -> None:
+    def load_nodes(self, nodes: List) -> Generator:
         """
         Load nodes into an instance of BaseGraph
 
@@ -271,17 +312,23 @@ class NeoSource(Source):
             A list of nodes
 
         """
-        for node in nodes:
-            if node["id"] not in self.seen_nodes:
-                yield self.load_node(node)
+        for node_data in nodes:
+            if node_data["id"] not in self.seen_nodes:
 
-    def load_node(self, node: Dict) -> Tuple:
+                node_data = self.load_node(node_data)
+                if not node_data:
+                    continue
+
+                yield node_data
+
+
+    def load_node(self, node_data: Dict) -> Optional[Tuple]:
         """
         Load node into an instance of BaseGraph
 
         Parameters
         ----------
-        node: Dict
+        node_data: Dict
             A node
 
         Returns
@@ -292,14 +339,17 @@ class NeoSource(Source):
         """
         self.node_count += 1
         # TODO: remove the seen_nodes
-        self.seen_nodes.add(node["id"])
+        self.seen_nodes.add(node_data["id"])
 
-        self.set_node_provenance(node)
+        self.set_node_provenance(node_data)
 
-        node = validate_node(node)
-        node = sanitize_import(node.copy())
-        self.node_properties.update(node.keys())
-        return node["id"], node
+        node_data = self.validate_node(node_data)
+        if not node_data:
+            return None
+
+        node_data = sanitize_import(node_data.copy())
+        self.node_properties.update(node_data.keys())
+        return node_data["id"], node_data
 
     def load_edges(self, edges: List) -> None:
         """
@@ -323,9 +373,21 @@ class NeoSource(Source):
                 edge["object"] = object_node["id"]
 
             s = self.load_node(subject_node)
+            if not s:
+                continue
+
             o = self.load_node(object_node)
+            if not o:
+                continue
+
             objs = [s, o]
-            objs.append(self.load_edge([s[1], edge, o[1]]))
+
+            edge_data = self.load_edge([s[1], edge, o[1]])
+            if not edge_data:
+                continue
+
+            objs.append(edge_data)
+
             for o in objs:
                 yield o
 
@@ -346,20 +408,24 @@ class NeoSource(Source):
         """
 
         subject_node = edge_record[0]
-        edge = edge_record[1]
+        edge_data = edge_record[1]
         object_node = edge_record[2]
 
-        self.set_edge_provenance(edge)
+        self.set_edge_provenance(edge_data)
 
-        if "id" not in edge.keys():
-            edge["id"] = generate_uuid()
+        if "id" not in edge_data.keys():
+            edge_data["id"] = generate_uuid()
         key = generate_edge_key(
-            subject_node["id"], edge["predicate"], object_node["id"]
+            subject_node["id"], edge_data["predicate"], object_node["id"]
         )
-        edge = validate_edge(edge)
-        edge = sanitize_import(edge.copy())
-        self.edge_properties.update(edge.keys())
-        return subject_node["id"], object_node["id"], key, edge
+
+        edge_data = self.validate_edge(edge_data)
+        if not edge_data:
+            return ()
+
+        edge_data = sanitize_import(edge_data.copy())
+        self.edge_properties.update(edge_data.keys())
+        return subject_node["id"], object_node["id"], key, edge_data
 
     def get_pages(
         self,

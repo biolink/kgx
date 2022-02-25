@@ -16,8 +16,8 @@ class JsonlSource(JsonSource):
     from JSON Lines.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, owner):
+        super().__init__(owner)
 
     def parse(
         self,

@@ -128,6 +128,9 @@ semver_pattern = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[str]:
+    """
+    Get Biolink Model Schema
+    """
     if biolink_release:
         if not semver_pattern.fullmatch(biolink_release):
             raise TypeError(

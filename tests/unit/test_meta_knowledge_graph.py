@@ -13,6 +13,24 @@ from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
 
 
+def _check_mkg_json_contents(data):
+    assert "NCBIGene" in data["nodes"]["biolink:Gene"]["id_prefixes"]
+    assert "REACT" in data["nodes"]["biolink:Pathway"]["id_prefixes"]
+    assert "HP" in data["nodes"]["biolink:PhenotypicFeature"]["id_prefixes"]
+    assert data["nodes"]["biolink:Gene"]["count"] == 178
+    assert len(data["nodes"]) == 8
+    assert len(data["edges"]) == 13
+    edge1 = data["edges"][0]
+    assert edge1["subject"] == "biolink:Gene"
+    assert edge1["predicate"] == "biolink:interacts_with"
+    assert edge1["object"] == "biolink:Gene"
+    assert edge1["count"] == 165
+    edge1_cbs = edge1["count_by_source"]
+    assert "aggregator_knowledge_source" in edge1_cbs
+    edge1_cbs_aks = edge1_cbs["aggregator_knowledge_source"]
+    assert edge1_cbs_aks["string"] == 160
+
+
 def test_generate_classical_meta_knowledge_graph():
     """
     Test generate meta knowledge graph operation.
@@ -32,17 +50,15 @@ def test_generate_classical_meta_knowledge_graph():
     output_filename = os.path.join(TARGET_DIR, "test_meta_knowledge_graph-1.json")
 
     generate_meta_knowledge_graph(
-        transformer.store.graph, "Test Graph", output_filename
+        graph=transformer.store.graph,
+        name="Test Graph",
+        filename=output_filename,
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     data = json.load(open(output_filename))
     assert data["name"] == "Test Graph"
-    assert "NCBIGene" in data["nodes"]["biolink:Gene"]["id_prefixes"]
-    assert "REACT" in data["nodes"]["biolink:Pathway"]["id_prefixes"]
-    assert "HP" in data["nodes"]["biolink:PhenotypicFeature"]["id_prefixes"]
-    assert data["nodes"]["biolink:Gene"]["count"] == 178
-    assert len(data["nodes"]) == 8
-    assert len(data["edges"]) == 13
+    _check_mkg_json_contents(data)
 
 
 def test_generate_meta_knowledge_graph_by_stream_inspector():
@@ -61,13 +77,20 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     transformer = Transformer(stream=True)
 
     mkg = MetaKnowledgeGraph(
-        "Test Graph - Streamed", edge_facet_properties=["aggregator_knowledge_source"]
+        "Test Graph - Streamed",
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     # We configure the Transformer with a data flow inspector
     # (Deployed in the internal Transformer.process() call)
     transformer.transform(input_args=input_args, inspector=mkg)
 
+    # Dump a report to stderr ... will be a JSON document now
+    if len(mkg.get_errors()) > 0:
+        assert len(mkg.get_errors("Error")) == 0
+        assert len(mkg.get_errors("Warning")) > 0
+        mkg.write_report(None, "Warning")
+    
     assert mkg.get_name() == "Test Graph - Streamed"
     assert mkg.get_total_nodes_count() == 512
     assert mkg.get_number_of_categories() == 8
@@ -97,6 +120,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert len(ecbs1) == 2
     assert "biogrid" in ecbs1
     assert "string" in ecbs1
+    assert ecbs1["string"] == 160
 
     ecbs2 = mkg.get_edge_count_by_source(
         "biolink:Gene",
@@ -108,6 +132,7 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
     assert "omim" in ecbs2
     assert "orphanet" in ecbs2
     assert "hpoa" in ecbs2
+    assert ecbs2["hpoa"] == 111
 
 
 #
@@ -155,7 +180,10 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
     monitor = ProgressMonitor()
 
     mkg = MetaKnowledgeGraph(
-        name="Test Graph - Streamed, Stats accessed via File", progress_monitor=monitor
+        name="Test Graph - Streamed, Stats accessed via File",
+        progress_monitor=monitor,
+        node_facet_properties=["provided_by"],
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     t.transform(input_args=input_args, inspector=mkg)
@@ -166,13 +194,7 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
 
     data = json.load(open(output_filename))
     assert data["name"] == "Test Graph - Streamed, Stats accessed via File"
-    assert "NCBIGene" in data["nodes"]["biolink:Gene"]["id_prefixes"]
-    assert "REACT" in data["nodes"]["biolink:Pathway"]["id_prefixes"]
-    assert "HP" in data["nodes"]["biolink:PhenotypicFeature"]["id_prefixes"]
-    assert data["nodes"]["biolink:Gene"]["count"] == 178
-    assert len(data["nodes"]) == 8
-    assert len(data["edges"]) == 13
-
+    _check_mkg_json_contents(data)
     monitor.summary()
 
 
@@ -225,3 +247,33 @@ def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
     assert mkg.get_edge_mapping_count() == 25
 
     assert mkg.get_total_edge_counts_across_mappings() == 100
+
+
+def test_meta_knowledge_graph_of_complex_graph_data():
+    """
+    Test generate meta knowledge graph operation.
+    """
+    input_args = {
+        "filename": [
+            os.path.join(RESOURCE_DIR, "complex_graph_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "complex_graph_edges.tsv"),
+        ],
+        "format": "tsv",
+    }
+
+    transformer = Transformer()
+
+    transformer.transform(input_args)
+
+    output_filename = os.path.join(TARGET_DIR, "test_meta_knowledge_graph-1.json")
+
+    generate_meta_knowledge_graph(
+        graph=transformer.store.graph,
+        name="Complex Test Graph",
+        filename=output_filename,
+        edge_facet_properties=["aggregator_knowledge_source"]
+    )
+
+    data = json.load(open(output_filename))
+    assert data["name"] == "Complex Test Graph"
+    print(f"\n{json.dumps(data, indent=4)}")

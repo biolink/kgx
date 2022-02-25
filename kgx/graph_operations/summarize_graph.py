@@ -1,5 +1,7 @@
-from typing import Dict, List, Optional, Any, Callable, Set
-from sys import stderr
+"""
+Classical KGX graph summary module.
+"""
+from typing import Dict, List, Optional, Any, Callable
 
 import re
 
@@ -7,6 +9,7 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
 from kgx.prefix_manager import PrefixManager
@@ -39,6 +42,7 @@ def gs_default(o):
     """
     JSONEncoder 'default' function override to
     properly serialize 'Set' objects (into 'List')
+    :param o
     """
     if isinstance(o, GraphSummary.Category):
         return o.json_object()
@@ -57,15 +61,7 @@ _category_curie_regexp = re.compile("^biolink:[A-Z][a-zA-Z]*$")
 _predicate_curie_regexp = re.compile("^biolink:[a-z][a-z_]*$")
 
 
-# DRY parse warning message
-def _parse_warning(prefix: str, item: str, suffix: str = None):
-    print(
-        prefix + " '" + item + "'" + (" " + suffix if suffix else "") + "? Ignoring...",
-        file=GraphSummary.error_log,
-    )
-
-
-class GraphSummary:
+class GraphSummary(ErrorDetecting):
     """
     Class for generating a "classical" knowledge graph summary.
 
@@ -82,8 +78,6 @@ class GraphSummary:
     Callable (function/callable class) should not modify the record and should be of low
     complexity, so as not to introduce a large computational overhead to validation!
     """
-
-    error_log = stderr
 
     def __init__(
         self,
@@ -111,6 +105,8 @@ class GraphSummary:
             Where to write any graph processing error message (stderr, by default)
 
         """
+        ErrorDetecting.__init__(self, error_log)
+        
         # formal arguments
         self.name = name
 
@@ -149,9 +145,6 @@ class GraphSummary:
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
-        if error_log:
-            GraphSummary.error_log = open(error_log, mode="w")
-
         # internal attributes
         self.node_catalog: Dict[str, List[int]] = dict()
 
@@ -161,7 +154,7 @@ class GraphSummary:
         self.node_categories["unknown"] = GraphSummary.Category("unknown", self)
 
         self.graph_stats: Dict[str, Dict] = dict()
-
+    
     def get_name(self):
         """
         Returns
@@ -231,7 +224,7 @@ class GraphSummary:
                 self.summary.node_stats[NODE_CATEGORIES].add(self.category_curie)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][
                 self.category_curie
-            ] = set()
+            ] = list()
             self.summary.node_stats[COUNT_BY_CATEGORY][self.category_curie] = {
                 "count": 0
             }
@@ -262,7 +255,7 @@ class GraphSummary:
             return self._category_curie_map.index(self.category_curie)
 
         @classmethod
-        def _get_category_curie_by_index(cls, cid: int) -> str:
+        def get_category_curie_by_index(cls, cid: int) -> str:
             """
             Parameters
             ----------
@@ -276,14 +269,14 @@ class GraphSummary:
             """
             return cls._category_curie_map[cid]
 
-        def get_id_prefixes(self) -> Set:
+        def get_id_prefixes(self) -> List:
             """
             Returns
             -------
-            Set[str]
-                Set of identifier prefix (strings) used by nodes of this Category.
+            List[str]
+                List of identifier prefix (strings) used by nodes of this Category.
             """
-            return set(self.category_stats["count_by_id_prefix"].keys())
+            return list(self.category_stats["count_by_id_prefix"].keys())
 
         def get_count_by_id_prefixes(self):
             """
@@ -306,9 +299,12 @@ class GraphSummary:
         def _capture_prefix(self, n: str):
             prefix = PrefixManager.get_prefix(n)
             if not prefix:
-                print(
-                    f"Warning: node id {n} has no CURIE prefix",
-                    file=GraphSummary.error_log,
+                error_type = ErrorType.MISSING_NODE_CURIE_PREFIX
+                self.summary.log_error(
+                    entity=n,
+                    error_type=error_type,
+                    message="Node 'id' has no CURIE prefix",
+                    message_level=MessageLevel.WARNING
                 )
             else:
                 if prefix in self.category_stats["count_by_id_prefix"]:
@@ -402,7 +398,12 @@ class GraphSummary:
                         category_curie, self
                     )
                 except RuntimeError:
-                    _parse_warning("Invalid category CURIE", category_curie)
+                    error_type = ErrorType.INVALID_CATEGORY
+                    self.log_error(
+                        entity=n,
+                        error_type=error_type,
+                        message=f"Invalid node 'category' CURIE: '{category_curie}'"
+                    )
                     continue
 
             category_record = self.node_categories[category_curie]
@@ -434,8 +435,12 @@ class GraphSummary:
         """
         if n in self.node_catalog:
             # Report duplications of node records, as discerned from node id.
-            _parse_warning(
-                "Duplicate node identifier", n, "encountered in input node data"
+            error_type = ErrorType.DUPLICATE_NODE
+            self.log_error(
+                entity=n,
+                error_type=error_type,
+                message="Node 'id' duplicated in input data",
+                message_level=MessageLevel.WARNING
             )
             return
         else:
@@ -445,13 +450,13 @@ class GraphSummary:
             categories = data["category"]
 
         else:
-            categories = ["unknown"]
-            print(
-                "Node with identifier '"
-                + n
-                + "' is missing its 'category' value? Tagging it as 'unknown'",
-                file=GraphSummary.error_log,
+            error_type = ErrorType.MISSING_CATEGORY
+            self.log_error(
+                entity=n,
+                error_type=error_type,
+                message="Missing node 'category' tagged as 'unknown'."
             )
+            categories = ["unknown"]
 
         # analyse them each independently...
         for category_field in categories:
@@ -465,7 +470,12 @@ class GraphSummary:
             predicate = data["predicate"]
 
             if not _predicate_curie_regexp.fullmatch(predicate):
-                _parse_warning("Invalid  predicate CURIE", predicate)
+                error_type = ErrorType.INVALID_EDGE_PREDICATE
+                self.log_error(
+                    entity=predicate,
+                    error_type=error_type,
+                    message="Invalid 'predicate' CURIE?"
+                )
                 return None
 
             self.edge_stats[EDGE_PREDICATES].add(predicate)
@@ -528,7 +538,13 @@ class GraphSummary:
         predicate: str = self._capture_predicate(data)
 
         if u not in self.node_catalog:
-            _parse_warning("Edge 'subject' node ID", u, "not found in node catalog")
+            error_type = ErrorType.MISSING_NODE
+            self.log_error(
+                entity=u,
+                error_type=error_type,
+                message="Subject 'id' not found in the node catalog"
+            )
+            
             # removing from edge count
             self.edge_stats[TOTAL_EDGES] -= 1
             self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
@@ -536,17 +552,23 @@ class GraphSummary:
 
         for subj_cat_idx in self.node_catalog[u]:
 
-            subject_category = self.Category._get_category_curie_by_index(subj_cat_idx)
+            subject_category = self.Category.get_category_curie_by_index(subj_cat_idx)
 
             if v not in self.node_catalog:
-                _parse_warning("Edge 'object' node ID", v, "not found in node catalog")
+                error_type = ErrorType.MISSING_NODE
+                self.log_error(
+                    entity=v,
+                    error_type=error_type,
+                    message="Object 'id' not found in the node catalog"
+                )
+                
                 self.edge_stats[TOTAL_EDGES] -= 1
                 self.edge_stats[COUNT_BY_EDGE_PREDICATES]["unknown"]["count"] -= 1
                 return
 
             for obj_cat_idx in self.node_catalog[v]:
 
-                object_category = self.Category._get_category_curie_by_index(
+                object_category = self.Category.get_category_curie_by_index(
                     obj_cat_idx
                 )
 
@@ -591,9 +613,8 @@ class GraphSummary:
             for node_category in self.node_categories.values():
                 self._compile_category_stats(node_category)
 
-            self.node_stats[NODE_CATEGORIES] = sorted(
-                list(self.node_stats[NODE_CATEGORIES])
-            )
+            self.node_stats[NODE_CATEGORIES] = sorted(self.node_stats[NODE_CATEGORIES])
+            self.node_stats[NODE_ID_PREFIXES] = sorted(self.node_stats[NODE_ID_PREFIXES])
 
             if self.node_facet_properties:
                 for facet_property in self.node_facet_properties:

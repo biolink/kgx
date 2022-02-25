@@ -4,3 +4,4 @@
 {"id": "MONDO:0013329", "name": "familial clubfoot due to 17q23.1q23.2 microduplication", "category": ["biolink:Disease"]}
 {"id": "MONDO:0017148", "name": "heritable pulmonary arterial hypertension", "category": ["biolink:Disease"]}
 {"id": "MONDO:0007841", "name": "coxopodopatellar syndrome", "category": ["biolink:Disease"]}
+{"id": "PUBCHEM.COMPOUND:10429502", "name": "16|A-Methyl Prednisolone", "category": ["biolink:ChemicalEntity", "biolink:NamedThing"]}

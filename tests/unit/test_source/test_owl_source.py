@@ -1,7 +1,7 @@
 import os
-import pprint
 
 from kgx.source import OwlSource
+from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
@@ -9,11 +9,12 @@ def test_read_owl1():
     """
     Read an OWL ontology using OwlSource.
     """
-    s = OwlSource()
+    t = Transformer()
+    s = OwlSource(t)
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.owl"),
         provided_by="GO slim generic",
-        knowledge_source="GO slim generic",
+        knowledge_source="GO slim generic"
     )
     nodes = {}
     edges = {}
@@ -57,7 +58,9 @@ def test_read_owl2():
     Read an OWL ontology using OwlSource.
     This test also supplies the knowledge_source parameter.
     """
-    s = OwlSource()
+    t = Transformer()
+    s = OwlSource(t)
+
     g = s.parse(
         os.path.join(RESOURCE_DIR, "goslim_generic.owl"),
         provided_by="GO slim generic",
@@ -115,7 +118,10 @@ def test_read_owl3():
         "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace": "namespace",
         "http://www.geneontology.org/formats/oboInOwl#hasAlternativeId": "xref",
     }
-    source = OwlSource()
+
+    t = Transformer()
+    source = OwlSource(t)
+
     source.set_predicate_mapping(predicate_mappings)
     source.set_node_property_predicates(node_property_predicates)
     g = source.parse(filename=os.path.join(RESOURCE_DIR, "goslim_generic.owl"))
@@ -133,7 +139,6 @@ def test_read_owl3():
                 nodes[rec[0]] = rec[-1]
 
     n1 = nodes["GO:0008150"]
-    pprint.pprint(n1)
     assert n1["name"] == "biological_process"
     assert "subsets" in n1 and "GOP:goslim_generic" in n1["subsets"]
     assert "synonym" in n1 and "biological process" in n1["synonym"]
@@ -168,7 +173,8 @@ def test_read_owl4():
     """
     Read an OWL and ensure that logical axioms are annotated with Owlstar vocabulary.
     """
-    source = OwlSource()
+    t = Transformer()
+    source = OwlSource(t)
     g = source.parse(
         filename=os.path.join(RESOURCE_DIR, "goslim_generic.owl"), format="owl"
     )

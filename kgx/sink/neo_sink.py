@@ -1,11 +1,11 @@
 from typing import List, Union, Any
 
-from neo4jrestclient.client import GraphDatabase
-from neo4jrestclient.query import CypherException
-
+from neo4j import GraphDatabase, Neo4jDriver, Session
+from neo4j.exceptions import CypherSyntaxError
 from kgx.config import get_logger
+from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
-from kgx.utils.kgx_utils import DEFAULT_NODE_CATEGORY
+from kgx.source.source import DEFAULT_NODE_CATEGORY
 
 log = get_logger()
 
@@ -17,6 +17,8 @@ class NeoSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     uri: str
         The URI for the Neo4j instance.
         For example, http://localhost:7474
@@ -38,13 +40,14 @@ class NeoSink(Sink):
     CYPHER_CATEGORY_DELIMITER = ":"
     _seen_categories = set()
 
-    def __init__(self, uri: str, username: str, password: str, **kwargs: Any):
-        super().__init__()
+    def __init__(self, owner, uri: str, username: str, password: str, **kwargs: Any):
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
-        self.http_driver: GraphDatabase = GraphDatabase(
-            uri, username=username, password=password
+        self.http_driver:Neo4jDriver = GraphDatabase.driver(
+            uri, auth=(username, password)
         )
+        self.session:Session = self.http_driver.session()
+        super().__init__(owner)
 
     def _flush_node_cache(self):
         self._write_node_cache()
@@ -87,6 +90,7 @@ class NeoSink(Sink):
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
             query = self.generate_unwind_node_query(cypher_category)
+
             log.debug(query)
             nodes = self.node_cache[category]
             for x in range(0, len(nodes), batch_size):
@@ -94,9 +98,13 @@ class NeoSink(Sink):
                 log.debug(f"Batch {x} - {y}")
                 batch = nodes[x:y]
                 try:
-                    self.http_driver.query(query, params={"nodes": batch})
-                except CypherException as ce:
-                    log.error(ce)
+                    self.session.run(query, parameters={"nodes": batch})
+                except Exception as e:
+                    self.owner.log_error(
+                        entity=f"{category} Nodes {batch}",
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     def _flush_edge_cache(self):
         self._flush_node_cache()
@@ -140,11 +148,15 @@ class NeoSink(Sink):
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
                 try:
-                    self.http_driver.query(
-                        query, params={"relationship": predicate, "edges": batch}
+                    self.session.run(
+                        query, parameters={"relationship": predicate, "edges": batch}
                     )
-                except CypherException as ce:
-                    log.error(ce)
+                except Exception as e:
+                    self.owner.log_error(
+                        entity=f"{predicate} Edges {batch}",
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     def finalize(self) -> None:
         """
@@ -248,10 +260,14 @@ class NeoSink(Sink):
             else:
                 query = NeoSink.create_constraint_query(category)
                 try:
-                    self.http_driver.query(query)
+                    self.session.run(query)
                     self._seen_categories.add(category)
-                except CypherException as ce:
-                    log.error(ce)
+                except Exception as e:
+                    self.owner.log_error(
+                        entity=category,
+                        error_type=ErrorType.INVALID_CATEGORY,
+                        message=str(e)
+                    )
 
     @staticmethod
     def create_constraint_query(category: str) -> str:
@@ -269,5 +285,5 @@ class NeoSink(Sink):
             The Cypher CONSTRAINT query
 
         """
-        query = f"CREATE CONSTRAINT ON (n:{category}) ASSERT n.id IS UNIQUE"
+        query = f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{category}) ASSERT n.id IS UNIQUE"
         return query

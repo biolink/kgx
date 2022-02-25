@@ -2,7 +2,6 @@ from kgx.graph.nx_graph import NxGraph
 from kgx.graph_operations.graph_merge import (
     merge_all_graphs,
     merge_graphs,
-    add_all_nodes,
     merge_node,
     merge_edge,
 )

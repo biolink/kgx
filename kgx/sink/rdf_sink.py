@@ -8,6 +8,7 @@ from rdflib import URIRef, Literal, Namespace, RDF
 from rdflib.plugins.serializers.nt import _nt_row
 from rdflib.term import _is_valid_uri
 
+from kgx.error_detection import ErrorType
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.sink.sink import Sink
@@ -37,6 +38,8 @@ class RdfSink(Sink):
 
     Parameters
     ----------
+    owner: Transformer
+        Transformer to which the GraphSink belongs
     filename: str
         The filename to write to
     format: str
@@ -52,13 +55,14 @@ class RdfSink(Sink):
 
     def __init__(
         self,
+        owner,
         filename: str,
         format: str = "nt",
         compression: Optional[bool] = None,
         reify_all_edges: bool = False,
         **kwargs: Any,
     ):
-        super().__init__()
+        super().__init__(owner)
         if format not in {"nt"}:
             raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
@@ -521,7 +525,12 @@ class RdfSink(Sink):
                 if mapping:
                     element = toolkit.get_element(mapping)
             except ValueError as e:
-                log.error(e)
+                self.owner.log_error(
+                    entity=str(predicate),
+                    error_type=ErrorType.INVALID_EDGE_PREDICATE,
+                    message=str(e)
+                )
+                element = None
         return element
 
     def reify(self, u: str, v: str, data: Dict) -> Dict:
