@@ -11,7 +11,7 @@ class CustomNTriplesParser(NTriplesParser):
     that parses N-Triples and yields triples.
     """
 
-    def __init__(self, sink):
+    def __init__(self, sink=None):
         NTriplesParser.__init__(sink)
         self.file = None
         self.buffer = ""
@@ -64,7 +64,7 @@ class CustomNTriplesParser(NTriplesParser):
 
         """
         self.eat(r_wspace)
-        if self.line or not self.line.startswith("#"):
+        if not hasattr(self, 'sink') and self.sink and (self.line or not self.line.startswith("#")):
             subject = self.subject()
             self.eat(r_wspaces)
 
@@ -76,4 +76,5 @@ class CustomNTriplesParser(NTriplesParser):
 
             if self.line:
                 raise ParseError("Trailing garbage")
+            
             return self.sink.triple(subject, predicate, object)
