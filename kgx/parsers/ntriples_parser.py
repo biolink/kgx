@@ -63,8 +63,12 @@ class CustomNTriplesParser(NTriplesParser):
             A generator
 
         """
+        if not hasattr(self, 'sink'):
+            raise ParseError("CustomNTriplesParser is missing a sink?")
+        
         self.eat(r_wspace)
-        if hasattr(self, 'sink') and self.sink and (self.line or not self.line.startswith("#")):
+        
+        if self.line or not self.line.startswith("#"):
             
             subject = self.subject()
             
