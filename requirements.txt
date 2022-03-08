@@ -8,7 +8,7 @@ pandas>=1.0.3
 pytest>=0.0
 mypy>=0.0
 rdflib~=5.0.0
-Click~=7.0
+Click
 neo4j==4.3
 pyyaml>=0.0
 prologterms>=0.0.5
@@ -22,7 +22,6 @@ sphinx-rtd-theme~=0.4.3
 sphinx-click~=2.3.1
 ordered-set>=4.0.2
 docker>=4.2.2
-pathlib>=1.0.0
 jsonlines>=1.2.0
 jsonstreams>=0.5.0
 ijson>=3.1.3
