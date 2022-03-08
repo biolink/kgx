@@ -236,7 +236,7 @@ class NeoSink(Sink):
         query = f"""
         UNWIND $edges AS edge
         MATCH (s:`{DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
-        MERGE (s)-[r:`{edge_predicate}`]->(o)
+        MERGE (s)-[r:`{edge_predicate}` {{id: edge.id}}]->(o)
         SET r += edge
         """
         return query

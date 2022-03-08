@@ -343,6 +343,8 @@ def generate_edge_key(s: str, edge_predicate: str, o: str) -> str:
         Edge label
     o: str
         Object
+    id: str
+        Optional identifier that is used as the key if provided
 
     Returns
     -------
