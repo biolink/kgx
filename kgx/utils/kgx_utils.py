@@ -331,7 +331,7 @@ def get_toolkit(biolink_release: Optional[str] = None) -> Toolkit:
     return toolkit
 
 
-def generate_edge_key(s: str, edge_predicate: str, o: str) -> str:
+def generate_edge_key(s: str, edge_predicate: str, o: str, id: str="") -> str:
     """
     Generates an edge key based on a given subject, predicate, and object.
 
@@ -350,7 +350,7 @@ def generate_edge_key(s: str, edge_predicate: str, o: str) -> str:
         Edge key as a string
 
     """
-    return "{}-{}-{}".format(s, edge_predicate, o)
+    return "{}-{}-{}{}".format(s, edge_predicate, o, id)
 
 
 def get_curie_lookup_service():
