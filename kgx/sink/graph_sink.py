@@ -52,13 +52,14 @@ class GraphSink(Sink):
             An edge record
 
         """
-        key = (
-            record["key"]
-            if "key" in record
-            else generate_edge_key(
-                record["subject"], record["predicate"], record["object"], record["id"]
+        if "key" in record:
+            key = (record["key"])
+        elif "id" in record:
+            key = (record["id"])
+        else:
+            key = generate_edge_key(
+                 record["subject"], record["predicate"], record["object"]
             )
-        )
         self.graph.add_edge(record["subject"], record["object"], key, **record)
 
     def finalize(self) -> None:
