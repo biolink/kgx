@@ -56,7 +56,7 @@ class GraphSink(Sink):
             record["key"]
             if "key" in record
             else generate_edge_key(
-                record["subject"], record["predicate"], record["object"]
+                record["subject"], record["predicate"], record["object"], record["id"]
             )
         )
         self.graph.add_edge(record["subject"], record["object"], key, **record)
