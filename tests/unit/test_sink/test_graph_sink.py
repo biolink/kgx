@@ -22,27 +22,3 @@ def test_write_graph_no_edge_identifier():
 
     assert s.graph.number_of_nodes() == 3
     assert s.graph.number_of_edges() == 1
-
-
-def test_write_graph_with_edge_identifier():
-    """
-    Write a graph via GraphSink.
-    """
-    t = Transformer()
-    s = GraphSink(t)
-    s.write_node({"id": "A", "name": "Node A", "category": ["biolink:NamedThing"]})
-    s.write_node({"id": "B", "name": "Node B", "category": ["biolink:NamedThing"]})
-    s.write_node({"id": "C", "name": "Node C", "category": ["biolink:NamedThing"]})
-    s.write_edge(
-        {
-            "id": "test_identifier",
-            "subject": "A",
-            "predicate": "biolink:related_to",
-            "object": "B",
-            "relation": "biolink:related_to",
-        }
-    )
-
-    edge = s.graph.get_edge("A", "B")
-    for k in edge.keys():
-        assert k == 'test_identifier'

@@ -54,8 +54,6 @@ class GraphSink(Sink):
         """
         if "key" in record:
             key = (record["key"])
-        elif "id" in record:
-            key = (record["id"])
         else:
             key = generate_edge_key(
                  record["subject"], record["predicate"], record["object"]
