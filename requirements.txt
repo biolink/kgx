@@ -1,13 +1,13 @@
 linkml
 linkml-runtime
 black<=21.12b0
-bmt>=0.8.1
+bmt
 sphinx<5,>=3.1
 python-dateutil>=2.8.1
 prefixcommons>=0.1.4
 pip>=9.0.1
 docutils==0.16.0
-networkx==2.4
+networkx
 SPARQLWrapper>=1.8.2
 pandas>=1.0.3
 pytest>=0.0

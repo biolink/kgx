@@ -157,7 +157,7 @@ formatted files.
 `RdfSource` is responsible for reading data from RDF N-Triples.
 
 This source makes use of a custom `kgx.parsers.ntriples_parser.CustomNTriplesParser` for parsing N-Triples,
-which extends `rdflib.plugins.parsers.ntriples.NTriplesParser`.
+which extends `rdflib.plugins.parsers.ntriples.W3CNTriplesParser`.
 
 To ensure proper parsing of N-Triples and a relatively low memory footprint, it is recommended that the N-Triples
 be sorted based on the subject IRIs.
