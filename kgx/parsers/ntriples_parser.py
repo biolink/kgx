@@ -1,13 +1,13 @@
 import codecs
 from typing import Generator
 
-from rdflib.plugins.parsers.ntriples import NTriplesParser, ParseError
+from rdflib.plugins.parsers.ntriples import W3CNTriplesParser, ParseError
 from rdflib.plugins.parsers.ntriples import r_wspace, r_wspaces, r_tail
 
 
-class CustomNTriplesParser(NTriplesParser):
+class CustomNTriplesParser(W3CNTriplesParser):
     """
-    This class is an extension to ``rdflib.plugins.parsers.ntriples.NTriplesParser``
+    This class is an extension to ``rdflib.plugins.parsers.ntriples.W3CNTriplesParser``
     that parses N-Triples and yields triples.
     """
 
