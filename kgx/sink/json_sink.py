@@ -45,7 +45,7 @@ class JsonSink(Sink):
         else:
             self.compression = None
         self.FH = jsonstreams.Stream(
-            jsonstreams.Type.object, filename=filename, pretty=True, indent=4
+            jsonstreams.Type.OBJECT, filename=filename, pretty=True, indent=4
         )
         self.NH = None
         self.EH = None

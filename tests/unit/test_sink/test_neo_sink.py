@@ -90,6 +90,7 @@ def test_write_neo2(clean_database, query):
     """
     Test writing a graph to a Neo4j instance.
     """
+
     graph = query[0]
     t = Transformer()
     sink = NeoSink(

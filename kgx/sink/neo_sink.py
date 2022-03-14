@@ -1,7 +1,6 @@
 from typing import List, Union, Any
 
 from neo4j import GraphDatabase, Neo4jDriver, Session
-from neo4j.exceptions import CypherSyntaxError
 from kgx.config import get_logger
 from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
@@ -46,7 +45,7 @@ class NeoSink(Sink):
         self.http_driver:Neo4jDriver = GraphDatabase.driver(
             uri, auth=(username, password)
         )
-        self.session:Session = self.http_driver.session()
+        self.session: Session = self.http_driver.session()
         super().__init__(owner)
 
     def _flush_node_cache(self):
@@ -69,6 +68,7 @@ class NeoSink(Sink):
         sanitized_category = self.sanitize_category(record["category"])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
+            print(self.CACHE_SIZE)
             self._flush_node_cache()
         if category not in self.node_cache:
             self.node_cache[category] = [record]
@@ -146,8 +146,10 @@ class NeoSink(Sink):
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
+                print(batch)
                 log.debug(f"Batch {x} - {y}")
                 try:
+                    print(query)
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
                     )
@@ -236,7 +238,7 @@ class NeoSink(Sink):
         query = f"""
         UNWIND $edges AS edge
         MATCH (s:`{DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
-        MERGE (s)-[r:`{edge_predicate}` {{id: edge.id}}]->(o)
+        MERGE (s)-[r:`{edge_predicate}`]->(o)
         SET r += edge
         """
         return query
