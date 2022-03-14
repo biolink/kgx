@@ -12,7 +12,7 @@ class CustomNTriplesParser(W3CNTriplesParser):
     """
 
     def __init__(self, sink=None):
-        NTriplesParser.__init__(sink)
+        W3CNTriplesParser.__init__(sink)
         self.file = None
         self.buffer = ""
         self.line = ""
