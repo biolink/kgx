@@ -59,6 +59,21 @@ class CustomNTriplesParser(W3CNTriplesParser):
             except ParseError:
                 raise ParseError("Invalid line: %r" % self.line)
 
+    @staticmethod
+    def _triple(subject, predicate, object):
+        key = generate_edge_key(subject, predicate, object)
+        # Edge record format: [s, o, key, edge_data] where edge_data is a dictionary of the edge
+        return [
+            subject,
+            object,
+            key,
+            {
+                "subject": subject,
+                "predicate": predicate,
+                "object": object
+            }
+        ]
+
     def parseline(self, bnode_context=None) -> Generator:
         """
         Parse each line and yield triples.
@@ -76,12 +91,13 @@ class CustomNTriplesParser(W3CNTriplesParser):
             A generator for triples
 
         """
+        # TODO: How would we handle blank nodes here (using bnode_context)?
         if not hasattr(self, 'sink'):
             raise ParseError("CustomNTriplesParser is missing a sink?")
 
         self.eat(r_wspace)
         
-        if self.line or not self.line.startswith("#"):
+        if self.line and not self.line.startswith("#"):
             
             subject = self.subject()
             
@@ -96,13 +112,8 @@ class CustomNTriplesParser(W3CNTriplesParser):
             if self.line:
                 raise ParseError("Trailing garbage")
 
-            key = generate_edge_key(subject, predicate, object)
-
-            yield from {
-                "key": key,
-                "subject": subject,
-                "predicate": predicate,
-                "object": object
-            }
+            # Yield to an iterable list of one ntriple line giving a single edge record
+            triple = self._triple(subject, predicate, object)
+            yield from [triple]
         else:
             raise StopIteration()
