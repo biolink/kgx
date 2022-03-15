@@ -1,8 +1,10 @@
 import codecs
 from typing import Generator
 
-from rdflib.plugins.parsers.ntriples import W3CNTriplesParser, ParseError
+from rdflib.plugins.parsers.ntriples import W3CNTriplesParser, ParseError, DummySink
 from rdflib.plugins.parsers.ntriples import r_wspace, r_wspaces, r_tail
+
+from kgx.utils.kgx_utils import generate_edge_key
 
 
 class CustomNTriplesParser(W3CNTriplesParser):
@@ -12,12 +14,12 @@ class CustomNTriplesParser(W3CNTriplesParser):
     """
 
     def __init__(self, sink=None):
-        W3CNTriplesParser.__init__(sink)
+        W3CNTriplesParser.__init__(self, sink=sink)
         self.file = None
         self.buffer = ""
         self.line = ""
     
-    def parse(self, f) -> Generator:
+    def parse(self, f, bnode_context=None) -> Generator:
         """
         Parses an N-Triples file and yields triples.
 
@@ -25,6 +27,10 @@ class CustomNTriplesParser(W3CNTriplesParser):
         ----------
         f:
             The file-like object to parse
+        bnode_context:
+            a dict mapping blank node identifiers (e.g., ``a`` in ``_:a``)
+            to `~rdflib.term.BNode` instances. An empty dict can be
+            passed in to define a distinct context for a given call to `parse`.
 
         Returns
         -------
@@ -53,19 +59,26 @@ class CustomNTriplesParser(W3CNTriplesParser):
             except ParseError:
                 raise ParseError("Invalid line: %r" % self.line)
 
-    def parseline(self) -> Generator:
+    def parseline(self, bnode_context=None) -> Generator:
         """
         Parse each line and yield triples.
 
         Parameters
         ----------
+        bnode_context:
+            a dict mapping blank node identifiers (e.g., ``a`` in ``_:a``)
+            to `~rdflib.term.BNode` instances. An empty dict can be
+            passed in to define a distinct context for a given call to `parse`.
+
+        Returns:
+        -------
         Generator
-            A generator
+            A generator for triples
 
         """
         if not hasattr(self, 'sink'):
             raise ParseError("CustomNTriplesParser is missing a sink?")
-        
+
         self.eat(r_wspace)
         
         if self.line or not self.line.startswith("#"):
@@ -82,5 +95,14 @@ class CustomNTriplesParser(W3CNTriplesParser):
 
             if self.line:
                 raise ParseError("Trailing garbage")
-            
-            return self.sink.triple(subject, predicate, object)
+
+            key = generate_edge_key(subject, predicate, object)
+
+            yield from {
+                "key": key,
+                "subject": subject,
+                "predicate": predicate,
+                "object": object
+            }
+        else:
+            raise StopIteration()

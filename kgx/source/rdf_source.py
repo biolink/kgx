@@ -173,7 +173,12 @@ class RdfSource(Source):
             A generator for records
 
         """
-        p = CustomNTriplesParser(self)
+        # maybe propagate the 'sink' from the parent
+        if hasattr(self, 'sink'):
+            sink = self.sink
+        else:
+            sink = None
+        p = CustomNTriplesParser(sink=sink)
 
         self.set_provenance_map(kwargs)
 
