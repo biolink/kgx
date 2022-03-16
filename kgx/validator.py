@@ -374,7 +374,7 @@ class Validator(ErrorDetecting):
             Edge properties
         required_properties: list
             Required edge properties
-            
+
         """
         for p in required_properties:
             if p not in data:
@@ -416,7 +416,7 @@ class Validator(ErrorDetecting):
             Node properties
         toolkit: Optional[Toolkit]
             Optional externally provided toolkit (default: use Validator class defined toolkit)
-            
+
         """
         if not toolkit:
             toolkit = Validator.get_toolkit()
@@ -582,7 +582,7 @@ class Validator(ErrorDetecting):
             self.log_error(node, error_type, message, MessageLevel.ERROR)
         else:
             prefix = PrefixManager.get_prefix(node)
-            if prefix and prefix not in self.get_all_prefixes():
+            if prefix and prefix not in self.prefixes:
                 message = f"Node property 'id' has a value '{node}' with a CURIE prefix '{prefix}'" + \
                           f" is not represented in Biolink Model JSON-LD context"
                 self.log_error(node, error_type, message, MessageLevel.ERROR)
@@ -607,7 +607,7 @@ class Validator(ErrorDetecting):
 
         """
         error_type = ErrorType.INVALID_EDGE_PROPERTY_VALUE
-        prefixes = self.get_all_prefixes()
+        prefixes = self.prefixes
 
         if PrefixManager.is_curie(subject):
             prefix = PrefixManager.get_prefix(subject)
