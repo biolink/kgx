@@ -345,11 +345,15 @@ class Transformer(ErrorDetecting):
                 if len(rec) == 4:  # infer an edge record
                     write_edge = True
                     if "subject_category" in self.edge_filters:
+                        # TODO: not sure if this is correct... should we not also check the actual
+                        #       category of the rec against the content of the "category" edge_filters?
                         if rec[0] in self._seen_nodes:
                             write_edge = True
                         else:
                             write_edge = False
                     if "object_category" in self.edge_filters:
+                        # TODO: not sure if this is correct... should we not also check the actual
+                        #       category of the rec against the content of the "category" edge_filters?
                         if rec[1] in self._seen_nodes:
                             if "subject_category" in self.edge_filters:
                                 if write_edge:
@@ -363,6 +367,8 @@ class Transformer(ErrorDetecting):
                             self.inspector(GraphEntityType.EDGE, rec)
                         sink.write_edge(rec[-1])
                 else:  # infer a node record
+                    # TODO: not sure if this is correct... should we not also check the actual
+                    #       category of the rec against the content of the "category" node_filters?
                     if "category" in self.node_filters:
                         self._seen_nodes.add(rec[0])
                     if self.inspector:

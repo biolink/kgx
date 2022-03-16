@@ -1,7 +1,7 @@
 import codecs
 from typing import Generator
 
-from rdflib.plugins.parsers.ntriples import W3CNTriplesParser, ParseError, DummySink
+from rdflib.plugins.parsers.ntriples import W3CNTriplesParser, ParseError
 from rdflib.plugins.parsers.ntriples import r_wspace, r_wspaces, r_tail
 
 from kgx.utils.kgx_utils import generate_edge_key
@@ -60,6 +60,17 @@ class CustomNTriplesParser(W3CNTriplesParser):
                 raise ParseError("Invalid line: %r" % self.line)
 
     @staticmethod
+    def _node(node_id):
+        # TODO: need to annotate the bare concept node with a precise inferred category
+        return [
+            node_id,
+            {
+                "id": node_id,
+                "category": ["biolink:NamedThing"]
+            }
+        ]
+
+    @staticmethod
     def _triple(subject, predicate, object):
         key = generate_edge_key(subject, predicate, object)
         # Edge record format: [s, o, key, edge_data] where edge_data is a dictionary of the edge
@@ -112,8 +123,9 @@ class CustomNTriplesParser(W3CNTriplesParser):
             if self.line:
                 raise ParseError("Trailing garbage")
 
-            # Yield to an iterable list of one ntriple line giving a single edge record
-            triple = self._triple(subject, predicate, object)
-            yield from [triple]
+            # Yields a single edge record from one source ntriple line
+            yield self._node(subject)
+            yield self._node(object)
+            yield self._triple(subject, predicate, object)
         else:
             raise StopIteration()

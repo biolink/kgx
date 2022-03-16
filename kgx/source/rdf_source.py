@@ -178,6 +178,7 @@ class RdfSource(Source):
             sink = self.sink
         else:
             sink = None
+
         p = CustomNTriplesParser(sink=sink)
 
         self.set_provenance_map(kwargs)
