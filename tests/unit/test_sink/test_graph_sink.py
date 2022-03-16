@@ -2,7 +2,7 @@ from kgx.sink import GraphSink
 from kgx.transformer import Transformer
 
 
-def test_write_graph():
+def test_write_graph_no_edge_identifier():
     """
     Write a graph via GraphSink.
     """
