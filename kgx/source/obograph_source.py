@@ -1,10 +1,14 @@
 import gzip
 from itertools import chain
-from typing import Optional, Tuple, Dict, Generator, Any
+from typing import Optional, Tuple, Dict, Generator, Any, List
 import ijson
 import stringcase
+from pprint import pprint
 from bmt import Toolkit
-
+import urllib.request, urllib.error, urllib.parse
+import json
+import os
+import requests
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
@@ -244,6 +248,9 @@ class ObographSource(JsonSource):
 
         """
         category = None
+
+        bp_key = os.environ['BIOPORTAL_API_KEY']
+
         # use meta.basicPropertyValues
         if "meta" in node and "basicPropertyValues" in node["meta"]:
             for p in node["meta"]["basicPropertyValues"]:
@@ -258,6 +265,10 @@ class ObographSource(JsonSource):
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
                         else:
                             category = "biolink:OntologyClass"
+
+        if bp_key and not category or category == "biolink:OntologyClass":
+            ontologies = 'BIOLINK,'+PrefixManager.get_prefix(curie)
+            categories = self.query_bioportal_for_mapping(bp_key, ontologies)
 
         if not category or category == "biolink:OntologyClass":
             prefix = PrefixManager.get_prefix(curie)
@@ -286,6 +297,43 @@ class ObographSource(JsonSource):
                     message_level=MessageLevel.WARNING
                 )
         return category
+
+    def query_bioportal_for_mapping(self, bp_key, ontologies) -> List:
+
+        REST_URL = "http://data.bioontology.org/mappings"
+        params = {
+            "ontologies": 'BIOLINK,DOID',
+            "display_context": "false",
+            "display_links": "false",
+            "apikey": bp_key
+
+        }
+        mappings_request = self.get_json(REST_URL, params)
+        result = mappings_request.json()
+
+        pprint(result.get('collection'))
+        categories = []
+        return categories
+
+    def get_json(self, url, parameters):
+        req = requests.get(url, params=parameters)
+        return req
+
+        # Get all ontologies from the REST service and parse the JSO
+
+        # next_page = page
+        # while next_page:
+        #     next_page = page["links"]["nextPage"]
+        #     for bro_class in page["collection"]:
+        #         labels.append(bro_class["prefLabel"])
+        #     if next_page:
+        #         page = get_json(next_page)
+        return categories
+
+    def get_json(self, url, key):
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('Authorization', 'apikey token=' + key)]
+        return json.loads(opener.open(url).read())
 
     def parse_meta(self, node: str, meta: Dict) -> Dict:
         """

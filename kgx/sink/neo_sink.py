@@ -42,7 +42,7 @@ class NeoSink(Sink):
     def __init__(self, owner, uri: str, username: str, password: str, **kwargs: Any):
         if "cache_size" in kwargs:
             self.CACHE_SIZE = kwargs["cache_size"]
-        self.http_driver:Neo4jDriver = GraphDatabase.driver(
+        self.http_driver: Neo4jDriver = GraphDatabase.driver(
             uri, auth=(username, password)
         )
         self.session: Session = self.http_driver.session()
