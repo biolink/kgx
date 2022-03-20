@@ -112,6 +112,12 @@ def test_read_jsonl2():
     [
         (
             {
+                "id": "http://purl.obolibrary.org/obo/PO_0009011"
+            },
+            "biolink:AnatomicalEntity",
+        ),
+        (
+            {
                 "id": "http://purl.obolibrary.org/obo/GO_0005615",
                 "meta": {
                     "basicPropertyValues": [
