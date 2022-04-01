@@ -3,11 +3,7 @@ from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any, List
 import ijson
 import stringcase
-from pprint import pprint
 from bmt import Toolkit
-import urllib.parse
-import urllib.request, urllib.error, urllib.parse
-import json
 import os
 import requests
 from kgx.error_detection import ErrorType, MessageLevel
@@ -15,16 +11,9 @@ from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots
-from linkml_runtime import SchemaView
 
 log = get_logger()
 
-schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
-
-bm_class_names = []
-bm_classes = schema.all_classes()
-for bm_class in bm_classes:
-    bm_class_names.append(bm_class)
 
 class ObographSource(JsonSource):
     """
@@ -39,6 +28,11 @@ class ObographSource(JsonSource):
         super().__init__(owner)
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
+
+        self.bm_class_names = []
+        self.bm_classes = self.toolkit.get_all_classes()
+        for bm_class in self.bm_classes:
+            self.bm_class_names.append(bm_class)
 
     def parse(
         self,
