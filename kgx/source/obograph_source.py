@@ -315,17 +315,28 @@ class ObographSource(JsonSource):
         categories = []
 
         ontology_prefix = PrefixManager.get_prefix(curie)
+        print(curie)
         ancestors = self.get_json(REST_URL + ontology_prefix + "/classes/" + curie + "/ancestors", bp_key)
-        if ancestors:
+        if ancestors is not None:
             for ancestor in ancestors:
+                print(ancestor.get('prefLabel'))
                 if ancestor.get('prefLabel') in bm_class_names:
                     categories.append("biolink:" + ancestor.get('prefLabel'))
         return categories
 
     def get_json(self, url, bp_key):
-        opener = urllib.request.build_opener()
-        opener.addheaders = [('Authorization', 'apikey token=' + bp_key)]
-        return json.loads(opener.open(url).read())
+        params = {
+            "display_context": "false",
+            "display_links": "false",
+            "apikey": bp_key
+
+        }
+        req = requests.get(url, params=params)
+        if req.status_code == 404:
+            return None
+        else:
+            result = req.json()
+        return result
 
     def parse_meta(self, node: str, meta: Dict) -> Dict:
         """
