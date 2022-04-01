@@ -314,7 +314,7 @@ class ObographSource(JsonSource):
         if ancestors is not None:
             for ancestor in ancestors:
                 print(ancestor.get('prefLabel'))
-                if ancestor.get('prefLabel') in bm_class_names:
+                if ancestor.get('prefLabel') in self.bm_class_names:
                     categories.append(ancestor.get('prefLabel'))
                     break
         return categories
