@@ -321,7 +321,8 @@ class ObographSource(JsonSource):
             for ancestor in ancestors:
                 print(ancestor.get('prefLabel'))
                 if ancestor.get('prefLabel') in bm_class_names:
-                    categories.append("biolink:" + ancestor.get('prefLabel'))
+                    categories.append(ancestor.get('prefLabel'))
+                    break
         return categories
 
     def get_json(self, url, bp_key):
