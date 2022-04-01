@@ -323,8 +323,8 @@ class ObographSource(JsonSource):
         params = {
             "display_context": "false",
             "display_links": "false",
-            "apikey": bp_key
-
+            "apikey": bp_key,
+            "include": "prefLabel"
         }
         req = requests.get(url, params=params)
         if req.status_code == 404:
