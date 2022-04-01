@@ -5,6 +5,7 @@ import ijson
 import stringcase
 from pprint import pprint
 from bmt import Toolkit
+import urllib.parse
 import urllib.request, urllib.error, urllib.parse
 import json
 import os
@@ -14,9 +15,16 @@ from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots
+from linkml_runtime import SchemaView
 
 log = get_logger()
 
+schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
+
+bm_class_names = []
+bm_classes = schema.all_classes()
+for bm_class in bm_classes:
+    bm_class_names.append(bm_class)
 
 class ObographSource(JsonSource):
     """
@@ -248,7 +256,6 @@ class ObographSource(JsonSource):
 
         """
         category = None
-        print(node)
 
         bp_key = os.environ['BIOPORTAL_API_KEY']
 
@@ -266,11 +273,13 @@ class ObographSource(JsonSource):
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
                         else:
                             category = "biolink:OntologyClass"
-
+                            
         if bp_key and not category or category == "biolink:OntologyClass":
-            # ontologies = 'BIOLINK,'+PrefixManager.get_prefix(curie)
-            categories = self.query_bioportal_for_mapping(bp_key)
-            print(categories)
+            categories = self.query_bioportal_for_mapping(bp_key, curie)
+            if len(categories) > 0:
+                element = self.toolkit.get_element(categories[0])
+                if element:
+                    category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
 
         if not category or category == "biolink:OntologyClass":
             prefix = PrefixManager.get_prefix(curie)
@@ -300,41 +309,23 @@ class ObographSource(JsonSource):
                 )
         return category
 
-    def query_bioportal_for_mapping(self, bp_key) -> List:
+    def query_bioportal_for_mapping(self, bp_key, curie) -> List:
 
-        REST_URL = "http://data.bioontology.org/mappings"
-        params = {
-            "ontologies": 'BIOLINK,PO',
-            "display_context": "false",
-            "display_links": "false",
-            "apikey": bp_key
-
-        }
-        mappings_request = self.get_json(REST_URL, params)
-        result = mappings_request.json()
-        collection = result.get('collection')
-        print(collection)
-        for item in collection:
-            for iclass in item.get("classes"):
-                print(iclass)
+        REST_URL = "http://data.bioontology.org/ontologies/"
         categories = []
+
+        ontology_prefix = PrefixManager.get_prefix(curie)
+        ancestors = self.get_json(REST_URL + ontology_prefix + "/classes/" + curie + "/ancestors", bp_key)
+        if ancestors:
+            for ancestor in ancestors:
+                if ancestor.get('prefLabel') in bm_class_names:
+                    categories.append("biolink:" + ancestor.get('prefLabel'))
         return categories
 
-    def get_json(self, url, parameters):
-        req = requests.get(url, params=parameters)
-        return req
-
-        # Get all ontologies from the REST service and parse the JSO
-
-        # next_page = page
-        # while next_page:
-        #     next_page = page["links"]["nextPage"]
-        #     for bro_class in page["collection"]:
-        #         labels.append(bro_class["prefLabel"])
-        #     if next_page:
-        #         page = get_json(next_page)
-        return categories
-
+    def get_json(self, url, bp_key):
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('Authorization', 'apikey token=' + bp_key)]
+        return json.loads(opener.open(url).read())
 
     def parse_meta(self, node: str, meta: Dict) -> Dict:
         """
