@@ -257,7 +257,7 @@ class ObographSource(JsonSource):
         """
         category = None
 
-        bp_key = os.environ['BIOPORTAL_API_KEY']
+        bp_key = os.environ.get('BIOPORTAL_API_KEY')
 
         # use meta.basicPropertyValues
         if "meta" in node and "basicPropertyValues" in node["meta"]:
@@ -273,7 +273,7 @@ class ObographSource(JsonSource):
                             category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
                         else:
                             category = "biolink:OntologyClass"
-                            
+
         if bp_key and not category or category == "biolink:OntologyClass":
             categories = self.query_bioportal_for_mapping(bp_key, curie)
             if len(categories) > 0:
