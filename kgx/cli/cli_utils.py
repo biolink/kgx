@@ -805,7 +805,7 @@ def parse_source(
         node_property_predicates,
         predicate_mappings,
     )
-    transformer = Transformer()
+    transformer = Transformer(stream=True)
     transformer.transform(input_args)
     transformer.store.graph.name = key
     if checkpoint:
