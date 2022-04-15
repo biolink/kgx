@@ -1,9 +1,11 @@
 # Changelog
 
+## 1.5.7 (2022-04-15)
+- update click utils to use stream for transform in merge command
+
 ## 1.5.6 (2022-03-09)
 - upgrade linkml & rdflib
 - fix dependencies on black, sphinx, bmt
-
 
 ## 1.5.5 (2022-01-18)
 - upgrade neo4j support to neo4j 4.3.0
