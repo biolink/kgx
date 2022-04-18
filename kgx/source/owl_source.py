@@ -2,7 +2,6 @@ from typing import Set, Optional, Generator, Any
 
 import rdflib
 from rdflib import Namespace, URIRef, OWL, RDFS, RDF
-
 from kgx.config import get_logger
 from kgx.source import RdfSource
 from kgx.utils.kgx_utils import (
@@ -12,7 +11,6 @@ from kgx.utils.kgx_utils import (
 )
 
 log = get_logger()
-
 
 class OwlSource(RdfSource):
     """

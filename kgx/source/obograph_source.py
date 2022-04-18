@@ -4,14 +4,16 @@ from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
 from bmt import Toolkit
-
+from linkml_runtime import SchemaView
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots
 
+
 log = get_logger()
+schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
 
 class ObographSource(JsonSource):
@@ -279,6 +281,9 @@ class ObographSource(JsonSource):
             elif prefix == "NCBITaxon":
                 category = "biolink:OrganismalEntity"
             else:
+
+
+
                 self.owner.log_error(
                     entity=f"{str(category)} for node {curie}",
                     error_type=ErrorType.MISSING_CATEGORY,
