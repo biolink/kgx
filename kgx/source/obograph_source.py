@@ -10,7 +10,8 @@ from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.source.json_source import JsonSource
 from kgx.utils.kgx_utils import get_biolink_element, format_biolink_slots
-
+from oaklib.implementations.pronto.pronto_implementation import ProntoImplementation
+from oaklib.resource import OntologyResource
 
 log = get_logger()
 schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
@@ -85,9 +86,9 @@ class ObographSource(JsonSource):
         else:
             FH = open(filename, "rb")
         for n in ijson.items(FH, "graphs.item.nodes.item"):
-            yield self.read_node(n)
+            yield self.read_node(n, filename)
 
-    def read_node(self, node: Dict) -> Optional[Tuple[str, Dict]]:
+    def read_node(self, node: Dict, filename: str) -> Optional[Tuple[str, Dict]]:
         """
         Read and parse a node record.
 
@@ -123,7 +124,7 @@ class ObographSource(JsonSource):
             fixed_node["subsets"] = node_properties["subsets"]
 
         if "category" not in node:
-            category = self.get_category(curie, node)
+            category = self.get_category(curie, node, filename)
             if category:
                 fixed_node["category"] = [category]
             else:
@@ -228,7 +229,7 @@ class ObographSource(JsonSource):
                 fixed_edge[x] = edge[x]
         return super().read_edge(fixed_edge)
 
-    def get_category(self, curie: str, node: dict) -> Optional[str]:
+    def get_category(self, curie: str, node: dict, filename: str) -> Optional[str]:
         """
         Get category for a given CURIE.
 
@@ -238,6 +239,8 @@ class ObographSource(JsonSource):
             Curie for node
         node: dict
             Node data
+        filename: str
+            Name of the ontology file
 
         Returns
         -------
@@ -281,9 +284,15 @@ class ObographSource(JsonSource):
             elif prefix == "NCBITaxon":
                 category = "biolink:OrganismalEntity"
             else:
-
-
-
+                resource = OntologyResource(slug=filename, directory='tests/resources', local=True)
+                oi = ProntoImplementation(resource)
+                ancestors = oi.ancestors(start_curies=curie)
+                bm_classes = schema.all_classes()
+                exact_mappings = {}
+                for class_name, class_def in bm_classes.items():
+                    exact_mappings[class_name] = class_def.exact_mappings
+                for ancestor in ancestors:
+                    print(ancestor)
                 self.owner.log_error(
                     entity=f"{str(category)} for node {curie}",
                     error_type=ErrorType.MISSING_CATEGORY,

@@ -7,6 +7,18 @@ from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
 
+def test_read_zfa_obograph1():
+    t = Transformer(stream=True)
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "zfa_test.json"),
+        knowledge_source="zfa_test",
+    )
+    for rec in g:
+        if rec:
+            print(rec)
+
+
 def test_read_obograph1():
     """
     Read from an Obograph JSON using ObographSource.

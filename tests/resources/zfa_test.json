@@ -1,0 +1,56 @@
+{
+  "graphs": [
+    {
+      "id": "test_12345",
+      "meta": {},
+      "lbl": "test_12345",
+      "equivalentNodesSets": [],
+      "logicalDefinitionAxioms": [],
+      "domainRangeAxioms": [],
+      "propertyChainAxioms": [],
+      "nodes": [
+
+        {
+          "id": "http://purl.obolibrary.org/obo/ZFA_0005939",
+          "meta": {
+            "definition": {
+              "val": "Blood vessels that bridge between the liver and pancreas.  Four of these vessels have been described, called V1 LP-V4LP.  The  vessels may be transient or permanent and may make direct or indirect connections between the organ vasculature.",
+              "xrefs": [
+                "GOC:cvs",
+                "ORCID:0000-0002-2244-7917",
+                "ZFIN:ZDB-PUB-130710-65"
+              ]
+            },
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#creation_date",
+                "val": "2020-12-02T09:30:41Z"
+              },
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+                "val": "zebrafish_anatomy"
+              },
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#created_by",
+                "val": "ceriv"
+              }
+            ]
+          },
+          "type": "INDIVIDUAL",
+          "lbl": "liver pancreas connecting vessel"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/GO_0010608PHENOTYPE",
+          "meta": {
+            "definition": {
+              "val": "Any phenotype involving posttranscriptional regulation of gene expression.",
+              "xrefs": []
+            }
+          },
+          "type": "CLASS",
+          "lbl": "posttranscriptional regulation of gene expression phenotype"
+        }
+      ]
+    }
+  ]
+}
