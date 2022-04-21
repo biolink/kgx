@@ -139,9 +139,11 @@ def graph_summary(
     # streaming assumed, throwing away the output graph
     output_args = {
         "format": "null"
-    }  # streaming processing throws the graph data away
+    }
 
-    transformer = Transformer()
+    # default here is for Streaming to be applied
+    transformer = Transformer(stream=True)
+
     transformer.transform(
         input_args={
             "filename": inputs,

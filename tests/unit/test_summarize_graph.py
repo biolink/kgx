@@ -1,5 +1,4 @@
 import os
-from sys import stderr
 import pytest
 
 from kgx.graph.nx_graph import NxGraph

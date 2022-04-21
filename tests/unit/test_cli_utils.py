@@ -10,7 +10,6 @@ from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform,
 from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_database,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
@@ -285,8 +284,7 @@ def test_meta_knowledge_graph_as_json_streamed():
         output=output,
         report_type="meta-knowledge-graph",
         node_facet_properties=["provided_by"],
-        edge_facet_properties=["aggregator_knowledge_source"],
-        stream=True,
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     assert os.path.exists(output)
