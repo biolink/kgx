@@ -63,7 +63,6 @@ def cli():
     "-f",
     help=f"The input format. Can be one of {get_report_format_types()}",
 )
-@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
     "--graph-name",
     "-n",
@@ -96,7 +95,6 @@ def graph_summary_wrapper(
     output: Optional[str],
     report_type: str,
     report_format: str,
-    stream: bool,
     graph_name: str,
     node_facet_properties: Optional[List],
     edge_facet_properties: Optional[List],
@@ -120,8 +118,6 @@ def graph_summary_wrapper(
         The summary get_errors type
     report_format: Optional[str]
         The summary get_errors format file types: 'yaml' or 'json'  (default is report_type specific)
-    stream: bool
-        Whether to parse input as a stream
     graph_name: str
         User specified name of graph being summarize
     node_facet_properties: Optional[List]
@@ -141,7 +137,6 @@ def graph_summary_wrapper(
             output,
             report_type,
             report_format,
-            stream,
             graph_name,
             node_facet_properties=list(node_facet_properties),
             edge_facet_properties=list(edge_facet_properties),
