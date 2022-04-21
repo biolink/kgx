@@ -1,10 +1,9 @@
-from collections import OrderedDict
 from typing import List, Optional, Any, Union, Dict, Tuple
 import rdflib
 from linkml_runtime.linkml_model.meta import Element, SlotDefinition, ClassDefinition
 from cachetools import cached, LRUCache
 from rdflib import Namespace, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS
+from rdflib.namespace import RDFS
 
 from kgx.config import get_logger
 from kgx.prefix_manager import PrefixManager
@@ -12,7 +11,6 @@ from kgx.utils.graph_utils import get_category_via_superclass
 from kgx.utils.kgx_utils import (
     get_curie_lookup_service,
     contract,
-    get_cache,
     get_toolkit,
     sentencecase_to_snakecase,
     sentencecase_to_camelcase,
