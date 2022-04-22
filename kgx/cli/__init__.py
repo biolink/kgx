@@ -115,7 +115,7 @@ def graph_summary_wrapper(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary get_errors type
+        The summary get_errors type: "kgx-map" or "meta-knowledge-graph"
     report_format: Optional[str]
         The summary get_errors format file types: 'yaml' or 'json'  (default is report_type specific)
     graph_name: str

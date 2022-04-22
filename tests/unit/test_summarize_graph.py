@@ -1,5 +1,6 @@
 import os
 import pytest
+from deprecation import deprecated
 
 from kgx.graph.nx_graph import NxGraph
 from kgx.graph_operations.summarize_graph import (
@@ -124,6 +125,7 @@ def get_graphs():
     return [g1, g2, g3]
 
 
+@deprecated(deprecated_in="1.5.8", details="Default is the use streaming graph_summary with inspector")
 def test_generate_graph_stats():
     """
     Test for generating graph stats.
@@ -220,7 +222,7 @@ def test_summarize_graph(query):
         assert v == stats["edge_stats"][k]
 
 
-def test_summarize_graph_stream_inspector():
+def test_summarize_graph_inspector():
     """
     Test generate the graph summary by streaming
     graph data through a graph Transformer.process() Inspector

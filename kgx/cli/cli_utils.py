@@ -91,7 +91,7 @@ def graph_summary(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary report type
+        The summary report type: "kgx-map" or "meta-knowledge-graph"
     report_format: Optional[str]
         The summary report format file types: 'yaml' or 'json'
     graph_name: str
