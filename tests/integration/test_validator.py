@@ -58,7 +58,7 @@ def test_validate_json():
         "filename": [os.path.join(RESOURCE_DIR, "valid.json")],
         "format": "json",
     }
-    t = Transformer()
+    t = Transformer(stream=True)
     t.transform(input_args)
     validator = Validator()
     validator.validate(t.store.graph)
