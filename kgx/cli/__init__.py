@@ -166,7 +166,6 @@ def graph_summary_wrapper(
     type=click.Path(exists=False),
     help="File to write validation reports to",
 )
-@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
     "--biolink-release",
     "-b",
@@ -178,7 +177,6 @@ def validate_wrapper(
     input_format: str,
     input_compression: str,
     output: str,
-    stream: bool,
     biolink_release: str = None,
 ):
     """
@@ -195,15 +193,13 @@ def validate_wrapper(
         The input compression type
     output: str
         Path to output file
-    stream: bool
-        Whether to parse input as a stream
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
     errors = []
     try:
         errors = validate(
-            inputs, input_format, input_compression, output, stream, biolink_release
+            inputs, input_format, input_compression, output, biolink_release
         )
     except Exception as ex:
         get_logger().error(str(ex))

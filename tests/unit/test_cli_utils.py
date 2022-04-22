@@ -335,7 +335,7 @@ def test_validate_parsing_triggered_error_exit_code(query):
     assert result.exit_code == query[1]
 
 
-def test_validate_non_streaming():
+def test_validate():
     """
     Test graph validation.
     """
@@ -348,27 +348,6 @@ def test_validate_non_streaming():
         input_format="json",
         input_compression=None,
         output=output,
-        stream=False,
-        biolink_release="2.1.0",
-    )
-    assert os.path.exists(output)
-    assert len(errors) == 0
-
-
-def test_validate_streaming():
-    """
-    Test graph validation.
-    """
-    inputs = [
-        os.path.join(RESOURCE_DIR, "valid.json"),
-    ]
-    output = os.path.join(TARGET_DIR, "validation.log")
-    errors = validate(
-        inputs=inputs,
-        input_format="json",
-        input_compression=None,
-        output=output,
-        stream=True,
         biolink_release="2.1.0",
     )
     assert os.path.exists(output)

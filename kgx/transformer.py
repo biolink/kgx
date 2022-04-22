@@ -73,7 +73,7 @@ class Transformer(ErrorDetecting):
     Parameters
     ----------
     stream: bool
-        Whether or not to stream
+        Whether or not to stream (default: True)
     infores_catalog: Optional[str]
         Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
     error_log:
@@ -83,7 +83,7 @@ class Transformer(ErrorDetecting):
 
     def __init__(
             self,
-            stream: bool = False,
+            stream: bool = True,
             infores_catalog: Optional[str] = None,
             error_log=None
     ):

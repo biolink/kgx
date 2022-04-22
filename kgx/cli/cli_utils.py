@@ -171,7 +171,6 @@ def validate(
     input_format: str,
     input_compression: Optional[str],
     output: Optional[str],
-    stream: bool,
     biolink_release: Optional[str] = None,
 ) -> Dict:
     """
@@ -187,8 +186,6 @@ def validate(
         The input compression type
     output: Optional[str]
         Path to output file (stdout, by default)
-    stream: bool
-         Whether to parse input as a stream.
     biolink_release: Optional[str] = None
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
 
@@ -198,7 +195,7 @@ def validate(
         A dictionary of entities which have parse errors indexed by [message_level][error_type][message]
 
     """
-    # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+    # Processing of statistics on a small memory footprint using streaming of input KGX
     # by injecting an inspector in the Transformer.process() source-to-sink data flow.
     #
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
@@ -209,39 +206,21 @@ def validate(
     # Validator assumes the currently set Biolink Release
     validator = Validator()
 
-    if stream:
-        transformer = Transformer(stream=stream)
+    transformer = Transformer(stream=True)
 
-        transformer.transform(
-            input_args={
-                "filename": inputs,
-                "format": input_format,
-                "compression": input_compression,
-            },
-            output_args={
-                "format": "null"
-            },  # streaming processing throws the graph data away
-            # ... Second, we inject the Inspector into the transform() call,
-            # for the underlying Transformer.process() to use...
-            inspector=validator,
-        )
-    else:
-        # "Classical" non-streaming mode, with click.progressbar
-        # but an unfriendly large memory footprint for large graphs
-
-        transformer = Transformer()
-
-        transformer.transform(
-            {
-                "filename": inputs,
-                "format": input_format,
-                "compression": input_compression,
-            },
-        )
-
-        # Slight tweak of classical 'validate' function: that the
-        # list of errors are cached internally in the Validator object
-        validator.validate(transformer.store.graph)
+    transformer.transform(
+        input_args={
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+        },
+        output_args={
+            "format": "null"
+        },  # streaming processing throws the graph data away
+        # ... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=validator
+    )
 
     if output:
         validator.write_report(open(output, "w"))

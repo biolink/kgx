@@ -112,7 +112,7 @@ def test_validator_explicit_biolink_version():
     assert len(validator.get_errors()) == 0
 
 
-def test_validate_by_stream_inspector():
+def test_validator():
     """
     Test generate the validate function by streaming
     graph data through a graph Transformer.process() Inspector
