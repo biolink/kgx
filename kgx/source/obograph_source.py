@@ -14,7 +14,6 @@ from oaklib.implementations.pronto.pronto_implementation import ProntoImplementa
 from oaklib.resource import OntologyResource
 
 log = get_logger()
-schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
 
 class ObographSource(JsonSource):
@@ -28,8 +27,16 @@ class ObographSource(JsonSource):
 
     def __init__(self, owner):
         super().__init__(owner)
+        schema = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
+        self.exact_mappings = {}
+        self.oi = ProntoImplementation(OntologyResource(local=False, slug='zfa.obo'))
+        self.bm_classes = schema.all_classes()
+        for class_name, class_def in self.bm_classes.items():
+            for em in class_def.exact_mappings:
+                # {ontology_id exact mapped to: biolink class name not curie-fied}
+                self.exact_mappings[em] = class_name
 
     def parse(
         self,
@@ -284,15 +291,12 @@ class ObographSource(JsonSource):
             elif prefix == "NCBITaxon":
                 category = "biolink:OrganismalEntity"
             else:
-                resource = OntologyResource(slug=filename, directory='tests/resources', local=True)
-                oi = ProntoImplementation(resource)
-                ancestors = oi.ancestors(start_curies=curie)
-                bm_classes = schema.all_classes()
-                exact_mappings = {}
-                for class_name, class_def in bm_classes.items():
-                    exact_mappings[class_name] = class_def.exact_mappings
+                ancestors = self.oi.ancestors(start_curies=curie)
                 for ancestor in ancestors:
-                    print(ancestor)
+                    if ancestor in self.bm_classes:
+                        element = self.toolkit.get_element(self.bm_classes[ancestor])
+                        category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
+
                 self.owner.log_error(
                     entity=f"{str(category)} for node {curie}",
                     error_type=ErrorType.MISSING_CATEGORY,

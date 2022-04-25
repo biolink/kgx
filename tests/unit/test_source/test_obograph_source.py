@@ -11,8 +11,8 @@ def test_read_zfa_obograph1():
     t = Transformer(stream=True)
     s = ObographSource(t)
     g = s.parse(
-        os.path.join(RESOURCE_DIR, "zfa_test.json"),
-        knowledge_source="zfa_test",
+        os.path.join(RESOURCE_DIR, "zfa.json"),
+        knowledge_source="ZFA",
     )
     for rec in g:
         if rec:
