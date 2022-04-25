@@ -31,7 +31,7 @@ class ObographSource(JsonSource):
         self.toolkit = Toolkit()
         self.ecache: Dict = {}
         self.exact_mappings = {}
-        self.oi = ProntoImplementation(OntologyResource(local=False, slug='zfa.obo'))
+        self.oi = ProntoImplementation(OntologyResource(local=False, slug='pato.obo'))
         self.bm_classes = schema.all_classes()
         for class_name, class_def in self.bm_classes.items():
             for em in class_def.exact_mappings:

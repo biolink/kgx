@@ -11,12 +11,16 @@ def test_read_zfa_obograph1():
     t = Transformer(stream=True)
     s = ObographSource(t)
     g = s.parse(
-        os.path.join(RESOURCE_DIR, "zfa.json"),
-        knowledge_source="ZFA",
+        os.path.join(RESOURCE_DIR, "pato.json"),
+        knowledge_source="pato",
     )
+    categories = []
     for rec in g:
-        if rec:
-            print(rec)
+        print(rec)
+        for category in rec[1].get("category"):
+            if category not in categories:
+                categories.append(category)
+    print(categories)
 
 
 def test_read_obograph1():
