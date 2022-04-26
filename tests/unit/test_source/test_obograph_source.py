@@ -6,6 +6,19 @@ from kgx.source import ObographSource
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
 
+def test_read_hp_obograph1():
+    t = Transformer(stream=True)
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "hp.json"),
+        knowledge_source="hp",
+    )
+    categories = []
+    for rec in g:
+        if rec:
+            print(rec[1].get("name"))
+            print(rec[1].get("category"))
+    print(categories)
 
 def test_read_obograph1():
     """
