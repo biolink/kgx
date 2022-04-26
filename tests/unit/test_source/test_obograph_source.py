@@ -16,8 +16,9 @@ def test_read_hp_obograph1():
     )
     categories = []
     for rec in g:
-        print(rec[1].get("category"))
-    # print(categories)
+        if rec and type(rec[1]) != 'str' and rec[1].get("category") not in categories:
+            categories.append(rec[1].get("category"))
+    print(categories)
 
 
 def test_read_obograph1():

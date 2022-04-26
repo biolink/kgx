@@ -274,8 +274,8 @@ class ObographSource(JsonSource):
         if not category or category == "biolink:OntologyClass":
             prefix = PrefixManager.get_prefix(curie)
             # TODO: the mapping should be via biolink-model lookups
-            if prefix == "HP":
-                category = "biolink:PhenotypicFeature"
+            if prefix == "ZFA":
+                category = "biolink:AnatomicalEntity"
             elif prefix == "CHEBI":
                 category = "biolink:ChemicalSubstance"
             elif prefix == "MONDO":
