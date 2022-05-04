@@ -68,7 +68,6 @@ class NeoSink(Sink):
         sanitized_category = self.sanitize_category(record["category"])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
-            print(self.CACHE_SIZE)
             self._flush_node_cache()
         if category not in self.node_cache:
             self.node_cache[category] = [record]
@@ -146,10 +145,8 @@ class NeoSink(Sink):
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
-                print(batch)
                 log.debug(f"Batch {x} - {y}")
                 try:
-                    print(query)
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
                     )
