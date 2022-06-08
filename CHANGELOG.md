@@ -1,4 +1,6 @@
 # Changelog
+## 1.5.8 (2022-06-02)
+- take down logging level for neo4j
 
 ## 1.5.7 (2022-04-15)
 - update click utils to use stream for transform in merge command
