@@ -5,7 +5,7 @@ from os.path import dirname, abspath
 
 from sys import stdout
 from multiprocessing import Pool
-from typing import List, Tuple, Optional, Dict, Set, Any, Union
+from typing import List, Tuple, Optional, Dict, Set, Union
 import yaml
 
 from kgx.validator import Validator
@@ -72,7 +72,6 @@ def graph_summary(
     output: Optional[str],
     report_type: str,
     report_format: Optional[str] = None,
-    stream: bool = False,
     graph_name: Optional[str] = None,
     node_facet_properties: Optional[List] = None,
     edge_facet_properties: Optional[List] = None,
@@ -92,11 +91,9 @@ def graph_summary(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary report type
+        The summary report type: "kgx-map" or "meta-knowledge-graph"
     report_format: Optional[str]
         The summary report format file types: 'yaml' or 'json'
-    stream: bool
-        Whether to parse input as a stream
     graph_name: str
         User specified name of graph being summarized
     node_facet_properties: Optional[List]
@@ -139,14 +136,14 @@ def graph_summary(
     else:
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
 
-    if stream:
-        output_args = {
-            "format": "null"
-        }  # streaming processing throws the graph data away
-    else:
-        output_args = None
+    # streaming assumed, throwing away the output graph
+    output_args = {
+        "format": "null"
+    }
 
-    transformer = Transformer(stream=stream)
+    # default here is for Streaming to be applied
+    transformer = Transformer(stream=True)
+
     transformer.transform(
         input_args={
             "filename": inputs,
@@ -174,7 +171,6 @@ def validate(
     input_format: str,
     input_compression: Optional[str],
     output: Optional[str],
-    stream: bool,
     biolink_release: Optional[str] = None,
 ) -> Dict:
     """
@@ -190,8 +186,6 @@ def validate(
         The input compression type
     output: Optional[str]
         Path to output file (stdout, by default)
-    stream: bool
-         Whether to parse input as a stream.
     biolink_release: Optional[str] = None
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
 
@@ -201,7 +195,7 @@ def validate(
         A dictionary of entities which have parse errors indexed by [message_level][error_type][message]
 
     """
-    # New design pattern enabling 'stream' processing of statistics on a small memory footprint
+    # Processing of statistics on a small memory footprint using streaming of input KGX
     # by injecting an inspector in the Transformer.process() source-to-sink data flow.
     #
     # First, we instantiate a Validator() class (converted into a Callable class) as an Inspector ...
@@ -212,39 +206,21 @@ def validate(
     # Validator assumes the currently set Biolink Release
     validator = Validator()
 
-    if stream:
-        transformer = Transformer(stream=stream)
+    transformer = Transformer(stream=True)
 
-        transformer.transform(
-            input_args={
-                "filename": inputs,
-                "format": input_format,
-                "compression": input_compression,
-            },
-            output_args={
-                "format": "null"
-            },  # streaming processing throws the graph data away
-            # ... Second, we inject the Inspector into the transform() call,
-            # for the underlying Transformer.process() to use...
-            inspector=validator,
-        )
-    else:
-        # "Classical" non-streaming mode, with click.progressbar
-        # but an unfriendly large memory footprint for large graphs
-
-        transformer = Transformer()
-
-        transformer.transform(
-            {
-                "filename": inputs,
-                "format": input_format,
-                "compression": input_compression,
-            },
-        )
-
-        # Slight tweak of classical 'validate' function: that the
-        # list of errors are cached internally in the Validator object
-        validator.validate(transformer.store.graph)
+    transformer.transform(
+        input_args={
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+        },
+        output_args={
+            "format": "null"
+        },  # streaming processing throws the graph data away
+        # ... Second, we inject the Inspector into the transform() call,
+        # for the underlying Transformer.process() to use...
+        inspector=validator
+    )
 
     if output:
         validator.write_report(open(output, "w"))
@@ -377,7 +353,6 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ""):
     """
     Utility method for resolving file paths
     :param cwd: current working directory for resolving possible relative file path names
-    :param file_list: list of file path names to resolve
     :param context: optional source context of of the file list
     :return: resolved list of file paths (as absolute paths)
     """

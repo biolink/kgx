@@ -63,7 +63,6 @@ def cli():
     "-f",
     help=f"The input format. Can be one of {get_report_format_types()}",
 )
-@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
     "--graph-name",
     "-n",
@@ -96,7 +95,6 @@ def graph_summary_wrapper(
     output: Optional[str],
     report_type: str,
     report_format: str,
-    stream: bool,
     graph_name: str,
     node_facet_properties: Optional[List],
     edge_facet_properties: Optional[List],
@@ -117,11 +115,9 @@ def graph_summary_wrapper(
     output: Optional[str]
         Where to write the output (stdout, by default)
     report_type: str
-        The summary get_errors type
+        The summary get_errors type: "kgx-map" or "meta-knowledge-graph"
     report_format: Optional[str]
         The summary get_errors format file types: 'yaml' or 'json'  (default is report_type specific)
-    stream: bool
-        Whether to parse input as a stream
     graph_name: str
         User specified name of graph being summarize
     node_facet_properties: Optional[List]
@@ -141,7 +137,6 @@ def graph_summary_wrapper(
             output,
             report_type,
             report_format,
-            stream,
             graph_name,
             node_facet_properties=list(node_facet_properties),
             edge_facet_properties=list(edge_facet_properties),
@@ -171,7 +166,6 @@ def graph_summary_wrapper(
     type=click.Path(exists=False),
     help="File to write validation reports to",
 )
-@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
 @click.option(
     "--biolink-release",
     "-b",
@@ -183,7 +177,6 @@ def validate_wrapper(
     input_format: str,
     input_compression: str,
     output: str,
-    stream: bool,
     biolink_release: str = None,
 ):
     """
@@ -200,15 +193,13 @@ def validate_wrapper(
         The input compression type
     output: str
         Path to output file
-    stream: bool
-        Whether to parse input as a stream
     biolink_release: Optional[str]
         SemVer version of Biolink Model Release used for validation (default: latest Biolink Model Toolkit version)
     """
     errors = []
     try:
         errors = validate(
-            inputs, input_format, input_compression, output, stream, biolink_release
+            inputs, input_format, input_compression, output, biolink_release
         )
     except Exception as ex:
         get_logger().error(str(ex))

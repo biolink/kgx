@@ -9,6 +9,8 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from deprecation import deprecated
+
 from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
@@ -835,6 +837,7 @@ class GraphSummary(ErrorDetecting):
             dump(stats, file, indent=4, default=gs_default)
 
 
+@deprecated(deprecated_in="1.5.8", details="Default is the use streaming graph_summary with inspector")
 def generate_graph_stats(
     graph: BaseGraph,
     graph_name: str,

@@ -58,7 +58,7 @@ def test_validate_json():
         "filename": [os.path.join(RESOURCE_DIR, "valid.json")],
         "format": "json",
     }
-    t = Transformer()
+    t = Transformer(stream=True)
     t.transform(input_args)
     validator = Validator()
     validator.validate(t.store.graph)
@@ -112,7 +112,7 @@ def test_validator_explicit_biolink_version():
     assert len(validator.get_errors()) == 0
 
 
-def test_validate_by_stream_inspector():
+def test_validator():
     """
     Test generate the validate function by streaming
     graph data through a graph Transformer.process() Inspector

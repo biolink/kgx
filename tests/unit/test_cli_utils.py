@@ -10,12 +10,12 @@ from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform,
 from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_database,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
-    DEFAULT_NEO4J_PASSWORD
+    DEFAULT_NEO4J_PASSWORD,
+    clean_database
 )
 
 
@@ -285,8 +285,7 @@ def test_meta_knowledge_graph_as_json_streamed():
         output=output,
         report_type="meta-knowledge-graph",
         node_facet_properties=["provided_by"],
-        edge_facet_properties=["aggregator_knowledge_source"],
-        stream=True,
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     assert os.path.exists(output)
@@ -337,7 +336,7 @@ def test_validate_parsing_triggered_error_exit_code(query):
     assert result.exit_code == query[1]
 
 
-def test_validate_non_streaming():
+def test_validate():
     """
     Test graph validation.
     """
@@ -350,27 +349,6 @@ def test_validate_non_streaming():
         input_format="json",
         input_compression=None,
         output=output,
-        stream=False,
-        biolink_release="2.1.0",
-    )
-    assert os.path.exists(output)
-    assert len(errors) == 0
-
-
-def test_validate_streaming():
-    """
-    Test graph validation.
-    """
-    inputs = [
-        os.path.join(RESOURCE_DIR, "valid.json"),
-    ]
-    output = os.path.join(TARGET_DIR, "validation.log")
-    errors = validate(
-        inputs=inputs,
-        input_format="json",
-        input_compression=None,
-        output=output,
-        stream=True,
         biolink_release="2.1.0",
     )
     assert os.path.exists(output)
