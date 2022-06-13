@@ -1,4 +1,7 @@
 # Changelog
+## 1.5.9 (2022-06-13)
+- make streaming transform default
+
 ## 1.5.8 (2022-06-02)
 - take down logging level for neo4j
 
