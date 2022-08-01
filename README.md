@@ -53,7 +53,7 @@ transformer.transform(
             "graph_edges.tsv",
         ],
         "format": "tsv",
-    }
+    },
     output_args={
         "format": "null"
     },
