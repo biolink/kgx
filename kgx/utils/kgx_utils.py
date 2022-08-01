@@ -854,6 +854,10 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
         # it's not checking the type against the expected type even though one exists
         elif isinstance(value, (str, float)):
             new_value = value
+        elif isinstance(value, dict):
+            print("instance is a dict")
+            print(value)
+            new_value = value
         else:
             # we might want to raise an exception or somehow indicate a type mismatch in the input data
             new_value = str(value).replace("\n", " ").replace("\t", " ")
