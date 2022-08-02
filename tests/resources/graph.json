@@ -1941,24 +1941,7 @@
                 "go"
             ],
             "relation": "RO:0002331",
-            "subject": "HGNC:10848",
-            "contingency_matrices": [
-                {
-                    "feature_matrix": [
-                        [
-                            {
-                                "frequency": 0.0,
-                                "row_percentage": 0.0,
-                                "col_percentage": 0.0,
-                                "total_percentage": 0.0
-                            }
-                        ]
-                    ],
-                    "total": 60.0,
-                    "chi_squared": 13.104376458650128,
-                    "p_value": 0.5942361353626833
-                }
-            ]
+            "subject": "HGNC:10848"
         },
         {
             "id": "urn:uuid:7dd20ae6-40f3-4a56-a151-3f06a8f495c4",
@@ -3610,7 +3593,9 @@
                 "bgee"
             ],
             "relation": "RO:0002206",
-            "subject": "HGNC:10848"
+            "subject": "HGNC:10848",
+            "unidentified_property": [ "what?"
+            ]
         },
         {
             "id": "urn:uuid:65fe6e12-a57e-466f-9bbf-a04cdc4b059e",

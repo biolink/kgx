@@ -73,7 +73,7 @@ def test_json_to_neo4j_load_to_graph_transform(clean_database):
     logger.debug("test_json_to_neo4j_load...")
     input_args1 = {
         "filename": [
-            os.path.join(RESOURCE_DIR, "graph.json")
+            os.path.join(RESOURCE_DIR, "json_edges.json")
         ],
         "format": "json",
     }

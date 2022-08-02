@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "id": "EFO:0000246",
+      "name": "age",
+      "category": [
+        "biolink:NamedThing",
+        "biolink:BiologicalEntity",
+        "biolink:ThingWithTaxon",
+        "biolink:Entity",
+        "biolink:DiseaseOrPhenotypicFeature",
+        "biolink:PhenotypicFeature"
+      ],
+      "equivalent_identifiers": [
+        "EFO:0000246"
+      ]
+    },
+    {
+      "id": "NCIT:C138901",
+      "name": "Body Mass Index Finding",
+      "category": [
+        "biolink:NamedThing",
+        "biolink:BiologicalEntity",
+        "biolink:ThingWithTaxon",
+        "biolink:Entity",
+        "biolink:DiseaseOrPhenotypicFeature",
+        "biolink:PhenotypicFeature"
+      ],
+      "equivalent_identifiers": [
+        "NCIT:C138901",
+        "UMLS:C0578022",
+        "SNOMEDCT:301331008"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "subject": "EFO:0000246",
+      "predicate": "biolink:related_to",
+      "object": "NCIT:C138901",
+      "biolink:original_knowledge_source": "infores:icees-kg",
+      "test1": "test1",
+      "test2": [
+        {
+          "feature_matrix": [
+            [
+              {
+                "frequency": 0.0,
+                "row_percentage": 0.0,
+                "col_percentage": 0.0,
+                "total_percentage": 0.0
+              }
+            ]
+          ],
+          "total": 60.0,
+          "chi_squared": 13.104376458650128,
+          "p_value": 0.5942361353626833
+        }
+      ]
+    }
+  ]
+}
