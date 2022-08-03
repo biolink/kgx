@@ -125,9 +125,8 @@ class JsonSource(TsvSource):
         edge = self.validate_edge(edge)
         if not edge:
             return None
-        pprint(edge)
-        pprint(type(edge))
         edge_data = sanitize_import(edge.copy())
+        print("after sanitize, edge_data looks like this")
         pprint(edge_data)
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()

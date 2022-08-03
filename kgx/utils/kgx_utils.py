@@ -805,12 +805,7 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
     """
     tidy_data = {}
     for key, value in data.items():
-        print("key and value")
-        print(key)
-        print(value)
         new_value = remove_null(value)
-        print("new value from remove null")
-        print(new_value)
         if new_value is not None:
             tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
     return tidy_data
@@ -865,18 +860,11 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
-            print("its a list")
-            new_value = []
-            jsonified = json.dumps(value)
-            print(jsonified)
-            # if "{" in jsonified:
-            #     print(jsonified)
-            #     new_value.append(jsonified)
-            # else:
-            #     for v in value:
-            #         v.replace("\n", " ").replace("\t", " ")
-            #         new_value.append(v)
-            #print(new_value)
+            value = [
+                v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
+                for v in value
+            ]
+            new_value = list(value)
         elif isinstance(value, str):
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
@@ -991,13 +979,13 @@ def _sanitize_export_property(key: str, value: Any, list_delimiter: str=None) ->
     return new_value
 
 
-def remove_null(input: Any) -> Any:
+def remove_null(value: Any) -> Any:
     """
     Remove any null values from input.
 
     Parameters
     ----------
-    input: Any
+    value: Any
         Can be a str, list or dict
 
     Returns
@@ -1006,28 +994,17 @@ def remove_null(input: Any) -> Any:
         The input without any null values
 
     """
-    new_value: Any = None
-    if isinstance(input, (list, set, tuple)):
+    if isinstance(value, (list, set, tuple)):
         # value is a list, set or a tuple
-        new_value = []
-        for v in input:
-            x = remove_null(v)
-            if x:
-                new_value.append(x)
-    elif isinstance(input, dict):
-        # value is a dict
-        print("value is a dict")
-        print(input)
-        new_value = {}
-        # TODO - this is the issue with json data
-        for k, v in input.items():
-            x = remove_null(v)
-            if x:
-                new_value[k] = x
+        return [remove_null(x) for x in value if x is not None]
+    elif isinstance(value, dict):
+        return {
+            key: remove_null(val)
+            for key, val in value.items()
+            if val is not None
+        }
     else:
-        if not is_null(input):
-            new_value = input
-    return new_value
+        return value
 
 
 def is_null(item: Any) -> bool:
