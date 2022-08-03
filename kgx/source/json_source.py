@@ -1,6 +1,6 @@
 import gzip
 from typing import Optional, Generator, Any
-
+from pprint import pprint
 import ijson
 from itertools import chain
 
@@ -94,5 +94,5 @@ class JsonSource(TsvSource):
             FH = gzip.open(filename, "rb")
         else:
             FH = open(filename, "rb")
-        for e in ijson.items(FH, "edges.item"):
+        for e in ijson.items(FH, "edges.item", use_float=True):
             yield self.read_edge(e)

@@ -22,7 +22,8 @@ from prefixcommons.curie_util import expand_uri
 
 from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
-
+from pprint import pprint
+import json
 curie_lookup_service = None
 cache = None
 
@@ -804,7 +805,12 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
     """
     tidy_data = {}
     for key, value in data.items():
+        print("key and value")
+        print(key)
+        print(value)
         new_value = remove_null(value)
+        print("new value from remove null")
+        print(new_value)
         if new_value is not None:
             tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
     return tidy_data
@@ -859,11 +865,18 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
-            value = [
-                v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
-                for v in value
-            ]
-            new_value = list(value)
+            print("its a list")
+            new_value = []
+            jsonified = json.dumps(value)
+            print(jsonified)
+            # if "{" in jsonified:
+            #     print(jsonified)
+            #     new_value.append(jsonified)
+            # else:
+            #     for v in value:
+            #         v.replace("\n", " ").replace("\t", " ")
+            #         new_value.append(v)
+            #print(new_value)
         elif isinstance(value, str):
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
@@ -1003,7 +1016,10 @@ def remove_null(input: Any) -> Any:
                 new_value.append(x)
     elif isinstance(input, dict):
         # value is a dict
+        print("value is a dict")
+        print(input)
         new_value = {}
+        # TODO - this is the issue with json data
         for k, v in input.items():
             x = remove_null(v)
             if x:

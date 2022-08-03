@@ -272,7 +272,8 @@ class TsvSource(Source):
         edge = self.validate_edge(edge)
         if not edge:
             return None
-
+        pprint(edge)
+        pprint(type(edge))
         edge_data = sanitize_import(edge.copy(), self.list_delimiter)
         pprint(edge_data)
         if "id" not in edge_data:
