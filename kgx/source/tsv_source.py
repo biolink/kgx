@@ -13,7 +13,7 @@ from kgx.utils.kgx_utils import (
     archive_read_mode,
     sanitize_import
 )
-
+from pprint import pprint
 log = get_logger()
 
 DEFAULT_LIST_DELIMITER = "|"
@@ -274,7 +274,7 @@ class TsvSource(Source):
             return None
 
         edge_data = sanitize_import(edge.copy(), self.list_delimiter)
-
+        pprint(edge_data)
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]

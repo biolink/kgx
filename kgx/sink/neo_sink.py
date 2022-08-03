@@ -5,7 +5,7 @@ from kgx.config import get_logger
 from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
 from kgx.source.source import DEFAULT_NODE_CATEGORY
-
+from pprint import pprint
 log = get_logger()
 
 
@@ -131,6 +131,7 @@ class NeoSink(Sink):
             self.edge_cache[edge_predicate].append(record)
         else:
             self.edge_cache[edge_predicate] = [record]
+        print(record)
         self.edge_count += 1
 
     def _write_edge_cache(self) -> None:
@@ -140,8 +141,9 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.debug(query)
+            log.info(query)
             edges = self.edge_cache[predicate]
+            pprint(edges)
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
@@ -238,6 +240,7 @@ class NeoSink(Sink):
         MERGE (s)-[r:`{edge_predicate}`]->(o)
         SET r += edge
         """
+        print(query)
         return query
 
     def create_constraints(self, categories: Union[set, list]) -> None:

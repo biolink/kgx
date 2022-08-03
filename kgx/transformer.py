@@ -359,6 +359,7 @@ class Transformer(ErrorDetecting):
                         else:
                             write_edge = False
                     if write_edge:
+                        print(rec[-1])
                         if self.inspector:
                             self.inspector(GraphEntityType.EDGE, rec)
                         sink.write_edge(rec[-1])
@@ -385,6 +386,8 @@ class Transformer(ErrorDetecting):
         source = self.store
         source.node_properties.update(self.store.node_properties)
         source.edge_properties.update(self.store.edge_properties)
+        print("transformer save")
+        print(self.store.edge_properties)
         source_generator = source.parse(self.store.graph)
         if "node_properties" not in output_args:
             output_args["node_properties"] = source.node_properties
@@ -393,6 +396,8 @@ class Transformer(ErrorDetecting):
         sink = self.get_sink(**output_args)
         sink.node_properties.update(source.node_properties)
         sink.edge_properties.update(source.edge_properties)
+        print("sink edge properties")
+        print(sink.edge_properties)
         if "reverse_prefix_map" in output_args:
             sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
         if isinstance(sink, RdfSink):
