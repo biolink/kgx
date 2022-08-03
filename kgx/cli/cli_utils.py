@@ -394,6 +394,8 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
             else:
                 # assumed to be an InfoRes Tuple rewrite specification
                 if len(spec_parts) > 3:
+                    log.warning("spec_parts")
+                    log.warning(spec_parts)
                     spec_parts = spec_parts[:2]
                 return tuple(spec_parts)
 
@@ -539,13 +541,11 @@ def transform(
         }
 
         if knowledge_sources:
-            log.warning("knowledge_sources " + knowledge_sources)
-            # "knowledge_sources": [("aggregator_knowledge_source", "sometest"),
-            #                      ("primary_knowledge_source", "somestring")]
+            log.warning(knowledge_sources)
+            log.warning(type(knowledge_sources))
+            #for ksf, spec in knowledge_sources:
             for ksf, spec in knowledge_sources:
-                log.warning("what am I passing here " +  knowledge_sources)
-                log.warning("what is ksf " + ksf)
-                log.warning("what is spec " + spec)
+                log.warning("what is ks " + ksf)
                 ksf_spec = _process_knowledge_source(ksf, spec)
                 if isinstance(ksf_spec, tuple):
                     if ksf not in source_dict["input"]:
@@ -563,7 +563,7 @@ def transform(
                         )
                 else:
                     source_dict["input"][ksf] = ksf_spec
-            print(source_dict)
+                log.warning(source_dict)
 
         name = os.path.basename(inputs[0])
         transform_source(

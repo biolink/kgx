@@ -144,7 +144,10 @@ def test_transform_obojson_to_csv_wrapper():
     output = os.path.join(TARGET_DIR, "test_pato.csv")
 
     runner = CliRunner()
-    ks = ("aggregator_knowledge_source", ["infores:rgd"])
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "string,string database"),
+        ("aggregator_knowledge_source", "go,gene ontology"),
+    ]
     result = runner.invoke(
         cli,
         [
@@ -152,7 +155,7 @@ def test_transform_obojson_to_csv_wrapper():
             "-i", "obojson",
             "-o", output,
             "-f", "csv",
-            "-k", ks,
+            "-k", knowledge_sources,
             inputs
         ]
     )
@@ -627,6 +630,7 @@ def test_transform_error():
     }
     except ValueError:
         assert ValueError
+
 
 def test_transform_knowledge_source_suppression():
     """
