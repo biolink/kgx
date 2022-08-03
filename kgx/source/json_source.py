@@ -3,7 +3,17 @@ from typing import Optional, Generator, Any
 from pprint import pprint
 import ijson
 from itertools import chain
-
+from typing import Dict, Tuple, Any, Generator, Optional, List
+from kgx.config import get_logger
+from kgx.error_detection import ErrorType, MessageLevel
+from kgx.source.source import Source
+from kgx.utils.kgx_utils import (
+    generate_uuid,
+    generate_edge_key,
+    extension_types,
+    archive_read_mode,
+    sanitize_import
+)
 from kgx.source.tsv_source import TsvSource
 
 
@@ -96,3 +106,38 @@ class JsonSource(TsvSource):
             FH = open(filename, "rb")
         for e in ijson.items(FH, "edges.item", use_float=True):
             yield self.read_edge(e)
+
+    def read_edge(self, edge: Dict) -> Optional[Tuple]:
+        """
+        Load an edge into an instance of BaseGraph.
+
+        Parameters
+        ----------
+        edge: Dict
+            An edge
+
+        Returns
+        -------
+        Optional[Tuple]
+            A tuple that contains subject id, object id, edge key, and edge data
+
+        """
+        edge = self.validate_edge(edge)
+        if not edge:
+            return None
+        pprint(edge)
+        pprint(type(edge))
+        edge_data = sanitize_import(edge.copy())
+        pprint(edge_data)
+        if "id" not in edge_data:
+            edge_data["id"] = generate_uuid()
+        s = edge_data["subject"]
+        o = edge_data["object"]
+
+        self.set_edge_provenance(edge_data)
+
+        key = generate_edge_key(s, edge_data["predicate"], o)
+        self.edge_properties.update(list(edge_data.keys()))
+        if self.check_edge_filter(edge_data):
+            self.node_properties.update(edge_data.keys())
+            return s, o, key, edge_data

@@ -1024,10 +1024,6 @@ def remove_null(input: Any) -> Any:
             x = remove_null(v)
             if x:
                 new_value[k] = x
-    elif isinstance(input, str):
-        # value is a str
-        if not is_null(input):
-            new_value = input
     else:
         if not is_null(input):
             new_value = input
