@@ -123,6 +123,7 @@ class NeoSink(Sink):
             An edge record
 
         """
+        print(record)
         if self.edge_count >= self.CACHE_SIZE:
             self._flush_edge_cache()
         # self.validate_edge(data)
