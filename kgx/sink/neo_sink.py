@@ -123,7 +123,6 @@ class NeoSink(Sink):
             An edge record
 
         """
-        print(record)
         if self.edge_count >= self.CACHE_SIZE:
             self._flush_edge_cache()
         # self.validate_edge(data)
@@ -141,7 +140,7 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.info(query)
+            log.debug(query)
             edges = self.edge_cache[predicate]
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
@@ -237,7 +236,7 @@ class NeoSink(Sink):
         UNWIND $edges AS edge
         MATCH (s:`{DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
         MERGE (s)-[r:`{edge_predicate}`]->(o)
-        SET r += edge
+        SET r += apoc.convert.toString(edge)
         """
         return query
 

@@ -43,17 +43,7 @@
       "test1": "test1",
       "crappy_list_of_objects": [
         {
-          "feature_matrix": [
-              {
-                "frequency": 0.0,
-                "row_percentage": 0.0,
-                "col_percentage": 0.0,
-                "total_percentage": 0.0
-              }
-            ],
-          "total": 60.0,
-          "chi_squared": 13.104376458650128,
-          "p_value": 0.5942361353626833
+          "feature_matrix":  0.0
         }
       ]
     }

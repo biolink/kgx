@@ -15,7 +15,7 @@ from kgx.utils.kgx_utils import (
     sanitize_import
 )
 from kgx.source.tsv_source import TsvSource
-
+log = get_logger()
 
 class JsonSource(TsvSource):
     """
@@ -126,8 +126,8 @@ class JsonSource(TsvSource):
         if not edge:
             return None
         edge_data = sanitize_import(edge.copy())
-        print("after sanitize, edge_data looks like this")
-        pprint(edge_data)
+        log.debug("after sanitize, edge_data looks like this")
+        log.debug(edge_data)
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]
@@ -137,7 +137,7 @@ class JsonSource(TsvSource):
 
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
-        pprint(self.edge_properties)
+        log.debug(self.edge_properties)
         if self.check_edge_filter(edge_data):
             self.node_properties.update(edge_data.keys())
             return s, o, key, edge_data

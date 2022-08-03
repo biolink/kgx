@@ -109,7 +109,6 @@ def test_graph_summary_report_format_wrapper_error():
     assert result.exit_code == 1
 
 
-
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -133,6 +132,31 @@ def test_transform_wrapper():
     )
 
     assert result.exit_code == 1
+
+
+def test_transform_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "pato.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_pato.csv")
+
+    runner = CliRunner()
+    ks = ("aggregator_knowledge_source", ["infores:rgd"])
+    result = runner.invoke(
+        cli,
+        [
+            "transform",
+            "-i", "obojson",
+            "-o", output,
+            "-f", "csv",
+            "-k", ks,
+            inputs
+        ]
+    )
+    print(result)
 
 
 def test_merge_wrapper():

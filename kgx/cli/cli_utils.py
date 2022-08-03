@@ -376,6 +376,7 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ""):
 
 
 def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
+    log.warning("Cmon: " + ksf)
     if ksf not in knowledge_provenance_properties:
         log.warning("Unknown Knowledge Source Field: " + ksf + "... ignoring!")
         return False
@@ -538,7 +539,13 @@ def transform(
         }
 
         if knowledge_sources:
+            log.warning("knowledge_sources " + knowledge_sources)
+            # "knowledge_sources": [("aggregator_knowledge_source", "sometest"),
+            #                      ("primary_knowledge_source", "somestring")]
             for ksf, spec in knowledge_sources:
+                log.warning("what am I passing here " +  knowledge_sources)
+                log.warning("what is ksf " + ksf)
+                log.warning("what is spec " + spec)
                 ksf_spec = _process_knowledge_source(ksf, spec)
                 if isinstance(ksf_spec, tuple):
                     if ksf not in source_dict["input"]:
@@ -556,6 +563,7 @@ def transform(
                         )
                 else:
                     source_dict["input"][ksf] = ksf_spec
+            print(source_dict)
 
         name = os.path.basename(inputs[0])
         transform_source(
@@ -877,7 +885,7 @@ def transform_source(
             catalog: Dict[str, str] = transformer.get_infores_catalog()
             for source in catalog.keys():
                 infores = catalog.setdefault(source, "unknown")
-                print(f"{source}\t{infores}", file=irc)
+                log.debug(f"{source}\t{infores}", file=irc)
 
     return transformer.store
 

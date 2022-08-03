@@ -860,12 +860,21 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
-            print("its a list")
-            value = [
-                    v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
-                    for v in value
-                ]
-            new_value = list(value)
+            new_value = []
+            log.debug("value", value)
+            for v in value:
+                log.debug("v", v)
+                if isinstance(v, str):
+                    v = v.replace("\n", " ").replace("\t", " ")
+                    new_value.append(v)
+                else:
+                    # convert non str lists to jsonified str list
+                    log.debug(type(v))
+                    jsonified_v = str(v)
+                    log.debug("jsonified_v type", type(jsonified_v))
+                    log.debug("jsonified_v", jsonified_v)
+                    new_value = jsonified_v
+            log.debug("new value", new_value)
         elif isinstance(value, str):
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
