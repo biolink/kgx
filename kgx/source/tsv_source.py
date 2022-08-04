@@ -178,6 +178,7 @@ class TsvSource(Source):
             )
             if re.search(f"nodes.{format}", filename):
                 for chunk in file_iter:
+                    print("chunk_columns", chunk.columns)
                     self.node_properties.update(chunk.columns)
                     yield from self.read_nodes(chunk)
             elif re.search(f"edges.{format}", filename):
@@ -232,6 +233,8 @@ class TsvSource(Source):
             self.set_node_provenance(node_data)
 
             self.node_properties.update(list(node_data.keys()))
+            log.debug("tsv read node")
+            log.debug("self.node_properties", self.node_properties)
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
                 return n, node_data
