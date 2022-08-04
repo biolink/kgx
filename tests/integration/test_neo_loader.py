@@ -105,30 +105,3 @@ def test_json_to_neo4j_load_to_graph_transform(clean_database):
 
     assert os.path.exists(f"{output_filename}_nodes.csv")
     assert os.path.exists(f"{output_filename}_edges.csv")
-
-
-@pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
-)
-def test_obojson_to_tsv_transform(clean_database):
-    """
-    Test to load a obojson KGX file into Neo4j.
-    """
-    logger.debug("test_json_to_neo4j_load...")
-    input_args1 = {
-        "filename": [
-            os.path.join(RESOURCE_DIR, "pato.json")
-        ],
-        "format": "obojson",
-        "knowledge_sources": [("aggregator_knowledge_source", "infores:rgd"),
-                              ("primary_knowledge_source", "infores:rgd")]
-    }
-
-    output_filename = os.path.join(TARGET_DIR, "harry")
-    output_args = {"filename": output_filename, "format": "csv"}
-
-    t1 = Transformer()
-    t1.transform(input_args1, output_args)
-
-    assert os.path.exists(f"{output_filename}_nodes.csv")
-    assert os.path.exists(f"{output_filename}_edges.csv")

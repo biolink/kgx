@@ -182,6 +182,7 @@ def test_transform_with_provided_by_obojson_to_csv_wrapper():
         knowledge_sources=knowledge_sources,
     )
 
+
 def test_merge_wrapper():
 
     """
