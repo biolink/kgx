@@ -22,8 +22,7 @@ from prefixcommons.curie_util import expand_uri
 
 from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
-from pprint import pprint
-import json
+
 curie_lookup_service = None
 cache = None
 

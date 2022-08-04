@@ -388,8 +388,6 @@ class InfoResContext:
 
         """
         if ksf not in data.keys():
-            print(ksf, "not in data")
-            print(data.keys())
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()  # get default ksf value?
             else:

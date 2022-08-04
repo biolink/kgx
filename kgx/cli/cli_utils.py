@@ -520,7 +520,6 @@ def transform(
         pool.join()
         graphs = [r.get() for r in results]
     else:
-        print("No transform config provided")
         source_dict: Dict = {
             "input": {
                 "format": input_format,
@@ -540,24 +539,13 @@ def transform(
 
         if knowledge_sources:
             for ksf, spec in knowledge_sources:
-                print(knowledge_sources)
-                print(ksf, spec)
                 ksf_spec = _process_knowledge_source(ksf, spec)
-                print("ksf_spec " + str(ksf_spec))
-                print("ksf " + str(ksf))
-                print("spec " + str(spec))
                 if isinstance(ksf_spec, tuple):
-                    print("tuple")
                     if ksf not in source_dict["input"]:
                         source_dict["input"][ksf] = dict()
-                        print(f"Adding {ksf} to input")
-                        print(source_dict["input"])
                     if isinstance(source_dict["input"][ksf], dict):
-                        print("dict")
                         key = ksf_spec[0]
                         source_dict["input"][ksf][key] = ksf_spec
-                        print(f"Adding {ksf} to input")
-                        print(source_dict["input"])
                     else:
                         # Unexpected condition - mixing static values with tuple specified rewrites?
                         raise RuntimeError(
@@ -567,8 +555,6 @@ def transform(
                             + "' are all rewrite specifications!"
                         )
                 else:
-                    print(type(ksf_spec))
-                    print(ksf_spec)
                     source_dict["input"][ksf] = ksf_spec
                 log.warning(source_dict)
 
