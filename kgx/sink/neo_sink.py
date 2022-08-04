@@ -82,7 +82,6 @@ class NeoSink(Sink):
         batch_size = 10000
         categories = self.node_cache.keys()
         filtered_categories = [x for x in categories if x not in self._seen_categories]
-        print(filtered_categories)
         self.create_constraints(filtered_categories)
         for category in self.node_cache.keys():
             log.info("Generating UNWIND for category: {}".format(category))

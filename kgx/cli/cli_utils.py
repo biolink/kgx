@@ -850,7 +850,7 @@ def transform_source(
         Returns an instance of Sink
 
     """
-    log.info(f"Processing source '{key}'")
+    log.debug(f"Processing source '{key}'")
     input_args = prepare_input_args(
         key,
         source,

@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
 from bmt import Toolkit
-
+from pprint import pprint
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger

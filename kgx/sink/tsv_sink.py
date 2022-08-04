@@ -150,6 +150,8 @@ class TsvSink(Sink):
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
+        # TODO cols here contains knowledge source properties for some reason, even tho this is a node
+        # column ordering method
         """
         Arrange node columns in a defined order.
 

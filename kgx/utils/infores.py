@@ -413,7 +413,6 @@ class InfoResContext:
                     # Need to iterate through a knowledge source pattern dictionary
                     for pattern in self.mapping[ksf].keys():
                         for source in sources:
-                            # TODO: I need to test pattern match to each source?
                             if re.compile(pattern).match(source):
                                 data[ksf] = self.mapping[ksf][pattern]([source])
                             if data[ksf]:
