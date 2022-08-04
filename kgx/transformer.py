@@ -238,6 +238,7 @@ class Transformer(ErrorDetecting):
                 print("intermediate_sink.node_properties: " + str(intermediate_sink.node_properties), file=stderr)
                 intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
+                # all the way to here, I am ok, no extra columns.
                 for s in sources:
                     print("I'm at sources", file=stderr)
                     print(s.node_properties, file=stderr)

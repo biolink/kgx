@@ -227,14 +227,11 @@ class TsvSource(Source):
         if node:
             # if not None, assumed to have an "id" here...
             node_data = sanitize_import(node.copy(), self.list_delimiter)
-
             n = node_data["id"]
 
-            self.set_node_provenance(node_data)
-
+            self.set_node_provenance(node_data)  # this method adds provided_by to the node properties/node data
+            log.debug("node_data", node_data)
             self.node_properties.update(list(node_data.keys()))
-            log.debug("tsv read node")
-            log.debug("self.node_properties", self.node_properties)
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
                 return n, node_data

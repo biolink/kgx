@@ -55,9 +55,12 @@ class ObographSource(JsonSource):
             A generator for records
 
         """
-        self.set_provenance_map(kwargs)
 
         n = self.read_nodes(filename, compression)
+        # nodes don't get the entirety of the knowledge_source association_slot properties.
+        # this -self.set_provenance_map(kwargs)- will give nodes, edge provenance
+        self.set_provenance_map({'provided_by': kwargs['provided_by'],
+                                 'default_provenance': kwargs['default_provenance']})
         e = self.read_edges(filename, compression)
         yield from chain(n, e)
 
@@ -129,6 +132,7 @@ class ObographSource(JsonSource):
         if "equivalent_nodes" in node_properties:
             equivalent_nodes = node_properties["equivalent_nodes"]
             fixed_node["same_as"] = equivalent_nodes
+        print("fixed_node", fixed_node)
         return super().read_node(fixed_node)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:

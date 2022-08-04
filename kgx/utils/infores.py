@@ -304,7 +304,6 @@ class InfoResContext:
             elif isinstance(ksf_value, (list, set, tuple)):
                 mapping = self.processor(infores_rewrite_filter=ksf_value)
             else:
-                # Not sure what to do here... just return the original ksf_value?
                 mapping = ksf_value
             return mapping
 
