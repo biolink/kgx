@@ -113,7 +113,7 @@ def get_graph(source):
         **{
             "subject": "B",
             "object": "A",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -143,7 +143,7 @@ def get_graph(source):
         **{
             "subject": "B",
             "object": "A",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -153,7 +153,7 @@ def get_graph(source):
         **{
             "subject": "C",
             "object": "B",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -163,7 +163,7 @@ def get_graph(source):
         **{
             "subject": "D",
             "object": "C",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -183,7 +183,7 @@ def get_graph(source):
         **{
             "subject": "E",
             "object": "D",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -193,7 +193,7 @@ def get_graph(source):
         **{
             "subject": "F",
             "object": "D",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )

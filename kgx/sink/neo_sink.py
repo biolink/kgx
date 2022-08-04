@@ -82,9 +82,10 @@ class NeoSink(Sink):
         batch_size = 10000
         categories = self.node_cache.keys()
         filtered_categories = [x for x in categories if x not in self._seen_categories]
+        print(filtered_categories)
         self.create_constraints(filtered_categories)
         for category in self.node_cache.keys():
-            log.debug("Generating UNWIND for category: {}".format(category))
+            log.info("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
@@ -140,12 +141,13 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.debug(query)
+            log.info(query)
             edges = self.edge_cache[predicate]
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
+                log.info(edges[x:y])
                 try:
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
@@ -236,7 +238,7 @@ class NeoSink(Sink):
         UNWIND $edges AS edge
         MATCH (s:`{DEFAULT_NODE_CATEGORY}` {{id: edge.subject}}), (o:`{DEFAULT_NODE_CATEGORY}` {{id: edge.object}})
         MERGE (s)-[r:`{edge_predicate}`]->(o)
-        SET r += apoc.convert.toString(edge)
+        SET r += edge
         """
         return query
 
