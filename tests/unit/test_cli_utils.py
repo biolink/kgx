@@ -138,28 +138,25 @@ def test_transform_obojson_to_csv_wrapper():
     """
         Transform obojson to CSV.
         """
+
     inputs = [
         os.path.join(RESOURCE_DIR, "pato.json")
     ]
     output = os.path.join(TARGET_DIR, "test_pato.csv")
-
-    runner = CliRunner()
     knowledge_sources = [
         ("aggregator_knowledge_source", "string,string database"),
-        ("aggregator_knowledge_source", "go,gene ontology"),
+        ("primary_knowledge_source", "another source, really another source")
     ]
-    result = runner.invoke(
-        cli,
-        [
-            "transform",
-            "-i", "obojson",
-            "-o", output,
-            "-f", "csv",
-            "-k", knowledge_sources,
-            inputs
-        ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="csv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
     )
-    print(result)
+    assert os.path.exists(output)
 
 
 def test_merge_wrapper():

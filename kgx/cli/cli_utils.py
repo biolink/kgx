@@ -523,6 +523,8 @@ def transform(
         pool.join()
         graphs = [r.get() for r in results]
     else:
+        log.warning("inputs are empty, really???")
+        log.warning(inputs)
         source_dict: Dict = {
             "input": {
                 "format": input_format,
