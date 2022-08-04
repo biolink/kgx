@@ -158,6 +158,30 @@ def test_transform_obojson_to_csv_wrapper():
     )
 
 
+def test_transform_with_provided_by_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed_provided_by.csv")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring"),
+        ("provided_by", "bioportal")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
 def test_merge_wrapper():
 
     """
