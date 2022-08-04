@@ -376,7 +376,6 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ""):
 
 
 def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
-    log.warning("Cmon: " + ksf)
     if ksf not in knowledge_provenance_properties:
         log.warning("Unknown Knowledge Source Field: " + ksf + "... ignoring!")
         return False
@@ -394,8 +393,6 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
             else:
                 # assumed to be an InfoRes Tuple rewrite specification
                 if len(spec_parts) > 3:
-                    log.warning("spec_parts")
-                    log.warning(spec_parts)
                     spec_parts = spec_parts[:2]
                 return tuple(spec_parts)
 
@@ -523,8 +520,7 @@ def transform(
         pool.join()
         graphs = [r.get() for r in results]
     else:
-        log.warning("inputs are empty, really???")
-        log.warning(inputs)
+        print("No transform config provided")
         source_dict: Dict = {
             "input": {
                 "format": input_format,
@@ -544,14 +540,24 @@ def transform(
 
         if knowledge_sources:
             for ksf, spec in knowledge_sources:
-                log.warning("what is ks " + ksf)
+                print(knowledge_sources)
+                print(ksf, spec)
                 ksf_spec = _process_knowledge_source(ksf, spec)
+                print("ksf_spec " + str(ksf_spec))
+                print("ksf " + str(ksf))
+                print("spec " + str(spec))
                 if isinstance(ksf_spec, tuple):
+                    print("tuple")
                     if ksf not in source_dict["input"]:
                         source_dict["input"][ksf] = dict()
+                        print(f"Adding {ksf} to input")
+                        print(source_dict["input"])
                     if isinstance(source_dict["input"][ksf], dict):
+                        print("dict")
                         key = ksf_spec[0]
                         source_dict["input"][ksf][key] = ksf_spec
+                        print(f"Adding {ksf} to input")
+                        print(source_dict["input"])
                     else:
                         # Unexpected condition - mixing static values with tuple specified rewrites?
                         raise RuntimeError(
@@ -561,6 +567,8 @@ def transform(
                             + "' are all rewrite specifications!"
                         )
                 else:
+                    print(type(ksf_spec))
+                    print(ksf_spec)
                     source_dict["input"][ksf] = ksf_spec
                 log.warning(source_dict)
 

@@ -140,9 +140,9 @@ def test_transform_obojson_to_csv_wrapper():
         """
 
     inputs = [
-        os.path.join(RESOURCE_DIR, "pato.json")
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
     ]
-    output = os.path.join(TARGET_DIR, "test_pato.csv")
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed.csv")
     knowledge_sources = [
         ("aggregator_knowledge_source", "bioportal"),
         ("primary_knowledge_source", "justastring")
@@ -152,7 +152,7 @@ def test_transform_obojson_to_csv_wrapper():
         input_format="obojson",
         input_compression=None,
         output=output,
-        output_format="csv",
+        output_format="tsv",
         output_compression=None,
         knowledge_sources=knowledge_sources,
     )
