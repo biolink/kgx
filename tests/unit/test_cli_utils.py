@@ -6,8 +6,8 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge, get_output_file_types
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, merge, get_output_file_types
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, transform
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     check_container,
@@ -144,8 +144,8 @@ def test_transform_obojson_to_csv_wrapper():
     ]
     output = os.path.join(TARGET_DIR, "test_pato.csv")
     knowledge_sources = [
-        ("aggregator_knowledge_source", "string,string database"),
-        ("primary_knowledge_source", "another source, really another source")
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring")
     ]
     transform(
         inputs=inputs,
@@ -156,7 +156,6 @@ def test_transform_obojson_to_csv_wrapper():
         output_compression=None,
         knowledge_sources=knowledge_sources,
     )
-    assert os.path.exists(output)
 
 
 def test_merge_wrapper():

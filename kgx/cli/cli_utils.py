@@ -543,9 +543,6 @@ def transform(
         }
 
         if knowledge_sources:
-            log.warning(knowledge_sources)
-            log.warning(type(knowledge_sources))
-            #for ksf, spec in knowledge_sources:
             for ksf, spec in knowledge_sources:
                 log.warning("what is ks " + ksf)
                 ksf_spec = _process_knowledge_source(ksf, spec)
