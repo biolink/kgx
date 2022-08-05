@@ -850,27 +850,20 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = bool(value)
             except:
                 new_value = False
+        # the rest of this if/else block doesn't seem right:
+        # it's not checking the type against the expected type even though one exists
         elif isinstance(value, (str, float)):
             new_value = value
         else:
+            # we might want to raise an exception or somehow indicate a type mismatch in the input data
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):
-            new_value = []
-            log.debug("value", value)
-            for v in value:
-                log.debug("v", v)
-                if isinstance(v, str):
-                    v = v.replace("\n", " ").replace("\t", " ")
-                    new_value.append(v)
-                else:
-                    # convert non str lists to jsonified str list
-                    log.debug(type(v))
-                    jsonified_v = str(v)
-                    log.debug("jsonified_v type", type(jsonified_v))
-                    log.debug("jsonified_v", jsonified_v)
-                    new_value = jsonified_v
-            log.debug("new value", new_value)
+            value = [
+                v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
+                for v in value
+            ]
+            new_value = list(value)
         elif isinstance(value, str):
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
@@ -985,32 +978,41 @@ def _sanitize_export_property(key: str, value: Any, list_delimiter: str=None) ->
     return new_value
 
 
-def remove_null(value: Any) -> Any:
+def remove_null(input: Any) -> Any:
     """
     Remove any null values from input.
-
     Parameters
     ----------
-    value: Any
+    input: Any
         Can be a str, list or dict
-
     Returns
     -------
     Any
         The input without any null values
-
     """
-    if isinstance(value, (list, set, tuple)):
+    new_value: Any = None
+    if isinstance(input, (list, set, tuple)):
         # value is a list, set or a tuple
-        return [remove_null(x) for x in value if x is not None]
-    elif isinstance(value, dict):
-        return {
-            key: remove_null(val)
-            for key, val in value.items()
-            if val is not None
-        }
+        new_value = []
+        for v in input:
+            x = remove_null(v)
+            if x:
+                new_value.append(x)
+    elif isinstance(input, dict):
+        # value is a dict
+        new_value = {}
+        for k, v in input.items():
+            x = remove_null(v)
+            if x:
+                new_value[k] = x
+    elif isinstance(input, str):
+        # value is a str
+        if not is_null(input):
+            new_value = input
     else:
-        return value
+        if not is_null(input):
+            new_value = input
+    return new_value
 
 
 def is_null(item: Any) -> bool:
