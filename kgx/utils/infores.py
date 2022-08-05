@@ -369,9 +369,9 @@ class InfoResContext:
 
         if "provided_by" not in self.mapping:
             if "name" in kwargs:
-                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
+                self.mapping["provided_by"] = ir.default(kwargs["name"])
             else:
-                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+                self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
         """

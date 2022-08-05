@@ -17,6 +17,7 @@ from kgx.utils.kgx_utils import (
 from kgx.source.tsv_source import TsvSource
 log = get_logger()
 
+
 class JsonSource(TsvSource):
     """
     JsonSource is responsible for reading data as records

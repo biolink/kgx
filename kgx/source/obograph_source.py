@@ -56,11 +56,16 @@ class ObographSource(JsonSource):
 
         """
 
+        print(kwargs)
         n = self.read_nodes(filename, compression)
         # nodes don't get the entirety of the knowledge_source association_slot properties.
         # this -self.set_provenance_map(kwargs)- will give nodes, edge provenance
-        self.set_provenance_map({'provided_by': kwargs['provided_by'],
-                                 'default_provenance': kwargs['default_provenance']})
+        if "provided_by" in kwargs:
+            self.set_provenance_map({'provided_by': kwargs['provided_by'],
+                                    'default_provenance': kwargs['default_provenance']})
+        else:
+            print(kwargs)
+            self.set_provenance_map({'default_provenance': kwargs['default_provenance']})
         e = self.read_edges(filename, compression)
         yield from chain(n, e)
 
