@@ -178,7 +178,6 @@ class TsvSource(Source):
             )
             if re.search(f"nodes.{format}", filename):
                 for chunk in file_iter:
-                    print("chunk_columns", chunk.columns)
                     self.node_properties.update(chunk.columns)
                     yield from self.read_nodes(chunk)
             elif re.search(f"edges.{format}", filename):
@@ -230,7 +229,6 @@ class TsvSource(Source):
             n = node_data["id"]
 
             self.set_node_provenance(node_data)  # this method adds provided_by to the node properties/node data
-            print("node_data", node_data)
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -272,10 +270,7 @@ class TsvSource(Source):
         edge = self.validate_edge(edge)
         if not edge:
             return None
-        pprint(edge)
-        pprint(type(edge))
         edge_data = sanitize_import(edge.copy(), self.list_delimiter)
-        pprint(edge_data)
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]

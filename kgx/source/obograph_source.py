@@ -4,7 +4,6 @@ from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
 from bmt import Toolkit
-from pprint import pprint
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
@@ -128,7 +127,6 @@ class ObographSource(JsonSource):
         if "equivalent_nodes" in node_properties:
             equivalent_nodes = node_properties["equivalent_nodes"]
             fixed_node["same_as"] = equivalent_nodes
-        print("fixed_node", fixed_node)
         return super().read_node(fixed_node)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:

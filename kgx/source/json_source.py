@@ -1,6 +1,5 @@
 import gzip
 from typing import Optional, Generator, Any
-from pprint import pprint
 import ijson
 from itertools import chain
 from typing import Dict, Tuple, Any, Generator, Optional, List
