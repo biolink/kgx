@@ -116,7 +116,6 @@ class Transformer(ErrorDetecting):
                     if len(entry):
                         entry = entry.strip()
                         if entry:
-                            print("entry: " + entry, file=stderr)
                             source, infores = entry.split("\t")
                             self._infores_catalog[source] = infores
 
@@ -231,26 +230,18 @@ class Transformer(ErrorDetecting):
                 self.process(source_generator, sink)
                 sink.finalize()
             else:
-                print("im not streaming")
                 # stream from source to intermediate
                 intermediate_sink = GraphSink(self)
                 intermediate_sink.node_properties.update(self.store.node_properties)
-                print("intermediate_sink.node_properties: " + str(intermediate_sink.node_properties), file=stderr)
                 intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
                 # all the way to here, I am ok, no extra columns.
                 for s in sources:
-                    print(s.infores_context.mapping.keys(), file=stderr)
-                    print("I'm at sources", file=stderr)
-                    print(s.node_properties, file=stderr)
-                    print("s.node_properties: " + str(s.node_properties), file=stderr)
                     intermediate_sink.node_properties.update(s.node_properties)
-                    print("intermediate_sink.node_properties: " + str(intermediate_sink.node_properties), file=stderr)
                     intermediate_sink.edge_properties.update(s.edge_properties)
                 apply_graph_operations(intermediate_sink.graph, operations)
                 # stream from intermediate to output sink
                 intermediate_source = self.get_source("graph")
-                print("intermediate_sink.node_properties: " + str(intermediate_sink.node_properties), file=stderr)
                 intermediate_source.node_properties.update(
                     intermediate_sink.node_properties
                 )
@@ -274,7 +265,7 @@ class Transformer(ErrorDetecting):
                         output_args[
                             "node_properties"
                         ] = intermediate_source.node_properties
-                        print("output_args['node_properties']: " + str(output_args["node_properties"]), file=stderr)
+                        log.debug("output_args['node_properties']: " + str(output_args["node_properties"]), file=stderr)
                     if "edge_properties" not in output_args:
                         output_args[
                             "edge_properties"

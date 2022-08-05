@@ -108,37 +108,3 @@ class JsonSource(TsvSource):
         for e in ijson.items(FH, "edges.item", use_float=True):
             yield self.read_edge(e)
 
-    def read_edge(self, edge: Dict) -> Optional[Tuple]:
-        """
-        Load an edge into an instance of BaseGraph.
-
-        Parameters
-        ----------
-        edge: Dict
-            An edge
-
-        Returns
-        -------
-        Optional[Tuple]
-            A tuple that contains subject id, object id, edge key, and edge data
-
-        """
-        edge = self.validate_edge(edge)
-        if not edge:
-            return None
-        edge_data = sanitize_import(edge.copy())
-        log.debug("after sanitize, edge_data looks like this")
-        log.debug(edge_data)
-        if "id" not in edge_data:
-            edge_data["id"] = generate_uuid()
-        s = edge_data["subject"]
-        o = edge_data["object"]
-
-        self.set_edge_provenance(edge_data)
-
-        key = generate_edge_key(s, edge_data["predicate"], o)
-        self.edge_properties.update(list(edge_data.keys()))
-        log.debug(self.edge_properties)
-        if self.check_edge_filter(edge_data):
-            self.edge_properties.update(edge_data.keys())
-            return s, o, key, edge_data
