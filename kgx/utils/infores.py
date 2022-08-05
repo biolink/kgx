@@ -360,17 +360,13 @@ class InfoResContext:
         if not ksf_found:
             ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
             ir = self.get_mapping(ksf_found)
-            if "name" in kwargs:
-                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
-            else:
-                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+            self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
         if "provided_by" not in self.mapping:
             if "name" in kwargs:
                 self.mapping["provided_by"] = ir.default(kwargs["name"])
             else:
                 self.mapping["provided_by"] = ir.default(self.default_provenance)
-        print(self.mapping.keys())
 
     def set_provenance(self, ksf: str, data: Dict):
         """
@@ -387,16 +383,13 @@ class InfoResContext:
         """
 
         if ksf not in data.keys():
-            print("No value for {} in data".format(ksf))
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
-                print("Set {} to {}".format(ksf, data[ksf]))
             else:
                 # if unknown ksf or is an inapplicable pattern
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
         else:
-            print(ksf, data[ksf])
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
@@ -422,7 +415,6 @@ class InfoResContext:
 
         # ignore if still empty at this point
         if not data[ksf]:
-            print("Still no value for {} in data".format(ksf))
             data.pop(ksf)
 
     def set_node_provenance(self, node_data: Dict):
@@ -441,7 +433,7 @@ class InfoResContext:
     def set_edge_provenance(self, edge_data: Dict):
         """
         Sets the node knowledge_source value for the current node. Edge knowledge_source properties
-        include the full Biolink 2.0 'knowledge_source' related properties.
+        include the 'knowledge_source' related properties.
 
         Parameters
         ----------
