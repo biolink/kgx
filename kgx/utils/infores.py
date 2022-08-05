@@ -322,16 +322,14 @@ class InfoResContext:
 
     def set_provenance_map(self, kwargs: Dict):
         """
-        A knowledge_source property indexed map set up with various mapping
-        Callable methods to process input knowledge source values into
-        suitable InfoRes identifiers.
+        A knowledge_source property indexed map set up to process input knowledge source values into
+        InfoRes identifiers.
 
         Parameters
         ----------
         kwargs: Dict
             The input keyword argument dictionary was likely propagated from the
-            Transformer.transform() method input_args, and is here harvested for
-            static defaults or rewrite rules for knowledge_source slot InfoRes value processing.
+            Transformer.transform() method input_args.
 
         """
         if "default_provenance" in kwargs:
@@ -372,6 +370,7 @@ class InfoResContext:
                 self.mapping["provided_by"] = ir.default(kwargs["name"])
             else:
                 self.mapping["provided_by"] = ir.default(self.default_provenance)
+        print(self.mapping.keys())
 
     def set_provenance(self, ksf: str, data: Dict):
         """
@@ -386,30 +385,30 @@ class InfoResContext:
             Current node or edge data entry being processed.
 
         """
+
         if ksf not in data.keys():
+            print("No value for {} in data".format(ksf))
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
-                data[ksf] = self.mapping[ksf]()  # get default ksf value?
+                data[ksf] = self.mapping[ksf]()
+                print("Set {} to {}".format(ksf, data[ksf]))
             else:
                 # if unknown ksf or is an inapplicable pattern
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
         else:
-            # valid data value but... possible InfoRes rewrite?
-            # If data is s a non-string iterable
-            # then, coerce into a simple list of sources
+            print(ksf, data[ksf])
+            # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
             else:
-                # Otherwise, just assumed to be a scalar
-                # data value for this knowledge source field?
-                # Treat differentially depending on column type...
+                # wraps knowledge sources that are multivalued in a list even if single valued
+                # in ingest data
                 if column_types[ksf] == list:
                     sources = [data[ksf]]
                 else:
                     sources = data[ksf]
             if ksf in self.mapping:
                 if isinstance(self.mapping[ksf], dict):
-                    # Need to iterate through a knowledge source pattern dictionary
                     for pattern in self.mapping[ksf].keys():
                         for source in sources:
                             if re.compile(pattern).match(source):
@@ -418,11 +417,12 @@ class InfoResContext:
                                 break
                 else:
                     data[ksf] = self.mapping[ksf](sources)
-            else:  # leave data intact?
+            else:  # leave data intact if no mapping found
                 data[ksf] = sources
 
         # ignore if still empty at this point
         if not data[ksf]:
+            print("Still no value for {} in data".format(ksf))
             data.pop(ksf)
 
     def set_node_provenance(self, node_data: Dict):

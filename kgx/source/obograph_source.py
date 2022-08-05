@@ -55,18 +55,8 @@ class ObographSource(JsonSource):
             A generator for records
 
         """
-
-        if "provided_by" not in kwargs:
-            if "name" in kwargs:
-                self.set_provenance_map({"provided_by": kwargs["name"]})
-            else:
-                print(kwargs)
-                self.set_provenance_map({"provided_by": filename})
+        self.set_provenance_map(kwargs)
         n = self.read_nodes(filename, compression)
-        # nodes don't get the entirety of the knowledge_source association_slot properties.
-        # self.set_provenance_map(kwargs)
-        # TODO: figure out how to handle the edges provenance
-        # right now they are not returning any provenance
         e = self.read_edges(filename, compression)
         yield from chain(n, e)
 

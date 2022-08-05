@@ -850,12 +850,9 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = bool(value)
             except:
                 new_value = False
-        # the rest of this if/else block doesn't seem right:
-        # it's not checking the type against the expected type even though one exists
         elif isinstance(value, (str, float)):
             new_value = value
         else:
-            # we might want to raise an exception or somehow indicate a type mismatch in the input data
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     else:
         if isinstance(value, (list, set, tuple)):

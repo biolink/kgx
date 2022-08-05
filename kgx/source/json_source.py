@@ -140,5 +140,5 @@ class JsonSource(TsvSource):
         self.edge_properties.update(list(edge_data.keys()))
         log.debug(self.edge_properties)
         if self.check_edge_filter(edge_data):
-            self.node_properties.update(edge_data.keys())
+            self.edge_properties.update(edge_data.keys())
             return s, o, key, edge_data

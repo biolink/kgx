@@ -240,6 +240,7 @@ class Transformer(ErrorDetecting):
                 self.process(source_generator, intermediate_sink)
                 # all the way to here, I am ok, no extra columns.
                 for s in sources:
+                    print(s.infores_context.mapping.keys(), file=stderr)
                     print("I'm at sources", file=stderr)
                     print(s.node_properties, file=stderr)
                     print("s.node_properties: " + str(s.node_properties), file=stderr)

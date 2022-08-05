@@ -230,7 +230,7 @@ class TsvSource(Source):
             n = node_data["id"]
 
             self.set_node_provenance(node_data)  # this method adds provided_by to the node properties/node data
-            log.debug("node_data", node_data)
+            print("node_data", node_data)
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -286,5 +286,5 @@ class TsvSource(Source):
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
-            self.node_properties.update(edge_data.keys())
+            self.edge_properties.update(edge_data.keys())
             return s, o, key, edge_data
