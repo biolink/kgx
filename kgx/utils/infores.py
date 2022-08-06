@@ -356,18 +356,6 @@ class InfoResContext:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
 
-        # if none specified, add at least one generic 'knowledge_source'
-        if not ksf_found:
-            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
-            ir = self.get_mapping(ksf_found)
-            if "name" in kwargs:
-                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
-            else:
-                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
-
-        if "provided_by" not in self.mapping:
-            self.mapping["provided_by"] = self.mapping[ksf_found]
-
     def set_provenance(self, ksf: str, data: Dict):
         """
         Compute the knowledge_source value for the current node or edge data, using the
