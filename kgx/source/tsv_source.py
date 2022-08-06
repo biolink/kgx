@@ -13,7 +13,6 @@ from kgx.utils.kgx_utils import (
     archive_read_mode,
     sanitize_import
 )
-from pprint import pprint
 log = get_logger()
 
 DEFAULT_LIST_DELIMITER = "|"
