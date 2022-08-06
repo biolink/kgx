@@ -318,7 +318,6 @@ class Source(object):
             )
             node["category"] = [DEFAULT_NODE_CATEGORY]
 
-        log.debug("node", node)
         return node
 
     def validate_edge(self, edge: Dict) -> Optional[Dict]:
