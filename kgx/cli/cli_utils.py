@@ -556,7 +556,6 @@ def transform(
                         )
                 else:
                     source_dict["input"][ksf] = ksf_spec
-                log.warning(source_dict)
 
         name = os.path.basename(inputs[0])
         transform_source(
