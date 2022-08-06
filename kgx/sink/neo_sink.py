@@ -5,7 +5,6 @@ from kgx.config import get_logger
 from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
 from kgx.source.source import DEFAULT_NODE_CATEGORY
-from pprint import pprint
 log = get_logger()
 
 
