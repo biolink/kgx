@@ -42,7 +42,7 @@ class GraphEntityType(Enum):
 # including the deprecated 'provided_by' slot
 
 provenance_slot_types = {
-    "knowledge_source": list,
+    "knowledge_source": str,
     "primary_knowledge_source": str,
     "original_knowledge_source": str,
     "aggregator_knowledge_source": list,
