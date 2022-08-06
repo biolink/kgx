@@ -58,7 +58,6 @@ class RdfSource(Source):
                 for x in self.toolkit.get_all_node_properties(formatted=True)
             ]
         )
-        print("self.node_property_predicates", self.node_property_predicates)
         self.node_property_predicates.update(
             set(self.toolkit.get_all_node_properties(formatted=True))
         )
