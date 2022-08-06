@@ -235,7 +235,6 @@ class Transformer(ErrorDetecting):
                 intermediate_sink.node_properties.update(self.store.node_properties)
                 intermediate_sink.edge_properties.update(self.store.edge_properties)
                 self.process(source_generator, intermediate_sink)
-                # all the way to here, I am ok, no extra columns.
                 for s in sources:
                     intermediate_sink.node_properties.update(s.node_properties)
                     intermediate_sink.edge_properties.update(s.edge_properties)
