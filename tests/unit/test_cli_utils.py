@@ -396,8 +396,7 @@ def test_validate():
         inputs=inputs,
         input_format="json",
         input_compression=None,
-        output=output,
-        biolink_release="2.1.0",
+        output=output
     )
     assert os.path.exists(output)
     assert len(errors) == 0

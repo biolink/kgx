@@ -1,6 +1,6 @@
 export PYTHONPATH=.
 
-tests: unit-tests integration-tests
+test: unit-tests integration-tests
 
 unit-tests:
 	pytest tests/unit/test_source/*.py

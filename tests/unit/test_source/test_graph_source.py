@@ -83,6 +83,7 @@ def test_read_graph2():
     n1 = nodes["A"]
     assert n1["id"] == "A"
     assert n1["name"] == "node A"
+    print("n1:", n1)
     assert "Test Graph" in n1["provided_by"]
 
     assert len(edges.keys()) == 1
@@ -91,4 +92,5 @@ def test_read_graph2():
     assert e1["predicate"] == "biolink:related_to"
     assert e1["object"] == "C"
     assert e1["relation"] == "biolink:related_to"
+    print("e1:", e1)
     assert "Test Graph" in e1["knowledge_source"]

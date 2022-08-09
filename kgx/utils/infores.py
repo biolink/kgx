@@ -353,8 +353,25 @@ class InfoResContext:
                             ksf_value[ksf_pattern]
                         )
                 else:
+                    print("setting up mapping for", ksf)
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
+        # if none specified, add at least one generic 'knowledge_source'
+        if not ksf_found:
+            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
+            ir = self.get_mapping(ksf_found)
+            if "name" in kwargs:
+                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
+            else:
+                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+
+        if "provided_by" not in self.mapping:
+            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
+            ir = self.get_mapping(ksf_found)
+            if "name" in kwargs:
+                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
+            else:
+                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
         """
@@ -417,7 +434,6 @@ class InfoResContext:
         """
         self.set_provenance("provided_by", node_data)
 
-    # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
         """
         Sets the node knowledge_source value for the current node. Edge knowledge_source properties
