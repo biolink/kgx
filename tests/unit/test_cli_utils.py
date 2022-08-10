@@ -604,6 +604,7 @@ def test_transform_error():
     except ValueError:
         assert ValueError
 
+
 def test_transform_knowledge_source_suppression():
     """
     Transform graph from TSV to JSON.

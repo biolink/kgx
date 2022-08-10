@@ -383,6 +383,7 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
         if spec.lower() == "true":
             return True
         elif spec.lower() == "false":
+            print("returning false")
             return False
         else:
             # If a Tuple, expect a comma-delimited string?
@@ -520,6 +521,7 @@ def transform(
         pool.join()
         graphs = [r.get() for r in results]
     else:
+        print("no transform config")
         source_dict: Dict = {
             "input": {
                 "format": input_format,
@@ -555,7 +557,9 @@ def transform(
                             + "' are all rewrite specifications!"
                         )
                 else:
+                    print("not a tuple")
                     source_dict["input"][ksf] = ksf_spec
+                    print(source_dict)
 
         name = os.path.basename(inputs[0])
         transform_source(

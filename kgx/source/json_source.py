@@ -94,5 +94,5 @@ class JsonSource(TsvSource):
             FH = gzip.open(filename, "rb")
         else:
             FH = open(filename, "rb")
-        for e in ijson.items(FH, "edges.item"):
+        for e in ijson.items(FH, "edges.item", use_float=True):
             yield self.read_edge(e)

@@ -337,16 +337,13 @@ class InfoResContext:
         """
         if "default_provenance" in kwargs:
             self.default_provenance = kwargs.pop("default_provenance")
+            print(self.default_provenance)
 
-        # Biolink 2.0 knowledge_source 'knowledge_source' derived fields
-        ksf_found = False
+        ksf_found = []
         for ksf in knowledge_provenance_properties:
             if ksf in kwargs:
-                if not ksf_found:
-                    ksf_found = ksf  # save the first one found, for later
+                ksf_found.append(ksf)
                 ksf_value = kwargs.pop(ksf)
-                # Check if the ksf_value is a multi-valued catalog of patterns for a
-                # given knowledge graph field, indexed on each distinct regex pattern
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
                         if ksf not in self.mapping:
@@ -357,7 +354,9 @@ class InfoResContext:
                         )
                 else:
                     ir = self.get_mapping(ksf)
+                    print(ir)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
+                    print("mapping", self.mapping)
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
@@ -368,9 +367,8 @@ class InfoResContext:
             else:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
-        # TODO: better to lobby the team to totally deprecated this, even for Nodes?
         if "provided_by" not in self.mapping:
-            self.mapping["provided_by"] = self.mapping[ksf_found]
+            self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
         """
@@ -386,6 +384,7 @@ class InfoResContext:
 
         """
         if ksf not in data.keys():
+            print(data.keys())
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()  # get default ksf value?
             else:
@@ -396,6 +395,7 @@ class InfoResContext:
             # If data is s a non-string iterable
             # then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
+                print("is a tuple???")
                 sources = list(data[ksf])
             else:
                 # Otherwise, just assumed to be a scalar
@@ -442,7 +442,7 @@ class InfoResContext:
     def set_edge_provenance(self, edge_data: Dict):
         """
         Sets the node knowledge_source value for the current node. Edge knowledge_source properties
-        include the full Biolink 2.0 'knowledge_source' related properties.
+        include the 'knowledge_source' related properties.
 
         Parameters
         ----------

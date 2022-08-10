@@ -285,5 +285,5 @@ class TsvSource(Source):
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
-            self.node_properties.update(edge_data.keys())
+            self.edge_properties.update(edge_data.keys())
             return s, o, key, edge_data
