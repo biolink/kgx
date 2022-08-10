@@ -54,7 +54,7 @@ class InfoResContext:
 
             """
             self.context = context  # parent InfoRes context
-            self.ksf = ksf  # Biolink 2.* 'Knowledge Source Field' slot name
+            self.ksf = ksf  # 'Knowledge Source Field' slot name
             self.filter = None
             self.substr = ""
             self.prefix = ""
@@ -359,14 +359,14 @@ class InfoResContext:
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
-            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
-            ir = self.get_mapping(ksf_found)
+            ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
         if "provided_by" not in self.mapping:
+            ir = self.get_mapping("provided_by")
             self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
