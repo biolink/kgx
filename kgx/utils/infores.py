@@ -322,28 +322,27 @@ class InfoResContext:
 
     def set_provenance_map(self, kwargs: Dict):
         """
-        A knowledge_source property indexed map set up to process input knowledge source values into
-        InfoRes identifiers.
+        A knowledge_source property indexed map set up with various mapping
+        Callable methods to process input knowledge source values into
+        suitable InfoRes identifiers.
 
         Parameters
         ----------
         kwargs: Dict
             The input keyword argument dictionary was likely propagated from the
-            Transformer.transform() method input_args.
+            Transformer.transform() method input_args, and is here harvested for
+            static defaults or rewrite rules for knowledge_source slot InfoRes value processing.
 
         """
         if "default_provenance" in kwargs:
             self.default_provenance = kwargs.pop("default_provenance")
+            print(self.default_provenance)
 
         ksf_found = []
         for ksf in knowledge_provenance_properties:
-            # ksf is aggregator_knowledge_source or provided_by
-            # kwargs is the knowledge sources provided by the user to the Transform method
             if ksf in kwargs:
-                ksf_found.append(ksf)  # save the first one found, for later
+                ksf_found.append(ksf)
                 ksf_value = kwargs.pop(ksf)
-                # Check if the ksf_value is a multi-valued catalog of patterns for a
-                # given knowledge graph field, indexed on each distinct regex pattern
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
                         if ksf not in self.mapping:
@@ -353,9 +352,11 @@ class InfoResContext:
                             ksf_value[ksf_pattern]
                         )
                 else:
-                    print("setting up mapping for", ksf)
                     ir = self.get_mapping(ksf)
+                    print(ir)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
+                    print("mapping", self.mapping)
+
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
             ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
@@ -366,12 +367,7 @@ class InfoResContext:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
         if "provided_by" not in self.mapping:
-            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
-            ir = self.get_mapping(ksf_found)
-            if "name" in kwargs:
-                self.mapping["knowledge_source"] = ir.default(kwargs["name"])
-            else:
-                self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+            self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
         """
