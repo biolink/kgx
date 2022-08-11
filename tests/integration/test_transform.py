@@ -1,6 +1,6 @@
 import os
 from typing import List
-
+from pprint import pprint
 import pytest
 
 from kgx.utils.kgx_utils import GraphEntityType
@@ -624,6 +624,33 @@ def test_transform_inspector():
     assert inspector.get_edge_count() == 4
 
 
+def test_transformer_infores_basic_obojson_formatting():
+    input_args = {
+        "filename": [
+            os.path.join(RESOURCE_DIR, "pato.json")
+        ],
+        "format": "obojson",
+        "provided_by": True,
+        "aggregator_knowledge_source": True,
+        "primary_knowledge_source": True
+    }
+
+    output_args = {
+        "filename": os.path.join(TARGET_DIR, "pato-export.tsv"),
+        "format": "tsv",
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
+    t.save(output_args)
+
+    nt = list(t.store.graph.get_node("BFO:0000004"))
+    pprint(nt)
+    et = list(t.store.graph.get_edge("BFO:0000004", "BFO:0000002").values())[0]
+    assert et.get('aggregator_knowledge_source')
+    assert et.get('primary_knowledge_source')
+
+
 def test_transformer_infores_basic_formatting():
     input_args = {
         "filename": [
@@ -632,7 +659,8 @@ def test_transformer_infores_basic_formatting():
         ],
         "format": "tsv",
         "provided_by": True,
-        "aggregator_knowledge_source": "true",
+        "aggregator_knowledge_source": True,
+        "primary_knowledge_source": True
     }
 
     t = Transformer()
@@ -653,6 +681,11 @@ def test_transformer_infores_basic_formatting():
         "infores:gene-ontology-monarch-version-202012"
         in et["aggregator_knowledge_source"]
     )
+    assert (
+        "infores"
+        in et["primary_knowledge_source"]
+    )
+    print(et)
 
     # irc = t.get_infores_catalog()
     # assert len(irc) == 2
@@ -669,6 +702,7 @@ def test_transformer_infores_suppression():
         "format": "tsv",
         "provided_by": "False",
         "aggregator_knowledge_source": False,
+        "primary_knowledge_source": False
     }
 
     t = Transformer()

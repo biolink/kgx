@@ -13,7 +13,6 @@ from kgx.utils.kgx_utils import (
     archive_read_mode,
     sanitize_import
 )
-
 log = get_logger()
 
 DEFAULT_LIST_DELIMITER = "|"
@@ -226,11 +225,9 @@ class TsvSource(Source):
         if node:
             # if not None, assumed to have an "id" here...
             node_data = sanitize_import(node.copy(), self.list_delimiter)
-
             n = node_data["id"]
 
-            self.set_node_provenance(node_data)
-
+            self.set_node_provenance(node_data)  # this method adds provided_by to the node properties/node data
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -272,9 +269,7 @@ class TsvSource(Source):
         edge = self.validate_edge(edge)
         if not edge:
             return None
-
         edge_data = sanitize_import(edge.copy(), self.list_delimiter)
-
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]
@@ -285,5 +280,5 @@ class TsvSource(Source):
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
-            self.node_properties.update(edge_data.keys())
+            self.edge_properties.update(edge_data.keys())
             return s, o, key, edge_data

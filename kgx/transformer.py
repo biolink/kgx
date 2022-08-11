@@ -116,7 +116,6 @@ class Transformer(ErrorDetecting):
                     if len(entry):
                         entry = entry.strip()
                         if entry:
-                            print("entry: " + entry, file=stderr)
                             source, infores = entry.split("\t")
                             self._infores_catalog[source] = infores
 
@@ -208,22 +207,13 @@ class Transformer(ErrorDetecting):
         if output_args:
             if self.stream:
                 if output_args["format"] in {"tsv", "csv"}:
-                    if "node_properties" not in output_args:
-                        error_type = ErrorType.MISSING_NODE_PROPERTY
+                    if "node_properties" not in output_args or "edge_properties" not in output_args:
+                        error_type = ErrorType.MISSING_PROPERTY
                         self.log_error(
                             entity=f"{output_args['format']} stream",
                             error_type=error_type,
-                            message=f"'node_properties' not defined for output while streaming. " +
-                                    f"The exported format will be limited to a subset of the columns.",
-                            message_level=MessageLevel.WARNING
-                        )
-                    if "edge_properties" not in output_args:
-                        error_type = ErrorType.MISSING_EDGE_PROPERTY
-                        self.log_error(
-                            entity=f"{output_args['format']} stream",
-                            error_type=error_type,
-                            message=f"'edge_properties' not defined for output while streaming. " +
-                                    f"The exported format will be limited to a subset of the columns.",
+                            message=f"'node_properties' and 'edge_properties' must be defined for output while"
+                                    f"streaming. The exported format will be limited to a subset of the columns.",
                             message_level=MessageLevel.WARNING
                         )
                 sink = self.get_sink(**output_args)
@@ -274,6 +264,7 @@ class Transformer(ErrorDetecting):
                         output_args[
                             "node_properties"
                         ] = intermediate_source.node_properties
+                        log.debug("output_args['node_properties']: " + str(output_args["node_properties"]), file=stderr)
                     if "edge_properties" not in output_args:
                         output_args[
                             "edge_properties"
@@ -342,6 +333,7 @@ class Transformer(ErrorDetecting):
         """
         for rec in source:
             if rec:
+                log.debug("length of rec", len(rec), "rec", rec)
                 if len(rec) == 4:  # infer an edge record
                     write_edge = True
                     if "subject_category" in self.edge_filters:
@@ -367,6 +359,7 @@ class Transformer(ErrorDetecting):
                         self._seen_nodes.add(rec[0])
                     if self.inspector:
                         self.inspector(GraphEntityType.NODE, rec)
+                    # last element of rec is the node properties
                     sink.write_node(rec[-1])
 
     # TODO: review whether or not the 'save()' method need to be 'knowledge_source' aware?

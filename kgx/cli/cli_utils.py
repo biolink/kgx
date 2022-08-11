@@ -849,7 +849,7 @@ def transform_source(
         Returns an instance of Sink
 
     """
-    log.info(f"Processing source '{key}'")
+    log.debug(f"Processing source '{key}'")
     input_args = prepare_input_args(
         key,
         source,
@@ -877,7 +877,7 @@ def transform_source(
             catalog: Dict[str, str] = transformer.get_infores_catalog()
             for source in catalog.keys():
                 infores = catalog.setdefault(source, "unknown")
-                print(f"{source}\t{infores}", file=irc)
+                log.debug(f"{source}\t{infores}", file=irc)
 
     return transformer.store
 

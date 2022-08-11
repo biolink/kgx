@@ -1,10 +1,20 @@
 import gzip
 from typing import Optional, Generator, Any
-
 import ijson
 from itertools import chain
-
+from typing import Dict, Tuple, Any, Generator, Optional, List
+from kgx.config import get_logger
+from kgx.error_detection import ErrorType, MessageLevel
+from kgx.source.source import Source
+from kgx.utils.kgx_utils import (
+    generate_uuid,
+    generate_edge_key,
+    extension_types,
+    archive_read_mode,
+    sanitize_import
+)
 from kgx.source.tsv_source import TsvSource
+log = get_logger()
 
 
 class JsonSource(TsvSource):
@@ -94,5 +104,6 @@ class JsonSource(TsvSource):
             FH = gzip.open(filename, "rb")
         else:
             FH = open(filename, "rb")
-        for e in ijson.items(FH, "edges.item"):
+        for e in ijson.items(FH, "edges.item", use_float=True):
             yield self.read_edge(e)
+

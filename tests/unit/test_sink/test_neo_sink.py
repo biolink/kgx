@@ -114,7 +114,6 @@ def test_write_neo2(clean_database, query):
     assert edge_counts >= query[2]
 
 
-
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )

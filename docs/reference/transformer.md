@@ -83,23 +83,39 @@ t.store.graph.edges()
 
 ## InfoRes Identifier Rewriting
 
-The `provided_by` and/or `knowledge_source` _et al._ field values of KGX node and edge records generally contain a name of a knowledge source for the node or edge.  In some cases, (e.g. Monarch)  such values in source knowledge sources could be quite verbose. To normalize such names to a concise standard, the latest Biolink Model (2.*) is moving towards the use of **Information Resource** ("InfoRes") CURIE identifiers.  
+The `provided_by` and/or `knowledge_source` _et al._ field values of KGX node and edge records generally contain a name 
+of a knowledge source for the node or edge.  In some cases, (e.g. Monarch)  such values in source knowledge sources 
+could be quite verbose. To normalize such names to a concise standard, Biolink Model uses
+**Information Resource** ("InfoRes") CURIE identifiers.  
 
-To help generate and document such InfoRes identifiers, the provenance property values may optionally trigger a rewrite of their knowledge source names to a candidate InfoRes, as follows:
+To help generate and document such InfoRes identifiers, the provenance property values may optionally trigger a rewrite 
+of their knowledge source names to a candidate InfoRes, as follows:
 
-1. Setting the provenance property to a boolean **True* or  (case insensitive) string **"True"** triggers a simple reformatting of knowledge source names into lower case alphanumeric strings removing non-alphanumeric characters and replacing space delimiting words, with hyphens.
+1. Setting the provenance property to a boolean **True* or (case-insensitive) string **"True"** triggers a simple 
+reformatting of knowledge source names into lower case alphanumeric strings removing non-alphanumeric characters 
+and replacing space delimiting words, with hyphens.
 
-1. Setting the provenance property  to a boolean **False* or (case insensitive) string **"False"** suppresses the given provenance annotation on the output graph.
+2. Setting the provenance property  to a boolean **False* or (case-insensitive) string **"False"** suppresses the 
+given provenance annotation on the output graph.
 
-1. Providing a tuple with a single string argument not equal to **True**, then the string assumed to be a standard (Pythonic) regular expression to match against knowledge source names. If you do not provide any other string argument (see below), then a matching substring in the name triggers deletion of the matched patter.  The simple reformatting (as in 1 above) is then applied to the resulting string.
+3. Providing a tuple with a single string argument not equal to **True**, then the string is assumed to be a standard 
+regular expression to match against knowledge source names. If you do not provide any other string
+argument (see below), then a matching substring in the name triggers deletion of the matched pattern.  The simple 
+reformatting (as in 1 above) is then applied to the resulting string.
 
-1. Similar to 2 above, except providing a second string in the tuple which is substituted for the regular expression matched string, followed by simple reformatting.
+4. Similar to 2 above, except providing a second string in the tuple which is substituted for the regular expression 
+matched string, followed by simple reformatting.
 
-1. Providing a third string in the tuple to add a prefix string to the name (as a separate word) of all the generated InfoRes identifiers.  Note that if one sets the first and second elements of the tuple to empty strings, the result is the simple addition of a prefix to the provenance property value. Again, the algorithm then applies the simple reformatting rules, but no other internal changes.
+5. Providing a third string in the tuple to add a prefix string to the name (as a separate word) of all the generated 
+InfoRes identifiers.  Note that if one sets the first and second elements of the tuple to empty strings, the result
+is the simple addition of a prefix to the provenance property value. Again, the algorithm then applies the simple 
+reformatting rules, but no other internal changes.
 
-The unit tests provide examples of these various rewrites, in the KGX project [tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
+The unit tests provide examples of these various rewrites, in the KGX project
+[tests/integration/test_transform.py](https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py).
 
-The catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion of transform call by using the `get_infores_catalog()` method of the **Transformer** class.  The `transform` call of the CLI now also takes a multi-valued `--knowledge-sources` argument, which either facilitates the aforementioned infores processing. Note that quoted comma-delimited strings demarcate the tuple rewrite specifications noted above.
+The catalog of inferred InfoRes mappings onto knowledge source names is available programmatically, after completion 
+of transform call by using the `get_infores_catalog()` method of the **Transformer** class.
 
 ## kgx.transformer
 

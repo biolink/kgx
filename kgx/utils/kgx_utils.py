@@ -42,7 +42,7 @@ class GraphEntityType(Enum):
 # including the deprecated 'provided_by' slot
 
 provenance_slot_types = {
-    "knowledge_source": list,
+    "knowledge_source": str,
     "primary_knowledge_source": str,
     "original_knowledge_source": str,
     "aggregator_knowledge_source": list,
@@ -981,17 +981,14 @@ def _sanitize_export_property(key: str, value: Any, list_delimiter: str=None) ->
 def remove_null(input: Any) -> Any:
     """
     Remove any null values from input.
-
     Parameters
     ----------
     input: Any
         Can be a str, list or dict
-
     Returns
     -------
     Any
         The input without any null values
-
     """
     new_value: Any = None
     if isinstance(input, (list, set, tuple)):

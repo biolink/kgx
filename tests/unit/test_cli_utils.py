@@ -6,8 +6,8 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge, get_output_file_types
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, merge, get_output_file_types
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, transform
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
     check_container,
@@ -109,7 +109,6 @@ def test_graph_summary_report_format_wrapper_error():
     assert result.exit_code == 1
 
 
-
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -133,6 +132,55 @@ def test_transform_wrapper():
     )
 
     assert result.exit_code == 1
+
+
+def test_transform_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed.csv")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
+
+def test_transform_with_provided_by_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed_provided_by.csv")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring"),
+        ("provided_by", "bioportal")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
 
 
 def test_merge_wrapper():
@@ -348,8 +396,7 @@ def test_validate():
         inputs=inputs,
         input_format="json",
         input_compression=None,
-        output=output,
-        biolink_release="2.1.0",
+        output=output
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -603,6 +650,7 @@ def test_transform_error():
     }
     except ValueError:
         assert ValueError
+
 
 def test_transform_knowledge_source_suppression():
     """
