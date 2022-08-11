@@ -1,4 +1,9 @@
 # Changelog
+
+## 1.6.0 (2020-08-10)
+- update to work with Biolink 3+ release
+- fix provenance defaults with changes in Biolink 3+
+
 ## 1.5.9 (2022-06-13)
 - make streaming transform default
 
