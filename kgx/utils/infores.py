@@ -54,7 +54,7 @@ class InfoResContext:
 
             """
             self.context = context  # parent InfoRes context
-            self.ksf = ksf  # Biolink 2.* 'Knowledge Source Field' slot name
+            self.ksf = ksf  # 'Knowledge Source Field' slot name
             self.filter = None
             self.substr = ""
             self.prefix = ""
@@ -304,7 +304,6 @@ class InfoResContext:
             elif isinstance(ksf_value, (list, set, tuple)):
                 mapping = self.processor(infores_rewrite_filter=ksf_value)
             else:
-                # Not sure what to do here... just return the original ksf_value?
                 mapping = ksf_value
             return mapping
 
@@ -360,14 +359,14 @@ class InfoResContext:
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
-            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
-            ir = self.get_mapping(ksf_found)
+            ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
 
         if "provided_by" not in self.mapping:
+            ir = self.get_mapping("provided_by")
             self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
@@ -383,41 +382,38 @@ class InfoResContext:
             Current node or edge data entry being processed.
 
         """
+
         if ksf not in data.keys():
             print(data.keys())
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
-                data[ksf] = self.mapping[ksf]()  # get default ksf value?
+                data[ksf] = self.mapping[ksf]()
             else:
                 # if unknown ksf or is an inapplicable pattern
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
-        else:  # valid data value but... possible InfoRes rewrite?
-            # If data is s a non-string iterable
-            # then, coerce into a simple list of sources
+        else:
+            # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 print("is a tuple???")
                 sources = list(data[ksf])
             else:
-                # Otherwise, just assumed to be a scalar
-                # data value for this knowledge source field?
-                # Treat differentially depending on column type...
+                # wraps knowledge sources that are multivalued in a list even if single valued
+                # in ingest data
                 if column_types[ksf] == list:
                     sources = [data[ksf]]
                 else:
                     sources = data[ksf]
             if ksf in self.mapping:
                 if isinstance(self.mapping[ksf], dict):
-                    # Need to iterate through a knowledge source pattern dictionary
                     for pattern in self.mapping[ksf].keys():
                         for source in sources:
-                            # TODO: I need to test pattern match to each source?
                             if re.compile(pattern).match(source):
                                 data[ksf] = self.mapping[ksf][pattern]([source])
                             if data[ksf]:
                                 break
                 else:
                     data[ksf] = self.mapping[ksf](sources)
-            else:  # leave data intact?
+            else:  # leave data intact if no mapping found
                 data[ksf] = sources
 
         # ignore if still empty at this point
@@ -426,9 +422,7 @@ class InfoResContext:
 
     def set_node_provenance(self, node_data: Dict):
         """
-        Sets the node knowledge_source value for the current node. At the moment, nodes are still
-        hard-coded to using the (Biolink 2.0 deprecated) 'provided_by' knowledge_source property;
-        However, this could change in the future to use edge 'knowledge_source' properties.
+        Sets the node knowledge_source value for the current node.
 
         Parameters
         ----------
@@ -438,7 +432,6 @@ class InfoResContext:
         """
         self.set_provenance("provided_by", node_data)
 
-    # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
         """
         Sets the node knowledge_source value for the current node. Edge knowledge_source properties

@@ -25,7 +25,7 @@ class Source(object):
         self.node_properties = set()
         self.edge_properties = set()
         self.prefix_manager = PrefixManager()
-        self.infores_context: Optional[InfoResContext] = None
+        self.infores_context: Optional[InfoResContext] = InfoResContext()
 
     def set_prefix_map(self, m: Dict) -> None:
         """
@@ -256,7 +256,6 @@ class Source(object):
         """
         Set up a provenance (Knowledge Source to InfoRes) map
         """
-        self.infores_context = InfoResContext()
         self.infores_context.set_provenance_map(kwargs)
 
     def get_infores_catalog(self) -> Dict[str, str]:

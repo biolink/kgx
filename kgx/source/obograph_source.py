@@ -4,7 +4,6 @@ from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
 from bmt import Toolkit
-
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
@@ -56,7 +55,6 @@ class ObographSource(JsonSource):
 
         """
         self.set_provenance_map(kwargs)
-
         n = self.read_nodes(filename, compression)
         e = self.read_edges(filename, compression)
         yield from chain(n, e)
@@ -129,11 +127,6 @@ class ObographSource(JsonSource):
         if "equivalent_nodes" in node_properties:
             equivalent_nodes = node_properties["equivalent_nodes"]
             fixed_node["same_as"] = equivalent_nodes
-            # for n in node_properties['equivalent_nodes']:
-            #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as',
-            #     'object': n, 'relation': 'owl:sameAs'}
-            #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
-            #     self.graph.add_edge(fixed_node['id'], n, **data)
         return super().read_node(fixed_node)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:
