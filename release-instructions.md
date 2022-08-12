@@ -71,8 +71,8 @@ First have a fresh clone of the KGX GitHub repository, and then build the Docker
 ```sh
 git clone https://github.com/biolink/kgx
 cd kgx
-docker docker build --no-cache -f Dockerfile --tag biolink/kgx:latest .
-docker docker build --no-cache -f Dockerfile --tag biolink/kgx:$TAG .
+docker build --no-cache -f Dockerfile --tag biolink/kgx:latest .
+docker build --no-cache -f Dockerfile --tag biolink/kgx:$TAG .
 ```
 
 Once the image is built, be sure to push to Dockerhub:
