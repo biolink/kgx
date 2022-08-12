@@ -1,4 +1,5 @@
 import gzip
+import typing
 from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
@@ -133,7 +134,7 @@ class RdfSource(Source):
         format: str = "nt",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from RDF N-Triples and yields records.
 

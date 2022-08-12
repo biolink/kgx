@@ -1,5 +1,6 @@
 import re
 import tarfile
+import typing
 from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
@@ -58,7 +59,7 @@ class TsvSource(Source):
         format: str,
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from a TSV/CSV and yields records.
 

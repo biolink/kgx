@@ -1,4 +1,5 @@
 import gzip
+import typing
 from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
@@ -33,7 +34,7 @@ class ObographSource(JsonSource):
         format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from JSON and yields records.
 
