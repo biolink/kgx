@@ -183,7 +183,6 @@ class ObographSource(JsonSource):
                         if mapping:
                             element = self.toolkit.get_element(mapping)
 
-                    #  TODO: not sure how this exception would be thrown here.. under what conditions?
                     except ValueError as e:
                         self.owner.log_error(
                             entity=str(edge["pred"]),
@@ -255,7 +254,6 @@ class ObographSource(JsonSource):
 
         if not category or category == "biolink:OntologyClass":
             prefix = PrefixManager.get_prefix(curie)
-            # TODO: the mapping should be via biolink-model lookups
             if prefix == "HP":
                 category = "biolink:PhenotypicFeature"
             elif prefix == "CHEBI":

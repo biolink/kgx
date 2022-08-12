@@ -160,7 +160,6 @@ class InfoResContext:
                 infores = re.sub(r"[\W]", "", infores)
                 infores = re.sub(r"_", "-", infores)
 
-                # TODO: to be fully compliant, the InfoRes needs to have the 'infores' prefix?
                 infores = "infores:" + infores
 
                 return infores

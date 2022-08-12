@@ -129,9 +129,6 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
-                    #       Question: who put the above comment here? One wonders whether the use of the chunk-based
-                    #       file_iter, with the Generator yield statement below, isn't effectively streaming the file?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,
@@ -155,7 +152,6 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,

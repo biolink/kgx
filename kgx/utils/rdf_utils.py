@@ -29,7 +29,6 @@ OBO = Namespace("http://purl.obolibrary.org/obo/")
 property_mapping: Dict = dict()
 reverse_property_mapping: Dict = dict()
 
-# TODO: this should be populated via bmt
 is_property_multivalued = {
     "id": False,
     "subject": False,

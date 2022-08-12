@@ -8,9 +8,6 @@ from typing import Dict, Tuple, Generator, Optional, Any
 from kgx.source.json_source import JsonSource
 
 
-# TODO: update for TRAPI 1.0 spec
-
-
 class TrapiSource(JsonSource):
     """
     TrapiSource is responsible for reading data as records
