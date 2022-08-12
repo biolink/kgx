@@ -336,7 +336,6 @@ class InfoResContext:
         """
         if "default_provenance" in kwargs:
             self.default_provenance = kwargs.pop("default_provenance")
-            print(self.default_provenance)
 
         ksf_found = []
         for ksf in knowledge_provenance_properties:
@@ -353,9 +352,7 @@ class InfoResContext:
                         )
                 else:
                     ir = self.get_mapping(ksf)
-                    print(ir)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-                    print("mapping", self.mapping)
 
         # if none specified, add at least one generic 'knowledge_source'
         if not ksf_found:
@@ -384,7 +381,6 @@ class InfoResContext:
         """
 
         if ksf not in data.keys():
-            print(data.keys())
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
             else:
@@ -394,7 +390,6 @@ class InfoResContext:
         else:
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
-                print("is a tuple???")
                 sources = list(data[ksf])
             else:
                 # wraps knowledge sources that are multivalued in a list even if single valued
