@@ -327,7 +327,7 @@ class Validator(ErrorDetecting):
                 graph.edges(data=True), label="Validate edges in graph"
         ) as bar:
             for u, v, data in bar:
-                self.analyse_edge(u, v, None, data)
+                self.analyse_edge(u, v, data)
 
     def validate_node_properties(
             self,
