@@ -1,4 +1,7 @@
 # Changelog
+## 1.6.1
+- minor code clean up, doc clean up and zenodo release
+
 ## 1.6.0
 - update provenance to work with Biolink3
 
