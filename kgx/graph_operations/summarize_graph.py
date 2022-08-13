@@ -222,7 +222,7 @@ class GraphSummary(ErrorDetecting):
             # ...so that Category related entries at that
             # higher level may be properly initialized
             # for subsequent facet metadata access
-            if not self.category_curie == "unknown":
+            if self.category_curie != "unknown":
                 self.summary.node_stats[NODE_CATEGORIES].add(self.category_curie)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][
                 self.category_curie

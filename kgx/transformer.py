@@ -254,7 +254,6 @@ class Transformer(ErrorDetecting):
                     if ksf in input_args:
                         ks_args[ksf] = input_args[ksf]
 
-                # TODO: does this call also need the default_provenance named argument?
                 intermediate_source_generator = intermediate_source.parse(
                     intermediate_sink.graph, **ks_args
                 )
@@ -362,7 +361,6 @@ class Transformer(ErrorDetecting):
                     # last element of rec is the node properties
                     sink.write_node(rec[-1])
 
-    # TODO: review whether or not the 'save()' method need to be 'knowledge_source' aware?
     def save(self, output_args: Dict) -> None:
         """
         Save data from the in-memory store to a desired sink.

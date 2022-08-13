@@ -1,12 +1,11 @@
 import gzip
+import typing
+
 import ijson
 from itertools import chain
 from typing import Dict, Tuple, Generator, Optional, Any
 
 from kgx.source.json_source import JsonSource
-
-
-# TODO: update for TRAPI 1.0 spec
 
 
 class TrapiSource(JsonSource):
@@ -26,7 +25,7 @@ class TrapiSource(JsonSource):
         format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from a JSON and yields records.
 
