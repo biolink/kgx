@@ -1,5 +1,6 @@
 import re
 import tarfile
+import typing
 from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
@@ -58,7 +59,7 @@ class TsvSource(Source):
         format: str,
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from a TSV/CSV and yields records.
 
@@ -128,9 +129,6 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
-                    #       Question: who put the above comment here? One wonders whether the use of the chunk-based
-                    #       file_iter, with the Generator yield statement below, isn't effectively streaming the file?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,
@@ -154,7 +152,6 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,

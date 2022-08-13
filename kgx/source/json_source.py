@@ -1,4 +1,5 @@
 import gzip
+import typing
 from typing import Optional, Generator, Any
 import ijson
 from itertools import chain
@@ -34,7 +35,7 @@ class JsonSource(TsvSource):
         format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from a JSON and yields records.
 

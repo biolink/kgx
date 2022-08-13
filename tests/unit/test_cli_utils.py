@@ -687,6 +687,35 @@ def test_transform_knowledge_source_suppression():
             break
 
 
+def test_transform_provided_by_suppression():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph.json")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "False"),
+        ("knowledge_source", "False"),
+        ("provided_by", "False")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        output=output,
+        output_format="json",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, "r"))
+    for n in data["nodes"]:
+        assert "provided_by" not in n
+
+
 def test_transform_knowledge_source_rewrite():
     """
     Transform graph from TSV to JSON.
