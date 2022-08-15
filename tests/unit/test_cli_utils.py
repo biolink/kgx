@@ -256,8 +256,43 @@ def test_kgx_graph_summary():
     assert "biolink:has_phenotype" in summary_stats["edge_stats"]["predicates"]
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
+## get chebi compressed file
+## Transform tsv -> tsv
+# entire file: https://kg-hub.berkeleybop.io/kg-obo/chebi/211/chebi_kgx_tsv.tar.gz
+# snippet: https://github.com/Knowledge-Graph-Hub/kg-idg/blob/master/tests/resources/snippets/chebi_kgx_tsv.tar.gz?raw=true
+'''
+        knowledge_sources = [
+            ("aggregator_knowledge_source", "test1"),
+            ("primary_knowledge_source", "test2")
+        ]
+
+        transform(inputs=[data_file],
+                  input_format='tsv',
+                  input_compression='tar.gz',
+                  output=os.path.join(self.output_dir, name),
+                  output_format='tsv',
+                  knowledge_sources=knowledge_sources)
+'''
 
 
+def test_chebi_tsv_to_tsv_transform():
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv.tar.gz")
+    ]
+    output = os.path.join(TARGET_DIR, "test_chebi.csv")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "test1"),
+        ("primary_knowledge_source", "test2")
+    ]
+
+    transform(inputs=inputs,
+              input_format='tsv',
+              input_compression='tar.gz',
+              output=output,
+              output_format='tsv',
+              knowledge_sources=knowledge_sources)
 
 
 def test_meta_knowledge_graph_as_json():

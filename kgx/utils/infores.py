@@ -68,7 +68,7 @@ class InfoResContext:
             ----------
             infores_rewrite_filter: Optional[Tuple]
                 The presence of this optional Tuple argument signals an InfoRes rewrite of any
-                Biolink 2.0 compliant knowledge source field name in node and edge data records.
+                knowledge source field name in node and edge data records.
                 The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
                 then only a standard transformation of the field value is performed. If the Tuple has
                 an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
