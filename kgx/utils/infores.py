@@ -446,7 +446,10 @@ class InfoResContext:
             if ksf in knowledge_provenance_properties:
                 ksf_found = True
                 self.set_provenance(ksf, edge_data)
-        if not ksf_found:
+                for ksf in self.mapping:
+                    if ksf != "provided_by":
+                        self.set_provenance(ksf, edge_data)
+        if not ksf_found:  # if there is no ksf in the incoming file, then use the kwargs
             for ksf in self.mapping:
                 if ksf != "provided_by":
                     self.set_provenance(ksf, edge_data)

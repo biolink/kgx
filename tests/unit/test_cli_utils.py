@@ -184,8 +184,6 @@ def test_transform_obojson_to_csv_wrapper():
         knowledge_sources=knowledge_sources,
     )
 
-    assert os.path.exists(output)
-
 
 def test_transform_with_provided_by_obojson_to_csv_wrapper():
     """
