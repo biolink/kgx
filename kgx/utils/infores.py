@@ -428,7 +428,7 @@ class InfoResContext:
 
     def set_edge_provenance(self, edge_data: Dict):
         """
-        Sets the node knowledge_source value for the current node. Edge knowledge_source properties
+        Sets the edge knowledge_source value for the current edge. Edge knowledge_source properties
         include the 'knowledge_source' related properties.
 
         Parameters
@@ -439,6 +439,9 @@ class InfoResContext:
         """
         ksf_found = False
         data_fields = list(edge_data.keys())
+        print("data_fields", data_fields)
+        # TODO - this method assumes that if ksf comes in an edges file, it can ignore kwargs - not true
+        # kwargs come in here via self.mapping, but not in the edges file
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 ksf_found = True

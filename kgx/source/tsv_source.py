@@ -82,22 +82,21 @@ class TsvSource(Source):
         """
         if "delimiter" not in kwargs:
             # infer delimiter from file format
-            kwargs["delimiter"] = extension_types[format]  # type: ignore
+            kwargs["delimiter"] = extension_types[format]
         if "lineterminator" not in kwargs:
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
-            kwargs["lineterminator"] = "\n"  # type: ignore
+            kwargs["lineterminator"] = "\n"
         if "list_delimeter" in kwargs:
             self.list_delimiter = kwargs["list_delimiter"]
 
         mode = (
             archive_read_mode[compression] if compression in archive_read_mode else None
         )
-        print("kwargs:", kwargs)
         self.set_provenance_map(kwargs)
 
         if format == "tsv":
-            kwargs["quoting"] = 3  # type: ignore
+            kwargs["quoting"] = 3
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 # Alas, the order that tar file members is important in some streaming operations
@@ -156,7 +155,7 @@ class TsvSource(Source):
                         f,
                         dtype=str,
                         chunksize=10000,
-                        low_memory=False,
+                         low_memory=False,
                         keep_default_na=False,
                         **kwargs,
                     )
@@ -179,8 +178,6 @@ class TsvSource(Source):
             elif re.search(f"edges.{format}", filename):
                 for chunk in file_iter:
                     self.edge_properties.update(chunk.columns)
-                    print("chunk_columns:", chunk.columns)
-                    print("edge_properties", self.edge_properties)
                     yield from self.read_edges(chunk)
             else:
                 # This used to throw an exception but perhaps we should simply ignore it.
@@ -273,9 +270,8 @@ class TsvSource(Source):
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]
         o = edge_data["object"]
-
+        print("edge_data", edge_data)
         self.set_edge_provenance(edge_data)
-
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
