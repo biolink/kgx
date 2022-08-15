@@ -134,6 +134,33 @@ def test_transform_wrapper():
     assert result.exit_code == 1
 
 
+def test_transform_uncompressed_tsv_to_tsv():
+    """
+        Transform nodes and edges file to nodes and edges TSV file
+        with extra provenance
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "chebi_snippet")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "sierras"),
+        ("primary_knowledge_source", "harrys")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
+
 def test_transform_obojson_to_csv_wrapper():
     """
         Transform obojson to CSV.
@@ -156,6 +183,8 @@ def test_transform_obojson_to_csv_wrapper():
         output_compression=None,
         knowledge_sources=knowledge_sources,
     )
+
+    assert os.path.exists(output)
 
 
 def test_transform_with_provided_by_obojson_to_csv_wrapper():
@@ -256,23 +285,6 @@ def test_kgx_graph_summary():
     assert "biolink:has_phenotype" in summary_stats["edge_stats"]["predicates"]
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
-## get chebi compressed file
-## Transform tsv -> tsv
-# entire file: https://kg-hub.berkeleybop.io/kg-obo/chebi/211/chebi_kgx_tsv.tar.gz
-# snippet: https://github.com/Knowledge-Graph-Hub/kg-idg/blob/master/tests/resources/snippets/chebi_kgx_tsv.tar.gz?raw=true
-'''
-        knowledge_sources = [
-            ("aggregator_knowledge_source", "test1"),
-            ("primary_knowledge_source", "test2")
-        ]
-
-        transform(inputs=[data_file],
-                  input_format='tsv',
-                  input_compression='tar.gz',
-                  output=os.path.join(self.output_dir, name),
-                  output_format='tsv',
-                  knowledge_sources=knowledge_sources)
-'''
 
 
 def test_chebi_tsv_to_tsv_transform():

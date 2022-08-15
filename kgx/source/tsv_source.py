@@ -93,7 +93,7 @@ class TsvSource(Source):
         mode = (
             archive_read_mode[compression] if compression in archive_read_mode else None
         )
-
+        print("kwargs:", kwargs)
         self.set_provenance_map(kwargs)
 
         if format == "tsv":
@@ -179,6 +179,8 @@ class TsvSource(Source):
             elif re.search(f"edges.{format}", filename):
                 for chunk in file_iter:
                     self.edge_properties.update(chunk.columns)
+                    print("chunk_columns:", chunk.columns)
+                    print("edge_properties", self.edge_properties)
                     yield from self.read_edges(chunk)
             else:
                 # This used to throw an exception but perhaps we should simply ignore it.

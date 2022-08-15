@@ -196,7 +196,6 @@ class Transformer(ErrorDetecting):
                 self.edge_filters = source.edge_filters
 
                 default_provenance = os.path.basename(f)
-
                 g = source.parse(f, default_provenance=default_provenance, **input_args)
 
                 sources.append(source)

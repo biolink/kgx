@@ -1,4 +1,5 @@
 import gzip
+import tarfile
 import typing
 from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any
