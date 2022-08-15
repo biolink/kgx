@@ -1,10 +1,14 @@
 """
-Biolink 2.0 Information Resource (InfoRes) utilities
+Information Resource (InfoRes) utilities
 """
 import re
 from typing import Optional, Tuple, Callable, Dict, List, Any
 
 from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
+from kgx.error_detection import ErrorType, MessageLevel
+from kgx.config import get_logger
+
+log = get_logger()
 
 
 class InfoResContext:
@@ -440,15 +444,23 @@ class InfoResContext:
         ksf_found = False
         data_fields = list(edge_data.keys())
         print("data_fields", data_fields)
-        # TODO - this method assumes that if ksf comes in an edges file, it can ignore kwargs - not true
-        # kwargs come in here via self.mapping, but not in the edges file
+        # what happens if there already exists a primary knowledge_source property?
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 ksf_found = True
                 self.set_provenance(ksf, edge_data)
                 for ksf in self.mapping:
                     if ksf != "provided_by":
-                        self.set_provenance(ksf, edge_data)
+                        if ksf == 'aggregator_knowledge_source':
+                            # append to the existing aggregator knowledge source property in the infores mapping
+                            # data already added to the infores map via kwargs
+                            pass
+                        elif ksf == 'primary_knowledge_source':
+                            raise TypeError("There may only be one primary_knowledge_source property per edge.")
+                        else:
+                            # just add all the remaining mapping values established in kwargs via the set_provenance_map
+                            # method
+                            self.set_provenance(ksf, edge_data)
         if not ksf_found:  # if there is no ksf in the incoming file, then use the kwargs
             for ksf in self.mapping:
                 if ksf != "provided_by":
