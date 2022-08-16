@@ -451,7 +451,7 @@ class InfoResContext:
                 # do we need this, likely if self.mapping is empty, what do we do if we need to change this
                 self.set_provenance(ksf, edge_data)
                 for ksf in self.mapping:
-                    if ksf != "provided_by":
+                    if ksf != "provided_by" and self.mapping[ksf]():
                         if ksf not in data_fields:
                             self.set_provenance(ksf, edge_data)
                         if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:

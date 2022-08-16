@@ -272,6 +272,7 @@ class TsvSource(Source):
         o = edge_data["object"]
         print("edge_data", edge_data)
         self.set_edge_provenance(edge_data)
+        print()
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
