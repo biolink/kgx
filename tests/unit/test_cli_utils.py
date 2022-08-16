@@ -148,7 +148,8 @@ def test_transform_uncompressed_tsv_to_tsv():
 
     knowledge_sources = [
         ("aggregator_knowledge_source", "sierras"),
-        ("primary_knowledge_source", "harrys")
+        ("primary_knowledge_source", "harrys"),
+        ("knowledge_source", "newknowledge")
     ]
     transform(
         inputs=inputs,
