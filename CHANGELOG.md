@@ -1,4 +1,8 @@
 # Changelog
+## 1.6.2
+- allow infores to be submitted via input files and via knowledge_sources click parameter
+- add some checks for dually submittied primary_knowledge_sources
+
 ## 1.6.1
 - minor code clean up, doc clean up and zenodo release
 
