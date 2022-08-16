@@ -700,7 +700,7 @@ def test_transformer_infores_suppression():
             os.path.join(RESOURCE_DIR, "test_infores_coercion_edges.tsv"),
         ],
         "format": "tsv",
-        "provided_by": "False",
+        "provided_by": False,
         "aggregator_knowledge_source": False,
         "primary_knowledge_source": False
     }
