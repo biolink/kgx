@@ -20,7 +20,7 @@ DEFAULT_EDGE_COLUMNS = {
     "object",
     "relation",
     "category",
-    "provided_by",
+    "knowledge_source",
 }
 DEFAULT_LIST_DELIMITER = "|"
 

@@ -134,6 +134,34 @@ def test_transform_wrapper():
     assert result.exit_code == 1
 
 
+def test_transform_uncompressed_tsv_to_tsv():
+    """
+        Transform nodes and edges file to nodes and edges TSV file
+        with extra provenance
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "chebi_snippet")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "sierras"),
+        ("primary_knowledge_source", "harrys"),
+        ("knowledge_source", "newknowledge")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
+
 def test_transform_obojson_to_csv_wrapper():
     """
         Transform obojson to CSV.
@@ -258,6 +286,24 @@ def test_kgx_graph_summary():
 
 
 
+def test_chebi_tsv_to_tsv_transform():
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv.tar.gz")
+    ]
+    output = os.path.join(TARGET_DIR, "test_chebi.csv")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "test1"),
+        ("primary_knowledge_source", "test2")
+    ]
+
+    transform(inputs=inputs,
+              input_format='tsv',
+              input_compression='tar.gz',
+              output=output,
+              output_format='tsv',
+              knowledge_sources=knowledge_sources)
 
 
 def test_meta_knowledge_graph_as_json():

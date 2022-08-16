@@ -1,0 +1,10 @@
+id	subject	predicate	object	category	relation	knowledge_source	logical_interpretation
+CHEBI:101257-biolink:subclass_of-CHEBI:22702	CHEBI:101257	biolink:subclass_of	CHEBI:22702		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:64459	CHEBI:101257	biolink:subclass_of	CHEBI:64459		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:50995	CHEBI:101257	biolink:subclass_of	CHEBI:50995		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:25018	CHEBI:101257	biolink:subclass_of	CHEBI:25018		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:48975	CHEBI:101257	biolink:subclass_of	CHEBI:48975		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:21644	CHEBI:101257	biolink:subclass_of	CHEBI:21644		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:25477	CHEBI:101257	biolink:subclass_of	CHEBI:25477		rdfs:subClassOf	chebiasc66dwf	
+CHEBI:101257-biolink:subclass_of-CHEBI:24780	CHEBI:101257	biolink:subclass_of	CHEBI:24780		rdfs:subClassOf	chebiasc66dwf	
+urn:uuid:6c0781c9-a64a-4750-be57-5c352a3b93fd	CHEBI:101257	biolink:has_attribute	CHEBI:67267	biolink:Association	RO:0000087	chebiasc66dwf	owlstar:AllSomeInterpretation

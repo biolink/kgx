@@ -16,7 +16,7 @@ from kgx.graph.base_graph import BaseGraph
 from kgx.graph_operations.graph_merge import merge_all_graphs
 from kgx.graph_operations import summarize_graph, meta_knowledge_graph
 from kgx.utils.kgx_utils import apply_graph_operations, knowledge_provenance_properties
-
+from pprint import pprint
 
 summary_report_types = {
     "kgx-map": summarize_graph.GraphSummary,
@@ -556,7 +556,6 @@ def transform(
                         )
                 else:
                     source_dict["input"][ksf] = ksf_spec
-
         name = os.path.basename(inputs[0])
         transform_source(
             key=name,

@@ -1,10 +1,14 @@
 """
-Biolink 2.0 Information Resource (InfoRes) utilities
+Information Resource (InfoRes) utilities
 """
 import re
 from typing import Optional, Tuple, Callable, Dict, List, Any
 
 from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
+from kgx.error_detection import ErrorType, MessageLevel
+from kgx.config import get_logger
+
+log = get_logger()
 
 
 class InfoResContext:
@@ -68,7 +72,7 @@ class InfoResContext:
             ----------
             infores_rewrite_filter: Optional[Tuple]
                 The presence of this optional Tuple argument signals an InfoRes rewrite of any
-                Biolink 2.0 compliant knowledge source field name in node and edge data records.
+                knowledge source field name in node and edge data records.
                 The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
                 then only a standard transformation of the field value is performed. If the Tuple has
                 an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
@@ -308,7 +312,7 @@ class InfoResContext:
 
     def get_mapping(self, ksf: str) -> InfoResMapping:
         """
-        InfoRes mapping for a specified knolwedge source field ('ksf').
+        InfoRes mapping for a specified knowledge source field ('ksf').
 
         Parameters
         ----------
@@ -428,7 +432,7 @@ class InfoResContext:
 
     def set_edge_provenance(self, edge_data: Dict):
         """
-        Sets the node knowledge_source value for the current node. Edge knowledge_source properties
+        Sets the edge knowledge_source value for the current edge. Edge knowledge_source properties
         include the 'knowledge_source' related properties.
 
         Parameters
@@ -439,11 +443,31 @@ class InfoResContext:
         """
         ksf_found = False
         data_fields = list(edge_data.keys())
+        print("data_fields", data_fields)
+        # what happens if there already exists a primary knowledge_source property?
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 ksf_found = True
+                # do we need this, likely if self.mapping is empty, what do we do if we need to change this
                 self.set_provenance(ksf, edge_data)
-        if not ksf_found:
+                for ksf in self.mapping:
+                    # if a dict, we are rewriting infores, so ignore.
+                    if ksf != "provided_by":
+                        if type(self.mapping[ksf]) in (list, str):  # self.mapping[ksf] can be False or True or value
+                            if ksf not in data_fields:
+                                self.set_provenance(ksf, edge_data)
+                            if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
+                                # append to the existing aggregator knowledge source property in the infores mapping
+                                # data already added to the infores map via kwargs
+                                for aks in self.mapping[ksf]():
+                                    if aks not in edge_data[ksf]:
+                                        edge_data[ksf].append(aks)
+                                self.set_provenance(ksf, edge_data)
+                            elif ksf == 'primary_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
+                                # append to the existing primary knowledge source property in the infores mapping
+                                # data already added to the infores map via kwargs
+                                raise TypeError("There may only be one primary_knowledge_source property per edge.")
+        if not ksf_found:  # if there is no ksf in the incoming file, then use the kwargs
             for ksf in self.mapping:
                 if ksf != "provided_by":
                     self.set_provenance(ksf, edge_data)
