@@ -452,7 +452,7 @@ class InfoResContext:
                     # if a dict, we are rewriting infores, so ignore.
                     # self.mapping[ksf] can be False or True or value
                     if ksf != "provided_by":
-                        if type(self.mapping[ksf]) in (list, str):
+                        if type(self.mapping[ksf]) not in (dict, bool):
                             if ksf not in data_fields:
                                 self.set_provenance(ksf, edge_data)
                             if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
