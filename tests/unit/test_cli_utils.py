@@ -285,13 +285,12 @@ def test_kgx_graph_summary():
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
 
-
 def test_chebi_tsv_to_tsv_transform():
 
     inputs = [
         os.path.join(RESOURCE_DIR, "chebi_kgx_tsv.tar.gz")
     ]
-    output = os.path.join(TARGET_DIR, "test_chebi.csv")
+    output = os.path.join(TARGET_DIR, "test_chebi.tsv")
 
     knowledge_sources = [
         ("aggregator_knowledge_source", "test1"),
