@@ -444,21 +444,18 @@ class InfoResContext:
         ksf_found = False
         data_fields = list(edge_data.keys())
         print("data_fields", data_fields)
-        # what happens if there already exists a primary knowledge_source property?
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 ksf_found = True
-                # do we need this, likely if self.mapping is empty, what do we do if we need to change this
                 self.set_provenance(ksf, edge_data)
                 for ksf in self.mapping:
                     # if a dict, we are rewriting infores, so ignore.
+                    # self.mapping[ksf] can be False or True or value
                     if ksf != "provided_by":
-                        if type(self.mapping[ksf]) in (list, str):  # self.mapping[ksf] can be False or True or value
+                        if type(self.mapping[ksf]) in (list, str):
                             if ksf not in data_fields:
                                 self.set_provenance(ksf, edge_data)
                             if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-                                # append to the existing aggregator knowledge source property in the infores mapping
-                                # data already added to the infores map via kwargs
                                 for aks in self.mapping[ksf]():
                                     if aks not in edge_data[ksf]:
                                         edge_data[ksf].append(aks)
