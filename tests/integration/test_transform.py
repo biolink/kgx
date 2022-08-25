@@ -746,7 +746,7 @@ def test_transformer_infores_parser_deletion_rewrite():
     assert "infores:gene-ontology" in et["aggregator_knowledge_source"]
 
     irc = t.get_infores_catalog()
-    assert len(irc) == 2
+    assert len(irc) == 3
     assert "Gene Ontology (Monarch version 202012)" in irc
     assert "infores:gene-ontology" in irc["Gene Ontology (Monarch version 202012)"]
 
@@ -779,7 +779,7 @@ def test_transformer_infores_parser_substitution_rewrite():
     assert "infores:gene-ontology-monarch" in et["aggregator_knowledge_source"]
 
     irc = t.get_infores_catalog()
-    assert len(irc) == 2
+    assert len(irc) == 3
     assert "Gene Ontology (Monarch version 202012)" in irc
     assert (
         "infores:gene-ontology-monarch" in irc["Gene Ontology (Monarch version 202012)"]
@@ -814,7 +814,7 @@ def test_transformer_infores_parser_prefix_rewrite():
     assert "infores:monarch-gene-ontology" in et["aggregator_knowledge_source"]
 
     irc = t.get_infores_catalog()
-    assert len(irc) == 2
+    assert len(irc) == 3
     assert "Gene Ontology (Monarch version 202012)" in irc
     assert (
         "infores:monarch-gene-ontology" in irc["Gene Ontology (Monarch version 202012)"]
@@ -852,7 +852,7 @@ def test_transformer_infores_simple_prefix_rewrite():
     )
 
     irc = t.get_infores_catalog()
-    assert len(irc) == 2
+    assert len(irc) == 3
     assert "Gene Ontology (Monarch version 202012)" in irc
     assert (
         "infores:fixed-gene-ontology-monarch-version-202012"
