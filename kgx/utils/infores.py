@@ -356,15 +356,13 @@ class InfoResContext:
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-
         # if none specified, add at least one generic 'knowledge_source'
-        if not ksf_found:
+        if len(ksf_found) == 0:
             ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
-
         if "provided_by" not in self.mapping:
             ir = self.get_mapping("provided_by")
             self.mapping["provided_by"] = ir.default(self.default_provenance)
@@ -441,33 +439,10 @@ class InfoResContext:
             Current edge data entry being processed.
 
         """
-        ksf_found = False
         data_fields = list(edge_data.keys())
-        print("data_fields", data_fields)
-        # what happens if there already exists a primary knowledge_source property?
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
-                ksf_found = True
-                # do we need this, likely if self.mapping is empty, what do we do if we need to change this
                 self.set_provenance(ksf, edge_data)
-                for ksf in self.mapping:
-                    # if a dict, we are rewriting infores, so ignore.
-                    if ksf != "provided_by":
-                        if type(self.mapping[ksf]) in (list, str):  # self.mapping[ksf] can be False or True or value
-                            if ksf not in data_fields:
-                                self.set_provenance(ksf, edge_data)
-                            if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-                                # append to the existing aggregator knowledge source property in the infores mapping
-                                # data already added to the infores map via kwargs
-                                for aks in self.mapping[ksf]():
-                                    if aks not in edge_data[ksf]:
-                                        edge_data[ksf].append(aks)
-                                self.set_provenance(ksf, edge_data)
-                            elif ksf == 'primary_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-                                # append to the existing primary knowledge source property in the infores mapping
-                                # data already added to the infores map via kwargs
-                                raise TypeError("There may only be one primary_knowledge_source property per edge.")
-        if not ksf_found:  # if there is no ksf in the incoming file, then use the kwargs
-            for ksf in self.mapping:
-                if ksf != "provided_by":
-                    self.set_provenance(ksf, edge_data)
+        for ksf in self.mapping:
+            if ksf != "provided_by":
+                self.set_provenance(ksf, edge_data)
