@@ -356,18 +356,13 @@ class InfoResContext:
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-        print("ksf_found:", ksf_found)
         # if none specified, add at least one generic 'knowledge_source'
         if len(ksf_found) == 0:
             ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
-                print("Adding name to generic 'knowledge_source'")
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
-                print("Adding default 'knowledge_source'")
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
-                print(self.mapping["knowledge_source"])
-
         if "provided_by" not in self.mapping:
             ir = self.get_mapping("provided_by")
             self.mapping["provided_by"] = ir.default(self.default_provenance)
@@ -400,7 +395,6 @@ class InfoResContext:
         #         raise TypeError("There may only be one primary_knowledge_source property per edge.")
 
         if ksf not in data.keys():
-            print(f"{ksf} not in data.keys()")
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
             else:
@@ -408,7 +402,6 @@ class InfoResContext:
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
         else:
-            print(f"{ksf} in data.keys()")
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
@@ -460,7 +453,6 @@ class InfoResContext:
 
         """
         data_fields = list(edge_data.keys())
-        print("data_fields", data_fields)
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 self.set_provenance(ksf, edge_data)
