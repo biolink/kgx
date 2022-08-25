@@ -172,8 +172,8 @@ def test_transform_uncompressed_tsv_to_tsv():
         for row in edges:
             assert len(row) == 10
             assert "someks" in row
-            assert "" in row
-            assert "someotherks" not in row
+            assert "someotherks" in row
+            assert "newknowledge" not in row
             assert "chebiasc66dwf" in row
 
 
