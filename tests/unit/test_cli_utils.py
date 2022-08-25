@@ -148,8 +148,8 @@ def test_transform_uncompressed_tsv_to_tsv():
     output = os.path.join(TARGET_DIR, "chebi_snippet")
 
     knowledge_sources = [
-        ("aggregator_knowledge_source", "sierras"),
-        ("primary_knowledge_source", "harrys"),
+        ("aggregator_knowledge_source", "someks"),
+        ("primary_knowledge_source", "someotherks"),
         ("knowledge_source", "newknowledge")
     ]
     transform(
@@ -171,9 +171,9 @@ def test_transform_uncompressed_tsv_to_tsv():
         assert "aggregator_knowledge_source" in csv_headings
         for row in edges:
             assert len(row) == 10
-            assert "sierras" in row
-            assert "harrys" in row
-            assert "newknowledge" not in row
+            assert "someks" in row
+            assert "" in row
+            assert "someotherks" not in row
             assert "chebiasc66dwf" in row
 
 
