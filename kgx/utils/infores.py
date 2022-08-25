@@ -381,19 +381,6 @@ class InfoResContext:
 
         """
 
-        # if type(self.mapping[ksf]) not in (dict, bool):
-        #     if ksf not in data_fields:
-        #         self.set_provenance(ksf, edge_data)
-        #     if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-        #         for aks in self.mapping[ksf]():
-        #             if aks not in edge_data[ksf]:
-        #                 edge_data[ksf].append(aks)
-        #         self.set_provenance(ksf, edge_data)
-        #     elif ksf == 'primary_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-        #         # append to the existing primary knowledge source property in the infores mapping
-        #         # data already added to the infores map via kwargs
-        #         raise TypeError("There may only be one primary_knowledge_source property per edge.")
-
         if ksf not in data.keys():
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
