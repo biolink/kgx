@@ -170,8 +170,11 @@ def test_transform_uncompressed_tsv_to_tsv():
         csv_headings = next(edges)
         assert "aggregator_knowledge_source" in csv_headings
         for row in edges:
-            print(len(row))
             assert len(row) == 10
+            assert "sierras" in row
+            assert "harrys" in row
+            assert "newknowledge" not in row
+            assert "chebiasc66dwf" in row
 
 
 def test_transform_obojson_to_csv_wrapper():
@@ -182,7 +185,7 @@ def test_transform_obojson_to_csv_wrapper():
     inputs = [
         os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
     ]
-    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed.csv")
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed")
     knowledge_sources = [
         ("aggregator_knowledge_source", "bioportal"),
         ("primary_knowledge_source", "justastring")
@@ -196,6 +199,15 @@ def test_transform_obojson_to_csv_wrapper():
         output_compression=None,
         knowledge_sources=knowledge_sources,
     )
+
+    with open(f"{output}_edges.tsv", "r") as fd:
+        edges = csv.reader(fd, delimiter="\t", quotechar='"')
+        csv_headings = next(edges)
+        assert "aggregator_knowledge_source" in csv_headings
+        for row in edges:
+            assert len(row) == 10
+            assert "bioportal" in row
+            assert "justastring" in row
 
 
 def test_transform_with_provided_by_obojson_to_csv_wrapper():
