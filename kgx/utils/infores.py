@@ -356,14 +356,17 @@ class InfoResContext:
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-
+        print("ksf_found:", ksf_found)
         # if none specified, add at least one generic 'knowledge_source'
-        if not ksf_found:
+        if len(ksf_found) == 0:
             ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
+                print("Adding name to generic 'knowledge_source'")
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
+                print("Adding default 'knowledge_source'")
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
+                print(self.mapping["knowledge_source"])
 
         if "provided_by" not in self.mapping:
             ir = self.get_mapping("provided_by")
@@ -383,7 +386,21 @@ class InfoResContext:
 
         """
 
+        # if type(self.mapping[ksf]) not in (dict, bool):
+        #     if ksf not in data_fields:
+        #         self.set_provenance(ksf, edge_data)
+        #     if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
+        #         for aks in self.mapping[ksf]():
+        #             if aks not in edge_data[ksf]:
+        #                 edge_data[ksf].append(aks)
+        #         self.set_provenance(ksf, edge_data)
+        #     elif ksf == 'primary_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
+        #         # append to the existing primary knowledge source property in the infores mapping
+        #         # data already added to the infores map via kwargs
+        #         raise TypeError("There may only be one primary_knowledge_source property per edge.")
+
         if ksf not in data.keys():
+            print(f"{ksf} not in data.keys()")
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
             else:
@@ -391,6 +408,7 @@ class InfoResContext:
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
         else:
+            print(f"{ksf} in data.keys()")
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
@@ -441,28 +459,11 @@ class InfoResContext:
             Current edge data entry being processed.
 
         """
-        ksf_found = False
         data_fields = list(edge_data.keys())
         print("data_fields", data_fields)
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
-                ksf_found = True
                 self.set_provenance(ksf, edge_data)
-                for ksf in self.mapping:
-                    if ksf != "provided_by":
-                        if type(self.mapping[ksf]) not in (dict, bool):
-                            if ksf not in data_fields:
-                                self.set_provenance(ksf, edge_data)
-                            if ksf == 'aggregator_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-                                for aks in self.mapping[ksf]():
-                                    if aks not in edge_data[ksf]:
-                                        edge_data[ksf].append(aks)
-                                self.set_provenance(ksf, edge_data)
-                            elif ksf == 'primary_knowledge_source' and self.mapping[ksf]() != edge_data[ksf]:
-                                # append to the existing primary knowledge source property in the infores mapping
-                                # data already added to the infores map via kwargs
-                                raise TypeError("There may only be one primary_knowledge_source property per edge.")
-        if not ksf_found:  # if there is no ksf in the incoming file, then use the kwargs
-            for ksf in self.mapping:
-                if ksf != "provided_by":
-                    self.set_provenance(ksf, edge_data)
+        for ksf in self.mapping:
+            if ksf != "provided_by":
+                self.set_provenance(ksf, edge_data)
