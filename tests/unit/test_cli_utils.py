@@ -205,7 +205,6 @@ def test_transform_obojson_to_csv_wrapper():
         csv_headings = next(edges)
         assert "aggregator_knowledge_source" in csv_headings
         for row in edges:
-            assert len(row) == 10
             assert "bioportal" in row
             assert "justastring" in row
 
