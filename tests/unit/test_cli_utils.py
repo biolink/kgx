@@ -1,6 +1,7 @@
 """
 Test CLI Utils
 """
+import csv
 import json
 import os
 import pytest
@@ -161,6 +162,17 @@ def test_transform_uncompressed_tsv_to_tsv():
         knowledge_sources=knowledge_sources,
     )
 
+    assert os.path.exists(f"{output}_nodes.tsv")
+    assert os.path.exists(f"{output}_edges.tsv")
+
+    with open(f"{output}_edges.tsv", "r") as fd:
+        edges = csv.reader(fd, delimiter="\t", quotechar='"')
+        csv_headings = next(edges)
+        assert "aggregator_knowledge_source" in csv_headings
+        for row in edges:
+            print(len(row))
+            assert len(row) == 10
+
 
 def test_transform_obojson_to_csv_wrapper():
     """
@@ -283,7 +295,6 @@ def test_kgx_graph_summary():
     assert summary_stats["edge_stats"]["total_edges"] == 539
     assert "biolink:has_phenotype" in summary_stats["edge_stats"]["predicates"]
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
-
 
 
 def test_chebi_tsv_to_tsv_transform():

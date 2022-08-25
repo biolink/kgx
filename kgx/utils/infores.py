@@ -449,8 +449,6 @@ class InfoResContext:
                 ksf_found = True
                 self.set_provenance(ksf, edge_data)
                 for ksf in self.mapping:
-                    # if a dict, we are rewriting infores, so ignore.
-                    # self.mapping[ksf] can be False or True or value
                     if ksf != "provided_by":
                         if type(self.mapping[ksf]) not in (dict, bool):
                             if ksf not in data_fields:
