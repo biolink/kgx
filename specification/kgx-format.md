@@ -189,8 +189,8 @@ A sample KGX TSV that represents a graph with 2 nodes and 1 edge:
 nodes.tsv
 ```tsv
 id	category	name	provided_by
-HGNC:11603	biolink:Gene	TBX4	MonarchArchive:gwascatalog
-MONDO:0005002	biolink:Disease	chronic obstructive pulmonary disease	MonarchArchive:gwascatalog
+HGNC:11603	biolink:NamedThing|biolink:BiologicalEntity|biolink:Gene	TBX4	MonarchArchive:gwascatalog
+MONDO:0005002	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:Disease	chronic obstructive pulmonary disease	MonarchArchive:gwascatalog
 ```
 
 edges.tsv
@@ -202,6 +202,7 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 Few noted caveats of the TSV serialization:
 - If you have a large graph where some nodes have certain specialized properties but most of them do not, then you end up with a sparse TSV for nodes with several columns that have no value.
 - The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.
+- Fields that accept lists of value - e.g. the above fields for `category` (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with `biolink:Gene` and `biolink:Disease`) and `publications` - have values typically a list of values delimited by a Unix pipe ('|') character, unless otherwise programmatically overridden, using an available `list_delimiter` parameter, during TSV _source_ or _sink_ data parsing by the KGX software tool)
 
 ## KGX format as JSONLINES
 
