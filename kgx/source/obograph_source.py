@@ -271,8 +271,6 @@ class ObographSource(JsonSource):
             # TODO: the mapping should be via biolink-model lookups
             if prefix == "ZFA":
                 category = "biolink:AnatomicalEntity"
-            if prefix == "HP":
-                category = "biolink:PhenotypicFeature"
             elif prefix == "CHEBI":
                 category = "biolink:ChemicalSubstance"
             elif prefix == "MONDO":
