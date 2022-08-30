@@ -42,7 +42,7 @@ class GraphEntityType(Enum):
 # including the deprecated 'provided_by' slot
 
 provenance_slot_types = {
-    "knowledge_source": list,
+    "knowledge_source": str,
     "primary_knowledge_source": str,
     "original_knowledge_source": str,
     "aggregator_knowledge_source": list,
@@ -297,7 +297,6 @@ def expand(
 
 _default_toolkit = None
 
-# TODO: not sure how threadsafe this simple-minded Toolkit cache is
 _toolkit_versions: Dict[str, Toolkit] = dict()
 
 
@@ -418,7 +417,6 @@ def get_prefix_prioritization_map() -> Dict[str, List]:
     """
     toolkit = get_toolkit()
     prefix_prioritization_map = {}
-    # TODO: Lookup via Biolink CURIE should be supported in bmt
     descendants = toolkit.get_descendants("named thing")
     descendants.append("named thing")
     for d in descendants:
@@ -493,7 +491,6 @@ def get_biolink_property_types() -> Dict:
         property_type = get_type_for_property(p)
         types[p] = property_type
 
-    # TODO: this should be moved to biolink model
     types["biolink:predicate"] = "uriorcurie"
     types["biolink:edge_label"] = "uriorcurie"
     return types
@@ -502,8 +499,6 @@ def get_biolink_property_types() -> Dict:
 def get_type_for_property(p: str) -> str:
     """
     Get type for a property.
-
-    TODO: Move this to biolink-model-default_toolkit
 
     Parameters
     ----------
@@ -981,17 +976,14 @@ def _sanitize_export_property(key: str, value: Any, list_delimiter: str=None) ->
 def remove_null(input: Any) -> Any:
     """
     Remove any null values from input.
-
     Parameters
     ----------
     input: Any
         Can be a str, list or dict
-
     Returns
     -------
     Any
         The input without any null values
-
     """
     new_value: Any = None
     if isinstance(input, (list, set, tuple)):

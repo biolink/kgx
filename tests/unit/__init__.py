@@ -39,11 +39,6 @@ def clean_database():
             DEFAULT_NEO4J_URL,
             auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     ) as http_driver:
-        # The following Cipher command would be better to clean the database completely
-        # before reuse, but alas, it is not supported in the Neo4j Community version?
-        #
-        # q = f"CREATE OR REPLACE DATABASE {DEFAULT_NEO4J_DATABASE}"
-        #
         q = "MATCH (n) DETACH DELETE (n)"
         try:
             session = http_driver.session()
@@ -52,9 +47,9 @@ def clean_database():
             print(e)
 
 
-# TODO: this is a bit of misnomer: yes, it processes a stream
-#       but then loads it into in memory data structures.
-#       This could be problematic for huge graphs?
+# this is a bit of misnomer: yes, it processes a stream
+# but then loads it into in memory data structures.
+# This could be problematic for huge graphs?
 def load_graph_dictionary(g):
     """
     Process a given stream into a nodes and edges dictionary.
@@ -113,7 +108,7 @@ def get_graph(source):
         **{
             "subject": "B",
             "object": "A",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -143,7 +138,7 @@ def get_graph(source):
         **{
             "subject": "B",
             "object": "A",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -153,7 +148,7 @@ def get_graph(source):
         **{
             "subject": "C",
             "object": "B",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -163,7 +158,7 @@ def get_graph(source):
         **{
             "subject": "D",
             "object": "C",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -183,7 +178,7 @@ def get_graph(source):
         **{
             "subject": "E",
             "object": "D",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )
@@ -193,7 +188,7 @@ def get_graph(source):
         **{
             "subject": "F",
             "object": "D",
-            "predicate": "biolink:sub_class_of",
+            "predicate": "biolink:subclass_of",
             "source": source,
         }
     )

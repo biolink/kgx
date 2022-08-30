@@ -3593,7 +3593,9 @@
                 "bgee"
             ],
             "relation": "RO:0002206",
-            "subject": "HGNC:10848"
+            "subject": "HGNC:10848",
+            "unidentified_property": [ "what?"
+            ]
         },
         {
             "id": "urn:uuid:65fe6e12-a57e-466f-9bbf-a04cdc4b059e",

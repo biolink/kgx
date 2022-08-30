@@ -1,4 +1,23 @@
 # Changelog
+## 1.7.0
+- updates to infores usage according to Biolink-model changes
+- bug fixes for infores auto-mapping
+
+## 1.6.2
+- allow infores to be submitted via input files and via knowledge_sources click parameter
+- add some checks for dually submittied primary_knowledge_sources
+
+## 1.6.1
+- minor code clean up, doc clean up and zenodo release
+
+## 1.6.0
+- update provenance to work with Biolink3
+
+## 1.5.9 (2022-06-13)
+- make streaming transform default
+
+## 1.5.8 (2022-06-02)
+- take down logging level for neo4j
 
 ## 1.5.7 (2022-04-15)
 - update click utils to use stream for transform in merge command

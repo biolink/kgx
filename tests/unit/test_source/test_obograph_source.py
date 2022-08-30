@@ -73,7 +73,7 @@ def test_read_obograph1():
 def test_read_jsonl2():
     """
     Read from an Obograph JSON using ObographSource.
-    This test also supplies the knowledge_source parameter.
+    This test also supplies the provided_by parameter.
     """
     t = Transformer()
     s = ObographSource(t)

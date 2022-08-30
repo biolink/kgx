@@ -1,21 +1,22 @@
 """
 Test CLI Utils
 """
+import csv
 import json
 import os
 import pytest
 from click.testing import CliRunner
 
-from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, transform, merge, get_output_file_types
-from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types
+from kgx.cli.cli_utils import validate, neo4j_upload, neo4j_download, merge, get_output_file_types
+from kgx.cli import cli, get_input_file_types, graph_summary, get_report_format_types, transform
 from tests import RESOURCE_DIR, TARGET_DIR
 from tests.unit import (
-    clean_database,
     check_container,
     CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
-    DEFAULT_NEO4J_PASSWORD
+    DEFAULT_NEO4J_PASSWORD,
+    clean_database
 )
 
 
@@ -109,7 +110,6 @@ def test_graph_summary_report_format_wrapper_error():
     assert result.exit_code == 1
 
 
-
 def test_transform_wrapper():
     """
         Transform graph from TSV to JSON.
@@ -133,6 +133,105 @@ def test_transform_wrapper():
     )
 
     assert result.exit_code == 1
+
+
+def test_transform_uncompressed_tsv_to_tsv():
+    """
+        Transform nodes and edges file to nodes and edges TSV file
+        with extra provenance
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "chebi_snippet")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "someks"),
+        ("primary_knowledge_source", "someotherks"),
+        ("knowledge_source", "newknowledge")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
+    assert os.path.exists(f"{output}_nodes.tsv")
+    assert os.path.exists(f"{output}_edges.tsv")
+
+    with open(f"{output}_edges.tsv", "r") as fd:
+        edges = csv.reader(fd, delimiter="\t", quotechar='"')
+        csv_headings = next(edges)
+        assert "aggregator_knowledge_source" in csv_headings
+        for row in edges:
+            assert len(row) == 10
+            assert "someks" in row
+            assert "someotherks" in row
+            assert "newknowledge" not in row
+            assert "chebiasc66dwf" in row
+
+
+def test_transform_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+
+    with open(f"{output}_edges.tsv", "r") as fd:
+        edges = csv.reader(fd, delimiter="\t", quotechar='"')
+        csv_headings = next(edges)
+        assert "aggregator_knowledge_source" in csv_headings
+        for row in edges:
+            assert "bioportal" in row
+            assert "justastring" in row
+
+
+def test_transform_with_provided_by_obojson_to_csv_wrapper():
+    """
+        Transform obojson to CSV.
+        """
+
+    inputs = [
+        os.path.join(RESOURCE_DIR, "BFO_2_relaxed.json")
+    ]
+    output = os.path.join(TARGET_DIR, "test_bfo_2_relaxed_provided_by.csv")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "bioportal"),
+        ("primary_knowledge_source", "justastring"),
+        ("provided_by", "bioportal")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="obojson",
+        input_compression=None,
+        output=output,
+        output_format="tsv",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
 
 
 def test_merge_wrapper():
@@ -209,7 +308,24 @@ def test_kgx_graph_summary():
     assert "biolink:interacts_with" in summary_stats["edge_stats"]["predicates"]
 
 
+def test_chebi_tsv_to_tsv_transform():
 
+    inputs = [
+        os.path.join(RESOURCE_DIR, "chebi_kgx_tsv.tar.gz")
+    ]
+    output = os.path.join(TARGET_DIR, "test_chebi.tsv")
+
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "test1"),
+        ("primary_knowledge_source", "test2")
+    ]
+
+    transform(inputs=inputs,
+              input_format='tsv',
+              input_compression='tar.gz',
+              output=output,
+              output_format='tsv',
+              knowledge_sources=knowledge_sources)
 
 
 def test_meta_knowledge_graph_as_json():
@@ -285,8 +401,7 @@ def test_meta_knowledge_graph_as_json_streamed():
         output=output,
         report_type="meta-knowledge-graph",
         node_facet_properties=["provided_by"],
-        edge_facet_properties=["aggregator_knowledge_source"],
-        stream=True,
+        edge_facet_properties=["aggregator_knowledge_source"]
     )
 
     assert os.path.exists(output)
@@ -337,7 +452,7 @@ def test_validate_parsing_triggered_error_exit_code(query):
     assert result.exit_code == query[1]
 
 
-def test_validate_non_streaming():
+def test_validate():
     """
     Test graph validation.
     """
@@ -349,29 +464,7 @@ def test_validate_non_streaming():
         inputs=inputs,
         input_format="json",
         input_compression=None,
-        output=output,
-        stream=False,
-        biolink_release="2.1.0",
-    )
-    assert os.path.exists(output)
-    assert len(errors) == 0
-
-
-def test_validate_streaming():
-    """
-    Test graph validation.
-    """
-    inputs = [
-        os.path.join(RESOURCE_DIR, "valid.json"),
-    ]
-    output = os.path.join(TARGET_DIR, "validation.log")
-    errors = validate(
-        inputs=inputs,
-        input_format="json",
-        input_compression=None,
-        output=output,
-        stream=True,
-        biolink_release="2.1.0",
+        output=output
     )
     assert os.path.exists(output)
     assert len(errors) == 0
@@ -626,6 +719,7 @@ def test_transform_error():
     except ValueError:
         assert ValueError
 
+
 def test_transform_knowledge_source_suppression():
     """
     Transform graph from TSV to JSON.
@@ -659,6 +753,35 @@ def test_transform_knowledge_source_suppression():
             assert "aggregator_knowledge_source" not in e
             assert "knowledge_source" not in e
             break
+
+
+def test_transform_provided_by_suppression():
+    """
+    Transform graph from TSV to JSON.
+    """
+    inputs = [
+        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+    ]
+    output = os.path.join(TARGET_DIR, "graph.json")
+    knowledge_sources = [
+        ("aggregator_knowledge_source", "False"),
+        ("knowledge_source", "False"),
+        ("provided_by", "False")
+    ]
+    transform(
+        inputs=inputs,
+        input_format="tsv",
+        input_compression=None,
+        output=output,
+        output_format="json",
+        output_compression=None,
+        knowledge_sources=knowledge_sources,
+    )
+    assert os.path.exists(output)
+    data = json.load(open(output, "r"))
+    for n in data["nodes"]:
+        assert "provided_by" not in n
 
 
 def test_transform_knowledge_source_rewrite():

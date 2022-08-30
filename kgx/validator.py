@@ -66,9 +66,7 @@ class Validator(ErrorDetecting):
         Creates and manages a default singleton Validator in the module, when called
         """
         if not cls._the_validator:
-            # TODO: This may need to be adjusted periodically,
-            #       but for now, we reset the model to a recent version
-            cls.set_biolink_model("2.2.11")
+            cls.set_biolink_model("3.0.0")
             cls._the_validator = Validator(
                 verbose=verbose,
                 progress_monitor=progress_monitor,
@@ -92,7 +90,6 @@ class Validator(ErrorDetecting):
             Callable[[GraphEntityType, List], None]
         ] = progress_monitor
 
-        # TODO: fix... this attribute is not used anywhere at the moment?
         self.schema: Optional[str] = schema
 
         # internal attributes
@@ -274,7 +271,6 @@ class Validator(ErrorDetecting):
     def validate(self, graph: BaseGraph):
         """
         Validate nodes and edges in a graph.
-        TODO: Support strict mode
 
         Parameters
         ----------

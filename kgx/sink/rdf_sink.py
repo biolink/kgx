@@ -309,7 +309,6 @@ class RdfSink(Sink):
             # identifier is an entity
             fixed_identifier = identifier
             if fixed_identifier.startswith(":"):
-                # TODO: this should be handled upstream by prefixcommons-py
                 fixed_identifier = fixed_identifier.replace(":", "", 1)
             if " " in identifier:
                 fixed_identifier = fixed_identifier.replace(" ", "_")
@@ -379,7 +378,6 @@ class RdfSink(Sink):
             The type for property name
 
         """
-        # TODO: this should be properly defined in the model
         default_uri_types = {
             "biolink:type",
             "biolink:category",

@@ -1,5 +1,6 @@
 import re
 import tarfile
+import typing
 from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
@@ -13,7 +14,6 @@ from kgx.utils.kgx_utils import (
     archive_read_mode,
     sanitize_import
 )
-
 log = get_logger()
 
 DEFAULT_LIST_DELIMITER = "|"
@@ -59,7 +59,7 @@ class TsvSource(Source):
         format: str,
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from a TSV/CSV and yields records.
 
@@ -82,22 +82,21 @@ class TsvSource(Source):
         """
         if "delimiter" not in kwargs:
             # infer delimiter from file format
-            kwargs["delimiter"] = extension_types[format]  # type: ignore
+            kwargs["delimiter"] = extension_types[format]
         if "lineterminator" not in kwargs:
             # set '\n' to be the default line terminator to prevent
             # truncation of lines due to hidden/escaped carriage returns
-            kwargs["lineterminator"] = "\n"  # type: ignore
+            kwargs["lineterminator"] = "\n"
         if "list_delimeter" in kwargs:
             self.list_delimiter = kwargs["list_delimiter"]
 
         mode = (
             archive_read_mode[compression] if compression in archive_read_mode else None
         )
-
         self.set_provenance_map(kwargs)
 
         if format == "tsv":
-            kwargs["quoting"] = 3  # type: ignore
+            kwargs["quoting"] = 3
         if mode:
             with tarfile.open(filename, mode=mode) as tar:
                 # Alas, the order that tar file members is important in some streaming operations
@@ -129,9 +128,6 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
-                    #       Question: who put the above comment here? One wonders whether the use of the chunk-based
-                    #       file_iter, with the Generator yield statement below, isn't effectively streaming the file?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,
@@ -155,12 +151,11 @@ class TsvSource(Source):
                         continue
 
                     f = tar.extractfile(member)
-                    # TODO: can this somehow be streamed here?
                     file_iter = pd.read_csv(
                         f,
                         dtype=str,
                         chunksize=10000,
-                        low_memory=False,
+                         low_memory=False,
                         keep_default_na=False,
                         **kwargs,
                     )
@@ -226,11 +221,9 @@ class TsvSource(Source):
         if node:
             # if not None, assumed to have an "id" here...
             node_data = sanitize_import(node.copy(), self.list_delimiter)
-
             n = node_data["id"]
 
-            self.set_node_provenance(node_data)
-
+            self.set_node_provenance(node_data)  # this method adds provided_by to the node properties/node data
             self.node_properties.update(list(node_data.keys()))
             if self.check_node_filter(node_data):
                 self.node_properties.update(node_data.keys())
@@ -272,18 +265,14 @@ class TsvSource(Source):
         edge = self.validate_edge(edge)
         if not edge:
             return None
-
         edge_data = sanitize_import(edge.copy(), self.list_delimiter)
-
         if "id" not in edge_data:
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]
         o = edge_data["object"]
-
         self.set_edge_provenance(edge_data)
-
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))
         if self.check_edge_filter(edge_data):
-            self.node_properties.update(edge_data.keys())
+            self.edge_properties.update(edge_data.keys())
             return s, o, key, edge_data

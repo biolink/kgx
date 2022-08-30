@@ -3,6 +3,8 @@ import os
 from sys import stderr
 from typing import List, Dict
 
+from deprecation import deprecated
+
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph_operations.meta_knowledge_graph import (
     generate_meta_knowledge_graph,
@@ -31,6 +33,7 @@ def _check_mkg_json_contents(data):
     assert edge1_cbs_aks["string"] == 160
 
 
+@deprecated(deprecated_in="1.5.8", details="Default is the use streaming graph_summary with inspector")
 def test_generate_classical_meta_knowledge_graph():
     """
     Test generate meta knowledge graph operation.
@@ -61,7 +64,7 @@ def test_generate_classical_meta_knowledge_graph():
     _check_mkg_json_contents(data)
 
 
-def test_generate_meta_knowledge_graph_by_stream_inspector():
+def test_generate_meta_knowledge_graph_by_inspector():
     """
     Test generate the meta knowledge graph by streaming
     graph data through a graph Transformer.process() Inspector
@@ -136,9 +139,9 @@ def test_generate_meta_knowledge_graph_by_stream_inspector():
 
 
 #
-# Testing alternate approach of generating and using a meta knowledge graph
+# Testing alternate approach of generating and using meta knowledge graphs
 #
-def test_generate_streaming_meta_knowledge_graph_via_saved_file():
+def test_generate_meta_knowledge_graph_via_saved_file():
     """
     Test generate meta knowledge graph operation...
     MetaKnowledgeGraph as streaming Transformer.transform Inspector
@@ -200,7 +203,7 @@ def test_generate_streaming_meta_knowledge_graph_via_saved_file():
 
 def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
     """
-    Test meta knowledge graph parsing multiple categories
+    Test meta knowledge graph parsing multiple categories using streaming
     """
     input_args = {
         "filename": [
@@ -249,6 +252,7 @@ def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
     assert mkg.get_total_edge_counts_across_mappings() == 100
 
 
+@deprecated(deprecated_in="1.5.8", details="Default is the use streaming graph_summary with inspector")
 def test_meta_knowledge_graph_of_complex_graph_data():
     """
     Test generate meta knowledge graph operation.

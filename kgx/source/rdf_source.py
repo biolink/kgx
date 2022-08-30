@@ -1,4 +1,5 @@
 import gzip
+import typing
 from typing import Set, Dict, Union, Optional, Any, Tuple, List, Generator
 
 import rdflib
@@ -43,9 +44,6 @@ class RdfSource(Source):
     def __init__(self, owner):
         super().__init__(owner)
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
-        # TODO: use OBO IRI from biolink model context once
-        #  https://github.com/biolink/biolink-model/issues/211 is resolved
-        # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map["OBAN"])
         self.PMID = Namespace(self.prefix_manager.prefix_map["PMID"])
         self.BIOLINK = Namespace(self.prefix_manager.prefix_map["biolink"])
@@ -65,7 +63,6 @@ class RdfSource(Source):
             set(self.toolkit.get_all_edge_properties(formatted=True))
         )
 
-        # TODO: validate expansion of the scope of this statement to include 'knowledge_source' and its descendants?
         for ksf in knowledge_provenance_properties:
             self.node_property_predicates.add(
                 URIRef(self.prefix_manager.expand("biolink:" + ksf))
@@ -133,7 +130,7 @@ class RdfSource(Source):
         format: str = "nt",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from RDF N-Triples and yields records.
 

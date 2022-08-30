@@ -5,7 +5,6 @@ from kgx.config import get_logger
 from kgx.error_detection import ErrorType
 from kgx.sink.sink import Sink
 from kgx.source.source import DEFAULT_NODE_CATEGORY
-
 log = get_logger()
 
 
@@ -68,7 +67,6 @@ class NeoSink(Sink):
         sanitized_category = self.sanitize_category(record["category"])
         category = self.CATEGORY_DELIMITER.join(sanitized_category)
         if self.node_count >= self.CACHE_SIZE:
-            print(self.CACHE_SIZE)
             self._flush_node_cache()
         if category not in self.node_cache:
             self.node_cache[category] = [record]
@@ -85,7 +83,7 @@ class NeoSink(Sink):
         filtered_categories = [x for x in categories if x not in self._seen_categories]
         self.create_constraints(filtered_categories)
         for category in self.node_cache.keys():
-            log.debug("Generating UNWIND for category: {}".format(category))
+            log.info("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
@@ -141,15 +139,14 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.debug(query)
+            log.info(query)
             edges = self.edge_cache[predicate]
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
-                print(batch)
                 log.debug(f"Batch {x} - {y}")
+                log.info(edges[x:y])
                 try:
-                    print(query)
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}
                     )

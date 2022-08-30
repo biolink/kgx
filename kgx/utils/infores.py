@@ -1,10 +1,14 @@
 """
-Biolink 2.0 Information Resource (InfoRes) utilities
+Information Resource (InfoRes) utilities
 """
 import re
 from typing import Optional, Tuple, Callable, Dict, List, Any
 
 from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
+from kgx.error_detection import ErrorType, MessageLevel
+from kgx.config import get_logger
+
+log = get_logger()
 
 
 class InfoResContext:
@@ -54,7 +58,7 @@ class InfoResContext:
 
             """
             self.context = context  # parent InfoRes context
-            self.ksf = ksf  # Biolink 2.* 'Knowledge Source Field' slot name
+            self.ksf = ksf  # 'Knowledge Source Field' slot name
             self.filter = None
             self.substr = ""
             self.prefix = ""
@@ -68,7 +72,7 @@ class InfoResContext:
             ----------
             infores_rewrite_filter: Optional[Tuple]
                 The presence of this optional Tuple argument signals an InfoRes rewrite of any
-                Biolink 2.0 compliant knowledge source field name in node and edge data records.
+                knowledge source field name in node and edge data records.
                 The mere presence of a (possibly empty) Tuple signals a rewrite. If the Tuple is empty,
                 then only a standard transformation of the field value is performed. If the Tuple has
                 an infores_rewrite[0] value, it is assumed to be a regular expression (string) to match
@@ -160,7 +164,6 @@ class InfoResContext:
                 infores = re.sub(r"[\W]", "", infores)
                 infores = re.sub(r"_", "-", infores)
 
-                # TODO: to be fully compliant, the InfoRes needs to have the 'infores' prefix?
                 infores = "infores:" + infores
 
                 return infores
@@ -304,13 +307,12 @@ class InfoResContext:
             elif isinstance(ksf_value, (list, set, tuple)):
                 mapping = self.processor(infores_rewrite_filter=ksf_value)
             else:
-                # Not sure what to do here... just return the original ksf_value?
                 mapping = ksf_value
             return mapping
 
     def get_mapping(self, ksf: str) -> InfoResMapping:
         """
-        InfoRes mapping for a specified knolwedge source field ('ksf').
+        InfoRes mapping for a specified knowledge source field ('ksf').
 
         Parameters
         ----------
@@ -338,15 +340,11 @@ class InfoResContext:
         if "default_provenance" in kwargs:
             self.default_provenance = kwargs.pop("default_provenance")
 
-        # Biolink 2.0 knowledge_source 'knowledge_source' derived fields
-        ksf_found = False
+        ksf_found = []
         for ksf in knowledge_provenance_properties:
             if ksf in kwargs:
-                if not ksf_found:
-                    ksf_found = ksf  # save the first one found, for later
+                ksf_found.append(ksf)
                 ksf_value = kwargs.pop(ksf)
-                # Check if the ksf_value is a multi-valued catalog of patterns for a
-                # given knowledge graph field, indexed on each distinct regex pattern
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
                         if ksf not in self.mapping:
@@ -358,19 +356,16 @@ class InfoResContext:
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
-
         # if none specified, add at least one generic 'knowledge_source'
-        if not ksf_found:
-            ksf_found = "knowledge_source"  # knowledge source field 'ksf' is set, one way or another
-            ir = self.get_mapping(ksf_found)
+        if len(ksf_found) == 0:
+            ir = self.get_mapping("knowledge_source")
             if "name" in kwargs:
                 self.mapping["knowledge_source"] = ir.default(kwargs["name"])
             else:
                 self.mapping["knowledge_source"] = ir.default(self.default_provenance)
-
-        # TODO: better to lobby the team to totally deprecated this, even for Nodes?
         if "provided_by" not in self.mapping:
-            self.mapping["provided_by"] = self.mapping[ksf_found]
+            ir = self.get_mapping("provided_by")
+            self.mapping["provided_by"] = ir.default(self.default_provenance)
 
     def set_provenance(self, ksf: str, data: Dict):
         """
@@ -385,39 +380,36 @@ class InfoResContext:
             Current node or edge data entry being processed.
 
         """
+
         if ksf not in data.keys():
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
-                data[ksf] = self.mapping[ksf]()  # get default ksf value?
+                data[ksf] = self.mapping[ksf]()
             else:
                 # if unknown ksf or is an inapplicable pattern
                 # dictionary, then just set the value to the default
                 data[ksf] = [self.default_provenance]
-        else:  # valid data value but... possible InfoRes rewrite?
-            # If data is s a non-string iterable
-            # then, coerce into a simple list of sources
+        else:
+            # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
             else:
-                # Otherwise, just assumed to be a scalar
-                # data value for this knowledge source field?
-                # Treat differentially depending on column type...
+                # wraps knowledge sources that are multivalued in a list even if single valued
+                # in ingest data
                 if column_types[ksf] == list:
                     sources = [data[ksf]]
                 else:
                     sources = data[ksf]
             if ksf in self.mapping:
                 if isinstance(self.mapping[ksf], dict):
-                    # Need to iterate through a knowledge source pattern dictionary
                     for pattern in self.mapping[ksf].keys():
                         for source in sources:
-                            # TODO: I need to test pattern match to each source?
                             if re.compile(pattern).match(source):
                                 data[ksf] = self.mapping[ksf][pattern]([source])
                             if data[ksf]:
                                 break
                 else:
                     data[ksf] = self.mapping[ksf](sources)
-            else:  # leave data intact?
+            else:  # leave data intact if no mapping found
                 data[ksf] = sources
 
         # ignore if still empty at this point
@@ -426,9 +418,7 @@ class InfoResContext:
 
     def set_node_provenance(self, node_data: Dict):
         """
-        Sets the node knowledge_source value for the current node. At the moment, nodes are still
-        hard-coded to using the (Biolink 2.0 deprecated) 'provided_by' knowledge_source property;
-        However, this could change in the future to use edge 'knowledge_source' properties.
+        Sets the node knowledge_source value for the current node.
 
         Parameters
         ----------
@@ -438,11 +428,10 @@ class InfoResContext:
         """
         self.set_provenance("provided_by", node_data)
 
-    # TODO: need to design a more efficient algorithm here...
     def set_edge_provenance(self, edge_data: Dict):
         """
-        Sets the node knowledge_source value for the current node. Edge knowledge_source properties
-        include the full Biolink 2.0 'knowledge_source' related properties.
+        Sets the edge knowledge_source value for the current edge. Edge knowledge_source properties
+        include the 'knowledge_source' related properties.
 
         Parameters
         ----------
@@ -450,13 +439,10 @@ class InfoResContext:
             Current edge data entry being processed.
 
         """
-        ksf_found = False
         data_fields = list(edge_data.keys())
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
-                ksf_found = True
                 self.set_provenance(ksf, edge_data)
-        if not ksf_found:
-            for ksf in self.mapping:
-                if ksf != "provided_by":
-                    self.set_provenance(ksf, edge_data)
+        for ksf in self.mapping:
+            if ksf != "provided_by":
+                self.set_provenance(ksf, edge_data)

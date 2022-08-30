@@ -1,3 +1,4 @@
+import typing
 from typing import Set, Optional, Generator, Any
 
 import rdflib
@@ -36,7 +37,7 @@ class OwlSource(RdfSource):
         format: str = "owl",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from an OWL and yields records.
 

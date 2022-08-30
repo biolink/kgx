@@ -9,6 +9,8 @@ import yaml
 from json import dump
 from json.encoder import JSONEncoder
 
+from deprecation import deprecated
+
 from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
 from kgx.utils.kgx_utils import GraphEntityType
 from kgx.graph.base_graph import BaseGraph
@@ -220,7 +222,7 @@ class GraphSummary(ErrorDetecting):
             # ...so that Category related entries at that
             # higher level may be properly initialized
             # for subsequent facet metadata access
-            if not self.category_curie == "unknown":
+            if self.category_curie != "unknown":
                 self.summary.node_stats[NODE_CATEGORIES].add(self.category_curie)
             self.summary.node_stats[NODE_ID_PREFIXES_BY_CATEGORY][
                 self.category_curie
@@ -835,6 +837,7 @@ class GraphSummary(ErrorDetecting):
             dump(stats, file, indent=4, default=gs_default)
 
 
+@deprecated(deprecated_in="1.5.8", details="Default is the use streaming graph_summary with inspector")
 def generate_graph_stats(
     graph: BaseGraph,
     graph_name: str,

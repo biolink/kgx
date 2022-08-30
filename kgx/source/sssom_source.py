@@ -3,6 +3,7 @@ KGX Source for Simple Standard for Sharing Ontology Mappings ("SSSOM")
 """
 import gzip
 import re
+import typing
 
 import pandas as pd
 from typing import Optional, Generator, Any, Dict, Tuple
@@ -70,7 +71,7 @@ class SssomSource(Source):
         format: str,
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         Parse a SSSOM TSV
 

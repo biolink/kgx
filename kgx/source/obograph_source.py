@@ -1,4 +1,6 @@
 import gzip
+import tarfile
+import typing
 from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
@@ -44,7 +46,7 @@ class ObographSource(JsonSource):
         format: str = "json",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from JSON and yields records.
 
@@ -66,7 +68,6 @@ class ObographSource(JsonSource):
 
         """
         self.set_provenance_map(kwargs)
-
         n = self.read_nodes(filename, compression)
         e = self.read_edges(filename, compression)
         yield from chain(n, e)
@@ -139,11 +140,6 @@ class ObographSource(JsonSource):
         if "equivalent_nodes" in node_properties:
             equivalent_nodes = node_properties["equivalent_nodes"]
             fixed_node["same_as"] = equivalent_nodes
-            # for n in node_properties['equivalent_nodes']:
-            #     data = {'subject': fixed_node['id'], 'predicate': 'biolink:same_as',
-            #     'object': n, 'relation': 'owl:sameAs'}
-            #     super().load_node({'id': n, 'category': ['biolink:OntologyClass']})
-            #     self.graph.add_edge(fixed_node['id'], n, **data)
         return super().read_node(fixed_node)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:
@@ -199,7 +195,6 @@ class ObographSource(JsonSource):
                         if mapping:
                             element = self.toolkit.get_element(mapping)
 
-                    #  TODO: not sure how this exception would be thrown here.. under what conditions?
                     except ValueError as e:
                         self.owner.log_error(
                             entity=str(edge["pred"]),
@@ -276,6 +271,8 @@ class ObographSource(JsonSource):
             # TODO: the mapping should be via biolink-model lookups
             if prefix == "ZFA":
                 category = "biolink:AnatomicalEntity"
+            if prefix == "HP":
+                category = "biolink:PhenotypicFeature"
             elif prefix == "CHEBI":
                 category = "biolink:ChemicalSubstance"
             elif prefix == "MONDO":

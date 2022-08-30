@@ -1,5 +1,7 @@
 import gzip
 import re
+import typing
+
 import jsonlines
 from typing import Optional, Any, Generator, Dict
 
@@ -25,7 +27,7 @@ class JsonlSource(JsonSource):
         format: str = "jsonl",
         compression: Optional[str] = None,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from JSON Lines and yields records.
 

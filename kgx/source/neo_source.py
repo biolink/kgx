@@ -1,4 +1,5 @@
 import itertools
+import typing
 from typing import Any, Dict, List, Optional, Iterator, Tuple, Generator
 
 from neo4j import GraphDatabase, Neo4jDriver
@@ -48,7 +49,7 @@ class NeoSource(Source):
         is_directed: bool = True,
         page_size: int = 50000,
         **kwargs: Any,
-    ) -> Generator:
+    ) -> typing.Generator:
         """
         This method reads from Neo4j instance and yields records
 
@@ -338,7 +339,6 @@ class NeoSource(Source):
 
         """
         self.node_count += 1
-        # TODO: remove the seen_nodes
         self.seen_nodes.add(node_data["id"])
 
         self.set_node_provenance(node_data)
@@ -458,7 +458,6 @@ class NeoSource(Source):
             An iterator for a list of records from Neo4j. The size of the list is ``page_size``
 
         """
-        # TODO: use async
         # itertools.count(0) starts counting from zero, and would run indefinitely without a return statement.
         # it's distinguished from applying a while loop via providing an index which is formative with the for statement
         for i in itertools.count(0):
