@@ -1,4 +1,8 @@
 # Changelog
+## 1.7.0
+- updates to infores usage according to Biolink-model changes
+- bug fixes for infores auto-mapping
+
 ## 1.6.2
 - allow infores to be submitted via input files and via knowledge_sources click parameter
 - add some checks for dually submittied primary_knowledge_sources
