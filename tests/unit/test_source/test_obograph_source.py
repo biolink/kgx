@@ -198,7 +198,7 @@ def test_get_category(query):
     t = Transformer()
     s = ObographSource(t)
 
-    c = s.get_category(node["id"], node)
+    c = s.get_category(node["id"], node, "")
     assert c == query[1]
 
 

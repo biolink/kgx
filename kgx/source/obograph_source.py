@@ -288,6 +288,7 @@ class ObographSource(JsonSource):
             else:
                 ancestors = self.oi.ancestors(start_curies=curie)
                 for ancestor in ancestors:
+                    print("ancestor", ancestor)
                     if ancestor in self.bm_classes:
                         print("found", ancestor, "in bm_classes")
                         element = self.toolkit.get_element(self.bm_classes[ancestor])
