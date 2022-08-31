@@ -289,9 +289,10 @@ class ObographSource(JsonSource):
                 ancestors = self.oi.ancestors(start_curies=curie)
                 for ancestor in ancestors:
                     if ancestor in self.bm_classes:
+                        print("found", ancestor, "in bm_classes")
                         element = self.toolkit.get_element(self.bm_classes[ancestor])
                         category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
-
+                        print("found", category)
                 self.owner.log_error(
                     entity=f"{str(category)} for node {curie}",
                     error_type=ErrorType.MISSING_CATEGORY,
