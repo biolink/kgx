@@ -96,7 +96,7 @@ merged_graph:
         filename:
           - local-kg-dump.json
   operations:
-    - name: kgx.operations.summarize_graph.generate_graph_stats
+    - name: kgx.graph_operations.summarize_graph.generate_graph_stats
       args:
         graph_name: Merged Graph
         filename: merged-kg_stats.yaml
