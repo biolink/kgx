@@ -46,7 +46,7 @@ transform:
         filename:
           - data/go.json
       operations:
-        - name: kgx.operations.summarize_graph.generate_graph_stats
+        - name: kgx.graph_operations.summarize_graph.generate_graph_stats
           args:
             graph_name: GO graph
             filename: go_graph_stats.yaml
@@ -74,7 +74,7 @@ transform:
             predicate:
               - biolink:contributes_to
       operations:
-        - name: kgx.operations.summarize_graph.generate_graph_stats
+        - name: kgx.graph_operations.summarize_graph.generate_graph_stats
           args:
             graph_name: Test Dataset
             filename: test_dataset_stats.yaml
