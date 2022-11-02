@@ -779,7 +779,7 @@ def generate_edge_identifiers(graph: BaseGraph):
             data["id"] = generate_uuid()
 
 
-def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
+def sanitize_import(data: Dict, list_delimiter: str = None) -> Dict:
     """
     Sanitize key-value pairs in dictionary.
     This should be used to ensure proper syntax and types for node and edge data as it is imported.

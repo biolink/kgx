@@ -426,7 +426,7 @@ class Validator(ErrorDetecting):
             element = toolkit.get_element(key)
             if element:
                 if hasattr(element, "typeof"):
-                    if (element.typeof == "string" and not isinstance(value, str)) or ( \
+                    if (element.typeof == "string" and not isinstance(value, str)) or (
                                     element.typeof == "double" and not isinstance(
                                 value, (int, float)
                             )):
@@ -444,15 +444,21 @@ class Validator(ErrorDetecting):
                             f"Skipping validation for Node property '{key}'. "
                             f"Expected type '{element.typeof}' v/s Actual type '{type(value)}'"
                         )
-                if hasattr(element, "multivalued"):
-                    if element.multivalued:
-                        if not isinstance(value, list):
-                            message = f"Multi-valued node property '{key}' is expected to be of type '{list}'"
-                            self.log_error(node, error_type, message, MessageLevel.ERROR)
-                    else:
-                        if isinstance(value, (list, set, tuple)):
-                            message = f"Single-valued node property '{key}' is expected to be of type '{str}'"
-                            self.log_error(node, error_type, message, MessageLevel.ERROR)
+                #
+                # The direct validation of "multivalued" here is totally removed since
+                # if a given field value is a scalar, but the field itself is "multivalued",
+                # the "kgx.utils.kgx_utils.inside _sanitize_import_property()" method
+                # actually properly parses in the field into KGX as a List of one element...
+                #
+                # if hasattr(element, "multivalued"):
+                #     if element.multivalued:
+                #         if not isinstance(value, list):
+                #             message = f"Multi-valued node property '{key}' is expected to be of type '{list}'"
+                #             self.log_error(node, error_type, message, MessageLevel.ERROR)
+                #     else:
+                #         if isinstance(value, (list, set, tuple)):
+                #             message = f"Single-valued node property '{key}' is expected to be of type '{str}'"
+                #             self.log_error(node, error_type, message, MessageLevel.ERROR)
 
     def validate_edge_property_types(
             self,
