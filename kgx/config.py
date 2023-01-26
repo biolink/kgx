@@ -136,7 +136,7 @@ def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[
             raise TypeError(
                 "The 'biolink_release' argument '"
                 + biolink_release
-                + "' is not a properly formatted 'major.minor.patch' or v'major.minor.pathc' version"
+                + "' is not a properly formatted 'major.minor.patch' or v'major.minor.patch' version"
             )
         schema = f"https://raw.githubusercontent.com/biolink/biolink-model/{biolink_release}/biolink-model.yaml"
         return schema
