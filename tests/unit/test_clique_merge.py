@@ -71,7 +71,7 @@ def test_check_all_categories2():
     """
     # explicitly pin the release of Biolink to a
     # specific one with known category ancestry
-    get_toolkit(biolink_release="3.0.0")
+    get_toolkit(biolink_release="v3.1.2")
     categories = get_biolink_ancestors("biolink:Gene")
     vbc, ibc, ic = check_all_categories(categories)
 
