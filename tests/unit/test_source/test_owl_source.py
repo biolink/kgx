@@ -3,6 +3,7 @@ import os
 from kgx.source import OwlSource
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
+from pprint import pprint
 
 
 def test_read_owl1():

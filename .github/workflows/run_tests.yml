@@ -48,11 +48,11 @@ jobs:
 
       - name: Run tests
         run: |
-          coverage erase
-          pytest --cov=kgx --cov-report xml:coverage.xml tests/*
-          coverage combine --append || true
-          coverage report
-          coverage xml
+          poetry run coverage erase
+          poetry run pytest --cov=kgx --cov-report xml:coverage.xml tests/*
+          poetry run coverage combine --append || true
+          poetry run coverage report
+          poetry run coverage xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
