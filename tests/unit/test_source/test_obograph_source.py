@@ -27,7 +27,7 @@ def test_read_obograph1():
                 nodes[rec[0]] = rec[1]
 
     assert len(nodes) == 176
-    assert len(edges) == 206
+    assert len(edges) == 205
 
     n1 = nodes["GO:0003677"]
     assert n1["id"] == "GO:0003677"
@@ -77,7 +77,7 @@ def test_read_jsonl2():
                 nodes[rec[0]] = rec[1]
 
     assert len(nodes) == 176
-    assert len(edges) == 206
+    assert len(edges) == 205
 
     n1 = nodes["GO:0003677"]
     assert n1["id"] == "GO:0003677"

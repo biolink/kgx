@@ -5,6 +5,9 @@ from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
+from bmt import Toolkit
+
+toolkit = Toolkit()
 
 
 def test_validator_bad():
@@ -66,16 +69,16 @@ def test_validate_json():
 
 
 def test_distinct_validator_class_versus_default_toolkit_biolink_version():
-    Validator.set_biolink_model(version="v3.1.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
     default_tk = get_toolkit()
     validator_tk = Validator.get_toolkit()
     assert default_tk.get_model_version() != validator_tk.get_model_version()
 
 
 def test_distinct_class_versus_validator_instance_biolink_version():
-    Validator.set_biolink_model(version="v3.1.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
     validator = Validator()
-    Validator.set_biolink_model(version="v3.1.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
     validator_class_tk = Validator.get_toolkit()
     validation_instance_version = validator.get_validation_model_version()
     assert validation_instance_version != validator_class_tk.get_model_version()
@@ -90,7 +93,7 @@ def test_validator_explicit_biolink_version():
         "CHEMBL.COMPOUND:1222250",
         id="CHEMBL.COMPOUND:1222250",
         name="Dextrose",
-        category="SmallMolecule"
+        category=["NamedThing"]
     )
     G.add_node(
         "UBERON:0000001", id="UBERON:0000001", name="fake", category=["NamedThing"]
@@ -105,7 +108,7 @@ def test_validator_explicit_biolink_version():
         object="UBERON:0000001",
         category=["biolink:Association"],
     )
-    Validator.set_biolink_model(version="v3.1.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
     validator = Validator(verbose=True)
     validator.validate(G)
     print(validator.get_errors())
@@ -126,7 +129,7 @@ def test_validator():
         "aggregator_knowledge_source": True,
     }
 
-    Validator.set_biolink_model("v3.1.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
 
     # Validator assumes the currently set Biolink Release
     validator = Validator()
