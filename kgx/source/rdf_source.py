@@ -377,6 +377,9 @@ class RdfSource(Source):
         else:
             key_curie = key
         c = curie_lookup(key_curie)
+        print("key", key)
+        print("key_curie", key_curie)
+        print("c", c)
         if c:
             key_curie = c
 
@@ -389,12 +392,6 @@ class RdfSource(Source):
         if isinstance(value, rdflib.term.Identifier):
             if isinstance(value, rdflib.term.URIRef):
                 value_curie = self.prefix_manager.contract(value)
-                # if self.prefix_manager.get_prefix(value_curie) not in {'biolink'} \
-                #         and mapped_key not in {'type', 'category', 'predicate', 'relation', 'predicate'}:
-                #     d = self.add_node(value)
-                #     value = d['id']
-                # else:
-                #     value = value_curie
                 value = value_curie
             else:
                 value = value.toPython()
@@ -588,7 +585,6 @@ class RdfSource(Source):
                 else:
                     property_name = p
                     predicate = f":{p}"
-            print(p)
             element = self.get_biolink_element(p)
             canonical_uri = None
             if element:
@@ -621,7 +617,6 @@ class RdfSource(Source):
                 if p in self.predicate_mapping:
                     property_name = self.predicate_mapping[p]
                     predicate = f":{property_name}"
-            print(predicate)
             self.cache[p] = {
                 "element_uri": element_uri,
                 "canonical_uri": canonical_uri,
@@ -849,6 +844,10 @@ class RdfSource(Source):
                 mapping = toolkit.get_element_by_mapping(predicate)
                 if mapping:
                     element = toolkit.get_element(mapping)
+                else:
+                    mapping = toolkit.get_element_by_mapping(reference)
+                    if mapping:
+                        element = toolkit.get_element(mapping)
             except ValueError as e:
                 self.owner.log_error(
                     entity=str(predicate),

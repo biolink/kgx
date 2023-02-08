@@ -27,7 +27,6 @@ def test_read_owl1():
                 nodes[rec[0]] = rec[1]
 
     n1 = nodes["GO:0008150"]
-    print(n1)
     assert n1["name"] == "biological_process"
     assert "has_exact_synonym" in n1 and "biological process" in n1["has_exact_synonym"]
     assert "description" in n1

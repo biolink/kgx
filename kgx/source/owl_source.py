@@ -80,7 +80,6 @@ class OwlSource(RdfSource):
 
         triples = rdfgraph.triples((None, OWL.imports, None))
         for s, p, o in triples:
-            print(s, p, o)
             # Load all imports first
             if p == OWL.imports:
                 if o not in self.imported:
@@ -169,7 +168,6 @@ class OwlSource(RdfSource):
                 if not isinstance(o, rdflib.term.BNode):
                     if p not in self.excluded_predicates:
                         yield from self.triple(s, p, o)
-
         for s, p, o in rdfgraph.triples((None, None, None)):
             if isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode):
                 continue
