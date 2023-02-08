@@ -377,9 +377,6 @@ class RdfSource(Source):
         else:
             key_curie = key
         c = curie_lookup(key_curie)
-        print("key", key)
-        print("key_curie", key_curie)
-        print("c", c)
         if c:
             key_curie = c
 
@@ -586,6 +583,8 @@ class RdfSource(Source):
                     property_name = p
                     predicate = f":{p}"
             element = self.get_biolink_element(p)
+            if not element:
+                element = self.get_biolink_element(predicate)
             canonical_uri = None
             if element:
                 if isinstance(element, SlotDefinition):
