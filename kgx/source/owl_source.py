@@ -80,6 +80,7 @@ class OwlSource(RdfSource):
 
         triples = rdfgraph.triples((None, OWL.imports, None))
         for s, p, o in triples:
+            print(s, p, o)
             # Load all imports first
             if p == OWL.imports:
                 if o not in self.imported:

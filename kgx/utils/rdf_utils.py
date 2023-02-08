@@ -207,6 +207,7 @@ def process_predicate(
             property_name = p
             predicate = f":{p}"
     element = get_biolink_element(prefix_manager, p)
+    print(element.name)
     canonical_uri = None
     if element:
         if isinstance(element, SlotDefinition):
