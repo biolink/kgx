@@ -58,9 +58,9 @@ def test_get_prefix(query):
 @pytest.mark.parametrize(
     "query",
     [
-        ("GO:0008150", "0008150"),
+        ("GO:0008150", "GO:0008150"),
         ("CHEMBL.COMPOUND:12345", "12345"),
-        ("HP:0000000", "0000000"),
+        ("HP:0000000", "HP:0000000"),
         ("GO_0008150", None),
         ("12345", None),
         (":12345", "12345"),
