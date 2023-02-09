@@ -7,6 +7,7 @@ from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
+    EnumDefinition,
     ElementName,
     SlotDefinition,
     ClassDefinition,
@@ -518,6 +519,8 @@ def get_type_for_property(p: str) -> str:
             t = "uriorcurie"
         elif isinstance(e, TypeDefinition):
             t = e.uri
+        elif isinstance(e, EnumDefinition):
+            t = "uriorcurie"
         else:
             r = e.range
             if isinstance(r, SlotDefinition):
