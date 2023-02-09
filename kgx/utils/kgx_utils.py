@@ -532,6 +532,8 @@ def get_type_for_property(p: str) -> str:
                 t = get_type_for_property(r)
             else:
                 t = "xsd:string"
+    if t is None:
+        t = "xsd:string"
     return t
 
 
