@@ -203,7 +203,6 @@ def process_predicate(
     else:
         predicate = None
     if prefix_manager.is_curie(p):
-        print(f"p is curie: {p}")
         property_name = prefix_manager.get_reference(p)
         predicate = p
     else:
@@ -223,6 +222,7 @@ def process_predicate(
                 element_uri = prefix_manager.contract(element.definition_uri)
             else:
                 element_uri = f"biolink:{sentencecase_to_snakecase(element.name)}"
+                canonical_uri = element_uri
             if element.slot_uri:
                 canonical_uri = element.slot_uri
         elif isinstance(element, ClassDefinition):
