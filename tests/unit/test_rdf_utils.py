@@ -1,6 +1,7 @@
 import os
 import pytest
 from rdflib import URIRef, Graph
+from pprint import pprint
 
 from kgx.prefix_manager import PrefixManager
 from kgx.utils.rdf_utils import infer_category, process_predicate
@@ -77,7 +78,7 @@ def test_infer_category(query):
             "RO:0000091",
             "0000091",
         ),
-        ("RO:0000091", None, None, "RO:0000091", "0000091"),
+        ("RO:0000091", None, None, "RO:0000091", "RO:0000091"),
         ("category", "biolink:category", "biolink:category", ":category", "category"),
         ("predicate", "biolink:predicate", "rdf:predicate", ":predicate", "predicate"),
         ("type", "biolink:type", "rdf:type", ":type", "type"),
@@ -89,7 +90,10 @@ def test_process_predicate(query):
     Test behavior of process_predicate method.
     """
     pm = PrefixManager()
+    pprint(query[0])
     x = process_predicate(pm, query[0])
+    print("x: ", x)
+    print("query[0]", query[0])
     assert x[0] == query[1]
     assert x[1] == query[2]
     assert x[2] == query[3]

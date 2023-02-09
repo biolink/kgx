@@ -18,7 +18,7 @@ from kgx.utils.kgx_utils import (
     sentencecase_to_camelcase,
     get_biolink_ancestors,
 )
-
+from pprint import pprint
 log = get_logger()
 
 OBAN = Namespace("http://purl.org/oban/")
@@ -150,15 +150,20 @@ def get_biolink_element(
 
     """
     toolkit = get_toolkit()
+    element = None
+    reference = None
     if prefix_manager.is_iri(predicate):
         predicate_curie = prefix_manager.contract(predicate)
     else:
         predicate_curie = predicate
     if prefix_manager.is_curie(predicate_curie):
-        reference = prefix_manager.get_reference(predicate_curie)
+        element = toolkit.get_element(predicate_curie)
+        if element is None:
+            reference = prefix_manager.get_reference(predicate_curie)
     else:
         reference = predicate_curie
-    element = toolkit.get_element(reference)
+    if element is None and reference is not None:
+        element = toolkit.get_element(reference)
     if not element:
         try:
             mapping = toolkit.get_element_by_mapping(predicate)
@@ -198,6 +203,7 @@ def process_predicate(
     else:
         predicate = None
     if prefix_manager.is_curie(p):
+        print(f"p is curie: {p}")
         property_name = prefix_manager.get_reference(p)
         predicate = p
     else:
@@ -208,6 +214,8 @@ def process_predicate(
             predicate = f":{p}"
     element = get_biolink_element(prefix_manager, p)
     canonical_uri = None
+    if element is None:
+        element = get_biolink_element(prefix_manager, predicate)
     if element:
         if isinstance(element, SlotDefinition):
             # predicate corresponds to a biolink slot
@@ -235,6 +243,4 @@ def process_predicate(
             if p in predicate_mapping:
                 property_name = predicate_mapping[p]
                 predicate = f":{property_name}"
-        # cache[p] = {'element_uri': element_uri, 'canonical_uri': canonical_uri,
-        # 'predicate': predicate, 'property_name': property_name}
     return element_uri, canonical_uri, predicate, property_name

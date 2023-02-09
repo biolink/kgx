@@ -244,9 +244,5 @@ class PrefixManager(object):
         """
         reference: Optional[str] = None
         if PrefixManager.is_curie(curie):
-            regex = re.compile(r"^\w+:\d+$")
-            if re.match(regex, curie):
-                reference = curie
-            else:
-                reference = curie.split(":", 1)[1]
+            reference = curie.split(":", 1)[1]
         return reference

@@ -233,9 +233,13 @@ class Validator(ErrorDetecting):
         node_properties = toolkit.get_all_node_properties()
         required_properties = []
         for p in node_properties:
+            print(p)
             element = toolkit.get_element(p)
             if element and element.deprecated is None:
-                if (hasattr(element, "required") and element.required) or element.name == "category":
+                if (hasattr(element, "required")
+                    and element.required) \
+                        or element.name == "category" \
+                        or element.name == "id":
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
