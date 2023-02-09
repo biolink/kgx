@@ -231,15 +231,13 @@ class Validator(ErrorDetecting):
         if not toolkit:
             toolkit = Validator.get_toolkit()
         node_properties = toolkit.get_all_node_properties()
+        # TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.
+        node_properties.append("id")
         required_properties = []
         for p in node_properties:
-            print(p)
             element = toolkit.get_element(p)
             if element and element.deprecated is None:
-                if (hasattr(element, "required")
-                    and element.required) \
-                        or element.name == "category" \
-                        or element.name == "id":
+                if (hasattr(element, "required") and element.required) or element.name == "category":
                     formatted_name = sentencecase_to_snakecase(element.name)
                     required_properties.append(formatted_name)
         return required_properties
