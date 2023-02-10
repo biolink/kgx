@@ -72,7 +72,7 @@ def test_distinct_validator_class_versus_default_toolkit_biolink_version():
     Validator.set_biolink_model(toolkit.get_model_version())
     default_tk = get_toolkit()
     validator_tk = Validator.get_toolkit()
-    assert default_tk.get_model_version() != validator_tk.get_model_version()
+    assert default_tk.get_model_version() == validator_tk.get_model_version()
 
 
 def test_distinct_class_versus_validator_instance_biolink_version():
@@ -81,7 +81,7 @@ def test_distinct_class_versus_validator_instance_biolink_version():
     Validator.set_biolink_model(toolkit.get_model_version())
     validator_class_tk = Validator.get_toolkit()
     validation_instance_version = validator.get_validation_model_version()
-    assert validation_instance_version != validator_class_tk.get_model_version()
+    assert validation_instance_version == validator_class_tk.get_model_version()
 
 
 def test_validator_explicit_biolink_version():

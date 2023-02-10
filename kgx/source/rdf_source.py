@@ -239,7 +239,6 @@ class RdfSource(Source):
         if s_curie.startswith("biolink") or s_curie.startswith("OBAN"):
             log.warning(f"Skipping {s} {p} {o}")
         elif s_curie in self.reified_nodes:
-            # subject is a reified node
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif p in self.reification_predicates:
             # subject is a reified node
@@ -569,13 +568,11 @@ class RdfSource(Source):
             # haven't seen this property before; map to element
             if self.prefix_manager.is_iri(p):
                 predicate = self.prefix_manager.contract(str(p))
-                print("is iri", predicate)
             else:
                 predicate = None
             if self.prefix_manager.is_curie(p):
                 property_name = self.prefix_manager.get_reference(p)
                 predicate = p
-                print("is curie", predicate)
             else:
                 if predicate and self.prefix_manager.is_curie(predicate):
                     property_name = self.prefix_manager.get_reference(predicate)
@@ -583,12 +580,8 @@ class RdfSource(Source):
                     property_name = p
                     predicate = f":{p}"
             element = self.get_biolink_element(p)
-            if element:
-                print(element)
             if not element:
                 element = self.get_biolink_element(predicate)
-                if element:
-                    print("second attempt element", element)
             canonical_uri = None
             if element:
                 if isinstance(element, SlotDefinition):
@@ -604,7 +597,6 @@ class RdfSource(Source):
                     if element.slot_uri:
                         canonical_uri = element.slot_uri
                 elif isinstance(element, ClassDefinition):
-                    print("class definition", element)
                     # this will happen only when the IRI is actually
                     # a reference to a class
                     element_uri = self.prefix_manager.contract(element.class_uri)
@@ -615,7 +607,6 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
-                # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
