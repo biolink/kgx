@@ -133,7 +133,7 @@ def get_biolink_model_schema(biolink_release: Optional[str] = None) -> Optional[
     Get Biolink Model Schema
     """
     if biolink_release:
-        if not semver_pattern.fullmatch(biolink_release) or not semver_pattern_v.fullmatch(biolink_release):
+        if not semver_pattern.fullmatch(biolink_release) and not semver_pattern_v.fullmatch(biolink_release):
             raise TypeError(
                 "The 'biolink_release' argument '"
                 + biolink_release
