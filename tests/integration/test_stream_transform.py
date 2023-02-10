@@ -336,7 +336,7 @@ def test_transform3(query):
                 ],
             },
             176,
-            206,
+            205,
         ),
         (
             {
@@ -348,7 +348,7 @@ def test_transform3(query):
                 "format": "jsonl",
             },
             176,
-            206,
+            205,
         ),
         (
             {
@@ -360,7 +360,7 @@ def test_transform3(query):
                 "format": "nt",
             },
             176,
-            206,
+            205,
         ),
         (
             {
@@ -600,7 +600,7 @@ def test_transform6(query):
                 "format": "neo4j",
             },
             176,
-            206,
+            205,
         ),
         (
             {
