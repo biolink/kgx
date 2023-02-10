@@ -70,8 +70,6 @@ def test_check_all_categories2():
     """
     Test check_all_categories method.
     """
-    # explicitly pin the release of Biolink to a
-    # specific one with known category ancestry
     categories = get_biolink_ancestors("biolink:Gene")
     vbc, ibc, ic = check_all_categories(categories)
 
