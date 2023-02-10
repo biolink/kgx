@@ -261,6 +261,8 @@ class Validator(ErrorDetecting):
         if not toolkit:
             toolkit = Validator.get_toolkit()
         edge_properties = toolkit.get_all_edge_properties()
+        # TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.
+        edge_properties.append("id")
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
