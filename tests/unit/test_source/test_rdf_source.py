@@ -18,8 +18,6 @@ def test_read_nt1():
 
     g = s.parse(os.path.join(RESOURCE_DIR, "rdf", "test1.nt"))
     nodes, edges = load_graph_dictionary(g)
-    pprint(nodes)
-    pprint(edges)
     assert len(nodes) == 2
     assert len(edges) == 1
 
