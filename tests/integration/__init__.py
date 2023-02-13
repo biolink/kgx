@@ -27,6 +27,7 @@ def check_container():
 
 @pytest.fixture(scope="function")
 def clean_slate():
+    print("tearing down db")
     http_driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )

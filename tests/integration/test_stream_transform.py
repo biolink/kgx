@@ -28,6 +28,10 @@ def _transform(query):
     t1.transform(query[0])
     t1.save(query[1].copy())
 
+    print("query[0]", query[0])
+    print("number of nodes: ", t1.store.graph.number_of_nodes(), "expected: ", query[2])
+    print("number of edges: ", t1.store.graph.number_of_edges(), "expected: ", query[3])
+
     assert t1.store.graph.number_of_nodes() == query[2]
     assert t1.store.graph.number_of_edges() == query[3]
 
@@ -53,6 +57,9 @@ def _transform(query):
     t2 = Transformer()
     t2.transform(input_args)
 
+    print("query[0]", query[0])
+    print("number of nodes: ", t2.store.graph.number_of_nodes(), "expected: ", query[2])
+    print("number of edges: ", t2.store.graph.number_of_edges(), "expected: ", query[3])
     assert t2.store.graph.number_of_nodes() == query[2]
     assert t2.store.graph.number_of_edges() == query[3]
 
@@ -86,6 +93,9 @@ def _stream_transform(query):
     t2 = Transformer()
     t2.transform(input_args)
 
+    print("query[0]",query[0])
+    print("number of nodes: ", t2.store.graph.number_of_nodes(), "expected: ", query[2])
+    print("number of edges: ", t2.store.graph.number_of_edges(), "expected: ", query[3])
     assert t2.store.graph.number_of_nodes() == query[2]
     assert t2.store.graph.number_of_edges() == query[3]
 
@@ -489,52 +499,52 @@ def test_transform5(query):
             3,
         ),
         (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                "format": "trapi-json",
-            },
-            {
-                "filename": os.path.join(TARGET_DIR, "graph2s6.json"),
-                "format": "json",
-            },
-            4,
-            3,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                "format": "trapi-json",
-            },
-            {
-                "filename": os.path.join(TARGET_DIR, "graph3s6"),
-                "format": "jsonl",
-            },
-            4,
-            3,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                "format": "trapi-json",
-            },
-            {
-                "filename": os.path.join(TARGET_DIR, "graph4s6.nt"),
-                "format": "nt",
-            },
-            4,
-            3,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                "format": "trapi-json",
-                "edge_filters": {
-                    "subject_category": {"biolink:Disease"},
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+                    "format": "trapi-json",
                 },
-            },
-            {"filename": os.path.join(TARGET_DIR, "graph5s6"), "format": "jsonl"},
-            2,
-            0,
+                {
+                    "filename": os.path.join(TARGET_DIR, "graph2s6.json"),
+                    "format": "json",
+                },
+                4,
+                3,
+        ),
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+                    "format": "trapi-json",
+                },
+                {
+                    "filename": os.path.join(TARGET_DIR, "graph3s6"),
+                    "format": "jsonl",
+                },
+                4,
+                3,
+        ),
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+                    "format": "trapi-json",
+                },
+                {
+                    "filename": os.path.join(TARGET_DIR, "graph4s6.nt"),
+                    "format": "nt",
+                },
+                4,
+                3,
+        ),
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+                    "format": "trapi-json",
+                    "edge_filters": {
+                        "subject_category": {"biolink:Disease"},
+                    },
+                },
+                {"filename": os.path.join(TARGET_DIR, "graph5s6"), "format": "jsonl"},
+                2,
+                0,
         ),
     ],
 )
@@ -552,88 +562,21 @@ def test_transform6(query):
     "query",
     [
         (
-            {
-                "filename": [
-                    os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
-                    os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
-                ],
-                "format": "tsv",
-            },
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            512,
-            531,
-        ),
-        (
-            {"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            512,
-            531,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rdf", "test3.nt")],
-                "format": "nt",
-            },
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            7,
-            6,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.json")],
-                "format": "obojson",
-            },
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            176,
-            205,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.owl")],
-                "format": "owl",
-            },
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            220,
-            1050,
-        ),
-        (
-            {
-                "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                "format": "trapi-json",
-            },
-            {
-                "uri": DEFAULT_NEO4J_URL,
-                "username": DEFAULT_NEO4J_USERNAME,
-                "password": DEFAULT_NEO4J_PASSWORD,
-                "format": "neo4j",
-            },
-            4,
-            3,
+                {
+                    "filename": [
+                        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+                        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+                    ],
+                    "format": "tsv",
+                },
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                512,
+                531,
         ),
     ],
 )
@@ -641,4 +584,117 @@ def test_transform7(clean_slate, query):
     """
     Test transforming data from various sources to a Neo4j sink.
     """
+    run_transform(query)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                {"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                512,
+                532,
+        ),
+    ]
+)
+def test_transform8(clean_slate, query):
+    run_transform(query)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rdf", "test3.nt")],
+                    "format": "nt",
+                },
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                7,
+                6,
+        )
+    ]
+)
+def test_transform9(clean_slate, query):
+    run_transform(query)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.json")],
+                    "format": "obojson",
+                },
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                176,
+                205,
+        )
+    ]
+)
+def test_transform10(clean_slate, query):
+    run_transform(query)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.owl")],
+                    "format": "owl",
+                },
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                220,
+                1050,
+        )
+    ]
+)
+def test_transform11(clean_slate, query):
+    run_transform(query)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        (
+                {
+                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+                    "format": "trapi-json",
+                },
+                {
+                    "uri": DEFAULT_NEO4J_URL,
+                    "username": DEFAULT_NEO4J_USERNAME,
+                    "password": DEFAULT_NEO4J_PASSWORD,
+                    "format": "neo4j",
+                },
+                4,
+                3,
+        )]
+)
+def test_transform12(clean_slate, query):
     run_transform(query)
