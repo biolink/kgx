@@ -1,7 +1,7 @@
 import copy
 import os
 import pytest
-
+from neo4j import GraphDatabase
 from kgx.transformer import Transformer
 from tests import TARGET_DIR, RESOURCE_DIR
 
@@ -444,22 +444,6 @@ def test_transform4(query):
             220,
             1050,
         ),
-        # (
-        #     {
-        #         'filename': [os.path.join(RESOURCE_DIR, 'goslim_generic.owl')],
-        #         'format': 'owl',
-        #         'edge_filters': {
-        #             'subject_category': {'biolink:BiologicalProcess'},
-        #             'predicate': {'biolink:subclass_of'}
-        #         }
-        #     },
-        #     {
-        #         'filename': os.path.join(TARGET_DIR, 'graph4s5'),
-        #         'format': 'jsonl'
-        #     },
-        #     220,
-        #     1050
-        # )
     ],
 )
 def test_transform5(query):
@@ -584,6 +568,7 @@ def test_transform7(clean_slate, query):
     """
     Test transforming data from various sources to a Neo4j sink.
     """
+    clean_database()
     run_transform(query)
 
 
@@ -604,6 +589,7 @@ def test_transform7(clean_slate, query):
     ]
 )
 def test_transform8(clean_slate, query):
+    clean_database()
     run_transform(query)
 
 
@@ -628,6 +614,7 @@ def test_transform8(clean_slate, query):
     ]
 )
 def test_transform9(clean_slate, query):
+    clean_database()
     run_transform(query)
 
 
@@ -651,6 +638,7 @@ def test_transform9(clean_slate, query):
     ]
 )
 def test_transform10(clean_slate, query):
+    clean_database()
     run_transform(query)
 
 
@@ -675,6 +663,7 @@ def test_transform10(clean_slate, query):
     ]
 )
 def test_transform11(clean_slate, query):
+    clean_database()
     run_transform(query)
 
 
@@ -697,4 +686,17 @@ def test_transform11(clean_slate, query):
         )]
 )
 def test_transform12(clean_slate, query):
+    clean_database()
     run_transform(query)
+
+
+def clean_database():
+    http_driver = GraphDatabase.driver(
+        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
+    )
+
+    q = "MATCH (n) DETACH DELETE (n)"
+    try:
+        http_driver.session().run(q)
+    except Exception as e:
+        print(e)

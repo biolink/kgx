@@ -35,6 +35,7 @@ def clean_slate():
     q = "MATCH (n) DETACH DELETE (n)"
     try:
         http_driver.session().run(q)
+        print("deleted all nodes")
     except Exception as e:
         print(e)
 
