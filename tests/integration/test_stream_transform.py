@@ -11,6 +11,7 @@ from tests.integration import (
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
+    clean_slate
 )
 
 
