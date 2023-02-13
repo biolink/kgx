@@ -2,30 +2,13 @@
 
 This section is only relevant for core developers.
 
-### Update version
-
-1. First check whether the `__version__` in [`kgx/__init__.py`](kgx/__init__.py) matches with the latest tag or PyPI release. 
-If the version is the same then you need to bump the version to make a new release. 
-Follow [Semantic Versioning guidelines](https://semver.org/) to decide whether the bump in version is major or minor.
-
-2. Now do the same for `VERSION` in [`setup.py`](setup.py), such that the version is in-sync with [`kgx/__init__.py`](kgx/__init__.py).
-
-
-### Update Changelog.md
-
-Now update Changelog.md and add the changes that this new release has.
-
-
 ### Update Dockerfile
 
-Now update Dockerfile to use the new tag.
-
+Update Dockerfile to use the new tag.
 
 ### Update Documentation
 
 Update KGX documentation to be consistent with any changes or new additions to the codebase.
-
-Also be sure to update the version in [docs/conf.py]() to ensure that the right version is being displayed when the documentation is rendered.
 
 ### Make a new release tag
 

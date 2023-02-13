@@ -3,9 +3,11 @@ import os
 import pytest
 
 from kgx.transformer import Transformer
-from tests import TARGET_DIR, RESOURCE_DIR, print_graph
+from tests import TARGET_DIR, RESOURCE_DIR
+
 from tests.integration import (
-    clean_slate,
+    check_container,
+    CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
@@ -542,7 +544,9 @@ def test_transform6(query):
     run_transform(query)
 
 
-@pytest.mark.skip()
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
 @pytest.mark.parametrize(
     "query",
     [
