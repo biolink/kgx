@@ -2,6 +2,7 @@ import copy
 import os
 import pytest
 from neo4j import GraphDatabase
+import neo4j
 from kgx.transformer import Transformer
 from tests import TARGET_DIR, RESOURCE_DIR
 
@@ -15,9 +16,22 @@ from tests.integration import (
 )
 
 
+def clean_database():
+    driver = GraphDatabase.driver(
+        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
+    )
+    session = driver.session()
+
+    q = "MATCH (n) DETACH DELETE n"
+    with session.begin_transaction() as tx:
+        tx.run(q)
+        tx.commit()
+        tx.close()
+
+
 def run_transform(query):
+    clean_database()
     _transform(copy.deepcopy(query))
-    _stream_transform(copy.deepcopy(query))
 
 
 def _transform(query):
@@ -542,161 +556,128 @@ def test_transform6(query):
 @pytest.mark.skipif(
     not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-@pytest.mark.parametrize(
-    "query",
-    [
-        (
-                {
-                    "filename": [
-                        os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
-                        os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
-                    ],
-                    "format": "tsv",
-                },
-                {
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                },
-                512,
-                531,
-        ),
-    ],
-)
-def test_transform7(clean_slate, query):
+def test_transform7():
     """
     Test transforming data from various sources to a Neo4j sink.
     """
     clean_database()
-    run_transform(query)
+    t1 = Transformer()
+    t1.transform(input_args={
+        "filename": [
+            os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "graph_edges.tsv"),
+        ],
+        "format": "tsv",
+    },
+        output_args={
+            "uri": DEFAULT_NEO4J_URL,
+            "username": DEFAULT_NEO4J_USERNAME,
+            "password": DEFAULT_NEO4J_PASSWORD,
+            "format": "neo4j",
+        })
+
+    assert t1.store.graph.number_of_nodes() == 512
+    assert t1.store.graph.number_of_edges() == 531
 
 
-@pytest.mark.parametrize(
-    "query",
-    [
-        (
-                {"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
-                {
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+)
+def test_transform8():
+    clean_database()
+    t1 = Transformer()
+    t1.transform(input_args={"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
+                 output_args={
                     "uri": DEFAULT_NEO4J_URL,
                     "username": DEFAULT_NEO4J_USERNAME,
                     "password": DEFAULT_NEO4J_PASSWORD,
                     "format": "neo4j",
-                },
-                512,
-                532,
-        ),
-    ]
+                })
+
+    assert t1.store.graph.number_of_nodes() == 512
+    assert t1.store.graph.number_of_edges() == 532
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_transform8(clean_slate, query):
+def test_transform9():
     clean_database()
-    run_transform(query)
+    t1 = Transformer()
+    t1.transform(input_args={
+        "filename": [os.path.join(RESOURCE_DIR, "rdf", "test3.nt")],
+        "format": "nt",
+    },
+        output_args={
+            "uri": DEFAULT_NEO4J_URL,
+            "username": DEFAULT_NEO4J_USERNAME,
+            "password": DEFAULT_NEO4J_PASSWORD,
+            "format": "neo4j",
+        })
+
+    assert t1.store.graph.number_of_nodes() == 7
+    assert t1.store.graph.number_of_edges() == 6
 
 
-@pytest.mark.parametrize(
-    "query",
-    [
-
-        (
-                {
-                    "filename": [os.path.join(RESOURCE_DIR, "rdf", "test3.nt")],
-                    "format": "nt",
-                },
-                {
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                },
-                7,
-                6,
-        )
-    ]
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_transform9(clean_slate, query):
+def test_transform10():
     clean_database()
-    run_transform(query)
+    t1 = Transformer()
+    t1.transform(input_args={
+        "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.json")],
+        "format": "obojson",
+    },
+        output_args={
+            "uri": DEFAULT_NEO4J_URL,
+            "username": DEFAULT_NEO4J_USERNAME,
+            "password": DEFAULT_NEO4J_PASSWORD,
+            "format": "neo4j",
+        })
+
+    assert t1.store.graph.number_of_nodes() == 176
+    assert t1.store.graph.number_of_edges() == 205
 
 
-@pytest.mark.parametrize(
-    "query",
-    [
-        (
-                {
-                    "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.json")],
-                    "format": "obojson",
-                },
-                {
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                },
-                176,
-                205,
-        )
-    ]
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_transform10(clean_slate, query):
+def test_transform11():
     clean_database()
-    run_transform(query)
-
-
-@pytest.mark.parametrize(
-    "query",
-    [
-
-        (
-                {
+    t1 = Transformer()
+    t1.transform(input_args={
                     "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.owl")],
                     "format": "owl",
                 },
-                {
+        output_args={
                     "uri": DEFAULT_NEO4J_URL,
                     "username": DEFAULT_NEO4J_USERNAME,
                     "password": DEFAULT_NEO4J_PASSWORD,
                     "format": "neo4j",
-                },
-                220,
-                1050,
-        )
-    ]
+                })
+
+    assert t1.store.graph.number_of_nodes() == 220
+    assert t1.store.graph.number_of_edges() == 1050
+
+
+@pytest.mark.skipif(
+    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
 )
-def test_transform11(clean_slate, query):
+def test_transform12():
     clean_database()
-    run_transform(query)
-
-
-@pytest.mark.parametrize(
-    "query",
-    [
-        (
-                {
+    t1 = Transformer()
+    t1.transform(input_args= {
                     "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
                     "format": "trapi-json",
                 },
-                {
+    output_args={
                     "uri": DEFAULT_NEO4J_URL,
                     "username": DEFAULT_NEO4J_USERNAME,
                     "password": DEFAULT_NEO4J_PASSWORD,
                     "format": "neo4j",
-                },
-                4,
-                3,
-        )]
-)
-def test_transform12(clean_slate, query):
-    clean_database()
-    run_transform(query)
+                })
 
+    assert t1.store.graph.number_of_nodes() == 4
+    assert t1.store.graph.number_of_edges() == 3
 
-def clean_database():
-    http_driver = GraphDatabase.driver(
-        DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
-    )
-
-    q = "MATCH (n) DETACH DELETE (n)"
-    try:
-        http_driver.session().run(q)
-    except Exception as e:
-        print(e)

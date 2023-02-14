@@ -161,6 +161,7 @@ class Transformer(ErrorDetecting):
         # Optional process() data stream inspector
         self.inspector = inspector
 
+        print("input args", input_args)
         if input_format in {"neo4j", "graph"}:
             source = self.get_source(input_format)
             source.set_prefix_map(prefix_map)
