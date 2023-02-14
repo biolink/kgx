@@ -588,11 +588,11 @@ def test_transform8():
     t1 = Transformer()
     t1.transform(input_args={"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
                  output_args={
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                })
+                     "uri": DEFAULT_NEO4J_URL,
+                     "username": DEFAULT_NEO4J_USERNAME,
+                     "password": DEFAULT_NEO4J_PASSWORD,
+                     "format": "neo4j",
+                 })
 
     assert t1.store.graph.number_of_nodes() == 512
     assert t1.store.graph.number_of_edges() == 532
@@ -647,15 +647,15 @@ def test_transform11():
     clean_database()
     t1 = Transformer()
     t1.transform(input_args={
-                    "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.owl")],
-                    "format": "owl",
-                },
+        "filename": [os.path.join(RESOURCE_DIR, "goslim_generic.owl")],
+        "format": "owl",
+    },
         output_args={
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                })
+            "uri": DEFAULT_NEO4J_URL,
+            "username": DEFAULT_NEO4J_USERNAME,
+            "password": DEFAULT_NEO4J_PASSWORD,
+            "format": "neo4j",
+        })
 
     assert t1.store.graph.number_of_nodes() == 220
     assert t1.store.graph.number_of_edges() == 1050
@@ -667,17 +667,16 @@ def test_transform11():
 def test_transform12():
     clean_database()
     t1 = Transformer()
-    t1.transform(input_args= {
-                    "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
-                    "format": "trapi-json",
-                },
-    output_args={
-                    "uri": DEFAULT_NEO4J_URL,
-                    "username": DEFAULT_NEO4J_USERNAME,
-                    "password": DEFAULT_NEO4J_PASSWORD,
-                    "format": "neo4j",
-                })
+    t1.transform(input_args={
+        "filename": [os.path.join(RESOURCE_DIR, "rsa_sample.json")],
+        "format": "trapi-json",
+    },
+        output_args={
+            "uri": DEFAULT_NEO4J_URL,
+            "username": DEFAULT_NEO4J_USERNAME,
+            "password": DEFAULT_NEO4J_PASSWORD,
+            "format": "neo4j",
+        })
 
     assert t1.store.graph.number_of_nodes() == 4
     assert t1.store.graph.number_of_edges() == 3
-
