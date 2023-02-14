@@ -14,6 +14,17 @@ def test_valid_biolink_version():
     )
 
 
+def test_valid_biolink_version_no_v():
+    try:
+        schema = get_biolink_model_schema("2.0.1")
+    except TypeError as te:
+        assert False, "test failure!"
+    assert (
+        schema
+        == "https://raw.githubusercontent.com/biolink/biolink-model/2.0.1/biolink-model.yaml"
+    )
+
+
 def test_invalid_biolink_version():
     try:
         schema = get_biolink_model_schema()
