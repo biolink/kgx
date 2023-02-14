@@ -401,18 +401,6 @@ class RdfSink(Sink):
                 t = self.property_types[f"biolink:{p}"]
             else:
                 t = "xsd:string"
-            # if value:
-            #     if isinstance(value, (list, set, tuple)):
-            #         x = value[0]
-            #         if self.graph.has_node(x):
-            #             t = 'uriorcurie'
-            #         else:
-            #             t = 'xsd:string'
-            #     else:
-            #         if self.graph.has_node(value):
-            #             t = 'uriorcurie'
-            #         else:
-            #             t = 'xsd:string'
         return t
 
     def process_predicate(self, p: Optional[Union[URIRef, str]]) -> Tuple:

@@ -7,6 +7,7 @@ from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
+    EnumDefinition,
     ElementName,
     SlotDefinition,
     ClassDefinition,
@@ -30,6 +31,7 @@ log = get_logger()
 
 CORE_NODE_PROPERTIES = {"id", "name"}
 CORE_EDGE_PROPERTIES = {"id", "subject", "predicate", "object", "type"}
+XSD_STRING = "xsd:string"
 
 
 class GraphEntityType(Enum):
@@ -512,12 +514,14 @@ def get_type_for_property(p: str) -> str:
     """
     toolkit = get_toolkit()
     e = toolkit.get_element(p)
-    t = "xsd:string"
+    t = XSD_STRING
     if e:
         if isinstance(e, ClassDefinition):
             t = "uriorcurie"
         elif isinstance(e, TypeDefinition):
             t = e.uri
+        elif isinstance(e, EnumDefinition):
+            t = "uriorcurie"
         else:
             r = e.range
             if isinstance(r, SlotDefinition):
@@ -528,7 +532,9 @@ def get_type_for_property(p: str) -> str:
             elif isinstance(r, ElementName):
                 t = get_type_for_property(r)
             else:
-                t = "xsd:string"
+                t = XSD_STRING
+    if t is None:
+        t = XSD_STRING
     return t
 
 

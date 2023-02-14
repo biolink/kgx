@@ -1,6 +1,7 @@
 import os
 import pytest
 from rdflib import URIRef, Graph
+from pprint import pprint
 
 from kgx.prefix_manager import PrefixManager
 from kgx.utils.rdf_utils import infer_category, process_predicate
@@ -89,7 +90,15 @@ def test_process_predicate(query):
     Test behavior of process_predicate method.
     """
     pm = PrefixManager()
+    pprint(query[0])
     x = process_predicate(pm, query[0])
+    # x = "element_uri", "canonical_uri", "predicate", "property_name"
+    # print("x: ", x)
+    # print("query[0]", query[0])
+    # print("x[0]: ", x[0], "query[1]: ", query[1])
+    # print("x[1]: ", x[1], "query[2]: ", query[2])
+    # print("x[2]: ", x[2], "query[3]: ", query[3])
+    # print("x[3]: ", x[3], "query[4]: ", query[4])
     assert x[0] == query[1]
     assert x[1] == query[2]
     assert x[2] == query[3]

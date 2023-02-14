@@ -239,7 +239,6 @@ class RdfSource(Source):
         if s_curie.startswith("biolink") or s_curie.startswith("OBAN"):
             log.warning(f"Skipping {s} {p} {o}")
         elif s_curie in self.reified_nodes:
-            # subject is a reified node
             self.add_node_attribute(s, key=prop_uri, value=o)
         elif p in self.reification_predicates:
             # subject is a reified node
@@ -334,8 +333,6 @@ class RdfSource(Source):
             node["predicate"] = "biolink:related_to"
         if "relation" not in node:
             node["relation"] = node["predicate"]
-        # if 'category' in node:
-        #     del node['category']
         if "subject" in node and "object" in node:
             self.edge_properties.update(node.keys())
             self.add_edge(node["subject"], node["object"], node["predicate"], node)
@@ -389,12 +386,6 @@ class RdfSource(Source):
         if isinstance(value, rdflib.term.Identifier):
             if isinstance(value, rdflib.term.URIRef):
                 value_curie = self.prefix_manager.contract(value)
-                # if self.prefix_manager.get_prefix(value_curie) not in {'biolink'} \
-                #         and mapped_key not in {'type', 'category', 'predicate', 'relation', 'predicate'}:
-                #     d = self.add_node(value)
-                #     value = d['id']
-                # else:
-                #     value = value_curie
                 value = value_curie
             else:
                 value = value.toPython()
@@ -589,6 +580,8 @@ class RdfSource(Source):
                     property_name = p
                     predicate = f":{p}"
             element = self.get_biolink_element(p)
+            if not element:
+                element = self.get_biolink_element(predicate)
             canonical_uri = None
             if element:
                 if isinstance(element, SlotDefinition):
@@ -614,7 +607,6 @@ class RdfSource(Source):
                 if not predicate:
                     predicate = element_uri
             else:
-                # no mapping to biolink model;
                 # look at predicate mappings
                 element_uri = None
                 if p in self.predicate_mapping:
@@ -847,6 +839,10 @@ class RdfSource(Source):
                 mapping = toolkit.get_element_by_mapping(predicate)
                 if mapping:
                     element = toolkit.get_element(mapping)
+                else:
+                    mapping = toolkit.get_element_by_mapping(reference)
+                    if mapping:
+                        element = toolkit.get_element(mapping)
             except ValueError as e:
                 self.owner.log_error(
                     entity=str(predicate),

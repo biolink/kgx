@@ -27,6 +27,7 @@ def check_container():
 
 @pytest.fixture(scope="function")
 def clean_slate():
+    print("tearing down db")
     http_driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
     )
@@ -34,6 +35,7 @@ def clean_slate():
     q = "MATCH (n) DETACH DELETE (n)"
     try:
         http_driver.session().run(q)
+        print("deleted all nodes")
     except Exception as e:
         print(e)
 
