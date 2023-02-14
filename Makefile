@@ -7,7 +7,4 @@ unit-tests:
 
 
 integration-tests:
-	poetry run pytest tests/*.py
-
-typecheck:
-	poetry run mypy kgx --ignore-missing-imports
+	poetry run pytest tests/integration/*.py
