@@ -28,4 +28,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@v1.2.2
       with:
         user: __token__
-        password: ${{ secrets.KGX_PYPI_TOKEN }}
+        password: ${{ secrets.KGX_PYPI }}
