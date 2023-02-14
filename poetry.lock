@@ -1032,14 +1032,18 @@ testing = ["beautifulsoup4", "coverage[toml]", "pytest (>=6,<7)", "pytest-cov", 
 
 [[package]]
 name = "neo4j"
-version = "4.4.10"
+version = "5.5.0"
 description = "Neo4j Bolt driver for Python"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 pytz = "*"
+
+[package.extras]
+numpy = ["numpy (>=1.7.0,<2.0.0)"]
+pandas = ["numpy (>=1.7.0,<2.0.0)", "pandas (>=1.1.0,<2.0.0)"]
 
 [[package]]
 name = "networkx"
@@ -2336,7 +2340,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "207de162fc508db59ab1f10b3f305eeac0423ccae33dd811750492ff22738f98"
+content-hash = "802e2499d53a8485b9a297050ac46e5a6a6ec9cd3cdba47cc99f1cd602d2b78c"
 
 [metadata.files]
 aiohttp = [
@@ -3154,7 +3158,7 @@ myst-parser = [
     {file = "myst_parser-0.18.1-py3-none-any.whl", hash = "sha256:61b275b85d9f58aa327f370913ae1bec26ebad372cc99f3ab85c8ec3ee8d9fb8"},
 ]
 neo4j = [
-    {file = "neo4j-4.4.10.tar.gz", hash = "sha256:26db4f9c8f628e53bda62f15cf2a7bfac6e2073e962da761c7164b6b122fca44"},
+    {file = "neo4j-5.5.0.tar.gz", hash = "sha256:2632386380b2ebb7d6a80e4186899ef342ef0507601c65e200696f13742046b8"},
 ]
 networkx = [
     {file = "networkx-2.8.8-py3-none-any.whl", hash = "sha256:e435dfa75b1d7195c7b8378c3859f0445cd88c6b0375c181ed66823a9ceb7524"},
