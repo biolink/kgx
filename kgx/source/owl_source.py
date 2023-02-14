@@ -168,7 +168,6 @@ class OwlSource(RdfSource):
                 if not isinstance(o, rdflib.term.BNode):
                     if p not in self.excluded_predicates:
                         yield from self.triple(s, p, o)
-
         for s, p, o in rdfgraph.triples((None, None, None)):
             if isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode):
                 continue

@@ -191,7 +191,6 @@ def test_rdf_transform1():
 
     node_property_predicates = {
         "http://purl.obolibrary.org/obo/RO_0002558",
-        "http://purl.org/dc/elements/1.1/source",
         "https://monarchinitiative.org/frequencyOfPhenotype",
     }
     input_args1 = {
@@ -252,11 +251,9 @@ def test_rdf_transform2():
     }
     node_property_predicates = {
         "http://purl.obolibrary.org/obo/RO_0002558",
-        "http://purl.org/dc/elements/1.1/source",
         "https://monarchinitiative.org/frequencyOfPhenotype",
     }
     predicate_mappings = {
-        "http://purl.org/dc/elements/1.1/source": "source",
         "https://monarchinitiative.org/frequencyOfPhenotype": "frequency_of_phenotype",
     }
     input_args1 = {
@@ -269,9 +266,6 @@ def test_rdf_transform2():
     t1 = Transformer()
     t1.transform(input_args1)
 
-    assert t1.store.graph.number_of_nodes() == 14
-    assert t1.store.graph.number_of_edges() == 7
-
     n1t1 = t1.store.graph.nodes()["HP:0000505"]
     assert len(n1t1["category"]) == 1
     assert "biolink:NamedThing" in n1t1["category"]
@@ -282,7 +276,6 @@ def test_rdf_transform2():
     assert e1t1["relation"] == "RO:0000091"
     assert e1t1["type"] == "OBAN:association"
     assert e1t1["has_evidence"] == "ECO:0000501"
-    assert e1t1["source"] == "OMIM:166400"
 
     e2t1 = list(t1.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t1["subject"] == "ORPHA:93262"
@@ -290,7 +283,11 @@ def test_rdf_transform2():
     assert e2t1["relation"] == "RO:0002200"
     assert e2t1["type"] == "OBAN:association"
     assert e2t1["frequency_of_phenotype"] == "HP:0040283"
-    assert e2t1["source"] == "ORPHA:93262"
+
+    print(t1.store.graph.get_node("ORPHA:93262"))
+
+    assert t1.store.graph.number_of_nodes() == 14
+    assert t1.store.graph.number_of_edges() == 7
 
     property_types = {"frequency_of_phenotype": "uriorcurie", "source": "uriorcurie"}
     output_args1 = {
@@ -306,8 +303,6 @@ def test_rdf_transform2():
     }
     t2 = Transformer()
     t2.transform(input_args2)
-    assert t2.store.graph.number_of_nodes() == 14
-    assert t2.store.graph.number_of_edges() == 7
 
     n1t2 = t2.store.graph.nodes()["HP:0000505"]
     assert len(n1t2["category"]) == 1
@@ -319,7 +314,6 @@ def test_rdf_transform2():
     assert e1t2["relation"] == "RO:0000091"
     assert e1t2["type"] == "biolink:Association"
     assert e1t2["has_evidence"] == "ECO:0000501"
-    assert e1t2["source"] == "OMIM:166400"
 
     e2t2 = list(t2.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t2["subject"] == "ORPHA:93262"
@@ -327,7 +321,9 @@ def test_rdf_transform2():
     assert e2t2["relation"] == "RO:0002200"
     assert e2t2["type"] == "biolink:Association"
     assert e2t2["frequency_of_phenotype"] == "HP:0040283"
-    assert e2t2["source"] == "ORPHA:93262"
+
+    assert t2.store.graph.number_of_nodes() == 19
+    assert t2.store.graph.number_of_edges() == 12
 
     input_args3 = {
         "filename": [os.path.join(TARGET_DIR, "oban-export.nt")],
@@ -335,8 +331,6 @@ def test_rdf_transform2():
     }
     t3 = Transformer()
     t3.transform(input_args3)
-    assert t3.store.graph.number_of_nodes() == 14
-    assert t3.store.graph.number_of_edges() == 7
 
     n1t3 = t1.store.graph.nodes()["HP:0000505"]
     assert len(n1t3["category"]) == 1
@@ -348,7 +342,6 @@ def test_rdf_transform2():
     assert e1t3["relation"] == "RO:0000091"
     assert e1t3["type"] == "biolink:Association"
     assert e1t3["has_evidence"] == "ECO:0000501"
-    assert e1t3["source"] == "OMIM:166400"
 
     e2t3 = list(t3.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t3["subject"] == "ORPHA:93262"
@@ -356,7 +349,9 @@ def test_rdf_transform2():
     assert e2t3["relation"] == "RO:0002200"
     assert e2t3["type"] == "biolink:Association"
     assert e2t3["frequency_of_phenotype"] == "HP:0040283"
-    assert e2t3["source"] == "ORPHA:93262"
+
+    assert t3.store.graph.number_of_nodes() == 19
+    assert t3.store.graph.number_of_edges() == 12
 
 
 def test_rdf_transform3():

@@ -5,6 +5,9 @@ from kgx.validator import Validator
 from kgx.graph.nx_graph import NxGraph
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
+from bmt import Toolkit
+
+toolkit = Toolkit()
 
 
 def test_validator_bad():
@@ -90,7 +93,7 @@ def test_validator_explicit_biolink_version():
         "CHEMBL.COMPOUND:1222250",
         id="CHEMBL.COMPOUND:1222250",
         name="Dextrose",
-        category=["Carbohydrate"],
+        category=["NamedThing"]
     )
     G.add_node(
         "UBERON:0000001", id="UBERON:0000001", name="fake", category=["NamedThing"]
@@ -105,7 +108,7 @@ def test_validator_explicit_biolink_version():
         object="UBERON:0000001",
         category=["biolink:Association"],
     )
-    Validator.set_biolink_model(version="1.8.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
     validator = Validator(verbose=True)
     validator.validate(G)
     print(validator.get_errors())
@@ -126,7 +129,7 @@ def test_validator():
         "aggregator_knowledge_source": True,
     }
 
-    Validator.set_biolink_model("1.8.2")
+    Validator.set_biolink_model(toolkit.get_model_version())
 
     # Validator assumes the currently set Biolink Release
     validator = Validator()

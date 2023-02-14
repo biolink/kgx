@@ -83,7 +83,7 @@ class NeoSink(Sink):
         filtered_categories = [x for x in categories if x not in self._seen_categories]
         self.create_constraints(filtered_categories)
         for category in self.node_cache.keys():
-            log.info("Generating UNWIND for category: {}".format(category))
+            log.debug("Generating UNWIND for category: {}".format(category))
             cypher_category = category.replace(
                 self.CATEGORY_DELIMITER, self.CYPHER_CATEGORY_DELIMITER
             )
@@ -139,13 +139,13 @@ class NeoSink(Sink):
         batch_size = 10000
         for predicate in self.edge_cache.keys():
             query = self.generate_unwind_edge_query(predicate)
-            log.info(query)
+            log.debug(query)
             edges = self.edge_cache[predicate]
             for x in range(0, len(edges), batch_size):
                 y = min(x + batch_size, len(edges))
                 batch = edges[x:y]
                 log.debug(f"Batch {x} - {y}")
-                log.info(edges[x:y])
+                log.debug(edges[x:y])
                 try:
                     self.session.run(
                         query, parameters={"relationship": predicate, "edges": batch}

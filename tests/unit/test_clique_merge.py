@@ -7,6 +7,7 @@ from kgx.graph_operations.clique_merge import (
 )
 from kgx.utils.kgx_utils import get_biolink_ancestors, generate_edge_key, get_toolkit
 from tests import print_graph
+from bmt import Toolkit
 
 
 def test_check_categories():
@@ -69,9 +70,6 @@ def test_check_all_categories2():
     """
     Test check_all_categories method.
     """
-    # explicitly pin the release of Biolink to a
-    # specific one with known category ancestry
-    get_toolkit(biolink_release="3.0.0")
     categories = get_biolink_ancestors("biolink:Gene")
     vbc, ibc, ic = check_all_categories(categories)
 

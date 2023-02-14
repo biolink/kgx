@@ -66,7 +66,7 @@ class Validator(ErrorDetecting):
         Creates and manages a default singleton Validator in the module, when called
         """
         if not cls._the_validator:
-            cls.set_biolink_model("3.0.0")
+            cls.set_biolink_model("v3.1.2")
             cls._the_validator = Validator(
                 verbose=verbose,
                 progress_monitor=progress_monitor,
@@ -231,6 +231,8 @@ class Validator(ErrorDetecting):
         if not toolkit:
             toolkit = Validator.get_toolkit()
         node_properties = toolkit.get_all_node_properties()
+        # TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.
+        node_properties.append("id")
         required_properties = []
         for p in node_properties:
             element = toolkit.get_element(p)
@@ -259,6 +261,8 @@ class Validator(ErrorDetecting):
         if not toolkit:
             toolkit = Validator.get_toolkit()
         edge_properties = toolkit.get_all_edge_properties()
+        # TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.
+        edge_properties.append("id")
         required_properties = []
         for p in edge_properties:
             element = toolkit.get_element(p)
