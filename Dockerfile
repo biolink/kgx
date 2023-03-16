@@ -5,9 +5,7 @@ MAINTAINER  Sierra Moxon "smoxon@lbl.gov"
 RUN git clone https://github.com/biolink/kgx
 
 # Setup
-RUN cd kgx && git checkout tags/2.0.0 && pip install -r requirements.txt
-&& python setup.py install
-
+RUN cd kgx && git checkout tags/2.0.0 && poetry install
 
 # Make data directory
 RUN mkdir data
