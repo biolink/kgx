@@ -5,7 +5,6 @@ import re
 from typing import Optional, Tuple, Callable, Dict, List, Any
 
 from kgx.utils.kgx_utils import knowledge_provenance_properties, column_types
-from kgx.error_detection import ErrorType, MessageLevel
 from kgx.config import get_logger
 
 log = get_logger()
@@ -134,7 +133,7 @@ class InfoResContext:
 
             def _process_infores(source: str) -> str:
                 """
-                Process a single knowledge Source name  string into an infores, by applying rules
+                Process a single knowledge Source name string into an infores, by applying rules
                 in the _infores_processor() closure context, followed by standard formatting.
 
                 Parameters
@@ -430,8 +429,9 @@ class InfoResContext:
 
     def set_edge_provenance(self, edge_data: Dict):
         """
-        Sets the edge knowledge_source value for the current edge. Edge knowledge_source properties
-        include the 'knowledge_source' related properties.
+        Sets the edge knowledge_source value for the current edge.
+        Edge knowledge_source properties include the
+        'knowledge_source' related properties.
 
         Parameters
         ----------
