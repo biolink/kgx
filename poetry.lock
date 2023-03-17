@@ -2075,7 +2075,7 @@ url = ["furl (>=0.4.1)"]
 
 [[package]]
 name = "sssom"
-version = "0.3.23"
+version = "0.3.24"
 description = "Operations on SSSOM mapping tables"
 category = "main"
 optional = false
@@ -3854,7 +3854,7 @@ sqlalchemy-utils = [
     {file = "SQLAlchemy_Utils-0.38.3-py3-none-any.whl", hash = "sha256:5c13b5d08adfaa85f3d4e8ec09a75136216fad41346980d02974a70a77988bf9"},
 ]
 sssom = [
-    {file = "sssom-0.3.23.tar.gz", hash = "sha256:515ededf50d078e50f764c53f78825ca23627833887a11a67fb569b43f91a795"},
+    {file = "sssom-0.3.24.tar.gz", hash = "sha256:961e4e3a2029bee5a1159803d7e2ae93dc71e5687fcea7212746a9c181421f33"},
 ]
 sssom-schema = [
     {file = "sssom-schema-0.9.4.tar.gz", hash = "sha256:2ecb7d0d126f8b36943ed3db0cdc76526a52742ace20124d5214171cf7935908"},
