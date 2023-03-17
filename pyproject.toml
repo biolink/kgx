@@ -59,9 +59,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-validate = "kgx.cli:validate"
-transform = "kgx.cli:cli"
-graph-summary = "kgx.cli:cli"
-merge = "kgx.cli:cli"
-neo4j-upload = "kgx.cli:cli"
-neo4j-download = "kgx.cli:cli"
+kgx = "kgx.cli:cli"
