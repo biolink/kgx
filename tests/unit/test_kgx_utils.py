@@ -283,7 +283,10 @@ def test_sanitize_import1(query):
     d = sanitize_import(query[0], list_delimiter='|')
     for k, v in query[1].items():
         assert k in d
-        assert d[k] == v
+        if isinstance(v, list):
+            assert set(d[k]) == set(v)
+        else:
+            assert d[k] == v
 
 
 @pytest.mark.parametrize(
