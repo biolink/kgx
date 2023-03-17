@@ -169,6 +169,7 @@ def test_validate_node_property_types(query):
     """
     validator = Validator.get_the_validator()
     validator.clear_errors()
+    print("query:", query[0])
     validator.validate_node_property_types(query[0], query[1])
     assert (len(validator.get_errors()) == 0) == query[2]
 
