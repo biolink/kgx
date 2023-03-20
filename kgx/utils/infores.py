@@ -154,8 +154,10 @@ class InfoResContext:
 
                 if self.filter:
                     infores = self.filter.sub(self.substr, source)
+                    print("filter infores", infores)
                 else:
                     infores = source
+
                 infores = self.prefix + " " + infores
                 infores = infores.strip()
                 infores = infores.lower()
@@ -165,7 +167,6 @@ class InfoResContext:
                 infores = re.sub(r"_", "-", infores)
 
                 infores = "infores:" + infores
-
                 return infores
 
             def parser_list(sources: Optional[List[str]] = None) -> List[str]:
@@ -305,6 +306,7 @@ class InfoResContext:
                 else:  # false, ignore this source?
                     mapping = self.default()  # source suppressed
             elif isinstance(ksf_value, (list, set, tuple)):
+                print(ksf_value)
                 mapping = self.processor(infores_rewrite_filter=ksf_value)
             else:
                 mapping = ksf_value
@@ -392,6 +394,7 @@ class InfoResContext:
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
+                print("coerced soruces", sources)
             else:
                 # wraps knowledge sources that are multivalued in a list even if single valued
                 # in ingest data
@@ -440,6 +443,11 @@ class InfoResContext:
 
         """
         data_fields = list(edge_data.keys())
+        print("datafields", data_fields)
+        print("self.mapping", self.mapping)
+        print("knowledge_provenance_properties", knowledge_provenance_properties)
+
+        # edge provenance getting set twice, once in mapping, once in knowledge_provenance_properties
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
                 self.set_provenance(ksf, edge_data)

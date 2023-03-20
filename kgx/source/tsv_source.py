@@ -270,6 +270,7 @@ class TsvSource(Source):
             edge_data["id"] = generate_uuid()
         s = edge_data["subject"]
         o = edge_data["object"]
+        print("edge_data: ", edge_data)
         self.set_edge_provenance(edge_data)
         key = generate_edge_key(s, edge_data["predicate"], o)
         self.edge_properties.update(list(edge_data.keys()))

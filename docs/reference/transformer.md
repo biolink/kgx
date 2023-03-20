@@ -54,9 +54,10 @@ This feature, when coupled with the `--stream` and a 'null' Transformer Sink  (i
 
 ## Provenance of Nodes and Edges
 
-Biolink Model 2.0 specified new [properties for edge provenance](https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance) to replace the (now deprecated) `provided_by` provenance property (the `provided_by` property may still be used for node annotation).  
-
-One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments to specify default global values for these properties. Such values will be used when an edge lacks an explicit provenance property. If one does not specify such a global property, then the algorithm heuristically infers and sets a default `knowledge_source` value.
+One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments to 
+specify default global values for these properties. Such values will be used when an edge lacks an explicit provenance 
+property. If one does not specify such a global property, then the algorithm heuristically infers and sets a default 
+`knowledge_source` value.
 
 ```python
 from kgx.transformer import Transformer

@@ -185,6 +185,7 @@ class Transformer(ErrorDetecting):
             filename = input_args.pop("filename", {})
             for f in filename:
                 source = self.get_source(input_format)
+                print("source", source)
                 source.set_prefix_map(prefix_map)
                 if isinstance(source, RdfSource):
                     source.set_predicate_mapping(predicate_mappings)

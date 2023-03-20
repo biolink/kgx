@@ -276,6 +276,7 @@ class Source(object):
         """
         Set a specific edge provenance value.
         """
+
         self.infores_context.set_edge_provenance(edge_data)
 
     def validate_node(self, node: Dict) -> Optional[Dict]:

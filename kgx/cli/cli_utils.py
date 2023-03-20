@@ -376,8 +376,10 @@ def _validate_files(cwd: str, file_paths: List[str], context: str = ""):
 
 
 def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
+    print("ksf", ksf)
+    print("spec", spec)
     if ksf not in knowledge_provenance_properties:
-        log.warning("Unknown Knowledge Source Field: " + ksf + "... ignoring!")
+        log.debug("Unknown Knowledge Source Field: " + ksf + "... ignoring!")
         return False
     else:
         if spec.lower() == "true":
@@ -391,8 +393,13 @@ def _process_knowledge_source(ksf: str, spec: str) -> Union[str, bool, Tuple]:
                 # assumed to be just a default string value for the knowledge source field
                 return spec_parts[0]
             else:
+                print("spec_parts", spec_parts)
+                print("len(spec_parts)", len(spec_parts))
+                print("spec_parts[:2]", spec_parts[:2])
                 # assumed to be an InfoRes Tuple rewrite specification
                 if len(spec_parts) > 3:
+                    print("spec_parts", spec_parts)
+                    print("spec[:2]", spec[:2])
                     spec_parts = spec_parts[:2]
                 return tuple(spec_parts)
 
@@ -541,11 +548,18 @@ def transform(
             for ksf, spec in knowledge_sources:
                 ksf_spec = _process_knowledge_source(ksf, spec)
                 if isinstance(ksf_spec, tuple):
+                    print("we've got a tuple")
+                    print("ksf", ksf)
+                    print("ksf_spec", ksf_spec)
+                    print("source_dict", source_dict)
+                    print("source_dict[input]", source_dict["input"])
                     if ksf not in source_dict["input"]:
                         source_dict["input"][ksf] = dict()
+                        print("not in source dict", source_dict["input"][ksf])
                     if isinstance(source_dict["input"][ksf], dict):
                         key = ksf_spec[0]
                         source_dict["input"][ksf][key] = ksf_spec
+                        print("in source dict now", source_dict["input"][ksf])
                     else:
                         # Unexpected condition - mixing static values with tuple specified rewrites?
                         raise RuntimeError(
