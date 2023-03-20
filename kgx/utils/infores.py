@@ -392,8 +392,6 @@ class InfoResContext:
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
                 sources = list(data[ksf])
-                print("sources", sources)
-                print("data[ksf]", data[ksf])
             else:
                 # wraps knowledge sources that are multivalued in a list even if single valued
                 # in ingest data
