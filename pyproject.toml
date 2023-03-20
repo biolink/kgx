@@ -51,7 +51,7 @@ deprecation = "^2.1.0"
 recommonmark = "*"
 tox = "^3.28.0"
 tox-docker = "*"
-bmt = "^1.0.0"
+bmt = "^1.0.4"
 
 [tool.poetry-dynamic-versioning]
 enable = true
