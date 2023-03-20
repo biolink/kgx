@@ -1,3 +1,3 @@
-subject	object	predicate	relation	aggregator_knowledge_source
-HGNC:20635	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:20738	biolink:interacts_with	RO:0002434	string|biogrid
+subject,object,predicate,relation,aggregator_knowledge_source
+HGNC:20635,biolink:interacts_with,RO:0002434,string
+HGNC:10848,HGNC:20738,biolink:interacts_with,RO:0002434,string|biogrid
