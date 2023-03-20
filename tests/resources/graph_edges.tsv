@@ -1,5 +1,5 @@
 subject	object	predicate	relation	aggregator_knowledge_source
-HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	biogrid|string
+HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	string|biogrid
 HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434	string
 HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string
 HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string

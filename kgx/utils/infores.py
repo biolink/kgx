@@ -153,7 +153,11 @@ class InfoResContext:
                     return source
 
                 if self.filter:
+                    print("source", source)
+                    print("filter", self.filter)
+                    print("self.substr", self.substr)
                     infores = self.filter.sub(self.substr, source)
+                    print("infores", infores)
                 else:
                     infores = source
                 infores = self.prefix + " " + infores
@@ -165,7 +169,7 @@ class InfoResContext:
                 infores = re.sub(r"_", "-", infores)
 
                 infores = "infores:" + infores
-
+                print("infores", infores)
                 return infores
 
             def parser_list(sources: Optional[List[str]] = None) -> List[str]:
@@ -183,6 +187,7 @@ class InfoResContext:
                     Source name strings transformed into infores CURIES, using _process_infores().
 
                 """
+
                 if not sources:
                     return [self.context.default_provenance]
                 results: List[str] = list()
@@ -380,7 +385,6 @@ class InfoResContext:
             Current node or edge data entry being processed.
 
         """
-
         if ksf not in data.keys():
             if ksf in self.mapping and not isinstance(self.mapping[ksf], dict):
                 data[ksf] = self.mapping[ksf]()
@@ -391,7 +395,9 @@ class InfoResContext:
         else:
             # If data is s a non-string iterable then, coerce into a simple list of sources
             if isinstance(data[ksf], (list, set, tuple)):
+                print("what is data[ksf]", data[ksf])
                 sources = list(data[ksf])
+                print("its a list so sources", sources)
             else:
                 # wraps knowledge sources that are multivalued in a list even if single valued
                 # in ingest data
@@ -400,13 +406,22 @@ class InfoResContext:
                 else:
                     sources = data[ksf]
             if ksf in self.mapping:
+                print("its not in mapping...")
                 if isinstance(self.mapping[ksf], dict):
                     for pattern in self.mapping[ksf].keys():
+                        print("pattern", pattern)
+                        print("sourceSSS", sources)
                         for source in sources:
+                            print("source", source)
                             if re.compile(pattern).match(source):
-                                data[ksf] = self.mapping[ksf][pattern]([source])
-                            if data[ksf]:
-                                break
+                                print("type of", type(data[ksf].index(source)))
+                                index_of_source = data[ksf].index(source)
+                                del data[ksf][index_of_source]
+                                data[ksf] = data[ksf] + self.mapping[ksf][pattern]([source])
+                            else:
+                                data[ksf].append(source)
+                        if data[ksf]:
+                            break
                 else:
                     data[ksf] = self.mapping[ksf](sources)
             else:  # leave data intact if no mapping found
@@ -442,7 +457,9 @@ class InfoResContext:
         data_fields = list(edge_data.keys())
         for ksf in data_fields:
             if ksf in knowledge_provenance_properties:
+                print("data fields ksf", ksf, "edge_data", edge_data)
                 self.set_provenance(ksf, edge_data)
         for ksf in self.mapping:
+            print("mapping ksf", ksf, "edge_data", edge_data)
             if ksf != "provided_by":
                 self.set_provenance(ksf, edge_data)

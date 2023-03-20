@@ -61,7 +61,6 @@ column_types = {
     "negated": bool,
     "xrefs": list,
 }
-
 column_types.update(provenance_slot_types)
 
 knowledge_provenance_properties = set(provenance_slot_types.keys())
@@ -808,6 +807,9 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
         new_value = remove_null(value)
         if new_value is not None:
             tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
+    if key == 'aggregator_knowledge_source':
+        print("data", data)
+        print("tidy data", tidy_data)
     return tidy_data
 
 
@@ -850,7 +852,7 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             value_set: Set = set()
             for entry in new_value:
                 value_set.add(entry)
-            new_value = list(value_set)
+            new_value = sorted(list(value_set))
         elif column_types[key] == bool:
             try:
                 new_value = bool(value)
