@@ -846,6 +846,11 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else value
             else:
                 new_value = [str(value).replace("\n", " ").replace("\t", " ")]
+            # remove duplication in the list
+            value_set: Set = set()
+            for entry in new_value:
+                value_set.add(entry)
+            new_value = list(value_set)
         elif column_types[key] == bool:
             try:
                 new_value = bool(value)
