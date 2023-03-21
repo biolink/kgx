@@ -807,9 +807,6 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
         new_value = remove_null(value)
         if new_value is not None:
             tidy_data[key] = _sanitize_import_property(key, new_value, list_delimiter)
-    if key == 'aggregator_knowledge_source':
-        print("data", data)
-        print("tidy data", tidy_data)
     return tidy_data
 
 

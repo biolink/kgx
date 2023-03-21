@@ -851,7 +851,8 @@ def test_transform_knowledge_source_rewrite_with_prefix():
     for e in data["edges"]:
         if e["subject"] == "HGNC:10848" and e["object"] == "HGNC:20738":
             assert "aggregator_knowledge_source" in e
-        pprint(e)
+            assert "infores:new-string-database" in e["aggregator_knowledge_source"]
+            assert "biogrid" in e["aggregator_knowledge_source"]
 
 
 def test_transform2():
