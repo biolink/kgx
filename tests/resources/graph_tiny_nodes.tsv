@@ -3,3 +3,4 @@ HGNC:10848	SHH	biolink:Gene	NCBITaxon:9606
 HGNC:20738	SYVN1	biolink:Gene	NCBITaxon:9606
 HGNC:20635	PSME4	biolink:Gene	NCBITaxon:9606
 HGNC:20634	PSME5	biolink:Gene	NCBITaxon:9606
+BFO:0000050	located_in	biolink:NamedThing	NCBITaxon:9606

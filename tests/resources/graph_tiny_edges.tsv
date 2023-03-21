@@ -1,4 +1,5 @@
 subject	object	predicate	relation	aggregator_knowledge_source
+HGNC:10848	GO:0005576	biolink:part_of	BFO:0000050	go
 HGNC:20635	HGNC:20635	biolink:interacts_with	RO:0002434	string
 HGNC:10848	HGNC:20735	biolink:interacts_with	RO:0002434	string|biogrid
 HGNC:20635	HGNC:20735	biolink:interacts_with	RO:0002434	string
