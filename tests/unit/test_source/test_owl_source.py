@@ -3,7 +3,6 @@ import os
 from kgx.source import OwlSource
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR
-from pprint import pprint
 
 
 def test_read_owl1():
@@ -35,6 +34,7 @@ def test_read_owl1():
 
     n2 = nodes["GO:0003674"]
     n2["name"] = "molecular_function"
+    print(n2)
     assert "has_exact_synonym" in n2 and "molecular function" in n2["has_exact_synonym"]
     assert "description" in n2
     assert "comment" in n2

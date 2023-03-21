@@ -43,15 +43,14 @@ cachetools = "^5.0.0"
 sphinx-rtd-theme = "*"
 sphinx-click = "*"
 ordered-set = "^4.0.2"
-docker = "^5.0.3"
+docker = "^6.0.0"
 jsonlines = "^3.1.0"
 jsonstreams = "^0.6.0"
 ijson = "^3.1.3"
 deprecation = "^2.1.0"
 recommonmark = "*"
 tox = "^3.28.0"
-tox-docker = "*"
-bmt = "^1.0.4"
+bmt = "^1.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true
