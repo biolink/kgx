@@ -848,7 +848,7 @@ def test_transform_knowledge_source_rewrite_with_prefix():
     assert "nodes" in data
     assert "edges" in data
     assert len(data["nodes"]) == 6
-    assert len(data["edges"]) == 6
+    assert len(data["edges"]) == 9
     for e in data["edges"]:
         if e["subject"] == "HGNC:10848" and e["object"] == "HGNC:20738":
             assert "aggregator_knowledge_source" in e
