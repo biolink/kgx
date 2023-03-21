@@ -483,7 +483,7 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "funowl"
-version = "0.1.13"
+version = "0.1.12"
 description = "Python rendering of the OWL Functional syntax"
 category = "main"
 optional = false
@@ -491,9 +491,8 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 bcp47 = "*"
-jsonasobj = "*"
 pyjsg = ">=0.11.6"
-rdflib = "6.2.0"
+rdflib = ">=5.0.0"
 rdflib-shim = "*"
 rfc3987 = "*"
 
@@ -1581,24 +1580,21 @@ python-versions = "*"
 
 [[package]]
 name = "rdflib"
-version = "6.2.0"
+version = "6.3.1"
 description = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information."
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-isodate = "*"
-pyparsing = "*"
-setuptools = "*"
+isodate = ">=0.6.0,<0.7.0"
+pyparsing = ">=2.1.0,<4"
 
 [package.extras]
-berkeleydb = ["berkeleydb"]
-dev = ["black (==22.6.0)", "flake8", "flakeheaven", "isort", "mypy", "pep8-naming", "types-setuptools"]
-docs = ["myst-parser", "sphinx (<6)", "sphinx-autodoc-typehints", "sphinxcontrib-apidoc", "sphinxcontrib-kroki"]
-html = ["html5lib"]
-networkx = ["networkx"]
-tests = ["html5lib", "pytest", "pytest-cov"]
+berkeleydb = ["berkeleydb (>=18.1.0,<19.0.0)"]
+html = ["html5lib (>=1.0,<2.0)"]
+lxml = ["lxml (>=4.3.0,<5.0.0)"]
+networkx = ["networkx (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "rdflib-jsonld"
@@ -2354,7 +2350,7 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "dc3bb04c13ba61e28b6b0c0e0dedddf017abcb67e27c4a5b533a7a3e2f5c0d84"
+content-hash = "4b101d91f1742166590e3b2e79c7c133bb9a54f00778e442d09defd662221188"
 
 [metadata.files]
 aiohttp = [
@@ -2860,8 +2856,8 @@ fsspec = [
     {file = "fsspec-2023.3.0.tar.gz", hash = "sha256:24e635549a590d74c6c18274ddd3ffab4753341753e923408b1904eaabafe04d"},
 ]
 funowl = [
-    {file = "funowl-0.1.13-py3-none-any.whl", hash = "sha256:81dc273b11cb1b0c9fbf15496a6b85f335ef1694c321fd704267bcd694e3cb26"},
-    {file = "funowl-0.1.13.tar.gz", hash = "sha256:49f26a0e9b072ba331914564478a90e99e1d8fa10c4570d600bb3bae9250ea06"},
+    {file = "funowl-0.1.12-py3-none-any.whl", hash = "sha256:44f2337d47d21ab6532f8f0e51173c506a0d9dae9efa959cb105b0311e352082"},
+    {file = "funowl-0.1.12.tar.gz", hash = "sha256:3316c37ecde08cdfa96ebcbcc02ed53c355dc56845d654a8f37aa7a913ca6f71"},
 ]
 graphviz = [
     {file = "graphviz-0.20.1-py3-none-any.whl", hash = "sha256:587c58a223b51611c0cf461132da386edd896a029524ca61a1462b880bf97977"},
@@ -3626,8 +3622,8 @@ ratelimit = [
     {file = "ratelimit-2.2.1.tar.gz", hash = "sha256:af8a9b64b821529aca09ebaf6d8d279100d766f19e90b5059ac6a718ca6dee42"},
 ]
 rdflib = [
-    {file = "rdflib-6.2.0-py3-none-any.whl", hash = "sha256:85c34a86dfc517a41e5f2425a41a0aceacc23983462b32e68610b9fad1383bca"},
-    {file = "rdflib-6.2.0.tar.gz", hash = "sha256:62dc3c86d1712db0f55785baf8047f63731fa59b2682be03219cb89262065942"},
+    {file = "rdflib-6.3.1-py3-none-any.whl", hash = "sha256:b9a01b4ab94abb2d1a80e7c4968621ff8db5bdb664b018b0cd76822e7e33f066"},
+    {file = "rdflib-6.3.1.tar.gz", hash = "sha256:ced41883cdd387a53e73bf54d5db8b076e9675b59d8a601166220aa1e60970b6"},
 ]
 rdflib-jsonld = [
     {file = "rdflib-jsonld-0.6.1.tar.gz", hash = "sha256:eda5a42a2e09f80d4da78e32b5c684bccdf275368f1541e6b7bcddfb1382a0e0"},
