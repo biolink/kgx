@@ -794,8 +794,8 @@ def test_transform_knowledge_source_rewrite():
     ]
     output = os.path.join(TARGET_DIR, "graph.json")
     knowledge_sources = [
-        ("aggregator_knowledge_source", "string,string database"),
         ("aggregator_knowledge_source", "go,gene ontology"),
+        ("aggregator_knowledge_source", "string,string database"),
     ]
     transform(
         inputs=inputs,
@@ -810,8 +810,8 @@ def test_transform_knowledge_source_rewrite():
     data = json.load(open(output, "r"))
     assert "nodes" in data
     assert "edges" in data
-    assert len(data["nodes"]) == 7
-    assert len(data["edges"]) == 7
+    assert len(data["nodes"]) == 6
+    assert len(data["edges"]) == 9
     for e in data["edges"]:
         if e["subject"] == "HGNC:10848" and e["object"] == "HGNC:20738":
             assert "aggregator_knowledge_source" in e
@@ -819,6 +819,7 @@ def test_transform_knowledge_source_rewrite():
         if e["subject"] == "HGNC:10848" and e["object"] == "GO:0005576":
             assert "aggregator_knowledge_source" in e
             print("aggregator ks", e["aggregator_knowledge_source"])
+        print(e)
 
 
 def test_transform_knowledge_source_rewrite_with_prefix():

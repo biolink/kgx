@@ -347,12 +347,16 @@ class InfoResContext:
                 ksf_value = kwargs.pop(ksf)
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
+                        print("ksf_pattern: ", ksf_pattern)
                         if ksf not in self.mapping:
+                            print("not in the mapping", ksf)
                             self.mapping[ksf] = dict()
+                            print("self.mapping[ksf]: ", self.mapping[ksf])
                         ir = self.get_mapping(ksf)
                         self.mapping[ksf][ksf_pattern] = ir.set_provenance_map_entry(
                             ksf_value[ksf_pattern]
                         )
+                        print("self.mapping[ksf][ksf_pattern]: ", self.mapping[ksf][ksf_pattern])
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
@@ -399,7 +403,9 @@ class InfoResContext:
                 else:
                     sources = data[ksf]
             if ksf in self.mapping:
+                log.debug("self.mapping[ksf]", self.mapping[ksf])
                 if isinstance(self.mapping[ksf], dict):
+                    log.debug("self.mapping[ksf].keys()", self.mapping[ksf].keys())
                     for pattern in self.mapping[ksf].keys():
                         log.debug("pattern", pattern)
                         for source in sources:
@@ -409,11 +415,9 @@ class InfoResContext:
                                 del data[ksf][index_of_source]
                                 data[ksf] = data[ksf] + self.mapping[ksf][pattern]([source])
                             else:
-                                if source not in data[ksf]:
+                                if source not in data[ksf] and source not in self.mapping[ksf].keys():
                                     data[ksf].append(source)
                         log.debug("data[ksf]", data[ksf])
-                        if data[ksf]:
-                            break
                 else:
                     data[ksf] = self.mapping[ksf](sources)
             else:  # leave data intact if no mapping found
