@@ -347,16 +347,16 @@ class InfoResContext:
                 ksf_value = kwargs.pop(ksf)
                 if isinstance(ksf_value, dict):
                     for ksf_pattern in ksf_value.keys():
-                        print("ksf_pattern: ", ksf_pattern)
+                        log.debug("ksf_pattern: ", ksf_pattern)
                         if ksf not in self.mapping:
-                            print("not in the mapping", ksf)
+                            log.debug("not in the mapping", ksf)
                             self.mapping[ksf] = dict()
-                            print("self.mapping[ksf]: ", self.mapping[ksf])
+                            log.debug("self.mapping[ksf]: ", self.mapping[ksf])
                         ir = self.get_mapping(ksf)
                         self.mapping[ksf][ksf_pattern] = ir.set_provenance_map_entry(
                             ksf_value[ksf_pattern]
                         )
-                        print("self.mapping[ksf][ksf_pattern]: ", self.mapping[ksf][ksf_pattern])
+                        log.debug("self.mapping[ksf][ksf_pattern]: ", self.mapping[ksf][ksf_pattern])
                 else:
                     ir = self.get_mapping(ksf)
                     self.mapping[ksf] = ir.set_provenance_map_entry(ksf_value)
