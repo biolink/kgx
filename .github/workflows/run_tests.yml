@@ -1,24 +1,18 @@
-# This is a basic workflow to help you get started with Actions
+# Built from:
+# https://docs.github.com/en/actions/guides/building-and-testing-python
+# https://github.com/actions/setup-python/
 
-name: Run tests
+name: Build and test linkml-runtime
 
-# Controls when the action will run. 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+on: [pull_request]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-    types: trigger-run-tests
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.9", "3.10" ]
+        os: [ubuntu-latest]
+        python-version: ["3.9", "3.10"]
 
     runs-on: ${{ matrix.os }}
 
@@ -28,7 +22,7 @@ jobs:
       #          install poetry
       #----------------------------------------------
       - name: Install Poetry
-        run: pipx install poetry
+        run: pipx install poetry==1.2.2
 
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -51,19 +45,8 @@ jobs:
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
-      - name: Setup Neo4j Docker
-        run: |
-          docker run --detach --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
-          docker run --detach --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
-          docker ps -a
-
-      - name: Wait
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '45s'
-
       - name: Run tests
-        run: |
+        run: poetry run python
           poetry run pytest tests/*
 
       - name: SonarCloud Scan
