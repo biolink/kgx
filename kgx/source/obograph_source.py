@@ -5,6 +5,7 @@ from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any
 import ijson
 import stringcase
+import inflection
 from bmt import Toolkit
 from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
@@ -245,11 +246,17 @@ class ObographSource(JsonSource):
                     category = p["val"]
                     element = self.toolkit.get_element(category)
                     if element:
-                        category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element.name))}"
+                        if "OBO" in element.name:
+                            category = f"biolink:{inflection.camelize(inflection.underscore(element.name))}"
+                        else:
+                            category = f"biolink:{inflection.camelize(stringcase.snakecase(element.name))}"
                     else:
                         element = self.toolkit.get_element_by_mapping(category)
                         if element:
-                            category = f"biolink:{stringcase.pascalcase(stringcase.snakecase(element))}"
+                            if "OBO" in element:
+                                category = f"biolink:{inflection.camelize(inflection.underscore(element))}"
+                            else:
+                                category = f"biolink:{inflection.camelize(stringcase.snakecase(element))}"
                         else:
                             category = "biolink:OntologyClass"
 

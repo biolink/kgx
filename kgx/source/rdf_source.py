@@ -376,7 +376,6 @@ class RdfSource(Source):
         c = curie_lookup(key_curie)
         if c:
             key_curie = c
-
         if self.prefix_manager.is_curie(key_curie):
             # property names will always be just the reference
             mapped_key = self.prefix_manager.get_reference(key_curie)

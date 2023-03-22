@@ -35,4 +35,5 @@ RUN pip install --user /tmp/*.whl
 
 # command to run on container start
 
+CMD ["poetry show"]
 CMD ["/bin/bash"]

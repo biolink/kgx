@@ -5,6 +5,7 @@ import uuid
 from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
+from inflection import camelize
 from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
     EnumDefinition,
@@ -61,7 +62,6 @@ column_types = {
     "negated": bool,
     "xrefs": list,
 }
-
 column_types.update(provenance_slot_types)
 
 knowledge_provenance_properties = set(provenance_slot_types.keys())
@@ -178,7 +178,7 @@ def sentencecase_to_camelcase(s: str) -> str:
         string in CamelCase form
 
     """
-    return stringcase.pascalcase(stringcase.snakecase(s))
+    return camelize(stringcase.snakecase(s))
 
 
 def format_biolink_category(s: str) -> str:
@@ -846,6 +846,11 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else value
             else:
                 new_value = [str(value).replace("\n", " ").replace("\t", " ")]
+            # remove duplication in the list
+            value_set: Set = set()
+            for entry in new_value:
+                value_set.add(entry)
+            new_value = sorted(list(value_set))
         elif column_types[key] == bool:
             try:
                 new_value = bool(value)

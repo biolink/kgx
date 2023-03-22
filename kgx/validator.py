@@ -430,10 +430,8 @@ class Validator(ErrorDetecting):
             element = toolkit.get_element(key)
             if element:
                 if hasattr(element, "typeof"):
-                    if (element.typeof == "string" and not isinstance(value, str)) or ( \
-                                    element.typeof == "double" and not isinstance(
-                                value, (int, float)
-                            )):
+                    if (element.typeof == "string" and not isinstance(value, str)) or \
+                            (element.typeof == "double" and not isinstance(value, (int, float))):
                         message = f"Node property '{key}' is expected to be of type '{element.typeof}'"
                         self.log_error(node, error_type, message, MessageLevel.ERROR)
                     elif (

@@ -2,3 +2,5 @@ id	name	category	taxon
 HGNC:10848	SHH	biolink:Gene	NCBITaxon:9606
 HGNC:20738	SYVN1	biolink:Gene	NCBITaxon:9606
 HGNC:20635	PSME4	biolink:Gene	NCBITaxon:9606
+HGNC:20634	PSME5	biolink:Gene	NCBITaxon:9606
+GO:0005576	cellular_component	biolink:CellularComponent	NCBITaxon:9606

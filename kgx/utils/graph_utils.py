@@ -1,5 +1,5 @@
 from typing import List, Set, Dict, Optional
-import stringcase
+import inflection
 from cachetools import cached
 
 from kgx.config import get_logger
@@ -149,7 +149,7 @@ def curie_lookup(curie: str) -> Optional[str]:
     name: Optional[str] = None
     prefix = PrefixManager.get_prefix(curie)
     if prefix in ["OIO", "OWL", "owl", "OBO", "rdfs"]:
-        name = stringcase.snakecase(curie.split(":", 1)[1])
+        name = inflection.underscore(curie.split(":", 1)[1])
     elif curie in cls.curie_map:
         name = cls.curie_map[curie]
     elif curie in cls.ontology_graph:
