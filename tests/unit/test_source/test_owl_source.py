@@ -32,10 +32,11 @@ def test_read_owl1():
     assert "description" in n1
     assert "comment" in n1
     assert "has_alternative_id" in n1
+    assert "has_exact_synonym" in n1
+    assert "physiological process" in n1["has_exact_synonym"]
 
     n2 = nodes["GO:0003674"]
     n2["name"] = "molecular_function"
-    pprint(n2)
     assert "has_exact_synonym" in n2
     assert "description" in n2
     assert "comment" in n2
