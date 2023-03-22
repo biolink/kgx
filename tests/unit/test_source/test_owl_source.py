@@ -48,6 +48,7 @@ def test_read_owl1():
     assert "description" in n3
     assert "comment" in n3
     assert "has_alternative_id" in n3
+    assert "GO:0008372" in n3["has_alternative_id"]
 
     e1 = edges["GO:0008289", "GO:0003674"]
     assert e1["subject"] == "GO:0008289"
