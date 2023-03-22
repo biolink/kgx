@@ -155,7 +155,7 @@ def test_read_owl3():
     assert "has_exact_synonym" in n2
     assert "description" in n2
     assert "comment" in n2
-    # assert "xref" in n2 and "GO:0005554" in n2["xref"]
+    assert "xref" in n2 and "GO:0005554" in n2["xref"]
 
     n3 = nodes["GO:0005575"]
     n3["name"] = "cellular_component"
@@ -163,7 +163,7 @@ def test_read_owl3():
     assert "has_exact_synonym" in n3
     assert "description" in n3
     assert "comment" in n3
-    # assert "xref" in n3 and "GO:0008372" in n3["xref"]
+    assert "xref" in n3 and "GO:0008372" in n3["xref"]
 
     e1 = edges["GO:0008289", "GO:0003674"][0]
     assert e1["subject"] == "GO:0008289"

@@ -51,6 +51,7 @@ deprecation = "^2.1.0"
 recommonmark = "*"
 tox = "^3.0"
 bmt = "^1.0"
+inflection = "^0.5.1"
 
 [tool.poetry-dynamic-versioning]
 enable = true

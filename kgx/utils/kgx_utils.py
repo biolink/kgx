@@ -5,6 +5,7 @@ import uuid
 from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
+from inflection import camelize
 from linkml_runtime.linkml_model.meta import (
     TypeDefinitionName,
     EnumDefinition,
@@ -177,7 +178,7 @@ def sentencecase_to_camelcase(s: str) -> str:
         string in CamelCase form
 
     """
-    return stringcase.pascalcase(stringcase.snakecase(s))
+    return camelize(stringcase.snakecase(s))
 
 
 def format_biolink_category(s: str) -> str:

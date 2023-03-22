@@ -369,9 +369,6 @@ class RdfSource(Source):
             The node data
 
         """
-        if key == "OIO:hasOBONamespace":
-            print("key", key)
-            print("value", value)
         if self.prefix_manager.is_iri(key):
             key_curie = self.prefix_manager.contract(key)
         else:
@@ -379,7 +376,6 @@ class RdfSource(Source):
         c = curie_lookup(key_curie)
         if c:
             key_curie = c
-
         if self.prefix_manager.is_curie(key_curie):
             # property names will always be just the reference
             mapped_key = self.prefix_manager.get_reference(key_curie)
@@ -414,9 +410,6 @@ class RdfSource(Source):
                 self.node_cache[curie][mapped_key] = value
         else:
             self.node_cache[curie] = {"id": curie, mapped_key: value}
-
-        if key == "OIO:hasOBONamespace":
-            print("node_cache", self.node_cache[curie])
 
     def add_node(self, iri: URIRef, data: Optional[Dict] = None) -> Dict:
         """
