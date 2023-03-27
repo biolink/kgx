@@ -120,8 +120,6 @@ class ErrorDetecting(object):
         if error not in self.errors[level]:
             self.errors[level][error] = dict()
 
-        print(entity)
-        print(message)
         self.errors[level][error][message] = [entity]
         self.errors[level][error][message].append(entity)
 
