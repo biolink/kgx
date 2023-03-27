@@ -139,7 +139,7 @@ def test_read_nt3():
     assert e1["object"] == "ENSEMBL:ENSP0000000000002"
     assert e1["predicate"] == "biolink:interacts_with"
     assert e1["relation"] == "biolink:interacts_with"
-    assert e1["type"] == "biolink:Association"
+    assert e1["type"] == ["biolink:Association"]
     assert e1["id"] == "urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518"
     assert e1["fusion"] == "0"
     assert e1["homology"] == "0.0"
@@ -193,7 +193,7 @@ def test_read_nt4():
     assert e1["object"] == "ENSEMBL:ENSP0000000000002"
     assert e1["predicate"] == "biolink:interacts_with"
     assert e1["relation"] == "biolink:interacts_with"
-    assert e1["type"] == "biolink:Association"
+    assert e1["type"] == ["biolink:Association"]
     assert e1["id"] == "urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518"
     assert e1["fusion"] == "0"
     assert e1["homology"] == "0.0"
