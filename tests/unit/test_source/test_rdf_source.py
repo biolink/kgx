@@ -248,7 +248,7 @@ def test_read_nt5():
     assert e1["object"] == "HP:0000006"
     assert e1["relation"] == "RO:0000091"
     assert e1["type"] == ["OBAN:association"]
-    assert e1["has_evidence"] == "ECO:0000501"
+    assert e1["has_evidence"] == ["ECO:0000501"]
 
     e2 = edges["ORPHA:93262", "HP:0000505"][0]
     assert e2["subject"] == "ORPHA:93262"
@@ -295,7 +295,7 @@ def test_read_nt6():
     assert e1["object"] == "HP:0000006"
     assert e1["relation"] == "RO:0000091"
     assert e1["type"] == ["OBAN:association"]
-    assert e1["has_evidence"] == "ECO:0000501"
+    assert e1["has_evidence"] == ["ECO:0000501"]
 
     e2 = edges["ORPHA:93262", "HP:0000505"][0]
     assert e2["subject"] == "ORPHA:93262"
