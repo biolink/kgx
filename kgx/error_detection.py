@@ -120,13 +120,8 @@ class ErrorDetecting(object):
         if error not in self.errors[level]:
             self.errors[level][error] = dict()
         
-        # don't record duplicate instances of error type and
-        # messages for entity identifiers...
-        if message not in self.errors[level][error]:
-            self.errors[level][error][message] = [entity]
-        else:
-            if entity not in self.errors[level][error][message]:
-                self.errors[level][error][message].append(entity)
+        self.errors[level][error][message] = [entity]
+        self.errors[level][error][message].append(entity)
 
     def get_errors(self, level: str = None) -> Dict:
         """

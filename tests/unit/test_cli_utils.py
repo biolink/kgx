@@ -414,7 +414,7 @@ def test_validate_exception_triggered_error_exit_code():
     """
     Test graph validate error exit code.
     """
-    test_input = os.path.join(RESOURCE_DIR, "graph_nodes.tsv")
+    test_input = os.path.join(RESOURCE_DIR, "graph_tiny_nodes.tsv")
     runner = CliRunner()
     result = runner.invoke(
         cli,
