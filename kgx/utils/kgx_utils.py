@@ -21,7 +21,6 @@ import pandas as pd
 import numpy as np
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
-
 from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
@@ -41,9 +40,6 @@ class GraphEntityType(Enum):
     EDGE = "edge"
 
 
-# Biolink 2.0 "Knowledge Source" association slots,
-# including the deprecated 'provided_by' slot
-
 provenance_slot_types = {
     "knowledge_source": str,
     "primary_knowledge_source": str,
@@ -52,6 +48,8 @@ provenance_slot_types = {
     "supporting_data_source": list,
     "provided_by": list,
 }
+
+tk = Toolkit(get_biolink_model_schema())
 
 column_types = {
     "publications": list,
@@ -833,36 +831,38 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
         Sanitized value
 
     """
-    if key in column_types:
-        if column_types[key] == list:
-            if isinstance(value, (list, set, tuple)):
-                value = [
-                    v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
-                    for v in value
-                ]
-                new_value = list(value)
-            elif isinstance(value, str):
-                value = value.replace("\n", " ").replace("\t", " ")
-                new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else value
-            else:
-                new_value = [str(value).replace("\n", " ").replace("\t", " ")]
-            # remove duplication in the list
-            value_set: Set = set()
-            for entry in new_value:
-                value_set.add(entry)
-            new_value = sorted(list(value_set))
-        elif column_types[key] == bool:
-            try:
-                new_value = bool(value)
-            except:
-                new_value = False
-        # the rest of this if/else block doesn't seem right:
-        # it's not checking the type against the expected type even though one exists
-        elif isinstance(value, (str, float)):
-            new_value = value
+
+    mv_slots = {}
+    multivalued_slots = tk.get_all_multivalued_slots()
+    for slot in multivalued_slots:
+        mv_slots[sentencecase_to_snakecase(slot)] = "list"
+
+    if key in mv_slots:
+        if isinstance(value, (list, set, tuple)):
+            value = [
+                v.replace("\n", " ").replace("\t", " ") if isinstance(v, str) else v
+                for v in value
+            ]
+            new_value = list(value)
+        elif isinstance(value, str):
+            value = value.replace("\n", " ").replace("\t", " ")
+            new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else [value]
         else:
-            # we might want to raise an exception or somehow indicate a type mismatch in the input data
-            new_value = str(value).replace("\n", " ").replace("\t", " ")
+            new_value = [str(value).replace("\n", " ").replace("\t", " ")]
+        # remove duplication in the list
+        value_set: Set = set()
+        for entry in new_value:
+            value_set.add(entry)
+        new_value = sorted(list(value_set))
+    elif column_types[key] == bool:
+        try:
+            new_value = bool(value)
+        except:
+            new_value = False
+    # the rest of this if/else block doesn't seem right:
+    # it's not checking the type against the expected type even though one exists
+    elif isinstance(value, (str, float)):
+        new_value = value
     else:
         if isinstance(value, (list, set, tuple)):
             value = [
@@ -876,13 +876,6 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = [x for x in value.split(list_delimiter) if x]
             else:
                 new_value = value.replace("\n", " ").replace("\t", " ")
-        elif isinstance(value, bool):
-            try:
-                new_value = bool(value)
-            except:
-                new_value = False
-        elif isinstance(value, (str, float)):
-            new_value = value
         else:
             new_value = str(value).replace("\n", " ").replace("\t", " ")
     return new_value
