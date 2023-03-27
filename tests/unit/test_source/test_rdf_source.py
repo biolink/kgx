@@ -22,7 +22,7 @@ def test_read_nt1():
     assert len(edges) == 1
 
     n1 = nodes["ENSEMBL:ENSG0000000000001"]
-    assert n1["type"] == "SO:0000704"
+    assert n1["type"] == ["SO:0000704"]
     assert len(n1["category"]) == 4
     assert "biolink:Gene" in n1["category"]
     assert "biolink:GenomicEntity" in n1["category"]
@@ -32,7 +32,7 @@ def test_read_nt1():
     assert "Test Dataset" in n1["provided_by"]
 
     n2 = nodes["ENSEMBL:ENSG0000000000002"]
-    assert n2["type"] == "SO:0000704"
+    assert n2["type"] == ["SO:0000704"]
     assert len(n2["category"]) == 4
     assert "biolink:Gene" in n2["category"]
     assert "biolink:GenomicEntity" in n2["category"]
@@ -66,7 +66,7 @@ def test_read_nt2():
     assert len(edges) == 1
 
     n1 = nodes["ENSEMBL:ENSG0000000000001"]
-    assert n1["type"] == "SO:0000704"
+    assert n1["type"] == ["SO:0000704"]
     assert len(n1["category"]) == 4
     assert "biolink:Gene" in n1["category"]
     assert "biolink:GenomicEntity" in n1["category"]
@@ -76,7 +76,7 @@ def test_read_nt2():
     assert "Test Dataset" in n1["provided_by"]
 
     n2 = nodes["ENSEMBL:ENSG0000000000002"]
-    assert n2["type"] == "SO:0000704"
+    assert n2["type"] == ["SO:0000704"]
     assert len(n2["category"]) == 4
     assert "biolink:Gene" in n2["category"]
     assert "biolink:GenomicEntity" in n2["category"]
@@ -115,7 +115,7 @@ def test_read_nt3():
     assert len(edges) == 3
 
     n1 = nodes["ENSEMBL:ENSG0000000000001"]
-    assert n1["type"] == "SO:0000704"
+    assert n1["type"] == ["SO:0000704"]
     assert len(n1["category"]) == 4
     assert "biolink:Gene" in n1["category"]
     assert "biolink:GenomicEntity" in n1["category"]
@@ -125,7 +125,7 @@ def test_read_nt3():
     assert "Test Dataset" in n1["provided_by"]
 
     n2 = nodes["ENSEMBL:ENSG0000000000002"]
-    assert n2["type"] == "SO:0000704"
+    assert n2["type"] == ["SO:0000704"]
     assert len(n2["category"]) == 4
     assert "biolink:Gene" in n2["category"]
     assert "biolink:GenomicEntity" in n2["category"]
@@ -169,7 +169,7 @@ def test_read_nt4():
     assert len(edges.keys()) == 6
 
     n1 = nodes["ENSEMBL:ENSG0000000000001"]
-    assert n1["type"] == "SO:0000704"
+    assert n1["type"] == ["SO:0000704"]
     assert len(n1["category"]) == 4
     assert "biolink:Gene" in n1["category"]
     assert "biolink:GenomicEntity" in n1["category"]
@@ -179,7 +179,7 @@ def test_read_nt4():
     assert "Test Dataset" in n1["provided_by"]
 
     n2 = nodes["ENSEMBL:ENSG0000000000002"]
-    assert n2["type"] == "SO:0000704"
+    assert n2["type"] == ["SO:0000704"]
     assert len(n2["category"]) == 4
     assert "biolink:Gene" in n2["category"]
     assert "biolink:GenomicEntity" in n2["category"]
@@ -247,14 +247,14 @@ def test_read_nt5():
     assert e1["subject"] == "OMIM:166400"
     assert e1["object"] == "HP:0000006"
     assert e1["relation"] == "RO:0000091"
-    assert e1["type"] == "OBAN:association"
+    assert e1["type"] == ["OBAN:association"]
     assert e1["has_evidence"] == "ECO:0000501"
 
     e2 = edges["ORPHA:93262", "HP:0000505"][0]
     assert e2["subject"] == "ORPHA:93262"
     assert e2["object"] == "HP:0000505"
     assert e2["relation"] == "RO:0002200"
-    assert e2["type"] == "OBAN:association"
+    assert e2["type"] == ["OBAN:association"]
     assert e2["frequencyOfPhenotype"] == "HP:0040283"
 
 
@@ -294,14 +294,14 @@ def test_read_nt6():
     assert e1["subject"] == "OMIM:166400"
     assert e1["object"] == "HP:0000006"
     assert e1["relation"] == "RO:0000091"
-    assert e1["type"] == "OBAN:association"
+    assert e1["type"] == ["OBAN:association"]
     assert e1["has_evidence"] == "ECO:0000501"
 
     e2 = edges["ORPHA:93262", "HP:0000505"][0]
     assert e2["subject"] == "ORPHA:93262"
     assert e2["object"] == "HP:0000505"
     assert e2["relation"] == "RO:0002200"
-    assert e2["type"] == "OBAN:association"
+    assert e2["type"] == ["OBAN:association"]
     assert e2["frequency_of_phenotype"] == "HP:0040283"
 
 
