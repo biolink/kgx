@@ -237,9 +237,10 @@ class RdfSink(Sink):
                     value_uri = self._prepare_object(prop, prop_type, value)
                     self._write_triple(URIRef(n), prop_uri, value_uri)
         else:
-            for type in record["type"]:
-                if type in associations:
-                    at_least_one_type_in_associations = True
+            if "type" in record:
+                for type in record["type"]:
+                    if type in associations:
+                        at_least_one_type_in_associations = True
             if (
                 ("type" in record and at_least_one_type_in_associations)
                 or (
