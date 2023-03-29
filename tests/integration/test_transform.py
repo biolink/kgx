@@ -274,14 +274,14 @@ def test_rdf_transform2():
     assert e1t1["subject"] == "OMIM:166400"
     assert e1t1["object"] == "HP:0000006"
     assert e1t1["relation"] == "RO:0000091"
-    assert e1t1["type"] == ["OBAN:association"]
+    assert e1t1["type"] == ['OBAN:association']
     assert e1t1["has_evidence"] == ["ECO:0000501"]
 
     e2t1 = list(t1.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t1["subject"] == "ORPHA:93262"
     assert e2t1["object"] == "HP:0000505"
     assert e2t1["relation"] == "RO:0002200"
-    assert e2t1["type"] == ["OBAN:association"]
+    assert e2t1["type"] == ['OBAN:association']
     assert e2t1["frequency_of_phenotype"] == "HP:0040283"
 
     print(t1.store.graph.get_node("ORPHA:93262"))
@@ -312,14 +312,14 @@ def test_rdf_transform2():
     assert e1t2["subject"] == "OMIM:166400"
     assert e1t2["object"] == "HP:0000006"
     assert e1t2["relation"] == "RO:0000091"
-    assert e1t2["type"] == ["OBAN:association"]
+    assert e1t2["type"] == ['biolink:Association']
     assert e1t2["has_evidence"] == ["ECO:0000501"]
 
     e2t2 = list(t2.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t2["subject"] == "ORPHA:93262"
     assert e2t2["object"] == "HP:0000505"
     assert e2t2["relation"] == "RO:0002200"
-    assert e2t2["type"] == ["OBAN:association"]
+    assert e2t2["type"] == ['biolink:Association']
     assert e2t2["frequency_of_phenotype"] == "HP:0040283"
 
     assert t2.store.graph.number_of_nodes() == 19
@@ -340,14 +340,14 @@ def test_rdf_transform2():
     assert e1t3["subject"] == "OMIM:166400"
     assert e1t3["object"] == "HP:0000006"
     assert e1t3["relation"] == "RO:0000091"
-    assert e1t3["type"] == ["biolink:Association"]
+    assert e1t3["type"] == ['biolink:Association']
     assert e1t3["has_evidence"] == ["ECO:0000501"]
 
     e2t3 = list(t3.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t3["subject"] == "ORPHA:93262"
     assert e2t3["object"] == "HP:0000505"
     assert e2t3["relation"] == "RO:0002200"
-    assert e2t3["type"] == ["biolink:Association"]
+    assert e2t3["type"] == ['biolink:Association']
     assert e2t3["frequency_of_phenotype"] == "HP:0040283"
 
     assert t3.store.graph.number_of_nodes() == 19
