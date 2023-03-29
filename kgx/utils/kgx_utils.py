@@ -21,7 +21,6 @@ import pandas as pd
 import numpy as np
 from prefixcommons.curie_util import contract_uri
 from prefixcommons.curie_util import expand_uri
-
 from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
@@ -33,6 +32,8 @@ log = get_logger()
 CORE_NODE_PROPERTIES = {"id", "name"}
 CORE_EDGE_PROPERTIES = {"id", "subject", "predicate", "object", "type"}
 XSD_STRING = "xsd:string"
+
+tk = Toolkit()
 
 
 class GraphEntityType(Enum):
@@ -52,6 +53,7 @@ provenance_slot_types = {
     "supporting_data_source": list,
     "provided_by": list,
 }
+
 
 column_types = {
     "publications": list,
@@ -833,6 +835,7 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
         Sanitized value
 
     """
+
     if key in column_types:
         if column_types[key] == list:
             if isinstance(value, (list, set, tuple)):
@@ -843,7 +846,7 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
                 new_value = list(value)
             elif isinstance(value, str):
                 value = value.replace("\n", " ").replace("\t", " ")
-                new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else value
+                new_value = [x for x in value.split(list_delimiter) if x] if list_delimiter else [value]
             else:
                 new_value = [str(value).replace("\n", " ").replace("\t", " ")]
             # remove duplication in the list
@@ -871,9 +874,12 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             ]
             new_value = list(value)
         elif isinstance(value, str):
+            multivalued_slots = [sentencecase_to_snakecase(x) for x in tk.get_all_multivalued_slots()]
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
                 new_value = [x for x in value.split(list_delimiter) if x]
+            elif key in multivalued_slots:
+                new_value = [value]
             else:
                 new_value = value.replace("\n", " ").replace("\t", " ")
         elif isinstance(value, bool):

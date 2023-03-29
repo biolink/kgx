@@ -212,14 +212,14 @@ def test_rdf_transform1():
     assert e1["subject"] == "OMIM:166400"
     assert e1["object"] == "HP:0000006"
     assert e1["relation"] == "RO:0000091"
-    assert e1["type"] == "OBAN:association"
-    assert e1["has_evidence"] == "ECO:0000501"
+    assert e1["type"] == ["OBAN:association"]
+    assert e1["has_evidence"] == ["ECO:0000501"]
 
     e2 = list(t1.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2["subject"] == "ORPHA:93262"
     assert e2["object"] == "HP:0000505"
     assert e2["relation"] == "RO:0002200"
-    assert e2["type"] == "OBAN:association"
+    assert e2["type"] == ["OBAN:association"]
     assert e2["frequencyOfPhenotype"] == "HP:0040283"
 
     output_args = {
@@ -274,14 +274,14 @@ def test_rdf_transform2():
     assert e1t1["subject"] == "OMIM:166400"
     assert e1t1["object"] == "HP:0000006"
     assert e1t1["relation"] == "RO:0000091"
-    assert e1t1["type"] == "OBAN:association"
-    assert e1t1["has_evidence"] == "ECO:0000501"
+    assert e1t1["type"] == ['OBAN:association']
+    assert e1t1["has_evidence"] == ["ECO:0000501"]
 
     e2t1 = list(t1.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t1["subject"] == "ORPHA:93262"
     assert e2t1["object"] == "HP:0000505"
     assert e2t1["relation"] == "RO:0002200"
-    assert e2t1["type"] == "OBAN:association"
+    assert e2t1["type"] == ['OBAN:association']
     assert e2t1["frequency_of_phenotype"] == "HP:0040283"
 
     print(t1.store.graph.get_node("ORPHA:93262"))
@@ -312,14 +312,14 @@ def test_rdf_transform2():
     assert e1t2["subject"] == "OMIM:166400"
     assert e1t2["object"] == "HP:0000006"
     assert e1t2["relation"] == "RO:0000091"
-    assert e1t2["type"] == "biolink:Association"
-    assert e1t2["has_evidence"] == "ECO:0000501"
+    assert e1t2["type"] == ['biolink:Association']
+    assert e1t2["has_evidence"] == ["ECO:0000501"]
 
     e2t2 = list(t2.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t2["subject"] == "ORPHA:93262"
     assert e2t2["object"] == "HP:0000505"
     assert e2t2["relation"] == "RO:0002200"
-    assert e2t2["type"] == "biolink:Association"
+    assert e2t2["type"] == ['biolink:Association']
     assert e2t2["frequency_of_phenotype"] == "HP:0040283"
 
     assert t2.store.graph.number_of_nodes() == 19
@@ -340,14 +340,14 @@ def test_rdf_transform2():
     assert e1t3["subject"] == "OMIM:166400"
     assert e1t3["object"] == "HP:0000006"
     assert e1t3["relation"] == "RO:0000091"
-    assert e1t3["type"] == "biolink:Association"
-    assert e1t3["has_evidence"] == "ECO:0000501"
+    assert e1t3["type"] == ['biolink:Association']
+    assert e1t3["has_evidence"] == ["ECO:0000501"]
 
     e2t3 = list(t3.store.graph.get_edge("ORPHA:93262", "HP:0000505").values())[0]
     assert e2t3["subject"] == "ORPHA:93262"
     assert e2t3["object"] == "HP:0000505"
     assert e2t3["relation"] == "RO:0002200"
-    assert e2t3["type"] == "biolink:Association"
+    assert e2t3["type"] == ['biolink:Association']
     assert e2t3["frequency_of_phenotype"] == "HP:0040283"
 
     assert t3.store.graph.number_of_nodes() == 19
@@ -386,7 +386,7 @@ def test_rdf_transform3():
     n1t2 = t2.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
     n1t3 = t2.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
 
-    assert n1t1["type"] == n1t2["type"] == n1t3["type"] == "SO:0000704"
+    assert n1t1["type"] == n1t2["type"] == n1t3["type"] == ["SO:0000704"]
     assert len(n1t1["category"]) == len(n1t2["category"]) == len(n1t3["category"]) == 4
     assert (
         "biolink:Gene" in n1t1["category"]
@@ -454,7 +454,7 @@ def test_rdf_transform4():
     n1t1 = t1.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
     n1t2 = t2.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
 
-    assert n1t1["type"] == n1t2["type"] == "SO:0000704"
+    assert n1t1["type"] == n1t2["type"] == ["SO:0000704"]
     assert len(n1t1["category"]) == len(n1t2["category"]) == 4
     assert "biolink:Gene" in n1t1["category"] and "biolink:Gene" in n1t2["category"]
     assert (
@@ -486,7 +486,7 @@ def test_rdf_transform4():
     assert e1t1["object"] == e1t2["object"] == "ENSEMBL:ENSP0000000000002"
     assert e1t1["predicate"] == e1t2["predicate"] == "biolink:interacts_with"
     assert e1t1["relation"] == e1t2["relation"] == "biolink:interacts_with"
-    assert e1t1["type"] == e1t2["type"] == "biolink:Association"
+    assert e1t1["type"] == e1t2["type"] == ["biolink:Association"]
     assert e1t1["id"] == e1t2["id"] == "urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518"
     assert e1t1["fusion"] == e1t2["fusion"] == "0"
     assert e1t1["homology"] == e1t2["homology"] == "0.0"
@@ -536,7 +536,7 @@ def test_rdf_transform5():
     n1t1 = t1.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
     n1t2 = t2.store.graph.nodes()["ENSEMBL:ENSG0000000000001"]
 
-    assert n1t1["type"] == n1t2["type"] == "SO:0000704"
+    assert n1t1["type"] == n1t2["type"] == ["SO:0000704"]
     assert len(n1t1["category"]) == len(n1t2["category"]) == 4
     assert "biolink:Gene" in n1t1["category"] and "biolink:Gene" in n1t2["category"]
     assert (
@@ -568,7 +568,7 @@ def test_rdf_transform5():
     assert e1t1["object"] == e1t2["object"] == "ENSEMBL:ENSP0000000000002"
     assert e1t1["predicate"] == e1t2["predicate"] == "biolink:interacts_with"
     assert e1t1["relation"] == e1t2["relation"] == "biolink:interacts_with"
-    assert e1t1["type"] == e1t2["type"] == "biolink:Association"
+    assert e1t1["type"] == e1t2["type"] == ["biolink:Association"]
     assert e1t1["id"] == e1t2["id"] == "urn:uuid:fcf76807-f909-4ccb-b40a-3b79b49aa518"
     assert "test3.nt" in e1t1["knowledge_source"]
     assert e1t2["fusion"] == 0.0
