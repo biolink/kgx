@@ -107,21 +107,22 @@ class ErrorDetecting(object):
         :param message: message string describing the error
         :param  message_level: ValidationError MessageLevel
         """
+        pass
         # index errors by entity identifier
-        level = message_level.name
-        error = error_type.name
-        
-        # clean up entity name string...
-        entity = str(entity).strip()
+        # level = message_level.name
+        # error = error_type.name
+        #
+        # # clean up entity name string...
+        # entity = str(entity).strip()
+        #
+        # if level not in self.errors:
+        #     self.errors[level] = dict()
+        #
+        # if error not in self.errors[level]:
+        #     self.errors[level][error] = dict()
 
-        if level not in self.errors:
-            self.errors[level] = dict()
-
-        if error not in self.errors[level]:
-            self.errors[level][error] = dict()
-
-        self.errors[level][error][message] = [entity]
-        self.errors[level][error][message].append(entity)
+        # self.errors[level][error][message] = [entity]
+        # self.errors[level][error][message].append(entity)
 
     def get_errors(self, level: str = None) -> Dict:
         """
