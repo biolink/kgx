@@ -539,6 +539,7 @@ def transform(
 
         if knowledge_sources:
             for ksf, spec in knowledge_sources:
+                log.debug("ksf", ksf, "spec", spec)
                 ksf_spec = _process_knowledge_source(ksf, spec)
                 if isinstance(ksf_spec, tuple):
                     if ksf not in source_dict["input"]:
@@ -556,6 +557,7 @@ def transform(
                         )
                 else:
                     source_dict["input"][ksf] = ksf_spec
+        log.debug("source_dict", source_dict)
         name = os.path.basename(inputs[0])
         transform_source(
             key=name,

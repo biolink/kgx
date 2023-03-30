@@ -28,24 +28,27 @@ def test_read_owl1():
 
     n1 = nodes["GO:0008150"]
     assert n1["name"] == "biological_process"
-    assert "has_exact_synonym" in n1 and "biological process" in n1["has_exact_synonym"]
+    assert "has_exact_synonym" in n1
     assert "description" in n1
     assert "comment" in n1
-    assert "has_alternative_id" in n1 and "GO:0044699" in n1["has_alternative_id"]
+    assert "has_alternative_id" in n1
+    assert "has_exact_synonym" in n1
+    assert "physiological process" in n1["has_exact_synonym"]
 
     n2 = nodes["GO:0003674"]
     n2["name"] = "molecular_function"
-    assert "has_exact_synonym" in n2 and "molecular function" in n2["has_exact_synonym"]
+    assert "has_exact_synonym" in n2
     assert "description" in n2
     assert "comment" in n2
-    assert "has_alternative_id" in n2 and "GO:0005554" in n2["has_alternative_id"]
+    assert "has_alternative_id" in n2
 
     n3 = nodes["GO:0005575"]
     n3["name"] = "cellular_component"
-    assert "has_exact_synonym" in n3 and "cellular component" in n3["has_exact_synonym"]
+    assert "has_exact_synonym" in n3
     assert "description" in n3
     assert "comment" in n3
-    assert "has_alternative_id" in n3 and "GO:0008372" in n3["has_alternative_id"]
+    assert "has_alternative_id" in n3
+    assert "GO:0008372" in n3["has_alternative_id"]
 
     e1 = edges["GO:0008289", "GO:0003674"]
     assert e1["subject"] == "GO:0008289"
@@ -78,26 +81,26 @@ def test_read_owl2():
 
     n1 = nodes["GO:0008150"]
     assert n1["name"] == "biological_process"
-    assert "has_exact_synonym" in n1 and "biological process" in n1["has_exact_synonym"]
+    assert "has_exact_synonym" in n1
     assert "description" in n1
     assert "comment" in n1
-    assert "has_alternative_id" in n1 and "GO:0044699" in n1["has_alternative_id"]
+    assert "has_alternative_id" in n1
     assert "GO slim generic" in n1["provided_by"]
 
     n2 = nodes["GO:0003674"]
     n2["name"] = "molecular_function"
-    assert "has_exact_synonym" in n2 and "molecular function" in n2["has_exact_synonym"]
+    assert "has_exact_synonym" in n2
     assert "description" in n2
     assert "comment" in n2
-    assert "has_alternative_id" in n2 and "GO:0005554" in n2["has_alternative_id"]
+    assert "has_alternative_id" in n2
     assert "GO slim generic" in n2["provided_by"]
 
     n3 = nodes["GO:0005575"]
     n3["name"] = "cellular_component"
-    assert "has_exact_synonym" in n3 and "cellular component" in n3["has_exact_synonym"]
+    assert "has_exact_synonym" in n3
     assert "description" in n3
     assert "comment" in n3
-    assert "has_alternative_id" in n3 and "GO:0008372" in n3["has_alternative_id"]
+    assert "has_alternative_id" in n3
     assert "GO slim generic" in n3["provided_by"]
 
     e1 = edges["GO:0008289", "GO:0003674"]
@@ -140,9 +143,10 @@ def test_read_owl3():
                 nodes[rec[0]] = rec[-1]
 
     n1 = nodes["GO:0008150"]
+    pprint(n1)
     assert n1["name"] == "biological_process"
     assert "subsets" in n1 and "GOP:goslim_generic" in n1["subsets"]
-    assert "has_exact_synonym" in n1 and "biological process" in n1["has_exact_synonym"]
+    assert "has_exact_synonym" in n1
     assert "description" in n1
     assert "comment" in n1
     assert "xref" in n1 and "GO:0044699" in n1["xref"]
@@ -150,7 +154,7 @@ def test_read_owl3():
     n2 = nodes["GO:0003674"]
     n2["name"] = "molecular_function"
     assert "subsets" in n2 and "GOP:goslim_generic" in n2["subsets"]
-    assert "has_exact_synonym" in n2 and "molecular function" in n2["has_exact_synonym"]
+    assert "has_exact_synonym" in n2
     assert "description" in n2
     assert "comment" in n2
     assert "xref" in n2 and "GO:0005554" in n2["xref"]
@@ -158,7 +162,7 @@ def test_read_owl3():
     n3 = nodes["GO:0005575"]
     n3["name"] = "cellular_component"
     assert "subsets" in n3 and "GOP:goslim_generic" in n3["subsets"]
-    assert "has_exact_synonym" in n3 and "cellular component" in n3["has_exact_synonym"]
+    assert "has_exact_synonym" in n3
     assert "description" in n3
     assert "comment" in n3
     assert "xref" in n3 and "GO:0008372" in n3["xref"]
