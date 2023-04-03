@@ -149,7 +149,21 @@ class SqlSink(Sink):
     def finalize(self) -> None:
         self._bulk_insert(self.node_table_name, self.node_data)
         self._bulk_insert(self.edge_table_name, self.edge_data)
+        self._create_indexes()
         self.conn.close()
+
+    def _create_indexes(self):
+        c = self.conn.cursor()
+        try:
+            c.execute(f"CREATE INDEX IF NOT EXISTS node_id_index ON {self.node_table_name} (id);")
+            log.info("created index: " + f"CREATE INDEX IF NOT EXISTS node_id_index ON {self.node_table_name} (id);")
+            c.execute(f"CREATE INDEX IF NOT EXISTS edge_unique_id_index ON {self.edge_table_name} (subject, predicate, object);")
+            log.info("created index: " + f"CREATE INDEX IF NOT EXISTS edge_unique_id_index ON {self.edge_table_name} (subject, predicate, object);")
+            self.conn.commit()
+        except sqlite3.Error as e:
+            log.error(f"Error occurred while creating indexes", {e})
+            self.conn.rollback()
+        self.conn.commit()
 
     def _bulk_insert(self, table_name: str, data_list: List[Dict]):
         c = self.conn.cursor()
