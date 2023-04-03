@@ -20,6 +20,43 @@ DEFAULT_EDGE_COLUMNS = {
     "knowledge_source",
 }
 
+# initialize a plan sqlite db - done
+# create a connection - done
+
+# add denormalization options to biolink
+# create table(s) method - denormalized nodes, denormalized edges?
+# incorporate closurizer
+# load source nodes into a giant dictionary?
+
+
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except ConnectionError as e:
+        print(e)
+
+    return conn
+
+
+def close_connection(conn):
+    """ close a database connection to the SQLite database
+    :return: None
+    """
+
+    try:
+        if conn:
+            conn.close()
+    except ConnectionError as e:
+        print(e)
+
+    return conn
+
 
 class SqlSink(Sink):
     """
@@ -47,6 +84,7 @@ class SqlSink(Sink):
         super().__init__(owner)
         if format not in extension_types:
             raise Exception(f"Unsupported format: {format}")
+        self.conn = create_connection(filename)
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
         self.extension = format.split(":")[0]
@@ -77,6 +115,33 @@ class SqlSink(Sink):
         self.EFH = open(self.edges_file_name, "w")
         self.EFH.write(self.delimiter.join(self.ordered_edge_columns) + "\n")
 
+    def create_tables(self, node_table_name, edge_table_name):
+        # TODO create tables based on columns in the source generator
+        if self.ordered_node_columns:
+
+            c = self.conn.cursor()
+            # Generate the CREATE TABLE statement
+            columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
+            create_table_sql = f'CREATE TABLE {node_table_name} ({columns_str})'
+
+            # Create the table
+            c.execute(create_table_sql)
+
+            # Save the changes and close the connection
+            self.conn.commit()
+        if self.ordered_edge_columns:
+
+            c = self.conn.cursor()
+            # Generate the CREATE TABLE statement
+            columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
+            create_table_sql = f'CREATE TABLE {edge_table_name} ({columns_str})'
+
+            # Create the table
+            c.execute(create_table_sql)
+
+            # Save the changes and close the connection
+            self.conn.commit()
+
     def write_node(self, record: Dict) -> None:
         """
         Write a node record to the underlying store.
@@ -87,7 +152,7 @@ class SqlSink(Sink):
             A node record
 
         """
-        row = build_export_row(record, list_delimiter=self.list_delimiter)
+        row = build_export_row(record, list_delimiter="|")
         row["id"] = record["id"]
         values = []
         for c in self.ordered_node_columns:
@@ -226,3 +291,4 @@ class SqlSink(Sink):
         """
         self._edge_properties.update(edge_properties)
         self.ordered_edge_columns = SqlSink._order_edge_columns(self._edge_properties)
+
