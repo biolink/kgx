@@ -1,13 +1,10 @@
 import os
-import tarfile
-from typing import Optional, Dict, Set, Any, List
+from typing import Dict, Set, Any, List
 from ordered_set import OrderedSet
-
+import sqlite3
 from kgx.sink.sink import Sink
 from kgx.utils.kgx_utils import (
     extension_types,
-    archive_write_mode,
-    archive_format,
     build_export_row
 )
 
@@ -22,7 +19,6 @@ DEFAULT_EDGE_COLUMNS = {
     "category",
     "knowledge_source",
 }
-DEFAULT_LIST_DELIMITER = "|"
 
 
 class SqlSink(Sink):
@@ -51,7 +47,6 @@ class SqlSink(Sink):
         super().__init__(owner)
         if format not in extension_types:
             raise Exception(f"Unsupported format: {format}")
-        self.delimiter = extension_types[format]
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
         self.extension = format.split(":")[0]
