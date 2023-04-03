@@ -23,20 +23,8 @@ DEFAULT_EDGE_COLUMNS = {
     "knowledge_source",
 }
 
-# initialize a plan sqlite db - done
-# create a connection - done
-
-# create table(s) method - denormalized nodes, denormalized edges  - done
-
-# add denormalization options to biolink  - prefix, namespace, subject
-# incorporate closurizer, add denormalizer method?
-# add denormalization options to config
-# load source nodes and edges as tuples into a list - done
-
-# write nodes to db, finalise method - done
-# write edges to db, finalise method - done
-
-# test it
+# TODO: incorporate closurizer, add denormalizer method?
+# TODO: add denormalization options to config
 
 
 class SqlSink(Sink):

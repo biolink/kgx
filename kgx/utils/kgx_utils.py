@@ -1111,7 +1111,7 @@ def drop_existing_tables(conn):
 
         # Loop through the table names and drop each table
         for table_name in table_names:
-            drop_table_sql = f"DROP TABLE {table_name};"
+            drop_table_sql = f"DROP TABLE IF EXISTS {table_name};"
             c.execute(drop_table_sql)
 
         # Commit the changes and close the connection
