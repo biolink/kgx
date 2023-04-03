@@ -25,8 +25,8 @@ DEFAULT_EDGE_COLUMNS = {
 
 # create table(s) method - denormalized nodes, denormalized edges  - done
 
-# add denormalization options to biolink
-# incorporate closurizer, add denormalizer method
+# add denormalization options to biolink  - prefix, namespace, subject
+# incorporate closurizer, add denormalizer method?
 # add denormalization options to config
 # load source nodes and edges as tuples into a list - done
 
@@ -123,7 +123,7 @@ class SqlSink(Sink):
             A node record
 
         """
-        row = build_export_row(record, list_delimiter="|")
+        row = build_export_row(record, list_delimiter=",")
         row["id"] = record["id"]
         values = []
         for c in self.ordered_node_columns:
@@ -144,7 +144,7 @@ class SqlSink(Sink):
             An edge record
 
         """
-        row = build_export_row(record, list_delimiter="|")
+        row = build_export_row(record, list_delimiter=",")
         values = []
         for c in self.ordered_edge_columns:
             if c in row:
@@ -187,17 +187,8 @@ class SqlSink(Sink):
             An edge record
 
         """
-        add_closure(node_file=f"my-kg_nodes.tsv",
-                    edge_file=f"my-kg_edges.tsv",
-                    kg_archive=f"my-kg.tar.gz",
-                    closure_file="my-relations-non-redundant.tsv",
-                    path="output/",
-                    output_file=f"my-kg-denornalized_edges.tsv",
-                    fields=["subject", "object"])
-
-
+        # TODO implement logic to denormalize edges
         pass
-
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
