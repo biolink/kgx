@@ -59,6 +59,8 @@ class SqlSink(Sink):
         self.conn = self.create_connection(filename)
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
+        self.edge_data = []
+        self.node_data = []
         self.extension = format.split(":")[0]
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
@@ -126,11 +128,12 @@ class SqlSink(Sink):
                 values.append(str(row[c]))
             else:
                 values.append("")
-        self.NFH.write(self.delimiter.join(values) + "\n")
+        ordered_tuple = tuple(values)
+        self.edge_data.append(ordered_tuple)
 
     def write_edge(self, record: Dict) -> None:
         """
-        Write an edge record to the underlying store.
+        Write an edge record to a tuple list for bulk insert in finalize.
 
         Parameters
         ----------
@@ -145,13 +148,14 @@ class SqlSink(Sink):
                 values.append(str(row[c]))
             else:
                 values.append("")
-        self.EFH.write(self.delimiter.join(values) + "\n")
+        ordered_tuple = tuple(values)
+        self.edge_data.append(ordered_tuple)
 
     def finalize(self) -> None:
 
-        self._bulk_insert(self.conn, self.node_table_name)
-        self._bulk_insert(self.conn, self.edge_table_name)
-
+        self._bulk_insert(self.node_table_name, self.node_data)
+        self._bulk_insert(self.edge_table_name, self.edge_data)
+        self.conn.close()
 
     def _bulk_insert(self, table_name: str, data_list: List[Dict]):
         c = self.conn.cursor()
@@ -161,12 +165,13 @@ class SqlSink(Sink):
         cols = [description[0] for description in c.description]
 
         # Insert the rows into the table
-        query = f"INSERT INTO {table_name} ({','.join(cols)}) VALUES ({','.join(['?'] * len(cols))})"
-        c.executemany(query, data_list)
-
-        # Commit the changes and close the connection
-        self.conn.commit()
-        self.conn.close()
+        query = f"INSERT INTO {table_name} ({','.join(cols)}) VALUES ({','.join(['?']*len(cols))})"
+        try:
+            c.executemany(query, data_list)
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error occurred while inserting data into table: {e}")
+            self.conn.rollback()
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
