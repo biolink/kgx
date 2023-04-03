@@ -7,7 +7,7 @@ from kgx.utils.kgx_utils import (
     extension_types,
     build_export_row
 )
-
+from closurizer.closurizer import add_closure
 
 DEFAULT_NODE_COLUMNS = {"id", "name", "category", "description", "provided_by"}
 DEFAULT_EDGE_COLUMNS = {
@@ -23,14 +23,18 @@ DEFAULT_EDGE_COLUMNS = {
 # initialize a plan sqlite db - done
 # create a connection - done
 
-# add denormalization options to biolink
 # create table(s) method - denormalized nodes, denormalized edges  - done
 
-# incorporate closurizer
+# add denormalization options to biolink
+# incorporate closurizer, add denormalizer method
+# add denormalization options to config
 # load source nodes and edges as tuples into a list - done
 
 # write nodes to db, finalise method - done
 # write edges to db, finalise method - done
+
+# test it
+
 
 class SqlSink(Sink):
     """
@@ -147,6 +151,7 @@ class SqlSink(Sink):
                 values.append(str(row[c]))
             else:
                 values.append("")
+        self._denormalize_edge(row)
         ordered_tuple = tuple(values)
         self.edge_data.append(ordered_tuple)
 
@@ -171,6 +176,28 @@ class SqlSink(Sink):
         except sqlite3.Error as e:
             print(f"Error occurred while inserting data into table: {e}")
             self.conn.rollback()
+
+    def _denormalize_edge(self, row: Dict):
+        """
+        Add the denormalized node properties to the edge.
+
+        Parameters
+        ----------
+        row: Dict
+            An edge record
+
+        """
+        add_closure(node_file=f"my-kg_nodes.tsv",
+                    edge_file=f"my-kg_edges.tsv",
+                    kg_archive=f"my-kg.tar.gz",
+                    closure_file="my-relations-non-redundant.tsv",
+                    path="output/",
+                    output_file=f"my-kg-denornalized_edges.tsv",
+                    fields=["subject", "object"])
+
+
+        pass
+
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
