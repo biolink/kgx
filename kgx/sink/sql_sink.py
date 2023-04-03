@@ -144,7 +144,7 @@ class SqlSink(Sink):
             An edge record
 
         """
-        row = build_export_row(record, list_delimiter=self.list_delimiter)
+        row = build_export_row(record, list_delimiter="|")
         values = []
         for c in self.ordered_edge_columns:
             if c in row:
