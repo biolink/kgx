@@ -6,7 +6,6 @@ from kgx.transformer import Transformer
 from tests import TARGET_DIR
 from kgx.utils.kgx_utils import create_connection, drop_existing_tables
 
-
 NAMED_THING = "biolink:NamedThing"
 SUBCLASS_OF = "biolink:sub_class_of"
 
