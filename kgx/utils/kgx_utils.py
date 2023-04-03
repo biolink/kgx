@@ -1098,3 +1098,25 @@ def close_connection(conn):
         print(e)
 
     return conn
+
+
+def drop_existing_tables(conn):
+    try:
+        # Get a cursor object
+        c = conn.cursor()
+
+        # Get a list of all tables in the database
+        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        table_names = [row[0] for row in c.fetchall()]
+
+        # Loop through the table names and drop each table
+        for table_name in table_names:
+            drop_table_sql = f"DROP TABLE {table_name};"
+            c.execute(drop_table_sql)
+
+        # Commit the changes and close the connection
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while removing all tables and data from the SQLite database: {e}")
+

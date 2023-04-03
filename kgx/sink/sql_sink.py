@@ -1,4 +1,4 @@
-import os
+
 from typing import Dict, Set, Any, List
 from ordered_set import OrderedSet
 import sqlite3
@@ -9,7 +9,9 @@ from kgx.utils.kgx_utils import (
     create_connection
 )
 from closurizer.closurizer import add_closure
+from kgx.config import get_logger
 
+log = get_logger()
 DEFAULT_NODE_COLUMNS = {"id", "name", "category", "description", "provided_by"}
 DEFAULT_EDGE_COLUMNS = {
     "id",
@@ -88,20 +90,17 @@ class SqlSink(Sink):
         self.create_tables()
 
     def create_tables(self):
-        print("trying to create tables")
-        print("self.ordered_node_columns: ", self.ordered_node_columns)
-        print("self.ordered_edge_columns: ", self.ordered_edge_columns)
         # Create the nodes table if it does not already exist
         try:
             if self.ordered_node_columns:
                 c = self.conn.cursor()
                 columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
                 create_table_sql = f'CREATE TABLE IF NOT EXISTS {self.node_table_name} ({columns_str});'
-                print(create_table_sql)
+                log.info(create_table_sql)
                 c.execute(create_table_sql)
                 self.conn.commit()
         except sqlite3.Error as e:
-            print(f"Error occurred while creating nodes table: {e}")
+            log.error(f"Error occurred while creating nodes table: {e}", "rolling back")
             self.conn.rollback()
 
         # Create the edges table if it does not already exist
@@ -113,7 +112,7 @@ class SqlSink(Sink):
                 c.execute(create_table_sql)
                 self.conn.commit()
         except sqlite3.Error as e:
-            print(f"Error occurred while creating edges table: {e}")
+            log.error(f"Error occurred while creating edges table: {e}", "rolling back")
             self.conn.rollback()
         self.conn.commit()
 
@@ -170,7 +169,6 @@ class SqlSink(Sink):
         # Get the column names in the order they appear in the table
         c.execute(f"SELECT * FROM {table_name}")
         cols = [description[0] for description in c.description]
-        print(cols)
 
         # Insert the rows into the table
         query = f"INSERT INTO {table_name} ({','.join(cols)}) VALUES ({','.join(['?']*len(cols))})"
@@ -178,7 +176,7 @@ class SqlSink(Sink):
             c.executemany(query, data_list)
             self.conn.commit()
         except sqlite3.Error as e:
-            print(f"Error occurred while inserting data into table: {e}")
+            log.error(f"Error occurred while inserting data into table: {e}")
             self.conn.rollback()
 
     def _denormalize_edge(self, row: Dict):

@@ -4,7 +4,7 @@ from kgx.graph.nx_graph import NxGraph
 from kgx.sink import SqlSink
 from kgx.transformer import Transformer
 from tests import TARGET_DIR
-from kgx.utils.kgx_utils import create_connection
+from kgx.utils.kgx_utils import create_connection, drop_existing_tables
 
 
 NAMED_THING = "biolink:NamedThing"
@@ -15,6 +15,9 @@ def test_write_sqlite():
     """
     Write a graph to a sqlite db file using SqlSink.
     """
+    conn = create_connection(os.path.join(TARGET_DIR, "test_graph.db"))
+    drop_existing_tables(conn)
+
     graph = NxGraph()
     graph.add_node("A", id="A", **{"name": "Node A", "category": [NAMED_THING, "biolink:Gene"]})
     graph.add_node("B", id="B", **{"name": "Node B", "category": [NAMED_THING]})
@@ -55,17 +58,16 @@ def test_write_sqlite():
         s.write_edge(data)
     s.finalize()
 
-    conn = create_connection(os.path.join(TARGET_DIR, "test_graph.db"))
     cur = conn.cursor()
     sql_query = """SELECT name FROM sqlite_master  
       WHERE type='table';"""
     cur.execute(sql_query)
     tables = cur.fetchall()
-    print(tables)
+    assert len(tables) == 2
     cur.execute("SELECT count(*) FROM nodes")
     number_of_nodes = cur.fetchone()[0]
-    print(number_of_nodes)
+    assert number_of_nodes == 6
 
     cur.execute("SELECT count(*) FROM edges")
     number_of_edges = cur.fetchone()[0]
-    print(number_of_edges)
+    assert number_of_edges == 6
