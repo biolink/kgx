@@ -5,7 +5,8 @@ import sqlite3
 from kgx.sink.sink import Sink
 from kgx.utils.kgx_utils import (
     extension_types,
-    build_export_row
+    build_export_row,
+    create_connection
 )
 from closurizer.closurizer import add_closure
 
@@ -62,14 +63,10 @@ class SqlSink(Sink):
         super().__init__(owner)
         if format not in extension_types:
             raise Exception(f"Unsupported format: {format}")
-        self.conn = self.create_connection(filename)
-        self.dirname = os.path.abspath(os.path.dirname(filename))
-        self.basename = os.path.basename(filename)
+        self.conn = create_connection(filename)
         self.edge_data = []
         self.node_data = []
-        self.extension = format.split(":")[0]
-        if self.dirname:
-            os.makedirs(self.dirname, exist_ok=True)
+        self.filename = filename
         if "node_properties" in kwargs:
             self.node_properties.update(set(kwargs["node_properties"]))
         else:
@@ -86,15 +83,21 @@ class SqlSink(Sink):
             self.node_table_name = "nodes"
         if "edge_table_name" in kwargs:
             self.edge_table_name = kwargs["edge_table_name"]
+        else:
+            self.edge_table_name = "edges"
+        self.create_tables()
 
     def create_tables(self):
-
+        print("trying to create tables")
+        print("self.ordered_node_columns: ", self.ordered_node_columns)
+        print("self.ordered_edge_columns: ", self.ordered_edge_columns)
         # Create the nodes table if it does not already exist
         try:
             if self.ordered_node_columns:
                 c = self.conn.cursor()
                 columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
-                create_table_sql = f'CREATE TABLE {self.node_table_name} ({columns_str})'
+                create_table_sql = f'CREATE TABLE IF NOT EXISTS {self.node_table_name} ({columns_str});'
+                print(create_table_sql)
                 c.execute(create_table_sql)
                 self.conn.commit()
         except sqlite3.Error as e:
@@ -106,12 +109,13 @@ class SqlSink(Sink):
             if self.ordered_edge_columns:
                 c = self.conn.cursor()
                 columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
-                create_table_sql = f'CREATE TABLE {self.edge_table_name} ({columns_str})'
+                create_table_sql = f'CREATE TABLE IF NOT EXISTS {self.edge_table_name} ({columns_str});'
                 c.execute(create_table_sql)
                 self.conn.commit()
         except sqlite3.Error as e:
             print(f"Error occurred while creating edges table: {e}")
             self.conn.rollback()
+        self.conn.commit()
 
     def write_node(self, record: Dict) -> None:
         """
@@ -132,7 +136,7 @@ class SqlSink(Sink):
             else:
                 values.append("")
         ordered_tuple = tuple(values)
-        self.edge_data.append(ordered_tuple)
+        self.node_data.append(ordered_tuple)
 
     def write_edge(self, record: Dict) -> None:
         """
@@ -156,7 +160,6 @@ class SqlSink(Sink):
         self.edge_data.append(ordered_tuple)
 
     def finalize(self) -> None:
-
         self._bulk_insert(self.node_table_name, self.node_data)
         self._bulk_insert(self.edge_table_name, self.edge_data)
         self.conn.close()
@@ -167,6 +170,7 @@ class SqlSink(Sink):
         # Get the column names in the order they appear in the table
         c.execute(f"SELECT * FROM {table_name}")
         cols = [description[0] for description in c.description]
+        print(cols)
 
         # Insert the rows into the table
         query = f"INSERT INTO {table_name} ({','.join(cols)}) VALUES ({','.join(['?']*len(cols))})"
@@ -267,35 +271,6 @@ class SqlSink(Sink):
         ordered_columns.update(sorted(remaining_columns))
         ordered_columns.update(sorted(internal_columns))
         return ordered_columns
-
-    @staticmethod
-    def create_connection(db_file):
-        """ create a database connection to the SQLite database
-            specified by db_file
-        :param db_file: database file
-        :return: Connection object or None
-        """
-        conn = None
-        try:
-            conn = sqlite3.connect(db_file)
-        except ConnectionError as e:
-            print(e)
-
-        return conn
-
-    @staticmethod
-    def close_connection(conn):
-        """ close a database connection to the SQLite database
-        :return: None
-        """
-
-        try:
-            if conn:
-                conn.close()
-        except ConnectionError as e:
-            print(e)
-
-        return conn
 
     def set_node_properties(self, node_properties: List) -> None:
         """

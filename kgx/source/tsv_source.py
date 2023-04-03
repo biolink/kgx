@@ -5,7 +5,6 @@ from typing import Dict, Tuple, Any, Generator, Optional, List
 import pandas as pd
 
 from kgx.config import get_logger
-from kgx.error_detection import ErrorType, MessageLevel
 from kgx.source.source import Source
 from kgx.utils.kgx_utils import (
     generate_uuid,
