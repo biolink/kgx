@@ -24,38 +24,10 @@ DEFAULT_EDGE_COLUMNS = {
 # create a connection - done
 
 # add denormalization options to biolink
-# create table(s) method - denormalized nodes, denormalized edges?
+# create table(s) method - denormalized nodes, denormalized edges  - done
+
 # incorporate closurizer
 # load source nodes into a giant dictionary?
-
-
-def create_connection(db_file):
-    """ create a database connection to the SQLite database
-        specified by db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except ConnectionError as e:
-        print(e)
-
-    return conn
-
-
-def close_connection(conn):
-    """ close a database connection to the SQLite database
-    :return: None
-    """
-
-    try:
-        if conn:
-            conn.close()
-    except ConnectionError as e:
-        print(e)
-
-    return conn
 
 
 class SqlSink(Sink):
@@ -84,13 +56,10 @@ class SqlSink(Sink):
         super().__init__(owner)
         if format not in extension_types:
             raise Exception(f"Unsupported format: {format}")
-        self.conn = create_connection(filename)
+        self.conn = self.create_connection(filename)
         self.dirname = os.path.abspath(os.path.dirname(filename))
         self.basename = os.path.basename(filename)
         self.extension = format.split(":")[0]
-        self.mode = None
-        self.nodes_file_basename = f"{self.basename}_nodes.{self.extension}"
-        self.edges_file_basename = f"{self.basename}_edges.{self.extension}"
         if self.dirname:
             os.makedirs(self.dirname, exist_ok=True)
         if "node_properties" in kwargs:
@@ -103,38 +72,35 @@ class SqlSink(Sink):
             self.edge_properties.update(DEFAULT_EDGE_COLUMNS)
         self.ordered_node_columns = SqlSink._order_node_columns(self.node_properties)
         self.ordered_edge_columns = SqlSink._order_edge_columns(self.edge_properties)
+        if "node_table_name" in kwargs:
+            self.node_table_name = kwargs["node_table_name"]
+        else:
+            self.node_table_name = "nodes"
+        if "edge_table_name" in kwargs:
+            self.edge_table_name = kwargs["edge_table_name"]
 
-        self.nodes_file_name = os.path.join(
-            self.dirname if self.dirname else "", self.nodes_file_basename
-        )
-        self.NFH = open(self.nodes_file_name, "w")
-        self.NFH.write(self.delimiter.join(self.ordered_node_columns) + "\n")
-        self.edges_file_name = os.path.join(
-            self.dirname if self.dirname else "", self.edges_file_basename
-        )
-        self.EFH = open(self.edges_file_name, "w")
-        self.EFH.write(self.delimiter.join(self.ordered_edge_columns) + "\n")
+    def create_tables(self):
 
-    def create_tables(self, node_table_name, edge_table_name):
-        # TODO create tables based on columns in the source generator
         if self.ordered_node_columns:
 
             c = self.conn.cursor()
             # Generate the CREATE TABLE statement
             columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
-            create_table_sql = f'CREATE TABLE {node_table_name} ({columns_str})'
+            create_table_sql = f'CREATE TABLE {self.node_table_name} ({columns_str})'
 
             # Create the table
             c.execute(create_table_sql)
 
             # Save the changes and close the connection
+
             self.conn.commit()
+
         if self.ordered_edge_columns:
 
             c = self.conn.cursor()
             # Generate the CREATE TABLE statement
             columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
-            create_table_sql = f'CREATE TABLE {edge_table_name} ({columns_str})'
+            create_table_sql = f'CREATE TABLE {self.edge_table_name} ({columns_str})'
 
             # Create the table
             c.execute(create_table_sql)
@@ -182,11 +148,25 @@ class SqlSink(Sink):
         self.EFH.write(self.delimiter.join(values) + "\n")
 
     def finalize(self) -> None:
-        """
-        Close file handles and create an archive if compression mode is defined.
-        """
-        self.NFH.close()
-        self.EFH.close()
+
+        self._bulk_insert(self.conn, self.node_table_name)
+        self._bulk_insert(self.conn, self.edge_table_name)
+
+
+    def _bulk_insert(self, table_name: str, data_list: List[Dict]):
+        c = self.conn.cursor()
+
+        # Get the column names in the order they appear in the table
+        c.execute(f"SELECT * FROM {table_name}")
+        cols = [description[0] for description in c.description]
+
+        # Insert the rows into the table
+        query = f"INSERT INTO {table_name} ({','.join(cols)}) VALUES ({','.join(['?'] * len(cols))})"
+        c.executemany(query, data_list)
+
+        # Commit the changes and close the connection
+        self.conn.commit()
+        self.conn.close()
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
@@ -292,3 +272,31 @@ class SqlSink(Sink):
         self._edge_properties.update(edge_properties)
         self.ordered_edge_columns = SqlSink._order_edge_columns(self._edge_properties)
 
+    @staticmethod
+    def create_connection(db_file):
+        """ create a database connection to the SQLite database
+            specified by db_file
+        :param db_file: database file
+        :return: Connection object or None
+        """
+        conn = None
+        try:
+            conn = sqlite3.connect(db_file)
+        except ConnectionError as e:
+            print(e)
+
+        return conn
+
+    @staticmethod
+    def close_connection(conn):
+        """ close a database connection to the SQLite database
+        :return: None
+        """
+
+        try:
+            if conn:
+                conn.close()
+        except ConnectionError as e:
+            print(e)
+
+        return conn
