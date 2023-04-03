@@ -85,32 +85,29 @@ class SqlSink(Sink):
 
     def create_tables(self):
 
-        if self.ordered_node_columns:
+        # Create the nodes table if it does not already exist
+        try:
+            if self.ordered_node_columns:
+                c = self.conn.cursor()
+                columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
+                create_table_sql = f'CREATE TABLE {self.node_table_name} ({columns_str})'
+                c.execute(create_table_sql)
+                self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error occurred while creating nodes table: {e}")
+            self.conn.rollback()
 
-            c = self.conn.cursor()
-            # Generate the CREATE TABLE statement
-            columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_node_columns])
-            create_table_sql = f'CREATE TABLE {self.node_table_name} ({columns_str})'
-
-            # Create the table
-            c.execute(create_table_sql)
-
-            # Save the changes and close the connection
-
-            self.conn.commit()
-
-        if self.ordered_edge_columns:
-
-            c = self.conn.cursor()
-            # Generate the CREATE TABLE statement
-            columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
-            create_table_sql = f'CREATE TABLE {self.edge_table_name} ({columns_str})'
-
-            # Create the table
-            c.execute(create_table_sql)
-
-            # Save the changes and close the connection
-            self.conn.commit()
+        # Create the edges table if it does not already exist
+        try:
+            if self.ordered_edge_columns:
+                c = self.conn.cursor()
+                columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
+                create_table_sql = f'CREATE TABLE {self.edge_table_name} ({columns_str})'
+                c.execute(create_table_sql)
+                self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error occurred while creating edges table: {e}")
+            self.conn.rollback()
 
     def write_node(self, record: Dict) -> None:
         """
