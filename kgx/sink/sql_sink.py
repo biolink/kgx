@@ -27,8 +27,10 @@ DEFAULT_EDGE_COLUMNS = {
 # create table(s) method - denormalized nodes, denormalized edges  - done
 
 # incorporate closurizer
-# load source nodes into a giant dictionary?
+# load source nodes and edges as tuples into a list - done
 
+# write nodes to db, finalise method - done
+# write edges to db, finalise method - done
 
 class SqlSink(Sink):
     """
@@ -251,32 +253,6 @@ class SqlSink(Sink):
         ordered_columns.update(sorted(internal_columns))
         return ordered_columns
 
-    def set_node_properties(self, node_properties: List) -> None:
-        """
-        Update node properties index with a given list.
-
-        Parameters
-        ----------
-        node_properties: List
-            A list of node properties
-
-        """
-        self._node_properties.update(node_properties)
-        self.ordered_node_columns = SqlSink._order_node_columns(self._node_properties)
-
-    def set_edge_properties(self, edge_properties: List) -> None:
-        """
-        Update edge properties index with a given list.
-
-        Parameters
-        ----------
-        edge_properties: List
-            A list of edge properties
-
-        """
-        self._edge_properties.update(edge_properties)
-        self.ordered_edge_columns = SqlSink._order_edge_columns(self._edge_properties)
-
     @staticmethod
     def create_connection(db_file):
         """ create a database connection to the SQLite database
@@ -305,3 +281,29 @@ class SqlSink(Sink):
             print(e)
 
         return conn
+
+    def set_node_properties(self, node_properties: List) -> None:
+        """
+        Update node properties index with a given list.
+
+        Parameters
+        ----------
+        node_properties: List
+            A list of node properties
+
+        """
+        self._node_properties.update(node_properties)
+        self.ordered_node_columns = SqlSink._order_node_columns(self._node_properties)
+
+    def set_edge_properties(self, edge_properties: List) -> None:
+        """
+        Update edge properties index with a given list.
+
+        Parameters
+        ----------
+        edge_properties: List
+            A list of edge properties
+
+        """
+        self._edge_properties.update(edge_properties)
+        self.ordered_edge_columns = SqlSink._order_edge_columns(self._edge_properties)
