@@ -52,6 +52,7 @@ recommonmark = "*"
 tox = "^3.0"
 bmt = "^1.0.5"
 inflection = "^0.5.1"
+closurizer = "^0.1.7"
 
 [tool.poetry-dynamic-versioning]
 enable = true

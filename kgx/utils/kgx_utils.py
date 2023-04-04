@@ -2,6 +2,7 @@ import importlib
 import re
 import time
 import uuid
+import sqlite3
 from enum import Enum
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
@@ -68,7 +69,7 @@ column_types.update(provenance_slot_types)
 
 knowledge_provenance_properties = set(provenance_slot_types.keys())
 
-extension_types = {"csv": ",", "tsv": "\t", "csv:neo4j": ",", "tsv:neo4j": "\t"}
+extension_types = {"csv": ",", "tsv": "\t", "csv:neo4j": ",", "tsv:neo4j": "\t", "sql": "|"}
 
 archive_read_mode = {"tar": "r", "tar.gz": "r:gz", "tar.bz2": "r:bz2"}
 archive_write_mode = {"tar": "w", "tar.gz": "w:gz", "tar.bz2": "w:bz2"}
@@ -1068,3 +1069,54 @@ def apply_graph_operations(graph: BaseGraph, operations: List) -> None:
         function_name = op_name.split(".")[-1]
         f = getattr(importlib.import_module(module_name), function_name)
         f(graph, **op_args)
+
+
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except ConnectionError as e:
+        print(e)
+
+    return conn
+
+
+def close_connection(conn):
+    """ close a database connection to the SQLite database
+    :return: None
+    """
+
+    try:
+        if conn:
+            conn.close()
+    except ConnectionError as e:
+        print(e)
+
+    return conn
+
+
+def drop_existing_tables(conn):
+    try:
+        # Get a cursor object
+        c = conn.cursor()
+
+        # Get a list of all tables in the database
+        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        table_names = [row[0] for row in c.fetchall()]
+
+        # Loop through the table names and drop each table
+        for table_name in table_names:
+            drop_table_sql = f"DROP TABLE IF EXISTS {table_name};"
+            c.execute(drop_table_sql)
+
+        # Commit the changes and close the connection
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while removing all tables and data from the SQLite database: {e}")
+
