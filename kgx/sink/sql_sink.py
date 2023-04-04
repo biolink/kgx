@@ -79,6 +79,8 @@ class SqlSink(Sink):
             self.edge_table_name = "edges"
         if "denormalize" in kwargs:
             self.denormalize = kwargs["denormalize"]
+        else:
+            self.denormalize = False
         self.create_tables()
 
     def create_tables(self):
