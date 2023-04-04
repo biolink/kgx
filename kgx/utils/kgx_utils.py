@@ -69,7 +69,7 @@ column_types.update(provenance_slot_types)
 
 knowledge_provenance_properties = set(provenance_slot_types.keys())
 
-extension_types = {"csv": ",", "tsv": "\t", "csv:neo4j": ",", "tsv:neo4j": "\t", "sql": ","}
+extension_types = {"csv": ",", "tsv": "\t", "csv:neo4j": ",", "tsv:neo4j": "\t", "sql": "|"}
 
 archive_read_mode = {"tar": "r", "tar.gz": "r:gz", "tar.bz2": "r:bz2"}
 archive_write_mode = {"tar": "w", "tar.gz": "w:gz", "tar.bz2": "w:bz2"}

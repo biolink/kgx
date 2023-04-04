@@ -144,7 +144,7 @@ web = ["bootstrap-flask (<=2.0.0)", "flasgger", "flask", "markdown", "pyyaml", "
 
 [[package]]
 name = "bmt"
-version = "1.0.7"
+version = "1.0.9"
 description = "Biolink Model Toolkit: A Python API for working with the Biolink Model"
 category = "main"
 optional = false
@@ -2277,8 +2277,8 @@ bioregistry = [
     {file = "bioregistry-0.6.99.tar.gz", hash = "sha256:22bc981f39c5aaa1a5430d695728a6dade6edcbfb0abbc2e42b4013a9fe4102b"},
 ]
 bmt = [
-    {file = "bmt-1.0.7-py3-none-any.whl", hash = "sha256:783bc0bc43b012d8ffbbe8f94945922d8f86d0faa2b5e1be9d194f567e37e24e"},
-    {file = "bmt-1.0.7.tar.gz", hash = "sha256:5338473d87dbb24a146fce4f8cb5588d4b6e2ebbf4021311445eade9d0c7276f"},
+    {file = "bmt-1.0.9-py3-none-any.whl", hash = "sha256:7c0ee140e4bdce9b7695f6b1f1e2fdcf061bb9ef640c46c4819e374aff428237"},
+    {file = "bmt-1.0.9.tar.gz", hash = "sha256:e4df53a54f29d3f302ab445a1952129d1c06716b87e87a5db8f459f09dd685cf"},
 ]
 cachetools = [
     {file = "cachetools-5.3.0-py3-none-any.whl", hash = "sha256:429e1a1e845c008ea6c85aa35d4b98b65d6a9763eeef3e37e92728a12d1de9d4"},

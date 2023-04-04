@@ -6,7 +6,9 @@ from kgx.sink.sink import Sink
 from kgx.utils.kgx_utils import (
     extension_types,
     build_export_row,
-    create_connection
+    create_connection,
+    get_toolkit,
+    sentencecase_to_snakecase,
 )
 from closurizer.closurizer import add_closure
 from kgx.config import get_logger
@@ -75,6 +77,8 @@ class SqlSink(Sink):
             self.edge_table_name = kwargs["edge_table_name"]
         else:
             self.edge_table_name = "edges"
+        if "denormalize" in kwargs:
+            self.denormalize = kwargs["denormalize"]
         self.create_tables()
 
     def create_tables(self):
@@ -94,6 +98,11 @@ class SqlSink(Sink):
         # Create the edges table if it does not already exist
         try:
             if self.ordered_edge_columns:
+                if self.denormalize:
+                    tk = get_toolkit()
+                    denormalized_slots = tk.get_denormalized_association_slots(formatted=False)
+                    for slot in denormalized_slots:
+                        self.ordered_edge_columns.append(sentencecase_to_snakecase(slot))
                 c = self.conn.cursor()
                 columns_str = ', '.join([f'{column} TEXT' for column in self.ordered_edge_columns])
                 create_table_sql = f'CREATE TABLE IF NOT EXISTS {self.edge_table_name} ({columns_str});'
@@ -135,14 +144,15 @@ class SqlSink(Sink):
             An edge record
 
         """
-        row = build_export_row(record, list_delimiter=",")
+        row = build_export_row(record, list_delimiter="|")
+        if self.denormalize:
+            self._denormalize_edge(row)
         values = []
         for c in self.ordered_edge_columns:
             if c in row:
                 values.append(str(row[c]))
             else:
                 values.append("")
-        self._denormalize_edge(row)
         ordered_tuple = tuple(values)
         self.edge_data.append(ordered_tuple)
 
@@ -181,7 +191,7 @@ class SqlSink(Sink):
             log.error(f"Error occurred while inserting data into table: {e}")
             self.conn.rollback()
 
-    def _denormalize_edge(self, row: Dict):
+    def _denormalize_edge(self, row: dict):
         """
         Add the denormalized node properties to the edge.
 
@@ -191,8 +201,9 @@ class SqlSink(Sink):
             An edge record
 
         """
-        # TODO implement logic to denormalize edges
         pass
+        # subject = row['subject']
+        # print(self.node_properties)
 
     @staticmethod
     def _order_node_columns(cols: Set) -> OrderedSet:
