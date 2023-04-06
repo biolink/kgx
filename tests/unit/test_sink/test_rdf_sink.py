@@ -11,7 +11,7 @@ from tests.unit.test_sink import get_graph
 
 def test_write_rdf1():
     """
-    Write a graph as RDF N-Triples using RdfSink.
+    Write a graph as RDF N-Triples using RdfSink without reifying all edges.
     """
     graph = get_graph()
     filename = os.path.join(TARGET_DIR, "test_graph1.nt")
@@ -33,7 +33,7 @@ def test_write_rdf1():
 
 def test_write_rdf2():
     """
-    Write a graph as a compressed RDF N-Triples using RdfSink.
+    Write a graph as a compressed RDF N-Triples using RdfSink, without reifying all edges.
     """
     graph = get_graph()
     filename = os.path.join(TARGET_DIR, "test_graph2.nt.gz")
