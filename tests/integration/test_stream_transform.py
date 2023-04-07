@@ -446,8 +446,8 @@ def test_transform4(query):
                 "format": "owl",
             },
             {"filename": os.path.join(TARGET_DIR, "graph2s5"), "format": "jsonl"},
-            220,
-            1050,
+            221,
+            1052,
         ),
         (
             {
