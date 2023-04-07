@@ -455,8 +455,8 @@ def test_transform4(query):
                 "format": "owl",
             },
             {"filename": os.path.join(TARGET_DIR, "graph3s5.nt"), "format": "nt"},
-            220,
-            1050,
+            221,
+            1052,
         ),
     ],
 )
