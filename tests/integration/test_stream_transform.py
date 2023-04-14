@@ -72,10 +72,10 @@ def _transform(query):
     t2.transform(input_args)
 
     print("query[0]", query[0])
-    print("number of nodes: ", t2.store.graph.number_of_nodes(), "expected: ", query[2])
-    print("number of edges: ", t2.store.graph.number_of_edges(), "expected: ", query[3])
-    assert t2.store.graph.number_of_nodes() == query[2]
-    assert t2.store.graph.number_of_edges() == query[3]
+    print("number of nodes: ", t2.store.graph.number_of_nodes(), "expected: ", query[4])
+    print("number of edges: ", t2.store.graph.number_of_edges(), "expected: ", query[5])
+    assert t2.store.graph.number_of_nodes() == query[4]
+    assert t2.store.graph.number_of_edges() == query[5]
 
 
 def _stream_transform(query):
@@ -128,6 +128,8 @@ def _stream_transform(query):
             {"filename": os.path.join(TARGET_DIR, "graph1.json"), "format": "json"},
             512,
             531,
+            512,
+            531,
         ),
         (
             {
@@ -138,6 +140,8 @@ def _stream_transform(query):
                 "format": "tsv",
             },
             {"filename": os.path.join(TARGET_DIR, "graph2"), "format": "jsonl"},
+            512,
+            531,
             512,
             531,
         ),
@@ -153,6 +157,8 @@ def _stream_transform(query):
             {"filename": os.path.join(TARGET_DIR, "graph3.nt"), "format": "nt"},
             512,
             531,
+            512,
+            531,
         ),
         (
             {
@@ -164,6 +170,8 @@ def _stream_transform(query):
                 "node_filters": {"category": {"biolink:Gene"}},
             },
             {"filename": os.path.join(TARGET_DIR, "graph4"), "format": "jsonl"},
+            178,
+            177,
             178,
             177,
         ),
@@ -178,6 +186,8 @@ def _stream_transform(query):
                 "edge_filters": {"predicate": {"biolink:interacts_with"}},
             },
             {"filename": os.path.join(TARGET_DIR, "graph5"), "format": "jsonl"},
+            178,
+            165,
             178,
             165,
         ),
@@ -195,6 +205,8 @@ def _stream_transform(query):
                 },
             },
             {"filename": os.path.join(TARGET_DIR, "graph6"), "format": "jsonl"},
+            133,
+            13,
             133,
             13,
         ),
@@ -226,16 +238,23 @@ def test_transform1(query):
             },
             512,
             532,
+            512,
+            532,
+
         ),
         (
             {"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
             {"filename": os.path.join(TARGET_DIR, "graph2s2"), "format": "jsonl"},
             512,
             532,
+            512,
+            532,
         ),
         (
             {"filename": [os.path.join(RESOURCE_DIR, "graph.json")], "format": "json"},
             {"filename": os.path.join(TARGET_DIR, "graph3s2.nt"), "format": "nt"},
+            512,
+            532,
             512,
             532,
         ),
@@ -250,6 +269,8 @@ def test_transform1(query):
                 },
             },
             {"filename": os.path.join(TARGET_DIR, "graph4s2"), "format": "jsonl"},
+            133,
+            13,
             133,
             13,
         ),
@@ -294,6 +315,8 @@ def test_transform2(query):
             },
             7,
             6,
+            7,
+            6,
         ),
         (
             {
@@ -303,6 +326,8 @@ def test_transform2(query):
             {"filename": os.path.join(TARGET_DIR, "graph2s3.json"), "format": "json"},
             7,
             6,
+            7,
+            6,
         ),
         (
             {
@@ -310,6 +335,8 @@ def test_transform2(query):
                 "format": "nt",
             },
             {"filename": os.path.join(TARGET_DIR, "graph3s3"), "format": "jsonl"},
+            7,
+            6,
             7,
             6,
         ),
@@ -324,6 +351,8 @@ def test_transform2(query):
                 },
             },
             {"filename": os.path.join(TARGET_DIR, "graph4s3"), "format": "jsonl"},
+            6,
+            3,
             6,
             3,
         ),
@@ -364,6 +393,8 @@ def test_transform3(query):
             },
             176,
             205,
+            176,
+            205,
         ),
         (
             {
@@ -374,6 +405,8 @@ def test_transform3(query):
                 "filename": os.path.join(TARGET_DIR, "graph2s4"),
                 "format": "jsonl",
             },
+            176,
+            205,
             176,
             205,
         ),
@@ -388,6 +421,8 @@ def test_transform3(query):
             },
             176,
             205,
+            176,
+            205,
         ),
         (
             {
@@ -399,6 +434,8 @@ def test_transform3(query):
                 },
             },
             {"filename": os.path.join(TARGET_DIR, "graph4s4"), "format": "jsonl"},
+            72,
+            73,
             72,
             73,
         ),
@@ -439,6 +476,8 @@ def test_transform4(query):
             },
             220,
             1050,
+            220,
+            1050,
         ),
         (
             {
@@ -446,6 +485,8 @@ def test_transform4(query):
                 "format": "owl",
             },
             {"filename": os.path.join(TARGET_DIR, "graph2s5"), "format": "jsonl"},
+            220,
+            1050,
             220,
             1050,
         ),
@@ -457,6 +498,8 @@ def test_transform4(query):
             {"filename": os.path.join(TARGET_DIR, "graph3s5.nt"), "format": "nt"},
             220,
             1050,
+            221,
+            1052,
         ),
     ],
 )
@@ -495,6 +538,8 @@ def test_transform5(query):
             },
             4,
             3,
+            4,
+            3,
         ),
         (
                 {
@@ -505,6 +550,8 @@ def test_transform5(query):
                     "filename": os.path.join(TARGET_DIR, "graph2s6.json"),
                     "format": "json",
                 },
+                4,
+                3,
                 4,
                 3,
         ),
@@ -519,6 +566,8 @@ def test_transform5(query):
                 },
                 4,
                 3,
+                4,
+                3,
         ),
         (
                 {
@@ -531,6 +580,8 @@ def test_transform5(query):
                 },
                 4,
                 3,
+                4,
+                3,
         ),
         (
                 {
@@ -541,6 +592,8 @@ def test_transform5(query):
                     },
                 },
                 {"filename": os.path.join(TARGET_DIR, "graph5s6"), "format": "jsonl"},
+                2,
+                0,
                 2,
                 0,
         ),

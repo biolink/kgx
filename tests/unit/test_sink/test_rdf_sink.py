@@ -11,13 +11,13 @@ from tests.unit.test_sink import get_graph
 
 def test_write_rdf1():
     """
-    Write a graph as RDF N-Triples using RdfSink.
+    Write a graph as RDF N-Triples using RdfSink without reifying all edges.
     """
     graph = get_graph()
     filename = os.path.join(TARGET_DIR, "test_graph1.nt")
 
     t = Transformer()
-    s = RdfSink(owner=t, filename=filename)
+    s = RdfSink(owner=t, filename=filename, reify_all_edges=False)
 
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -33,13 +33,13 @@ def test_write_rdf1():
 
 def test_write_rdf2():
     """
-    Write a graph as a compressed RDF N-Triples using RdfSink.
+    Write a graph as a compressed RDF N-Triples using RdfSink, without reifying all edges.
     """
     graph = get_graph()
     filename = os.path.join(TARGET_DIR, "test_graph2.nt.gz")
 
     t = Transformer()
-    s = RdfSink(owner=t, filename=filename, compression=True)
+    s = RdfSink(owner=t, filename=filename, compression=True, reify_all_edges=False)
 
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -61,7 +61,7 @@ def test_write_rdf3():
     filename = os.path.join(TARGET_DIR, "test_graph3.nt")
 
     t = Transformer()
-    s = RdfSink(owner=t, filename=filename, reify_all_edges=True)
+    s = RdfSink(owner=t, filename=filename)
 
     for n, data in graph.nodes(data=True):
         s.write_node(data)

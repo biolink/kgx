@@ -1074,7 +1074,7 @@ def prepare_output_args(
             output_args["reify_all_edges"] = (
                 source["output"]["reify_all_edges"]
                 if "reify_all_edges" in source["output"]
-                else False
+                else True
             )
             output_args["reverse_prefix_map"] = source_reverse_prefix_map
             output_args[

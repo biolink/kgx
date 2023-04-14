@@ -59,7 +59,7 @@ class RdfSink(Sink):
         filename: str,
         format: str = "nt",
         compression: Optional[bool] = None,
-        reify_all_edges: bool = False,
+        reify_all_edges: bool = True,
         **kwargs: Any,
     ):
         super().__init__(owner)
