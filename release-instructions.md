@@ -1,23 +1,6 @@
 
 ### Select a new semantic version for the release
 
-### Update Dockerfile
-
-Update Dockerfile to use the selected tag.
-```bash
-nano Dockerfile
-```
-
-### Push the new TAG
-
-```bash
-TAG=[new version number]
-git commit --message="Bump version to $TAG in preparation of a release"
-git push
-git tag --annotate $TAG --message="Release $TAG"
-git push --tags
-```
-
 ### Make a github release using the web interface
 
 https://github.com/biolink/kgx/releases/new

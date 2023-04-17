@@ -284,8 +284,6 @@ def test_rdf_transform2():
     assert e2t1["type"] == ['OBAN:association']
     assert e2t1["frequency_of_phenotype"] == "HP:0040283"
 
-    print(t1.store.graph.get_node("ORPHA:93262"))
-
     assert t1.store.graph.number_of_nodes() == 14
     assert t1.store.graph.number_of_edges() == 7
 
@@ -322,8 +320,8 @@ def test_rdf_transform2():
     assert e2t2["type"] == ['biolink:Association']
     assert e2t2["frequency_of_phenotype"] == "HP:0040283"
 
-    assert t2.store.graph.number_of_nodes() == 19
-    assert t2.store.graph.number_of_edges() == 12
+    assert t2.store.graph.number_of_nodes() == 14
+    assert t2.store.graph.number_of_edges() == 7
 
     input_args3 = {
         "filename": [os.path.join(TARGET_DIR, "oban-export.nt")],
@@ -350,8 +348,8 @@ def test_rdf_transform2():
     assert e2t3["type"] == ['biolink:Association']
     assert e2t3["frequency_of_phenotype"] == "HP:0040283"
 
-    assert t3.store.graph.number_of_nodes() == 19
-    assert t3.store.graph.number_of_edges() == 12
+    assert t3.store.graph.number_of_nodes() == 14
+    assert t3.store.graph.number_of_edges() == 7
 
 
 def test_rdf_transform3():
@@ -853,3 +851,23 @@ def test_transformer_infores_simple_prefix_rewrite():
         "infores:fixed-gene-ontology-monarch-version-202012"
         in irc["Gene Ontology (Monarch version 202012)"]
     )
+
+
+def test_transform_to_sqlite():
+    input_args = {
+        "filename": [
+            os.path.join(RESOURCE_DIR, "test_infores_coercion_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "test_infores_coercion_edges.tsv"),
+        ],
+        "format": "tsv",
+        "provided_by": (r"", "", "Fixed"),
+        "aggregator_knowledge_source": (r"", "", "Fixed"),
+    }
+    output_args = {
+        "format": "sql",
+        "filename": os.path.join(RESOURCE_DIR, "test.db"),
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args, output_args=output_args)
+    assert os.path.exists(output_args["filename"])

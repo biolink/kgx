@@ -1,7 +1,6 @@
 import gzip
 from collections import OrderedDict
 from typing import Optional, Union, Tuple, Any, Dict
-
 import rdflib
 from linkml_runtime.linkml_model.meta import Element, ClassDefinition, SlotDefinition
 from rdflib import URIRef, Literal, Namespace, RDF
@@ -393,6 +392,7 @@ class RdfSink(Sink):
             "rdf:subject",
             "rdf:predicate",
             "rdf:object",
+            "type"
         }
         if p in default_uri_types:
             t = "uriorcurie"

@@ -2,7 +2,7 @@ import os
 
 import pytest
 import rdflib
-
+from pprint import pprint
 from kgx.sink import RdfSink
 from kgx.transformer import Transformer
 from tests import TARGET_DIR
@@ -71,7 +71,14 @@ def test_write_rdf3():
 
     assert os.path.exists(filename)
 
+    counter = 0
     lines = open(filename, "r").readlines()
+    for line in lines:
+        if "<https://w3id.org/biolink/vocab/Association>" in line:
+            # the lines collection is the entirety of the RDF, we only want to test that the association
+            # type is fully expanded.
+            counter = counter+1
+    assert counter > 0
     assert len(lines) == 42
 
 
