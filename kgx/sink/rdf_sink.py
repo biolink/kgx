@@ -1,7 +1,7 @@
 import gzip
 from collections import OrderedDict
 from typing import Optional, Union, Tuple, Any, Dict
-
+from pprint import pprint
 import rdflib
 from linkml_runtime.linkml_model.meta import Element, ClassDefinition, SlotDefinition
 from rdflib import URIRef, Literal, Namespace, RDF
@@ -200,6 +200,8 @@ class RdfSink(Sink):
         associations.update(
             [str(x) for x in set(self.toolkit.get_all_associations(formatted=True))]
         )
+        print("record is here")
+        pprint(record)
         if self.reify_all_edges:
             reified_node = self.reify(record["subject"], record["object"], record)
             s = reified_node["subject"]
@@ -207,6 +209,7 @@ class RdfSink(Sink):
             o = reified_node["object"]
             ecache.append((s, p, o))
             n = reified_node["id"]
+            print("reified node is here", reified_node.items())
             for prop, value in reified_node.items():
                 if prop in {"id", "association_id", "edge_key"}:
                     continue
@@ -216,6 +219,10 @@ class RdfSink(Sink):
                     predicate,
                     property_name,
                 ) = self.process_predicate(prop)
+                print("element_uri", element_uri)
+                print("canonical_uri", canonical_uri)
+                print("predicate", predicate)
+                print("property_name", property_name)
                 if element_uri:
                     prop_uri = canonical_uri if canonical_uri else element_uri
                 else:
@@ -225,7 +232,7 @@ class RdfSink(Sink):
                     else:
                         prop_uri = predicate
                 prop_type = self._get_property_type(prop)
-                log.debug(
+                print(
                     f"prop {prop} has prop_uri {prop_uri} and prop_type {prop_type}"
                 )
                 prop_uri = self.uriref(prop_uri)
@@ -234,6 +241,8 @@ class RdfSink(Sink):
                         value_uri = self._prepare_object(prop, prop_type, x)
                         self._write_triple(URIRef(n), prop_uri, value_uri)
                 else:
+                    print("are we here??")
+                    print("prop", prop)
                     value_uri = self._prepare_object(prop, prop_type, value)
                     self._write_triple(URIRef(n), prop_uri, value_uri)
         else:
@@ -351,6 +360,8 @@ class RdfSink(Sink):
             An instance of rdflib.term.Identifier
 
         """
+        print("value", value)
+        print("prop_type", prop_type)
         if prop_type == "uriorcurie" or prop_type == "xsd:anyURI":
             if isinstance(value, str) and PrefixManager.is_curie(value):
                 o = self.uriref(value)
@@ -382,6 +393,7 @@ class RdfSink(Sink):
             The type for property name
 
         """
+        print("p", p)
         default_uri_types = {
             "biolink:type",
             "biolink:category",
@@ -393,6 +405,7 @@ class RdfSink(Sink):
             "rdf:subject",
             "rdf:predicate",
             "rdf:object",
+            "type"
         }
         if p in default_uri_types:
             t = "uriorcurie"

@@ -853,3 +853,22 @@ def test_transformer_infores_simple_prefix_rewrite():
         "infores:fixed-gene-ontology-monarch-version-202012"
         in irc["Gene Ontology (Monarch version 202012)"]
     )
+
+
+def test_transform_to_sqlite():
+    input_args = {
+        "filename": [
+            os.path.join(RESOURCE_DIR, "test_infores_coercion_nodes.tsv"),
+            os.path.join(RESOURCE_DIR, "test_infores_coercion_edges.tsv"),
+        ],
+        "format": "tsv",
+        "provided_by": (r"", "", "Fixed"),
+        "aggregator_knowledge_source": (r"", "", "Fixed"),
+    }
+    output_args = {
+        "format": "sql",
+        "filename": os.path.join(RESOURCE_DIR, "test.db"),
+    }
+
+    t = Transformer()
+    t.transform(input_args=input_args)
