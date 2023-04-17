@@ -284,8 +284,6 @@ def test_rdf_transform2():
     assert e2t1["type"] == ['OBAN:association']
     assert e2t1["frequency_of_phenotype"] == "HP:0040283"
 
-    for edge in t1.store.graph.edges():
-        print(edge)
     assert t1.store.graph.number_of_nodes() == 14
     assert t1.store.graph.number_of_edges() == 7
 
