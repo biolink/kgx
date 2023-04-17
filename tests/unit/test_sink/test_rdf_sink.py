@@ -72,7 +72,6 @@ def test_write_rdf3():
     assert os.path.exists(filename)
 
     lines = open(filename, "r").readlines()
-    pprint(lines)
     assert len(lines) == 42
 
 
