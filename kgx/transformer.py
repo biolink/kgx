@@ -28,6 +28,7 @@ from kgx.sink import (
     NeoSink,
     RdfSink,
     NullSink,
+    SqlSink,
 )
 from kgx.utils.kgx_utils import (
     apply_graph_operations,
@@ -59,6 +60,7 @@ SINK_MAP = {
     "neo4j": NeoSink,
     "nt": RdfSink,
     "null": NullSink,
+    "sql": SqlSink
 }
 
 

@@ -869,4 +869,5 @@ def test_transform_to_sqlite():
     }
 
     t = Transformer()
-    t.transform(input_args=input_args)
+    t.transform(input_args=input_args, output_args=output_args)
+    assert os.path.exists(output_args["filename"])
