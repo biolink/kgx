@@ -4,6 +4,7 @@ import time
 import uuid
 import sqlite3
 from enum import Enum
+from functools import lru_cache
 from typing import List, Dict, Set, Optional, Any, Union
 import stringcase
 from inflection import camelize
@@ -148,6 +149,7 @@ def snakecase_to_sentencecase(s: str) -> str:
     return stringcase.sentencecase(s).lower()
 
 
+@lru_cache(maxsize=1024)
 def sentencecase_to_snakecase(s: str) -> str:
     """
     Convert sentence case to snake_case.
@@ -166,6 +168,7 @@ def sentencecase_to_snakecase(s: str) -> str:
     return stringcase.snakecase(s).lower()
 
 
+@lru_cache(maxsize=1024)
 def sentencecase_to_camelcase(s: str) -> str:
     """
     Convert sentence case to CamelCase.
@@ -184,6 +187,7 @@ def sentencecase_to_camelcase(s: str) -> str:
     return camelize(stringcase.snakecase(s))
 
 
+@lru_cache(maxsize=1024)
 def format_biolink_category(s: str) -> str:
     """
     Convert a sentence case Biolink category name to
@@ -207,6 +211,7 @@ def format_biolink_category(s: str) -> str:
         return f"biolink:{formatted}"
 
 
+@lru_cache(maxsize=1024)
 def format_biolink_slots(s: str) -> str:
     if re.match("biolink:.+", s):
         return s
