@@ -122,9 +122,10 @@ class Transformer(ErrorDetecting):
                             source, infores = entry.split("\t")
                             self._infores_catalog[source] = infores
             for k, v in self.toolkit.infores_map.items():
-                self._infores_catalog[k] = v.get("name")
-        pprint(self._infores_catalog)
-
+                self._infores_catalog[k] = v.get("name").strip()
+        else:
+            for k, v in self.toolkit.infores_map.items():
+                self._infores_catalog[k] = v.get("name").strip()
 
     def transform(
         self,
