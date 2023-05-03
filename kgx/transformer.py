@@ -3,9 +3,10 @@ import os
 from os.path import exists
 from sys import stderr
 from typing import Dict, Generator, List, Optional, Callable, Set
-
+from bmt import Toolkit
 from kgx.config import get_logger
 from kgx.error_detection import ErrorType, MessageLevel, ErrorDetecting
+from pprint import pprint
 from kgx.source import (
     GraphSource,
     Source,
@@ -110,6 +111,8 @@ class Transformer(ErrorDetecting):
         self._seen_nodes = set()
         self._infores_catalog: Dict[str, str] = dict()
 
+        self.toolkit = Toolkit()
+
         if infores_catalog and exists(infores_catalog):
             with open(infores_catalog, "r") as irc:
                 for entry in irc:
@@ -118,6 +121,10 @@ class Transformer(ErrorDetecting):
                         if entry:
                             source, infores = entry.split("\t")
                             self._infores_catalog[source] = infores
+            for k, v in self.toolkit.infores_map.items():
+                self._infores_catalog[k] = v.get("name")
+        pprint(self._infores_catalog)
+
 
     def transform(
         self,
