@@ -819,6 +819,11 @@ def sanitize_import(data: Dict, list_delimiter: str=None) -> Dict:
     return tidy_data
 
 
+@lru_cache(maxsize=1)
+def _get_all_multivalued_slots() -> Set[str]:
+    return set([sentencecase_to_snakecase(x) for x in tk.get_all_multivalued_slots()])
+
+
 def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
     """
     Sanitize value for a key for the purpose of import.
@@ -880,7 +885,7 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             ]
             new_value = list(value)
         elif isinstance(value, str):
-            multivalued_slots = [sentencecase_to_snakecase(x) for x in tk.get_all_multivalued_slots()]
+            multivalued_slots = _get_all_multivalued_slots()
             if list_delimiter and list_delimiter in value:
                 value = value.replace("\n", " ").replace("\t", " ")
                 new_value = [x for x in value.split(list_delimiter) if x]
