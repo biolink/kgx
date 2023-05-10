@@ -866,6 +866,25 @@ def test_transform2():
     assert os.path.exists(os.path.join(RESOURCE_DIR, "graph_edges.tsv"))
 
 
+def test_transform_rdf_to_tsv():
+    """
+    Transform from a test transform YAML.
+    """
+    transform_config = os.path.join(RESOURCE_DIR, "test-transform-tsv-rdf.yaml")
+    transform(inputs=None, transform_config=transform_config)
+    assert os.path.exists(os.path.join(TARGET_DIR, "test-transform-rdf.tsv"))
+    assert os.path.exists(os.path.join(TARGET_DIR, "test-transform-rdf.tsv"))
+
+
+def test_transform_tsv_to_rdf():
+    """
+    Transform from a test transform YAML.
+    """
+    transform_config = os.path.join(RESOURCE_DIR, "test-transform-tsv-rdf.yaml")
+    transform(inputs=None, transform_config=transform_config)
+    assert os.path.exists(os.path.join(TARGET_DIR, "test-tranform-tsv-rdf.nt"))
+
+
 def test_merge1():
     """
     Transform from test merge YAML.

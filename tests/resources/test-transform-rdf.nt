@@ -1,0 +1,15 @@
+<http://identifiers.org/ensembl/ENSG0000000000001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.obolibrary.org/obo/SO_0000704> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/Gene> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/GenomicEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/MolecularEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/name> "Test Gene 123" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/description> "This is a Test Gene 123" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/provided_by> "Test Dataset" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.obolibrary.org/obo/SO_0000704> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/Gene> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/GenomicEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/category> <https://w3id.org/biolink/vocab/MolecularEntity> .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/name> "Test Gene 456" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/description> "This is a Test Gene 456" .
+<http://identifiers.org/ensembl/ENSG0000000000002> <https://w3id.org/biolink/vocab/provided_by> "Test Dataset" .
+<http://identifiers.org/ensembl/ENSG0000000000001> <https://w3id.org/biolink/vocab/interacts_with> <http://identifiers.org/ensembl/ENSG0000000000002> .

@@ -219,7 +219,7 @@ def validate(
         },  # streaming processing throws the graph data away
         # ... Second, we inject the Inspector into the transform() call,
         # for the underlying Transformer.process() to use...
-        inspector=validator
+        inspector=validator,
     )
 
     if output:
