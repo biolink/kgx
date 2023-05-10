@@ -12,7 +12,7 @@ transform:
       output:
         format: tsv
         filename:
-          - test-tranform-rdf
+          - test-transform-rdf
     valid_graph:
       name: "Valid JSON Graph"
       input:
