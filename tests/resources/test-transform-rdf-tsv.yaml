@@ -1,0 +1,25 @@
+configuration:
+  output_directory: ../target
+  checkpoint: false
+transform:
+  source:
+    test_graph:
+      name: "Test Graph"
+      input:
+        format: nt
+        filename:
+          - test-transform-rdf.nt
+      output:
+        format: tsv
+        filename:
+          - test-transform-rdf
+    valid_graph:
+      name: "Valid JSON Graph"
+      input:
+        format: json
+        filename:
+          - valid.json
+      output:
+        format: tsv
+        filename:
+          - valid_graph
