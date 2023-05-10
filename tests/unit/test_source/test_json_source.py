@@ -61,11 +61,8 @@ def test_read_json_filter():
                 nodes[rec[0]] = rec[1]
 
     for node in nodes:
-        print(node)
-
-    print(nodes["MONDO:0017148"])
-
-
+        n = nodes[node]
+        assert n["category"] == ["biolink:Disease"]
 
 
 def test_read_json2():
