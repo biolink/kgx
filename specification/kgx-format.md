@@ -86,7 +86,6 @@ There are 4 required elements for an Edge record:
 - [subject](https://biolink.github.io/biolink-model/docs/subject)
 - [predicate](https://biolink.github.io/biolink-model/docs/predicate)
 - [object](https://biolink.github.io/biolink-model/docs/object)
-- [relation](https://biolink.github.io/biolink-model/docs/relation)
 
 ##### subject
 
@@ -103,14 +102,6 @@ This element must have a value from the Biolink [related_to](https://biolink.git
 
 The `object` element is used to refer to the target node in an edge/statement/assertion and must be the `id` of the target node.
 
-
-##### relation
-
-The `relation` element is used to refer to a more specific relationship that further describes the edge/statement/assertion.
-Usually, this is a term from the [Relations Ontology](http://www.obofoundry.org/ontology/ro.html) but other ontologies,
-thesauri, and controlled vocabularies are allowed.
-
-Note: it is under consideration to deprecate the edge `relation` association slot in Biolink Model release 2.3.0.
 
 #### Edge Provenance
 
