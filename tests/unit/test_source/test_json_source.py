@@ -40,6 +40,34 @@ def test_read_json1():
     assert e["relation"] == "RO:0004013"
 
 
+def test_read_json_filter():
+    """
+    Read from a JSON using JsonSource.
+    """
+    t = Transformer()
+    s = JsonSource(t)
+    filters = {
+        "category": {"biolink:Disease"}
+    }
+    s.set_node_filters(filters)
+    g = s.parse(os.path.join(RESOURCE_DIR, "valid.json"))
+    nodes = {}
+    edges = {}
+    for rec in g:
+        if rec:
+            if len(rec) == 4:
+                edges[(rec[0], rec[1])] = rec[3]
+            else:
+                nodes[rec[0]] = rec[1]
+
+    for node in nodes:
+        print(node)
+
+    print(nodes["MONDO:0017148"])
+
+
+
+
 def test_read_json2():
     """
     Read from a JSON using JsonSource.
