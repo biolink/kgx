@@ -32,6 +32,27 @@ The structure of this graph is expected to conform to the Biolink Model standard
 
 In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 
+### Example usage
+Validate:
+```bash
+poetry run kgx validate -i tsv tests/resources/merge/test2_nodes.tsv tests/resources/merge/test2_edges.tsv
+```
+
+Merge:
+```bash
+poetry run kgx merge —merge-config tests/resources/test-merge.yaml 
+```
+
+Graph Summary:
+```bash
+poetry run kgx graph-summary -i tests/resources/graph_nodes.tsv  -o summary.txt
+```
+
+Transform:
+```bash
+poetry run kgx transform —transform-config tests/resources/test-transform-tsv-rdf.yaml
+```
+
 ### Error Detection and Reporting
 
 Non-redundant JSON-formatted structured error logging is now provided in KGX Transformer, Validator, GraphSummary and MetaKnowledgeGraph operations.  See the various unit tests for the general design pattern (using the Validator as an example here):
