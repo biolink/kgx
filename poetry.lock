@@ -2314,7 +2314,7 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "63c386cab7927d49ad3d2f498e460cdf9f8e752b9eb75101dade472f1f76c0c3"
+content-hash = "bc5ae0855f6d37256e7ae39d423c4da905e3783798d679ebd8768a005ecc42ff"
 
 [metadata.files]
 airium = [
