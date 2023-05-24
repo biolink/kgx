@@ -19,8 +19,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-linkml = "^1.4"
-linkml-runtime = "^1.4"
+linkml = "^1.5.0"
+linkml-runtime = "^1.5.0"
 Sphinx = "*"
 python-dateutil = "^2.8.1"
 prefixcommons = "^0.1.4"
@@ -40,8 +40,6 @@ terminaltables = "^3.1.0"
 stringcase = "^1.2.0"
 validators = "^0.20.0"
 cachetools = "^5.0.0"
-sphinx-rtd-theme = "*"
-sphinx-click = "*"
 ordered-set = "^4.0.2"
 docker = "^6.0.0"
 jsonlines = "^3.1.0"
@@ -50,9 +48,13 @@ ijson = "^3.1.3"
 deprecation = "^2.1.0"
 recommonmark = "*"
 tox = "^3.0"
-bmt = "^1.0.13"
+bmt = "^1.0.15"
 inflection = "^0.5.1"
 closurizer = "^0.1.7"
+
+[tool.poetry.dev-dependencies]
+sphinx-rtd-theme = "*"
+sphinx-click = "*"
 
 [tool.poetry-dynamic-versioning]
 enable = true
