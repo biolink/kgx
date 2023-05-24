@@ -13,7 +13,18 @@ transform:
       output:
         format: json
         filename:
-          - graph.json
+          - grapher
+    other_graph:
+      name: "Test Graph"
+      input:
+        format: tsv
+        filename:
+          - graph_nodes.tsv
+          - graph_edges.tsv
+      output:
+        format: tsv
+        filename:
+          - grapher
     valid_graph:
       name: "Valid JSON Graph"
       input:
