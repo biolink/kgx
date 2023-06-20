@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kgx"
-version = "0.0.0"
+version = "2.1.0"
 description = "A Python library and set of command line utilities for exchanging Knowledge Graphs (KGs) that conform to or are aligned to the Biolink Model."
 authors = ["Deepak Unni <deepak.unni3@gmail.com>", "Richard Bruskiewich <richard.bruskiewich@delphinai.com>", "Sierra Moxon <smoxon@lbl.gov>"]
 
@@ -50,14 +50,13 @@ recommonmark = "*"
 tox = "^3.0"
 bmt = "^1.0.15"
 inflection = "^0.5.1"
-closurizer = "^0.1.7"
 
 [tool.poetry.dev-dependencies]
 sphinx-rtd-theme = "*"
 sphinx-click = "*"
 
 [tool.poetry-dynamic-versioning]
-enable = true
+enable = false
 vcs = "git"
 style = "pep440"
 

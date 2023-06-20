@@ -237,23 +237,6 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "closurizer"
-version = "0.1.7"
-description = "Add closure expansion fields to kgx files following the Golr pattern"
-category = "main"
-optional = false
-python-versions = ">=3.8,<4.0"
-files = [
-    {file = "closurizer-0.1.7-py3-none-any.whl", hash = "sha256:31beb73914cabf6f55e08f3a22697761d110b033d62c31e967f8dc87dcaf8688"},
-    {file = "closurizer-0.1.7.tar.gz", hash = "sha256:a4d4aca3dd007d8e35ef03dc951cea4bf38ceb2b083982188ee721f832acff7d"},
-]
-
-[package.dependencies]
-click = ">=8,<9"
-petl = ">=1.7.10,<2.0.0"
-SQLAlchemy = ">=1.4.37,<2.0.0"
-
-[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -1373,33 +1356,6 @@ python-versions = "*"
 files = [
     {file = "parse-1.19.0.tar.gz", hash = "sha256:9ff82852bcb65d139813e2a5197627a94966245c897796760a3a2a8eb66f020b"},
 ]
-
-[[package]]
-name = "petl"
-version = "1.7.12"
-description = "A Python package for extracting, transforming and loading tables of data."
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-files = [
-    {file = "petl-1.7.12.tar.gz", hash = "sha256:d4a94e0d6f1274062fe92353b99a007ee12c7c84b4c31c0cb9713ed5dbda22e7"},
-]
-
-[package.extras]
-avro = ["fastavro (>=0.24.0)"]
-bcolz = ["bcolz (>=1.2.1)"]
-db = ["SQLAlchemy (>=1.3.6)"]
-hdf5 = ["cython (>=0.29.13)", "numexpr (>=2.6.9)", "numpy (>=1.16.4)", "tables (>=3.5.2)"]
-http = ["aiohttp (>=3.6.2)", "requests"]
-interval = ["intervaltree (>=3.0.2)"]
-numpy = ["numpy (>=1.16.4)"]
-pandas = ["pandas (>=0.24.2)"]
-remote = ["fsspec (>=0.7.4)"]
-smb = ["smbprotocol (>=1.0.1)"]
-whoosh = ["whoosh"]
-xls = ["xlrd (>=2.0.1)", "xlwt (>=1.3.0)"]
-xlsx = ["openpyxl (>=2.6.2)"]
-xpath = ["lxml (>=4.4.0)"]
 
 [[package]]
 name = "platformdirs"
@@ -2684,4 +2640,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8049bb9eb640bf9d043dc2cf402db651f0a221d1bb08a7b57f35ac5a2c0d87d4"
+content-hash = "7c7e1fc0bf63b15cccd0388370ba37cc7c16a2fb2060a94d16358376ebee9db7"
