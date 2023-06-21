@@ -10,7 +10,6 @@ from kgx.utils.kgx_utils import (
     get_toolkit,
     sentencecase_to_snakecase,
 )
-from closurizer.closurizer import add_closure
 from kgx.config import get_logger
 
 log = get_logger()

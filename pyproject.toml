@@ -50,7 +50,6 @@ recommonmark = "*"
 tox = "^3.0"
 bmt = "^1.0.15"
 inflection = "^0.5.1"
-closurizer = "^0.1.7"
 
 [tool.poetry.dev-dependencies]
 sphinx-rtd-theme = "*"
