@@ -82,7 +82,7 @@ Each edge record has a set of elements that describes the edge.
 
 #### Core Edge Record Elements
 
-There are 4 required elements for an Edge record:
+There are 3 required elements for an Edge record:
 - [subject](https://biolink.github.io/biolink-model/docs/subject)
 - [predicate](https://biolink.github.io/biolink-model/docs/predicate)
 - [object](https://biolink.github.io/biolink-model/docs/object)
