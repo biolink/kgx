@@ -19,6 +19,7 @@ Version: 0.0.2<br>
         - [Optional Edge Record Elements](#optional-edge-record-elements)
 - [KGX format as JSON](#kgx-format-as-json)
 - [KGX format as TSV](#kgx-format-as-tsv)
+- [KGX format as JSON Lines](#kgx-format-as-json-lines)
 - [KGX format as RDF Turtle](#kgx-format-as-rdf-turtle)
         
 ## Introduction
@@ -123,9 +124,10 @@ An edge can also have other properties that are not from Biolink Model. While it
 
 
 
-## KGX format as a JSON
+## KGX format as JSON
 
 The structure of the KGX JSON format is as follows:
+
 ```json
 {
     "nodes": [],
@@ -195,14 +197,14 @@ Few noted caveats of the TSV serialization:
 - The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.
 - Fields that accept lists of value - e.g. the above fields for `category` (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with `biolink:Gene` and `biolink:Disease`) and `publications` - have values typically a list of values delimited by a Unix pipe ('|') character, unless otherwise programmatically overridden, using an available `list_delimiter` parameter, during TSV _source_ or _sink_ data parsing by the KGX software tool)
 
-## KGX format as JSONLINES
+## KGX format as JSON Lines
 
-The KGX Jsonlines format is similar to the TSV format in that there are two files - one for nodes and another for edges.
+The KGX JSON Lines format is similar to the TSV format in that there are two files - one for nodes and another for edges.
 
 - `nodes.jsonl`: each row corresponds to a Node record.
 - `edges.jsonl`: each row corresponds to an Edge record.
 
-A sample KGX Jsonlines that represents a graph with 2 nodes and 1 edge:
+A sample KGX JSON Lines that represents a graph with 2 nodes and 1 edge:
 
 nodes.jsonl
 ```jsonlines
