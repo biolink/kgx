@@ -220,38 +220,28 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
-BUILTIN_PREFIX_MAP = {
-    "biolink": "https://w3id.org/biolink/vocab/",
-    "owlstar": "http://w3id.org/owlstar/",
-    "MONARCH": "https://monarchinitiative.org/",
-    "MONARCH_NODE": "https://monarchinitiative.org/MONARCH_",
-}
-BUILTIN_CONVERTER = curies.Converter.from_prefix_map(BUILTIN_PREFIX_MAP)
 MONARCH_CONVERTER = curies.load_prefix_map(get_jsonld_context("monarch_context"))
 OBO_CONVERTER = curies.load_prefix_map(get_jsonld_context("obo_context"))
 DEFAULT_CONVERTER = curies.chain([
-    BUILTIN_CONVERTER,
     MONARCH_CONVERTER,
     OBO_CONVERTER
 ])
 
 
-def _resolve_converter(prefix_maps) -> curies.Converter:
+def _resolve_converter(prefix_maps: Optional[List[Dict[str, str]]] = None) -> curies.Converter:
     if not prefix_maps:
         return DEFAULT_CONVERTER
     return curies.chain([
-        BUILTIN_CONVERTER,
         *(
             curies.load_prefix_map(prefix_map)
             for prefix_map in prefix_maps
         ),
-        MONARCH_CONVERTER,
-        OBO_CONVERTER,
+        DEFAULT_CONVERTER,
     ])
 
 
 def contract(
-    uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True
+    uri: str, prefix_maps: Optional[List[Dict[str, str]]] = None, fallback: bool = True
 ) -> str:
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
@@ -277,7 +267,7 @@ def contract(
 
 
 def expand(
-    curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool = True
+    curie: str, prefix_maps: Optional[List[Dict[str, str]]] = None, fallback: bool = True
 ) -> str:
     """
     Expand a given CURIE to an URI, based on mappings from `prefix_map`.
