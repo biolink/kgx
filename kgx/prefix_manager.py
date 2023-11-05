@@ -1,7 +1,7 @@
 import re
 from typing import Dict, Optional
 
-import prefixcommons.curie_util as cu
+import curies
 from cachetools import LRUCache, cached
 
 from kgx.config import get_jsonld_context, get_logger
@@ -33,7 +33,8 @@ class PrefixManager(object):
 
         """
         if url:
-            context = cu.read_remote_jsonld_context(url)
+            converter = curies.load_jsonld_context(url)
+            context = converter.bimap
         else:
             context = get_jsonld_context()
         self.set_prefix_map(context)
