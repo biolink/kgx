@@ -277,7 +277,7 @@ class ObographSource(JsonSource):
             elif prefix == "PR":
                 category = "biolink:Protein"
             elif prefix == "NCBITaxon":
-                category = "biolink:OrganismalEntity"
+                category = "biolink:OrganismTaxon"
             else:
                 self.owner.log_error(
                     entity=f"{str(category)} for node {curie}",
