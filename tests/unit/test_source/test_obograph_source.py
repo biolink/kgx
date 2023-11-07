@@ -2,9 +2,10 @@ import os
 
 import pytest
 
-from kgx.source import ObographSource
+from kgx.cli import transform
+from kgx.source import ObographSource, TsvSource
 from kgx.transformer import Transformer
-from tests import RESOURCE_DIR
+from tests import RESOURCE_DIR, TARGET_DIR
 
 
 def test_read_obograph1():
@@ -130,6 +131,29 @@ def test_read_deprecated_term():
     assert n1["deprecated"] is True
 
 
+def test_read_deprecated_term_phenio():
+    """
+    Read from a Phenio JSON using ObographSource,
+    to validate capture of "deprecate" status
+    """
+    t = Transformer()
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "phenio.json"),
+        knowledge_source="Phenomics Integrative Ontology",
+    )
+    nodes = {}
+    for rec in g:
+        if rec:
+            if len(rec) != 4:
+                nodes[rec[0]] = rec[1]
+
+    n1 = nodes["GO:0051370"]
+    assert n1["id"] == "GO:0051370"
+    assert n1["name"] == "obsolete ZASP binding"
+    assert n1["deprecated"] is True
+
+
 @pytest.mark.parametrize(
     "query",
     [
@@ -228,3 +252,34 @@ def test_error_detection():
         t.write_report(None, "Error")
     if len(t.get_errors("Warning")) > 0:
         t.write_report(None, "Warning")
+
+
+def test_phenio_obojson_to_tsv():
+    """
+    Testing transitive propagation of node properties
+    (mainly node 'deprecated' status)
+    from a Phenio JSON to TSV file format
+    """
+    transform(
+        inputs=[os.path.join(RESOURCE_DIR, "phenio.json")],
+        input_format="obojson",
+        output=os.path.join(TARGET_DIR, "phenio"),
+        output_format="tsv",
+        stream=False
+    )
+
+    tin = Transformer()
+    s = TsvSource(tin)
+
+    g = s.parse(filename=os.path.join(TARGET_DIR, "phenio_nodes.tsv"), format="tsv")
+
+    nodes = {}
+    for rec in g:
+        if rec:
+            if len(rec) != 4:
+                nodes[rec[0]] = rec[1]
+
+    n1 = nodes["GO:0051370"]
+    assert n1["id"] == "GO:0051370"
+    assert n1["name"] == "obsolete ZASP binding"
+    assert n1["deprecated"] is True
