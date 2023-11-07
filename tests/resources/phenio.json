@@ -1,0 +1,53 @@
+{
+  "graphs": [
+    {
+      "nodes": [
+        {
+          "id": "http://purl.obolibrary.org/obo/GO_0051370",
+          "lbl": "obsolete ZASP binding",
+          "type": "INDIVIDUAL",
+          "meta": {
+            "definition": {
+              "val": "OBSOLETE. Binding to Z-band alternatively spliced PDZ motif protein (ZASP). ZASP is a Z-band protein specifically expressed in heart and skeletal muscle. This protein contains N-terminal PDZ domain and C-terminal LIM domain.",
+              "xrefs": [
+                "PMID:10427098",
+                "PMID:11699871"
+              ]
+            },
+            "comments": [
+              "This term was made obsolete because it represents binding to an individual protein."
+            ],
+            "synonyms": [
+              {
+                "pred": "hasExactSynonym",
+                "val": "Z-band alternatively spliced PDZ-motif protein binding"
+              },
+              {
+                "pred": "hasExactSynonym",
+                "val": "ZASP binding"
+              }
+            ],
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.obolibrary.org/obo/IAO_0100001",
+                "val": "GO:0008092"
+              },
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
+                "val": "molecular_function"
+              }
+            ],
+            "deprecated": true
+          }
+        }
+      ],
+      "edges": [],
+      "id": "http://purl.obolibrary.org/obo/phenio.owl",
+      "meta": {
+        "subsets": [],
+        "xrefs": [],
+        "basicPropertyValues": []
+      }
+    }
+  ]
+}
