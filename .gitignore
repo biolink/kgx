@@ -1,5 +1,6 @@
 env/
 py*/
+
 __pycache__
 .pytest_cache
 *.pyc
@@ -11,9 +12,10 @@ dist
 /build
 /dist
 
-# local IDE files
+# local PyCharm and Pyenv IDE files
 venv
 .idea/
+.python-version
 
 # test directories
 tests/logs
