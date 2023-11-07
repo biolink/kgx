@@ -107,6 +107,29 @@ def test_read_jsonl2():
     assert "GO slim generic" in n2["provided_by"]
 
 
+def test_read_deprecated_term():
+    """
+    Read from an PATO JSON using ObographSource,
+    to validate capture of "deprecate" status
+    """
+    t = Transformer()
+    s = ObographSource(t)
+    g = s.parse(
+        os.path.join(RESOURCE_DIR, "pato.json"),
+        knowledge_source="Phenotype and Trait Ontology",
+    )
+    nodes = {}
+    for rec in g:
+        if rec:
+            if len(rec) != 4:
+                nodes[rec[0]] = rec[1]
+
+    n1 = nodes["PATO:0000000"]
+    assert n1["id"] == "PATO:0000000"
+    assert n1["name"] == "obsolete pato"
+    assert n1["deprecated"] is True
+
+
 @pytest.mark.parametrize(
     "query",
     [

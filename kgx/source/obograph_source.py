@@ -1,5 +1,4 @@
 import gzip
-import tarfile
 import typing
 from itertools import chain
 from typing import Optional, Tuple, Dict, Generator, Any
@@ -104,6 +103,9 @@ class ObographSource(JsonSource):
         curie = self.prefix_manager.contract(node["id"])
         node_properties = {}
         if "meta" in node:
+            # Returns a dictionary that contains 'description', 'subsets',
+            # 'synonym', 'xrefs', a 'deprecated' flag and/or
+            # 'equivalent_nodes', if the corresponding key values are set
             node_properties = self.parse_meta(node["id"], node["meta"])
 
         fixed_node = dict()
@@ -114,12 +116,18 @@ class ObographSource(JsonSource):
 
         if "description" in node_properties:
             fixed_node["description"] = node_properties["description"]
-        if "synonym" in node_properties:
-            fixed_node["synonym"] = node_properties["synonym"]
-        if "xrefs" in node_properties:
-            fixed_node["xref"] = node_properties["xrefs"]
+
         if "subsets" in node_properties:
             fixed_node["subsets"] = node_properties["subsets"]
+
+        if "synonym" in node_properties:
+            fixed_node["synonym"] = node_properties["synonym"]
+
+        if "xrefs" in node_properties:
+            fixed_node["xref"] = node_properties["xrefs"]
+
+        if "deprecated" in node_properties:
+            fixed_node["deprecated"] = node_properties["deprecated"]
 
         if "category" not in node:
             category = self.get_category(curie, node)
@@ -127,9 +135,11 @@ class ObographSource(JsonSource):
                 fixed_node["category"] = [category]
             else:
                 fixed_node["category"] = ["biolink:OntologyClass"]
+
         if "equivalent_nodes" in node_properties:
             equivalent_nodes = node_properties["equivalent_nodes"]
             fixed_node["same_as"] = equivalent_nodes
+
         return super().read_node(fixed_node)
 
     def read_edges(self, filename: str, compression: Optional[str] = None) -> Generator:
@@ -301,8 +311,8 @@ class ObographSource(JsonSource):
         Returns
         -------
         Dict
-            A dictionary that contains 'description', 'synonyms',
-            'xrefs', and 'equivalent_nodes'.
+            A dictionary that contains 'description', 'subsets',
+            'synonyms', 'xrefs', a 'deprecated' flag and/or 'equivalent_nodes'.
 
         """
         # cross species links are in meta; this needs to be parsed properly too
