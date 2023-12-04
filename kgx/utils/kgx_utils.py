@@ -23,7 +23,12 @@ import pandas as pd
 import numpy as np
 import curies
 
-from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
+from kgx.config import (
+    get_logger,
+    get_jsonld_context,
+    get_biolink_model_schema,
+    get_converter,
+)
 from kgx.graph.base_graph import BaseGraph
 
 curie_lookup_service = None
@@ -220,12 +225,9 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
-MONARCH_CONVERTER = curies.load_prefix_map(get_jsonld_context("monarch_context"))
-OBO_CONVERTER = curies.load_prefix_map(get_jsonld_context("obo_context"))
-DEFAULT_CONVERTER = curies.chain([
-    MONARCH_CONVERTER,
-    OBO_CONVERTER
-])
+MONARCH_CONVERTER = get_converter("monarch_context")
+OBO_CONVERTER = get_converter("obo_context")
+DEFAULT_CONVERTER = curies.chain([MONARCH_CONVERTER, OBO_CONVERTER])
 
 
 def _resolve_converter(prefix_maps: Optional[List[Dict[str, str]]] = None) -> curies.Converter:
