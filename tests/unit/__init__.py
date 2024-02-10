@@ -1,4 +1,3 @@
-import docker
 import pytest
 from neo4j import GraphDatabase
 
@@ -17,6 +16,8 @@ def check_container():
     is currently running.
     """
     try:
+        import docker
+
         client = docker.from_env()
         status = False
         try:
