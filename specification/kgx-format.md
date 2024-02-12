@@ -45,8 +45,8 @@ Each node record has a set of elements that describes the node.
 #### Core Node Record Elements
 
 There are 2 required elements for a Node record:
-- [id](https://biolink.github.io/biolink-model/docs/id)
-- [category](https://biolink.github.io/biolink-model/docs/category)
+- [id](https://biolink.github.io/biolink-model/id)
+- [category](https://biolink.github.io/biolink-model/category)
 
 
 ##### id
@@ -57,7 +57,7 @@ The `id` element must have a value as a CURIE that uniquely identifies the node 
 ##### category
 
 The `category` element is used to name the high level class in which this entity is categorized.
-The element is a multivalued list which must have a value from the Biolink [NamedThing](https://biolink.github.io/biolink-model/docs/NamedThing) hierarchy.
+The element is a multivalued list which must have a value from the Biolink [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy.
 
 
 #### Optional Node Record Elements
@@ -67,7 +67,7 @@ The element is a multivalued list which must have a value from the Biolink [Name
 
 A node can have additional properties, as defined in the Biolink Model.
 
-For example, [name](https://biolink.github.io/biolink-model/docs/name), [description](https://biolink.github.io/biolink-model/docs/description), and [xref](https://biolink.github.io/biolink-model/docs/xref).  Nodes can also optionally have a [`provided_by`](https://biolink.github.io/biolink-model/docs/provided_by) property.
+For example, [name](https://biolink.github.io/biolink-model/name), [description](https://biolink.github.io/biolink-model/description), and [xref](https://biolink.github.io/biolink-model/xref).  Nodes can also optionally have a [`provided_by`](https://biolink.github.io/biolink-model/provided_by) property.
 
 
 ##### Non-Biolink Model elements
@@ -84,9 +84,9 @@ Each edge record has a set of elements that describes the edge.
 #### Core Edge Record Elements
 
 There are 3 required elements for an Edge record:
-- [subject](https://biolink.github.io/biolink-model/docs/subject)
-- [predicate](https://biolink.github.io/biolink-model/docs/predicate)
-- [object](https://biolink.github.io/biolink-model/docs/object)
+- [subject](https://biolink.github.io/biolink-model/subject)
+- [predicate](https://biolink.github.io/biolink-model/predicate)
+- [object](https://biolink.github.io/biolink-model/object)
 
 ##### subject
 
@@ -96,7 +96,7 @@ The `subject` element is used to refer to the source node in an edge/statement/a
 ##### predicate 
 
 The `predicate` element is used to refer to the predicate/relationship that links a source node to a target node in an edge/statement/assertion.
-This element must have a value from the Biolink [related_to](https://biolink.github.io/biolink-model/docs/related_to) hierarchy.
+This element must have a value from the Biolink [related_to](https://biolink.github.io/biolink-model/related_to) hierarchy.
 
 
 ##### object
@@ -106,7 +106,7 @@ The `object` element is used to refer to the target node in an edge/statement/as
 
 #### Edge Provenance
 
-Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original [`provided_by`](https://biolink.github.io/biolink-model/docs/provided_by) property is now deprecated for edges in favor of the Biolink Model 2.0 defined [`knowledge_source`](https://biolink.github.io/biolink-model/docs/knowledge_source) association slot or one of its descendents - [`aggregator_knowledge_source`](https://biolink.github.io/biolink-model/docs/aggregator_knowledge_source),  [`primary_knowledge_source`](https://biolink.github.io/biolink-model/docs/primary_knowledge_source) and [`original_knowledge_source`](https://biolink.github.io/biolink-model/docs/original_knowledge_source) - or the related association slot, [`supporting_data_source`](https://biolink.github.io/biolink-model/docs/supporting_data_source).
+Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original [`provided_by`](https://biolink.github.io/biolink-model/provided_by) property is now deprecated for edges in favor of the Biolink Model 2.0 defined [`knowledge_source`](https://biolink.github.io/biolink-model/knowledge_source) association slot or one of its descendents - [`aggregator_knowledge_source`](https://biolink.github.io/biolink-model/aggregator_knowledge_source),  [`primary_knowledge_source`](https://biolink.github.io/biolink-model/primary_knowledge_source) and [`original_knowledge_source`](https://biolink.github.io/biolink-model/original_knowledge_source) - or the related association slot, [`supporting_data_source`](https://biolink.github.io/biolink-model/supporting_data_source).
 
 
 #### Optional Edge Record Elements
@@ -115,7 +115,7 @@ Edge provenance, if specified, should be specified by one of a fixed set of elem
 
 An edge can have additional properties, as defined in the Biolink Model.
 
-For example, [category](https://biolink.github.io/biolink-model/docs/category) and [publications](https://biolink.github.io/biolink-model/docs/publications).
+For example, [category](https://biolink.github.io/biolink-model/category) and [publications](https://biolink.github.io/biolink-model/publications).
 
 
 ##### Non-Biolink Model Elements
