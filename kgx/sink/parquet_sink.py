@@ -1,10 +1,36 @@
+'''Sink for Parquet format.'''
+
+import os
 from typing import Any
-from kgx.sink import Sink
+
+import pandas as pd
+from pyarrow import Table
+from pyarrow.parquet import write_table
+
+from kgx.transformer import Transformer
+from kgx.sink.sink import Sink
+
+DEFAULT_NODE_COLUMNS = {
+    "id",
+    "name",
+    "category",
+    "description",
+    "provided_by"
+}
+DEFAULT_EDGE_COLUMNS = {
+    "id",
+    "subject",
+    "predicate",
+    "object",
+    "relation",
+    "category",
+    "knowledge_source",
+}
 
 
 class ParquetSink(Sink):
     """
-    A ParquetSink writes data to a Parquet file.
+    A ParquetSink writes data to Parquet files.
 
     Parameters
     ----------
@@ -12,12 +38,42 @@ class ParquetSink(Sink):
         Transformer to which the ParquetSink belongs
     filename: str
         Name of the Parquet file to write to
-    n/a (**kwargs allowed, but ignored)
+    kwargs: Any
+        Any additional arguments
     """
 
-    def __init__(self, owner, filename: str, **kwargs: Any):
+    def __init__(
+            self,
+            owner,
+            filename: str,
+            **kwargs: Any
+    ):
         super().__init__(owner)
         self.filename = filename
+        self.dirname = os.path.abspath(os.path.dirname(filename))
+        self.basename = os.path.basename(filename)
+        self.nodes_file_basename = f"{self.basename}_nodes.parquet"
+        self.edges_file_basename = f"{self.basename}_edges.parquet"
+
+        if self.dirname:
+            os.makedirs(self.dirname, exist_ok=True)
+
+        self.nodes_file_name = os.path.join(
+            self.dirname if self.dirname else "", self.nodes_file_basename
+        )
+        self.edges_file_name = os.path.join(
+            self.dirname if self.dirname else "", self.edges_file_basename
+        )
+
+        if "node_properties" in kwargs:
+            self.node_properties.update(set(kwargs["node_properties"]))
+        else:
+            self.node_properties.update(DEFAULT_NODE_COLUMNS)
+        if "edge_properties" in kwargs:
+            self.edge_properties.update(set(kwargs["edge_properties"]))
+        else:
+            self.edge_properties.update(DEFAULT_EDGE_COLUMNS)
+
         self.nodes = []
         self.edges = []
 
@@ -47,15 +103,8 @@ class ParquetSink(Sink):
 
     def finalize(self) -> None:
         """
-        Operations that ought to be done after
-        writing all the incoming data should be called
-        by this method.
-
+        Finalize writing the data to the underlying store.
         """
-        import pandas as pd
-        from pyarrow import Table
-        from pyarrow.parquet import write_table
-        from kgx.transformer import Transformer
 
         nodes_df = pd.DataFrame(self.nodes)
         edges_df = pd.DataFrame(self.edges)
@@ -63,11 +112,11 @@ class ParquetSink(Sink):
         nodes_table = Table.from_pandas(nodes_df)
         edges_table = Table.from_pandas(edges_df)
 
-        write_table(nodes_table, self.filename + '_nodes.parquet')
-        write_table(edges_table, self.filename + '_edges.parquet')
+        write_table(nodes_table, self.nodes_file_name)
+        write_table(edges_table, self.edges_file_name)
 
         self.nodes = []
         self.edges = []
-        self.owner.logger.info(f'Wrote {len(nodes_df)} nodes and {len(edges_df)} edges to {self.filename}')
-        self.owner.logger.info(f'Nodes written to {self.filename}_nodes.parquet')
-        self.owner.logger.info(f'Edges written to {self.filename}_edges.parquet')
+        self.owner.logger.info(f'Wrote {len(nodes_df)} nodes and {len(edges_df)} edges.')
+        self.owner.logger.info(f'Nodes written to {self.nodes_file_name}')
+        self.owner.logger.info(f'Edges written to {self.edges_file_name}')
