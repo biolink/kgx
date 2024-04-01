@@ -1,6 +1,6 @@
 '''Sink for Parquet format.'''
 
-import os
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -9,6 +9,7 @@ from pyarrow.parquet import write_table
 
 from kgx.transformer import Transformer
 from kgx.sink.sink import Sink
+
 
 DEFAULT_NODE_COLUMNS = {
     "id",
@@ -50,20 +51,16 @@ class ParquetSink(Sink):
     ):
         super().__init__(owner)
         self.filename = filename
-        self.dirname = os.path.abspath(os.path.dirname(filename))
-        self.basename = os.path.basename(filename)
+        self.file_path = Path(filename).resolve()
+        self.dirname = self.file_path.parent
+        self.basename = self.file_path.stem
         self.nodes_file_basename = f"{self.basename}_nodes.parquet"
         self.edges_file_basename = f"{self.basename}_edges.parquet"
 
-        if self.dirname:
-            os.makedirs(self.dirname, exist_ok=True)
+        self.dirname.mkdir(parents=True, exist_ok=True)
 
-        self.nodes_file_name = os.path.join(
-            self.dirname if self.dirname else "", self.nodes_file_basename
-        )
-        self.edges_file_name = os.path.join(
-            self.dirname if self.dirname else "", self.edges_file_basename
-        )
+        self.nodes_file_name = self.dirname / self.nodes_file_basename
+        self.edges_file_name = self.dirname / self.edges_file_basename
 
         if "node_properties" in kwargs:
             self.node_properties.update(set(kwargs["node_properties"]))
