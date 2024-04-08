@@ -38,6 +38,14 @@ jobs:
           pip install poetry
           rm -rf poetry.lock
           poetry install 
+          docker run --detach --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
+          docker run --detach --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
+          docker ps -a
+
+      - name: Wait
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '45s'
 
       - name: Run tests
         run: |
