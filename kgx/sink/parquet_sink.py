@@ -113,6 +113,3 @@ class ParquetSink(Sink):
 
         self.nodes = []
         self.edges = []
-        self.owner.logger.info(f'Wrote {len(nodes_df)} nodes and {len(edges_df)} edges.')
-        self.owner.logger.info(f'Nodes written to {self.nodes_file_name}')
-        self.owner.logger.info(f'Edges written to {self.edges_file_name}')
