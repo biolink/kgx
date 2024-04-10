@@ -7,7 +7,6 @@ import pandas as pd
 from pyarrow import Table
 from pyarrow.parquet import write_table
 
-from kgx.transformer import Transformer
 from kgx.sink.sink import Sink
 
 
