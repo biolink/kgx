@@ -22,13 +22,14 @@ from kgx.source import (
 from kgx.sink import (
     Sink,
     GraphSink,
-    TsvSink,
     JsonSink,
     JsonlSink,
     NeoSink,
-    RdfSink,
     NullSink,
+    RdfSink,
     SqlSink,
+    TsvSink,
+    ParquetSink
 )
 from kgx.utils.kgx_utils import (
     apply_graph_operations,
@@ -52,7 +53,6 @@ SOURCE_MAP = {
 }
 
 SINK_MAP = {
-    "tsv": TsvSink,
     "csv": TsvSink,
     "graph": GraphSink,
     "json": JsonSink,
@@ -60,7 +60,9 @@ SINK_MAP = {
     "neo4j": NeoSink,
     "nt": RdfSink,
     "null": NullSink,
-    "sql": SqlSink
+    "sql": SqlSink,
+    "tsv": TsvSink,
+    "parquet": ParquetSink,
 }
 
 
