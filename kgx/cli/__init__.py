@@ -6,6 +6,7 @@ import kgx
 from kgx.config import get_logger, get_config
 from kgx.cli.cli_utils import (
     get_input_file_types,
+    get_output_file_types,
     parse_source,
     apply_operations,
     graph_summary,
@@ -229,7 +230,7 @@ def validate_wrapper(
     "--output-format",
     "-f",
     required=True,
-    help=f"The output format. Can be one of {get_input_file_types()}",
+    help=f"The output format. Can be one of {get_output_file_types()}",
 )
 @click.option(
     "--output-compression", "-d", required=False, help="The output compression type"
