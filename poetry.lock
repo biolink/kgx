@@ -94,14 +94,14 @@ dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
 name = "bmt"
-version = "1.2.1"
+version = "1.3.0"
 description = "Biolink Model Toolkit: A Python API for working with the Biolink Model"
 category = "main"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "bmt-1.2.1-py3-none-any.whl", hash = "sha256:5dda82c872ca4ee615e22a2dcd3b647491149ad8f92aaa3f04a69e5832542771"},
-    {file = "bmt-1.2.1.tar.gz", hash = "sha256:9a0100458bc9d8045a9f268ee919819a254c84c36820f82703c92738cd294ae8"},
+    {file = "bmt-1.3.0-py3-none-any.whl", hash = "sha256:3518ae7afca94f2cd18122e37c20f1b079007c3445bc428dcb6e044270979406"},
+    {file = "bmt-1.3.0.tar.gz", hash = "sha256:278b861d9e4b7c33437ae5135fa02d592a568bae5bf204a686111fa360b463a8"},
 ]
 
 [package.dependencies]
@@ -2884,4 +2884,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "06fea4730596c448e54905987cdf6bf53d4b7b686901511e5800fa9dbd1bd9be"
+content-hash = "38d6f1b730cdb420dbdab5dc5c56efc0b3fbdd9ca30562bf9718b182694f28a8"
