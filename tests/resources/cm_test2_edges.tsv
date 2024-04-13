@@ -1,19 +1,19 @@
-subject	object	relation	predicate	provided_by
-HGNC:7670	OMIM:601937	owl:equivalentClass	biolink:same_as	Test
-HGNC:7670	ENSEMBL:ENSG00000124151	owl:equivalentClass	biolink:same_as	Test
-HGNC:7670	NCBIGene:8202	owl:equivalentClass	biolink:same_as	Test
-HGNC:35302	ENSEMBL:ENSG00000284458	owl:equivalentClass	biolink:same_as	Test
-HGNC:35302	NCBIGene:100302240	owl:equivalentClass	biolink:same_as	Test
-OMIM:601937	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test
-ENSEMBL:ENSG00000284458	SO:0001265	rdfs:subClassOf	biolink:subclass_of	Test
-OMIM:601937	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test
-OMIM:601937	UniProt:1	RO:0002434	biolink:interacts_with	Test
-OMIM:601937	UniProt:2	RO:0002434	biolink:interacts_with	Test
-OMIM:601937	UniProt:3	RO:0002434	biolink:interacts_with	Test
-OMIM:601937	UniProt:4	RO:0002434	biolink:interacts_with	Test
-PMID:1	NCBIGene:8202	RO:0000000	biolink:related_to	Test
-PMID:2	NCBIGene:8202	RO:0000000	biolink:related_to	Test
-PMID:3	NCBIGene:8202	RO:0000000	biolink:related_to	Test
-NCBIGene:100302240	SO:0001265	rdfs:subClassOf	biolink:subclass_of	Test
-HGNC:3121	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test
-HGNC:35302	HGNC:3121	RO:0002434	biolink:interacts_with	Test
+subject	object	relation	predicate	provided_by	knowledge_level	agent_type
+HGNC:7670	OMIM:601937	owl:equivalentClass	biolink:same_as	Test	not_provided	not_provided
+HGNC:7670	ENSEMBL:ENSG00000124151	owl:equivalentClass	biolink:same_as	Test	not_provided	not_provided
+HGNC:7670	NCBIGene:8202	owl:equivalentClass	biolink:same_as	Test	not_provided	not_provided
+HGNC:35302	ENSEMBL:ENSG00000284458	owl:equivalentClass	biolink:same_as	Test	not_provided	not_provided
+HGNC:35302	NCBIGene:100302240	owl:equivalentClass	biolink:same_as	Test	not_provided	not_provided
+OMIM:601937	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test	not_provided	not_provided
+ENSEMBL:ENSG00000284458	SO:0001265	rdfs:subClassOf	biolink:subclass_of	Test	not_provided	not_provided
+OMIM:601937	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test	not_provided	not_provided
+OMIM:601937	UniProt:1	RO:0002434	biolink:interacts_with	Test	not_provided	not_provided
+OMIM:601937	UniProt:2	RO:0002434	biolink:interacts_with	Test	not_provided	not_provided
+OMIM:601937	UniProt:3	RO:0002434	biolink:interacts_with	Test	not_provided	not_provided
+OMIM:601937	UniProt:4	RO:0002434	biolink:interacts_with	Test	not_provided	not_provided
+PMID:1	NCBIGene:8202	RO:0000000	biolink:related_to	Test	not_provided	not_provided
+PMID:2	NCBIGene:8202	RO:0000000	biolink:related_to	Test	not_provided	not_provided
+PMID:3	NCBIGene:8202	RO:0000000	biolink:related_to	Test	not_provided	not_provided
+NCBIGene:100302240	SO:0001265	rdfs:subClassOf	biolink:subclass_of	Test	not_provided	not_provided
+HGNC:3121	SO:0001217	rdfs:subClassOf	biolink:subclass_of	Test	not_provided	not_provided
+HGNC:35302	HGNC:3121	RO:0002434	biolink:interacts_with	Test	not_provided	not_provided

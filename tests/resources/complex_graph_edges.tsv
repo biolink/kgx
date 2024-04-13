@@ -1,8 +1,8 @@
-subject	object	predicate	relation	aggregator_knowledge_source
-HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434|RO:0002434|RO:0002434	string
-HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16787	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	GO:0009986	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0097190	biolink:related_to	RO:0002331|RO:0002327	go
+subject	object	predicate	relation	aggregator_knowledge_source	knowledge_level	agent_type
+HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	biogrid	not_provided	not_provided
+HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434|RO:0002434|RO:0002434	string	not_provided	not_provided
+HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string	not_provided	not_provided
+HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string	not_provided	not_provided
+HGNC:10848	HGNC:16787	biolink:interacts_with	RO:0002434	biogrid	not_provided	not_provided
+HGNC:10848	GO:0009986	biolink:part_of	BFO:0000050	go	not_provided	not_provided
+HGNC:10848	GO:0097190	biolink:related_to	RO:0002331|RO:0002327	go	not_provided	not_provided

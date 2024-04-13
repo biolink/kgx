@@ -1,540 +1,540 @@
-subject	object	predicate	relation	aggregator_knowledge_source
-HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	string|biogrid
-HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16262	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16466	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16787	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HGNC:16889	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16809	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16807	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:16994	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9530	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9531	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9532	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9533	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9534	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9540	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9541	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9542	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9543	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9544	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9545	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9535	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9536	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9537	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9538	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9539	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9571	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9570	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9568	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9569	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9585	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9586	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9552	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9553	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9554	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9555	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9556	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9546	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9547	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9548	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9549	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9560	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9561	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9565	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9566	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9567	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9551	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9557	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9559	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:9563	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:20635	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:20738	biolink:interacts_with	RO:0002434	string|biogrid
-HGNC:10848	HGNC:15877	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HGNC:15983	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8548	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8522	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8620	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8621	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8615	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8616	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:8617	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:23734	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:2865	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:2895	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:2914	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:18081	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:18270	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:18967	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HGNC:2514	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1582	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1579	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1722	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:22985	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:17173	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1033	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:17104	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1074	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1071	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:1069	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:17943	biolink:interacts_with	RO:0002434	string|biogrid
-HGNC:10848	HGNC:11782	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:11825	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:11998	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4808	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:31963	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:5173	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:5136	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:5273	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12463	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12468	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12458	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12666	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12680	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12780	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12784	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12779	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12774	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12778	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:5022	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12872	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:12873	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10417	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10472	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10776	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10717	biolink:interacts_with	RO:0002434	string|biogrid
-HGNC:10848	HGNC:10889	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:19221	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10879	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:10845	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3670	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3666	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3682	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3676	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3674	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3673	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3689	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3687	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3685	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3686	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:19711	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:19712	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3342	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:30425	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:3809	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4165	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4451	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4449	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4453	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4454	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:25222	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:738	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4317	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4318	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:4319	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:797	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:195	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:11195	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:11119	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:391	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:11204	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:28454	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HGNC:7764	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7835	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7866	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7881	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:14866	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7553	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7559	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7611	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:7391	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:5956	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:27106	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6694	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6701	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6770	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6407	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6594	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:13188	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:13243	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6840	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6081	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6132	biolink:interacts_with	RO:0002434	string
-HGNC:10848	HGNC:6189	biolink:interacts_with	RO:0002434	string
-HGNC:10848	GO:0005576	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0005886	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0009986	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0097190	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0009953	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0009880	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060070	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0008233	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0060445	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060447	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001708	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060916	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0005829	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0005788	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0007267	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0005615	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0005539	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0005509	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0005515	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0048754	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:1900175	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:1900180	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0005113	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0007224	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007228	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048468	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060439	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060463	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060484	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0071542	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007389	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0071285	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060021	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060020	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060840	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:1904339	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0006897	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060428	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0008270	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0008284	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0008209	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0061053	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045893	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0072205	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0072136	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0000122	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001570	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030010	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007507	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007596	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007405	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007411	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007417	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007418	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007442	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0007398	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0014902	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042127	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060738	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060783	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060782	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060769	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060662	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060664	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060685	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060516	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060523	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060458	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060459	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0060174	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042481	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:1905327	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045121	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0009949	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042733	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0043010	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0043066	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042475	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0061189	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030177	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030902	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030901	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030900	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030878	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0062023	biolink:part_of	BFO:0000050	go
-HGNC:10848	GO:0045944	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030850	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0031016	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0031069	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030324	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030326	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030539	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045445	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021522	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048645	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0033077	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0051781	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0051155	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042130	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0034504	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048663	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048557	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048538	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001755	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048839	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048859	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048709	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048706	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048745	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045596	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045880	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0035116	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021904	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021930	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021513	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021794	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045059	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030162	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0030336	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0032435	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0010468	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0014003	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021978	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0042307	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0090090	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0043369	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0043237	biolink:related_to	RO:0002327	go
-HGNC:10848	GO:0001569	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045109	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0045060	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048864	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001947	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0046639	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0046638	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0003140	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0014706	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0033092	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0033089	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001658	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0034244	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048714	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048617	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0048643	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2000358	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2000357	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2000729	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0002320	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2000062	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2000063	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0001656	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0035115	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0021938	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0016539	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:2001054	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0090370	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0014858	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0002076	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0002052	biolink:related_to	RO:0002331	go
-HGNC:10848	GO:0016015	biolink:related_to	RO:0002327	go
-HGNC:10848	REACT:R-HSA-5635838	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-373080	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5358346	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5658034	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5632681	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5632684	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5362768	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5362798	biolink:related_to	RO:0002331	reactome
-HGNC:10848	ZFIN:ZDB-GENE-980526-41	biolink:orthologous_to	RO:HOM0000017	panther|zfin
-HGNC:10848	ZFIN:ZDB-GENE-980526-166	biolink:orthologous_to	RO:HOM0000017	panther|zfin
-HGNC:10848	MGI:98297	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	NCBIGene:100147450	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	NCBIGene:100016531	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	NCBIGene:100557233	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	NCBIGene:100512749	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	NCBIGene:743371	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	RGD:3673	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	ENSEMBL:ENSCAFG00000029968	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	ENSEMBL:ENSFCAG00000041187	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	ENSEMBL:ENSMMUG00000007356	biolink:orthologous_to	RO:HOM0000020	panther
-HGNC:10848	UBERON:0001150	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0001388	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0001416	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0001626	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0001951	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0000465	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0035805	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0035841	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0035833	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0002106	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0002190	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0002245	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0002469	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0001511	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0014890	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0004533	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0004534	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0009853	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0007610	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	UBERON:0008948	biolink:expressed_in	RO:0002206	bgee
-HGNC:10848	REACT:R-HSA-5635838	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-373080	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5358346	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5658034	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5632681	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5632684	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5362768	biolink:related_to	RO:0002331	reactome
-HGNC:10848	REACT:R-HSA-5362798	biolink:related_to	RO:0002331	reactome
-NCBIGene:6469	HGNC:10848	biolink:interacts_with	RO:0002434	biogrid
-HGNC:10848	HP:0009932	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0009942	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0004322	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0002708	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0009800	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0004252	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0004243	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0004209	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0003458	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002991	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002916	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0009606	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0009601	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0410030	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0009484	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0009914	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0012806	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0002510	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0002247	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002132	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0002120	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0002119	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0002099	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002000	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000871	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0012107	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0006487	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000589	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000528	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000567	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0010708	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000486	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000463	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000458	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000453	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000446	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0010644	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0010636	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0005917	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000322	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0010503	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000252	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000204	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000202	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0010442	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000193	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0005736	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000104	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001328	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001376	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000062	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001501	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001511	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0030680	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0007370	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001622	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0010066	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0010035	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0005280	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001841	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000366	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000821	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0025011	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0008736	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0003196	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001250	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0001829	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001830	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0100789	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001770	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001739	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001636	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0011800	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000824	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0100490	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001360	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000175	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000126	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0100259	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001269	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001263	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001257	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001256	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0001249	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0001274	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000272	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0005866	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001199	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001177	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001172	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001162	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001161	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001159	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0001028	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000437	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0006501	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000504	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000520	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000568	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0010804	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0000601	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000612	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0006315	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa
-HGNC:10848	HP:0000830	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0000863	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0006101	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0007633	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0006088	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002353	biolink:has_phenotype	RO:0002200	omim|hpoa
-HGNC:10848	HP:0004691	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	HP:0002650	biolink:has_phenotype	RO:0002200	orphanet|hpoa
-HGNC:10848	EFO:0004713	biolink:contributes_to	RO:0003304	gwascatalog
-HGNC:10848	MONDO:0010011	biolink:related_to	RO:0003303	omim
-HGNC:10848	MONDO:0010303	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0012709	biolink:related_to	RO:0003303	omim
-HGNC:10848	MONDO:0016355	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0017454	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0017218	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0017219	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0018777	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0018052	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0019756	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0019758	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0019757	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0019671	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0007819	biolink:related_to	RO:0003303	omim
-HGNC:10848	MONDO:0007733	biolink:related_to	RO:0003303	omim
-HGNC:10848	MONDO:0008515	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0008270	biolink:related_to	RO:0004013	orphanet
-HGNC:10848	MONDO:0016296	biolink:contributes_to	RO:0003304	omim
-HGNC:10848	MONDO:0000170	biolink:contributes_to	RO:0003304	omim
-HGNC:10848	MONDO:0018839	biolink:related_to	RO:0004015	orphanet
-MONDO:0010011	REACT:R-HSA-5635838	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-373080	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5358346	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5658034	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5632681	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5632684	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5362768	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0010011	REACT:R-HSA-5362798	biolink:actively_involved_in	RO:0002331	omim|reactome
-MONDO:0018829	REACT:R-HSA-8948216	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-419037	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-216083	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-1442490	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-2214320	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-1650814	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-186797	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-2022090	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-2243919	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-3000480	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-1474244	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-3000171	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-3000157	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0018829	REACT:R-HSA-3000178	biolink:actively_involved_in	RO:0002331	orphanet|reactome
-MONDO:0010011	HP:0002510	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0002132	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0002120	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0000486	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0010636	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0007370	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001250	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001269	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001263	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001257	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001249	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0001274	biolink:has_phenotype	RO:0002200	hpoa
-MONDO:0010011	HP:0002353	biolink:has_phenotype	RO:0002200	hpoa
+subject	object	predicate	relation	aggregator_knowledge_source	knowledge_level	agent_type
+HGNC:10848	NCBIGene:6469	biolink:interacts_with	RO:0002434	string|biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:9398	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9399	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16265	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16262	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16466	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16787	biolink:interacts_with	RO:0002434	biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:16889	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16809	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16807	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:16994	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9530	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9531	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9532	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9533	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9534	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9540	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9541	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9542	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9543	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9544	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9545	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9535	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9536	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9537	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9538	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9539	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9571	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9570	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9568	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9569	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9585	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9586	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9552	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9553	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9554	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9555	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9556	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9546	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9547	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9548	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9549	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9560	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9561	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9565	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9566	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9567	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9551	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9557	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9559	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:9563	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:20635	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:20738	biolink:interacts_with	RO:0002434	string|biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:15877	biolink:interacts_with	RO:0002434	biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:15983	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8548	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8522	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8620	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8621	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8615	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8616	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:8617	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:23734	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:2865	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:2895	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:2914	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:18081	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:18270	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:18967	biolink:interacts_with	RO:0002434	biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:2514	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1582	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1579	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1722	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:22985	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:17173	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1033	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:17104	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1074	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1071	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:1069	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:17943	biolink:interacts_with	RO:0002434	string|biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:11782	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:11825	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:11998	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4808	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:31963	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:5173	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:5136	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:5273	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12463	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12468	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12458	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12666	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12680	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12780	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12784	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12779	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12774	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12778	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:5022	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12872	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:12873	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10417	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10472	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10776	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10717	biolink:interacts_with	RO:0002434	string|biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:10889	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:19221	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10879	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:10845	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3670	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3666	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3682	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3676	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3674	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3673	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3689	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3687	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3685	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3686	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:19711	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:19712	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3342	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:30425	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:3809	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4165	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4451	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4449	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4453	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4454	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:25222	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:738	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4317	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4318	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:4319	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:797	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:195	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:11195	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:11119	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:391	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:11204	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:28454	biolink:interacts_with	RO:0002434	biogrid	not_provided	manual_agent
+HGNC:10848	HGNC:7764	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7835	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7866	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7881	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:14866	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7553	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7559	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7611	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:7391	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:5956	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:27106	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6694	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6701	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6770	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6407	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6594	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:13188	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:13243	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6840	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6081	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6132	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	HGNC:6189	biolink:interacts_with	RO:0002434	string	not_provided	manual_agent
+HGNC:10848	GO:0005576	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0005886	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0009986	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0097190	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0009953	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0009880	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060070	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0008233	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0060445	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060447	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001708	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060916	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0005829	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0005788	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0007267	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0005615	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0005539	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0005509	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0005515	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0048754	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:1900175	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:1900180	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0005113	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0007224	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007228	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048468	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060439	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060463	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060484	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0071542	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007389	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0071285	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060021	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060020	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060840	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:1904339	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0006897	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060428	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0008270	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0008284	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0008209	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0061053	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045893	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0072205	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0072136	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0000122	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001570	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030010	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007507	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007596	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007405	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007411	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007417	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007418	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007442	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0007398	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0014902	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042127	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060738	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060783	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060782	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060769	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060662	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060664	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060685	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060516	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060523	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060458	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060459	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0060174	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042481	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:1905327	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045121	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0009949	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042733	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0043010	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0043066	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042475	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0061189	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030177	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030902	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030901	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030900	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030878	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0062023	biolink:part_of	BFO:0000050	go	not_provided	manual_agent
+HGNC:10848	GO:0045944	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030850	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0031016	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0031069	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030324	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030326	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030539	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045445	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021522	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048645	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0033077	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0051781	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0051155	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042130	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0034504	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048663	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048557	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048538	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001755	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048839	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048859	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048709	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048706	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048745	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045596	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045880	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0035116	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021904	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021930	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021513	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021794	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045059	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030162	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0030336	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0032435	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0010468	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0014003	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021978	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0042307	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0090090	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0043369	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0043237	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	GO:0001569	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045109	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0045060	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048864	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001947	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0046639	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0046638	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0003140	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0014706	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0033092	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0033089	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001658	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0034244	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048714	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048617	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0048643	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2000358	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2000357	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2000729	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0002320	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2000062	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2000063	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0001656	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0035115	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0021938	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0016539	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:2001054	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0090370	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0014858	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0002076	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0002052	biolink:related_to	RO:0002331	go	not_provided	manual_agent
+HGNC:10848	GO:0016015	biolink:related_to	RO:0002327	go	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5635838	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-373080	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5358346	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5658034	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5632681	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5632684	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5362768	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5362798	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	ZFIN:ZDB-GENE-980526-41	biolink:orthologous_to	RO:HOM0000017	panther|zfin	not_provided	manual_agent
+HGNC:10848	ZFIN:ZDB-GENE-980526-166	biolink:orthologous_to	RO:HOM0000017	panther|zfin	not_provided	manual_agent
+HGNC:10848	MGI:98297	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	NCBIGene:100147450	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	NCBIGene:100016531	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	NCBIGene:100557233	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	NCBIGene:100512749	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	NCBIGene:743371	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	RGD:3673	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	ENSEMBL:ENSCAFG00000029968	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	ENSEMBL:ENSFCAG00000041187	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	ENSEMBL:ENSMMUG00000007356	biolink:orthologous_to	RO:HOM0000020	panther	not_provided	manual_agent
+HGNC:10848	UBERON:0001150	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0001388	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0001416	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0001626	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0001951	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0000465	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0035805	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0035841	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0035833	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0002106	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0002190	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0002245	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0002469	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0001511	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0014890	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0004533	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0004534	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0009853	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0007610	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	UBERON:0008948	biolink:expressed_in	RO:0002206	bgee	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5635838	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-373080	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5358346	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5658034	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5632681	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5632684	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5362768	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+HGNC:10848	REACT:R-HSA-5362798	biolink:related_to	RO:0002331	reactome	not_provided	manual_agent
+NCBIGene:6469	HGNC:10848	biolink:interacts_with	RO:0002434	biogrid	not_provided	manual_agent
+HGNC:10848	HP:0009932	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009942	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0004322	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002708	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009800	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0004252	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0004243	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0004209	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0003458	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002991	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002916	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009606	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009601	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0410030	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009484	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0009914	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0012806	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002510	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002247	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002132	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002120	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002119	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002099	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002000	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000871	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0012107	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0006487	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000589	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000528	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000567	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010708	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000486	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000463	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000458	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000453	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000446	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010644	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010636	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0005917	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000322	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010503	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000252	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000204	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000202	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010442	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000193	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0005736	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000104	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001328	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001376	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000062	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001501	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001511	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0030680	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0007370	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001622	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010066	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010035	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0005280	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001841	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000366	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000821	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0025011	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0008736	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0003196	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001250	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001829	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001830	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0100789	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001770	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001739	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001636	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0011800	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000824	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0100490	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001360	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000175	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000126	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0100259	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001269	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001263	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001257	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001256	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001249	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001274	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000272	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0005866	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001199	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001177	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001172	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001162	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001161	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001159	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0001028	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000437	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0006501	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000504	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000520	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000568	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0010804	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000601	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000612	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0006315	biolink:has_phenotype	RO:0002200	omim|orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000830	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0000863	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0006101	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0007633	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0006088	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002353	biolink:has_phenotype	RO:0002200	omim|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0004691	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	HP:0002650	biolink:has_phenotype	RO:0002200	orphanet|hpoa	not_provided	manual_agent
+HGNC:10848	EFO:0004713	biolink:contributes_to	RO:0003304	gwascatalog	not_provided	manual_agent
+HGNC:10848	MONDO:0010011	biolink:related_to	RO:0003303	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0010303	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0012709	biolink:related_to	RO:0003303	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0016355	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0017454	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0017218	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0017219	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0018777	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0018052	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0019756	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0019758	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0019757	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0019671	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0007819	biolink:related_to	RO:0003303	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0007733	biolink:related_to	RO:0003303	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0008515	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0008270	biolink:related_to	RO:0004013	orphanet	not_provided	manual_agent
+HGNC:10848	MONDO:0016296	biolink:contributes_to	RO:0003304	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0000170	biolink:contributes_to	RO:0003304	omim	not_provided	manual_agent
+HGNC:10848	MONDO:0018839	biolink:related_to	RO:0004015	orphanet	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5635838	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-373080	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5358346	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5658034	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5632681	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5632684	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5362768	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0010011	REACT:R-HSA-5362798	biolink:actively_involved_in	RO:0002331	omim|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-8948216	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-419037	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-216083	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-1442490	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-2214320	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-1650814	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-186797	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-2022090	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-2243919	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-3000480	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-1474244	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-3000171	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-3000157	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0018829	REACT:R-HSA-3000178	biolink:actively_involved_in	RO:0002331	orphanet|reactome	not_provided	manual_agent
+MONDO:0010011	HP:0002510	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0002132	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0002120	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0000486	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0010636	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0007370	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001250	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001269	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001263	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001257	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001249	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0001274	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent
+MONDO:0010011	HP:0002353	biolink:has_phenotype	RO:0002200	hpoa	not_provided	manual_agent

@@ -117,6 +117,8 @@
       "object": "MONDO:0005002",
       "predicate": "biolink:related_to",
       "relation": "RO:0003304",
+      "knowledge_level": "knowledge_assertion",
+      "agent_type": "manual_agent",
       "category": [
         "biolink:Association"
       ]
@@ -127,6 +129,8 @@
       "object": "MONDO:0013238",
       "predicate": "biolink:related_to",
       "relation": "RO:0003304",
+      "knowledge_level": "knowledge_assertion",
+      "agent_type": "manual_agent",
       "category": [
         "biolink:Association"
       ]
@@ -137,6 +141,8 @@
       "object": "MONDO:0013329",
       "predicate": "biolink:related_to",
       "relation": "RO:0003304",
+      "knowledge_level": "knowledge_assertion",
+      "agent_type": "manual_agent",
       "category": [
         "biolink:Association"
       ]
@@ -147,6 +153,8 @@
       "object": "MONDO:0017148",
       "predicate": "biolink:related_to",
       "relation": "RO:0004013",
+      "knowledge_level": "knowledge_assertion",
+      "agent_type": "manual_agent",
       "category": [
         "biolink:Association"
       ]
@@ -157,6 +165,8 @@
       "object": "MONDO:0007841",
       "predicate": "biolink:related_to",
       "relation": "RO:0004013",
+      "knowledge_level": "knowledge_assertion",
+      "agent_type": "manual_agent",
       "category": [
         "biolink:Association"
       ]
