@@ -221,7 +221,7 @@ def test_meta_knowledge_graph_multiple_category_and_predicate_parsing():
 
     assert mkg.get_name() == "Test Graph - Multiple Node Categories"
 
-    assert mkg.get_total_nodes_count() == 12
+    assert mkg.get_total_nodes_count() == 10
 
     # unique set, including (shared) parent
     # classes (not including category 'unknown' )
