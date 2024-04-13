@@ -94,27 +94,20 @@ dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
 name = "bmt"
-version = "1.3.0.post4.dev0+d867edc"
+version = "1.4.0"
 description = "Biolink Model Toolkit: A Python API for working with the Biolink Model"
 category = "main"
 optional = false
-python-versions = "^3.9"
-files = []
-develop = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "bmt-1.4.0-py3-none-any.whl", hash = "sha256:ca81f3e91b3a0312bed01692a93d343d828e556ae14fc00fb016f5a3f38f44c3"},
+    {file = "bmt-1.4.0.tar.gz", hash = "sha256:26a831eda3d64405d849f49ee579b44412e3e6b9c2e6587e2240a7605b28fc55"},
+]
 
 [package.dependencies]
-deprecation = "^2.1.0"
-linkml-runtime = "^1.6.3"
-stringcase = "^1.2.0"
-
-[package.extras]
-docs = []
-
-[package.source]
-type = "git"
-url = "https://github.com/biolink/biolink-model-toolkit.git"
-reference = "1.4.0"
-resolved_reference = "d867edc9c3eeaf3540fc9eaa1ef13e98c635ab72"
+deprecation = ">=2.1.0,<3.0.0"
+linkml-runtime = ">=1.6.3,<2.0.0"
+stringcase = ">=1.2.0,<2.0.0"
 
 [[package]]
 name = "cachetools"
@@ -2940,4 +2933,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a6b0a77955571bc5e15934345b6d48d885893234528fdc8984ec5c5be2055517"
+content-hash = "154d18c0399bf580da53c4feb389ca798a365b68f76a1811ea0ec566c2020865"
