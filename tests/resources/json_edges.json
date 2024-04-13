@@ -41,6 +41,8 @@
       "object": "NCIT:C138901",
       "biolink:original_knowledge_source": "infores:icees-kg",
       "test1": "test1",
+      "knowledge_level": "not_provided",
+      "agent_type": "not_provided",
       "crappy_list_of_objects": [
         {
           "feature_matrix":  0.0

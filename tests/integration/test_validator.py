@@ -46,6 +46,8 @@ def test_validator_good():
         subject="UBERON:0000001",
         object="UBERON:0000002",
         category=["biolink:Association"],
+        knowledge_level="not_provided",
+        agent_type="not_provided",
     )
     validator = Validator(verbose=True)
     validator.validate(G)
@@ -107,6 +109,8 @@ def test_validator_explicit_biolink_version():
         subject="CHEMBL.COMPOUND:1222250",
         object="UBERON:0000001",
         category=["biolink:Association"],
+        knowledge_level="not_provided",
+        agent_type="not_provided",
     )
     Validator.set_biolink_model(toolkit.get_model_version())
     validator = Validator(verbose=True)

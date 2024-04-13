@@ -170,7 +170,8 @@ def test_transform_uncompressed_tsv_to_tsv():
         csv_headings = next(edges)
         assert "aggregator_knowledge_source" in csv_headings
         for row in edges:
-            assert len(row) == 10
+            print(row)
+            assert len(row) == 12
             assert "someks" in row
             assert "someotherks" in row
             assert "newknowledge" not in row
