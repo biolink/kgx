@@ -50,6 +50,7 @@ SOURCE_MAP = {
     "nt": RdfSource,
     "owl": OwlSource,
     "sssom": SssomSource,
+    "parquet": GraphSource,
 }
 
 SINK_MAP = {
