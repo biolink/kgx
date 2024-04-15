@@ -142,3 +142,18 @@ formatted JSON.
    :inherited-members:
    :show-inheritance:
 ```
+
+
+## kgx.sink.parquet_sink
+
+`ParquetSink` is responsible for writing data as Parquet table files.
+
+KGX writes two separate files - one for nodes and another for edges.
+
+
+```eval_rst
+.. automodule:: kgx.sink.parquet_sink
+   :members:
+   :inherited-members:
+   :show-inheritance:
+```
