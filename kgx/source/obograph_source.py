@@ -333,7 +333,7 @@ class ObographSource(JsonSource):
 
         if "synonyms" in meta:
             # parse 'synonyms' as 'synonym'
-            synonyms = [s["val"] for s in meta["synonyms"]]
+            synonyms = [s["val"] for s in meta["synonyms"] if "val" in s]
             properties["synonym"] = synonyms
 
         if "xrefs" in meta:
