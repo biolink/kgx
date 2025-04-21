@@ -82,7 +82,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'kgx'
-author = 'Chris Mungall, Deepak Unni, Kent Shefchek, Lance Hannestad, Richard Bruskiewich, Kenneth Bruskiewicz', 'Sierra Moxon'
+author = 'Chris Mungall, Deepak Unni, Kent Shefchek, Lance Hannestad, Richard Bruskiewich, Kenneth Bruskiewicz, Sierra Moxon'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -98,7 +98,7 @@ release = '1.7.0'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -176,7 +176,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'kgx.tex', 'KGX Documentation',
-     'Chris Mungall, Deepak Unni, Kent Shefchek, Kenneth Bruskiewicz, Lance Hannestad, Richard Bruskiewich', 'manual'),
+     'Chris Mungall, Deepak Unni, Kent Shefchek, Lance Hannestad, Richard Bruskiewich, Kenneth Bruskiewicz, Sierra Moxon', 'manual'),
 ]
 
 
