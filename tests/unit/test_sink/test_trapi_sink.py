@@ -28,7 +28,7 @@ def test_write_trapi_json():
     graph.add_edge("F", "D", **{"subject": "F", "object": "D", "predicate": "biolink:sub_class_of"})
     
     filename = os.path.join(TARGET_DIR, "test_trapi_graph.json")
-    s = TrapiSink(filename=filename, biolink_version="2.4.8")
+    s = TrapiSink(filename=filename, biolink_version="2.4.8", owner=graph)
     
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -80,7 +80,7 @@ def test_write_trapi_jsonl():
     graph.add_edge("A", "B", **{"subject": "A", "object": "B", "predicate": "biolink:related_to"})
     
     filename = os.path.join(TARGET_DIR, "test_trapi_graph.jsonl")
-    s = TrapiSink(filename=filename, format="jsonl", biolink_version="2.4.8")
+    s = TrapiSink(filename=filename, format="jsonl", biolink_version="2.4.8", owner=graph)
     
     for n, data in graph.nodes(data=True):
         s.write_node(data)
@@ -125,7 +125,7 @@ def test_write_trapi_json_with_knowledge_source():
     graph.add_edge("A", "B", **{"subject": "A", "object": "B", "predicate": "biolink:related_to"})
     
     filename = os.path.join(TARGET_DIR, "test_trapi_with_ks.json")
-    s = TrapiSink(filename=filename, knowledge_source="infores:test-source")
+    s = TrapiSink(filename=filename, knowledge_source="infores:test-source", owner=graph)
     
     # Add some extra attributes to test complex transformations
     for n, data in graph.nodes(data=True):
@@ -199,7 +199,7 @@ def test_write_trapi_compressed():
     graph.add_edge("A", "B", **{"subject": "A", "object": "B", "predicate": "biolink:related_to"})
     
     filename = os.path.join(TARGET_DIR, "test_trapi_compressed.json")
-    s = TrapiSink(filename=filename, compression="gz")
+    s = TrapiSink(filename=filename, compression="gz", owner=graph)
     
     for n, data in graph.nodes(data=True):
         s.write_node(data)

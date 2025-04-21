@@ -110,6 +110,41 @@ class TrapiSource(JsonSource):
         Generator
             A generator for node records
         """
+        # First, try to parse nodes using regular JSON loading
+        try:
+            if compression == 'gz':
+                with gzip.open(filename, 'rt') as f:
+                    data = json.load(f)
+            else:
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+
+            # Try different paths for nodes
+            if 'message' in data and 'knowledge_graph' in data['message'] and 'nodes' in data['message']['knowledge_graph']:
+                nodes = data['message']['knowledge_graph']['nodes']
+            elif 'knowledge_graph' in data and 'nodes' in data['knowledge_graph']:
+                nodes = data['knowledge_graph']['nodes']
+            else:
+                nodes = None
+
+            # Handle nodes as a list or as a dictionary
+            if nodes is not None:
+                if isinstance(nodes, list):
+                    # Nodes is a list of node objects
+                    for node in nodes:
+                        if 'id' in node:
+                            yield self.load_node(node)
+                elif isinstance(nodes, dict):
+                    # Nodes is a dictionary with IDs as keys
+                    for node_id, node_data in nodes.items():
+                        node_data['id'] = node_id
+                        yield self.load_node(node_data)
+                return  # Found and processed nodes, so exit
+
+        except Exception as e:
+            log.warning(f"Error reading nodes from {filename} using standard JSON parsing: {e}")
+
+        # Fallback to ijson streaming if standard parsing fails
         if compression == "gz":
             FH = gzip.open(filename, "rb")
         else:
@@ -128,8 +163,8 @@ class TrapiSource(JsonSource):
                 FH.close()
                 log.error(f"Error parsing nodes from {filename}")
                 return
-                
-        # If we get here, try knowledge_graph.nodes directly (standalone KG)
+        
+        # Try knowledge_graph.nodes as a dictionary with IDs as keys
         if not nodes_found:
             FH.close()
             if compression == "gz":
@@ -141,6 +176,23 @@ class TrapiSource(JsonSource):
                 for node_id, node_data in ijson.kvitems(FH, 'knowledge_graph.nodes'):
                     node_data['id'] = node_id
                     yield self.load_node(node_data)
+            except (KeyError, ijson.JSONError):
+                pass
+            finally:
+                FH.close()
+                
+        # Try knowledge_graph.nodes as a list
+        if not nodes_found:
+            FH.close()
+            if compression == "gz":
+                FH = gzip.open(filename, "rb")
+            else:
+                FH = open(filename, "rb")
+                
+            try:
+                for node in ijson.items(FH, 'knowledge_graph.nodes.item'):
+                    if 'id' in node:
+                        yield self.load_node(node)
             except (KeyError, ijson.JSONError) as e:
                 log.warning(f"Could not find nodes in TRAPI format in {filename}: {str(e)}")
             finally:
@@ -162,6 +214,42 @@ class TrapiSource(JsonSource):
         Generator
             A generator for edge records
         """
+        # First, try to parse edges using regular JSON loading
+        try:
+            if compression == 'gz':
+                with gzip.open(filename, 'rt') as f:
+                    data = json.load(f)
+            else:
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+
+            # Try different paths for edges
+            if 'message' in data and 'knowledge_graph' in data['message'] and 'edges' in data['message']['knowledge_graph']:
+                edges = data['message']['knowledge_graph']['edges']
+            elif 'knowledge_graph' in data and 'edges' in data['knowledge_graph']:
+                edges = data['knowledge_graph']['edges']
+            else:
+                edges = None
+
+            # Handle edges as a list or as a dictionary
+            if edges is not None:
+                if isinstance(edges, list):
+                    # Edges is a list of edge objects
+                    for edge in edges:
+                        if all(k in edge for k in ['id', 'source_id', 'target_id']) or \
+                           all(k in edge for k in ['id', 'subject', 'object']):
+                            yield self.load_edge(edge)
+                elif isinstance(edges, dict):
+                    # Edges is a dictionary with IDs as keys
+                    for edge_id, edge_data in edges.items():
+                        edge_data['id'] = edge_id
+                        yield self.load_edge(edge_data)
+                return  # Found and processed edges, so exit
+
+        except Exception as e:
+            log.warning(f"Error reading edges from {filename} using standard JSON parsing: {e}")
+
+        # Fallback to ijson streaming if standard parsing fails
         if compression == "gz":
             FH = gzip.open(filename, "rb")
         else:
@@ -181,7 +269,7 @@ class TrapiSource(JsonSource):
                 log.error(f"Error parsing edges from {filename}")
                 return
                 
-        # If we get here, try knowledge_graph.edges directly (standalone KG)
+        # Try knowledge_graph.edges as a dictionary with IDs as keys
         if not edges_found:
             FH.close()
             if compression == "gz":
@@ -193,6 +281,22 @@ class TrapiSource(JsonSource):
                 for edge_id, edge_data in ijson.kvitems(FH, 'knowledge_graph.edges'):
                     edge_data['id'] = edge_id
                     yield self.load_edge(edge_data)
+            except (KeyError, ijson.JSONError):
+                pass
+            finally:
+                FH.close()
+                
+        # Try knowledge_graph.edges as a list
+        if not edges_found:
+            FH.close()
+            if compression == "gz":
+                FH = gzip.open(filename, "rb")
+            else:
+                FH = open(filename, "rb")
+                
+            try:
+                for edge in ijson.items(FH, 'knowledge_graph.edges.item'):
+                    yield self.load_edge(edge)
             except (KeyError, ijson.JSONError) as e:
                 log.warning(f"Could not find edges in TRAPI format in {filename}: {str(e)}")
             finally:
@@ -222,17 +326,23 @@ class TrapiSource(JsonSource):
         for line in FH:
             try:
                 record = json.loads(line)
-                if 'type' in record and record['type'] == 'node' and 'id' in record:
-                    node_id = record['id']
-                    # Remove type and id as they're handled differently
-                    record_copy = record.copy()
-                    if 'type' in record_copy:
-                        del record_copy['type']
-                    if 'id' in record_copy:
-                        del record_copy['id']
+                
+                # Extract biolink version if this is a header record
+                if 'type' in record and record['type'] == 'knowledge_graph' and 'biolink_version' in record:
+                    self.biolink_version = record['biolink_version']
+                
+                # Process node record
+                elif 'type' in record and record['type'] == 'node' and 'id' in record:
+                    # Prepare node data
+                    node_data = record.copy()
+                    node_id = node_data.pop('id')
+                    if 'type' in node_data:
+                        del node_data['type']
                     
-                    # Convert to standard KGX format
-                    yield self.load_node((node_id, record_copy))
+                    # Directly use the node record
+                    node_data['id'] = node_id
+                    yield self.load_node(node_data)
+                    
             except json.JSONDecodeError:
                 log.warning(f"Error parsing JSONL line in {filename}")
                 
@@ -262,20 +372,18 @@ class TrapiSource(JsonSource):
         for line in FH:
             try:
                 record = json.loads(line)
+                
+                # Process edge record
                 if 'type' in record and record['type'] == 'edge' and 'id' in record:
-                    edge_id = record['id']
-                    # Remove type and id as they're handled differently
-                    record_copy = record.copy()
-                    if 'type' in record_copy:
-                        del record_copy['type']
-                    if 'id' in record_copy:
-                        del record_copy['id']
-                    
-                    # Add ID back as a property
-                    record_copy['id'] = edge_id
+                    # Prepare edge data
+                    edge_data = record.copy()
+                    # Remove 'type', but keep 'id' since it's needed for the edge
+                    if 'type' in edge_data:
+                        del edge_data['type']
                     
                     # Convert to standard KGX format
-                    yield self.load_edge(record_copy)
+                    yield self.load_edge(edge_data)
+                    
             except json.JSONDecodeError:
                 log.warning(f"Error parsing JSONL line in {filename}")
                 
@@ -361,31 +469,33 @@ class TrapiSource(JsonSource):
         Tuple[str, str, str, Dict]
             A tuple containing (subject_id, object_id, edge_id, edge_data) in KGX format
         """
+        # Make a deep copy of the edge data to avoid modifying the original
+        edge_copy = edge.copy()
+        
         # Handle legacy field names
-        if "source_id" in edge and "subject" not in edge:
-            edge["subject"] = edge["source_id"]
-        if "target_id" in edge and "object" not in edge:
-            edge["object"] = edge["target_id"]
-        if "relation_label" in edge and "predicate" not in edge:
-            if isinstance(edge["relation_label"], list):
-                edge["predicate"] = edge["relation_label"][0]
+        if "source_id" in edge_copy and "subject" not in edge_copy:
+            edge_copy["subject"] = edge_copy["source_id"]
+        if "target_id" in edge_copy and "object" not in edge_copy:
+            edge_copy["object"] = edge_copy["target_id"]
+        if "relation_label" in edge_copy and "predicate" not in edge_copy:
+            if isinstance(edge_copy["relation_label"], list):
+                edge_copy["predicate"] = edge_copy["relation_label"][0]
             else:
-                edge["predicate"] = edge["relation_label"]
+                edge_copy["predicate"] = edge_copy["relation_label"]
         
         # Process edge attributes
-        if "attributes" in edge and edge["attributes"]:
-            self._process_edge_attributes(edge["attributes"], edge)
+        if "attributes" in edge_copy and edge_copy["attributes"]:
+            self._process_edge_attributes(edge_copy["attributes"], edge_copy)
             
         # Process sources
-        if "sources" in edge:
-            self._process_sources(edge["sources"], edge)
+        if "sources" in edge_copy:
+            self._process_sources(edge_copy["sources"], edge_copy)
             
-        # Track qualifiers
-        if "qualifiers" in edge:
-            # Keep qualifiers as is
-            pass
-            
-        return super().read_edge(edge)
+        # Handle qualifiers - we need to ensure they're preserved in the format the test expects
+        # No processing needed as they should be passed through as-is
+        
+        # Pass the prepared edge to the parent class method
+        return super().read_edge(edge_copy)
         
     def _process_edge_attributes(self, attributes: List[Dict], kgx_edge: Dict) -> None:
         """

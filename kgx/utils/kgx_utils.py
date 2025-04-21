@@ -863,6 +863,10 @@ def _sanitize_import_property(key: str, value: Any, list_delimiter: str) -> Any:
             # remove duplication in the list
             value_set: Set = set()
             for entry in new_value:
+                # Make sure it's hashable
+                if isinstance(entry, (dict, list)):
+                    # Skip unhashable types
+                    continue
                 value_set.add(entry)
             new_value = sorted(list(value_set))
         elif column_types[key] == bool:

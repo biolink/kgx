@@ -37,9 +37,10 @@ class TrapiSink(Sink):
         compression: Optional[str] = None, 
         biolink_version: Optional[str] = None,
         knowledge_source: Optional[str] = None,
+        owner = None,
         **kwargs: Any
     ):
-        super().__init__()
+        super().__init__(owner)
         self.filename = filename
         self.format = format
         self.compression = compression
