@@ -1,4 +1,6 @@
-# TrapiSink
+# TRAPI Sink
+
+For TRAPI details, see: [Reasoner API Documentation](https://github.com/NCATSTranslator/ReasonerAPI)
 
 The `TrapiSink` is responsible for writing data in TRAPI (Translator Reasoner API) format. This sink converts KGX nodes
 and edges to the TRAPI KnowledgeGraph format.

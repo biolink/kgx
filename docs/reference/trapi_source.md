@@ -1,4 +1,6 @@
-# TrapiSource
+# TRAPI Source
+
+For TRAPI details, see: [Reasoner API Documentation](https://github.com/NCATSTranslator/ReasonerAPI)
 
 The `TrapiSource` is responsible for reading data from TRAPI (Translator Reasoner API) JSON format and converting 
 it into KGX format.

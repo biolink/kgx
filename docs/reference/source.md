@@ -202,3 +202,15 @@ In principle, `SparqlSource` should be able to read data from a local or remote 
    :inherited-members:
    :show-inheritance:
 ```
+
+## kgx.source.trapi_source
+
+`TrapiSource` is responsible for reading data from TRAPI (Translator Reasoner API) JSON format and converting
+it into KGX format.  For more information on TRAPI source, see the TRAPI source [doc](trapi_source.md)  .
+
+```eval_rst
+.. automodule:: kgx.source.trapi_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+```

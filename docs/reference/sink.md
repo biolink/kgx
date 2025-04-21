@@ -157,3 +157,16 @@ KGX writes two separate files - one for nodes and another for edges.
    :inherited-members:
    :show-inheritance:
 ```
+
+## kgx.sink.trapi_sink
+
+`TrapiSink` is responsible for writing data in TRAPI (Translator Reasoner API) format. This sink converts KGX nodes
+and edges to the TRAPI KnowledgeGraph format.  For more information on the TRAPI sink, see the TRAPI sink documentation
+here: [trapi_sink](trapi_sink.md).
+
+```eval_rst
+.. automodule:: kgx.sink.trapi_sink
+   :members:
+   :inherited-members:
+   :show-inheritance:
+```
