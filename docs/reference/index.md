@@ -17,4 +17,6 @@ from all the submodules in KGX.
    utilities/index.md
    prefix_manager
    curie_lookup_service
+   trapi_source
+   trapi_sink
 ```
