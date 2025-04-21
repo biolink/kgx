@@ -1,0 +1,682 @@
+id: kgx-inheritance
+title: KGX Inheritance Transformation
+description: Adds Node as parent of named thing and Edge as parent of association
+prefixes:
+  biolink: https://w3id.org/biolink/vocab/
+  kgx: https://w3id.org/biolink/kgx/
+source_schema: kgx/schema/kgx_merged.yaml
+target_schema: kgx/schema/transformations/full_transform.yaml
+class_derivations:
+  KnowledgeGraph:
+    populated_from: KnowledgeGraph
+  Node:
+    populated_from: Node
+  Edge:
+    populated_from: Edge
+  mapping collection:
+    populated_from: mapping collection
+  predicate mapping:
+    populated_from: predicate mapping
+  ontology class:
+    populated_from: ontology class
+  annotation:
+    populated_from: annotation
+  quantity value:
+    populated_from: quantity value
+  attribute:
+    populated_from: attribute
+  chemical role:
+    populated_from: chemical role
+  biological sex:
+    populated_from: biological sex
+  phenotypic sex:
+    populated_from: phenotypic sex
+  genotypic sex:
+    populated_from: genotypic sex
+  severity value:
+    populated_from: severity value
+  relationship quantifier:
+    populated_from: relationship quantifier
+  sensitivity quantifier:
+    populated_from: sensitivity quantifier
+  specificity quantifier:
+    populated_from: specificity quantifier
+  pathognomonicity quantifier:
+    populated_from: pathognomonicity quantifier
+  frequency quantifier:
+    populated_from: frequency quantifier
+  chemical or drug or treatment:
+    populated_from: chemical or drug or treatment
+  entity:
+    populated_from: entity
+  named thing:
+    populated_from: named thing
+    overrides:
+      is_a: Node
+  relationship type:
+    populated_from: relationship type
+  taxonomic rank:
+    populated_from: taxonomic rank
+  organism taxon:
+    populated_from: organism taxon
+  event:
+    populated_from: event
+  administrative entity:
+    populated_from: administrative entity
+  study result:
+    populated_from: study result
+  study:
+    populated_from: study
+  study variable:
+    populated_from: study variable
+  common data element:
+    populated_from: common data element
+  concept count analysis result:
+    populated_from: concept count analysis result
+  observed expected frequency analysis result:
+    populated_from: observed expected frequency analysis result
+  relative frequency analysis result:
+    populated_from: relative frequency analysis result
+  text mining result:
+    populated_from: text mining result
+  chi squared analysis result:
+    populated_from: chi squared analysis result
+  log odds analysis result:
+    populated_from: log odds analysis result
+  agent:
+    populated_from: agent
+  information content entity:
+    populated_from: information content entity
+  dataset:
+    populated_from: dataset
+  dataset distribution:
+    populated_from: dataset distribution
+  dataset version:
+    populated_from: dataset version
+  dataset summary:
+    populated_from: dataset summary
+  confidence level:
+    populated_from: confidence level
+  evidence type:
+    populated_from: evidence type
+  publication:
+    populated_from: publication
+  book:
+    populated_from: book
+  book chapter:
+    populated_from: book chapter
+  serial:
+    populated_from: serial
+  article:
+    populated_from: article
+  journal article:
+    populated_from: journal article
+  patent:
+    populated_from: patent
+  web page:
+    populated_from: web page
+  preprint publication:
+    populated_from: preprint publication
+  drug label:
+    populated_from: drug label
+  retrieval source:
+    populated_from: retrieval source
+  physical essence or occurrent:
+    populated_from: physical essence or occurrent
+  physical essence:
+    populated_from: physical essence
+  physical entity:
+    populated_from: physical entity
+  occurrent:
+    populated_from: occurrent
+  activity and behavior:
+    populated_from: activity and behavior
+  activity:
+    populated_from: activity
+  procedure:
+    populated_from: procedure
+  phenomenon:
+    populated_from: phenomenon
+  device:
+    populated_from: device
+  diagnostic aid:
+    populated_from: diagnostic aid
+  study population:
+    populated_from: study population
+  subject of investigation:
+    populated_from: subject of investigation
+  material sample:
+    populated_from: material sample
+  planetary entity:
+    populated_from: planetary entity
+  environmental process:
+    populated_from: environmental process
+  environmental feature:
+    populated_from: environmental feature
+  geographic location:
+    populated_from: geographic location
+  geographic location at time:
+    populated_from: geographic location at time
+  thing with taxon:
+    populated_from: thing with taxon
+  biological entity:
+    populated_from: biological entity
+  genomic entity:
+    populated_from: genomic entity
+  epigenomic entity:
+    populated_from: epigenomic entity
+  molecular entity:
+    populated_from: molecular entity
+  chemical entity:
+    populated_from: chemical entity
+  small molecule:
+    populated_from: small molecule
+  chemical mixture:
+    populated_from: chemical mixture
+  nucleic acid entity:
+    populated_from: nucleic acid entity
+  regulatory region:
+    populated_from: regulatory region
+  accessible dna region:
+    populated_from: accessible dna region
+  transcription factor binding site:
+    populated_from: transcription factor binding site
+  molecular mixture:
+    populated_from: molecular mixture
+  complex molecular mixture:
+    populated_from: complex molecular mixture
+  biological process or activity:
+    populated_from: biological process or activity
+  molecular activity:
+    populated_from: molecular activity
+  biological process:
+    populated_from: biological process
+  pathway:
+    populated_from: pathway
+  physiological process:
+    populated_from: physiological process
+  behavior:
+    populated_from: behavior
+  processed material:
+    populated_from: processed material
+  drug:
+    populated_from: drug
+  environmental food contaminant:
+    populated_from: environmental food contaminant
+  food additive:
+    populated_from: food additive
+  food:
+    populated_from: food
+  organism attribute:
+    populated_from: organism attribute
+  phenotypic quality:
+    populated_from: phenotypic quality
+  genetic inheritance:
+    populated_from: genetic inheritance
+  organismal entity:
+    populated_from: organismal entity
+  bacterium:
+    populated_from: bacterium
+  virus:
+    populated_from: virus
+  cellular organism:
+    populated_from: cellular organism
+  mammal:
+    populated_from: mammal
+  human:
+    populated_from: human
+  plant:
+    populated_from: plant
+  invertebrate:
+    populated_from: invertebrate
+  vertebrate:
+    populated_from: vertebrate
+  fungus:
+    populated_from: fungus
+  life stage:
+    populated_from: life stage
+  individual organism:
+    populated_from: individual organism
+  population of individual organisms:
+    populated_from: population of individual organisms
+  disease or phenotypic feature:
+    populated_from: disease or phenotypic feature
+  disease:
+    populated_from: disease
+  phenotypic feature:
+    populated_from: phenotypic feature
+  behavioral feature:
+    populated_from: behavioral feature
+  anatomical entity:
+    populated_from: anatomical entity
+  cellular component:
+    populated_from: cellular component
+  cell:
+    populated_from: cell
+  cell line:
+    populated_from: cell line
+  gross anatomical structure:
+    populated_from: gross anatomical structure
+  chemical entity or gene or gene product:
+    populated_from: chemical entity or gene or gene product
+  chemical entity or protein or polypeptide:
+    populated_from: chemical entity or protein or polypeptide
+  macromolecular machine mixin:
+    populated_from: macromolecular machine mixin
+  gene or gene product:
+    populated_from: gene or gene product
+  gene:
+    populated_from: gene
+  gene product mixin:
+    populated_from: gene product mixin
+  gene product isoform mixin:
+    populated_from: gene product isoform mixin
+  macromolecular complex:
+    populated_from: macromolecular complex
+  nucleosome modification:
+    populated_from: nucleosome modification
+  genome:
+    populated_from: genome
+  exon:
+    populated_from: exon
+  transcript:
+    populated_from: transcript
+  coding sequence:
+    populated_from: coding sequence
+  polypeptide:
+    populated_from: polypeptide
+  protein:
+    populated_from: protein
+  protein isoform:
+    populated_from: protein isoform
+  protein domain:
+    populated_from: protein domain
+  posttranslational modification:
+    populated_from: posttranslational modification
+  protein family:
+    populated_from: protein family
+  nucleic acid sequence motif:
+    populated_from: nucleic acid sequence motif
+  RNA product:
+    populated_from: RNA product
+  RNA product isoform:
+    populated_from: RNA product isoform
+  noncoding RNA product:
+    populated_from: noncoding RNA product
+  microRNA:
+    populated_from: microRNA
+  siRNA:
+    populated_from: siRNA
+  gene grouping mixin:
+    populated_from: gene grouping mixin
+  gene family:
+    populated_from: gene family
+  zygosity:
+    populated_from: zygosity
+  genotype:
+    populated_from: genotype
+  haplotype:
+    populated_from: haplotype
+  sequence variant:
+    populated_from: sequence variant
+  snv:
+    populated_from: snv
+  reagent targeted gene:
+    populated_from: reagent targeted gene
+  clinical attribute:
+    populated_from: clinical attribute
+  clinical measurement:
+    populated_from: clinical measurement
+  clinical modifier:
+    populated_from: clinical modifier
+  clinical course:
+    populated_from: clinical course
+  onset:
+    populated_from: onset
+  clinical entity:
+    populated_from: clinical entity
+  clinical trial:
+    populated_from: clinical trial
+  clinical intervention:
+    populated_from: clinical intervention
+  clinical finding:
+    populated_from: clinical finding
+  hospitalization:
+    populated_from: hospitalization
+  socioeconomic attribute:
+    populated_from: socioeconomic attribute
+  case:
+    populated_from: case
+  cohort:
+    populated_from: cohort
+  exposure event:
+    populated_from: exposure event
+  genomic background exposure:
+    populated_from: genomic background exposure
+  pathological entity mixin:
+    populated_from: pathological entity mixin
+  pathological process:
+    populated_from: pathological process
+  pathological process exposure:
+    populated_from: pathological process exposure
+  pathological anatomical structure:
+    populated_from: pathological anatomical structure
+  pathological anatomical exposure:
+    populated_from: pathological anatomical exposure
+  disease or phenotypic feature exposure:
+    populated_from: disease or phenotypic feature exposure
+  chemical exposure:
+    populated_from: chemical exposure
+  complex chemical exposure:
+    populated_from: complex chemical exposure
+  drug exposure:
+    populated_from: drug exposure
+  drug to gene interaction exposure:
+    populated_from: drug to gene interaction exposure
+  treatment:
+    populated_from: treatment
+  biotic exposure:
+    populated_from: biotic exposure
+  geographic exposure:
+    populated_from: geographic exposure
+  environmental exposure:
+    populated_from: environmental exposure
+  behavioral exposure:
+    populated_from: behavioral exposure
+  socioeconomic exposure:
+    populated_from: socioeconomic exposure
+  outcome:
+    populated_from: outcome
+  pathological process outcome:
+    populated_from: pathological process outcome
+  pathological anatomical outcome:
+    populated_from: pathological anatomical outcome
+  disease or phenotypic feature outcome:
+    populated_from: disease or phenotypic feature outcome
+  behavioral outcome:
+    populated_from: behavioral outcome
+  hospitalization outcome:
+    populated_from: hospitalization outcome
+  mortality outcome:
+    populated_from: mortality outcome
+  epidemiological outcome:
+    populated_from: epidemiological outcome
+  socioeconomic outcome:
+    populated_from: socioeconomic outcome
+  association:
+    populated_from: association
+    overrides:
+      is_a: Edge
+  chemical entity assesses named thing association:
+    populated_from: chemical entity assesses named thing association
+  contributor association:
+    populated_from: contributor association
+  genotype to genotype part association:
+    populated_from: genotype to genotype part association
+  genotype to gene association:
+    populated_from: genotype to gene association
+  genotype to variant association:
+    populated_from: genotype to variant association
+  gene to gene association:
+    populated_from: gene to gene association
+  gene to gene homology association:
+    populated_from: gene to gene homology association
+  gene to gene family association:
+    populated_from: gene to gene family association
+  gene expression mixin:
+    populated_from: gene expression mixin
+  gene to gene coexpression association:
+    populated_from: gene to gene coexpression association
+  pairwise gene to gene interaction:
+    populated_from: pairwise gene to gene interaction
+  pairwise molecular interaction:
+    populated_from: pairwise molecular interaction
+  cell line to entity association mixin:
+    populated_from: cell line to entity association mixin
+  cell line to disease or phenotypic feature association:
+    populated_from: cell line to disease or phenotypic feature association
+  chemical entity to entity association mixin:
+    populated_from: chemical entity to entity association mixin
+  drug to entity association mixin:
+    populated_from: drug to entity association mixin
+  chemical to entity association mixin:
+    populated_from: chemical to entity association mixin
+  case to entity association mixin:
+    populated_from: case to entity association mixin
+  chemical to chemical association:
+    populated_from: chemical to chemical association
+  reaction to participant association:
+    populated_from: reaction to participant association
+  reaction to catalyst association:
+    populated_from: reaction to catalyst association
+  chemical to chemical derivation association:
+    populated_from: chemical to chemical derivation association
+  chemical to disease or phenotypic feature association:
+    populated_from: chemical to disease or phenotypic feature association
+  chemical or drug or treatment to disease or phenotypic feature association:
+    populated_from: chemical or drug or treatment to disease or phenotypic feature
+      association
+  chemical or drug or treatment side effect disease or phenotypic feature association:
+    populated_from: chemical or drug or treatment side effect disease or phenotypic
+      feature association
+  gene to pathway association:
+    populated_from: gene to pathway association
+  molecular activity to pathway association:
+    populated_from: molecular activity to pathway association
+  chemical to pathway association:
+    populated_from: chemical to pathway association
+  named thing associated with likelihood of named thing association:
+    populated_from: named thing associated with likelihood of named thing association
+  chemical gene interaction association:
+    populated_from: chemical gene interaction association
+  gene regulates gene association:
+    populated_from: gene regulates gene association
+  process regulates process association:
+    populated_from: process regulates process association
+  chemical affects gene association:
+    populated_from: chemical affects gene association
+  gene affects chemical association:
+    populated_from: gene affects chemical association
+  drug to gene association:
+    populated_from: drug to gene association
+  material sample to entity association mixin:
+    populated_from: material sample to entity association mixin
+  material sample derivation association:
+    populated_from: material sample derivation association
+  material sample to disease or phenotypic feature association:
+    populated_from: material sample to disease or phenotypic feature association
+  disease to entity association mixin:
+    populated_from: disease to entity association mixin
+  entity to exposure event association mixin:
+    populated_from: entity to exposure event association mixin
+  disease to exposure event association:
+    populated_from: disease to exposure event association
+  entity to outcome association mixin:
+    populated_from: entity to outcome association mixin
+  exposure event to outcome association:
+    populated_from: exposure event to outcome association
+  frequency qualifier mixin:
+    populated_from: frequency qualifier mixin
+  entity to feature or disease qualifiers mixin:
+    populated_from: entity to feature or disease qualifiers mixin
+  feature or disease qualifiers to entity mixin:
+    populated_from: feature or disease qualifiers to entity mixin
+  entity to phenotypic feature association mixin:
+    populated_from: entity to phenotypic feature association mixin
+  phenotypic feature to entity association mixin:
+    populated_from: phenotypic feature to entity association mixin
+  phenotypic feature to phenotypic feature association:
+    populated_from: phenotypic feature to phenotypic feature association
+  information content entity to named thing association:
+    populated_from: information content entity to named thing association
+  entity to disease association mixin:
+    populated_from: entity to disease association mixin
+  disease or phenotypic feature to entity association mixin:
+    populated_from: disease or phenotypic feature to entity association mixin
+  disease or phenotypic feature to location association:
+    populated_from: disease or phenotypic feature to location association
+  disease or phenotypic feature to genetic inheritance association:
+    populated_from: disease or phenotypic feature to genetic inheritance association
+  entity to disease or phenotypic feature association mixin:
+    populated_from: entity to disease or phenotypic feature association mixin
+  genotype to entity association mixin:
+    populated_from: genotype to entity association mixin
+  genotype to phenotypic feature association:
+    populated_from: genotype to phenotypic feature association
+  exposure event to phenotypic feature association:
+    populated_from: exposure event to phenotypic feature association
+  disease to phenotypic feature association:
+    populated_from: disease to phenotypic feature association
+  case to phenotypic feature association:
+    populated_from: case to phenotypic feature association
+  behavior to behavioral feature association:
+    populated_from: behavior to behavioral feature association
+  gene to entity association mixin:
+    populated_from: gene to entity association mixin
+  variant to entity association mixin:
+    populated_from: variant to entity association mixin
+  gene to disease or phenotypic feature association:
+    populated_from: gene to disease or phenotypic feature association
+  gene to phenotypic feature association:
+    populated_from: gene to phenotypic feature association
+  gene to disease association:
+    populated_from: gene to disease association
+  causal gene to disease association:
+    populated_from: causal gene to disease association
+  correlated gene to disease association:
+    populated_from: correlated gene to disease association
+  druggable gene to disease association:
+    populated_from: druggable gene to disease association
+  phenotypic feature to disease association:
+    populated_from: phenotypic feature to disease association
+  variant to gene association:
+    populated_from: variant to gene association
+  variant to gene expression association:
+    populated_from: variant to gene expression association
+  variant to population association:
+    populated_from: variant to population association
+  population to population association:
+    populated_from: population to population association
+  variant to phenotypic feature association:
+    populated_from: variant to phenotypic feature association
+  variant to disease association:
+    populated_from: variant to disease association
+  genotype to disease association:
+    populated_from: genotype to disease association
+  model to disease association mixin:
+    populated_from: model to disease association mixin
+  gene as a model of disease association:
+    populated_from: gene as a model of disease association
+  variant as a model of disease association:
+    populated_from: variant as a model of disease association
+  genotype as a model of disease association:
+    populated_from: genotype as a model of disease association
+  cell line as a model of disease association:
+    populated_from: cell line as a model of disease association
+  organismal entity as a model of disease association:
+    populated_from: organismal entity as a model of disease association
+  organism to organism association:
+    populated_from: organism to organism association
+  taxon to taxon association:
+    populated_from: taxon to taxon association
+  gene has variant that contributes to disease association:
+    populated_from: gene has variant that contributes to disease association
+  gene to expression site association:
+    populated_from: gene to expression site association
+  sequence variant modulates treatment association:
+    populated_from: sequence variant modulates treatment association
+  functional association:
+    populated_from: functional association
+  macromolecular machine to entity association mixin:
+    populated_from: macromolecular machine to entity association mixin
+  macromolecular machine to molecular activity association:
+    populated_from: macromolecular machine to molecular activity association
+  macromolecular machine to biological process association:
+    populated_from: macromolecular machine to biological process association
+  macromolecular machine to cellular component association:
+    populated_from: macromolecular machine to cellular component association
+  molecular activity to chemical entity association:
+    populated_from: molecular activity to chemical entity association
+  molecular activity to molecular activity association:
+    populated_from: molecular activity to molecular activity association
+  gene to go term association:
+    populated_from: gene to go term association
+  entity to disease association:
+    populated_from: entity to disease association
+  entity to phenotypic feature association:
+    populated_from: entity to phenotypic feature association
+  sequence association:
+    populated_from: sequence association
+  genomic sequence localization:
+    populated_from: genomic sequence localization
+  sequence feature relationship:
+    populated_from: sequence feature relationship
+  transcript to gene relationship:
+    populated_from: transcript to gene relationship
+  gene to gene product relationship:
+    populated_from: gene to gene product relationship
+  exon to transcript relationship:
+    populated_from: exon to transcript relationship
+  chemical entity or gene or gene product regulates gene association:
+    populated_from: chemical entity or gene or gene product regulates gene association
+  anatomical entity to anatomical entity association:
+    populated_from: anatomical entity to anatomical entity association
+  anatomical entity to anatomical entity part of association:
+    populated_from: anatomical entity to anatomical entity part of association
+  anatomical entity to anatomical entity ontogenic association:
+    populated_from: anatomical entity to anatomical entity ontogenic association
+  organism taxon to entity association:
+    populated_from: organism taxon to entity association
+  organism taxon to organism taxon association:
+    populated_from: organism taxon to organism taxon association
+  organism taxon to organism taxon specialization:
+    populated_from: organism taxon to organism taxon specialization
+  organism taxon to organism taxon interaction:
+    populated_from: organism taxon to organism taxon interaction
+  organism taxon to environment association:
+    populated_from: organism taxon to environment association
+enum_derivations:
+  ApprovalStatusEnum:
+    populated_from: ApprovalStatusEnum
+  ClinicalApprovalStatusEnum:
+    populated_from: ClinicalApprovalStatusEnum
+  ResearchPhaseEnum:
+    populated_from: ResearchPhaseEnum
+  DirectionQualifierEnum:
+    populated_from: DirectionQualifierEnum
+  ChemicalEntityDerivativeEnum:
+    populated_from: ChemicalEntityDerivativeEnum
+  ChemicalOrGeneOrGeneProductFormOrVariantEnum:
+    populated_from: ChemicalOrGeneOrGeneProductFormOrVariantEnum
+  GeneOrGeneProductOrChemicalPartQualifierEnum:
+    populated_from: GeneOrGeneProductOrChemicalPartQualifierEnum
+  GeneOrGeneProductOrChemicalEntityAspectEnum:
+    populated_from: GeneOrGeneProductOrChemicalEntityAspectEnum
+  CausalMechanismQualifierEnum:
+    populated_from: CausalMechanismQualifierEnum
+  LogicalInterpretationEnum:
+    populated_from: LogicalInterpretationEnum
+  ReactionDirectionEnum:
+    populated_from: ReactionDirectionEnum
+  ReactionSideEnum:
+    populated_from: ReactionSideEnum
+  PhaseEnum:
+    populated_from: PhaseEnum
+  StrandEnum:
+    populated_from: StrandEnum
+  SequenceEnum:
+    populated_from: SequenceEnum
+  DruggableGeneCategoryEnum:
+    populated_from: DruggableGeneCategoryEnum
+  DrugAvailabilityEnum:
+    populated_from: DrugAvailabilityEnum
+  DrugDeliveryEnum:
+    populated_from: DrugDeliveryEnum
+  ResourceRoleEnum:
+    populated_from: ResourceRoleEnum
+  FDAIDAAdverseEventEnum:
+    populated_from: FDAIDAAdverseEventEnum
+  AgentTypeEnum:
+    populated_from: AgentTypeEnum
+  KnowledgeLevelEnum:
+    populated_from: KnowledgeLevelEnum
