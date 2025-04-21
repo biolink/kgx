@@ -1,0 +1,24 @@
+id: kgx-inheritance
+title: KGX Inheritance Transformation
+description: Adds Node as parent of named thing and Edge as parent of association
+
+prefixes:
+  biolink: https://w3id.org/biolink/vocab/
+  kgx: https://w3id.org/biolink/kgx/
+
+source_schema: ../kgx_merged.yaml
+target_schema: ../kgx_final.yaml
+
+# Modify only the inheritance structure
+class_derivations:
+  # Modify "named thing" to be a child of Node
+  named thing:
+    populated_from: named thing
+    overrides:
+      is_a: Node
+      
+  # Modify "association" to be a child of Edge
+  association:
+    populated_from: association
+    overrides:
+      is_a: Edge

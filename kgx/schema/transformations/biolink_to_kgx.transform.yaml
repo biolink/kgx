@@ -1,0 +1,55 @@
+id: biolink-to-kgx
+title: Biolink to KGX Transformation
+description: Transformation that preserves biolink-model hierarchy but adds Node and Edge as parent classes
+
+prefixes:
+  biolink: https://w3id.org/biolink/vocab/
+  kgx: https://w3id.org/biolink/kgx/
+
+source_schema: ../../../biolink-model/biolink-model.yaml
+target_schema: ../kgx.yaml
+
+# Class derivations
+class_derivations:
+  # Add Node as a new parent class of NamedThing
+  Node:
+    # This is a new class not in biolink-model
+    description: A node in a KGX graph, parent class for all named things
+      
+  # Add Edge as a new parent class of Association  
+  Edge:
+    # This is a new class not in biolink-model
+    description: An edge in a KGX graph, parent class for all associations
+      
+  # Modify named thing to make it a child of Node
+  "named thing":
+    # This is a class that exists in biolink-model that we want to modify
+    populated_from: "named thing"
+    # Add Node as parent
+    overrides:
+      is_a: Node
+      
+  # Modify association to make it a child of Edge
+  association:
+    # This is a class that exists in biolink-model that we want to modify
+    populated_from: association
+    # Add Edge as parent
+    overrides:
+      is_a: Edge
+      
+  # Add the KnowledgeGraph container class
+  KnowledgeGraph:
+    description: A knowledge graph represented in KGX format
+    slot_derivations:
+      nodes:
+        expr: "[]"
+      edges:
+        expr: "[]"
+
+# Slots for the new classes
+slot_derivations:
+  nodes:
+    populated_from: nodes
+    
+  edges:
+    populated_from: edges
