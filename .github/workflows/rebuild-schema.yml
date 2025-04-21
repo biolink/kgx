@@ -4,7 +4,7 @@ name: Rebuild KGX Schema and Deploy Documentation
 on:
   # Trigger when PRs are merged to master or when manually triggered
   push:
-    branches: [ master ]
+    branches: [master, trapi_sink]
   
   # Allow manual triggering from the Actions tab
   workflow_dispatch:
