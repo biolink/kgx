@@ -7,4 +7,5 @@ from .null_sink import NullSink
 from .parquet_sink import ParquetSink
 from .rdf_sink import RdfSink
 from .sql_sink import SqlSink
+from .trapi_sink import TrapiSink
 from .tsv_sink import TsvSink
