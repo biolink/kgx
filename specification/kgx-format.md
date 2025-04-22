@@ -1,10 +1,5 @@
 # KGX Format
 
-Author: Deepak Unni<br>
-Date: 2021-01-12<br>
-Version: 0.0.2<br>
-
-
 > **Note:** This specification is constantly evolving based on the changes occuring in Biolink Model.
 
 ## Table of Contents
