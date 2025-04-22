@@ -1,0 +1,661 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data preparation for use with KGX" href="data-preparation.html" /><link rel="prev" title="KGX transformation and validation examples" href="transformation_and_validation_examples.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>KGX Developer Guide - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">KGX Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data-preparation.html">Data preparation for use with KGX</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="kgx-developer-guide">
+<h1>KGX Developer Guide<a class="headerlink" href="#kgx-developer-guide" title="Permalink to this heading">#</a></h1>
+<p>This guide can be considered as a reference for developers keen on contributing to KGX.</p>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#architecture">Architecture</a></p></li>
+<li><p><a class="reference internal" href="#design-principles">Design Principles</a></p></li>
+<li><p><a class="reference internal" href="#conventions">Conventions</a></p></li>
+<li><p><a class="reference internal" href="#continuous-integration">Continuous Integration</a></p></li>
+<li><p><a class="reference internal" href="#releases">Releases</a></p></li>
+<li><p><a class="reference internal" href="#roadmap">Roadmap</a></p></li>
+</ul>
+</section>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading">#</a></h2>
+<p>The current <a class="reference external" href="https://github.com/biolink/kgx/tree/master">1.x.x</a> architecture is a major rewrite from KGX <a class="reference external" href="https://github.com/biolink/kgx/tree/0.x.x">0.x.x</a>. The main motivation for this rewrite was to,</p>
+<ul class="simple">
+<li><p>reduce complexity</p></li>
+<li><p>increase flexibility</p></li>
+<li><p>improve readability</p></li>
+<li><p>add ability to stream graphs</p></li>
+</ul>
+<p>The rest of this guide will assume KGX <a class="reference external" href="https://github.com/biolink/kgx/tree/master">1.x.x</a> as the canonical architecture.</p>
+</section>
+<section id="design-principles">
+<h2>Design Principles<a class="headerlink" href="#design-principles" title="Permalink to this heading">#</a></h2>
+<p>Following are certain principles to keep in mind when working on the KGX codebase - whether
+modifying existing implementation or writing new ones.</p>
+<section id="source">
+<h3>Source<a class="headerlink" href="#source" title="Permalink to this heading">#</a></h3>
+<p>A Source can be implemented for any file, local, and/or remote store that can contains a graph. A Source
+is responsible for reading nodes and edges from the graph.</p>
+<p>A source must subclass <code class="docutils literal notranslate"><span class="pre">kgx.source.source.Source</span></code> class and must implement the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parse</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_nodes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_edges</span></code></p></li>
+</ul>
+<section id="parse-method">
+<h4><code class="docutils literal notranslate"><span class="pre">parse</span></code> method<a class="headerlink" href="#parse-method" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Responsible for parsing a graph from a file/store</p></li>
+<li><p>Must return a generator that iterates over list of node and edge records from the graph</p></li>
+</ul>
+</section>
+<section id="read-nodes-method">
+<h4><code class="docutils literal notranslate"><span class="pre">read_nodes</span></code> method<a class="headerlink" href="#read-nodes-method" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Responsible for reading nodes from the file/store</p></li>
+<li><p>Must return a generator that iterates over list of node records</p></li>
+<li><p>Each node record must be a 2-tuple <code class="docutils literal notranslate"><span class="pre">(node_id,</span> <span class="pre">node_data)</span></code> where,</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_id</span></code> is the node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_data</span></code> is a dictionary that represents the node properties</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="read-edges-method">
+<h4><code class="docutils literal notranslate"><span class="pre">read_edges</span></code> method<a class="headerlink" href="#read-edges-method" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Responsible for reading edges from the file/store</p></li>
+<li><p>Must return a generator that iterates over list of edge records</p></li>
+<li><p>Each edge record must be a 4-tuple <code class="docutils literal notranslate"><span class="pre">(subject_id,</span> <span class="pre">object_id,</span> <span class="pre">edge_key,</span> <span class="pre">edge_data)</span></code> where,</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> is the subject node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">object_id</span></code> is the object node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_key</span></code> is the unique key for the edge</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_data</span></code> is a dictionary that represents the edge properties</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="sink">
+<h3>Sink<a class="headerlink" href="#sink" title="Permalink to this heading">#</a></h3>
+<p>A Sink can be implemented for any file, local, and/or remote store to which a graph can be written to. A Sink is
+responsible for writing nodes and edges from a graph.</p>
+<p>A Sink must subclass <code class="docutils literal notranslate"><span class="pre">kgx.sink.sink.Sink</span></code> class and must implement the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_nodes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_edges</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finalize</span></code></p></li>
+</ul>
+<section id="init-method">
+<h4><code class="docutils literal notranslate"><span class="pre">__init__</span></code> method<a class="headerlink" href="#init-method" title="Permalink to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method is used to instantiate a Sink with configurations required for writing to a store.</p>
+<ul class="simple">
+<li><p>In the case of files, the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method will take the <code class="docutils literal notranslate"><span class="pre">filename</span></code> and <code class="docutils literal notranslate"><span class="pre">format</span></code> as arguments</p></li>
+<li><p>In the case of a graph store like Neo4j, the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method will take the <code class="docutils literal notranslate"><span class="pre">uri</span></code>, <code class="docutils literal notranslate"><span class="pre">username</span></code>, and <code class="docutils literal notranslate"><span class="pre">password</span></code> as arguments.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method also has an optional <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> argument which can be used to supply variable number
+of arguments to this method, depending on the requirements for the store for which the Sink is being implemented.</p>
+</section>
+</section>
+<section id="write-nodes-method">
+<h3><code class="docutils literal notranslate"><span class="pre">write_nodes</span></code> method<a class="headerlink" href="#write-nodes-method" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Responsible for receiving a node record and writing to a file/store</p></li>
+</ul>
+</section>
+<section id="write-edges-method">
+<h3><code class="docutils literal notranslate"><span class="pre">write_edges</span></code> method<a class="headerlink" href="#write-edges-method" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Responsible for receiving an edge record and writing to a file/store</p></li>
+</ul>
+</section>
+<section id="finalize-method">
+<h3><code class="docutils literal notranslate"><span class="pre">finalize</span></code> method<a class="headerlink" href="#finalize-method" title="Permalink to this heading">#</a></h3>
+<p>Any operation that needs to be performed after writing all the nodes and edges to a file/store must be defined in this method.</p>
+<p>For example,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kgx.source.tsv_source.TsvSource</span></code> has a <code class="docutils literal notranslate"><span class="pre">finalize</span></code> method that closes the file handles and creates an archive, if compression is desired</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kgx.source.neo_sink.NeoSink</span></code> has a <code class="docutils literal notranslate"><span class="pre">finalize</span></code> method that writes any cached node and edge records</p></li>
+</ul>
+</section>
+<section id="transformer">
+<h3>Transformer<a class="headerlink" href="#transformer" title="Permalink to this heading">#</a></h3>
+<p>The Transformer class is responsible for reading data from an instance of <code class="docutils literal notranslate"><span class="pre">kgx.source.source.Source</span></code>
+and writing to an instance of <code class="docutils literal notranslate"><span class="pre">kgx.sink.sink.Sink</span></code>.</p>
+<p>The Transformer supports various scenarios of execution.</p>
+<section id="scenario-i">
+<h4>Scenario I<a class="headerlink" href="#scenario-i" title="Permalink to this heading">#</a></h4>
+<p>Read from a source and write to an intermediate <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code> instance.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;tsv&#39;</span><span class="p">}</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">()</span>
+<span class="n">t</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="o">=</span><span class="n">input_args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And then save the graph from the intermediate graph to a desired sink.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;graph.json&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span><span class="p">}</span>
+<span class="n">t</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_args</span><span class="o">=</span><span class="n">output_args</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="scenario-ii">
+<h4>Scenario II<a class="headerlink" href="#scenario-ii" title="Permalink to this heading">#</a></h4>
+<p>Read from a source, write to an intermediate <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code> instance, and then write to the desired sink.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;tsv&#39;</span><span class="p">}</span>
+<span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;graph.json&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span><span class="p">}</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">()</span>
+<span class="n">t</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="o">=</span><span class="n">input_args</span><span class="p">,</span> <span class="n">output_args</span><span class="o">=</span><span class="n">output_args</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="scenario-iii">
+<h4>Scenario III<a class="headerlink" href="#scenario-iii" title="Permalink to this heading">#</a></h4>
+<p>Stream from a source and write to a desired sink.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;tsv&#39;</span><span class="p">}</span>
+<span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;graph.json&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span><span class="p">}</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="o">=</span><span class="n">input_args</span><span class="p">,</span> <span class="n">output_args</span><span class="o">=</span><span class="n">output_args</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="scenario-iv">
+<h4>Scenario IV<a class="headerlink" href="#scenario-iv" title="Permalink to this heading">#</a></h4>
+<p>Stream from a source, compute some graph operations - e.g. <code class="docutils literal notranslate"><span class="pre">graph-summary</span></code>, <code class="docutils literal notranslate"><span class="pre">validate</span></code> or a custom inspector (see below) - on the input graph  and then throw the data away, into a ‘null’ format Sink.</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.utils.kgx_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphEntityType</span>
+
+<span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;tsv&#39;</span><span class="p">}</span>
+<span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;null&#39;</span><span class="p">}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestInspector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">:</span> <span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="n">GraphEntityType</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edge_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="n">GraphEntityType</span><span class="o">.</span><span class="n">NODE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_node_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unexpected GraphEntityType: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity_type</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_count</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_count</span>
+
+<span class="n">inspector</span> <span class="o">=</span> <span class="n">TestInspector</span><span class="p">()</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+  <span class="n">input_args</span><span class="o">=</span><span class="n">input_args</span><span class="p">,</span>
+  <span class="n">output_args</span><span class="o">=</span><span class="n">output_args</span><span class="p">,</span>
+  <span class="n">inspector</span><span class="o">=</span><span class="n">inspector</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">inspector</span><span class="o">.</span><span class="n">get_node_count</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">inspector</span><span class="o">.</span><span class="n">get_edge_count</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="utils">
+<h3>Utils<a class="headerlink" href="#utils" title="Permalink to this heading">#</a></h3>
+<p>Any method that is used across the codebase must be placed in <code class="docutils literal notranslate"><span class="pre">kgx.utils</span></code>, unless those methods are bound methods
+that need to rely on the state of a class.</p>
+<ul class="simple">
+<li><p>Any method that is generic and can be used across the codebase can be placed in <code class="docutils literal notranslate"><span class="pre">kgx.utils.kgx_utils</span></code></p></li>
+<li><p>Any method that has to do with graph traversals can be placed in <code class="docutils literal notranslate"><span class="pre">kgx.utils.graph_utils</span></code></p></li>
+<li><p>Any method that has to do with RDF specific functions can be placed in <code class="docutils literal notranslate"><span class="pre">kgx.utils.rdf_utils</span></code></p></li>
+</ul>
+</section>
+<section id="graph-operations">
+<h3>Graph Operations<a class="headerlink" href="#graph-operations" title="Permalink to this heading">#</a></h3>
+<p>KGX also has a small collection of graph operations that can be applied to an instance of <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code>.</p>
+<p>Every new graph operation must be implemented as its own separate submodule in <code class="docutils literal notranslate"><span class="pre">kgx.graph_operations</span></code>.</p>
+<p>Every new graph operation must take an instance of <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code> as its first argument, followed by other arguments specific for that operation.</p>
+<p>For more information, refer to the KGX documentation on <a class="reference external" href="https://kgx.readthedocs.io/en/latest/reference/graph_operations/index.html">Graph Operations</a>.</p>
+</section>
+<section id="validator">
+<h3>Validator<a class="headerlink" href="#validator" title="Permalink to this heading">#</a></h3>
+<p>KGX has a validator which checks whether a given graph is Biolink Model compliant.</p>
+<p>For more information, refer to the KGX documentation on <a class="reference external" href="https://kgx.readthedocs.io/en/latest/reference/validator.html">Valdiator</a>.</p>
+</section>
+<section id="kgx-cli">
+<h3>KGX CLI<a class="headerlink" href="#kgx-cli" title="Permalink to this heading">#</a></h3>
+<p>The KGX Command Line Interface is built using the <a class="reference external" href="https://github.com/pallets/click">Click</a> library.</p>
+<p>The main entrypoint for CLI is <code class="docutils literal notranslate"><span class="pre">kgx.cli:cli</span></code>.</p>
+<p>As a design choice, all CLI operations should be implemented in <code class="docutils literal notranslate"><span class="pre">kgx.cli.cli_utils</span></code> and exposed as wrappers in <code class="docutils literal notranslate"><span class="pre">kgx.cli</span></code>.</p>
+<p>For more information, refer to the KGX documentation on <a class="reference external" href="https://kgx.readthedocs.io/en/latest/reference/cli/index.html">KGX CLI</a>.</p>
+</section>
+</section>
+<section id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this heading">#</a></h2>
+<p>The following section details the various conventions used throughout the codebase.</p>
+<section id="code-formatting">
+<h3>Code formatting<a class="headerlink" href="#code-formatting" title="Permalink to this heading">#</a></h3>
+<p>The code formatting is periodically done using the <a class="reference external" href="https://github.com/psf/black">Black</a> Python library.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>black<span class="w"> </span>--skip-string-normalization<span class="w"> </span>--line-length<span class="w"> </span><span class="m">100</span><span class="w"> </span>kgx
+black<span class="w"> </span>--skip-string-normalization<span class="w"> </span>--line-length<span class="w"> </span><span class="m">100</span><span class="w"> </span>tests
+</pre></div>
+</div>
+</section>
+<section id="docstring-guidelines">
+<h3>Docstring guidelines<a class="headerlink" href="#docstring-guidelines" title="Permalink to this heading">#</a></h3>
+<p>The KGX codebase makes use of <a class="reference external" href="https://python-sprints.github.io/pandas/guide/pandas_docstring.html">Pandas styled docstring</a>
+format for documenting classes and methods.</p>
+<p>This format is also utilized by Sphinx documentation generator to autogenerate documentation for the codebase.</p>
+</section>
+<section id="typing">
+<h3>Typing<a class="headerlink" href="#typing" title="Permalink to this heading">#</a></h3>
+<p>Types are defined throughout the KGX codebase.</p>
+<p>The typecheck is periodically done using the <a class="reference external" href="http://mypy-lang.org/">Mypy</a> library.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mypy<span class="w"> </span>--strict-optional<span class="w"> </span>--ignore-missing-imports<span class="w"> </span>kgx/
+</pre></div>
+</div>
+</section>
+</section>
+<section id="continuous-integration">
+<h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h2>
+<p>The KGX repository is configured to run tests on every commit and on every PR made to the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch. These tests
+are run via <a class="reference external" href="https://github.com/biolink/kgx/blob/master/.github/workflows/run_tests.yml">GitHub Actions</a>.</p>
+<p>The KGX repository is also configured with <a class="reference external" href="https://sonarcloud.io/dashboard?id=biolink_kgx">SonarCloud</a> that provides
+a wide range of metrics that helps in determining the maintainability of the codebase. SonarCloud scans the repo
+after every commit and PR to ensure that certain quality metrics are above satisfying limits. These metrics are
+entirely for the sake of guiding better coding practices and in no way interferes with the ability to merge PRs.</p>
+<p>If you are a core-developer of KGX then you should have admin access to the <a class="reference external" href="https://sonarcloud.io/dashboard?id=biolink_kgx">KGX project on SonarCloud</a>.</p>
+</section>
+<section id="releases">
+<h2>Releases<a class="headerlink" href="#releases" title="Permalink to this heading">#</a></h2>
+<p>KGX repository follows <a class="reference external" href="https://semver.org/">Semantic Versioning guidelines</a> for versioning releases.</p>
+<p>There are currently two branches of KGX:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">master</span></code> branch is where the latest changes are merged into. All new releases on the <code class="docutils literal notranslate"><span class="pre">1.x.x</span></code> will be made
+off of <code class="docutils literal notranslate"><span class="pre">master</span></code> branch.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">0.x.x</span></code> is the legacy implementation of KGX. This branch will be maintained where only bugs are addressed.
+No new features will be added to this branch.</p></li>
+</ul>
+<p>To make a new release of KGX, refer to <span class="xref myst">Release Instructions</span>.</p>
+<p>If you are a core-developer of KGX then you should have push access to <a class="reference external" href="https://pypi.org/project/kgx/">KGX on PyPI</a> and <a class="reference external" href="https://hub.docker.com/repository/docker/biolink/kgx">KGX on DockerHub</a>.</p>
+</section>
+<section id="roadmap">
+<h2>Roadmap<a class="headerlink" href="#roadmap" title="Permalink to this heading">#</a></h2>
+<p>KGX has several driver projects that guides its development.</p>
+<p>It originally started out with addressing the needs of the <a class="reference external" href="https://ncats.nih.gov/translator">NCATS Biomedical Data Translator</a> and has since found application in various other projects:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://monarchinitiative.org/">Monarch Initiative</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Knowledge-Graph-Hub/kg-covid-19">KG-COVID-19</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Knowledge-Graph-Hub/kg-microbe">KG Microbe</a></p></li>
+<li><p><a class="reference external" href="https://knowledge-graph-hub.github.io/">Knowledge Graph Hub</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Knowledge-Graph-Hub/OntoML">OntoML</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Knowledge-Graph-Hub/NEAT/">NEAT</a></p></li>
+<li><p><a class="reference external" href="https://github.com/monarch-initiative/runner">Runner</a></p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="data-preparation.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Data preparation for use with KGX</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="transformation_and_validation_examples.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">KGX transformation and validation examples</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">KGX Developer Guide</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+<li><a class="reference internal" href="#architecture">Architecture</a></li>
+<li><a class="reference internal" href="#design-principles">Design Principles</a><ul>
+<li><a class="reference internal" href="#source">Source</a><ul>
+<li><a class="reference internal" href="#parse-method"><code class="docutils literal notranslate"><span class="pre">parse</span></code> method</a></li>
+<li><a class="reference internal" href="#read-nodes-method"><code class="docutils literal notranslate"><span class="pre">read_nodes</span></code> method</a></li>
+<li><a class="reference internal" href="#read-edges-method"><code class="docutils literal notranslate"><span class="pre">read_edges</span></code> method</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sink">Sink</a><ul>
+<li><a class="reference internal" href="#init-method"><code class="docutils literal notranslate"><span class="pre">__init__</span></code> method</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#write-nodes-method"><code class="docutils literal notranslate"><span class="pre">write_nodes</span></code> method</a></li>
+<li><a class="reference internal" href="#write-edges-method"><code class="docutils literal notranslate"><span class="pre">write_edges</span></code> method</a></li>
+<li><a class="reference internal" href="#finalize-method"><code class="docutils literal notranslate"><span class="pre">finalize</span></code> method</a></li>
+<li><a class="reference internal" href="#transformer">Transformer</a><ul>
+<li><a class="reference internal" href="#scenario-i">Scenario I</a></li>
+<li><a class="reference internal" href="#scenario-ii">Scenario II</a></li>
+<li><a class="reference internal" href="#scenario-iii">Scenario III</a></li>
+<li><a class="reference internal" href="#scenario-iv">Scenario IV</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utils">Utils</a></li>
+<li><a class="reference internal" href="#graph-operations">Graph Operations</a></li>
+<li><a class="reference internal" href="#validator">Validator</a></li>
+<li><a class="reference internal" href="#kgx-cli">KGX CLI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conventions">Conventions</a><ul>
+<li><a class="reference internal" href="#code-formatting">Code formatting</a></li>
+<li><a class="reference internal" href="#docstring-guidelines">Docstring guidelines</a></li>
+<li><a class="reference internal" href="#typing">Typing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
+<li><a class="reference internal" href="#releases">Releases</a></li>
+<li><a class="reference internal" href="#roadmap">Roadmap</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

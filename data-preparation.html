@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="KGX Specification" href="kgx_format.html" /><link rel="prev" title="Welcome to the KGX documentation" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="KGX Developer Guide" href="developer-guide.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>Installation - kgx documentation</title>
+        <title>Data preparation for use with KGX - kgx documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -161,7 +161,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
@@ -202,7 +202,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer-guide.html">KGX Developer Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data-preparation.html">Data preparation for use with KGX</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Data preparation for use with KGX</a></li>
 </ul>
 
 </div>
@@ -237,87 +237,18 @@
           </label>
         </div>
         <article role="main">
-          <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
-<p>The installation for KGX requires Python 3.9 or greater.</p>
-<section id="installation-for-users">
-<h2>Installation for users<a class="headerlink" href="#installation-for-users" title="Permalink to this heading">#</a></h2>
-<section id="installing-from-pypi">
-<h3>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Permalink to this heading">#</a></h3>
-<p>KGX is available on PyPI and can be installed using
-<a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> as follows,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>kgx
-</pre></div>
-</div>
-<p>To install a particular version of KGX, be sure to specify the version number,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">kgx</span><span class="o">==</span><span class="m">0</span>.5.0
-</pre></div>
-</div>
-</section>
-<section id="installing-from-github">
-<h3>Installing from GitHub<a class="headerlink" href="#installing-from-github" title="Permalink to this heading">#</a></h3>
-<p>Clone the GitHub repository and then install,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biolink/kgx
-<span class="nb">cd</span><span class="w"> </span>kgx
-python<span class="w"> </span>setup.py<span class="w"> </span>install
-</pre></div>
-</div>
-</section>
-</section>
-<section id="installation-for-developers">
-<h2>Installation for developers<a class="headerlink" href="#installation-for-developers" title="Permalink to this heading">#</a></h2>
-<section id="setting-up-a-development-environment">
-<h3>Setting up a development environment<a class="headerlink" href="#setting-up-a-development-environment" title="Permalink to this heading">#</a></h3>
-<p>To build directly from source, first clone the GitHub repository,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biolink/kgx
-<span class="nb">cd</span><span class="w"> </span>kgx
-</pre></div>
-</div>
-<p>Then install the necessary dependencies listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</pre></div>
-</div>
-<p>For convenience, make use of the <code class="docutils literal notranslate"><span class="pre">venv</span></code> module in Python3 to create a
-lightweight virtual environment,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">env</span>
-<span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
-
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-</div>
-<p>To install KGX you can do one of the following,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
-
-<span class="c1"># OR </span>
-
-python<span class="w"> </span>setup.py<span class="w"> </span>install
-</pre></div>
-</div>
-</section>
-<section id="setting-up-a-testing-environment">
-<h3>Setting up a testing environment<a class="headerlink" href="#setting-up-a-testing-environment" title="Permalink to this heading">#</a></h3>
-<p>KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.</p>
-<p>To set up the required containers, first install <a class="reference external" href="https://docs.docker.com/get-docker/">Docker</a>
-on your local machine.</p>
-<p>Once Docker is up and running, run the following commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>kgx-neo4j-integration-test<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>-p<span class="w"> </span><span class="m">7474</span>:7474<span class="w"> </span>-p<span class="w"> </span><span class="m">7687</span>:7687<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>--env<span class="w"> </span><span class="nv">NEO4J_AUTH</span><span class="o">=</span>neo4j/test<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>neo4j:3.5.25
-</pre></div>
-</div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>kgx-neo4j-unit-test<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>-p<span class="w"> </span><span class="m">8484</span>:7474<span class="w"> </span>-p<span class="w"> </span><span class="m">8888</span>:7687<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>--env<span class="w"> </span><span class="nv">NEO4J_AUTH</span><span class="o">=</span>neo4j/test<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span>neo4j:3.5.25
-</pre></div>
-</div>
-<p><strong>Note:</strong> Setting up the Neo4j container is optional. If there is no container set up then the tests that rely on them are skipped.</p>
-<p>KGX tests are simply run using <code class="docutils literal notranslate"><span class="pre">make</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>tests
-</pre></div>
-</div>
-</section>
+          <section id="data-preparation-for-use-with-kgx">
+<h1>Data preparation for use with KGX<a class="headerlink" href="#data-preparation-for-use-with-kgx" title="Permalink to this heading">#</a></h1>
+<section id="preparing-data-files">
+<h2>Preparing data files<a class="headerlink" href="#preparing-data-files" title="Permalink to this heading">#</a></h2>
+<p>KGX support various file formats but there are certain assumptions made while
+working with these files.</p>
+<p>These are especially true for TSV/CSV and JSON format for things like,</p>
+<ul class="simple">
+<li><p>How information about nodes are represented</p></li>
+<li><p>How information about edges are represented</p></li>
+</ul>
+<p>Please refer to the <a class="reference internal" href="#specification/kgx-format.md"><span class="xref myst">KGX format specification</span></a> for more information.</p>
 </section>
 </section>
 
@@ -326,23 +257,15 @@ on your local machine.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="kgx_format.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">KGX Specification</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="index.html">
+          
+          <a class="prev-page" href="developer-guide.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">KGX Developer Guide</div>
                 
               </div>
             </a>
@@ -376,17 +299,8 @@ on your local machine.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#installation-for-users">Installation for users</a><ul>
-<li><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
-<li><a class="reference internal" href="#installing-from-github">Installing from GitHub</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#installation-for-developers">Installation for developers</a><ul>
-<li><a class="reference internal" href="#setting-up-a-development-environment">Setting up a development environment</a></li>
-<li><a class="reference internal" href="#setting-up-a-testing-environment">Setting up a testing environment</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Data preparation for use with KGX</a><ul>
+<li><a class="reference internal" href="#preparing-data-files">Preparing data files</a></li>
 </ul>
 </li>
 </ul>
