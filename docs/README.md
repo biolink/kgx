@@ -1,10 +1,10 @@
-# Instructions for building LinkML documentation
+# Instructions for building KGX documentation
 
-These instructions are for the core developers of the LinkML framework.
+These instructions are for the core developers of KGX.
 
 Documentation source:
 
-* [docs/ folder](https://github.com/linkml/linkml/tree/main/docs)
+* [docs/ folder](https://github.com/biolink/kgx/tree/master/docs)
 
 We use the sphinx framework.
 
