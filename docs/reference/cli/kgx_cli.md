@@ -1,6 +1,6 @@
 ### KGX CLI
 
-```eval_rst
+```{eval-rst}
 .. click:: kgx.cli:cli
    :prog: kgx
    :show-nested:

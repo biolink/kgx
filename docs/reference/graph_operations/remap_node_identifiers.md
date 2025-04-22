@@ -10,6 +10,6 @@ takes an instance of `kgx.graph.base_graph.BaseGraph` along with a `category`,
 
 ## kgx.graph_operations.remap_node_identifier
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.remap_node_identifier
 ```

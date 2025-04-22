@@ -47,7 +47,7 @@ The original subject and object node of an edge is tracked via the  `_original_s
 
 ## kgx.graph_operations.clique_merge
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.graph_operations.clique_merge
    :members:
    :inherited-members:

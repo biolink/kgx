@@ -1,3 +1,6 @@
+RUN=poetry run
+VERSION = $(shell git tag | tail -1)
+
 test: unit-tests integration-tests
 
 unit-tests:
@@ -8,3 +11,6 @@ unit-tests:
 
 integration-tests:
 	poetry run pytest tests/integration/*.py
+
+docs:
+	cd docs && $(RUN) make html

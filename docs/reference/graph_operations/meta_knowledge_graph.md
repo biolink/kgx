@@ -23,7 +23,7 @@ The Meta Knowledge Graph operation can count numbers of nodes and edges by Bioli
 
 ## kgx.graph_operations.meta_knowledge_graph
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.graph_operations.meta_knowledge_graph
    :members:
    :inherited-members:

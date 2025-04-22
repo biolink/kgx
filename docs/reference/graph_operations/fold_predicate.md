@@ -9,6 +9,6 @@ to a node property such that if `S - P -> O`,
 
 ## kgx.graph_operations.fold_predicate
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.fold_predicate
 ```
