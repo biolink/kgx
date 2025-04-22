@@ -17,9 +17,6 @@ from copy import deepcopy
 
 sys.path.insert(0, os.path.abspath('..'))
 
-from linkml.utils.deprecation import DEPRECATIONS
-
-
 # -- Project information -----------------------------------------------------
 
 project = 'kgx'

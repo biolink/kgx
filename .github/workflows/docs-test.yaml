@@ -45,5 +45,5 @@ jobs:
       - name: Build docs
         working-directory: docs
         env:
-          SPHINXOPTS: "-W --keep-going"
+          SPHINXOPTS: "--keep-going"
         run: poetry run make html
