@@ -22,7 +22,7 @@ Documentation
    installation
    kgx_format
    reference/index
-   examples
+   transformation_and_validation_examples
    mapping_to_rdfstar
 
 Indices and tables
