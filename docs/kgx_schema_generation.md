@@ -1,4 +1,4 @@
-# KGX Schema Transformation
+# KGX Schema
 
 This document describes the schema transformation process used to create the KGX schema based on the Biolink Model. The KGX schema defines the structure for knowledge graphs in the KGX format while leveraging the rich semantics of the Biolink Model.
 

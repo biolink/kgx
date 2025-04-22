@@ -1,4 +1,4 @@
-# KGX Data Distribution Format Specification
+# KGX Specification
 
 The KGX format is a serialization of Biolink Model compliant knowledge graphs.
 

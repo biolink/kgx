@@ -1,4 +1,4 @@
-name: Rebuild KGX Schema and Deploy Documentation
+name: Rebuild KGX Schema
 
 # Controls when the action will run
 on:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  rebuild-schema-and-docs:
+  rebuild-schema:
     runs-on: ubuntu-latest
     
     steps:
@@ -25,9 +25,6 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
-        with:
-          # We need a full clone with history for the GitHub Pages deployment
-          fetch-depth: 0
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -72,26 +69,6 @@ jobs:
             echo "Tests failed after schema regeneration!"
             exit 1
           fi
-      
-      #----------------------------------------------
-      #         build and deploy documentation
-      #----------------------------------------------
-      - name: Install documentation dependencies
-        run: |
-          poetry run pip install sphinx sphinx_rtd_theme sphinx-click recommonmark
-      
-      - name: Build documentation
-        run: |
-          cd docs
-          poetry run make html
-          cd ..
-      
-      - name: Deploy documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          branch: gh-pages
-          folder: docs/_build/html
-          clean: true
       
       #----------------------------------------------
       #           commit schema changes
