@@ -1,4 +1,4 @@
-# Graph
+# Knowledge Graphs in Memory
 
 KGX makes use of an in-memory labelled property graph for
 representing a Knowledge Graph.
