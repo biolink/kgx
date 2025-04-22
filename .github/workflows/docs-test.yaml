@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - fix_docs
   pull_request:
     branches:
       - master
