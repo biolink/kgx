@@ -16,7 +16,7 @@ mappings.
 ## kgx.prefix_manager
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.prefix_manager
    :members:
    :inherited-members:

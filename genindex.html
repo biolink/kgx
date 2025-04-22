@@ -160,13 +160,45 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/source.html">Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/sink.html">Sink</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/graph.html">Graph</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -203,8 +235,2408 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"></div>
+  <div class="genindex-jumpbox"><a href="#Symbols"><strong>Symbols</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
 </section>
+<section id="Symbols" class="genindex-section">
+  <h2>Symbols</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    --biolink-release
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-b">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --destination
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-destination">kgx-merge command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --edge-facet-properties
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-edge-facet-properties">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --edge-filters
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-e">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-e">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-e">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --error-log
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-l">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --graph-name
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-n">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --infores-catalog
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-infores-catalog">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --input-compression
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-c">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-c">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-c">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-c">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --input-format
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-i">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-i">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-i">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-i">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --knowledge-sources
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-k">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --merge-config
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-merge-config">kgx-merge command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --node-facet-properties
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-node-facet-properties">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --node-filters
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-n">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-n">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-n">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --output
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-o">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-o">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-o">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-o">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --output-compression
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-d">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-d">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --output-format
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-f">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-f">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --password
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-p">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-p">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --processes
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-p">kgx-merge command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-p">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --report-format
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-f">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --report-type
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-r">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --source
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-source">kgx-merge command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-source">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --stream
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-s">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-s">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-stream">kgx-transform command line option</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    --transform-config
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-transform-config">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --uri
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-l">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-l">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --username
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-u">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-u">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --version
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-version">kgx command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -b
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-b">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -c
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-c">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-c">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-c">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-c">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -d
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-d">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-d">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -e
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-e">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-e">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-e">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -f
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-f">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-f">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-f">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -i
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-i">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-i">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-i">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-i">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -k
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-k">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -l
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-l">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-l">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-l">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -n
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-n">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-n">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-n">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-n">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -o
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-o">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-o">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-o">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-o">kgx-validate command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -p
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-p">kgx-merge command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-p">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-p">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-p">kgx-transform command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -r
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-r">kgx-graph-summary command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -s
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-s">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-s">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+        <li>
+    -u
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-u">kgx-neo4j-download command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-u">kgx-neo4j-upload command line option</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.add_all_edges">add_all_edges() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.add_all_nodes">add_all_nodes() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.add_edge">add_edge() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.add_edge">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.add_edge">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.add_edge_attribute">add_edge_attribute() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge_attribute">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.add_node">add_node() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.add_node">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.add_node">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.add_node_attribute">add_node_attribute() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node_attribute">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.add_node_attribute">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.add_node_attribute">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.add_node_stat">add_node_stat() (kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_edge">analyse_edge() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.analyse_edge">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.analyse_edge">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_node">analyse_node() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.analyse_node">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.analyse_node">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.analyse_node_category">analyse_node_category() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.analyse_node_category">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.apply_edge_filters">apply_edge_filters() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.apply_filters">apply_filters() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.apply_graph_operations">apply_graph_operations() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.apply_node_filters">apply_node_filters() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.apply_operations">apply_operations() (in module kgx.cli.cli_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph">BaseGraph (class in kgx.graph.base_graph)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.build_cliques">build_cliques() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.build_export_row">build_export_row() (in module kgx.utils.kgx_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.camelcase_to_sentencecase">camelcase_to_sentencecase() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.check_all_categories">check_all_categories() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.check_categories">check_categories() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.check_edge_filter">check_edge_filter() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.check_edge_filter">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.check_edge_filter">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.check_edge_filter">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.check_edge_filter">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.check_edge_filter">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.check_edge_filter">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.check_edge_filter">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.check_edge_filter">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.check_edge_filter">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.check_edge_filter">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.check_node_filter">check_node_filter() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.check_node_filter">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.check_node_filter">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.check_node_filter">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.check_node_filter">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.check_node_filter">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.check_node_filter">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.check_node_filter">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.check_node_filter">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.check_node_filter">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.check_node_filter">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.clear">clear() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.clear">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.clear_errors">clear_errors() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.clear_errors">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.clear_errors">(kgx.transformer.Transformer method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.clear_errors">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.clear_graph_metadata">clear_graph_metadata() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.clear_graph_metadata">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.clear_graph_metadata">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.clear_graph_metadata">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.clear_graph_metadata">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.clear_graph_metadata">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.clear_graph_metadata">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.clear_graph_metadata">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.clear_graph_metadata">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.clear_graph_metadata">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.clear_graph_metadata">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.clique_merge">clique_merge() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.close_connection">close_connection() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.consolidate_edges">consolidate_edges() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.contract">contract() (in module kgx.utils.kgx_utils)</a>
+
+        <ul>
+          <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.contract">(kgx.prefix_manager.PrefixManager method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.count">count() (kgx.source.neo_source.NeoSource method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.create_connection">create_connection() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraint_query">create_constraint_query() (kgx.sink.neo_sink.NeoSink static method)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraints">create_constraints() (kgx.sink.neo_sink.NeoSink method)</a>
+</li>
+        <li><a href="reference/utilities/graph_utils.html#kgx.utils.graph_utils.curie_lookup">curie_lookup() (in module kgx.utils.graph_utils)</a>
+</li>
+        <li><a href="reference/curie_lookup_service.html#kgx.curie_lookup_service.CurieLookupService">CurieLookupService (class in kgx.curie_lookup_service)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.current_time_in_millis">current_time_in_millis() (in module kgx.utils.kgx_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.degree">degree() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.degree">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.dereify">dereify() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.dereify">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.edges">edges() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.edges">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.edges_iter">edges_iter() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.edges_iter">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.elect_leader">elect_leader() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.expand">expand() (in module kgx.utils.kgx_utils)</a>
+
+        <ul>
+          <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.expand">(kgx.prefix_manager.PrefixManager method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.graph_sink.GraphSink.finalize">finalize() (kgx.sink.graph_sink.GraphSink method)</a>
+
+        <ul>
+          <li><a href="reference/sink.html#kgx.sink.json_sink.JsonSink.finalize">(kgx.sink.json_sink.JsonSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.jsonl_sink.JsonlSink.finalize">(kgx.sink.jsonl_sink.JsonlSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.finalize">(kgx.sink.neo_sink.NeoSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.parquet_sink.ParquetSink.finalize">(kgx.sink.parquet_sink.ParquetSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.finalize">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.sink.Sink.finalize">(kgx.sink.sink.Sink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.finalize">(kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/fold_predicate.html#kgx.graph_operations.fold_predicate">fold_predicate() (in module kgx.graph_operations)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.format_biolink_category">format_biolink_category() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.format_edge_filter">format_edge_filter() (kgx.source.neo_source.NeoSource static method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.format_node_filter">format_node_filter() (kgx.source.neo_source.NeoSource static method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.generate_edge_identifiers">generate_edge_identifiers() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.generate_edge_key">generate_edge_key() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.generate_graph_stats">generate_graph_stats() (in module kgx.graph_operations.summarize_graph)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.generate_meta_knowledge_graph">generate_meta_knowledge_graph() (in module kgx.graph_operations.meta_knowledge_graph)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query">generate_unwind_edge_query() (kgx.sink.neo_sink.NeoSink static method)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_node_query">generate_unwind_node_query() (kgx.sink.neo_sink.NeoSink static method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.generate_uuid">generate_uuid() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_all_prefixes">get_all_prefixes() (kgx.validator.Validator static method)</a>
+</li>
+        <li><a href="reference/utilities/graph_utils.html#kgx.utils.graph_utils.get_ancestors">get_ancestors() (in module kgx.utils.graph_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_biolink_ancestors">get_biolink_ancestors() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_biolink_element">get_biolink_element() (in module kgx.utils.kgx_utils)</a>
+
+        <ul>
+          <li><a href="reference/utilities/rdf_utils.html#kgx.utils.rdf_utils.get_biolink_element">(in module kgx.utils.rdf_utils)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.get_biolink_element">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.get_biolink_element">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.get_biolink_element">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_biolink_property_types">get_biolink_property_types() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_cache">get_cache() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_category">get_category() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_category">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.get_category">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_category_curie_by_index">get_category_curie_by_index() (kgx.graph_operations.summarize_graph.GraphSummary.Category class method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_category_curie_from_index">get_category_curie_from_index() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category class method)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.get_category_from_equivalence">get_category_from_equivalence() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/utilities/graph_utils.html#kgx.utils.graph_utils.get_category_via_superclass">get_category_via_superclass() (in module kgx.utils.graph_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_cid">get_cid() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_cid">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.get_clique_category">get_clique_category() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count">get_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_count">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_count_by_id_prefixes">get_count_by_id_prefixes() (kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count_by_source">get_count_by_source() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_curie_lookup_service">get_curie_lookup_service() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_default_model_version">get_default_model_version() (kgx.validator.Validator class method)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.get_edge">get_edge() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.get_edge_attributes">get_edge_attributes() (kgx.graph.base_graph.BaseGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge_attributes">(kgx.graph.nx_graph.NxGraph static method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_predicate">get_edge_count_by_predicate() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_source">get_edge_count_by_source() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_mapping_count">get_edge_mapping_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_stats">get_edge_stats() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.get_edges">get_edges() (kgx.source.neo_source.NeoSource method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_errors">get_errors() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_errors">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_errors">(kgx.transformer.Transformer method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.get_errors">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_facet_counts">get_facet_counts() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_facet_counts">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_graph_summary">get_graph_summary() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_graph_summary">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_id_prefixes">get_id_prefixes() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_id_prefixes">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.get_infores_catalog">get_infores_catalog() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.get_infores_catalog">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.get_infores_catalog">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.get_infores_catalog">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.get_infores_catalog">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.get_infores_catalog">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.get_infores_catalog">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.get_infores_catalog">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.get_infores_catalog">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.get_infores_catalog">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.get_infores_catalog">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_infores_catalog">(kgx.transformer.Transformer method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.get_input_file_types">get_input_file_types() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.get_leader_by_annotation">get_leader_by_annotation() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.get_leader_by_prefix_priority">get_leader_by_prefix_priority() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.get_leader_by_sort">get_leader_by_sort() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_name">get_name() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_name">(kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+</li>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_name">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.get_name">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.get_node">get_node() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.get_node_attributes">get_node_attributes() (kgx.graph.base_graph.BaseGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node_attributes">(kgx.graph.nx_graph.NxGraph static method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_count_by_category">get_node_count_by_category() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_stats">get_node_stats() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_node_stats">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.get_nodes">get_nodes() (kgx.source.neo_source.NeoSource method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_number_of_categories">get_number_of_categories() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.get_output_file_types">get_output_file_types() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.get_pages">get_pages() (kgx.source.neo_source.NeoSource method)</a>
+</li>
+        <li><a href="reference/utilities/graph_utils.html#kgx.utils.graph_utils.get_parents">get_parents() (in module kgx.utils.graph_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_predicate_count">get_predicate_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.get_prefix">get_prefix() (kgx.prefix_manager.PrefixManager static method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_prefix_prioritization_map">get_prefix_prioritization_map() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.get_reference">get_reference() (kgx.prefix_manager.PrefixManager static method)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.get_report_format_types">get_report_format_types() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_required_edge_properties">get_required_edge_properties() (kgx.validator.Validator static method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_required_node_properties">get_required_node_properties() (kgx.validator.Validator static method)</a>
+</li>
+        <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_sink">get_sink() (kgx.transformer.Transformer method)</a>
+</li>
+        <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_source">get_source() (kgx.transformer.Transformer method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_the_validator">get_the_validator() (kgx.validator.Validator class method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_toolkit">get_toolkit() (in module kgx.utils.kgx_utils)</a>
+
+        <ul>
+          <li><a href="reference/validator.html#kgx.validator.Validator.get_toolkit">(kgx.validator.Validator class method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edge_counts_across_mappings">get_total_edge_counts_across_mappings() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edges_count">get_total_edges_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_node_counts_across_categories">get_total_node_counts_across_categories() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_nodes_count">get_total_nodes_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_type_for_property">get_type_for_property() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_validating_toolkit">get_validating_toolkit() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.get_validation_model_version">get_validation_model_version() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.graph_summary">graph_summary() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.GraphEntityType">GraphEntityType (class in kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.graph_sink.GraphSink">GraphSink (class in kgx.sink.graph_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource">GraphSource (class in kgx.source.graph_source)</a>
+</li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary">GraphSummary (class in kgx.graph_operations.summarize_graph)</a>
+</li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category">GraphSummary.Category (class in kgx.graph_operations.summarize_graph)</a>
+</li>
+        <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.gs_default">gs_default() (in module kgx.graph_operations.summarize_graph)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.has_edge">has_edge() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.has_edge">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.has_node">has_node() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.has_node">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.in_edges">in_edges() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.in_edges">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/utilities/rdf_utils.html#kgx.utils.rdf_utils.infer_category">infer_category() (in module kgx.utils.rdf_utils)</a>
+</li>
+        <li>
+    INPUTS
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-arg-INPUTS">kgx-graph-summary command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-arg-INPUTS">kgx-neo4j-upload command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-arg-INPUTS">kgx-transform command line option</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-arg-INPUTS">kgx-validate command line option</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.is_curie">is_curie() (kgx.prefix_manager.PrefixManager static method)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.is_iri">is_iri() (kgx.prefix_manager.PrefixManager static method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.is_null">is_null() (in module kgx.utils.kgx_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.json_object">json_object() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.Category.json_object">(kgx.graph_operations.summarize_graph.GraphSummary.Category method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.jsonl_sink.JsonlSink">JsonlSink (class in kgx.sink.jsonl_sink)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource">JsonlSource (class in kgx.source.jsonl_source)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.json_sink.JsonSink">JsonSink (class in kgx.sink.json_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.json_source.JsonSource">JsonSource (class in kgx.source.json_source)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    kgx command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-version">--version</a>
+</li>
+        </ul></li>
+        <li>
+    kgx-graph-summary command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-edge-facet-properties">--edge-facet-properties</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-l">--error-log</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-n">--graph-name</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-c">--input-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-i">--input-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-node-facet-properties">--node-facet-properties</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-o">--output</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-f">--report-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-r">--report-type</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-c">-c</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-f">-f</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-i">-i</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-l">-l</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-n">-n</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-o">-o</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-r">-r</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-graph-summary-arg-INPUTS">INPUTS</a>
+</li>
+        </ul></li>
+        <li>
+    kgx-merge command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-destination">--destination</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-merge-config">--merge-config</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-p">--processes</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-source">--source</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-merge-p">-p</a>
+</li>
+        </ul></li>
+        <li>
+    kgx-neo4j-download command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-e">--edge-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-n">--node-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-o">--output</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-d">--output-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-f">--output-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-p">--password</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-s">--stream</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-l">--uri</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-u">--username</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-d">-d</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-e">-e</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-f">-f</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-l">-l</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-n">-n</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-o">-o</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-p">-p</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-s">-s</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-download-u">-u</a>
+</li>
+        </ul></li>
+        <li>
+    kgx-neo4j-upload command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-e">--edge-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-c">--input-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-i">--input-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-n">--node-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-p">--password</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-s">--stream</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-l">--uri</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-u">--username</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-c">-c</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-e">-e</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-i">-i</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-l">-l</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-n">-n</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-p">-p</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-s">-s</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-u">-u</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-neo4j-upload-arg-INPUTS">INPUTS</a>
+</li>
+        </ul></li>
+        <li>
+    kgx-transform command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-e">--edge-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-infores-catalog">--infores-catalog</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-c">--input-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-i">--input-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-k">--knowledge-sources</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-n">--node-filters</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-o">--output</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-d">--output-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-f">--output-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-p">--processes</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-source">--source</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-stream">--stream</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-transform-config">--transform-config</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-c">-c</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-d">-d</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-e">-e</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-f">-f</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-i">-i</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-k">-k</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-n">-n</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-o">-o</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-p">-p</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-transform-arg-INPUTS">INPUTS</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    kgx-validate command line option
+
+        <ul>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-b">--biolink-release</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-c">--input-compression</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-i">--input-format</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-o">--output</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-b">-b</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-c">-c</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-i">-i</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-o">-o</a>
+</li>
+          <li><a href="reference/cli/kgx_cli.html#cmdoption-kgx-validate-arg-INPUTS">INPUTS</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.cli.cli_utils
+
+        <ul>
+          <li><a href="reference/cli/cli_utils.html#module-kgx.cli.cli_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.curie_lookup_service
+
+        <ul>
+          <li><a href="reference/curie_lookup_service.html#module-kgx.curie_lookup_service">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph.base_graph
+
+        <ul>
+          <li><a href="reference/graph.html#module-kgx.graph.base_graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph.nx_graph
+
+        <ul>
+          <li><a href="reference/graph.html#module-kgx.graph.nx_graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph_operations.clique_merge
+
+        <ul>
+          <li><a href="reference/graph_operations/clique_merge.html#module-kgx.graph_operations.clique_merge">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph_operations.graph_merge
+
+        <ul>
+          <li><a href="reference/graph_operations/graph_merge.html#module-kgx.graph_operations.graph_merge">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph_operations.meta_knowledge_graph
+
+        <ul>
+          <li><a href="reference/graph_operations/meta_knowledge_graph.html#module-kgx.graph_operations.meta_knowledge_graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.graph_operations.summarize_graph
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#module-kgx.graph_operations.summarize_graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.prefix_manager
+
+        <ul>
+          <li><a href="reference/prefix_manager.html#module-kgx.prefix_manager">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.graph_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.graph_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.json_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.json_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.jsonl_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.jsonl_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.neo_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.neo_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.parquet_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.parquet_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.rdf_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.rdf_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.sink.tsv_sink
+
+        <ul>
+          <li><a href="reference/sink.html#module-kgx.sink.tsv_sink">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.graph_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.graph_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.json_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.json_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.jsonl_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.jsonl_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.neo_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.neo_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.obograph_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.obograph_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.owl_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.owl_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.rdf_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.rdf_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.sssom_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.sssom_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.trapi_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.trapi_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.source.tsv_source
+
+        <ul>
+          <li><a href="reference/source.html#module-kgx.source.tsv_source">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.transformer
+
+        <ul>
+          <li><a href="reference/transformer.html#module-kgx.transformer">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.utils.graph_utils
+
+        <ul>
+          <li><a href="reference/utilities/graph_utils.html#module-kgx.utils.graph_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.utils.kgx_utils
+
+        <ul>
+          <li><a href="reference/utilities/kgx_utils.html#module-kgx.utils.kgx_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.utils.rdf_utils
+
+        <ul>
+          <li><a href="reference/utilities/rdf_utils.html#module-kgx.utils.rdf_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    kgx.validator
+
+        <ul>
+          <li><a href="reference/validator.html#module-kgx.validator">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.load_edge">load_edge() (kgx.source.neo_source.NeoSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.load_edge">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.load_edge">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.load_edges">load_edges() (kgx.source.neo_source.NeoSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.load_edges">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.load_graph">load_graph() (kgx.source.owl_source.OwlSource method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.load_node">load_node() (kgx.source.neo_source.NeoSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.load_node">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.load_node">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.load_nodes">load_nodes() (kgx.source.neo_source.NeoSource method)</a>
+</li>
+        <li><a href="reference/curie_lookup_service.html#kgx.curie_lookup_service.CurieLookupService.load_ontologies">load_ontologies() (kgx.curie_lookup_service.CurieLookupService method)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.log_error">log_error() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.log_error">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.log_error">(kgx.transformer.Transformer method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.log_error">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.merge">merge() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.merge_all_graphs">merge_all_graphs() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.merge_edge">merge_edge() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.merge_graphs">merge_graphs() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/graph_merge.html#kgx.graph_operations.graph_merge.merge_node">merge_node() (in module kgx.graph_operations.graph_merge)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph">MetaKnowledgeGraph (class in kgx.graph_operations.meta_knowledge_graph)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category">MetaKnowledgeGraph.Category (class in kgx.graph_operations.meta_knowledge_graph)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.mkg_default">mkg_default() (in module kgx.graph_operations.meta_knowledge_graph)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="reference/cli/cli_utils.html#module-kgx.cli.cli_utils">kgx.cli.cli_utils</a>
+</li>
+          <li><a href="reference/curie_lookup_service.html#module-kgx.curie_lookup_service">kgx.curie_lookup_service</a>
+</li>
+          <li><a href="reference/graph.html#module-kgx.graph.base_graph">kgx.graph.base_graph</a>
+</li>
+          <li><a href="reference/graph.html#module-kgx.graph.nx_graph">kgx.graph.nx_graph</a>
+</li>
+          <li><a href="reference/graph_operations/clique_merge.html#module-kgx.graph_operations.clique_merge">kgx.graph_operations.clique_merge</a>
+</li>
+          <li><a href="reference/graph_operations/graph_merge.html#module-kgx.graph_operations.graph_merge">kgx.graph_operations.graph_merge</a>
+</li>
+          <li><a href="reference/graph_operations/meta_knowledge_graph.html#module-kgx.graph_operations.meta_knowledge_graph">kgx.graph_operations.meta_knowledge_graph</a>
+</li>
+          <li><a href="reference/graph_operations/summarize_graph.html#module-kgx.graph_operations.summarize_graph">kgx.graph_operations.summarize_graph</a>
+</li>
+          <li><a href="reference/prefix_manager.html#module-kgx.prefix_manager">kgx.prefix_manager</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.graph_sink">kgx.sink.graph_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.json_sink">kgx.sink.json_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.jsonl_sink">kgx.sink.jsonl_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.neo_sink">kgx.sink.neo_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.parquet_sink">kgx.sink.parquet_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.rdf_sink">kgx.sink.rdf_sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.sink">kgx.sink.sink</a>
+</li>
+          <li><a href="reference/sink.html#module-kgx.sink.tsv_sink">kgx.sink.tsv_sink</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.graph_source">kgx.source.graph_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.json_source">kgx.source.json_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.jsonl_source">kgx.source.jsonl_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.neo_source">kgx.source.neo_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.obograph_source">kgx.source.obograph_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.owl_source">kgx.source.owl_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.rdf_source">kgx.source.rdf_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.source">kgx.source.source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.sssom_source">kgx.source.sssom_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.trapi_source">kgx.source.trapi_source</a>
+</li>
+          <li><a href="reference/source.html#module-kgx.source.tsv_source">kgx.source.tsv_source</a>
+</li>
+          <li><a href="reference/transformer.html#module-kgx.transformer">kgx.transformer</a>
+</li>
+          <li><a href="reference/utilities/graph_utils.html#module-kgx.utils.graph_utils">kgx.utils.graph_utils</a>
+</li>
+          <li><a href="reference/utilities/kgx_utils.html#module-kgx.utils.kgx_utils">kgx.utils.kgx_utils</a>
+</li>
+          <li><a href="reference/utilities/rdf_utils.html#module-kgx.utils.rdf_utils">kgx.utils.rdf_utils</a>
+</li>
+          <li><a href="reference/validator.html#module-kgx.validator">kgx.validator</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.neo4j_download">neo4j_download() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.neo4j_upload">neo4j_upload() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink">NeoSink (class in kgx.sink.neo_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.neo_source.NeoSource">NeoSource (class in kgx.source.neo_source)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.nodes">nodes() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.nodes_iter">nodes_iter() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes_iter">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.number_of_edges">number_of_edges() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_edges">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.number_of_nodes">number_of_nodes() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_nodes">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph">NxGraph (class in kgx.graph.nx_graph)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource">ObographSource (class in kgx.source.obograph_source)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.out_edges">out_edges() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.out_edges">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource">OwlSource (class in kgx.source.owl_source)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.parquet_sink.ParquetSink">ParquetSink (class in kgx.sink.parquet_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.parse">parse() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.parse">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.parse">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.parse">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.parse">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.parse">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.parse">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.parse">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.parse">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.parse">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.parse_header">parse_header() (kgx.source.sssom_source.SssomSource method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.parse_meta">parse_meta() (kgx.source.obograph_source.ObographSource method)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.parse_source">parse_source() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager">PrefixManager (class in kgx.prefix_manager)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.prepare_data_dict">prepare_data_dict() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.prepare_input_args">prepare_input_args() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.prepare_output_args">prepare_output_args() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.prepare_top_level_args">prepare_top_level_args() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/transformer.html#kgx.transformer.Transformer.process">process() (kgx.transformer.Transformer method)</a>
+</li>
+        <li><a href="reference/utilities/rdf_utils.html#kgx.utils.rdf_utils.process_predicate">process_predicate() (in module kgx.utils.rdf_utils)</a>
+
+        <ul>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.process_predicate">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.process_predicate">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.process_predicate">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink">RdfSink (class in kgx.sink.rdf_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource">RdfSource (class in kgx.source.rdf_source)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.json_source.JsonSource.read_edge">read_edge() (kgx.source.json_source.JsonSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.read_edge">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.read_edge">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.read_edge">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.read_edge">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.read_edges">read_edges() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.read_edges">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.read_edges">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.read_edges">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.read_edges">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.read_edges">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.json_source.JsonSource.read_node">read_node() (kgx.source.json_source.JsonSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.read_node">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.read_node">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.read_node">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.read_node">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.read_nodes">read_nodes() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.read_nodes">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.read_nodes">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.read_nodes">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.read_nodes">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.read_nodes">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.reify">reify() (kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.relabel_nodes">relabel_nodes() (kgx.graph.base_graph.BaseGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.relabel_nodes">(kgx.graph.nx_graph.NxGraph static method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/remap_edge_property.html#kgx.graph_operations.remap_edge_property">remap_edge_property() (in module kgx.graph_operations)</a>
+</li>
+        <li><a href="reference/graph_operations/remap_node_identifiers.html#kgx.graph_operations.remap_node_identifier">remap_node_identifier() (in module kgx.graph_operations)</a>
+</li>
+        <li><a href="reference/graph_operations/remap_node_property.html#kgx.graph_operations.remap_node_property">remap_node_property() (in module kgx.graph_operations)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.remove_edge">remove_edge() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_edge">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.remove_node">remove_node() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_node">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.remove_null">remove_null() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/remove_singleton_nodes.html#kgx.graph_operations.remove_singleton_nodes">remove_singleton_nodes() (in module kgx.graph_operations)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.sanitize_category">sanitize_category() (kgx.sink.neo_sink.NeoSink static method)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.sanitize_import">sanitize_import() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.save">save() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.save">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.save">(kgx.transformer.Transformer method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.sentencecase_to_camelcase">sentencecase_to_camelcase() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.sentencecase_to_snakecase">sentencecase_to_snakecase() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.set_biolink_model">set_biolink_model() (kgx.validator.Validator class method)</a>
+</li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.set_edge_attributes">set_edge_attributes() (kgx.graph.base_graph.BaseGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.set_edge_attributes">(kgx.graph.nx_graph.NxGraph static method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_edge_filter">set_edge_filter() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_edge_filter">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_edge_filter">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_edge_filter">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_edge_filter">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_edge_filter">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_edge_filter">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_edge_filter">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_edge_filter">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_edge_filter">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_edge_filter">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_edge_filters">set_edge_filters() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_edge_filters">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_edge_filters">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_edge_filters">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_edge_filters">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_edge_filters">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_edge_filters">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_edge_filters">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_edge_filters">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_edge_filters">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_edge_filters">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.set_edge_properties">set_edge_properties() (kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_edge_provenance">set_edge_provenance() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_edge_provenance">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_edge_provenance">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_edge_provenance">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_edge_provenance">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_edge_provenance">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_edge_provenance">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_edge_provenance">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_edge_provenance">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_edge_provenance">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_edge_provenance">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.set_node_attributes">set_node_attributes() (kgx.graph.base_graph.BaseGraph static method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.set_node_attributes">(kgx.graph.nx_graph.NxGraph static method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_node_filter">set_node_filter() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_node_filter">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_node_filter">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_node_filter">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_node_filter">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_node_filter">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_node_filter">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_node_filter">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_node_filter">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_node_filter">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_node_filter">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_node_filters">set_node_filters() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_node_filters">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_node_filters">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_node_filters">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_node_filters">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_node_filters">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_node_filters">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_node_filters">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_node_filters">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_node_filters">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_node_filters">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.set_node_properties">set_node_properties() (kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_node_property_predicates">set_node_property_predicates() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_node_property_predicates">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_node_provenance">set_node_provenance() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_node_provenance">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_node_provenance">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_node_provenance">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_node_provenance">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_node_provenance">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_node_provenance">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_node_provenance">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_node_provenance">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_node_provenance">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_node_provenance">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_predicate_mapping">set_predicate_mapping() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_predicate_mapping">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.set_prefix_map">set_prefix_map() (kgx.prefix_manager.PrefixManager method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_prefix_map">(kgx.source.graph_source.GraphSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_prefix_map">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_prefix_map">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_prefix_map">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_prefix_map">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_prefix_map">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_prefix_map">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_prefix_map">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_prefix_map">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_prefix_map">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_prefix_map">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.set_property_types">set_property_types() (kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.set_provenance_map">set_provenance_map() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_provenance_map">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_provenance_map">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.set_provenance_map">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_provenance_map">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.set_provenance_map">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.set_provenance_map">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.set_provenance_map">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_provenance_map">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_provenance_map">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_provenance_map">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.set_reverse_predicate_mapping">set_reverse_predicate_mapping() (kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.graph_sink.GraphSink.set_reverse_prefix_map">set_reverse_prefix_map() (kgx.sink.graph_sink.GraphSink method)</a>
+
+        <ul>
+          <li><a href="reference/sink.html#kgx.sink.json_sink.JsonSink.set_reverse_prefix_map">(kgx.sink.json_sink.JsonSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.jsonl_sink.JsonlSink.set_reverse_prefix_map">(kgx.sink.jsonl_sink.JsonlSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.set_reverse_prefix_map">(kgx.sink.neo_sink.NeoSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.parquet_sink.ParquetSink.set_reverse_prefix_map">(kgx.sink.parquet_sink.ParquetSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.set_reverse_prefix_map">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.sink.Sink.set_reverse_prefix_map">(kgx.sink.sink.Sink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.set_reverse_prefix_map">(kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.set_reverse_prefix_map">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.set_reverse_prefix_map">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.set_reverse_prefix_map">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.set_reverse_prefix_map">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.set_reverse_prefix_map">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.set_reverse_prefix_map">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.sink.Sink">Sink (class in kgx.sink.sink)</a>
+</li>
+        <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.snakecase_to_sentencecase">snakecase_to_sentencecase() (in module kgx.utils.kgx_utils)</a>
+</li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.sort_categories">sort_categories() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.source.Source">Source (class in kgx.source.source)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource">SssomSource (class in kgx.source.sssom_source)</a>
+</li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.summarize_graph">summarize_graph() (in module kgx.graph_operations.meta_knowledge_graph)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.summarize_graph">(in module kgx.graph_operations.summarize_graph)</a>
+</li>
+          <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph">(kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+</li>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.summarize_graph">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_edges">summarize_graph_edges() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.summarize_graph_edges">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_nodes">summarize_graph_nodes() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.summarize_graph_nodes">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.transform">transform() (in module kgx.cli.cli_utils)</a>
+
+        <ul>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.transform">(kgx.transformer.Transformer method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.transform_source">transform_source() (in module kgx.cli.cli_utils)</a>
+</li>
+        <li><a href="reference/transformer.html#kgx.transformer.Transformer">Transformer (class in kgx.transformer)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource">TrapiSource (class in kgx.source.trapi_source)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.triple">triple() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.triple">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink">TsvSink (class in kgx.sink.tsv_sink)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource">TsvSource (class in kgx.source.tsv_source)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/unfold_node_property.html#kgx.graph_operations.unfold_node_property">unfold_node_property() (in module kgx.graph_operations)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.update_edge">update_edge() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.update_edge">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.update_edge_attribute">update_edge_attribute() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.update_edge_attribute">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.update_node">update_node() (kgx.source.owl_source.OwlSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.update_node">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.update_node_attribute">update_node_attribute() (kgx.graph.base_graph.BaseGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph.html#kgx.graph.nx_graph.NxGraph.update_node_attribute">(kgx.graph.nx_graph.NxGraph method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/graph_operations/clique_merge.html#kgx.graph_operations.clique_merge.update_node_categories">update_node_categories() (in module kgx.graph_operations.clique_merge)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.update_prefix_map">update_prefix_map() (kgx.prefix_manager.PrefixManager method)</a>
+</li>
+        <li><a href="reference/prefix_manager.html#kgx.prefix_manager.PrefixManager.update_reverse_prefix_map">update_reverse_prefix_map() (kgx.prefix_manager.PrefixManager method)</a>
+</li>
+        <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.uriref">uriref() (kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.validate">validate() (in module kgx.cli.cli_utils)</a>
+
+        <ul>
+          <li><a href="reference/validator.html#kgx.validator.Validator.validate">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_categories">validate_categories() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.validate_edge">validate_edge() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.validate_edge">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.validate_edge">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.validate_edge">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.validate_edge">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.validate_edge">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.validate_edge">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.validate_edge">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.validate_edge">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.validate_edge">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.validate_edge">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_predicate">validate_edge_predicate() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_properties">validate_edge_properties() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_property_types">validate_edge_property_types() (kgx.validator.Validator method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_property_values">validate_edge_property_values() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edges">validate_edges() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.validate_node">validate_node() (kgx.source.graph_source.GraphSource method)</a>
+
+        <ul>
+          <li><a href="reference/source.html#kgx.source.json_source.JsonSource.validate_node">(kgx.source.json_source.JsonSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.jsonl_source.JsonlSource.validate_node">(kgx.source.jsonl_source.JsonlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.neo_source.NeoSource.validate_node">(kgx.source.neo_source.NeoSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.obograph_source.ObographSource.validate_node">(kgx.source.obograph_source.ObographSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.owl_source.OwlSource.validate_node">(kgx.source.owl_source.OwlSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.rdf_source.RdfSource.validate_node">(kgx.source.rdf_source.RdfSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.source.Source.validate_node">(kgx.source.source.Source method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.sssom_source.SssomSource.validate_node">(kgx.source.sssom_source.SssomSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.trapi_source.TrapiSource.validate_node">(kgx.source.trapi_source.TrapiSource method)</a>
+</li>
+          <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.validate_node">(kgx.source.tsv_source.TsvSource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_properties">validate_node_properties() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_property_types">validate_node_property_types() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_property_values">validate_node_property_values() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator.validate_nodes">validate_nodes() (kgx.validator.Validator method)</a>
+</li>
+        <li><a href="reference/validator.html#kgx.validator.Validator">Validator (class in kgx.validator)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sink.html#kgx.sink.graph_sink.GraphSink.write_edge">write_edge() (kgx.sink.graph_sink.GraphSink method)</a>
+
+        <ul>
+          <li><a href="reference/sink.html#kgx.sink.json_sink.JsonSink.write_edge">(kgx.sink.json_sink.JsonSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.jsonl_sink.JsonlSink.write_edge">(kgx.sink.jsonl_sink.JsonlSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.write_edge">(kgx.sink.neo_sink.NeoSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.parquet_sink.ParquetSink.write_edge">(kgx.sink.parquet_sink.ParquetSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.write_edge">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.sink.Sink.write_edge">(kgx.sink.sink.Sink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.write_edge">(kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sink.html#kgx.sink.graph_sink.GraphSink.write_node">write_node() (kgx.sink.graph_sink.GraphSink method)</a>
+
+        <ul>
+          <li><a href="reference/sink.html#kgx.sink.json_sink.JsonSink.write_node">(kgx.sink.json_sink.JsonSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.jsonl_sink.JsonlSink.write_node">(kgx.sink.jsonl_sink.JsonlSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.neo_sink.NeoSink.write_node">(kgx.sink.neo_sink.NeoSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.parquet_sink.ParquetSink.write_node">(kgx.sink.parquet_sink.ParquetSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.rdf_sink.RdfSink.write_node">(kgx.sink.rdf_sink.RdfSink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.sink.Sink.write_node">(kgx.sink.sink.Sink method)</a>
+</li>
+          <li><a href="reference/sink.html#kgx.sink.tsv_sink.TsvSink.write_node">(kgx.sink.tsv_sink.TsvSink method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.write_report">write_report() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
+
+        <ul>
+          <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.write_report">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
+</li>
+          <li><a href="reference/transformer.html#kgx.transformer.Transformer.write_report">(kgx.transformer.Transformer method)</a>
+</li>
+          <li><a href="reference/validator.html#kgx.validator.Validator.write_report">(kgx.validator.Validator method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
 
         </article>
       </div>

@@ -1,0 +1,1090 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+        <title>kgx.validator - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kgx_format.html">KGX Format</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for kgx.validator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">KGX Validator class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">validators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bmt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Toolkit</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.error_detection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ErrorType</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="p">,</span> <span class="n">ErrorDetecting</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_jsonld_context</span><span class="p">,</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.graph.base_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.utils.kgx_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_toolkit</span><span class="p">,</span>
+    <span class="n">snakecase_to_sentencecase</span><span class="p">,</span>
+    <span class="n">sentencecase_to_snakecase</span><span class="p">,</span>
+    <span class="n">camelcase_to_sentencecase</span><span class="p">,</span>
+    <span class="n">GraphEntityType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.prefix_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrefixManager</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Validator">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Validator</span><span class="p">(</span><span class="n">ErrorDetecting</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for validating a property graph.</span>
+
+<span class="sd">    The optional &#39;progress_monitor&#39; for the validator should be a lightweight Callable</span>
+<span class="sd">    which is injected into the class &#39;inspector&#39; Callable, designed to intercepts</span>
+<span class="sd">    node and edge records streaming through the Validator (inside a Transformer.process() call.</span>
+<span class="sd">    The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.</span>
+<span class="sd">    The second argument given to the Callable is the current record itself.</span>
+<span class="sd">    This Callable is strictly meant to be procedural and should *not* mutate the record.</span>
+<span class="sd">    The intent of this Callable is to provide a hook to KGX applications wanting the</span>
+<span class="sd">    namesake function of passively monitoring the graph data stream. As such, the Callable</span>
+<span class="sd">    could simply tally up the number of times it is called with a NODE or an EDGE, then</span>
+<span class="sd">    provide a suitable (quick!) report of that count back to the KGX application. The</span>
+<span class="sd">    Callable (function/callable class) should not modify the record and should be of low</span>
+<span class="sd">    complexity, so as not to introduce a large computational overhead to validation!</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    verbose: bool</span>
+<span class="sd">        Whether the generated report should be verbose or not (default: ``False``)</span>
+<span class="sd">    progress_monitor: Optional[Callable[[GraphEntityType, List], None]]</span>
+<span class="sd">        Function given a peek at the current record being processed by the class wrapped Callable.</span>
+<span class="sd">    schema: Optional[str]</span>
+<span class="sd">        URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)</span>
+<span class="sd">    error_log: str</span>
+<span class="sd">        Where to write any graph processing error message (stderr, by default)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_the_validator</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Validator.get_the_validator">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_the_validator">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_the_validator</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">progress_monitor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">error_log</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates and manages a default singleton Validator in the module, when called</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_the_validator</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">set_biolink_model</span><span class="p">(</span><span class="s2">&quot;v4.1.6&quot;</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_the_validator</span> <span class="o">=</span> <span class="n">Validator</span><span class="p">(</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="n">progress_monitor</span><span class="o">=</span><span class="n">progress_monitor</span><span class="p">,</span>
+                <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+                <span class="n">error_log</span><span class="o">=</span><span class="n">error_log</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_the_validator</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">progress_monitor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">error_log</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">ErrorDetecting</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_log</span><span class="p">)</span>
+
+        <span class="c1"># formal arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_monitor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Callable</span><span class="p">[[</span><span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">progress_monitor</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
+
+        <span class="c1"># internal attributes</span>
+        <span class="c1"># associated currently active _currently_active_toolkit with this Validator instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsonld</span> <span class="o">=</span> <span class="n">get_jsonld_context</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefixes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_prefixes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jsonld</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_node_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_required_node_properties</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_edge_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_required_edge_properties</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">:</span> <span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transformer &#39;inspector&#39; Callable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_monitor</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_monitor</span><span class="p">(</span><span class="n">entity_type</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="n">GraphEntityType</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analyse_edge</span><span class="p">(</span><span class="o">*</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="n">GraphEntityType</span><span class="o">.</span><span class="n">NODE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analyse_node</span><span class="p">(</span><span class="o">*</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unexpected GraphEntityType: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity_type</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Validator.get_validating_toolkit">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_validating_toolkit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_validating_toolkit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Validating Biolink Model toolkit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span></div>
+
+
+<div class="viewcode-block" id="Validator.get_validation_model_version">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_validation_model_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_validation_model_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Validating Biolink Model version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span><span class="o">.</span><span class="n">get_model_version</span><span class="p">()</span></div>
+
+
+    <span class="n">_currently_active_toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Validator.set_biolink_model">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.set_biolink_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_biolink_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set Biolink Model version of Validator Toolkit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_currently_active_toolkit</span> <span class="o">=</span> <span class="n">get_toolkit</span><span class="p">(</span><span class="n">biolink_release</span><span class="o">=</span><span class="n">version</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.get_toolkit">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_toolkit">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_toolkit</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Toolkit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the current default Validator Toolkit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_currently_active_toolkit</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_currently_active_toolkit</span> <span class="o">=</span> <span class="n">get_toolkit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_currently_active_toolkit</span></div>
+
+
+    <span class="n">_default_model_version</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Validator.get_default_model_version">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_default_model_version">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_model_version</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Default Biolink Model version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_default_model_version</span><span class="p">:</span>
+            <span class="c1"># get default Biolink version from BMT</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_default_model_version</span> <span class="o">=</span> <span class="n">get_toolkit</span><span class="p">()</span><span class="o">.</span><span class="n">get_model_version</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_default_model_version</span></div>
+
+
+<div class="viewcode-block" id="Validator.analyse_node">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.analyse_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyse Node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_node_properties</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_node_properties</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_node_property_types</span><span class="p">(</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">toolkit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_node_property_values</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_categories</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">toolkit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.analyse_edge">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.analyse_edge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyse edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_edge_properties</span><span class="p">(</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_edge_properties</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_edge_property_types</span><span class="p">(</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">toolkit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_edge_property_values</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_edge_predicate</span><span class="p">(</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">toolkit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validating_toolkit</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.get_all_prefixes">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_all_prefixes">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_prefixes</span><span class="p">(</span><span class="n">jsonld</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all prefixes from Biolink Model JSON-LD context.</span>
+
+<span class="sd">        It also sets ``self.prefixes`` for subsequent access.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---------</span>
+<span class="sd">        jsonld: Optional[Dict]</span>
+<span class="sd">            The JSON-LD context</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Dict]</span>
+<span class="sd">            A set of prefixes</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">jsonld</span><span class="p">:</span>
+            <span class="n">jsonld</span> <span class="o">=</span> <span class="n">get_jsonld_context</span><span class="p">()</span>
+        <span class="n">prefixes</span><span class="p">:</span> <span class="n">Set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">k</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">jsonld</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;@prefix&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="p">)</span>  <span class="c1"># @type: ignored</span>
+        <span class="k">if</span> <span class="s2">&quot;biolink&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+            <span class="n">prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;biolink&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prefixes</span></div>
+
+
+<div class="viewcode-block" id="Validator.get_required_node_properties">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_required_node_properties">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_required_node_properties</span><span class="p">(</span><span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all properties for a node that are required, as defined by Biolink Model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of required node properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+        <span class="n">node_properties</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_all_node_properties</span><span class="p">()</span>
+        <span class="c1"># TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.</span>
+        <span class="c1"># node_properties.append(&quot;id&quot;)</span>
+        <span class="n">required_properties</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">node_properties</span><span class="p">:</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">deprecated</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">required</span><span class="p">)</span> <span class="ow">or</span> <span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span>
+                    <span class="n">formatted_name</span> <span class="o">=</span> <span class="n">sentencecase_to_snakecase</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">required_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatted_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">required_properties</span></div>
+
+
+<div class="viewcode-block" id="Validator.get_required_edge_properties">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.get_required_edge_properties">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_required_edge_properties</span><span class="p">(</span><span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all properties for an edge that are required, as defined by Biolink Model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of required edge properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+        <span class="n">edge_properties</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_all_edge_properties</span><span class="p">()</span>
+        <span class="c1"># TODO: remove this append statement when Biolink 3.1.3 is released - need to add domain:entity to id slot.</span>
+        <span class="n">edge_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="n">required_properties</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">edge_properties</span><span class="p">:</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">deprecated</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+                    <span class="n">formatted_name</span> <span class="o">=</span> <span class="n">sentencecase_to_snakecase</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">required_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatted_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">required_properties</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate nodes and edges in a graph.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        graph: kgx.graph.base_graph.BaseGraph</span>
+<span class="sd">            The graph to validate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_nodes</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_nodes">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_nodes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate all the nodes in a graph.</span>
+
+<span class="sd">        This method validates for the following,</span>
+<span class="sd">        - Node properties</span>
+<span class="sd">        - Node property type</span>
+<span class="sd">        - Node property value type</span>
+<span class="sd">        - Node categories</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        graph: kgx.graph.base_graph.BaseGraph</span>
+<span class="sd">            The graph to validate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Validating nodes in graph&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">analyse_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_edges">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_edges">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate all the edges in a graph.</span>
+
+<span class="sd">        This method validates for the following,</span>
+<span class="sd">        - Edge properties</span>
+<span class="sd">        - Edge property type</span>
+<span class="sd">        - Edge property value type</span>
+<span class="sd">        - Edge predicate</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        graph: kgx.graph.base_graph.BaseGraph</span>
+<span class="sd">            The graph to validate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Validate edges in graph&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">analyse_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_node_properties">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_node_properties">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_node_properties</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">required_properties</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if all the required node properties exist for a given node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node: str</span>
+<span class="sd">            Node identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Node properties</span>
+<span class="sd">        required_properties: list</span>
+<span class="sd">            Required node properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">required_properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">MISSING_NODE_PROPERTY</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Required node property &#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&#39; is missing&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_edge_properties">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_edge_properties">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_edge_properties</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="nb">object</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">required_properties</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if all the required edge properties exist for a given edge.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject: str</span>
+<span class="sd">            Subject identifier</span>
+<span class="sd">        object: str</span>
+<span class="sd">            Object identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Edge properties</span>
+<span class="sd">        required_properties: list</span>
+<span class="sd">            Required edge properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">required_properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;association_id&quot;</span><span class="p">:</span>
+                    <span class="c1"># check for &#39;id&#39; property instead</span>
+                    <span class="k">if</span> <span class="s2">&quot;id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">MISSING_EDGE_PROPERTY</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Required edge property &#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&#39; is missing&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">error_type</span><span class="p">,</span>
+                            <span class="n">message</span><span class="p">,</span>
+                            <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">MISSING_EDGE_PROPERTY</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Required edge property &#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&#39; is missing&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">error_type</span><span class="p">,</span>
+                        <span class="n">message</span><span class="p">,</span>
+                        <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_node_property_types">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_node_property_types">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_node_property_types</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if node properties have the expected value type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node: str</span>
+<span class="sd">            Node identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Node properties</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_NODE_PROPERTY_VALUE_TYPE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Node property &#39;id&#39; is expected to be of type &#39;string&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">element</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;typeof&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span> <span class="ow">or</span> \
+                            <span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))):</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Node property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;</span><span class="si">{</span><span class="n">element</span><span class="o">.</span><span class="n">typeof</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                            <span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;uriorcurie&quot;</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="n">validators</span><span class="o">.</span><span class="n">url</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Node property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;uri&#39; or &#39;CURIE&#39;&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Skipping validation for Node property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Expected type &#39;</span><span class="si">{</span><span class="n">element</span><span class="o">.</span><span class="n">typeof</span><span class="si">}</span><span class="s2">&#39; v/s Actual type &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;multivalued&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">multivalued</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Multi-valued node property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;</span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Single-valued node property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;</span><span class="si">{</span><span class="nb">str</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_edge_property_types">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_edge_property_types">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_edge_property_types</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="nb">object</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if edge properties have the expected value type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject: str</span>
+<span class="sd">            Subject identifier</span>
+<span class="sd">        object: str</span>
+<span class="sd">            Object identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Edge properties</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_EDGE_PROPERTY_VALUE_TYPE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;&#39;subject&#39; of an edge is expected to be of type &#39;string&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;&#39;object&#39; of an edge is expected to be of type &#39;string&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">element</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;typeof&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Edge property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;string&#39;&quot;</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">error_type</span><span class="p">,</span>
+                            <span class="n">message</span><span class="p">,</span>
+                            <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                            <span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;uriorcurie&quot;</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="n">validators</span><span class="o">.</span><span class="n">url</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;uri&#39; or &#39;CURIE&#39;&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">error_type</span><span class="p">,</span>
+                            <span class="n">message</span><span class="p">,</span>
+                            <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">element</span><span class="o">.</span><span class="n">typeof</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                            <span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Edge property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;double&#39;&quot;</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">error_type</span><span class="p">,</span>
+                            <span class="n">message</span><span class="p">,</span>
+                            <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Skipping validation for Edge property &#39;</span><span class="si">{}</span><span class="s2">&#39;. Expected type &#39;</span><span class="si">{}</span><span class="s2">&#39; v/s Actual type &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">key</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">typeof</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;multivalued&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">multivalued</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Multi-valued edge property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;list&#39;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">error_type</span><span class="p">,</span>
+                                <span class="n">message</span><span class="p">,</span>
+                                <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                            <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Single-valued edge property &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is expected to be of type &#39;str&#39;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">error_type</span><span class="p">,</span>
+                                <span class="n">message</span><span class="p">,</span>
+                                <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_node_property_values">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_node_property_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_node_property_values</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate a node property&#39;s value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node: str</span>
+<span class="sd">            Node identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Node properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_NODE_PROPERTY_VALUE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_curie</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Node property &#39;id&#39; is expected to be of type &#39;CURIE&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_prefix</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefix</span> <span class="ow">and</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefixes</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Node property &#39;id&#39; has a value &#39;</span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&#39; with a CURIE prefix &#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="o">+</span> \
+                          <span class="sa">f</span><span class="s2">&quot; is not represented in Biolink Model JSON-LD context&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_edge_property_values">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_edge_property_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_edge_property_values</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="nb">object</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate an edge property&#39;s value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject: str</span>
+<span class="sd">            Subject identifier</span>
+<span class="sd">        object: str</span>
+<span class="sd">            Object identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Edge properties</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_EDGE_PROPERTY_VALUE</span>
+        <span class="n">prefixes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefixes</span>
+
+        <span class="k">if</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_curie</span><span class="p">(</span><span class="n">subject</span><span class="p">):</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_prefix</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefix</span> <span class="ow">and</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;subject&#39; has a value &#39;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&#39; with a CURIE prefix &quot;</span> <span class="o">+</span> \
+                          <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&#39; that is not represented in Biolink Model JSON-LD context&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;subject&#39; has a value &#39;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&#39; which is not a proper CURIE&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_curie</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_prefix</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;object&#39; has a value &#39;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&#39; with a CURIE &quot;</span> <span class="o">+</span> \
+                          <span class="sa">f</span><span class="s2">&quot;prefix &#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&#39; that is not represented in Biolink Model JSON-LD context&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;object&#39; has a value &#39;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&#39; which is not a proper CURIE&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_categories">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_categories">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_categories</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate ``category`` field of a given node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node: str</span>
+<span class="sd">            Node identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Node properties</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_CATEGORY</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">categories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Node does not have a &#39;category&#39; property&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Node property &#39;category&#39; is expected to be of type </span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_curie</span><span class="p">(</span><span class="n">category</span><span class="p">):</span>
+                    <span class="n">category</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_reference</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([A-Z][a-z\d]+)+$&quot;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="c1"># category is not CamelCase</span>
+                    <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_CATEGORY</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Category &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39; is not in CamelCase form&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                <span class="n">formatted_category</span> <span class="o">=</span> <span class="n">camelcase_to_sentencecase</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">is_mixin</span><span class="p">(</span><span class="n">formatted_category</span><span class="p">):</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Category &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39; is a mixin in the Biolink Model&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">is_category</span><span class="p">(</span><span class="n">formatted_category</span><span class="p">):</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Category &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39; is unknown in the current Biolink Model&quot;</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">formatted_category</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">category</span> <span class="o">!=</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">aliases</span><span class="p">:</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Category </span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2"> is actually an alias for </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; &quot;</span> <span class="o">+</span> \
+                                      <span class="sa">f</span><span class="s2">&quot;Should replace &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39; with &#39;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Validator.validate_edge_predicate">
+<a class="viewcode-back" href="../../reference/validator.html#kgx.validator.Validator.validate_edge_predicate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_edge_predicate</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="nb">object</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">toolkit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Toolkit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate ``edge_predicate`` field of a given edge.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject: str</span>
+<span class="sd">            Subject identifier</span>
+<span class="sd">        object: str</span>
+<span class="sd">            Object identifier</span>
+<span class="sd">        data: dict</span>
+<span class="sd">            Edge properties</span>
+<span class="sd">        toolkit: Optional[Toolkit]</span>
+<span class="sd">            Optional externally provided toolkit (default: use Validator class defined toolkit)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toolkit</span><span class="p">:</span>
+            <span class="n">toolkit</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">get_toolkit</span><span class="p">()</span>
+
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">ErrorType</span><span class="o">.</span><span class="n">INVALID_EDGE_PREDICATE</span>
+        <span class="n">edge_predicate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;predicate&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_predicate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Edge does not have an &#39;predicate&#39; property&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_predicate</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge property &#39;edge_predicate&#39; is expected to be of type &#39;string&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_curie</span><span class="p">(</span><span class="n">edge_predicate</span><span class="p">):</span>
+                <span class="n">edge_predicate</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_reference</span><span class="p">(</span><span class="n">edge_predicate</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([a-z_][^A-Z\s]+_?[a-z_][^A-Z\s]+)+$&quot;</span><span class="p">,</span> <span class="n">edge_predicate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">snakecase_to_sentencecase</span><span class="p">(</span><span class="n">edge_predicate</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge predicate &#39;</span><span class="si">{</span><span class="n">edge_predicate</span><span class="si">}</span><span class="s2">&#39; is not in Biolink Model&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">error_type</span><span class="p">,</span>
+                        <span class="n">message</span><span class="p">,</span>
+                        <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">edge_predicate</span> <span class="o">!=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">edge_predicate</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">aliases</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge predicate &#39;</span><span class="si">{</span><span class="n">edge_predicate</span><span class="si">}</span><span class="s2">&#39; is actually an alias for </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; &quot;</span> <span class="o">+</span> \
+                              <span class="sa">f</span><span class="s2">&quot;Should replace </span><span class="si">{</span><span class="n">edge_predicate</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">error_type</span><span class="p">,</span>
+                        <span class="n">message</span><span class="p">,</span>
+                        <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Edge predicate &#39;</span><span class="si">{</span><span class="n">edge_predicate</span><span class="si">}</span><span class="s2">&#39; is not in snake_case form&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">MessageLevel</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

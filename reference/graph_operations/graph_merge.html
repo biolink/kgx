@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Summarize Graph" href="summarize_graph.html" /><link rel="prev" title="Clique Merge" href="clique_merge.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
         <title>Graph Merge - kgx documentation</title>
@@ -160,15 +160,47 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source.html">Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sink.html">Sink</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../graph.html">Graph</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Graph Operations</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -240,14 +272,155 @@ incoming edge, if and only if the edge property is not a core edge property</p><
 </ul>
 </li>
 </ul>
-<section id="kgx-graph-operations-graph-merge">
-<h2>kgx.graph_operations.graph_merge<a class="headerlink" href="#kgx-graph-operations-graph-merge" title="Link to this heading">¶</a></h2>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.graph_operations.graph_merge
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
+<section id="module-kgx.graph_operations.graph_merge">
+<span id="kgx-graph-operations-graph-merge"></span><h2>kgx.graph_operations.graph_merge<a class="headerlink" href="#module-kgx.graph_operations.graph_merge" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.add_all_edges">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">add_all_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">g2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#add_all_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.add_all_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Add all edges from source graph (<code class="docutils literal notranslate"><span class="pre">g2</span></code>) to target graph (<code class="docutils literal notranslate"><span class="pre">g1</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g1</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – Target graph</p></li>
+<li><p><strong>g2</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – Source graph</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of edges merged during this operation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.add_all_nodes">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">add_all_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">g2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#add_all_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.add_all_nodes" title="Link to this definition">¶</a></dt>
+<dd><p>Add all nodes from source graph (<code class="docutils literal notranslate"><span class="pre">g2</span></code>) to target graph (<code class="docutils literal notranslate"><span class="pre">g1</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g1</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – Target graph</p></li>
+<li><p><strong>g2</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – Source graph</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of nodes merged during this operation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.merge_all_graphs">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">merge_all_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#merge_all_graphs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.merge_all_graphs" title="Link to this definition">¶</a></dt>
+<dd><p>Merge one or more graphs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method will first pick the largest graph in <code class="docutils literal notranslate"><span class="pre">graphs</span></code> and use that
+as the target to merge the remaining graphs. This is to reduce the memory
+footprint for this operation. The criteria for largest graph is the graph
+with the largest number of edges.</p>
+<p>The caveat is that the merge operation has a side effect where the largest
+graph is altered.</p>
+<p>If you would like to ensure that all incoming graphs remain as-is, then
+look at <code class="docutils literal notranslate"><span class="pre">merge_graphs</span></code>.</p>
 </div>
+<p>The outcome of the merge on node and edge properties depend on the <code class="docutils literal notranslate"><span class="pre">preserve</span></code> parameter.
+If preserve is <code class="docutils literal notranslate"><span class="pre">True</span></code> then,
+- core properties will not be overwritten
+- other properties will be concatenated to a list</p>
+<p>If preserve is <code class="docutils literal notranslate"><span class="pre">False</span></code> then,
+- core properties will not be overwritten
+- other properties will be replaced</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graphs</strong> (<em>List</em><em>[</em><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a><em>]</em>) – A list of instances of BaseGraph to merge</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The merged graph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph">kgx.graph.base_graph.BaseGraph</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.merge_edge">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">merge_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#merge_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.merge_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Merge edge <code class="docutils literal notranslate"><span class="pre">u</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">v</span></code> into graph <code class="docutils literal notranslate"><span class="pre">g</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The target graph</p></li>
+<li><p><strong>u</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject node id</p></li>
+<li><p><strong>v</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object node id</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Edge key</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The merged edge</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.merge_graphs">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">merge_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">graphs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#merge_graphs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.merge_graphs" title="Link to this definition">¶</a></dt>
+<dd><p>Merge all graphs in <code class="docutils literal notranslate"><span class="pre">graphs</span></code> to <code class="docutils literal notranslate"><span class="pre">graph</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – An instance of BaseGraph</p></li>
+<li><p><strong>graphs</strong> (<em>List</em><em>[</em><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a><em>]</em>) – A list of instances of BaseGraph to merge</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The merged graph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph">kgx.graph.base_graph.BaseGraph</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.graph_merge.merge_node">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.graph_merge.</span></span><span class="sig-name descname"><span class="pre">merge_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/graph_merge.html#merge_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.graph_merge.merge_node" title="Link to this definition">¶</a></dt>
+<dd><p>Merge node <code class="docutils literal notranslate"><span class="pre">n</span></code> into graph <code class="docutils literal notranslate"><span class="pre">g</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The target graph</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node id</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
+<li><p><strong>preserve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to preserve conflicting properties</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The merged node</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -256,8 +429,26 @@ incoming edge, if and only if the edge property is not a core edge property</p><
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="summarize_graph.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Summarize Graph</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="clique_merge.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Clique Merge</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -289,7 +480,15 @@ incoming edge, if and only if the edge property is not a core edge property</p><
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Graph Merge</a><ul>
-<li><a class="reference internal" href="#kgx-graph-operations-graph-merge">kgx.graph_operations.graph_merge</a></li>
+<li><a class="reference internal" href="#module-kgx.graph_operations.graph_merge">kgx.graph_operations.graph_merge</a><ul>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.add_all_edges"><code class="docutils literal notranslate"><span class="pre">add_all_edges()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.add_all_nodes"><code class="docutils literal notranslate"><span class="pre">add_all_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.merge_all_graphs"><code class="docutils literal notranslate"><span class="pre">merge_all_graphs()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.merge_edge"><code class="docutils literal notranslate"><span class="pre">merge_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.merge_graphs"><code class="docutils literal notranslate"><span class="pre">merge_graphs()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.graph_merge.merge_node"><code class="docutils literal notranslate"><span class="pre">merge_node()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

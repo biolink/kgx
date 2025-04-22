@@ -162,13 +162,45 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/source.html">Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/sink.html">Sink</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/graph.html">Graph</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -223,50 +255,28 @@ TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.</p>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installation-for-developers">Installation for developers</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#using-kgx-as-a-module">Using KGX as a module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#using-kgx-cli">Using KGX CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/utilities/index.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/source.html">Source</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-source">kgx.source.source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-graph-source">kgx.source.graph_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-tsv-source">kgx.source.tsv_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-json-source">kgx.source.json_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-jsonl-source">kgx.source.jsonl_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-trapi-source">kgx.source.trapi_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-obograph-source">kgx.source.obograph_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-sssom-source">kgx.source.sssom_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-neo-source">kgx.source.neo_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-rdf-source">kgx.source.rdf_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-owl-source">kgx.source.owl_source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/source.html#kgx-source-sparql-source">kgx.source.sparql_source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#input-mappings">Input Mappings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mapping_to_rdfstar.html#column-mappings">Column Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapping_to_rdfstar.html#prefix-mappings-curie-expansion">Prefix Mappings (CURIE expansion)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/sink.html">Sink</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#init-method"><code class="docutils literal notranslate"><span class="pre">__init__</span></code> method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#write-nodes-method"><code class="docutils literal notranslate"><span class="pre">write_nodes</span></code> method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#write-edges-method"><code class="docutils literal notranslate"><span class="pre">write_edges</span></code> method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#finalize-method"><code class="docutils literal notranslate"><span class="pre">finalize</span></code> method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-sink">kgx.sink.sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-graph-sink">kgx.sink.graph_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-tsv-sink">kgx.sink.tsv_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-json-sink">kgx.sink.json_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-jsonl-sink">kgx.sink.jsonl_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-trapi-sink">kgx.sink.trapi_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-neo-sink">kgx.sink.neo_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-rdf-sink">kgx.sink.rdf_sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/sink.html#kgx-sink-parquet-sink">kgx.sink.parquet_sink</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="reference/graph.html">Graph</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/graph.html#kgx-graph-base-graph-basegraph">kgx.graph.base_graph.BaseGraph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/graph.html#kgx-graph-nx-graph-nxgraph">kgx.graph.nx_graph.NxGraph</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 </div>
 </section>

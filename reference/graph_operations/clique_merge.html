@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Graph Merge" href="graph_merge.html" /><link rel="prev" title="Graph Operations" href="index.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
         <title>Clique Merge - kgx documentation</title>
@@ -160,15 +160,47 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source.html">Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sink.html">Sink</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../graph.html">Graph</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Graph Operations</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -239,14 +271,286 @@ which is the first in an alphabetically sorted list of all ID prefixes within th
 to the leader node.</p>
 <p>The original subject and object node of an edge is tracked via the  <code class="docutils literal notranslate"><span class="pre">_original_subject</span></code> and
 <code class="docutils literal notranslate"><span class="pre">_original_object</span></code> edge property.</p>
-<section id="kgx-graph-operations-clique-merge">
-<h2>kgx.graph_operations.clique_merge<a class="headerlink" href="#kgx-graph-operations-clique-merge" title="Link to this heading">¶</a></h2>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.graph_operations.clique_merge
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<section id="module-kgx.graph_operations.clique_merge">
+<span id="kgx-graph-operations-clique-merge"></span><h2>kgx.graph_operations.clique_merge<a class="headerlink" href="#module-kgx.graph_operations.clique_merge" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.build_cliques">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">build_cliques</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MultiDiGraph</span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#build_cliques"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.build_cliques" title="Link to this definition">¶</a></dt>
+<dd><p>Builds a clique graph from <code class="docutils literal notranslate"><span class="pre">same_as</span></code> edges in <code class="docutils literal notranslate"><span class="pre">target_graph</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – An instance of BaseGraph that contains nodes and edges</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The clique graph with only <code class="docutils literal notranslate"><span class="pre">same_as</span></code> edges</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>networkx.MultiDiGraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.check_all_categories">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">check_all_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#check_all_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.check_all_categories" title="Link to this definition">¶</a></dt>
+<dd><p>Check all categories in <code class="docutils literal notranslate"><span class="pre">categories</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>categories</strong> (<em>List</em>) – A list of categories</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>Tuple[List, List, List]</em> – A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories</p></li>
+<li><p><strong>Note</strong> (<em>the sort_categories method will re-arrange the passed in category list according to the distance</em>)</p></li>
+<li><p><em>of each list member from the top of their hierarchy.  Each category’s hierarchy is made up of its</em></p></li>
+<li><p><em>’is_a’ and mixin ancestors.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.check_categories">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">check_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">closure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#check_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.check_categories" title="Link to this definition">¶</a></dt>
+<dd><p>Check categories to ensure whether values in <code class="docutils literal notranslate"><span class="pre">categories</span></code> are valid biolink categories.
+Valid biolink categories are classes that descend from ‘NamedThing’.
+Mixins, while valid ancestors, are not valid categories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>categories</strong> (<em>List</em>) – A list of categories to check</p></li>
+<li><p><strong>closure</strong> (<em>List</em>) – A list of nodes in a clique</p></li>
+<li><p><strong>category_mapping</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – A map that provides mapping from a non-biolink category to a biolink category</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple consisting of valid biolink categories, invalid biolink categories, and invalid categories</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[List, List, List]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.clique_merge">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">clique_merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leader_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_prioritization_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MultiDiGraph</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#clique_merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.clique_merge" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>leader_annotation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The field on a node that signifies that the node is the leader of a clique</p></li>
+<li><p><strong>prefix_prioritization_map</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em><em>]</em>) – A map that gives a prefix priority for one or more categories</p></li>
+<li><p><strong>category_mapping</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – Mapping for non-Biolink Model categories to Biolink Model categories</p></li>
+<li><p><strong>strict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to merge nodes in a clique that have conflicting node categories</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the updated target graph, and the clique graph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph">kgx.graph.base_graph.BaseGraph</a>, networkx.MultiDiGraph]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.consolidate_edges">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">consolidate_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leader_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#consolidate_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.consolidate_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Move all edges from nodes in a clique to the clique leader.</p>
+<p>Original subject and object of a node are preserved via <code class="docutils literal notranslate"><span class="pre">ORIGINAL_SUBJECT_PROPERTY</span></code> and <code class="docutils literal notranslate"><span class="pre">ORIGINAL_OBJECT_PROPERTY</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.MultiDiGraph</em>) – The clique graph</p></li>
+<li><p><strong>leader_annotation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The field on a node that signifies that the node is the leader of a clique</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The target graph where all edges from nodes in a clique are moved to clique leader</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph">kgx.graph.base_graph.BaseGraph</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.elect_leader">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">elect_leader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leader_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_prioritization_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#elect_leader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.elect_leader" title="Link to this definition">¶</a></dt>
+<dd><p>Elect leader for each clique in a graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.Graph</em>) – The clique graph</p></li>
+<li><p><strong>leader_annotation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The field on a node that signifies that the node is the leader of a clique</p></li>
+<li><p><strong>prefix_prioritization_map</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em><em>]</em>) – A map that gives a prefix priority for one or more categories</p></li>
+<li><p><strong>category_mapping</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – Mapping for non-Biolink Model categories to Biolink Model categories</p></li>
+<li><p><strong>strict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to merge nodes in a clique that have conflicting node categories</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated target graph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph">kgx.graph.base_graph.BaseGraph</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.get_category_from_equivalence">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">get_category_from_equivalence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#get_category_from_equivalence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.get_category_from_equivalence" title="Link to this definition">¶</a></dt>
+<dd><p>Get category for a node based on its equivalent nodes in a graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.MultiDiGraph</em>) – The clique graph</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node identifier</p></li>
+<li><p><strong>attributes</strong> (<em>Dict</em>) – Node’s attributes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Category for the node</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.get_clique_category">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">get_clique_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#get_clique_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.get_clique_category" title="Link to this definition">¶</a></dt>
+<dd><p>Given a clique, identify the category of the clique.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clique_graph</strong> (<em>nx.MultiDiGraph</em>) – Clique graph</p></li>
+<li><p><strong>clique</strong> (<em>List</em>) – A list of nodes in clique</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of clique category and its ancestors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.get_leader_by_annotation">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">get_leader_by_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leader_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#get_leader_by_annotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.get_leader_by_annotation" title="Link to this definition">¶</a></dt>
+<dd><p>Get leader by searching for leader annotation property in any of the nodes in a given clique.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.MultiDiGraph</em>) – The clique graph</p></li>
+<li><p><strong>clique</strong> (<em>List</em>) – A list of nodes from a clique</p></li>
+<li><p><strong>leader_annotation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The field on a node that signifies that the node is the leader of a clique</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the node that has been elected as the leader and the election strategy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>], Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.get_leader_by_prefix_priority">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">get_leader_by_prefix_priority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_priority_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#get_leader_by_prefix_priority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.get_leader_by_prefix_priority" title="Link to this definition">¶</a></dt>
+<dd><p>Get leader from clique based on a given prefix priority.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.MultiDiGraph</em>) – The clique graph</p></li>
+<li><p><strong>clique</strong> (<em>List</em>) – A list of nodes that correspond to a clique</p></li>
+<li><p><strong>prefix_priority_list</strong> (<em>List</em>) – A list of prefixes in descending priority</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the node that has been elected as the leader and the election strategy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>], Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.get_leader_by_sort">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">get_leader_by_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#get_leader_by_sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.get_leader_by_sort" title="Link to this definition">¶</a></dt>
+<dd><p>Get leader from clique based on the first selection from an alphabetical sort of the node id prefixes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.MultiDiGraph</em>) – The clique graph</p></li>
+<li><p><strong>clique</strong> (<em>List</em>) – A list of nodes that correspond to a clique</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the node that has been elected as the leader and the election strategy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>], Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.sort_categories">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">sort_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Set" title="(in Python v3.13)"><span class="pre">Set</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">OrderedSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#sort_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.sort_categories" title="Link to this definition">¶</a></dt>
+<dd><p>Sort a list of categories from most specific to the most generic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>categories</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Set</em><em>, </em><em>OrderedSet</em><em>]</em>) – A list of categories</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A sorted list of categories where sorted means that the first element in the list returned
+has the most number of parents in the class hierarchy.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kgx.graph_operations.clique_merge.update_node_categories">
+<span class="sig-prename descclassname"><span class="pre">kgx.graph_operations.clique_merge.</span></span><span class="sig-name descname"><span class="pre">update_node_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></span><a class="reference internal" href="../../_modules/kgx/graph_operations/clique_merge.html#update_node_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.graph_operations.clique_merge.update_node_categories" title="Link to this definition">¶</a></dt>
+<dd><p>For a given clique, get category for each node in clique and validate against Biolink Model,
+mapping to Biolink Model category where needed.</p>
+<p>For example, If a node has <code class="docutils literal notranslate"><span class="pre">biolink:Gene</span></code> as its category, then this method adds all of its ancestors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_graph</strong> (<a class="reference internal" href="../graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The original graph</p></li>
+<li><p><strong>clique_graph</strong> (<em>networkx.Graph</em>) – The clique graph</p></li>
+<li><p><strong>clique</strong> (<em>List</em>) – A list of nodes from a clique</p></li>
+<li><p><strong>category_mapping</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – Mapping for non-Biolink Model categories to Biolink Model categories</p></li>
+<li><p><strong>strict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to merge nodes in a clique that have conflicting node categories</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The clique</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -255,8 +559,26 @@ to the leader node.</p>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="graph_merge.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Graph Merge</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Graph Operations</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -288,7 +610,22 @@ to the leader node.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Clique Merge</a><ul>
-<li><a class="reference internal" href="#kgx-graph-operations-clique-merge">kgx.graph_operations.clique_merge</a></li>
+<li><a class="reference internal" href="#module-kgx.graph_operations.clique_merge">kgx.graph_operations.clique_merge</a><ul>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.build_cliques"><code class="docutils literal notranslate"><span class="pre">build_cliques()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.check_all_categories"><code class="docutils literal notranslate"><span class="pre">check_all_categories()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.check_categories"><code class="docutils literal notranslate"><span class="pre">check_categories()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.clique_merge"><code class="docutils literal notranslate"><span class="pre">clique_merge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.consolidate_edges"><code class="docutils literal notranslate"><span class="pre">consolidate_edges()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.elect_leader"><code class="docutils literal notranslate"><span class="pre">elect_leader()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.get_category_from_equivalence"><code class="docutils literal notranslate"><span class="pre">get_category_from_equivalence()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.get_clique_category"><code class="docutils literal notranslate"><span class="pre">get_clique_category()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.get_leader_by_annotation"><code class="docutils literal notranslate"><span class="pre">get_leader_by_annotation()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.get_leader_by_prefix_priority"><code class="docutils literal notranslate"><span class="pre">get_leader_by_prefix_priority()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.get_leader_by_sort"><code class="docutils literal notranslate"><span class="pre">get_leader_by_sort()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.sort_categories"><code class="docutils literal notranslate"><span class="pre">sort_categories()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.graph_operations.clique_merge.update_node_categories"><code class="docutils literal notranslate"><span class="pre">update_node_categories()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

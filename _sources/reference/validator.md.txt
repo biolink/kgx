@@ -25,7 +25,7 @@ Note that the kgx **validate** CLI operation also has an optional `biolink_relea
 ## kgx.validator
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.validator
    :members:
    :inherited-members:

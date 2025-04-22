@@ -19,15 +19,11 @@ Documentation
    :maxdepth: 2
    :caption: Contents:
 
-
    installation
-   reference/index.md
    kgx_format
+   reference/index
    examples
-   reference/index.md
-   reference/source.md
-   reference/sink.md
-   reference/graph.md
+   mapping_to_rdfstar
 
 Indices and tables
 ==================

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Graph" href="graph.html" /><link rel="prev" title="Source" href="source.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Validator" href="validator.html" /><link rel="prev" title="Source" href="source.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
         <title>Sink - kgx documentation</title>
@@ -162,13 +162,45 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source.html">Source</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Sink</a></li>
-<li class="toctree-l1"><a class="reference internal" href="graph.html">Graph</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source.html">Source</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping_to_rdfstar.html">Input Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping_to_rdfstar.html#input-mappings">Input Mappings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping_to_rdfstar.html#node-sets">Node Sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping_to_rdfstar.html#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -246,100 +278,858 @@
 <section id="kgx-sink-sink">
 <h2>kgx.sink.sink<a class="headerlink" href="#kgx-sink-sink" title="Link to this heading">¶</a></h2>
 <p>Base class for all Sinks in KGX.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<dl class="py class" id="module-kgx.sink.sink">
+<dt class="sig sig-object py" id="kgx.sink.sink.Sink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.sink.</span></span><span class="sig-name descname"><span class="pre">Sink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/sink.html#Sink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.sink.Sink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A Sink is responsible for writing data as records
+to a store where the store is a file or a database.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param owner<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformer
+Transformer to which the GraphSink belongs</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.sink.Sink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/sink.html#Sink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.sink.Sink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Operations that ought to be done after
+writing all the incoming data should be called
+by this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.sink.Sink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/sink.html#Sink.set_reverse_prefix_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.sink.Sink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.sink.Sink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/sink.html#Sink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.sink.Sink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Any</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.sink.Sink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/sink.html#Sink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.sink.Sink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Any</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
 </section>
 <section id="kgx-sink-graph-sink">
 <h2>kgx.sink.graph_sink<a class="headerlink" href="#kgx-sink-graph-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">GraphSink</span></code> is responsible for writing to an instance of <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code> and must use only
 the methods exposed by <code class="docutils literal notranslate"><span class="pre">BaseGraph</span></code> to access the graph.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.graph_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<dl class="py class" id="module-kgx.sink.graph_sink">
+<dt class="sig sig-object py" id="kgx.sink.graph_sink.GraphSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.graph_sink.</span></span><span class="sig-name descname"><span class="pre">GraphSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/graph_sink.html#GraphSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.graph_sink.GraphSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>GraphSink is responsible for writing data as records
+to an in memory graph representation.</p>
+<p>The underlying store is determined by the graph store
+class defined in config (<code class="docutils literal notranslate"><span class="pre">kgx.graph.nx_graph.NxGraph</span></code>, by default).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.graph_sink.GraphSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/graph_sink.html#GraphSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.graph_sink.GraphSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Perform any operations after writing nodes and edges to graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.graph_sink.GraphSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.graph_sink.GraphSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.graph_sink.GraphSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/graph_sink.html#GraphSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.graph_sink.GraphSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.graph_sink.GraphSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/graph_sink.html#GraphSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.graph_sink.GraphSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="kgx-sink-tsv-sink">
 <h2>kgx.sink.tsv_sink<a class="headerlink" href="#kgx-sink-tsv-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">TsvSink</span></code> is responsible for writing a KGX formatted CSV or TSV using Pandas.</p>
 <p>KGX writes two separate files - one for nodes and another for edges.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.tsv_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<dl class="py class" id="module-kgx.sink.tsv_sink">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.tsv_sink.</span></span><span class="sig-name descname"><span class="pre">TsvSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>TsvSink is responsible for writing data as records to a TSV/CSV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the GraphSink belongs</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename to write to</p></li>
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file format (<code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">csv</span></code>)</p></li>
+<li><p><strong>compression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The compression type (<code class="docutils literal notranslate"><span class="pre">tar</span></code>, <code class="docutils literal notranslate"><span class="pre">tar.gz</span></code>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Close file handles and create an archive if compression mode is defined.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.set_edge_properties">
+<span class="sig-name descname"><span class="pre">set_edge_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink.set_edge_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.set_edge_properties" title="Link to this definition">¶</a></dt>
+<dd><p>Update edge properties index with a given list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>edge_properties</strong> (<em>List</em>) – A list of edge properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.set_node_properties">
+<span class="sig-name descname"><span class="pre">set_node_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink.set_node_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.set_node_properties" title="Link to this definition">¶</a></dt>
+<dd><p>Update node properties index with a given list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node_properties</strong> (<em>List</em>) – A list of node properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.tsv_sink.TsvSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/tsv_sink.html#TsvSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.tsv_sink.TsvSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="kgx-sink-json-sink">
 <h2>kgx.sink.json_sink<a class="headerlink" href="#kgx-sink-json-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">JsonSink</span></code> is responsible for writing a KGX formatted JSON using the <a class="reference external" href="https://pypi.org/project/jsonstreams/">jsonstreams</a>
 library, which allows for streaming records to the file.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.json_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<dl class="py class" id="module-kgx.sink.json_sink">
+<dt class="sig sig-object py" id="kgx.sink.json_sink.JsonSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.json_sink.</span></span><span class="sig-name descname"><span class="pre">JsonSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/json_sink.html#JsonSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.json_sink.JsonSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>JsonSink is responsible for writing data as records
+to a JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the GraphSink belongs</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename to write to</p></li>
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file format (<code class="docutils literal notranslate"><span class="pre">json</span></code>)</p></li>
+<li><p><strong>compression</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – The compression type (<code class="docutils literal notranslate"><span class="pre">gz</span></code>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.json_sink.JsonSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/json_sink.html#JsonSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.json_sink.JsonSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Finalize by creating a compressed file, if needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.json_sink.JsonSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.json_sink.JsonSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.json_sink.JsonSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/json_sink.html#JsonSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.json_sink.JsonSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.json_sink.JsonSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/json_sink.html#JsonSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.json_sink.JsonSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="kgx-sink-jsonl-sink">
 <h2>kgx.sink.jsonl_sink<a class="headerlink" href="#kgx-sink-jsonl-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">JsonlSink</span></code> is responsible for writing a KGX formatted JSON Lines using the
 <a class="reference external" href="https://jsonlines.readthedocs.io/en/latest/">jsonlines</a> library.</p>
 <p>KGX writes two separate JSON Lines files - one for nodes and another for edges.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.jsonl_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
+<section id="kgx-json-lines-format-specification">
+<h3>KGX JSON Lines Format Specification<a class="headerlink" href="#kgx-json-lines-format-specification" title="Link to this heading">¶</a></h3>
+<p>The JSON Lines format provides a simple and efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format combines the advantages of JSON (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.</p>
+<section id="file-structure">
+<h4>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains one node per line, each as a complete JSON object</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{filename}_edges.jsonl</span></code>: Contains one edge per line, each as a complete JSON object</p></li>
+</ul>
+</section>
+<section id="node-record-format">
+<h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Link to this heading">¶</a></h4>
+<section id="required-properties">
+<h5>Required Properties<a class="headerlink" href="#required-properties" title="Link to this heading">¶</a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): A CURIE that uniquely identifies the node in the graph</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> (array of strings): List of Biolink categories for the node, from the <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy</p></li>
+</ul>
+</section>
+<section id="common-optional-properties">
+<h5>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Link to this heading">¶</a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (string): Human-readable name of the entity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (string): Human-readable description of the entity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">provided_by</span></code> (array of strings): List of sources that provided this node</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xref</span></code> (array of strings): List of database cross-references as CURIEs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synonym</span></code> (array of strings): List of alternative names for the entity</p></li>
+</ul>
+</section>
+</section>
+<section id="edge-record-format">
+<h4>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Link to this heading">¶</a></h4>
+<section id="id1">
+<h5>Required Properties<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code> (string): CURIE of the source node</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code> (string): Biolink predicate representing the relationship type</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">object</span></code> (string): CURIE of the target node</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">knowledge_level</span></code> (string): Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agent_type</span></code> (string): Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model</p></li>
+</ul>
+</section>
+<section id="id2">
+<h5>Common Optional Properties<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h5>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): Unique identifier for the edge, often a UUID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">relation</span></code> (string): Relation CURIE from a formal relation ontology (e.g., RO)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> (array of strings): List of Biolink association categories</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code> (array of strings): Sources of knowledge (deprecated: <code class="docutils literal notranslate"><span class="pre">provided_by</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code> (array of strings): Primary knowledge sources</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aggregator_knowledge_source</span></code> (array of strings): Knowledge aggregator sources</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">publications</span></code> (array of strings): List of publication CURIEs supporting the edge</p></li>
+</ul>
+</section>
+</section>
+<section id="examples">
+<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h4>
+<p><strong>Node Example (nodes.jsonl)</strong>:</p>
+<p>Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;biolink:Gene&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">},</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;biolink:Disease&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">},</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acetaminophen&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;biolink:SmallMolecule&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;biolink:ChemicalEntity&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
+<p>In the actual jsonlines file, each record would be on a single line without comments and formatting:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;HGNC:11603&quot;,&quot;name&quot;:&quot;TBX4&quot;,&quot;category&quot;:[&quot;biolink:Gene&quot;]}
+{&quot;id&quot;:&quot;MONDO:0005002&quot;,&quot;name&quot;:&quot;chronic obstructive pulmonary disease&quot;,&quot;category&quot;:[&quot;biolink:Disease&quot;]}
+{&quot;id&quot;:&quot;CHEBI:15365&quot;,&quot;name&quot;:&quot;acetaminophen&quot;,&quot;category&quot;:[&quot;biolink:SmallMolecule&quot;,&quot;biolink:ChemicalEntity&quot;]}
+</pre></div>
+</div>
+<p><strong>Edge Example (edges.jsonl)</strong>:</p>
+<p>Each line in a jsonlines file represents a complete edge record. Here are examples of different edge types:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a8575c4e-61a6-428a-bf09-fcb3e8d1644d&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:related_to&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
+<span class="p">},</span>
+<span class="p">{</span>
+<span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;</span><span class="p">,</span>
+<span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
+<span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:contributes_to&quot;</span><span class="p">,</span>
+<span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
+<span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:GeneToDiseaseAssociation&quot;</span><span class="p">],</span>
+<span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwascatalog&quot;</span><span class="p">],</span>
+<span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:26634245&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PMID:26634244&quot;</span><span class="p">],</span>
+<span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;observation&quot;</span><span class="p">,</span>
+<span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biological&quot;</span>
+<span class="p">},</span>
+<span class="p">{</span>
+<span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c7d632b4-6708-4296-9cfe-44bc586d32c8&quot;</span><span class="p">,</span>
+<span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
+<span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:affects&quot;</span><span class="p">,</span>
+<span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GO:0006915&quot;</span><span class="p">,</span>
+<span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0002434&quot;</span><span class="p">,</span>
+<span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:ChemicalToProcessAssociation&quot;</span><span class="p">],</span>
+<span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:monarch-kg&quot;</span><span class="p">],</span>
+<span class="nt">&quot;aggregator_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:monarch-kg-archive&quot;</span><span class="p">],</span>
+<span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:12345678&quot;</span><span class="p">],</span>
+<span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
+<span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the actual jsonlines file, each record would be on a single line without comments and formatting:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;a8575c4e-61a6-428a-bf09-fcb3e8d1644d&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;predicate&quot;:&quot;biolink:related_to&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;knowledge_level&quot;:&quot;assertion&quot;,&quot;agent_type&quot;:&quot;computational&quot;}
+{&quot;id&quot;:&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;predicate&quot;:&quot;biolink:contributes_to&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;category&quot;:[&quot;biolink:GeneToDiseaseAssociation&quot;],&quot;primary_knowledge_source&quot;:[&quot;infores:gwascatalog&quot;],&quot;publications&quot;:[&quot;PMID:26634245&quot;,&quot;PMID:26634244&quot;],&quot;knowledge_level&quot;:&quot;observation&quot;,&quot;agent_type&quot;:&quot;biological&quot;}
+</pre></div>
+</div>
+</section>
+<section id="usage-notes">
+<h4>Usage Notes<a class="headerlink" href="#usage-notes" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>All field values should follow the KGX specification and Biolink Model requirements</p></li>
+<li><p>Arrays should be represented as JSON arrays (not pipe-delimited strings)</p></li>
+<li><p>For large KGs, JSON Lines offers better streaming performance than monolithic JSON</p></li>
+</ul>
+<dl class="py class" id="module-kgx.sink.jsonl_sink">
+<dt class="sig sig-object py" id="kgx.sink.jsonl_sink.JsonlSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.jsonl_sink.</span></span><span class="sig-name descname"><span class="pre">JsonlSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'jsonl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/jsonl_sink.html#JsonlSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.jsonl_sink.JsonlSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>JsonlSink is responsible for writing data as records
+to JSON lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the GraphSink belongs</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename to write to</p></li>
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file format (<code class="docutils literal notranslate"><span class="pre">jsonl</span></code>)</p></li>
+<li><p><strong>compression</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – The compression type (<code class="docutils literal notranslate"><span class="pre">gz</span></code>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.jsonl_sink.JsonlSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/jsonl_sink.html#JsonlSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.jsonl_sink.JsonlSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Perform any operations after writing the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.jsonl_sink.JsonlSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.jsonl_sink.JsonlSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.jsonl_sink.JsonlSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/jsonl_sink.html#JsonlSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.jsonl_sink.JsonlSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.jsonl_sink.JsonlSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/jsonl_sink.html#JsonlSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.jsonl_sink.JsonlSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
 </section>
 <section id="kgx-sink-trapi-sink">
 <h2>kgx.sink.trapi_sink<a class="headerlink" href="#kgx-sink-trapi-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">TrapiSink</span></code> has yet to be implemented.</p>
 <p>In principle, <code class="docutils literal notranslate"><span class="pre">TrapiSink</span></code> is responsible for writing a <a class="reference external" href="https://github.com/NCATSTranslator/ReasonerAPI">Translator Reasoner API</a>
 formatted JSON.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.trapi_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
 </section>
 <section id="kgx-sink-neo-sink">
 <h2>kgx.sink.neo_sink<a class="headerlink" href="#kgx-sink-neo-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">NeoSink</span></code> is responsible for writing data to a local or remote Neo4j instance.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.neo_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<dl class="py class" id="module-kgx.sink.neo_sink">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.neo_sink.</span></span><span class="sig-name descname"><span class="pre">NeoSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>NeoSink is responsible for writing data as records
+to a Neo4j instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the GraphSink belongs</p></li>
+<li><p><strong>uri</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The URI for the Neo4j instance.
+For example, <a class="reference external" href="http://localhost:7474">http://localhost:7474</a></p></li>
+<li><p><strong>username</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The username</p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The password</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.create_constraint_query">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_constraint_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.create_constraint_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.create_constraint_query" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Cypher CONSTRAINT query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>category</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The category to create a constraint on</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Cypher CONSTRAINT query</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.create_constraints">
+<span class="sig-name descname"><span class="pre">create_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.13)"><span class="pre">set</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.create_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.create_constraints" title="Link to this definition">¶</a></dt>
+<dd><p>Create a unique constraint on node ‘id’ for all <code class="docutils literal notranslate"><span class="pre">categories</span></code> in Neo4j.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>categories</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.13)"><em>set</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>]</em>) – Set of categories</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Write any remaining cached node and/or edge records.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_unwind_edge_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.generate_unwind_edge_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query" title="Link to this definition">¶</a></dt>
+<dd><p>Generate UNWIND cypher query for saving edges into Neo4j.</p>
+<p>Query uses <code class="docutils literal notranslate"><span class="pre">self.DEFAULT_NODE_CATEGORY</span></code> to quickly lookup the required subject and object node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>edge_predicate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Edge label as string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The UNWIND cypher query</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.generate_unwind_node_query">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_unwind_node_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.generate_unwind_node_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.generate_unwind_node_query" title="Link to this definition">¶</a></dt>
+<dd><p>Generate UNWIND cypher query for saving nodes into Neo4j.</p>
+<p>There should be a CONSTRAINT in Neo4j for <code class="docutils literal notranslate"><span class="pre">self.DEFAULT_NODE_CATEGORY</span></code>.
+The query uses <code class="docutils literal notranslate"><span class="pre">self.DEFAULT_NODE_CATEGORY</span></code> as the node label to increase speed for adding nodes.
+The query also sets label to <code class="docutils literal notranslate"><span class="pre">self.DEFAULT_NODE_CATEGORY</span></code> for any node to make sure that the CONSTRAINT applies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>category</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node category</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The UNWIND cypher query</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.sanitize_category">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sanitize_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.sanitize_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.sanitize_category" title="Link to this definition">¶</a></dt>
+<dd><p>Sanitize category for use in UNWIND cypher clause.
+This method adds escape characters to each element in category
+list to ensure the category is processed correctly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>category</strong> (<em>List</em>) – Category</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sanitized category list</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Cache an edge record that is to be written to Neo4j.
+This method writes a cache of edge records when the
+total number of records exceeds <code class="docutils literal notranslate"><span class="pre">CACHE_SIZE</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.neo_sink.NeoSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/neo_sink.html#NeoSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.neo_sink.NeoSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Cache a node record that is to be written to Neo4j.
+This method writes a cache of node records when the
+total number of records exceeds <code class="docutils literal notranslate"><span class="pre">CACHE_SIZE</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="kgx-sink-rdf-sink">
 <h2>kgx.sink.rdf_sink<a class="headerlink" href="#kgx-sink-rdf-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">RdfSink</span></code> is responsible for writing data as RDF N-Triples.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.rdf_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
+<dl class="py class" id="module-kgx.sink.rdf_sink">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.rdf_sink.</span></span><span class="sig-name descname"><span class="pre">RdfSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reify_all_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>RdfSink is responsible for writing data as records
+to an RDF serialization.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently only RDF N-Triples serialization is supported.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the GraphSink belongs</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename to write to</p></li>
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file format (<code class="docutils literal notranslate"><span class="pre">nt</span></code>)</p></li>
+<li><p><strong>compression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The compression type (<code class="docutils literal notranslate"><span class="pre">gz</span></code>)</p></li>
+<li><p><strong>reify_all_edges</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether or not to reify all the edges</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Perform any operations after writing the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.get_biolink_element">
+<span class="sig-name descname"><span class="pre">get_biolink_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Element</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.get_biolink_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.get_biolink_element" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a Biolink Model element for a given predicate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>predicate</strong> (<em>Any</em>) – The CURIE of a predicate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The corresponding Biolink Model element</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Element]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.process_predicate">
+<span class="sig-name descname"><span class="pre">process_predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">URIRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.process_predicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.process_predicate" title="Link to this definition">¶</a></dt>
+<dd><p>Process a predicate where the method checks if there is a mapping in Biolink Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>p</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>URIRef</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – The predicate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple that contains the Biolink CURIE (if available), the Biolink slot_uri CURIE (if available),
+the CURIE form of p, the reference of p</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.reify">
+<span class="sig-name descname"><span class="pre">reify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.reify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.reify" title="Link to this definition">¶</a></dt>
+<dd><p>Create a node representation of an edge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject</p></li>
+<li><p><strong>v</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object</p></li>
+<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Edge key</p></li>
+<li><p><strong>data</strong> (<em>Dict</em>) – Edge data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The reified node</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.set_property_types">
+<span class="sig-name descname"><span class="pre">set_property_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.set_property_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.set_property_types" title="Link to this definition">¶</a></dt>
+<dd><p>Set export type for properties that are not in
+Biolink Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary where the keys are property names and values
+are their corresponding types.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.set_reverse_predicate_mapping">
+<span class="sig-name descname"><span class="pre">set_reverse_predicate_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.set_reverse_predicate_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.set_reverse_predicate_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Set reverse predicate mappings.</p>
+<p>Use this method to update mappings for predicates that are
+not in Biolink Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary where the keys are property names and values
+are their corresponding IRI.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.uriref">
+<span class="sig-name descname"><span class="pre">uriref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">URIRef</span></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.uriref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.uriref" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a rdflib.URIRef for a given string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Identifier as string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>URIRef form of the input <code class="docutils literal notranslate"><span class="pre">identifier</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>rdflib.URIRef</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record as triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.rdf_sink.RdfSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/rdf_sink.html#RdfSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.rdf_sink.RdfSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record as triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Dict</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="kgx-sink-parquet-sink">
 <h2>kgx.sink.parquet_sink<a class="headerlink" href="#kgx-sink-parquet-sink" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ParquetSink</span></code> is responsible for writing data as Parquet table files.</p>
 <p>KGX writes two separate files - one for nodes and another for edges.</p>
-<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.sink.parquet_sink
-   :members:
-   :inherited-members:
-   :show-inheritance:
-</pre></div>
-</div>
+<p id="module-kgx.sink.parquet_sink">Sink for Parquet format.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="kgx.sink.parquet_sink.ParquetSink">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.sink.parquet_sink.</span></span><span class="sig-name descname"><span class="pre">ParquetSink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/sink/parquet_sink.html#ParquetSink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.parquet_sink.ParquetSink" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kgx.sink.sink.Sink" title="kgx.sink.sink.Sink"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sink</span></code></a></p>
+<p>A ParquetSink writes data to Parquet files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> (<a class="reference internal" href="transformer.html#kgx.transformer.Transformer" title="kgx.transformer.Transformer"><em>Transformer</em></a>) – Transformer to which the ParquetSink belongs</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the Parquet file to write to</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Any additional arguments</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.parquet_sink.ParquetSink.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/parquet_sink.html#ParquetSink.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.parquet_sink.ParquetSink.finalize" title="Link to this definition">¶</a></dt>
+<dd><p>Finalize writing the data to the underlying store.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.parquet_sink.ParquetSink.set_reverse_prefix_map">
+<span class="sig-name descname"><span class="pre">set_reverse_prefix_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.sink.parquet_sink.ParquetSink.set_reverse_prefix_map" title="Link to this definition">¶</a></dt>
+<dd><p>Update default reverse prefix map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – A dictionary with IRI to prefix mappings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.parquet_sink.ParquetSink.write_edge">
+<span class="sig-name descname"><span class="pre">write_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/parquet_sink.html#ParquetSink.write_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.parquet_sink.ParquetSink.write_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Write an edge record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Any</em>) – An edge record</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.sink.parquet_sink.ParquetSink.write_node">
+<span class="sig-name descname"><span class="pre">write_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/sink/parquet_sink.html#ParquetSink.write_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.sink.parquet_sink.ParquetSink.write_node" title="Link to this definition">¶</a></dt>
+<dd><p>Write a node record to the underlying store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>Any</em>) – A node record</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -348,12 +1138,12 @@ formatted JSON.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="graph.html">
+          <a class="next-page" href="validator.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Graph</div>
+                <div class="title">Validator</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -403,15 +1193,118 @@ formatted JSON.</p>
 <li><a class="reference internal" href="#write-nodes-method"><code class="docutils literal notranslate"><span class="pre">write_nodes</span></code> method</a></li>
 <li><a class="reference internal" href="#write-edges-method"><code class="docutils literal notranslate"><span class="pre">write_edges</span></code> method</a></li>
 <li><a class="reference internal" href="#finalize-method"><code class="docutils literal notranslate"><span class="pre">finalize</span></code> method</a></li>
-<li><a class="reference internal" href="#kgx-sink-sink">kgx.sink.sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-graph-sink">kgx.sink.graph_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-tsv-sink">kgx.sink.tsv_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-json-sink">kgx.sink.json_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-jsonl-sink">kgx.sink.jsonl_sink</a></li>
+<li><a class="reference internal" href="#kgx-sink-sink">kgx.sink.sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.sink.Sink"><code class="docutils literal notranslate"><span class="pre">Sink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.sink.Sink.finalize"><code class="docutils literal notranslate"><span class="pre">Sink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.sink.Sink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">Sink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.sink.Sink.write_edge"><code class="docutils literal notranslate"><span class="pre">Sink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.sink.Sink.write_node"><code class="docutils literal notranslate"><span class="pre">Sink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-graph-sink">kgx.sink.graph_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.graph_sink.GraphSink"><code class="docutils literal notranslate"><span class="pre">GraphSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.graph_sink.GraphSink.finalize"><code class="docutils literal notranslate"><span class="pre">GraphSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.graph_sink.GraphSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">GraphSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.graph_sink.GraphSink.write_edge"><code class="docutils literal notranslate"><span class="pre">GraphSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.graph_sink.GraphSink.write_node"><code class="docutils literal notranslate"><span class="pre">GraphSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-tsv-sink">kgx.sink.tsv_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink"><code class="docutils literal notranslate"><span class="pre">TsvSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.finalize"><code class="docutils literal notranslate"><span class="pre">TsvSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.set_edge_properties"><code class="docutils literal notranslate"><span class="pre">TsvSink.set_edge_properties()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.set_node_properties"><code class="docutils literal notranslate"><span class="pre">TsvSink.set_node_properties()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">TsvSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.write_edge"><code class="docutils literal notranslate"><span class="pre">TsvSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.tsv_sink.TsvSink.write_node"><code class="docutils literal notranslate"><span class="pre">TsvSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-json-sink">kgx.sink.json_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.json_sink.JsonSink"><code class="docutils literal notranslate"><span class="pre">JsonSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.json_sink.JsonSink.finalize"><code class="docutils literal notranslate"><span class="pre">JsonSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.json_sink.JsonSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">JsonSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.json_sink.JsonSink.write_edge"><code class="docutils literal notranslate"><span class="pre">JsonSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.json_sink.JsonSink.write_node"><code class="docutils literal notranslate"><span class="pre">JsonSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-jsonl-sink">kgx.sink.jsonl_sink</a><ul>
+<li><a class="reference internal" href="#kgx-json-lines-format-specification">KGX JSON Lines Format Specification</a><ul>
+<li><a class="reference internal" href="#file-structure">File Structure</a></li>
+<li><a class="reference internal" href="#node-record-format">Node Record Format</a><ul>
+<li><a class="reference internal" href="#required-properties">Required Properties</a></li>
+<li><a class="reference internal" href="#common-optional-properties">Common Optional Properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edge-record-format">Edge Record Format</a><ul>
+<li><a class="reference internal" href="#id1">Required Properties</a></li>
+<li><a class="reference internal" href="#id2">Common Optional Properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#usage-notes">Usage Notes</a><ul>
+<li><a class="reference internal" href="#kgx.sink.jsonl_sink.JsonlSink"><code class="docutils literal notranslate"><span class="pre">JsonlSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.jsonl_sink.JsonlSink.finalize"><code class="docutils literal notranslate"><span class="pre">JsonlSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.jsonl_sink.JsonlSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">JsonlSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.jsonl_sink.JsonlSink.write_edge"><code class="docutils literal notranslate"><span class="pre">JsonlSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.jsonl_sink.JsonlSink.write_node"><code class="docutils literal notranslate"><span class="pre">JsonlSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#kgx-sink-trapi-sink">kgx.sink.trapi_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-neo-sink">kgx.sink.neo_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-rdf-sink">kgx.sink.rdf_sink</a></li>
-<li><a class="reference internal" href="#kgx-sink-parquet-sink">kgx.sink.parquet_sink</a></li>
+<li><a class="reference internal" href="#kgx-sink-neo-sink">kgx.sink.neo_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink"><code class="docutils literal notranslate"><span class="pre">NeoSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.create_constraint_query"><code class="docutils literal notranslate"><span class="pre">NeoSink.create_constraint_query()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.create_constraints"><code class="docutils literal notranslate"><span class="pre">NeoSink.create_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.finalize"><code class="docutils literal notranslate"><span class="pre">NeoSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query"><code class="docutils literal notranslate"><span class="pre">NeoSink.generate_unwind_edge_query()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.generate_unwind_node_query"><code class="docutils literal notranslate"><span class="pre">NeoSink.generate_unwind_node_query()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.sanitize_category"><code class="docutils literal notranslate"><span class="pre">NeoSink.sanitize_category()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">NeoSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.write_edge"><code class="docutils literal notranslate"><span class="pre">NeoSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.neo_sink.NeoSink.write_node"><code class="docutils literal notranslate"><span class="pre">NeoSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-rdf-sink">kgx.sink.rdf_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink"><code class="docutils literal notranslate"><span class="pre">RdfSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.finalize"><code class="docutils literal notranslate"><span class="pre">RdfSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.get_biolink_element"><code class="docutils literal notranslate"><span class="pre">RdfSink.get_biolink_element()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.process_predicate"><code class="docutils literal notranslate"><span class="pre">RdfSink.process_predicate()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.reify"><code class="docutils literal notranslate"><span class="pre">RdfSink.reify()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.set_property_types"><code class="docutils literal notranslate"><span class="pre">RdfSink.set_property_types()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.set_reverse_predicate_mapping"><code class="docutils literal notranslate"><span class="pre">RdfSink.set_reverse_predicate_mapping()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">RdfSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.uriref"><code class="docutils literal notranslate"><span class="pre">RdfSink.uriref()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.write_edge"><code class="docutils literal notranslate"><span class="pre">RdfSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.rdf_sink.RdfSink.write_node"><code class="docutils literal notranslate"><span class="pre">RdfSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-sink-parquet-sink">kgx.sink.parquet_sink</a><ul>
+<li><a class="reference internal" href="#kgx.sink.parquet_sink.ParquetSink"><code class="docutils literal notranslate"><span class="pre">ParquetSink</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.sink.parquet_sink.ParquetSink.finalize"><code class="docutils literal notranslate"><span class="pre">ParquetSink.finalize()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.parquet_sink.ParquetSink.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">ParquetSink.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.parquet_sink.ParquetSink.write_edge"><code class="docutils literal notranslate"><span class="pre">ParquetSink.write_edge()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.sink.parquet_sink.ParquetSink.write_node"><code class="docutils literal notranslate"><span class="pre">ParquetSink.write_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

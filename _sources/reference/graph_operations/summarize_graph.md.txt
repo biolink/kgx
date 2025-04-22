@@ -20,7 +20,7 @@ For very large graphs, the Graph Summary operation may now successfully process 
 
 ## kgx.graph_operations.summarize_graph
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.graph_operations.summarize_graph
    :members:
    :inherited-members:

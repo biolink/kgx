@@ -6,6 +6,6 @@ the value from another node property.
 
 ## kgx.graph_operations.remap_node_property
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.remap_node_property
 ```
