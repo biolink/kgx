@@ -302,7 +302,7 @@ off of `master` branch.
 - The `0.x.x` is the legacy implementation of KGX. This branch will be maintained where only bugs are addressed.
 No new features will be added to this branch.
 
-To make a new release of KGX, refer to [Release Instructions](release-instructions.md).
+To make a new release of KGX, refer to [Release Instructions](../release-instructions.md).
 
 
 If you are a core-developer of KGX then you should have push access to [KGX on PyPI](https://pypi.org/project/kgx/) and [KGX on DockerHub](https://hub.docker.com/repository/docker/biolink/kgx).

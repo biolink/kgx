@@ -24,6 +24,8 @@ Documentation
    kgx_schema_generation
    reference/index
    transformation_and_validation_examples
+   developer-guide
+   data-preparation
 
 Indices and tables
 ==================
