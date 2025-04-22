@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="KGX transformation and validation examples" href="transformation_and_validation_examples.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
-        <title>Input Tables - kgx documentation</title>
+        <title>Mapping kgx to rdf-star - kgx documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -139,7 +139,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -160,7 +160,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -198,10 +198,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Input Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#input-mappings">Input Mappings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#node-sets">Node Sets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#edge-sets">Edge Sets</a></li>
 </ul>
 
 </div>
@@ -230,20 +226,21 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <p>mapping kgx to rdf*</p>
+          <section id="mapping-kgx-to-rdf-star">
+<h1>Mapping kgx to rdf-star<a class="headerlink" href="#mapping-kgx-to-rdf-star" title="Link to this heading">¶</a></h1>
 <p>The mapping is specified as mapping between (1) two tables (nodes and edges), two sets of
 mappings (column and prefix) and (2) an RDF* graph.</p>
 <ul class="simple">
 <li><p>RDF*: https://w3c.github.io/rdf-star/cg-spec/</p></li>
 </ul>
 <section id="input-tables">
-<h1>Input Tables<a class="headerlink" href="#input-tables" title="Link to this heading">¶</a></h1>
+<h2>Input Tables<a class="headerlink" href="#input-tables" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>nodes</p></li>
 <li><p>edges</p></li>
@@ -255,9 +252,9 @@ is used, multivalued fields are separated by <code class="docutils literal notra
 should be escaped with backquotes.</p>
 </section>
 <section id="input-mappings">
-<h1>Input Mappings<a class="headerlink" href="#input-mappings" title="Link to this heading">¶</a></h1>
+<h2>Input Mappings<a class="headerlink" href="#input-mappings" title="Link to this heading">¶</a></h2>
 <section id="column-mappings">
-<h2>Column Mappings<a class="headerlink" href="#column-mappings" title="Link to this heading">¶</a></h2>
+<h3>Column Mappings<a class="headerlink" href="#column-mappings" title="Link to this heading">¶</a></h3>
 <p>A set of column mappings is provided as input.</p>
 <p>A mapping <code class="docutils literal notranslate"><span class="pre">columnToProperty</span></code> maps between a column in either node or
 edges file and a URI.</p>
@@ -274,7 +271,7 @@ subproperty of rdf:type). However, the mapping from kgx to RDF* is
 independent of biolink, and can be used with any vocabulary.</p>
 </section>
 <section id="prefix-mappings-curie-expansion">
-<h2>Prefix Mappings (CURIE expansion)<a class="headerlink" href="#prefix-mappings-curie-expansion" title="Link to this heading">¶</a></h2>
+<h3>Prefix Mappings (CURIE expansion)<a class="headerlink" href="#prefix-mappings-curie-expansion" title="Link to this heading">¶</a></h3>
 <p>A set of prefix mappings is provided as input.</p>
 <p>These may be specified using JSON-LD contexts, via a simple YAML
 file. As far as the specification goes, this is a simple pairwise
@@ -288,7 +285,7 @@ baseURI and appended onto LOCAL to make the URI.</p>
 </section>
 </section>
 <section id="node-sets">
-<h1>Node Sets<a class="headerlink" href="#node-sets" title="Link to this heading">¶</a></h1>
+<h2>Node Sets<a class="headerlink" href="#node-sets" title="Link to this heading">¶</a></h2>
 <p>Each row is uniquely identified by the <code class="docutils literal notranslate"><span class="pre">id</span></code> column. There MUST NOT be
 more than one row with the same <code class="docutils literal notranslate"><span class="pre">id</span></code>. Each row MUST have an id specified.</p>
 <p>For each row-column combination <code class="docutils literal notranslate"><span class="pre">(R,C)</span></code> for columns other than <code class="docutils literal notranslate"><span class="pre">id</span></code>, a
@@ -298,7 +295,7 @@ single triple is generated.</p>
 </div>
 </section>
 <section id="edge-sets">
-<h1>Edge Sets<a class="headerlink" href="#edge-sets" title="Link to this heading">¶</a></h1>
+<h2>Edge Sets<a class="headerlink" href="#edge-sets" title="Link to this heading">¶</a></h2>
 <p>Each edge is optionally uniquely identified by the <code class="docutils literal notranslate"><span class="pre">id</span></code> column. There
 MUST NOT be more than one row with same id (TODO).</p>
 <p>A triple is emitted for each row, where the triple is quoted and
@@ -313,6 +310,7 @@ each column C, where C is not in <code class="docutils literal notranslate"><spa
 </div>
 <p>TODO: id field</p>
 </section>
+</section>
 
         </article>
       </div>
@@ -320,17 +318,7 @@ each column C, where C is not in <code class="docutils literal notranslate"><spa
         
         <div class="related-pages">
           
-          <a class="prev-page" href="transformation_and_validation_examples.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">KGX transformation and validation examples</div>
-                
-              </div>
-            </a>
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -349,8 +337,34 @@ each column C, where C is not in <code class="docutils literal notranslate"><spa
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Mapping kgx to rdf-star</a><ul>
+<li><a class="reference internal" href="#input-tables">Input Tables</a></li>
+<li><a class="reference internal" href="#input-mappings">Input Mappings</a><ul>
+<li><a class="reference internal" href="#column-mappings">Column Mappings</a></li>
+<li><a class="reference internal" href="#prefix-mappings-curie-expansion">Prefix Mappings (CURIE expansion)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-sets">Node Sets</a></li>
+<li><a class="reference internal" href="#edge-sets">Edge Sets</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
