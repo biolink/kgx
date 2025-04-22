@@ -110,8 +110,3 @@ myst_enable_extensions = [
     "attrs_block",
     "fieldlist"
 ]
-
-# Jinja
-jinja_contexts = {
-    'deprecations': {'deprecations': sorted(deepcopy(DEPRECATIONS), key=attrgetter('deprecated_in'))}
-}
