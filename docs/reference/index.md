@@ -1,7 +1,3 @@
-Reference
---------------------
-
-```markdown
 # Reference
 
 This section provides detailed documentation on the classes and methods
@@ -20,3 +16,4 @@ graph_operations/index.md
 utilities/index.md
 prefix_manager.md
 curie_lookup_service.md
+```
