@@ -139,7 +139,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -226,7 +226,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -235,7 +235,237 @@
           <section id="kgx-format">
 <h1>KGX Format<a class="headerlink" href="#kgx-format" title="Link to this heading">¶</a></h1>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs.</p>
-<p>The complete up-to-date format specification can be found <a class="reference external" href="https://github.com/biolink/kgx/blob/master/specification/kgx-format.md">here</a>.</p>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#introduction">Introduction</a></p></li>
+<li><p><a class="reference internal" href="#kgx-format">KGX format</a></p>
+<ul>
+<li><p><a class="reference internal" href="#node-record">Node Record</a></p>
+<ul>
+<li><p><a class="reference internal" href="#core-node-record-elements"><span class="xref myst">Core Node Record Elements</span></a></p></li>
+<li><p><a class="reference internal" href="#optional-node-record-elements"><span class="xref myst">Optional Node Record Elements</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#edge-record">Edge Record</a></p>
+<ul>
+<li><p><a class="reference internal" href="#core-edge-record-elements"><span class="xref myst">Core Edge Record Elements</span></a></p></li>
+<li><p><a class="reference internal" href="#optional-edge-record-elements"><span class="xref myst">Optional Edge Record Elements</span></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#kgx-format-as-json">KGX format as JSON</a></p></li>
+<li><p><a class="reference internal" href="#kgx-format-as-tsv">KGX format as TSV</a></p></li>
+<li><p><a class="reference internal" href="#kgx-format-as-json-lines">KGX format as JSON Lines</a></p></li>
+<li><p><a class="reference internal" href="#kgx-format-as-rdf-turtle">KGX format as RDF Turtle</a></p></li>
+</ul>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<p>The KGX format is a serialization of Biolink Model compliant knowledge graphs.</p>
+<p>This specification aims at defining how this format is structured and organized, describing the required fields and their significance, followed by examples of the KGX format in TSV, JSON, and RDF.</p>
+</section>
+<section id="id1">
+<h2>KGX format<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>The KGX format came to be as a way of representing Biolink Model compliant knowledge graphs as flat files that can be processed, subsetted, and exchanged easily. The simplest way of thinking of the format is to think how one would expect a graph (for example, in Neo4j) to be seralized into a file.</p>
+<p>Each node (or edge) is represented with all of its properties that further describes the node (or edge).</p>
+<section id="node-record">
+<h3>Node Record<a class="headerlink" href="#node-record" title="Link to this heading">¶</a></h3>
+<p>We refer to each serialization of a node as a Node record.</p>
+<p>Each node record has a set of elements that describes the node.</p>
+<section id="core-node-record-elements">
+<h4>Core Node Record Elements<a class="headerlink" href="#core-node-record-elements" title="Link to this heading">¶</a></h4>
+<p>There are 2 required elements for a Node record:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/id">id</a></p></li>
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/category">category</a></p></li>
+</ul>
+<section id="id">
+<h5>id<a class="headerlink" href="#id" title="Link to this heading">¶</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">id</span></code> element must have a value as a CURIE that uniquely identifies the node in the graph.</p>
+</section>
+<section id="category">
+<h5>category<a class="headerlink" href="#category" title="Link to this heading">¶</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">category</span></code> element is used to name the high level class in which this entity is categorized.
+The element is a multivalued list which must have a value from the Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy.</p>
+</section>
+</section>
+<section id="optional-node-record-elements">
+<h4>Optional Node Record Elements<a class="headerlink" href="#optional-node-record-elements" title="Link to this heading">¶</a></h4>
+<section id="biolink-model-elements">
+<h5>Biolink Model Elements<a class="headerlink" href="#biolink-model-elements" title="Link to this heading">¶</a></h5>
+<p>A node can have additional properties, as defined in the Biolink Model.</p>
+<p>For example, <a class="reference external" href="https://biolink.github.io/biolink-model/name">name</a>, <a class="reference external" href="https://biolink.github.io/biolink-model/description">description</a>, and <a class="reference external" href="https://biolink.github.io/biolink-model/xref">xref</a>.  Nodes can also optionally have a <a class="reference external" href="https://biolink.github.io/biolink-model/provided_by"><code class="docutils literal notranslate"><span class="pre">provided_by</span></code></a> property.</p>
+</section>
+<section id="non-biolink-model-elements">
+<h5>Non-Biolink Model elements<a class="headerlink" href="#non-biolink-model-elements" title="Link to this heading">¶</a></h5>
+<p>A node can also have other properties that are not from the Biolink Model. While it is recommended that these properties are well represented in the model to begin with, having these as node properties will not violate the specification.</p>
+</section>
+</section>
+</section>
+<section id="edge-record">
+<h3>Edge Record<a class="headerlink" href="#edge-record" title="Link to this heading">¶</a></h3>
+<p>We refer to each serialization of an edge as an Edge record.</p>
+<p>Each edge record has a set of elements that describes the edge.</p>
+<section id="core-edge-record-elements">
+<h4>Core Edge Record Elements<a class="headerlink" href="#core-edge-record-elements" title="Link to this heading">¶</a></h4>
+<p>There are 3 required elements for an Edge record:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/subject">subject</a></p></li>
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/predicate">predicate</a></p></li>
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/object">object</a></p></li>
+</ul>
+<section id="subject">
+<h5>subject<a class="headerlink" href="#subject" title="Link to this heading">¶</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">subject</span></code> element is used to refer to the source node in an edge/statement/assertion and must be the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the source node.</p>
+</section>
+<section id="predicate">
+<h5>predicate<a class="headerlink" href="#predicate" title="Link to this heading">¶</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">predicate</span></code> element is used to refer to the predicate/relationship that links a source node to a target node in an edge/statement/assertion.
+This element must have a value from the Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/related_to">related_to</a> hierarchy.</p>
+</section>
+<section id="object">
+<h5>object<a class="headerlink" href="#object" title="Link to this heading">¶</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">object</span></code> element is used to refer to the target node in an edge/statement/assertion and must be the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the target node.</p>
+</section>
+</section>
+<section id="edge-provenance">
+<h4>Edge Provenance<a class="headerlink" href="#edge-provenance" title="Link to this heading">¶</a></h4>
+<p>Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original <a class="reference external" href="https://biolink.github.io/biolink-model/provided_by"><code class="docutils literal notranslate"><span class="pre">provided_by</span></code></a> property is now deprecated for edges in favor of the Biolink Model 2.0 defined <a class="reference external" href="https://biolink.github.io/biolink-model/knowledge_source"><code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code></a> association slot or one of its descendents - <a class="reference external" href="https://biolink.github.io/biolink-model/aggregator_knowledge_source"><code class="docutils literal notranslate"><span class="pre">aggregator_knowledge_source</span></code></a>,  <a class="reference external" href="https://biolink.github.io/biolink-model/primary_knowledge_source"><code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code></a> and <a class="reference external" href="https://biolink.github.io/biolink-model/original_knowledge_source"><code class="docutils literal notranslate"><span class="pre">original_knowledge_source</span></code></a> - or the related association slot, <a class="reference external" href="https://biolink.github.io/biolink-model/supporting_data_source"><code class="docutils literal notranslate"><span class="pre">supporting_data_source</span></code></a>.</p>
+</section>
+<section id="optional-edge-record-elements">
+<h4>Optional Edge Record Elements<a class="headerlink" href="#optional-edge-record-elements" title="Link to this heading">¶</a></h4>
+<section id="id2">
+<h5>Biolink Model Elements<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h5>
+<p>An edge can have additional properties, as defined in the Biolink Model.</p>
+<p>For example, <a class="reference external" href="https://biolink.github.io/biolink-model/category">category</a> and <a class="reference external" href="https://biolink.github.io/biolink-model/publications">publications</a>.</p>
+</section>
+<section id="id3">
+<h5>Non-Biolink Model Elements<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h5>
+<p>An edge can also have other properties that are not from Biolink Model. While it is recommended that these properties are well represented in the model to begin with, having these as edge properties will not violate the specification.</p>
+</section>
+</section>
+</section>
+</section>
+<section id="kgx-format-as-json">
+<h2>KGX format as JSON<a class="headerlink" href="#kgx-format-as-json" title="Link to this heading">¶</a></h2>
+<p>The structure of the KGX JSON format is as follows:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">&quot;edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A sample KGX JSON that represents a graph with 2 nodes and 1 edge:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodes&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Gene&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;MonarchArchive:gwascatalog&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Disease&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;MonarchArchive:gwascatalog&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;edges&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:contributes_to&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:GeneToDiseaseAssociation&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;MonarchArchive:gwascatalog&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:26634245&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PMID:26634244&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="kgx-format-as-tsv">
+<h2>KGX format as TSV<a class="headerlink" href="#kgx-format-as-tsv" title="Link to this heading">¶</a></h2>
+<p>The KGX TSV format is structured slightly different from the JSON in that there are two files - one for nodes and another for edges.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nodes.tsv</span></code>: each row corresponds to a Node record and each column corresponds to an element in the Node record (i.e. a node property).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edges.tsv</span></code>: each row corresponds to an Edge record and each column corresponds to an element in the Edge record (i.e. an edge property).</p></li>
+</ul>
+<p>A sample KGX TSV that represents a graph with 2 nodes and 1 edge:</p>
+<p>nodes.tsv</p>
+<div class="highlight-tsv notranslate"><div class="highlight"><pre><span></span>id	category	name	provided_by
+HGNC:11603	biolink:NamedThing|biolink:BiologicalEntity|biolink:Gene	TBX4	MonarchArchive:gwascatalog
+MONDO:0005002	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:Disease	chronic obstructive pulmonary disease	MonarchArchive:gwascatalog
+</pre></div>
+</div>
+<p>edges.tsv</p>
+<div class="highlight-tsv notranslate"><div class="highlight"><pre><span></span>id	subject	predicate	object	relation	primary_knowledge_source	category	publications
+urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	MONDO:0005002	RO:0003304	MonarchArchive:gwascatalog	biolink:GeneToDiseaseAssociation	PMID:26634245|PMID:26634244
+</pre></div>
+</div>
+<p>Few noted caveats of the TSV serialization:</p>
+<ul class="simple">
+<li><p>If you have a large graph where some nodes have certain specialized properties but most of them do not, then you end up with a sparse TSV for nodes with several columns that have no value.</p></li>
+<li><p>The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.</p></li>
+<li><p>Fields that accept lists of value - e.g. the above fields for <code class="docutils literal notranslate"><span class="pre">category</span></code> (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with <code class="docutils literal notranslate"><span class="pre">biolink:Gene</span></code> and <code class="docutils literal notranslate"><span class="pre">biolink:Disease</span></code>) and <code class="docutils literal notranslate"><span class="pre">publications</span></code> - have values typically a list of values delimited by a Unix pipe (‘|’) character, unless otherwise programmatically overridden, using an available <code class="docutils literal notranslate"><span class="pre">list_delimiter</span></code> parameter, during TSV <em>source</em> or <em>sink</em> data parsing by the KGX software tool)</p></li>
+</ul>
+</section>
+<section id="kgx-format-as-json-lines">
+<h2>KGX format as JSON Lines<a class="headerlink" href="#kgx-format-as-json-lines" title="Link to this heading">¶</a></h2>
+<p>The KGX JSON Lines format is similar to the TSV format in that there are two files - one for nodes and another for edges.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nodes.jsonl</span></code>: each row corresponds to a Node record.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edges.jsonl</span></code>: each row corresponds to an Edge record.</p></li>
+</ul>
+<p>A sample KGX JSON Lines that represents a graph with 2 nodes and 1 edge:</p>
+<p>nodes.jsonl</p>
+<div class="highlight-jsonlines notranslate"><div class="highlight"><pre><span></span>{ &quot;id&quot;: &quot;HGNC:11603&quot;, &quot;name&quot;: &quot;TBX4&quot;, &quot;category&quot;: [&quot;biolink:Gene&quot;],&quot;provided_by&quot;: [&quot;MonarchArchive:gwascatalog&quot;] }
+{ &quot;id&quot;: &quot;MONDO:0005002&quot;, &quot;name&quot;: &quot;chronic obstructive pulmonary disease&quot;, &quot;category&quot;: [&quot;biolink:Disease&quot;], &quot;provided_by&quot;: [&quot;MonarchArchive:gwascatalog&quot;] }
+</pre></div>
+</div>
+<p>edges.jsonl</p>
+<div class="highlight-jsonlines notranslate"><div class="highlight"><pre><span></span>{ &quot;id&quot;: &quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;, &quot;subject&quot;: &quot;HGNC:11603&quot;, &quot;predicate&quot;: &quot;biolink:contributes_to&quot;, &quot;object&quot;: &quot;MONDO:0005002&quot;, &quot;relation&quot;: &quot;RO:0003304&quot;, &quot;category&quot;: [&quot;biolink:GeneToDiseaseAssociation&quot;], &quot;primary_knowledge_source&quot;: [&quot;MonarchArchive:gwascatalog&quot;], &quot;publications&quot;: [&quot;PMID:26634245&quot;, &quot;PMID:26634244&quot;] }
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The structure of jsonl nodes and edges is the same as the structures in the JSON representation,  but with one node or edge per line.</p></li>
+<li><p>The jsonl is more streamable than json, without creating the sparseness of the TSV files.</p></li>
+</ul>
+</section>
+<section id="kgx-format-as-rdf-turtle">
+<h2>KGX format as RDF Turtle<a class="headerlink" href="#kgx-format-as-rdf-turtle" title="Link to this heading">¶</a></h2>
+<p>A sample KGX RDF Turtle (TTL) that represents a graph with 2 nodes and 1 edge:</p>
+<div class="highlight-ttl notranslate"><div class="highlight"><pre><span></span>@<span class="nv">prefix</span><span class="w"> </span><span class="nv">OBO</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">purl</span>.<span class="nv">obolibrary</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">obo</span><span class="o">/&gt;</span><span class="w"> </span>.
+@<span class="nv">prefix</span><span class="w"> </span><span class="nv">biolink</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">w3id</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">biolink</span><span class="o">/</span><span class="nv">vocab</span><span class="o">/&gt;</span><span class="w"> </span>.
+@<span class="nv">prefix</span><span class="w"> </span><span class="nv">rdf</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">w3</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">1999</span><span class="o">/</span><span class="mi">02</span><span class="o">/</span><span class="mi">22</span><span class="o">-</span><span class="nv">rdf</span><span class="o">-</span><span class="nv">syntax</span><span class="o">-</span><span class="nv">ns</span>#<span class="o">&gt;</span><span class="w"> </span>.
+@<span class="nv">prefix</span><span class="w"> </span><span class="nv">rdfs</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">w3</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">2000</span><span class="o">/</span><span class="mi">01</span><span class="o">/</span><span class="nv">rdf</span><span class="o">-</span><span class="nv">schema</span>#<span class="o">&gt;</span><span class="w"> </span>.
+@<span class="nv">prefix</span><span class="w"> </span><span class="nv">xsd</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">w3</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">2001</span><span class="o">/</span><span class="nv">XMLSchema</span>#<span class="o">&gt;</span><span class="w"> </span>.
+
+<span class="o">&lt;</span><span class="nv">urn</span>:<span class="nv">uuid</span>:<span class="mi">5</span><span class="nv">b06e86f</span><span class="o">-</span><span class="nv">d768</span><span class="o">-</span><span class="mi">4</span><span class="nv">cd9</span><span class="o">-</span><span class="nv">ac27</span><span class="o">-</span><span class="nv">abe31e95ab1e</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">rdf</span>:<span class="nv">object</span><span class="w"> </span><span class="nv">OBO</span>:<span class="nv">MONDO_0005002</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">rdf</span>:<span class="nv">predicate</span><span class="w"> </span><span class="nv">biolink</span>:<span class="nv">contributes_to</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">rdf</span>:<span class="nv">subject</span><span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">identifiers</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">hgnc</span><span class="o">/</span><span class="mi">11603</span><span class="o">&gt;</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">category</span><span class="w"> </span><span class="nv">biolink</span>:<span class="nv">GeneToDiseaseAssociation</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">provided_by</span><span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">archive</span>.<span class="nv">monarchinitiative</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">201806</span><span class="o">/</span><span class="nv">gwascatalog</span><span class="o">&gt;</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">publications</span><span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">ncbi</span>.<span class="nv">nlm</span>.<span class="nv">nih</span>.<span class="nv">gov</span><span class="o">/</span><span class="nv">pubmed</span><span class="o">/</span><span class="mi">26634244</span><span class="o">&gt;</span>,
+<span class="w">        </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">ncbi</span>.<span class="nv">nlm</span>.<span class="nv">nih</span>.<span class="nv">gov</span><span class="o">/</span><span class="nv">pubmed</span><span class="o">/</span><span class="mi">26634245</span><span class="o">&gt;</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">relation</span><span class="w"> </span><span class="nv">OBO</span>:<span class="nv">RO_0003304</span><span class="w"> </span>.
+
+<span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">identifiers</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">hgnc</span><span class="o">/</span><span class="mi">11603</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">rdfs</span>:<span class="nv">label</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="o">^^</span><span class="nv">xsd</span>:<span class="nv">string</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">category</span><span class="w"> </span><span class="nv">biolink</span>:<span class="nv">Gene</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">contributes_to</span><span class="w"> </span><span class="nv">OBO</span>:<span class="nv">MONDO_0005002</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">provided_by</span><span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">archive</span>.<span class="nv">monarchinitiative</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">201806</span><span class="o">/</span><span class="nv">gwascatalog</span><span class="o">&gt;</span><span class="w"> </span>.
+
+<span class="nv">OBO</span>:<span class="nv">MONDO_0005002</span><span class="w"> </span><span class="nv">rdfs</span>:<span class="nv">label</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="o">^^</span><span class="nv">xsd</span>:<span class="nv">string</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">category</span><span class="w"> </span><span class="nv">biolink</span>:<span class="nv">Disease</span><span class="w"> </span><span class="c1">;</span>
+<span class="w">    </span><span class="nv">biolink</span>:<span class="nv">primary_knowledge_source</span><span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">archive</span>.<span class="nv">monarchinitiative</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">201806</span><span class="o">/</span><span class="nv">gwascatalog</span><span class="o">&gt;</span><span class="w"> </span>.
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -281,8 +511,63 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">KGX Format</a><ul>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#id1">KGX format</a><ul>
+<li><a class="reference internal" href="#node-record">Node Record</a><ul>
+<li><a class="reference internal" href="#core-node-record-elements">Core Node Record Elements</a><ul>
+<li><a class="reference internal" href="#id">id</a></li>
+<li><a class="reference internal" href="#category">category</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#optional-node-record-elements">Optional Node Record Elements</a><ul>
+<li><a class="reference internal" href="#biolink-model-elements">Biolink Model Elements</a></li>
+<li><a class="reference internal" href="#non-biolink-model-elements">Non-Biolink Model elements</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edge-record">Edge Record</a><ul>
+<li><a class="reference internal" href="#core-edge-record-elements">Core Edge Record Elements</a><ul>
+<li><a class="reference internal" href="#subject">subject</a></li>
+<li><a class="reference internal" href="#predicate">predicate</a></li>
+<li><a class="reference internal" href="#object">object</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edge-provenance">Edge Provenance</a></li>
+<li><a class="reference internal" href="#optional-edge-record-elements">Optional Edge Record Elements</a><ul>
+<li><a class="reference internal" href="#id2">Biolink Model Elements</a></li>
+<li><a class="reference internal" href="#id3">Non-Biolink Model Elements</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-format-as-json">KGX format as JSON</a></li>
+<li><a class="reference internal" href="#kgx-format-as-tsv">KGX format as TSV</a></li>
+<li><a class="reference internal" href="#kgx-format-as-json-lines">KGX format as JSON Lines</a></li>
+<li><a class="reference internal" href="#kgx-format-as-rdf-turtle">KGX format as RDF Turtle</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
