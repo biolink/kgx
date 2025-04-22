@@ -19,7 +19,7 @@ KGX allows conversion to and from:
 
  * RDF serializations (read/write) and SPARQL endpoints (read)
  * Neo4j endpoints (read) or Neo4j dumps (write)
- * CSV/TSV and JSON (see [associated data formats](./data-preparation.md) and [example script to load CSV/TSV to Neo4j](./examples/scripts/load_csv_to_neo4j.py))
+ * CSV/TSV and JSON (see [associated data formats](docs/data-preparation.md) and [example script to load CSV/TSV to Neo4j](./examples/scripts/load_csv_to_neo4j.py))
  * Reasoner Standard API format
  * OBOGraph JSON format
 
