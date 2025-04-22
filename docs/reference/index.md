@@ -3,7 +3,6 @@
 This section provides a detailed documentation on the classes and methods
 from all the submodules in KGX.
 
-```eval_rst
 .. toctree::
    :maxdepth: 1
 
@@ -17,4 +16,3 @@ from all the submodules in KGX.
    utilities/index.md
    prefix_manager
    curie_lookup_service
-```
