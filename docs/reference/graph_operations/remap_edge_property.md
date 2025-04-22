@@ -6,6 +6,6 @@ the value from another edge property.
 
 ## kgx.graph_operations.remap_edge_property
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.remap_edge_property
 ```

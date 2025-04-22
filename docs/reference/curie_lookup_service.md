@@ -12,7 +12,7 @@ The required ontologies are defined in the KGX `config.yml`.
 ## kgx.curie_lookup_service
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.curie_lookup_service
    :members:
    :inherited-members:

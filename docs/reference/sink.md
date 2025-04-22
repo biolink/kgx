@@ -42,7 +42,7 @@ For example,
 Base class for all Sinks in KGX.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.sink
    :members:
    :inherited-members:
@@ -55,7 +55,7 @@ Base class for all Sinks in KGX.
 the methods exposed by `BaseGraph` to access the graph.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.graph_sink
    :members:
    :inherited-members:
@@ -69,7 +69,7 @@ the methods exposed by `BaseGraph` to access the graph.
 KGX writes two separate files - one for nodes and another for edges.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.tsv_sink
    :members:
    :inherited-members:
@@ -82,7 +82,7 @@ KGX writes two separate files - one for nodes and another for edges.
 library, which allows for streaming records to the file.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.json_sink
    :members:
    :inherited-members:
@@ -138,22 +138,88 @@ The JSON Lines format provides a simple and efficient way to represent KGX data 
 #### Examples
 
 **Node Example (nodes.jsonl)**:
-```jsonlines
-{"id": "HGNC:11603", "name": "TBX4", "category": ["biolink:Gene"]}
-{"id": "MONDO:0005002", "name": "chronic obstructive pulmonary disease", "category": ["biolink:Disease"]}
-{"id": "PUBCHEM.COMPOUND:10429502", "name": "16|A-Methyl Prednisolone", "category": ["biolink:ChemicalEntity", "biolink:NamedThing"]}
-{"id": "CHEBI:15365", "name": "acetaminophen", "category": ["biolink:SmallMolecule", "biolink:ChemicalEntity"]}
-{"id": "GO:0006915", "name": "apoptotic process", "category": ["biolink:BiologicalProcess", "biolink:BiologicalEntity", "biolink:OntologyClass"]}
+
+Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:
+
+```json
+{
+  "id": "HGNC:11603",
+  "name": "TBX4",
+  "category": [
+    "biolink:Gene"
+  ]
+},
+{
+  "id": "MONDO:0005002",
+  "name": "chronic obstructive pulmonary disease",
+  "category": [
+    "biolink:Disease"
+  ]
+},
+{
+  "id": "CHEBI:15365",
+  "name": "acetaminophen",
+  "category": [
+    "biolink:SmallMolecule",
+    "biolink:ChemicalEntity"
+  ]
+}
+```
+
+In the actual jsonlines file, each record would be on a single line without comments and formatting:
+
+```text
+{"id":"HGNC:11603","name":"TBX4","category":["biolink:Gene"]}
+{"id":"MONDO:0005002","name":"chronic obstructive pulmonary disease","category":["biolink:Disease"]}
+{"id":"CHEBI:15365","name":"acetaminophen","category":["biolink:SmallMolecule","biolink:ChemicalEntity"]}
 ```
 
 **Edge Example (edges.jsonl)**:
-```jsonlines
-{"id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d", "subject": "HGNC:11603", "object": "MONDO:0005002", "predicate": "biolink:related_to", "relation": "RO:0003304", "knowledge_level": "assertion", "agent_type": "computational"}
-{"id": "044a7916-fba9-4b4f-ae48-f0815b0b222d", "subject": "HGNC:11603", "object": "MONDO:0017148", "predicate": "biolink:related_to", "relation": "RO:0004013", "publications": ["PMID:26634245", "PMID:26634244"], "knowledge_level": "statement", "agent_type": "informational"}
-{"id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e", "subject": "HGNC:11603", "predicate": "biolink:contributes_to", "object": "MONDO:0005002", "relation": "RO:0003304", "category": ["biolink:GeneToDiseaseAssociation"], "primary_knowledge_source": ["infores:gwascatalog"], "publications": ["PMID:26634245", "PMID:26634244"], "knowledge_level": "observation", "agent_type": "biological"}
-{"id": "c7d632b4-6708-4296-9cfe-44bc586d32c8", "subject": "CHEBI:15365", "predicate": "biolink:affects", "object": "GO:0006915", "relation": "RO:0002434", "category": ["biolink:ChemicalToProcessAssociation"], "primary_knowledge_source": ["infores:monarch-kg"], "publications": ["PMID:12345678"], "knowledge_level": "assertion", "agent_type": "computational"}
-{"id": "e2697866-29e1-4320-bea9-e952a33e6a0b", "subject": "HGNC:11603", "predicate": "biolink:enables", "object": "GO:0006915", "relation": "RO:0002327", "category": ["biolink:FunctionalAssociation"], "primary_knowledge_source": ["infores:panther"], "knowledge_level": "assertion", "agent_type": "computational"}
-{"id": "f3ba1fe9-8702-4f43-90a3-2f4e24782e72", "subject": "MONDO:0005002", "predicate": "biolink:has_phenotype", "object": "HP:0002098", "relation": "RO:0002200", "category": ["biolink:DiseaseToPhenotypicFeatureAssociation"], "knowledge_level": "observation", "agent_type": "biological"}
+
+Each line in a jsonlines file represents a complete edge record. Here are examples of different edge types:
+
+```json
+{
+  "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
+  "subject": "HGNC:11603",
+  "object": "MONDO:0005002",
+  "predicate": "biolink:related_to",
+  "relation": "RO:0003304",
+  "knowledge_level": "assertion",
+  "agent_type": "computational"
+},
+{
+"id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e",
+"subject": "HGNC:11603",
+"predicate": "biolink:contributes_to",
+"object": "MONDO:0005002",
+"relation": "RO:0003304",
+"category": ["biolink:GeneToDiseaseAssociation"],
+"primary_knowledge_source": ["infores:gwascatalog"],
+"publications": ["PMID:26634245", "PMID:26634244"],
+"knowledge_level": "observation",
+"agent_type": "biological"
+},
+{
+"id": "c7d632b4-6708-4296-9cfe-44bc586d32c8",
+"subject": "CHEBI:15365",
+"predicate": "biolink:affects",
+"object": "GO:0006915",
+"relation": "RO:0002434",
+"category": ["biolink:ChemicalToProcessAssociation"],
+"primary_knowledge_source": ["infores:monarch-kg"],
+"aggregator_knowledge_source": ["infores:monarch-kg-archive"],
+"publications": ["PMID:12345678"],
+"knowledge_level": "assertion",
+"agent_type": "computational"
+}
+```
+
+In the actual jsonlines file, each record would be on a single line without comments and formatting:
+
+```text
+{"id":"a8575c4e-61a6-428a-bf09-fcb3e8d1644d","subject":"HGNC:11603","object":"MONDO:0005002","predicate":"biolink:related_to","relation":"RO:0003304","knowledge_level":"assertion","agent_type":"computational"}
+{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwascatalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
 ```
 
 #### Usage Notes
@@ -161,7 +227,7 @@ The JSON Lines format provides a simple and efficient way to represent KGX data 
 - Arrays should be represented as JSON arrays (not pipe-delimited strings)
 - For large KGs, JSON Lines offers better streaming performance than monolithic JSON
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.jsonl_sink
    :members:
    :inherited-members:
@@ -176,7 +242,7 @@ In principle, `TrapiSink` is responsible for writing a [Translator Reasoner API]
 formatted JSON.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.trapi_sink
    :members:
    :inherited-members:
@@ -188,7 +254,7 @@ formatted JSON.
 `NeoSink` is responsible for writing data to a local or remote Neo4j instance.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.neo_sink
    :members:
    :inherited-members:
@@ -200,7 +266,7 @@ formatted JSON.
 `RdfSink` is responsible for writing data as RDF N-Triples.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.rdf_sink
    :members:
    :inherited-members:
@@ -215,7 +281,7 @@ formatted JSON.
 KGX writes two separate files - one for nodes and another for edges.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.sink.parquet_sink
    :members:
    :inherited-members:
