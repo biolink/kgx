@@ -1,0 +1,72 @@
+---
+id: https://w3id.org/biolink/kgx/schema
+name: KGXSchema
+description: Schema for representing knowledge graphs in KGX format
+license: https://creativecommons.org/publicdomain/zero/1.0/
+version: 0.1.0
+
+# Import Biolink as the foundation schema
+imports:
+  - linkml:types
+  - https://w3id.org/biolink/biolink-model
+
+classes:
+  # Add the KGX-specific classes without modifying biolink classes
+  KnowledgeGraph:
+    description: A knowledge graph represented in KGX format
+    slots:
+      - nodes
+      - edges
+  
+  Node:
+    description: A node in a KGX graph, will be superclass for named thing
+    slots:
+      - id
+      - name
+      - description
+      - category
+      - xref
+      - provided by
+    slot_usage:
+      id:
+        required: true
+      category:
+        required: true
+        multivalued: true
+    
+  Edge:
+    description: An edge in a KGX graph, will be superclass for association
+    slots:
+      - id
+      - subject
+      - predicate
+      - object
+      - relation
+      - category
+      - provided by
+      - knowledge source
+      - aggregator knowledge source
+      - primary knowledge source
+      - supporting data source
+      - publications
+    slot_usage:
+      subject:
+        required: true
+      predicate:
+        required: true
+      object:
+        required: true
+
+slots:
+  # Only define slots that are specific to KGX and not in biolink
+  nodes:
+    description: The nodes contained in this graph
+    range: Node
+    multivalued: true
+    inlined: true
+    
+  edges:
+    description: The edges contained in this graph
+    range: Edge
+    multivalued: true
+    inlined: true

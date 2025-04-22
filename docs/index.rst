@@ -21,6 +21,7 @@ Documentation
 
    installation
    kgx_format
+   kgx_schema_generation
    reference/index
    transformation_and_validation_examples
 

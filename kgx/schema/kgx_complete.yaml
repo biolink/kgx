@@ -1,0 +1,4897 @@
+name: KGXSchema-derived
+id: https://w3id.org/biolink/kgx/schema-derived
+prefixes:
+  linkml:
+    prefix_prefix: linkml
+    prefix_reference: https://w3id.org/linkml/
+  xsd:
+    prefix_prefix: xsd
+    prefix_reference: http://www.w3.org/2001/XMLSchema#
+  shex:
+    prefix_prefix: shex
+    prefix_reference: http://www.w3.org/ns/shex#
+  schema:
+    prefix_prefix: schema
+    prefix_reference: http://schema.org/
+  AGRKB:
+    prefix_prefix: AGRKB
+    prefix_reference: https://www.alliancegenome.org/
+  apollo:
+    prefix_prefix: apollo
+    prefix_reference: https://github.com/GMOD/Apollo
+  AspGD:
+    prefix_prefix: AspGD
+    prefix_reference: http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=
+  biolink:
+    prefix_prefix: biolink
+    prefix_reference: https://w3id.org/biolink/vocab/
+  bioschemas:
+    prefix_prefix: bioschemas
+    prefix_reference: https://bioschemas.org/
+  CAID:
+    prefix_prefix: CAID
+    prefix_reference: http://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=
+  CHADO:
+    prefix_prefix: CHADO
+    prefix_reference: http://gmod.org/wiki/Chado/
+  ChemBank:
+    prefix_prefix: ChemBank
+    prefix_reference: http://chembank.broadinstitute.org/chemistry/viewMolecule.htm?cbid=
+  CHEMBL.MECHANISM:
+    prefix_prefix: CHEMBL.MECHANISM
+    prefix_reference: https://www.ebi.ac.uk/chembl/mechanism/inspect/
+  CID:
+    prefix_prefix: CID
+    prefix_reference: http://pubchem.ncbi.nlm.nih.gov/compound/
+  CLINVAR:
+    prefix_prefix: CLINVAR
+    prefix_reference: http://identifiers.org/clinvar
+  COAR_RESOURCE:
+    prefix_prefix: COAR_RESOURCE
+    prefix_reference: http://purl.org/coar/resource_type/
+  COG:
+    prefix_prefix: COG
+    prefix_reference: https://www.ncbi.nlm.nih.gov/research/cog-project/
+  ComplexPortal:
+    prefix_prefix: ComplexPortal
+    prefix_reference: https://www.ebi.ac.uk/complexportal/complex/
+  CPT:
+    prefix_prefix: CPT
+    prefix_reference: https://www.ama-assn.org/practice-management/cpt/
+  CTD.CHEMICAL:
+    prefix_prefix: CTD.CHEMICAL
+    prefix_reference: http://ctdbase.org/detail.go?type=chem&acc=
+  CTD.DISEASE:
+    prefix_prefix: CTD.DISEASE
+    prefix_reference: http://ctdbase.org/detail.go?type=disease&db=MESH&acc=
+  CTD.GENE:
+    prefix_prefix: CTD.GENE
+    prefix_reference: http://ctdbase.org/detail.go?type=gene&acc=
+  CTD:
+    prefix_prefix: CTD
+    prefix_reference: http://ctdbase.org/
+  DGIdb:
+    prefix_prefix: DGIdb
+    prefix_reference: https://www.dgidb.org/interaction_types
+  dcat:
+    prefix_prefix: dcat
+    prefix_reference: http://www.w3.org/ns/dcat#
+  dct:
+    prefix_prefix: dct
+    prefix_reference: http://purl.org/dc/terms/
+  dcid:
+    prefix_prefix: dcid
+    prefix_reference: https://datacommons.org/browser/
+  doi:
+    prefix_prefix: doi
+    prefix_reference: https://doi.org/
+  DOID-PROPERTY:
+    prefix_prefix: DOID-PROPERTY
+    prefix_reference: http://purl.obolibrary.org/obo/doid#
+  DrugCentral:
+    prefix_prefix: DrugCentral
+    prefix_reference: http://drugcentral.org/drugcard/
+  ECTO:
+    prefix_prefix: ECTO
+    prefix_reference: http://purl.obolibrary.org/obo/ECTO_
+  EDAM-DATA:
+    prefix_prefix: EDAM-DATA
+    prefix_reference: http://edamontology.org/data_
+  EDAM-FORMAT:
+    prefix_prefix: EDAM-FORMAT
+    prefix_reference: http://edamontology.org/format_
+  EDAM-OPERATION:
+    prefix_prefix: EDAM-OPERATION
+    prefix_reference: http://edamontology.org/operation_
+  EDAM-TOPIC:
+    prefix_prefix: EDAM-TOPIC
+    prefix_reference: http://edamontology.org/topic_
+  EFO:
+    prefix_prefix: EFO
+    prefix_reference: http://www.ebi.ac.uk/efo/EFO_
+  ExO:
+    prefix_prefix: ExO
+    prefix_reference: http://purl.obolibrary.org/obo/ExO_
+  fabio:
+    prefix_prefix: fabio
+    prefix_reference: http://purl.org/spar/fabio/
+  foaf:
+    prefix_prefix: foaf
+    prefix_reference: http://xmlns.com/foaf/0.1/
+  foodb.compound:
+    prefix_prefix: foodb.compound
+    prefix_reference: http://foodb.ca/compounds/
+  foodb.food:
+    prefix_prefix: foodb.food
+    prefix_reference: http://foodb.ca/foods/
+  FYECO:
+    prefix_prefix: FYECO
+    prefix_reference: https://www.pombase.org/term/
+  FYPO:
+    prefix_prefix: FYPO
+    prefix_reference: http://purl.obolibrary.org/obo/FYPO_
+  gff3:
+    prefix_prefix: gff3
+    prefix_reference: https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md#
+  GOREL:
+    prefix_prefix: GOREL
+    prefix_reference: http://purl.obolibrary.org/obo/GOREL_
+  GOP:
+    prefix_prefix: GOP
+    prefix_reference: http://purl.obolibrary.org/obo/go#
+  gpi:
+    prefix_prefix: gpi
+    prefix_reference: https://github.com/geneontology/go-annotation/blob/master/specs/gpad-gpi-2-0.md#
+  GSID:
+    prefix_prefix: GSID
+    prefix_reference: https://scholar.google.com/citations?user=
+  GTEx:
+    prefix_prefix: GTEx
+    prefix_reference: https://www.gtexportal.org/home/gene/
+  GTOPDB:
+    prefix_prefix: GTOPDB
+    prefix_reference: https://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=
+  gtpo:
+    prefix_prefix: gtpo
+    prefix_reference: https://rdf.guidetopharmacology.org/ns/gtpo#
+  HANCESTRO:
+    prefix_prefix: HANCESTRO
+    prefix_reference: http://www.ebi.ac.uk/ancestro/ancestro_
+  HCPCS:
+    prefix_prefix: HCPCS
+    prefix_reference: http://purl.bioontology.org/ontology/HCPCS/
+  HsapDv:
+    prefix_prefix: HsapDv
+    prefix_reference: http://purl.obolibrary.org/obo/HsapDv_
+  ICD10:
+    prefix_prefix: ICD10
+    prefix_reference: https://icd.who.int/browse10/2016/en#/
+  ICD9:
+    prefix_prefix: ICD9
+    prefix_reference: http://translator.ncats.nih.gov/ICD9_
+  icd11:
+    prefix_prefix: icd11
+    prefix_reference: http://id.who.int/icd/entity/
+  icd11.foundation:
+    prefix_prefix: icd11.foundation
+    prefix_reference: http://id.who.int/icd/entity/
+  interpro:
+    prefix_prefix: interpro
+    prefix_reference: https://www.ebi.ac.uk/interpro/entry/
+  INO:
+    prefix_prefix: INO
+    prefix_reference: http://purl.obolibrary.org/obo/INO_
+  isbn:
+    prefix_prefix: isbn
+    prefix_reference: https://www.isbn-international.org/identifier/
+  isni:
+    prefix_prefix: isni
+    prefix_reference: https://isni.org/isni/
+  issn:
+    prefix_prefix: issn
+    prefix_reference: https://portal.issn.org/resource/ISSN/
+  ncats.drug:
+    prefix_prefix: ncats.drug
+    prefix_reference: https://drugs.ncats.io/drug/
+  KEGG.BRITE:
+    prefix_prefix: KEGG.BRITE
+    prefix_reference: 'https://bioregistry.io/kegg.brite:'
+  KEGG:
+    prefix_prefix: KEGG
+    prefix_reference: http://www.kegg.jp/entry/
+  KEGG.GENES:
+    prefix_prefix: KEGG.GENES
+    prefix_reference: 'https://bioregistry.io/kegg.genes:bsu:'
+  KEGG.PATHWAY:
+    prefix_prefix: KEGG.PATHWAY
+    prefix_reference: 'https://bioregistry.io/kegg.pathway:'
+  KEGG.RCLASS:
+    prefix_prefix: KEGG.RCLASS
+    prefix_reference: 'https://www.genome.jp/dbget-bin/www_bget?rc:'
+  LOINC:
+    prefix_prefix: LOINC
+    prefix_reference: http://loinc.org/rdf/
+  MAXO:
+    prefix_prefix: MAXO
+    prefix_reference: http://purl.obolibrary.org/obo/MAXO_
+  medgen:
+    prefix_prefix: medgen
+    prefix_reference: https://www.ncbi.nlm.nih.gov/medgen/
+  metacyc.reaction:
+    prefix_prefix: metacyc.reaction
+    prefix_reference: 'http://identifiers.org/metacyc.reaction:'
+  METANETX.REACTION:
+    prefix_prefix: METANETX.REACTION
+    prefix_reference: https://www.metanetx.org/equa_info/
+  MESH:
+    prefix_prefix: MESH
+    prefix_reference: http://id.nlm.nih.gov/mesh/
+  MI:
+    prefix_prefix: MI
+    prefix_reference: http://purl.obolibrary.org/obo/MI_
+  mirbase:
+    prefix_prefix: mirbase
+    prefix_reference: http://identifiers.org/mirbase
+  mmmp.biomaps:
+    prefix_prefix: mmmp.biomaps
+    prefix_reference: 'https://bioregistry.io/mmmp.biomaps:'
+  MmusDv:
+    prefix_prefix: MmusDv
+    prefix_reference: http://purl.obolibrary.org/obo/MMUSDV_
+  MSigDB:
+    prefix_prefix: MSigDB
+    prefix_reference: https://www.gsea-msigdb.org/gsea/msigdb/
+  NBO-PROPERTY:
+    prefix_prefix: NBO-PROPERTY
+    prefix_reference: http://purl.obolibrary.org/obo/nbo#
+  ncats.bioplanet:
+    prefix_prefix: ncats.bioplanet
+    prefix_reference: https://tripod.nih.gov/bioplanet/detail.jsp?pid=
+  NCBIGene:
+    prefix_prefix: NCBIGene
+    prefix_reference: http://identifiers.org/ncbigene/
+  NCIT-OBO:
+    prefix_prefix: NCIT-OBO
+    prefix_reference: http://purl.obolibrary.org/obo/ncit#
+  NDDF:
+    prefix_prefix: NDDF
+    prefix_reference: http://purl.bioontology.org/ontology/NDDF/
+  NLMID:
+    prefix_prefix: NLMID
+    prefix_reference: https://www.ncbi.nlm.nih.gov/nlmcatalog/?term=
+  OBAN:
+    prefix_prefix: OBAN
+    prefix_reference: http://purl.org/oban/
+  OMIM.PS:
+    prefix_prefix: OMIM.PS
+    prefix_reference: https://www.omim.org/phenotypicSeries/
+  ORCID:
+    prefix_prefix: ORCID
+    prefix_reference: https://orcid.org/
+  orphanet:
+    prefix_prefix: orphanet
+    prefix_reference: http://www.orpha.net/ORDO/Orphanet_
+  os:
+    prefix_prefix: os
+    prefix_reference: https://github.com/cmungall/owlstar/blob/master/owlstar.ttl
+  PANTHER.FAMILY:
+    prefix_prefix: PANTHER.FAMILY
+    prefix_reference: http://www.pantherdb.org/panther/family.do?clsAccession=
+  PathWhiz:
+    prefix_prefix: PathWhiz
+    prefix_reference: http://smpdb.ca/pathways/#
+  pav:
+    prefix_prefix: pav
+    prefix_reference: http://purl.org/pav/
+  PHARMGKB.DRUG:
+    prefix_prefix: PHARMGKB.DRUG
+    prefix_reference: https://www.pharmgkb.org/chemical/
+  PHARMGKB.DISEASE:
+    prefix_prefix: PHARMGKB.DISEASE
+    prefix_reference: https://www.pharmgkb.org/disease/
+  PHARMGKB.GENE:
+    prefix_prefix: PHARMGKB.GENE
+    prefix_reference: https://www.pharmgkb.org/gene/
+  PHARMGKB.PATHWAYS:
+    prefix_prefix: PHARMGKB.PATHWAYS
+    prefix_reference: https://www.pharmgkb.org/pathway/
+  PHARMGKB.VARIANT:
+    prefix_prefix: PHARMGKB.VARIANT
+    prefix_reference: https://www.pharmgkb.org/variant/
+  PHAROS:
+    prefix_prefix: PHAROS
+    prefix_reference: http://pharos.nih.gov
+  PomBase:
+    prefix_prefix: PomBase
+    prefix_reference: https://www.pombase.org/gene/
+  prov:
+    prefix_prefix: prov
+    prefix_reference: http://www.w3.org/ns/prov#
+  qud:
+    prefix_prefix: qud
+    prefix_reference: http://qudt.org/1.1/schema/qudt#
+  REPODB:
+    prefix_prefix: REPODB
+    prefix_reference: http://apps.chiragjpgroup.org/repoDB/
+  ResearchID:
+    prefix_prefix: ResearchID
+    prefix_reference: https://publons.com/researcher/
+  RO:
+    prefix_prefix: RO
+    prefix_reference: http://purl.obolibrary.org/obo/RO_
+  RXNORM:
+    prefix_prefix: RXNORM
+    prefix_reference: http://purl.bioontology.org/ontology/RXNORM/
+  RXCUI:
+    prefix_prefix: RXCUI
+    prefix_reference: https://mor.nlm.nih.gov/RxNav/search?searchBy=RXCUI&searchTerm=
+  ScopusID:
+    prefix_prefix: ScopusID
+    prefix_reference: https://www.scopus.com/authid/detail.uri?authorId=
+  SEED.REACTION:
+    prefix_prefix: SEED.REACTION
+    prefix_reference: https://modelseed.org/biochem/reactions/
+  SEMMEDDB:
+    prefix_prefix: SEMMEDDB
+    prefix_reference: https://skr3.nlm.nih.gov/SemMedDB
+  SIO:
+    prefix_prefix: SIO
+    prefix_reference: http://semanticscience.org/resource/SIO_
+  SNOMEDCT:
+    prefix_prefix: SNOMEDCT
+    prefix_reference: http://snomed.info/id/
+  SPDI:
+    prefix_prefix: SPDI
+    prefix_reference: https://api.ncbi.nlm.nih.gov/variation/v0/spdi/
+  UBERGRAPH:
+    prefix_prefix: UBERGRAPH
+    prefix_reference: http://translator.renci.org/ubergraph-axioms.ofn#
+  UBERON_CORE:
+    prefix_prefix: UBERON_CORE
+    prefix_reference: http://purl.obolibrary.org/obo/uberon/core#
+  UBERON_NONAMESPACE:
+    prefix_prefix: UBERON_NONAMESPACE
+    prefix_reference: http://purl.obolibrary.org/obo/core#
+  STY:
+    prefix_prefix: STY
+    prefix_reference: http://purl.bioontology.org/ontology/STY/
+  UMLSSG:
+    prefix_prefix: UMLSSG
+    prefix_reference: https://lhncbc.nlm.nih.gov/semanticnetwork/download/sg_archive/SemGroups-v04.txt
+  UniProtKB:
+    prefix_prefix: UniProtKB
+    prefix_reference: http://purl.uniprot.org/uniprot/
+  UNIPROT.ISOFORM:
+    prefix_prefix: UNIPROT.ISOFORM
+    prefix_reference: http://purl.uniprot.org/isoforms/
+  VANDF:
+    prefix_prefix: VANDF
+    prefix_reference: https://www.nlm.nih.gov/research/umls/sourcereleasedocs/current/VANDF/
+  UO-PROPERTY:
+    prefix_prefix: UO-PROPERTY
+    prefix_reference: http://purl.obolibrary.org/obo/uo#
+  VMC:
+    prefix_prefix: VMC
+    prefix_reference: https://github.com/ga4gh/vr-spec/
+  WBls:
+    prefix_prefix: WBls
+    prefix_reference: http://purl.obolibrary.org/obo/WBls_
+  WBbt:
+    prefix_prefix: WBbt
+    prefix_reference: http://purl.obolibrary.org/obo/WBbt_
+  WBVocab:
+    prefix_prefix: WBVocab
+    prefix_reference: http://bio2rdf.org/wormbase_vocabulary
+  WIKIDATA:
+    prefix_prefix: WIKIDATA
+    prefix_reference: https://www.wikidata.org/entity/
+  WIKIDATA_PROPERTY:
+    prefix_prefix: WIKIDATA_PROPERTY
+    prefix_reference: https://www.wikidata.org/prop/
+  wgs:
+    prefix_prefix: wgs
+    prefix_reference: http://www.w3.org/2003/01/geo/wgs84_pos
+  XPO:
+    prefix_prefix: XPO
+    prefix_reference: http://purl.obolibrary.org/obo/XPO_
+  Xenbase:
+    prefix_prefix: Xenbase
+    prefix_reference: http://www.xenbase.org/gene/showgene.do?method=display&geneId=
+  PMC:
+    prefix_prefix: PMC
+    prefix_reference: http://europepmc.org/articles/PMC
+default_prefix: https://w3id.org/biolink/kgx/schema-derived/
+enums:
+  ApprovalStatusEnum:
+    name: ApprovalStatusEnum
+    description: ''
+    permissible_values:
+      discovery_and_development_phase:
+        text: discovery_and_development_phase
+        description: Discovery & Development Phase. Discovery involves researchers
+          finding new possibilities for medication through testing molecular compounds,
+          noting unexpected effects from existing treatments, or the creation of new
+          technology that allows novel ways of targeting medical products to sites
+          in the body. Drug development occurs after researchers identify potential
+          compounds for experiments.
+      preclinical_research_phase:
+        text: preclinical_research_phase
+        description: 'Preclinical Research Phase.  Once researchers have examined
+          the possibilities a new drug may contain, they must do preliminary research
+          to determine its potential for harm (toxicity). This is categorized as preclinical
+          research and can be one of two types: in vitro or in vivo.'
+      fda_clinical_research_phase:
+        text: fda_clinical_research_phase
+        description: Clinical Research Phase. Clinical research involves trials of
+          the drug on people, and it is one of the most involved stages in the drug
+          development and approval process. Clinical trials must answer specific questions
+          and follow a protocol determined by the drug researcher or manufacturer.
+      fda_review_phase_4:
+        text: fda_review_phase_4
+        description: FDA Review
+      fda_post_market_safety_review:
+        text: fda_post_market_safety_review
+        description: FDA Post-Market Safety Monitoring.  The last phase of drug approval
+          is an ongoing one while the drug is on the marketplace. If a developer wants
+          to change anything about the drug formulation or approve it for a new use,
+          they must apply with the FDA. The FDA also frequently reviews the drug’s
+          advertising and its manufacturing facility to make sure everything involved
+          in its creation and marketing is in compliance with regulations.
+      fda_clinical_research_phase_1:
+        text: fda_clinical_research_phase_1
+        description: In the FDA Clinical Research Phase, the Clinical Research Phase
+          1 involves 20 – 100 study participants and lasts several months. This phase
+          is used to determine the safety and dosage of the drug, and about 70% of
+          these drugs move on to the next clinical research phase.
+      fda_clinical_research_phase_2:
+        text: fda_clinical_research_phase_2
+        description: In the FDA Clinical Research Phase, the Clinical Research Phase
+          2 involves up to several hundred people, who must have the disease or condition
+          the drug supposes to treat. This phase can last from a few months to two
+          years, and its purpose is to monitor the efficacy of the drug, as well as
+          note side effects that may occur.
+      fda_clinical_research_phase_3:
+        text: fda_clinical_research_phase_3
+        description: In the FDA Clinical Research Phase, the Clinical Research Phase
+          3 involves 300 – 3000 volunteers and can last up to four years. It is used
+          to continue monitoring the efficacy of the drug, as well as exploring any
+          longer-term adverse reactions.
+      fda_clinical_research_phase_4:
+        text: fda_clinical_research_phase_4
+        description: In the FDA Clinical Research Phase, the Clinical Research Phase
+          4 involves several thousands of volunteers who have the disease or condition
+          and continues to monitor safety and efficacy. If a drug passes this phase,
+          it goes on to FDA review.
+      fda_fast_track:
+        text: fda_fast_track
+        description: Fast track is a process designed to facilitate the development,
+          and expedite the review of drugs to treat serious conditions and fill an
+          unmet medical need. The purpose is to get important new drugs to the patient
+          earlier. Fast Track addresses a broad range of serious conditions. For more
+          information https://www.fda.gov/patients/fast-track-breakthrough-therapy-accelerated-approval-priority-review/fast-track
+      fda_breakthrough_therapy:
+        text: fda_breakthrough_therapy
+        description: Breakthrough Therapy designation is a process designed to expedite
+          the development and review of drugs that are intended to treat a serious
+          condition and preliminary clinical evidence indicates that the drug may
+          demonstrate substantial improvement over available therapy on a clinically
+          significant endpoint(s). For more information https://www.fda.gov/patients/fast-track-breakthrough-therapy-accelerated-approval-priority-review/breakthrough-therapy
+      fda_accelerated_approval:
+        text: fda_accelerated_approval
+        description: When studying a new drug, it can sometimes take many years to
+          learn whether a drug actually provides a real effect on how a patient survives,
+          feels, or functions. A positive therapeutic effect that is clinically meaningful
+          in the context of a given disease is known as “clinical benefit”. Mindful
+          of the fact that it may take an extended period of time to measure a drug’s
+          intended clinical benefit, in 1992 FDA instituted the Accelerated Approval
+          regulations. These regulations allowed drugs for serious conditions that
+          filled an unmet medical need to be approved based on a surrogate endpoint.
+          Using a surrogate endpoint enabled the FDA to approve these drugs faster.
+          For more information https://www.fda.gov/patients/fast-track-breakthrough-therapy-accelerated-approval-priority-review/accelerated-approval
+      fda_priority_review:
+        text: fda_priority_review
+        description: Prior to approval, each drug marketed in the United States must
+          go through a detailed FDA review process. In 1992, under the Prescription
+          Drug User Act (PDUFA), FDA agreed to specific goals for improving the drug
+          review time and created a two-tiered system of review times – Standard Review
+          and Priority Review. A Priority Review designation means FDA’s goal is to
+          take action on an application within 6 months (compared to 10 months under
+          standard review). For more information https://www.fda.gov/patients/fast-track-breakthrough-therapy-accelerated-approval-priority-review/priority-review
+      regular_fda_approval:
+        text: regular_fda_approval
+        description: Regular FDA Approval.  The last phase of drug approval is an
+          ongoing one while the drug is on the marketplace. If a developer wants to
+          change anything about the drug formulation or approve it for a new use,
+          they must apply with the FDA. The FDA also frequently reviews the drug’s
+          advertising and its manufacturing facility to make sure everything involved
+          in its creation and marketing is in compliance with regulations.
+      post_approval_withdrawal:
+        text: post_approval_withdrawal
+  ClinicalApprovalStatusEnum:
+    name: ClinicalApprovalStatusEnum
+    permissible_values:
+      approved_for_condition:
+        text: approved_for_condition
+      fda_approved_for_condition:
+        text: fda_approved_for_condition
+        is_a: approved_for_condition
+      not_approved_for_condition:
+        text: not_approved_for_condition
+      post_approval_withdrawal:
+        text: post_approval_withdrawal
+        is_a: not_approved_for_condition
+      off_label_use:
+        text: off_label_use
+        is_a: not_approved_for_condition
+      not_provided:
+        text: not_provided
+  ResearchPhaseEnum:
+    name: ResearchPhaseEnum
+    permissible_values:
+      pre_clinical_research_phase:
+        text: pre_clinical_research_phase
+        description: 'Biolink ''pre_clinical_research'' is the union of both the `FDA
+          discovery and development phase` and `FDA preclinical research phase`. Discovery
+          involves researchers finding new possibilities for medication through testing
+          molecular compounds, noting unexpected effects from existing treatments,
+          or the creation of new technology that allows novel ways of targeting medical
+          products to sites in the body. Drug development occurs after researchers
+          identify potential compounds for experiments Preclinical Research Phase.
+          Once researchers have examined the possibilities a new drug may contain,
+          they must do preliminary research to determine its potential for harm (toxicity).
+          This is categorized as preclinical research and can be one of two types:
+          in vitro or in vivo.'
+        notes:
+        - DrugBank calls this 'experimental'.
+      clinical_trial_phase:
+        text: clinical_trial_phase
+        description: Clinical research involves trials of the drug on people, and
+          it is one of the most involved stages in the drug development and approval
+          process. Clinical trials must answer specific questions and follow a protocol
+          determined by the drug researcher or manufacturer.
+      clinical_trial_phase_1:
+        text: clinical_trial_phase_1
+        description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 1 involves
+          20 – 100 study participants and lasts several months. This phase is used
+          to determine the safety and dosage of the drug, and about 70% of these drugs
+          move on to the next clinical research phase.
+        is_a: clinical_trial_phase
+      clinical_trial_phase_2:
+        text: clinical_trial_phase_2
+        description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 2 involves
+          up to several hundred people, who must have the disease or condition the
+          drug supposes to treat. This phase can last from a few months to two years,
+          and its purpose is to monitor the efficacy of the drug, as well as note
+          side effects that may occur.
+        is_a: clinical_trial_phase
+      clinical_trial_phase_3:
+        text: clinical_trial_phase_3
+        description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 3 involves
+          300 – 3000 volunteers and can last up to four years. It is used to continue
+          monitoring the efficacy of the drug, as well as exploring any longer-term
+          adverse reactions.
+        is_a: clinical_trial_phase
+      clinical_trial_phase_4:
+        text: clinical_trial_phase_4
+        description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 4 involves
+          several thousands of volunteers who have the disease or condition and continues
+          to monitor safety and efficacy. If a drug passes this phase, it goes on
+          to FDA review.
+        is_a: clinical_trial_phase
+      not_provided:
+        text: not_provided
+  DirectionQualifierEnum:
+    name: DirectionQualifierEnum
+    permissible_values:
+      increased:
+        text: increased
+      upregulated:
+        text: upregulated
+        is_a: increased
+        exact_mappings:
+        - RO:0002213
+        close_mappings:
+        - RO:0002336
+        narrow_mappings:
+        - RO:0004032
+        - RO:0004034
+        - RO:0002629
+      decreased:
+        text: decreased
+      downregulated:
+        text: downregulated
+        is_a: decreased
+        exact_mappings:
+        - RO:0004035
+        - RO:0002212
+        close_mappings:
+        - RO:0002335
+        broad_mappings:
+        - RO:0004033
+  ChemicalEntityDerivativeEnum:
+    name: ChemicalEntityDerivativeEnum
+    permissible_values:
+      metabolite:
+        text: metabolite
+  ChemicalOrGeneOrGeneProductFormOrVariantEnum:
+    name: ChemicalOrGeneOrGeneProductFormOrVariantEnum
+    permissible_values:
+      genetic_variant_form:
+        text: genetic_variant_form
+        is_a: modified_form
+      modified_form:
+        text: modified_form
+      loss_of_function_variant_form:
+        text: loss_of_function_variant_form
+        is_a: genetic_variant_form
+      gain_of_function_variant_form:
+        text: gain_of_function_variant_form
+        is_a: genetic_variant_form
+      polymorphic_form:
+        text: polymorphic_form
+        is_a: genetic_variant_form
+      snp_form:
+        text: snp_form
+        is_a: polymorphic_form
+      analog_form:
+        text: analog_form
+        is_a: modified_form
+  GeneOrGeneProductOrChemicalPartQualifierEnum:
+    name: GeneOrGeneProductOrChemicalPartQualifierEnum
+    permissible_values:
+      3_prime_utr:
+        text: 3_prime_utr
+      5_prime_utr:
+        text: 5_prime_utr
+      polya_tail:
+        text: polya_tail
+      promoter:
+        text: promoter
+      enhancer:
+        text: enhancer
+      exon:
+        text: exon
+      intron:
+        text: intron
+  GeneOrGeneProductOrChemicalEntityAspectEnum:
+    name: GeneOrGeneProductOrChemicalEntityAspectEnum
+    permissible_values:
+      activity_or_abundance:
+        text: activity_or_abundance
+        description: Used in cases where the specificity of the relationship can not
+          be determined to be either activity or abundance.  In general, a more specific
+          value from this enumeration should be used.
+      abundance:
+        text: abundance
+        is_a: activity_or_abundance
+      activity:
+        text: activity
+        is_a: activity_or_abundance
+      expression:
+        text: expression
+        is_a: abundance
+      synthesis:
+        text: synthesis
+        is_a: abundance
+      degradation:
+        text: degradation
+      cleavage:
+        text: cleavage
+        is_a: degradation
+      hydrolysis:
+        text: hydrolysis
+        is_a: degradation
+      metabolic_processing:
+        text: metabolic_processing
+      mutation_rate:
+        text: mutation_rate
+      stability:
+        text: stability
+      folding:
+        text: folding
+      localization:
+        text: localization
+      transport:
+        text: transport
+      absorption:
+        text: absorption
+      aggregation:
+        text: aggregation
+      interaction:
+        text: interaction
+      release:
+        text: release
+      secretion:
+        text: secretion
+        is_a: transport
+      uptake:
+        text: uptake
+        is_a: transport
+      splicing:
+        text: splicing
+      molecular_interaction:
+        text: molecular_interaction
+      guanyl_nucleotide_exchange:
+        text: guanyl_nucleotide_exchange
+        is_a: molecular_interaction
+      adenyl_nucleotide_exchange:
+        text: adenyl_nucleotide_exchange
+        is_a: molecular_interaction
+      molecular_modification:
+        text: molecular_modification
+      acetylation:
+        text: acetylation
+        is_a: molecular_modification
+      acylation:
+        text: acylation
+        is_a: molecular_modification
+      alkylation:
+        text: alkylation
+        is_a: molecular_modification
+      amination:
+        text: amination
+        is_a: molecular_modification
+      carbamoylation:
+        text: carbamoylation
+        is_a: molecular_modification
+      ethylation:
+        text: ethylation
+        is_a: molecular_modification
+      glutathionylation:
+        text: glutathionylation
+        is_a: molecular_modification
+      glycation:
+        text: glycation
+        is_a: molecular_modification
+      glycosylation:
+        text: glycosylation
+        is_a: molecular_modification
+      glucuronidation:
+        text: glucuronidation
+        is_a: molecular_modification
+      n_linked_glycosylation:
+        text: n_linked_glycosylation
+        is_a: molecular_modification
+      o_linked_glycosylation:
+        text: o_linked_glycosylation
+        is_a: molecular_modification
+      hydroxylation:
+        text: hydroxylation
+        is_a: molecular_modification
+      lipidation:
+        text: lipidation
+        is_a: molecular_modification
+      farnesylation:
+        text: farnesylation
+        is_a: molecular_modification
+      geranoylation:
+        text: geranoylation
+        is_a: molecular_modification
+      myristoylation:
+        text: myristoylation
+        is_a: molecular_modification
+      palmitoylation:
+        text: palmitoylation
+        is_a: molecular_modification
+      prenylation:
+        text: prenylation
+        is_a: molecular_modification
+      methylation:
+        text: methylation
+        is_a: molecular_modification
+      nitrosation:
+        text: nitrosation
+        is_a: molecular_modification
+      nucleotidylation:
+        text: nucleotidylation
+        is_a: molecular_modification
+      phosphorylation:
+        text: phosphorylation
+        is_a: molecular_modification
+      ribosylation:
+        text: ribosylation
+        is_a: molecular_modification
+      ADP-ribosylation:
+        text: ADP-ribosylation
+        is_a: molecular_modification
+      sulfation:
+        text: sulfation
+        is_a: molecular_modification
+      sumoylation:
+        text: sumoylation
+        is_a: molecular_modification
+      ubiquitination:
+        text: ubiquitination
+        is_a: molecular_modification
+      oxidation:
+        text: oxidation
+        is_a: molecular_modification
+      reduction:
+        text: reduction
+        is_a: molecular_modification
+      carboxylation:
+        text: carboxylation
+        is_a: molecular_modification
+  CausalMechanismQualifierEnum:
+    name: CausalMechanismQualifierEnum
+    permissible_values:
+      binding:
+        text: binding
+        description: A causal mechanism mediated by the direct contact between effector
+          and target chemical or biomolecular entity, which form a stable physical
+          interaction.
+      inhibition:
+        text: inhibition
+        description: A causal mechanism in which the effector binds to the target
+          and negatively effects its normal function, e.g. prevention of enzymatic
+          reaction or activation of downstream pathway.
+        is_a: binding
+        close_mappings:
+        - DGIdb:inhibitor
+        - SEMMEDDB:INHIBITS
+        narrow_mappings:
+        - DGIdb:blocker
+        - DGIdb:channel_blocker
+        - DGIdb:gating_inhibitor
+        - CHEMBL.MECHANISM:antisense_inhibitor
+        - CHEMBL.MECHANISM:blocker
+        - CHEMBL.MECHANISM:inhibitor
+        - CHEMBL.MECHANISM:negative_allosteric_modulator
+        - CHEMBL.MECHANISM:negative_modulator
+        - DGIdb:negative_modulator
+      antibody_inhibition:
+        text: antibody_inhibition
+        description: A causal mechanism in which an antibody specifically binds to
+          and interferes with the target.
+        is_a: inhibition
+      antagonism:
+        text: antagonism
+        description: A causal mechanism in which the effector binds to a receptor
+          and prevents activation by an agonist through competing for the binding
+          site.
+        is_a: inhibition
+        close_mappings:
+        - DGIdb:antagonist
+        - CHEMBL.MECHANISM:antagonist
+        narrow_mappings:
+        - CHEMBL.MECHANISM:allosteric_antagonist
+      molecular_channel_blockage:
+        text: molecular_channel_blockage
+        description: A causal mechanism in which the effector binds to a molecular
+          channel and prevents or reduces transport of ions through it.
+        is_a: inhibition
+      inverse_agonism:
+        text: inverse_agonism
+        description: A causal mechanism in which the effector binds to the same receptor-binding
+          site as an agonist and antagonizes its effects, often exerting the opposite
+          effect of the agonist by suppressing spontaneous receptor signaling.
+        is_a: inhibition
+        close_mappings:
+        - CHEMBL.MECHANISM:inverse_agonist
+        - DGIdb:inverse_agonist
+      negative_allosteric_modulation:
+        text: negative_allosteric_modulation
+        description: A causal mechanism in which the effector reduces or prevents
+          the action of the endogenous ligand of a receptor by binding to a site distinct
+          from that ligand (i.e. non-competitive inhibition)
+        is_a: inhibition
+        close_mappings:
+        - CHEMBL.MECHANISM:negative_allosteric_modulator
+        - DGIdb:inhibitory_allosteric_modulator
+        narrow_mappings:
+        - DGIdb:negative_modulator
+      agonism:
+        text: agonism
+        description: A causal mechanism in which the effector binds and activates
+          a receptor to mimic the effect of an endogenous ligand.
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:agonist
+        - DGIdb:agonist
+        narrow_mappings:
+        - CHEMBL.MECHANISM:partial_agonist
+        - DGIdb:partial_agonist
+      molecular_channel_opening:
+        text: molecular_channel_opening
+        description: A causal mechanism in which the effector binds to a molecular
+          channel and facilitates transport of ions through it.
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:opener
+      positive_allosteric_modulation:
+        text: positive_allosteric_modulation
+        description: A causal mechanism in which the effector enhances the action
+          of the endogenous ligand of a receptor by binding to a site distinct from
+          that ligand (i.e. non-competitive inhibition)
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:positive_allosteric_modulator
+        - CHEMBL.MECHANISM:positive_modulator
+        - DGIdb:positive_allosteric_modulator
+        broad_mappings:
+        - DGIdb:modulator
+        - DGIdb:allosteric_modulator
+      potentiation:
+        text: potentiation
+        description: A causal mechanism in which the effector  binds to and enhances
+          or intensifies the effect of some other chemical or drug on its target.
+        is_a: binding
+      activation:
+        text: activation
+        description: A causal mechanism in which the effector binds to and positively
+          affects the normal functioning of its target.
+        is_a: binding
+        close_mappings:
+        - CHEMBL.MECHANISM:activator
+        - DGIdb:activator
+      inducer:
+        text: inducer
+        description: A causal mechanism in which the effector binds to and increases
+          the activity/rate of an enzyme that processes drugs in the body.
+        is_a: binding
+        close_mappings:
+        - DGIdb:inducer
+      transcriptional_regulation:
+        text: transcriptional_regulation
+        description: A causal mechanism mediated by through the control of target
+          gene transcription
+      signaling_mediated_control:
+        text: signaling_mediated_control
+        description: A causal mechanism mediated by the activation or control of signaling
+          events that influence the some aspect of the target entity (e.g. its activity,
+          processing, transport, etc)
+      stabilization:
+        text: stabilization
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:stabiliser
+      stimulation:
+        text: stimulation
+        is_a: activation
+        close_mappings:
+        - DGIdb:stimulator
+        - SEMMEDDB:STIMULATES
+        - DGIdb:stimulator
+      releasing_activity:
+        text: releasing_activity
+        is_a: activation
+        close_mappings:
+        - CHEMBL:MECHANISM:releasing_agent
+  LogicalInterpretationEnum:
+    name: LogicalInterpretationEnum
+    permissible_values:
+      some_some:
+        text: some_some
+        description: A modifier on a triple that causes the triple to be interpreted
+          as a some-some statement
+        meaning: os:SomeSomeInterpretation
+      all_some:
+        text: all_some
+        description: A modifier on a triple that causes the triple to be interpreted
+          as an all-some statement.
+        meaning: os:AllSomeInterpretation
+      inverse_all_some:
+        text: inverse_all_some
+  ReactionDirectionEnum:
+    name: ReactionDirectionEnum
+    permissible_values:
+      left_to_right:
+        text: left_to_right
+      right_to_left:
+        text: right_to_left
+      bidirectional:
+        text: bidirectional
+      neutral:
+        text: neutral
+  ReactionSideEnum:
+    name: ReactionSideEnum
+    permissible_values:
+      left:
+        text: left
+      right:
+        text: right
+  PhaseEnum:
+    name: PhaseEnum
+    description: phase
+    permissible_values:
+      '0':
+        text: '0'
+      '1':
+        text: '1'
+      '2':
+        text: '2'
+  StrandEnum:
+    name: StrandEnum
+    description: strand
+    permissible_values:
+      +:
+        text: +
+        description: Positive
+      '-':
+        text: '-'
+        description: Negative
+      .:
+        text: .
+        description: Unstranded
+      '?':
+        text: '?'
+        description: Unknown
+  SequenceEnum:
+    name: SequenceEnum
+    description: type of sequence
+    permissible_values:
+      na:
+        text: na
+        description: nucleic acid
+      aa:
+        text: aa
+        description: amino acid
+  DruggableGeneCategoryEnum:
+    name: DruggableGeneCategoryEnum
+    permissible_values:
+      tclin:
+        text: tclin
+        description: These targets have activities in DrugCentral (ie. approved drugs)
+          with known mechanism of action.
+      tbio:
+        text: tbio
+        description: These targets have activities in ChEMBL, Guide to Pharmacology
+          or DrugCentral that satisfy the activity thresholds detailed below.
+      tchem:
+        text: tchem
+        description: 'These targets do not have known drug or small molecule activities
+          that satisfy the activity thresholds detailed below AND satisfy one or more
+          of the following criteria: target is above the cutoff criteria for Tdark
+          target is annotated with a Gene Ontology Molecular Function or Biological
+          Process leaf term(s) with an Experimental Evidence code'
+      tdark:
+        text: tdark
+        description: 'These are targets about which virtually nothing is known. They
+          do not have known drug or small molecule activities that satisfy the activity
+          thresholds detailed below AND satisfy two or more of the following criteria:
+          A PubMed text-mining score from Jensen Lab less than 5, greater than or
+          equal TO 3 Gene RIFs, or less than or equal to 50 Antibodies available according
+          to http://antibodypedia.com.'
+  DrugAvailabilityEnum:
+    name: DrugAvailabilityEnum
+    description: ''
+    permissible_values:
+      over_the_counter:
+        text: over_the_counter
+        description: chemical entity is available over the counter without a prescription.
+      prescription:
+        text: prescription
+        description: chemical entity is available by prescription.
+  DrugDeliveryEnum:
+    name: DrugDeliveryEnum
+    permissible_values:
+      inhalation:
+        text: inhalation
+      oral:
+        text: oral
+      absorption_through_the_skin:
+        text: absorption_through_the_skin
+      intravenous_injection:
+        text: intravenous_injection
+  ResourceRoleEnum:
+    name: ResourceRoleEnum
+    description: The role played by the information reource in serving as a source
+      for an edge in a TRAPI message. Note that a given Edge should have one and only
+      one 'primary' source, and may have any number of 'aggregator' or 'supporting
+      data' sources.  This enumeration is found in Biolink Model, but is repeated
+      here for convenience.
+    in_subset:
+    - translator_minimal
+    permissible_values:
+      primary_knowledge_source:
+        text: primary_knowledge_source
+      aggregator_knowledge_source:
+        text: aggregator_knowledge_source
+      supporting_data_source:
+        text: supporting_data_source
+  FDAIDAAdverseEventEnum:
+    name: FDAIDAAdverseEventEnum
+    description: 'please consult with the FDA guidelines as proposed in this document:
+      https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfcfr/cfrsearch.cfm?fr=312.32'
+    in_subset:
+    - translator_minimal
+    permissible_values:
+      life_threatening_adverse_event:
+        text: life_threatening_adverse_event
+        description: An adverse event or suspected adverse reaction is considered
+          'life-threatening' if, in the view of either the investigator or sponsor,
+          its occurrence places the patient or subject at immediate risk of death.
+          It does not include an adverse event or suspected adverse reaction that,
+          had it occurred in a more severe form, might have caused death.
+      serious_adverse_event:
+        text: serious_adverse_event
+        description: 'An adverse event or suspected adverse reaction is considered
+          ''serious'' if, in the view of either the investigator or sponsor, it results
+          in any of the following outcomes: Death, a life-threatening adverse event,
+          inpatient hospitalization or prolongation of existing hospitalization, a
+          persistent or significant incapacity or substantial disruption of the ability
+          to conduct normal life functions, or a congenital anomaly/birth defect.
+          Important medical events that may not result in death, be life-threatening,
+          or require hospitalization may be considered serious when, based upon appropriate
+          medical judgment, they may jeopardize the patient or subject and may require
+          medical or surgical intervention to prevent one of the outcomes listed in
+          this definition. Examples of such medical events include allergic bronchospasm
+          requiring intensive treatment in an emergency room or at home, blood dyscrasias
+          or convulsions that do not result in inpatient hospitalization, or the development
+          of drug dependency or drug abuse.'
+      suspected_adverse_reaction:
+        text: suspected_adverse_reaction
+        description: means any adverse event for which there is a reasonable possibility
+          that the drug caused the adverse event. For the purposes of IND safety reporting,
+          'reasonable possibility' means there is evidence to suggest a causal relationship
+          between the drug and the adverse event. Suspected adverse reaction implies
+          a lesser degree of certainty about causality than adverse reaction, which
+          means any adverse event caused by a drug.
+      unexpected_adverse_event:
+        text: unexpected_adverse_event
+        description: An adverse event or suspected adverse reaction is considered
+          'unexpected' if it is not listed in the investigator brochure or is not
+          listed at the specificity or severity that has been observed; or, if an
+          investigator brochure is not required or available, is not consistent with
+          the risk information described in the general investigational plan or elsewhere
+          in the current application, as amended. For example, under this definition,
+          hepatic necrosis would be unexpected (by virtue of greater severity) if
+          the investigator brochure referred only to elevated hepatic enzymes or hepatitis.
+          Similarly, cerebral thromboembolism and cerebral vasculitis would be unexpected
+          (by virtue of greater specificity) if the investigator brochure listed only
+          cerebral vascular accidents. 'Unexpected', as used in this definition, also
+          refers to adverse events or suspected adverse reactions that are mentioned
+          in the investigator brochure as occurring with a class of drugs or as anticipated
+          from the pharmacological properties of the drug, but are not specifically
+          mentioned as occurring with the particular drug under investigation.
+  AgentTypeEnum:
+    name: AgentTypeEnum
+    in_subset:
+    - translator_minimal
+    permissible_values:
+      manual_agent:
+        text: manual_agent
+        description: A human agent who is responsible for generating a statement of
+          knowledge. The human may utilize computationally generated information as
+          evidence for the resulting knowledge,  but the human is the one who ultimately
+          interprets/reasons with  this evidence to produce a statement of knowledge.
+      automated_agent:
+        text: automated_agent
+        description: An automated agent, typically a software program or tool, that
+          is  responsible for generating a statement of knowledge. Human contribution  to
+          the knowledge creation process ends with the definition and coding of algorithms
+          or analysis pipelines that get executed by the automated agent.
+      data_analysis_pipeline:
+        text: data_analysis_pipeline
+        description: An automated agent that executes an analysis workflow over data
+          and  reports the direct results of the analysis. These typically report  statistical
+          associations/correlations between variables in the input dataset, and do
+          not interpret/infer broader conclusions from associations the analysis reveals
+          in the data.
+        is_a: automated_agent
+        notes:
+        - If an analysis pipeline includes any rules for generating broader  conclusions
+          based on the dataset-specific statistical correlations it calculates (e.g.
+          create a 'treats' edge when the analysis reveals a  drug-disease correlation
+          in the data with statistical scores that meet a  certain threshold) - we
+          would consider this agent to be a Computational Model rather than just a
+          Data Analysis Pipeline.
+      computational_model:
+        text: computational_model
+        description: An automated agent that generates knowledge statements (typically
+          predictions) based on rules/logic explicitly encoded in an algorithm (e.g.
+          heuristic models, supervised classifiers), or learned from patterns  observed
+          in data (e.g. ML models, unsupervised classifiers).
+        is_a: automated_agent
+        notes:
+        - The bar is quite low relatively for what is considered to be a  ‘computational
+          model’ by our definition. Even agents/tools that apply  simple rules or
+          logic to the output of an ingest or analysis pipeline to allow for a stronger
+          or more general conclusion to be stated can  qualify an agent as a model.
+          For example, an ingest pipeline that applies rules to its ingest of  clinical
+          trials data to create a 'treats' prediction edge when the  source reports
+          a drug to be in phase 2 or 3 trials represents a computational model because
+          it is automatically drawing a stronger conclusion than the source reports,
+          based on logic encoded in the ingest pipeline. Similarly, a data analysis
+          pipeline that is extended with rules to  automatically generate broader
+          conclusions based on dataset-specific statistical correlations (e.g. create
+          a 'treats' edge when the analysis reveals a drug-disease correlation in
+          the data with statistical scores  that meet a certain threshold), would
+          also qualify as a computational  model by our definition.
+      text_mining_agent:
+        text: text_mining_agent
+        description: An automated agent that uses Natural Language Processing to recognize
+          concepts and/or relationships in text, and report them using formally encoded
+          semantics (e.g. as an edge in a knowledge graph).
+        is_a: automated_agent
+        notes:
+        - The original statement in the source text is typically made by a human /  manual
+          agent, but if a specific encoding of this knowledge is produced by a text-mining
+          tool, it has an agent_type of 'text_mining_agent'. Examples of text mining
+          agents include SemmedDB, and the Translator Text-Mining Knowledge Provider.
+          Note that text-mining tools are prone to erroneous interpretation of  concepts
+          and relationships, and can fail to provide important details  about the
+          context in which the original knowledge was reported - so users should always
+          consult the source text for a text-mined statement to assess its veracity
+          and relevance.
+      image_processing_agent:
+        text: image_processing_agent
+        description: An automated agent that processes images to generate textual
+          statements of  knowledge derived from the image and/or expressed in text
+          the image  depicts (e.g. via OCR).
+        is_a: automated_agent
+      manual_validation_of_automated_agent:
+        text: manual_validation_of_automated_agent
+        description: A human agent reviews and validates/approves the veracity of
+          knowledge  that is initially generated by an automated agent.
+        notes:
+        - This term applies when a human was only involved in evaluating the veracity
+          of a knowledge statement that was generated by an automated agent. It is  important
+          to indicate when such manual review has occurred, because it can give a
+          user more confidence in an automated statement.
+      not_provided:
+        text: not_provided
+        description: The agent type is not provided, typically because it cannot be
+          determined from available information if the agent that generated the knowledge
+          is  manual or automated.
+  KnowledgeLevelEnum:
+    name: KnowledgeLevelEnum
+    in_subset:
+    - translator_minimal
+    permissible_values:
+      knowledge_assertion:
+        text: knowledge_assertion
+        description: A statement of purported fact that is put forth by an agent as
+          true, based on assessment of direct evidence. Assertions are likely but
+          not  definitively true.
+        notes:
+        - Knowledge Assertions are supported by direct evidence deemed sufficient
+          by some agent to support a confidence assertion of truth. Our certainty  in
+          this truth is not absolute, but is typically higher than for Predictions.
+        aliases:
+        - assertion
+      logical_entailment:
+        text: logical_entailment
+        description: A statement reporting a conclusion that follows logically from
+          premises representing established facts or knowledge assertions (e.g. fingernail
+          part of finger, finger part of hand --> fingernail part of hand).
+        notes:
+        - These statements report entailed conclusions derived through dedictive inference.
+          They are not directly asserted by a source, but logically follow from statement(s)  a
+          source does make - and are necessarily true if their supporting premises
+          are true.  In practice, these will primarily be entailments based on logic
+          encoded in ontologies.  Examples include propagation of annotated knowledge
+          to hierarchically-related concepts, across paths through a graph constructed
+          from transitive relationships, or sets of  relationships that support property
+          chain inference.
+        aliases:
+        - deductive_inference
+      prediction:
+        text: prediction
+        description: A statement of a possible fact based on probabilistic forms of
+          reasoning over more indirect forms of evidence, that lead to more speculative
+          conclusions.
+        notes:
+        - Predictions typically result from non-deductive forms of reasoning - e.g.
+          inductive and deductive inference, or statistical inference where conclusions
+          are drawn about a broader/global population based on data from a representative
+          cohort. For example, a prediction that a drug may treat a particular disease
+          based on its chemical similarity to known drugs that treat the disease,
+          and the fact that it can inhibit proteins  in a pathway that is associated
+          with the disease As Predictions are based on weaker forms of inference and
+          evidence, they are typically  considered lower confidence statements as
+          compared to Knowledge Assertions and Logical Entailments.
+        aliases:
+        - hypothesis
+      statistical_association:
+        text: statistical_association
+        description: A statement that reports concepts representing variables in a
+          dataset to be statistically associated with each other in a particular cohort
+          (e.g. 'Metformin Treatment (variable 1) is correlated with Diabetes Diagnosis
+          (variable 2) in EHR dataset X').
+        notes:
+        - Such statements report the direct results of some statistical analysis.
+          Their scope is limited tp the cohort/dataset interrogated in the analysis,
+          and they do not make broader claims or draw  more meaningful conclusions
+          about the domain of discourse. Note however that such Statistical  Associations
+          can be used as evidence to support a more pointed/precise Prediction or
+          Assertion  of knowledge. For example, e.g. a Statistical Association between
+          'Metformin Prescription' and 'Diabetes Diagnosis' in EHR records could support
+          a Prediction that 'Metformin treats Diabetes',  or 'Metformin causes Diabetes'.
+          This 'treats' edge may have a knowledge_level of 'Prediction',  but the
+          provider could use the 'evidence_type' edge property to indicate that this
+          prediction is  based on a 'Statistical Association'. Because Statistical
+          Associations directly report analysis-specific  results, we can consider
+          them to be inherently true statements, whose broader utility is dependent
+          on  subsequent generalization of the reported result to a broader population,
+          and/or interpretation of the  result as support for a more meaningful statements
+          about the domain of discourse.
+      observation:
+        text: observation
+        description: A statement reporting (and possibly quantifying) a phenomenon
+          that was observed to occur -  absent any analysis or interpretation that
+          generates a statistical association or supports a broader conclusion or
+          inference.
+        notes:
+        - An observation that "56362 people self-reported taking melatonin to treat
+          migraines" is agnostic to whether melatonin is an effective or approved
+          treatment - it only claims that it was taken for this purpose. Such observations,
+          however, may be used as the basis for predicting that a  drug may be efficacious
+          against a disease.
+      not_provided:
+        text: not_provided
+        description: The knowledge level is not provided, typically because it cannot
+          be determined from available. information.
+        notes:
+        - This term is most often applied for text-mined edges, as NLP tools are typically
+          not able to detect a specific knowledge level for the concept relationships
+          they extract (e.g. whether the author  was predicting or asserting a relationship,
+          or merely observed it to occur).
+classes:
+  KnowledgeGraph:
+    name: KnowledgeGraph
+    description: A knowledge graph represented in KGX format
+  Node:
+    name: Node
+    description: A node in a KGX graph, will be superclass for named thing
+  Edge:
+    name: Edge
+    description: An edge in a KGX graph, will be superclass for association
+  mapping collection:
+    name: mapping collection
+    description: A collection of deprecated mappings.
+    abstract: true
+    tree_root: true
+  predicate mapping:
+    name: predicate mapping
+    description: A deprecated predicate mapping object contains the deprecated predicate
+      and an example of the rewiring that should be done to use a qualified statement
+      in its place.
+  ontology class:
+    name: ontology class
+    id_prefixes:
+    - MESH
+    - UMLS
+    - KEGG.BRITE
+    description: a concept or class in an ontology, vocabulary or thesaurus. Note
+      that nodes in a biolink compatible KG can be considered both instances of biolink
+      classes, and OWL classes in their own right. In general you should not need
+      to use this class directly. Instead, use the appropriate biolink class. For
+      example, for the GO concept of endocytosis (GO:0006897), use bl:BiologicalProcess
+      as the type.
+    comments:
+    - This is modeled as a mixin. 'ontology class' should not be the primary type
+      of a node in the KG. Instead you should use an informative bioloink category,
+      such as AnatomicalEntity (for Uberon classes), ChemicalSubstance (for CHEBI
+      or CHEMBL), etc
+    - Note that formally this is a metaclass. Instances of this class are instances
+      in the graph, but can be the object of 'type' edges. For example, if we had
+      a node in the graph representing a specific brain of a specific patient (e.g
+      brain001), this could have a category of bl:Sample, and by typed more specifically
+      with an ontology class UBERON:nnn, which has as category bl:AnatomicalEntity
+    examples:
+    - value: UBERON:0000955
+      description: the class 'brain' from the Uberon anatomy ontology
+    see_also:
+    - https://github.com/biolink/biolink-model/issues/486
+    exact_mappings:
+    - owl:Class
+    - schema:Class
+    mixin: true
+  annotation:
+    name: annotation
+    description: Biolink Model root class for entity annotations.
+    abstract: true
+  quantity value:
+    name: quantity value
+    description: A value of an attribute that is quantitative and measurable, expressed
+      as a combination of a unit and a numeric value
+    is_a: annotation
+  attribute:
+    name: attribute
+    id_prefixes:
+    - EDAM-DATA
+    - EDAM-FORMAT
+    - EDAM-OPERATION
+    - EDAM-TOPIC
+    description: A property or characteristic of an entity. For example, an apple
+      may have properties such as color, shape, age, crispiness. An environmental
+      sample may have attributes such as depth, lat, long, material.
+    in_subset:
+    - samples
+    exact_mappings:
+    - SIO:000614
+    is_a: named thing
+    mixins:
+    - ontology class
+  chemical role:
+    name: chemical role
+    id_prefixes:
+    - CHEBI
+    description: A role played by the molecular entity or part thereof within a chemical
+      context.
+    examples:
+    - value: CHEBI:35469
+    exact_mappings:
+    - CHEBI:51086
+    is_a: attribute
+  biological sex:
+    name: biological sex
+    exact_mappings:
+    - PATO:0000047
+    is_a: attribute
+  phenotypic sex:
+    name: phenotypic sex
+    description: An attribute corresponding to the phenotypic sex of the individual,
+      based upon the reproductive organs present.
+    exact_mappings:
+    - PATO:0001894
+    is_a: biological sex
+  genotypic sex:
+    name: genotypic sex
+    description: An attribute corresponding to the genotypic sex of the individual,
+      based upon genotypic composition of sex chromosomes.
+    exact_mappings:
+    - PATO:0020000
+    is_a: biological sex
+  severity value:
+    name: severity value
+    description: describes the severity of a phenotypic feature or disease
+    deprecated: 'True'
+    is_a: attribute
+  relationship quantifier:
+    name: relationship quantifier
+    mixin: true
+  sensitivity quantifier:
+    name: sensitivity quantifier
+    is_a: relationship quantifier
+    mixin: true
+  specificity quantifier:
+    name: specificity quantifier
+    is_a: relationship quantifier
+    mixin: true
+  pathognomonicity quantifier:
+    name: pathognomonicity quantifier
+    description: A relationship quantifier between a variant or symptom and a disease,
+      which is high when the presence of the feature implies the existence of the
+      disease
+    is_a: specificity quantifier
+    mixin: true
+  frequency quantifier:
+    name: frequency quantifier
+    is_a: relationship quantifier
+    mixin: true
+  chemical or drug or treatment:
+    name: chemical or drug or treatment
+    id_prefixes:
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - CHEBI
+    - MAXO
+    mixin: true
+  entity:
+    name: entity
+    description: Root Biolink Model class for all things and informational relationships,
+      real or imagined.
+    abstract: true
+  named thing:
+    name: named thing
+    description: a databased entity or concept/class
+    exact_mappings:
+    - BFO:0000001
+    - WIKIDATA:Q35120
+    - UMLSSG:OBJC
+    - STY:T071
+    - dcid:Thing
+    is_a: Node
+  relationship type:
+    name: relationship type
+    description: An OWL property used as an edge label
+    is_a: ontology class
+  taxonomic rank:
+    name: taxonomic rank
+    id_prefixes:
+    - TAXRANK
+    description: 'A descriptor for the rank within a taxonomic classification. Example
+      instance: TAXRANK:0000017 (kingdom)'
+    mappings:
+    - WIKIDATA:Q427626
+    is_a: ontology class
+  organism taxon:
+    name: organism taxon
+    id_prefixes:
+    - NCBITaxon
+    - MESH
+    - UMLS
+    description: 'A classification of a set of organisms. Example instances: NCBITaxon:9606
+      (Homo sapiens), NCBITaxon:2 (Bacteria). Can also be used to represent strains
+      or subspecies.'
+    in_subset:
+    - model_organism_database
+    aliases:
+    - taxon
+    - taxonomic classification
+    exact_mappings:
+    - WIKIDATA:Q16521
+    - STY:T001
+    - bioschemas:Taxon
+    narrow_mappings:
+    - dcid:BiologicalSpecies
+    is_a: named thing
+    values_from:
+    - NCBITaxon
+  event:
+    name: event
+    description: Something that happens at a given place and time.
+    exact_mappings:
+    - NCIT:C25499
+    - STY:T051
+    is_a: named thing
+  administrative entity:
+    name: administrative entity
+    is_a: named thing
+    abstract: true
+  study result:
+    name: study result
+    description: A collection of data items from a study that are about a particular
+      study subject or experimental unit (the 'focus' of the Result) - optionally
+      with context/provenance metadata that may be relevant to the interpretation
+      of this data as evidence.
+    notes:
+    - The data/metadata included in a Study Result object are typically a subset of
+      data from a larger study data set, that are selected by a curator because they
+      may be useful as evidence for deriving knowledge about a specific focus of the
+      study. The notion of a 'study' here is defined broadly to include any research
+      activity at any scale that is aimed at generating knowledge or hypotheses. This
+      may include a single assay or computational analyses, or a larger scale clinical
+      trial or experimental research investigation.
+    is_a: information content entity
+    abstract: true
+  study:
+    name: study
+    description: a detailed investigation and/or analysis
+    exact_mappings:
+    - NCIT:C63536
+    close_mappings:
+    - SIO:001066
+    - SEPIO:0000004
+    narrow_mappings:
+    - SIO:000994
+    is_a: activity
+  study variable:
+    name: study variable
+    description: a variable that is used as a measure in the investigation of a study
+    close_mappings:
+    - STATO:0000258
+    - SIO:000367
+    narrow_mappings:
+    - NCIT:C142192
+    is_a: information content entity
+  common data element:
+    name: common data element
+    description: A Common Data Element (CDE) is a standardized, precisely defined
+      question, paired with a set of allowable responses, used systematically across
+      different sites, studies, or clinical trials to ensure consistent data collection.
+      Multiple CDEs (from one or more Collections) can be curated into Forms. (https://cde.nlm.nih.gov/home)
+    close_mappings:
+    - NCIT:C19984
+    is_a: information content entity
+  concept count analysis result:
+    name: concept count analysis result
+    description: A result of a concept count analysis.
+    is_a: study result
+  observed expected frequency analysis result:
+    name: observed expected frequency analysis result
+    description: A result of a observed expected frequency analysis.
+    is_a: study result
+  relative frequency analysis result:
+    name: relative frequency analysis result
+    description: A result of a relative frequency analysis.
+    is_a: study result
+  text mining result:
+    name: text mining result
+    description: A result of text mining.
+    is_a: study result
+  chi squared analysis result:
+    name: chi squared analysis result
+    description: A result of a chi squared analysis.
+    is_a: study result
+  log odds analysis result:
+    name: log odds analysis result
+    description: A result of a log odds ratio analysis.
+    is_a: study result
+  agent:
+    name: agent
+    id_prefixes:
+    - isbn
+    - ORCID
+    - ScopusID
+    - ResearchID
+    - GSID
+    - isni
+    description: person, group, organization or project that provides a piece of information
+      (i.e. a knowledge association)
+    aliases:
+    - group
+    exact_mappings:
+    - prov:Agent
+    - dct:Agent
+    narrow_mappings:
+    - UMLSSG:ORGA
+    - STY:T092
+    - STY:T093
+    - STY:T094
+    - STY:T095
+    - STY:T096
+    is_a: administrative entity
+  information content entity:
+    name: information content entity
+    id_prefixes:
+    - doi
+    description: a piece of information that typically describes some topic of discourse
+      or is used as support.
+    aliases:
+    - information
+    - information artefact
+    - information entity
+    exact_mappings:
+    - IAO:0000030
+    narrow_mappings:
+    - UMLSSG:CONC
+    - STY:T077
+    - STY:T078
+    - STY:T079
+    - STY:T080
+    - STY:T081
+    - STY:T082
+    - STY:T089
+    - STY:T102
+    - STY:T169
+    - STY:T171
+    - STY:T185
+    is_a: named thing
+    abstract: true
+  dataset:
+    name: dataset
+    description: an item that refers to a collection of data from a data source.
+    exact_mappings:
+    - IAO:0000100
+    - dctypes:Dataset
+    - schema:dataset
+    - dcid:Dataset
+    is_a: information content entity
+  dataset distribution:
+    name: dataset distribution
+    description: an item that holds distribution level information about a dataset.
+    exact_mappings:
+    - dcat:Distribution
+    is_a: information content entity
+  dataset version:
+    name: dataset version
+    description: an item that holds version level information about a dataset.
+    is_a: information content entity
+  dataset summary:
+    name: dataset summary
+    description: an item that holds summary level information about a dataset.
+    is_a: information content entity
+  confidence level:
+    name: confidence level
+    description: Level of confidence in a statement
+    exact_mappings:
+    - CIO:0000028
+    - SEPIO:0000187
+    close_mappings:
+    - SEPIO:0000167
+    is_a: information content entity
+    values_from:
+    - cio
+  evidence type:
+    name: evidence type
+    description: Class of evidence that supports an association
+    aliases:
+    - evidence code
+    exact_mappings:
+    - ECO:0000000
+    is_a: information content entity
+    values_from:
+    - eco
+  publication:
+    name: publication
+    id_prefixes:
+    - PMID
+    - PMC
+    - doi
+    - NLMID
+    description: Any ‘published’ piece of information. Publications are considered
+      broadly to include any document or document part made available in print or
+      on the web - which may include scientific journal issues, individual articles,
+      and books - as well as things like pre-prints, white papers, patents, drug labels,
+      web pages, protocol documents,  and even a part of a publication if of significant
+      knowledge scope (e.g. a figure, figure legend, or section highlighted by NLP).
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - IAO:0000311
+    narrow_mappings:
+    - IAO:0000013
+    - STY:T170
+    is_a: information content entity
+  book:
+    name: book
+    id_prefixes:
+    - isbn
+    - NLMID
+    description: This class may rarely be instantiated except if use cases of a given
+      knowledge graph support its utility.
+    in_subset:
+    - model_organism_database
+    is_a: publication
+  book chapter:
+    name: book chapter
+    in_subset:
+    - model_organism_database
+    is_a: publication
+  serial:
+    name: serial
+    id_prefixes:
+    - issn
+    - NLMID
+    description: This class may rarely be instantiated except if use cases of a given
+      knowledge graph support its utility.
+    in_subset:
+    - model_organism_database
+    aliases:
+    - journal
+    is_a: publication
+  article:
+    name: article
+    id_prefixes:
+    - PMID
+    description: a piece of writing on a particular topic presented as a stand-alone
+      section of a larger publication
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - SIO:000154
+    - fabio:article
+    is_a: publication
+  journal article:
+    name: journal article
+    id_prefixes:
+    - PMID
+    - PMCID
+    - doi
+    description: an article, typically presenting results of research, that is published
+      in an issue of a scientific journal.
+    exact_mappings:
+    - IAO:0000013
+    - fabio:JournalArticle
+    is_a: article
+  patent:
+    name: patent
+    description: a legal document granted by a patent issuing authority which confers
+      upon the patenter the sole right to make, use and sell an invention for a set
+      period of time.
+    exact_mappings:
+    - SIO:000153
+    - IAO:0000313
+    - fabio:Patent
+    is_a: publication
+  web page:
+    name: web page
+    description: a document that is published according to World Wide Web standards,
+      which may incorporate text, graphics, sound, and/or other features.
+    exact_mappings:
+    - SIO:000302
+    - NCIT-OBO:C142749
+    - fabio:WebPage
+    is_a: publication
+  preprint publication:
+    name: preprint publication
+    description: a document reresenting an early version of an author's original scholarly
+      work, such as a research paper or a review, prior to formal peer review and
+      publication in a peer-reviewed scholarly or scientific journal.
+    exact_mappings:
+    - EFO:0010558
+    - fabio:Preprint
+    is_a: publication
+  drug label:
+    name: drug label
+    description: a document accompanying a drug or its container that provides written,
+      printed or graphic information about the drug, including drug contents, specific
+      instructions or warnings for administration, storage and disposal instructions,
+      etc.
+    broad_mappings:
+    - NCIT-OBO:C41203
+    is_a: publication
+  retrieval source:
+    name: retrieval source
+    description: Provides information about how a particular InformationResource served
+      as a source from which knowledge expressed in an Edge, or data used to generate
+      this knowledge, was retrieved.
+    is_a: information content entity
+  physical essence or occurrent:
+    name: physical essence or occurrent
+    description: Either a physical or processual entity.
+    mixin: true
+  physical essence:
+    name: physical essence
+    description: Semantic mixin concept.  Pertains to entities that have physical
+      properties such as mass, volume, or charge.
+    is_a: physical essence or occurrent
+    mixin: true
+  physical entity:
+    name: physical entity
+    description: An entity that has material reality (a.k.a. physical essence).
+    exact_mappings:
+    - STY:T072
+    narrow_mappings:
+    - STY:T073
+    is_a: named thing
+    mixins:
+    - physical essence
+  occurrent:
+    name: occurrent
+    description: A processual entity.
+    exact_mappings:
+    - BFO:0000003
+    is_a: physical essence or occurrent
+    mixin: true
+  activity and behavior:
+    name: activity and behavior
+    description: Activity or behavior of any independent integral living, organization
+      or mechanical actor in the world
+    exact_mappings:
+    - UMLSSG:ACTI
+    is_a: occurrent
+    mixin: true
+  activity:
+    name: activity
+    description: An activity is something that occurs over a period of time and acts
+      upon or with entities; it may include consuming, processing, transforming, modifying,
+      relocating, using, or generating entities.
+    exact_mappings:
+    - prov:Activity
+    - NCIT:C43431
+    - STY:T052
+    narrow_mappings:
+    - STY:T056
+    - STY:T057
+    - STY:T064
+    - STY:T066
+    - STY:T062
+    - STY:T065
+    - STY:T058
+    is_a: named thing
+    mixins:
+    - activity and behavior
+  procedure:
+    name: procedure
+    id_prefixes:
+    - CPT
+    description: A series of actions conducted in a certain order or manner
+    exact_mappings:
+    - UMLSSG:PROC
+    - dcid:MedicalProcedure
+    narrow_mappings:
+    - STY:T059
+    - STY:T060
+    - STY:T061
+    - STY:T063
+    is_a: named thing
+    mixins:
+    - activity and behavior
+  phenomenon:
+    name: phenomenon
+    description: a fact or situation that is observed to exist or happen, especially
+      one whose cause or explanation is in question
+    exact_mappings:
+    - UMLSSG:PHEN
+    narrow_mappings:
+    - STY:T034
+    - STY:T038
+    - STY:T069
+    broad_mappings:
+    - STY:T067
+    - STY:T068
+    - STY:T070
+    is_a: named thing
+    mixins:
+    - occurrent
+  device:
+    name: device
+    description: A thing made or adapted for a particular purpose, especially a piece
+      of mechanical or electronic equipment
+    narrow_mappings:
+    - UMLSSG:DEVI
+    - STY:T074
+    - STY:T075
+    - STY:T203
+    is_a: named thing
+  diagnostic aid:
+    name: diagnostic aid
+    description: A device or substance used to help diagnose disease or injury
+    exact_mappings:
+    - STY:T130
+    - SNOMED:2949005
+    is_a: named thing
+  study population:
+    name: study population
+    description: A group of people banded together or treated as a group as participants
+      in a research study.
+    close_mappings:
+    - WIKIDATA:Q7229825
+    is_a: population of individual organisms
+  subject of investigation:
+    name: subject of investigation
+    description: An entity that has the role of being studied in an investigation,
+      study, or experiment
+    mixin: true
+  material sample:
+    name: material sample
+    id_prefixes:
+    - BIOSAMPLE
+    - GOLD.META
+    description: A sample is a limited quantity of something (e.g. an individual or
+      set of individuals from a population, or a portion of a substance) to be used
+      for testing, analysis, inspection, investigation, demonstration, or trial use.
+      [SIO]
+    aliases:
+    - biospecimen
+    - sample
+    - biosample
+    - physical sample
+    exact_mappings:
+    - OBI:0000747
+    - SIO:001050
+    is_a: physical entity
+    mixins:
+    - subject of investigation
+  planetary entity:
+    name: planetary entity
+    description: Any entity or process that exists at the level of the whole planet
+    is_a: named thing
+  environmental process:
+    name: environmental process
+    exact_mappings:
+    - ENVO:02500000
+    is_a: planetary entity
+    mixins:
+    - occurrent
+  environmental feature:
+    name: environmental feature
+    exact_mappings:
+    - ENVO:01000254
+    is_a: planetary entity
+  geographic location:
+    name: geographic location
+    description: a location that can be described in lat/long coordinates
+    exact_mappings:
+    - UMLSSG:GEOG
+    - STY:T083
+    is_a: planetary entity
+  geographic location at time:
+    name: geographic location at time
+    description: a location that can be described in lat/long coordinates, for a particular
+      time
+    is_a: geographic location
+  thing with taxon:
+    name: thing with taxon
+    description: A mixin that can be used on any entity that can be taxonomically
+      classified. This includes individual organisms; genes, their products and other
+      molecular entities; body parts; biological processes
+    mixin: true
+  biological entity:
+    name: biological entity
+    aliases:
+    - bioentity
+    narrow_mappings:
+    - WIKIDATA:Q28845870
+    - STY:T050
+    - SIO:010046
+    - STY:T129
+    is_a: named thing
+    abstract: true
+    mixins:
+    - thing with taxon
+  genomic entity:
+    name: genomic entity
+    in_subset:
+    - translator_minimal
+    narrow_mappings:
+    - STY:T028
+    - GENO:0000897
+    mixin: true
+  epigenomic entity:
+    name: epigenomic entity
+    in_subset:
+    - translator_minimal
+    mixin: true
+  molecular entity:
+    name: molecular entity
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A molecular entity is a chemical entity composed of individual or
+      covalently bonded atoms.
+    in_subset:
+    - translator_minimal
+    narrow_mappings:
+    - STY:T088
+    - STY:T085
+    - CHEBI:23367
+    - bioschemas:MolecularEntity
+    is_a: chemical entity
+  chemical entity:
+    name: chemical entity
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A chemical entity is a physical entity that pertains to chemistry
+      or biochemistry.
+    in_subset:
+    - translator_minimal
+    exact_mappings:
+    - CHEBI:24431
+    - SIO:010004
+    - WIKIDATA:Q79529
+    - STY:T103
+    narrow_mappings:
+    - WIKIDATA:Q43460564
+    - STY:T123
+    - STY:T131
+    broad_mappings:
+    - STY:T167
+    is_a: named thing
+    mixins:
+    - physical essence
+    - chemical or drug or treatment
+    - chemical entity or gene or gene product
+    - chemical entity or protein or polypeptide
+  small molecule:
+    name: small molecule
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A small molecule entity is a molecular entity characterized by availability
+      in small-molecule databases of SMILES, InChI, IUPAC, or other unambiguous representation
+      of its precise chemical structure; for convenience of representation, any valid
+      chemical representation is included, even if it is not strictly molecular (e.g.,
+      sodium ion).
+    in_subset:
+    - model_organism_database
+    - translator_minimal
+    aliases:
+    - chemical substance
+    narrow_mappings:
+    - STY:T196
+    - CHEBI:59999
+    - bioschemas:ChemicalSubstance
+    - STY:T125
+    - STY:T197
+    - STY:T109
+    - STY:T118
+    - STY:T111
+    - STY:T119
+    - STY:T124
+    - STY:T115
+    - STY:T110
+    - STY:T127
+    is_a: molecular entity
+  chemical mixture:
+    name: chemical mixture
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A chemical mixture is a chemical entity composed of two or more molecular
+      entities.
+    in_subset:
+    - translator_minimal
+    close_mappings:
+    - dcid:ChemicalCompound
+    narrow_mappings:
+    - NCIT:C20401
+    - SNOMEDCT:49616005
+    is_a: chemical entity
+  nucleic acid entity:
+    name: nucleic acid entity
+    id_prefixes:
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - UNII
+    - CHEBI
+    - MESH
+    - CAS
+    - GTOPDB
+    - HMDB
+    - KEGG
+    - KEGG.COMPOUND
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - INCHI
+    - INCHIKEY
+    - KEGG.GLYCAN
+    - KEGG.ENVIRON
+    - ChemBank
+    - SIDER.DRUG
+    - BIGG.METABOLITE
+    - foodb.compound
+    - UMLS
+    description: A nucleic acid entity is a molecular entity characterized by availability
+      in gene databases of nucleotide-based sequence representations of its precise
+      sequence; for convenience of representation, partial sequences of various kinds
+      are included.
+    in_subset:
+    - model_organism_database
+    - translator_minimal
+    aliases:
+    - sequence feature
+    - genomic entity
+    exact_mappings:
+    - SO:0000110
+    narrow_mappings:
+    - STY:T086
+    - STY:T114
+    is_a: molecular entity
+    mixins:
+    - genomic entity
+    - thing with taxon
+    - physical essence
+    - ontology class
+  regulatory region:
+    name: regulatory region
+    description: A region (or regions) of the genome that contains known or putative
+      regulatory elements that act in cis- or trans- to affect the transcription of
+      gene
+    aliases:
+    - regulatory element
+    exact_mappings:
+    - SO:0005836
+    - SIO:001225
+    - WIKIDATA:Q3238407
+    is_a: biological entity
+    mixins:
+    - genomic entity
+    - chemical entity or gene or gene product
+    - physical essence
+    - ontology class
+  accessible dna region:
+    name: accessible dna region
+    description: A region (or regions) of a chromatinized genome that has been measured
+      to be more accessible to an enzyme such as DNase-I or Tn5 Transpose
+    aliases:
+    - dnase-seq accessible region
+    - atac-seq accessible region
+    exact_mappings:
+    - SO:0002231
+    is_a: regulatory region
+    mixins:
+    - genomic entity
+    - chemical entity or gene or gene product
+    - physical essence
+    - ontology class
+  transcription factor binding site:
+    name: transcription factor binding site
+    description: A region (or regions) of the genome that contains a region of DNA
+      known or predicted to bind a protein that modulates gene transcription
+    aliases:
+    - tf binding site
+    - binding site
+    exact_mappings:
+    - SO:0000235
+    is_a: regulatory region
+    mixins:
+    - genomic entity
+    - chemical entity or gene or gene product
+    - physical essence
+    - ontology class
+  molecular mixture:
+    name: molecular mixture
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A molecular mixture is a chemical mixture composed of two or more
+      molecular entities with known concentration and stoichiometry.
+    in_subset:
+    - translator_minimal
+    is_a: chemical mixture
+  complex molecular mixture:
+    name: complex molecular mixture
+    id_prefixes:
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - UNII
+    - CHEBI
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG
+    - KEGG.ENVIRON
+    - UMLS
+    description: A complex molecular mixture is a chemical mixture composed of two
+      or more molecular entities with unknown concentration and stoichiometry.
+    in_subset:
+    - translator_minimal
+    is_a: chemical mixture
+  biological process or activity:
+    name: biological process or activity
+    id_prefixes:
+    - GO
+    - REACT
+    description: Either an individual molecular activity, or a collection of causally
+      connected molecular activities in a biological system.
+    is_a: biological entity
+    mixins:
+    - occurrent
+    - ontology class
+  molecular activity:
+    name: molecular activity
+    id_prefixes:
+    - GO
+    - REACT
+    - RHEA
+    - metacyc.reaction
+    - EC
+    - TCDB
+    - KEGG.REACTION
+    - KEGG
+    - KEGG.ORTHOLOGY
+    - UMLS
+    - BIGG.REACTION
+    - SEED.REACTION
+    - METANETX.REACTION
+    description: An execution of a molecular function carried out by a gene product
+      or macromolecular complex.
+    aliases:
+    - molecular function
+    - molecular event
+    - reaction
+    exact_mappings:
+    - GO:0003674
+    - STY:T044
+    broad_mappings:
+    - STY:T045
+    is_a: biological process or activity
+    mixins:
+    - occurrent
+    - ontology class
+  biological process:
+    name: biological process
+    id_prefixes:
+    - GO
+    - REACT
+    - metacyc.reaction
+    - KEGG.MODULE
+    - KEGG
+    - UMLS
+    description: One or more causally connected executions of molecular functions
+    exact_mappings:
+    - GO:0008150
+    - SIO:000006
+    - WIKIDATA:Q2996394
+    broad_mappings:
+    - WIKIDATA:P682
+    is_a: biological process or activity
+    mixins:
+    - occurrent
+    - ontology class
+  pathway:
+    name: pathway
+    id_prefixes:
+    - GO
+    - REACT
+    - KEGG
+    - SMPDB
+    - MSigDB
+    - PHARMGKB.PATHWAYS
+    - WIKIPATHWAYS
+    - FB
+    - PANTHER.PATHWAY
+    - KEGG.PATHWAY
+    - ncats.bioplanet
+    exact_mappings:
+    - PW:0000001
+    - WIKIDATA:Q4915012
+    narrow_mappings:
+    - SIO:010526
+    - GO:0007165
+    is_a: biological process
+    mixins:
+    - ontology class
+  physiological process:
+    name: physiological process
+    id_prefixes:
+    - GO
+    - REACT
+    aliases:
+    - physiology
+    exact_mappings:
+    - STY:T039
+    - WIKIDATA:Q30892994
+    narrow_mappings:
+    - STY:T040
+    - STY:T042
+    - STY:T043
+    - STY:T045
+    is_a: biological process
+    mixins:
+    - ontology class
+  behavior:
+    name: behavior
+    exact_mappings:
+    - GO:0007610
+    - STY:T053
+    narrow_mappings:
+    - STY:T041
+    - STY:T054
+    - STY:T055
+    is_a: biological process
+    mixins:
+    - ontology class
+    - activity and behavior
+  processed material:
+    name: processed material
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - foodb.food
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A chemical entity (often a mixture) processed for consumption for
+      nutritional, medical or technical use. Is a material entity that is created
+      or changed during material processing.
+    exact_mappings:
+    - OBI:0000047
+    is_a: chemical mixture
+  drug:
+    name: drug
+    id_prefixes:
+    - ncats.drug
+    - RXCUI
+    - NDC
+    - UMLS
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - KEGG.GLYCAN
+    - KEGG.ENVIRON
+    - KEGG.ENVIRON
+    - KEGG
+    description: A substance intended for use in the diagnosis, cure, mitigation,
+      treatment, or prevention of disease
+    comments:
+    - The CHEBI ID represents a role rather than a substance
+    exact_mappings:
+    - WIKIDATA:Q12140
+    - CHEBI:23888
+    - STY:T200
+    - dcid:Drug
+    narrow_mappings:
+    - STY:T195
+    broad_mappings:
+    - STY:T121
+    is_a: molecular mixture
+    mixins:
+    - chemical or drug or treatment
+    - ontology class
+  environmental food contaminant:
+    name: environmental food contaminant
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - foodb.food
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    related_mappings:
+    - CHEBI:78299
+    is_a: chemical entity
+  food additive:
+    name: food additive
+    id_prefixes:
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - foodb.compound
+    - foodb.food
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    related_mappings:
+    - CHEBI:64047
+    is_a: chemical entity
+  food:
+    name: food
+    id_prefixes:
+    - foodb.food
+    - foodb.compound
+    - FOODON
+    - CHEBI
+    - UNII
+    - PUBCHEM.COMPOUND
+    - CHEMBL.COMPOUND
+    - DRUGBANK
+    - MESH
+    - CAS
+    - DrugCentral
+    - GTOPDB
+    - HMDB
+    - KEGG.COMPOUND
+    - PHARMGKB.DRUG
+    - ChemBank
+    - PUBCHEM.SUBSTANCE
+    - SIDER.DRUG
+    - INCHI
+    - INCHIKEY
+    - BIGG.METABOLITE
+    - KEGG.GLYCAN
+    - KEGG.DRUG
+    - KEGG.ENVIRON
+    - KEGG
+    - UMLS
+    description: A substance consumed by a living organism as a source of nutrition
+    is_a: chemical mixture
+  organism attribute:
+    name: organism attribute
+    description: describes a characteristic of an organismal entity.
+    exact_mappings:
+    - STY:T032
+    is_a: attribute
+  phenotypic quality:
+    name: phenotypic quality
+    description: A property of a phenotype
+    examples:
+    - value: weight
+    aliases:
+    - phenotypic properties
+    mappings:
+    - PATO:0000001
+    is_a: organism attribute
+  genetic inheritance:
+    name: genetic inheritance
+    id_prefixes:
+    - HP
+    - GENO
+    - NCIT
+    description: The pattern or 'mode' in which a particular genetic trait or disorder
+      is passed from one generation to the next, e.g. autosomal dominant, autosomal
+      recessive, etc.
+    aliases:
+    - inheritance
+    exact_mappings:
+    - HP:0000005
+    - GENO:0000141
+    - NCIT:C45827
+    close_mappings:
+    - STY:T045
+    is_a: biological entity
+  organismal entity:
+    name: organismal entity
+    description: A named entity that is either a part of an organism, a whole organism,
+      population or clade of organisms, excluding chemical entities
+    exact_mappings:
+    - WIKIDATA:Q7239
+    - UMLSSG:LIVB
+    - CARO:0001010
+    narrow_mappings:
+    - STY:T008
+    is_a: biological entity
+    abstract: true
+    mixins:
+    - subject of investigation
+  bacterium:
+    name: bacterium
+    description: A member of a group of unicellular microorganisms lacking a nuclear
+      membrane, that reproduce by binary fission and are often motile.
+    exact_mappings:
+    - NCBITaxon:1869227
+    - STY:T007
+    is_a: organismal entity
+  virus:
+    name: virus
+    description: A virus is a microorganism that replicates itself as a microRNA and
+      infects the host cell.
+    exact_mappings:
+    - NCBITaxon:10239
+    - STY:T005
+    is_a: organismal entity
+    mixins:
+    - subject of investigation
+  cellular organism:
+    name: cellular organism
+    description: ''
+    exact_mappings:
+    - NCBITaxon:131567
+    is_a: organismal entity
+    mixins:
+    - subject of investigation
+  mammal:
+    name: mammal
+    description: A member of the class Mammalia, a clade of endothermic amniotes distinguished
+      from reptiles and birds by the possession of hair, three middle ear bones, mammary
+      glands, and a neocortex
+    exact_mappings:
+    - NCBITaxon:40674
+    - STY:T015
+    - NCIT:C14234
+    - FOODON:03411134
+    is_a: cellular organism
+    mixins:
+    - subject of investigation
+  human:
+    name: human
+    description: A member of the the species Homo sapiens.
+    exact_mappings:
+    - STY:T016
+    - NCBITaxon:9606
+    - SIO:000485
+    - NCIT:C14225
+    is_a: mammal
+    mixins:
+    - subject of investigation
+  plant:
+    name: plant
+    description: ''
+    exact_mappings:
+    - NCIT:C14258
+    - STY:T002
+    - PO:0000003
+    - NCIT:C79659
+    is_a: cellular organism
+  invertebrate:
+    name: invertebrate
+    description: An animal lacking a vertebral column. This group consists of 98%
+      of all animal species.
+    exact_mappings:
+    - NCIT:C14228
+    - OMIT:0008565
+    - FOODON:00002452
+    - STY:T011
+    related_mappings:
+    - NCBITaxon:1767184
+    is_a: cellular organism
+  vertebrate:
+    name: vertebrate
+    description: A sub-phylum of animals consisting of those having a bony or cartilaginous
+      vertebral column.
+    exact_mappings:
+    - STY:T010
+    - NCBITaxon:7742
+    - OMIT:0015545
+    related_mappings:
+    - NCBITaxon:2662825
+    is_a: cellular organism
+  fungus:
+    name: fungus
+    description: A kingdom of eukaryotic, heterotrophic organisms that live as saprobes
+      or parasites, including mushrooms, yeasts, smuts, molds, etc. They reproduce
+      either sexually or asexually, and have life cycles that range from simple to
+      complex. Filamentous fungi refer to those that grow as multicellular colonies
+      (mushrooms and molds).
+    exact_mappings:
+    - STY:T004
+    - NCIT:C14209
+    - FOODON:03411261
+    narrow_mappings:
+    - FOODON:03315605
+    - NCBITaxon:1670606
+    is_a: cellular organism
+  life stage:
+    name: life stage
+    id_prefixes:
+    - HsapDv
+    - MmusDv
+    - ZFS
+    - FBdv
+    - WBls
+    - UBERON
+    description: A stage of development or growth of an organism, including post-natal
+      adult stages
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - UBERON:0000105
+    narrow_mappings:
+    - HsapDv:0000000
+    is_a: organismal entity
+  individual organism:
+    name: individual organism
+    id_prefixes:
+    - ORCID
+    description: 'An instance of an organism. For example, Richard Nixon, Charles
+      Darwin, my pet cat. Example ID: ORCID:0000-0002-5355-2576'
+    aliases:
+    - organism
+    exact_mappings:
+    - SIO:010000
+    - STY:T001
+    narrow_mappings:
+    - WIKIDATA:Q795052
+    - foaf:Person
+    is_a: organismal entity
+    mixins:
+    - subject of investigation
+  population of individual organisms:
+    name: population of individual organisms
+    id_prefixes:
+    - HANCESTRO
+    local_names:
+      ga4gh:
+        local_name_source: ga4gh
+        local_name_value: population
+    description: A collection of individuals from the same taxonomic class distinguished
+      by one or more characteristics.  Characteristics can include, but are not limited
+      to, shared geographic location, genetics, phenotypes.
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - PCO:0000001
+    - SIO:001061
+    - STY:T098
+    - OBI:0000181
+    is_a: organismal entity
+    mixins:
+    - subject of investigation
+  disease or phenotypic feature:
+    name: disease or phenotypic feature
+    description: Either one of a disease or an individual phenotypic feature. Some
+      knowledge resources such as Monarch treat these as distinct, others such as
+      MESH conflate.  Please see definitions of phenotypic feature and disease in
+      this model for their independent descriptions.  This class is helpful to enforce
+      domains and ranges that may involve either a disease or a phenotypic feature.
+    aliases:
+    - phenome
+    narrow_mappings:
+    - STY:T033
+    is_a: biological entity
+    union_of:
+    - disease
+    - phenotypic feature
+  disease:
+    name: disease
+    id_prefixes:
+    - MONDO
+    - DOID
+    - OMIM
+    - OMIM.PS
+    - orphanet
+    - EFO
+    - UMLS
+    - MESH
+    - MEDDRA
+    - NCIT
+    - SNOMEDCT
+    - medgen
+    - icd11
+    - icd11.foundation
+    - ICD10
+    - ICD9
+    - KEGG.DISEASE
+    - HP
+    - MP
+    - PHARMGKB.DISEASE
+    description: A disorder of structure or function, especially one that produces
+      specific signs, phenotypes or symptoms or that affects a specific location and
+      is not simply a direct result of physical injury.  A disposition to undergo
+      pathological processes that exists in an organism because of one or more disorders
+      in that organism.
+    in_subset:
+    - model_organism_database
+    - translator_minimal
+    aliases:
+    - condition
+    - disorder
+    - medical condition
+    exact_mappings:
+    - MONDO:0000001
+    - DOID:4
+    - NCIT:C2991
+    - WIKIDATA:Q12136
+    - SIO:010299
+    - UMLSSG:DISO
+    - STY:T047
+    - dcid:Disease
+    narrow_mappings:
+    - STY:T019
+    - STY:T020
+    - STY:T048
+    - STY:T049
+    - STY:T191
+    - MONDO:0042489
+    is_a: disease or phenotypic feature
+  phenotypic feature:
+    name: phenotypic feature
+    id_prefixes:
+    - HP
+    - EFO
+    - NCIT
+    - UMLS
+    - MEDDRA
+    - MP
+    - ZP
+    - UPHENO
+    - APO
+    - FBcv
+    - WBPhenotype
+    - SNOMEDCT
+    - MESH
+    - XPO
+    - FYPO
+    - TO
+    description: A combination of entity and quality that makes up a phenotyping statement.
+      An observable characteristic of an individual resulting from the interaction
+      of its genotype with its molecular and physical environment.
+    examples:
+    - value: MP:0001262
+      description: decreased body weight
+    in_subset:
+    - model_organism_database
+    aliases:
+    - sign
+    - symptom
+    - phenotype
+    - trait
+    - endophenotype
+    exact_mappings:
+    - UPHENO:0001001
+    - SIO:010056
+    - WIKIDATA:Q104053
+    - UMLS:C4021819
+    - NCIT:C16977
+    - SNOMEDCT:8116006
+    - MESH:D010641
+    narrow_mappings:
+    - STY:T184
+    - WIKIDATA:Q169872
+    - WIKIDATA:Q25203551
+    - ZP:00000000
+    - FBcv:0001347
+    - HP:0000118
+    - MP:0000001
+    - WBPhenotype:0000886
+    - XPO:00000000
+    - FYPO:0000001
+    - APO:0000017
+    - TO:0000387
+    - STY:T190
+    broad_mappings:
+    - BFO:0000019
+    - PATO:0000001
+    is_a: disease or phenotypic feature
+  behavioral feature:
+    name: behavioral feature
+    description: A phenotypic feature which is behavioral in nature.
+    exact_mappings:
+    - NBO:0000243
+    is_a: phenotypic feature
+  anatomical entity:
+    name: anatomical entity
+    id_prefixes:
+    - UBERON
+    - GO
+    - CL
+    - UMLS
+    - MESH
+    - NCIT
+    - EMAPA
+    - ZFA
+    - FBbt
+    - WBbt
+    description: A subcellular location, cell type or gross anatomical part
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - UBERON:0001062
+    - WIKIDATA:Q4936952
+    - UMLSSG:ANAT
+    - STY:T017
+    - FMA:62955
+    - CARO:0000000
+    - SIO:001262
+    - STY:T029
+    - STY:T030
+    related_mappings:
+    - SNOMEDCT:123037004
+    narrow_mappings:
+    - ZFA:0100000
+    - FBbt:10000000
+    - EMAPA:0
+    - MA:0000001
+    - XAO:0000000
+    - WBbt:0000100
+    - NCIT:C12219
+    - GO:0110165
+    - STY:T031
+    is_a: organismal entity
+    mixins:
+    - physical essence
+  cellular component:
+    name: cellular component
+    id_prefixes:
+    - GO
+    - MESH
+    - UMLS
+    - NCIT
+    - SNOMEDCT
+    - CL
+    - UBERON
+    description: A location in or around a cell
+    aliases:
+    - cell component
+    - cell part
+    exact_mappings:
+    - GO:0005575
+    - SIO:001400
+    - WIKIDATA:Q5058355
+    - STY:T026
+    broad_mappings:
+    - WIKIDATA:P681
+    is_a: anatomical entity
+  cell:
+    name: cell
+    id_prefixes:
+    - CL
+    - PO
+    - UMLS
+    - NCIT
+    - MESH
+    - UBERON
+    - SNOMEDCT
+    - MESH
+    exact_mappings:
+    - GO:0005623
+    - CL:0000000
+    - SIO:010001
+    - WIKIDATA:Q7868
+    - STY:T025
+    - MESH:D002477
+    is_a: anatomical entity
+  cell line:
+    name: cell line
+    id_prefixes:
+    - CLO
+    exact_mappings:
+    - CLO:0000031
+    is_a: organismal entity
+    mixins:
+    - subject of investigation
+  gross anatomical structure:
+    name: gross anatomical structure
+    id_prefixes:
+    - UBERON
+    - UMLS
+    - MESH
+    - NCIT
+    - PO
+    - FAO
+    aliases:
+    - tissue
+    - organ
+    exact_mappings:
+    - UBERON:0010000
+    - WIKIDATA:Q4936952
+    narrow_mappings:
+    - STY:T023
+    - STY:T024
+    - STY:T018
+    is_a: anatomical entity
+  chemical entity or gene or gene product:
+    name: chemical entity or gene or gene product
+    description: A union of chemical entities and children, and gene or gene product.
+      This mixin is helpful to use when searching across chemical entities that must
+      include genes and their children as chemical entities.
+    mixin: true
+  chemical entity or protein or polypeptide:
+    name: chemical entity or protein or polypeptide
+    description: A union of chemical entities and children, and protein and polypeptide.
+      This mixin is helpful to use when searching across chemical entities that must
+      include genes and their children as chemical entities.
+    mixin: true
+  macromolecular machine mixin:
+    name: macromolecular machine mixin
+    description: A union of gene locus, gene product, and macromolecular complex.
+      These are the basic units of function in a cell. They either carry out individual
+      biological activities, or they encode molecules which do this.
+    mixin: true
+  gene or gene product:
+    name: gene or gene product
+    id_prefixes:
+    - CHEMBL.TARGET
+    - IUPHAR.FAMILY
+    description: A union of gene loci or gene products. Frequently an identifier for
+      one will be used as proxy for another
+    is_a: macromolecular machine mixin
+    mixin: true
+  gene:
+    name: gene
+    id_prefixes:
+    - NCBIGene
+    - ENSEMBL
+    - HGNC
+    - MGI
+    - ZFIN
+    - dictyBase
+    - WB
+    - WormBase
+    - FB
+    - RGD
+    - SGD
+    - PomBase
+    - OMIM
+    - KEGG.GENES
+    - UMLS
+    - Xenbase
+    - AspGD
+    - PHARMGKB.GENE
+    description: A region (or regions) that includes all of the sequence elements
+      necessary to encode a functional transcript. A gene locus may include regulatory
+      regions, transcribed regions and/or other functional sequence regions.
+    in_subset:
+    - translator_minimal
+    - model_organism_database
+    exact_mappings:
+    - SO:0000704
+    - SIO:010035
+    - WIKIDATA:Q7187
+    - dcid:Gene
+    narrow_mappings:
+    - bioschemas:gene
+    broad_mappings:
+    - NCIT:C45822
+    is_a: biological entity
+    mixins:
+    - gene or gene product
+    - genomic entity
+    - chemical entity or gene or gene product
+    - physical essence
+    - ontology class
+  gene product mixin:
+    name: gene product mixin
+    id_prefixes:
+    - UniProtKB
+    - gtpo
+    - PR
+    description: The functional molecular product of a single gene locus. Gene products
+      are either proteins or functional RNA molecules.
+    exact_mappings:
+    - WIKIDATA:Q424689
+    - GENO:0000907
+    - NCIT:C26548
+    is_a: gene or gene product
+    mixin: true
+  gene product isoform mixin:
+    name: gene product isoform mixin
+    description: This is an abstract class that can be mixed in with different kinds
+      of gene products to indicate that the gene product is intended to represent
+      a specific isoform rather than a canonical or reference or generic product.
+      The designation of canonical or reference may be arbitrary, or it may represent
+      the superclass of all isoforms.
+    is_a: gene product mixin
+    mixin: true
+  macromolecular complex:
+    name: macromolecular complex
+    id_prefixes:
+    - INTACT
+    - GO
+    - PR
+    - REACT
+    - ComplexPortal
+    description: A stable assembly of two or more macromolecules, i.e. proteins, nucleic
+      acids, carbohydrates or lipids, in which at least one component is a protein
+      and the constituent parts function together.
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - GO:0032991
+    - WIKIDATA:Q22325163
+    is_a: biological entity
+    mixins:
+    - macromolecular machine mixin
+  nucleosome modification:
+    name: nucleosome modification
+    description: A chemical modification of a histone protein within a nucleosome
+      octomer or a substitution of a histone with a variant histone isoform. e.g.
+      Histone 4 Lysine 20 methylation (H4K20me), histone variant H2AZ substituting
+      H2A.
+    is_a: biological entity
+    mixins:
+    - gene product isoform mixin
+    - genomic entity
+    - epigenomic entity
+  genome:
+    name: genome
+    description: A genome is the sum of genetic material within a cell or virion.
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - SO:0001026
+    - SIO:000984
+    - WIKIDATA:Q7020
+    close_mappings:
+    - dcid:GenomeAssemblyUnit
+    is_a: biological entity
+    mixins:
+    - genomic entity
+    - physical essence
+    - ontology class
+  exon:
+    name: exon
+    description: A region of the transcript sequence within a gene which is not removed
+      from the primary RNA transcript by RNA splicing.
+    exact_mappings:
+    - SO:0000147
+    - SIO:010445
+    - WIKIDATA:Q373027
+    is_a: biological entity
+  transcript:
+    name: transcript
+    id_prefixes:
+    - ENSEMBL
+    - FB
+    description: An RNA synthesized on a DNA or RNA template by an RNA polymerase.
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - SO:0000673
+    - SIO:010450
+    - WIKIDATA:Q7243183
+    - dcid:RNATranscript
+    is_a: biological entity
+  coding sequence:
+    name: coding sequence
+    exact_mappings:
+    - SO:0000316
+    - SIO:001390
+    is_a: biological entity
+    mixins:
+    - genomic entity
+  polypeptide:
+    name: polypeptide
+    id_prefixes:
+    - UniProtKB
+    - PR
+    - ENSEMBL
+    - FB
+    - UMLS
+    description: A polypeptide is a molecular entity characterized by availability
+      in protein databases of amino-acid-based sequence representations of its precise
+      primary structure; for convenience of representation, partial sequences of various
+      kinds are included, even if they do not represent a physical molecule.
+    in_subset:
+    - model_organism_database
+    aliases:
+    - amino acid entity
+    narrow_mappings:
+    - SO:0000104
+    - STY:T116
+    - STY:T087
+    is_a: biological entity
+    mixins:
+    - chemical entity or gene or gene product
+    - chemical entity or protein or polypeptide
+  protein:
+    name: protein
+    id_prefixes:
+    - UniProtKB
+    - PR
+    - ENSEMBL
+    - FB
+    - UMLS
+    - MESH
+    - ncats.drug
+    description: A gene product that is composed of a chain of amino acid sequences
+      and is produced by ribosome-mediated translation of mRNA
+    exact_mappings:
+    - PR:000000001
+    - SIO:010043
+    - WIKIDATA:Q8054
+    narrow_mappings:
+    - STY:T126
+    - STY:T192
+    broad_mappings:
+    - bioschemas:Protein
+    is_a: polypeptide
+    mixins:
+    - gene product mixin
+  protein isoform:
+    name: protein isoform
+    id_prefixes:
+    - UniProtKB
+    - UNIPROT.ISOFORM
+    - PR
+    - ENSEMBL
+    description: Represents a protein that is a specific isoform of the canonical
+      or reference protein. See https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4114032/
+    aliases:
+    - proteoform
+    is_a: protein
+    mixins:
+    - gene product isoform mixin
+  protein domain:
+    name: protein domain
+    description: A conserved part of protein sequence and (tertiary) structure that
+      can evolve, function, and exist independently of the rest of the protein chain.
+      Protein domains maintain their structure and function independently of the proteins
+      in which they are found. e.g. an SH3 domain.
+    exact_mappings:
+    - NCIT:C13379
+    - SIO:001379
+    - UMLS:C1514562
+    is_a: biological entity
+    mixins:
+    - gene grouping mixin
+    - chemical entity or gene or gene product
+  posttranslational modification:
+    name: posttranslational modification
+    description: A chemical modification of a polypeptide or protein that occurs after
+      translation. e.g. polypeptide cleavage to form separate proteins, methylation
+      or acetylation of histone tail amino acids, protein ubiquitination.
+    is_a: biological entity
+    mixins:
+    - gene product isoform mixin
+  protein family:
+    name: protein family
+    exact_mappings:
+    - NCIT:C26004
+    - WIKIDATA:Q2278983
+    narrow_mappings:
+    - SIO:001380
+    - NCIT:C20130
+    - WIKIDATA:Q417841
+    is_a: biological entity
+    mixins:
+    - gene grouping mixin
+    - chemical entity or gene or gene product
+  nucleic acid sequence motif:
+    name: nucleic acid sequence motif
+    description: A linear nucleotide sequence pattern that is widespread and has,
+      or is conjectured to have, a biological significance. e.g. the TATA box promoter
+      motif, transcription factor binding consensus sequences.
+    aliases:
+    - consensus sequence
+    is_a: biological entity
+  RNA product:
+    name: RNA product
+    id_prefixes:
+    - RNACENTRAL
+    exact_mappings:
+    - CHEBI:33697
+    - WIKIDATA:Q11053
+    is_a: transcript
+    mixins:
+    - gene product mixin
+  RNA product isoform:
+    name: RNA product isoform
+    id_prefixes:
+    - RNACENTRAL
+    description: Represents a protein that is a specific isoform of the canonical
+      or reference RNA
+    is_a: RNA product
+    mixins:
+    - gene product isoform mixin
+  noncoding RNA product:
+    name: noncoding RNA product
+    id_prefixes:
+    - RNACENTRAL
+    - NCBIGene
+    - ENSEMBL
+    exact_mappings:
+    - SO:0000655
+    - SIO:001235
+    is_a: RNA product
+  microRNA:
+    name: microRNA
+    id_prefixes:
+    - MIR
+    - HGNC
+    - WormBase
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - SO:0000276
+    - SIO:001397
+    - WIKIDATA:Q310899
+    is_a: noncoding RNA product
+  siRNA:
+    name: siRNA
+    id_prefixes:
+    - MIR
+    - HGNC
+    - WormBase
+    description: A small RNA molecule that is the product of a longer exogenous or
+      endogenous dsRNA, which is either a bimolecular duplex or very long hairpin,
+      processed (via the Dicer pathway) such that numerous siRNAs accumulate from
+      both strands of the dsRNA. SRNAs trigger the cleavage of their target molecules.
+    in_subset:
+    - model_organism_database
+    aliases:
+    - small interfering RNA
+    - RNAi
+    exact_mappings:
+    - SO:0000646
+    - WIKIDATA:Q203221
+    is_a: noncoding RNA product
+  gene grouping mixin:
+    name: gene grouping mixin
+    description: any grouping of multiple genes or gene products
+    mixin: true
+  gene family:
+    name: gene family
+    id_prefixes:
+    - PANTHER.FAMILY
+    - HGNC.FAMILY
+    - FB
+    - interpro
+    - CATH
+    - CDD
+    - HAMAP
+    - PFAM
+    - PIRSF
+    - PRINTS
+    - PRODOM
+    - PROSITE
+    - SMART
+    - SUPFAM
+    - TIGRFAM
+    - CATH.SUPERFAMILY
+    - RFAM
+    - KEGG.ORTHOLOGY
+    - EGGNOG
+    - COG
+    description: any grouping of multiple genes or gene products related by common
+      descent
+    in_subset:
+    - model_organism_database
+    aliases:
+    - orthogroup
+    - protein family
+    exact_mappings:
+    - NCIT:C26004
+    - WIKIDATA:Q2278983
+    narrow_mappings:
+    - SIO:001380
+    - NCIT:C20130
+    - WIKIDATA:Q417841
+    is_a: biological entity
+    mixins:
+    - gene grouping mixin
+    - chemical entity or gene or gene product
+  zygosity:
+    name: zygosity
+    exact_mappings:
+    - GENO:0000133
+    is_a: attribute
+  genotype:
+    name: genotype
+    id_prefixes:
+    - ZFIN
+    - FB
+    description: An information content entity that describes a genome by specifying
+      the total variation in genomic sequence and/or gene expression, relative to
+      some established background
+    comments:
+    - Consider renaming as genotypic entity
+    in_subset:
+    - model_organism_database
+    exact_mappings:
+    - GENO:0000536
+    - SIO:001079
+    is_a: biological entity
+    mixins:
+    - physical essence
+    - genomic entity
+    - ontology class
+  haplotype:
+    name: haplotype
+    description: A set of zero or more Alleles on a single instance of a Sequence[VMC]
+    exact_mappings:
+    - GENO:0000871
+    - SO:0001024
+    - VMC:Haplotype
+    is_a: biological entity
+    mixins:
+    - genomic entity
+    - physical essence
+    - ontology class
+  sequence variant:
+    name: sequence variant
+    id_prefixes:
+    - CAID
+    - CLINVAR
+    - WIKIDATA
+    - DBSNP
+    - MGI
+    - ZFIN
+    - FB
+    - RGD
+    - AGRKB
+    - SPDI
+    - WB
+    - WormBase
+    - PHARMGKB.VARIANT
+    local_names:
+      agr:
+        local_name_source: agr
+        local_name_value: allele
+    description: A sequence_variant is a non exact copy of a sequence_feature or genome
+      exhibiting one or more sequence_alteration.
+    alt_descriptions:
+      AGR:
+        source: AGR
+        description: An entity that describes a single affected, endogenous allele.
+          These can be of any type that matches that definition
+      VMC:
+        source: VMC
+        description: A contiguous change at a Location
+    comments:
+    - This class is for modeling the specific state at a locus. A single DBSNP rs
+      ID could correspond to more than one sequence variants (e.g CIViC:1252 and CIViC:1253,
+      two distinct BRCA2 alleles for rs28897743)
+    in_subset:
+    - model_organism_database
+    aliases:
+    - allele
+    exact_mappings:
+    - WIKIDATA:Q15304597
+    close_mappings:
+    - dcid:Allele
+    - SO:0001060
+    - VMC:Allele
+    - GENO:0000002
+    - SIO:010277
+    - SO:0001060
+    is_a: biological entity
+    mixins:
+    - genomic entity
+    - physical essence
+    - ontology class
+  snv:
+    name: snv
+    description: SNVs are single nucleotide positions in genomic DNA at which different
+      sequence alternatives exist
+    aliases:
+    - single nucleotide variant
+    - single nucleotide polymorphism
+    - snp
+    exact_mappings:
+    - SO:0001483
+    is_a: sequence variant
+  reagent targeted gene:
+    name: reagent targeted gene
+    description: A gene altered in its expression level in the context of some experiment
+      as a result of being targeted by gene-knockdown reagent(s) such as a morpholino
+      or RNAi.
+    in_subset:
+    - model_organism_database
+    aliases:
+    - sequence targeting reagent
+    exact_mappings:
+    - GENO:0000504
+    is_a: biological entity
+    mixins:
+    - genomic entity
+    - physical essence
+    - ontology class
+  clinical attribute:
+    name: clinical attribute
+    description: Attributes relating to a clinical manifestation
+    exact_mappings:
+    - STY:T201
+    is_a: attribute
+  clinical measurement:
+    name: clinical measurement
+    description: A clinical measurement is a special kind of attribute which results
+      from a laboratory observation from a subject individual or sample. Measurements
+      can be connected to their subject by the 'has attribute' slot.
+    exact_mappings:
+    - EFO:0001444
+    is_a: clinical attribute
+  clinical modifier:
+    name: clinical modifier
+    description: Used to characterize and specify the phenotypic abnormalities defined
+      in the phenotypic abnormality sub-ontology, with respect to severity, laterality,
+      and other aspects
+    is_a: clinical attribute
+  clinical course:
+    name: clinical course
+    description: The course a disease typically takes from its onset, progression
+      in time, and eventual resolution or death of the affected individual
+    exact_mappings:
+    - HP:0031797
+    is_a: clinical attribute
+  onset:
+    name: onset
+    description: The age group in which (disease) symptom manifestations appear.
+    notes:
+    - This class is in Biolink to support HP ontology annotations which use "onset"
+      (with terms from HP)  as an annotation on a disease to phenotypic feature association.  This
+      should be the primary use case for this class.
+    exact_mappings:
+    - HP:0003674
+    is_a: clinical course
+  clinical entity:
+    name: clinical entity
+    description: Any entity or process that exists in the clinical domain and outside
+      the biological realm. Diseases are placed under biological entities
+    is_a: named thing
+  clinical trial:
+    name: clinical trial
+    is_a: clinical entity
+  clinical intervention:
+    name: clinical intervention
+    is_a: clinical entity
+  clinical finding:
+    name: clinical finding
+    id_prefixes:
+    - LOINC
+    - NCIT
+    - EFO
+    description: this category is currently considered broad enough to tag clinical
+      lab measurements and other biological attributes taken as 'clinical traits'
+      with some statistical score, for example, a p value in genetic associations.
+    is_a: phenotypic feature
+  hospitalization:
+    name: hospitalization
+    exact_mappings:
+    - SNOMEDCT:32485007
+    - WIKIDATA:Q3140971
+    is_a: clinical intervention
+  socioeconomic attribute:
+    name: socioeconomic attribute
+    description: Attributes relating to a socioeconomic manifestation
+    is_a: attribute
+  case:
+    name: case
+    description: An individual (human) organism that has a patient role in some clinical
+      context.
+    aliases:
+    - patient
+    - proband
+    is_a: individual organism
+    mixins:
+    - subject of investigation
+  cohort:
+    name: cohort
+    description: A group of people banded together or treated as a group who share
+      common characteristics. A cohort 'study' is a particular form of longitudinal
+      study that samples a cohort, performing a cross-section at intervals through
+      time.
+    exact_mappings:
+    - WIKIDATA:Q1303415
+    narrow_mappings:
+    - STY:T097
+    - STY:T099
+    - STY:T100
+    - STY:T101
+    is_a: study population
+    mixins:
+    - subject of investigation
+  exposure event:
+    name: exposure event
+    description: A (possibly time bounded) incidence of a feature of the environment
+      of an organism that influences one or more phenotypic features of that organism,
+      potentially mediated by genes
+    in_subset:
+    - model_organism_database
+    aliases:
+    - exposure
+    - experimental condition
+    exact_mappings:
+    - XCO:0000000
+    is_a: ontology class
+    mixin: true
+  genomic background exposure:
+    name: genomic background exposure
+    description: A genomic background exposure is where an individual's specific genomic
+      background of genes, sequence variants or other pre-existing genomic conditions
+      constitute a kind of 'exposure' to the organism, leading to or influencing an
+      outcome.
+    is_a: attribute
+    mixins:
+    - exposure event
+    - gene grouping mixin
+    - physical essence
+    - genomic entity
+    - thing with taxon
+    - ontology class
+  pathological entity mixin:
+    name: pathological entity mixin
+    description: A pathological (abnormal) structure or process.
+    exact_mappings:
+    - MPATH:0
+    narrow_mappings:
+    - HP:0000118
+    mixin: true
+  pathological process:
+    name: pathological process
+    description: A biologic function or a process having an abnormal or deleterious
+      effect at the subcellular, cellular, multicellular, or organismal level.
+    exact_mappings:
+    - OBI:1110122
+    - NCIT:C16956
+    - MPATH:596
+    narrow_mappings:
+    - NCIT:C19151
+    - EFO:0009708
+    - STY:T046
+    - STY:T037
+    is_a: biological process
+    mixins:
+    - pathological entity mixin
+  pathological process exposure:
+    name: pathological process exposure
+    description: A pathological process, when viewed as an exposure, representing
+      a precondition, leading to or influencing an outcome, e.g. autoimmunity leading
+      to disease.
+    is_a: attribute
+    mixins:
+    - exposure event
+  pathological anatomical structure:
+    name: pathological anatomical structure
+    description: An anatomical structure with the potential of have an abnormal or
+      deleterious effect at the subcellular, cellular, multicellular, or organismal
+      level.
+    exact_mappings:
+    - MPATH:603
+    is_a: anatomical entity
+    mixins:
+    - pathological entity mixin
+  pathological anatomical exposure:
+    name: pathological anatomical exposure
+    description: An abnormal anatomical structure, when viewed as an exposure, representing
+      an precondition, leading to or influencing an outcome, e.g. thrombosis leading
+      to an ischemic disease outcome.
+    is_a: attribute
+    mixins:
+    - exposure event
+  disease or phenotypic feature exposure:
+    name: disease or phenotypic feature exposure
+    description: A disease or phenotypic feature state, when viewed as an exposure,
+      represents an precondition, leading to or influencing an outcome, e.g. HIV predisposing
+      an individual to infections; a relative deficiency of skin pigmentation predisposing
+      an individual to skin cancer.
+    is_a: attribute
+    mixins:
+    - exposure event
+    - pathological entity mixin
+  chemical exposure:
+    name: chemical exposure
+    description: A chemical exposure is an intake of a particular chemical entity.
+    exact_mappings:
+    - ECTO:9000000
+    - SIO:001399
+    is_a: attribute
+    mixins:
+    - exposure event
+  complex chemical exposure:
+    name: complex chemical exposure
+    description: A complex chemical exposure is an intake of a chemical mixture (e.g.
+      gasoline), other than a drug.
+    is_a: attribute
+  drug exposure:
+    name: drug exposure
+    description: A drug exposure is an intake of a particular drug.
+    aliases:
+    - drug intake
+    - drug dose
+    - medication intake
+    exact_mappings:
+    - ECTO:0000509
+    broad_mappings:
+    - SIO:001005
+    is_a: chemical exposure
+    mixins:
+    - exposure event
+  drug to gene interaction exposure:
+    name: drug to gene interaction exposure
+    description: drug to gene interaction exposure is a drug exposure is where the
+      interactions of the drug with specific genes are known to constitute an 'exposure'
+      to the organism, leading to or influencing an outcome.
+    is_a: drug exposure
+    mixins:
+    - gene grouping mixin
+  treatment:
+    name: treatment
+    description: A treatment is targeted at a disease or phenotype and may involve
+      multiple drug 'exposures', medical devices and/or procedures
+    aliases:
+    - medical action
+    - medical intervention
+    exact_mappings:
+    - OGMS:0000090
+    - SIO:001398
+    broad_mappings:
+    - MAXO:0000058
+    is_a: named thing
+    mixins:
+    - exposure event
+    - chemical or drug or treatment
+  biotic exposure:
+    name: biotic exposure
+    description: An external biotic exposure is an intake of (sometimes pathological)
+      biological organisms (including viruses).
+    aliases:
+    - viral exposure
+    - bacterial exposure
+    is_a: attribute
+    mixins:
+    - exposure event
+  geographic exposure:
+    name: geographic exposure
+    description: A geographic exposure is a factor relating to geographic proximity
+      to some impactful entity.
+    close_mappings:
+    - dcid:GeologicalEvent
+    narrow_mappings:
+    - dcid:IceStoremEvent
+    - dcid:LakeEffectSnowEvent
+    - dcid:LandslideEvent
+    - dcid:MarineDenseFogEvent
+    - dcid:MarineLighteningEvent
+    - dcid:MarineStrongWindEvent
+    - dcid:MarineThunderstormWindEvent
+    - dcid:StormEvent
+    - dcid:StormSurgeTideEvent
+    - dcid:StrongWindEvent
+    - dcid:ThunderstormWindEvent
+    - dcid:TornadoEvent
+    - dcid:TropicalDepressionEvent
+    - dcid:WinterStoremEvent
+    is_a: environmental exposure
+    mixins:
+    - exposure event
+  environmental exposure:
+    name: environmental exposure
+    description: A environmental exposure is a factor relating to abiotic processes
+      in the environment including sunlight (UV-B), atmospheric (heat, cold, general
+      pollution) and water-born contaminants.
+    is_a: attribute
+    mixins:
+    - exposure event
+  behavioral exposure:
+    name: behavioral exposure
+    description: A behavioral exposure is a factor relating to behavior impacting
+      an individual.
+    is_a: attribute
+    mixins:
+    - exposure event
+  socioeconomic exposure:
+    name: socioeconomic exposure
+    description: A socioeconomic exposure is a factor relating to social and financial
+      status of an affected individual (e.g. poverty).
+    is_a: attribute
+    mixins:
+    - exposure event
+  outcome:
+    name: outcome
+    description: An entity that has the role of being the consequence of an exposure
+      event. This is an abstract mixin grouping of various categories of possible
+      biological or non-biological (e.g. clinical) outcomes.
+    mixin: true
+  pathological process outcome:
+    name: pathological process outcome
+    description: An outcome resulting from an exposure event which is the manifestation
+      of a pathological process.
+    mixins:
+    - outcome
+  pathological anatomical outcome:
+    name: pathological anatomical outcome
+    description: An outcome resulting from an exposure event which is the manifestation
+      of an abnormal anatomical structure.
+    mixins:
+    - outcome
+  disease or phenotypic feature outcome:
+    name: disease or phenotypic feature outcome
+    description: Physiological outcomes resulting from an exposure event which is
+      the manifestation of a disease or other characteristic phenotype.
+    mixins:
+    - outcome
+  behavioral outcome:
+    name: behavioral outcome
+    description: An outcome resulting from an exposure event which is the manifestation
+      of human behavior.
+    mixins:
+    - outcome
+  hospitalization outcome:
+    name: hospitalization outcome
+    description: An outcome resulting from an exposure event which is the increased
+      manifestation of acute (e.g. emergency room visit) or chronic (inpatient) hospitalization.
+    mixins:
+    - outcome
+  mortality outcome:
+    name: mortality outcome
+    description: An outcome of death from resulting from an exposure event.
+    mixins:
+    - outcome
+  epidemiological outcome:
+    name: epidemiological outcome
+    description: An epidemiological outcome, such as societal disease burden, resulting
+      from an exposure event.
+    related_mappings:
+    - NCIT:C19291
+    mixins:
+    - outcome
+  socioeconomic outcome:
+    name: socioeconomic outcome
+    description: An general social or economic outcome, such as healthcare costs,
+      utilization, etc., resulting from an exposure event
+    mixins:
+    - outcome
+  association:
+    name: association
+    description: A typed association between two entities, supported by evidence
+    comments:
+    - This is roughly the model used by biolink and ontobio at the moment
+    exact_mappings:
+    - OBAN:association
+    - rdf:Statement
+    - owl:Axiom
+    is_a: Edge
+  chemical entity assesses named thing association:
+    name: chemical entity assesses named thing association
+    is_a: association
+  contributor association:
+    name: contributor association
+    description: Any association between an entity (such as a publication) and various
+      agents that contribute to its realisation
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  genotype to genotype part association:
+    name: genotype to genotype part association
+    description: Any association between one genotype and a genotypic entity that
+      is a sub-component of it
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  genotype to gene association:
+    name: genotype to gene association
+    description: Any association between a genotype and a gene. The genotype have
+      have multiple variants in that gene or a single one. There is no assumption
+      of cardinality
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  genotype to variant association:
+    name: genotype to variant association
+    description: Any association between a genotype and a sequence variant.
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  gene to gene association:
+    name: gene to gene association
+    description: abstract parent class for different kinds of gene-gene or gene product
+      to gene product relationships. Includes homology and interaction.
+    aliases:
+    - molecular or genetic interaction
+    is_a: association
+    abstract: true
+    defining_slots:
+    - subject
+    - object
+  gene to gene homology association:
+    name: gene to gene homology association
+    description: A homology association between two genes. May be orthology (in which
+      case the species of subject and object should differ) or paralogy (in which
+      case the species may be the same)
+    is_a: gene to gene association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene to gene family association:
+    name: gene to gene family association
+    description: Set membership of a gene in a family of genes related by common evolutionary
+      ancestry usually inferred by sequence comparisons. The genes in a given family
+      generally share common sequence motifs which generally map onto shared gene
+      product structure-function relationships.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene expression mixin:
+    name: gene expression mixin
+    description: Observed gene expression intensity, context (site, stage) and associated
+      phenotypic status within which the expression occurs.
+    mixin: true
+  gene to gene coexpression association:
+    name: gene to gene coexpression association
+    description: Indicates that two genes are co-expressed, generally under the same
+      conditions.
+    is_a: gene to gene association
+    mixins:
+    - gene expression mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  pairwise gene to gene interaction:
+    name: pairwise gene to gene interaction
+    description: An interaction between two genes or two gene products. May be physical
+      (e.g. protein binding) or genetic (between genes). May be symmetric (e.g. protein
+      interaction) or directed (e.g. phosphorylation)
+    narrow_mappings:
+    - dcid:ProteinProteinInteraction
+    is_a: gene to gene association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  pairwise molecular interaction:
+    name: pairwise molecular interaction
+    description: An interaction at the molecular level between two physical entities
+    is_a: pairwise gene to gene interaction
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  cell line to entity association mixin:
+    name: cell line to entity association mixin
+    description: An relationship between a cell line and another entity
+    mixin: true
+    defining_slots:
+    - subject
+  cell line to disease or phenotypic feature association:
+    name: cell line to disease or phenotypic feature association
+    description: An relationship between a cell line and a disease or a phenotype,
+      where the cell line is derived from an individual with that disease or phenotype.
+    is_a: association
+    mixins:
+    - cell line to entity association mixin
+    - entity to disease or phenotypic feature association mixin
+  chemical entity to entity association mixin:
+    name: chemical entity to entity association mixin
+    description: An interaction between a chemical entity and another entity
+    mixin: true
+    defining_slots:
+    - subject
+  drug to entity association mixin:
+    name: drug to entity association mixin
+    description: An interaction between a drug and another entity
+    is_a: chemical entity to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  chemical to entity association mixin:
+    name: chemical to entity association mixin
+    description: An interaction between a chemical entity and another entity
+    is_a: chemical entity to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  case to entity association mixin:
+    name: case to entity association mixin
+    description: An abstract association for use where the case is the subject
+    mixin: true
+    defining_slots:
+    - subject
+  chemical to chemical association:
+    name: chemical to chemical association
+    description: A relationship between two chemical entities. This can encompass
+      actual interactions as well as temporal causal edges, e.g. one chemical converted
+      to another.
+    is_a: association
+    mixins:
+    - chemical to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  reaction to participant association:
+    name: reaction to participant association
+    is_a: chemical to chemical association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  reaction to catalyst association:
+    name: reaction to catalyst association
+    is_a: reaction to participant association
+  chemical to chemical derivation association:
+    name: chemical to chemical derivation association
+    description: 'A causal relationship between two chemical entities, where the subject
+      represents the upstream entity and the object represents the downstream. For
+      any such association there is an implicit reaction: IF R has-input C1 AND R
+      has-output C2 AND R enabled-by P AND R type Reaction THEN C1 derives-into C2
+      catalyst qualifier P'
+    is_a: chemical to chemical association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  chemical to disease or phenotypic feature association:
+    name: chemical to disease or phenotypic feature association
+    description: An interaction between a chemical entity and a phenotype or disease,
+      where the presence of the chemical gives rise to or exacerbates the phenotype.
+    narrow_mappings:
+    - SIO:000993
+    is_a: association
+    mixins:
+    - chemical to entity association mixin
+    - entity to disease or phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - object
+  chemical or drug or treatment to disease or phenotypic feature association:
+    name: chemical or drug or treatment to disease or phenotypic feature association
+    description: This association defines a relationship between a chemical or treatment
+      (or procedure) and a disease or phenotypic feature where the disease or phenotypic
+      feature is a secondary undesirable effect.
+    is_a: association
+    mixins:
+    - chemical to entity association mixin
+    - entity to disease or phenotypic feature association mixin
+    - entity to feature or disease qualifiers mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  chemical or drug or treatment side effect disease or phenotypic feature association:
+    name: chemical or drug or treatment side effect disease or phenotypic feature
+      association
+    description: This association defines a relationship between a chemical or treatment
+      (or procedure) and a disease or phenotypic feature where the disesae or phenotypic
+      feature is a secondary, typically (but not always) undesirable effect.
+    is_a: chemical or drug or treatment to disease or phenotypic feature association
+    mixins:
+    - chemical to entity association mixin
+    - entity to disease or phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene to pathway association:
+    name: gene to pathway association
+    description: An interaction between a gene or gene product and a biological process
+      or pathway.
+    is_a: association
+    mixins:
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  molecular activity to pathway association:
+    name: molecular activity to pathway association
+    description: Association that holds the relationship between a reaction and the
+      pathway it participates in.
+    is_a: association
+  chemical to pathway association:
+    name: chemical to pathway association
+    description: An interaction between a chemical entity and a biological process
+      or pathway.
+    exact_mappings:
+    - SIO:001250
+    is_a: association
+    mixins:
+    - chemical to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  named thing associated with likelihood of named thing association:
+    name: named thing associated with likelihood of named thing association
+    description: ''
+    is_a: association
+    defining_slots:
+    - subject
+    - subject aspect qualifier
+    - subject context qualifier
+    - predicate
+    - object
+    - object aspect qualifier
+    - object context qualifier
+    - population context qualifier
+  chemical gene interaction association:
+    name: chemical gene interaction association
+    description: describes a physical interaction between a chemical entity and a
+      gene or gene product. Any biological or chemical effect resulting from such
+      an interaction are out of scope, and covered by the ChemicalAffectsGeneAssociation
+      type (e.g. impact of a chemical on the abundance, activity, structure, etc,
+      of either participant in the interaction)
+    exact_mappings:
+    - SIO:001257
+    is_a: association
+    mixins:
+    - chemical to entity association mixin
+  gene regulates gene association:
+    name: gene regulates gene association
+    description: Describes a regulatory relationship between two genes or gene products.
+    examples:
+    - value: JsonObj(subject='NCBIGene:551', predicate='regulates', qualified_predicte='causes',
+        object='NCBIGene:1636', object_aspect_qualifier='activity_or_abundance', object_direction_qualifier='downregulated')
+    is_a: association
+  process regulates process association:
+    name: process regulates process association
+    description: Describes a regulatory relationship between two genes or gene products.
+    is_a: association
+  chemical affects gene association:
+    name: chemical affects gene association
+    description: Describes an effect that a chemical has on a gene or gene product
+      (e.g. an impact of on its abundance, activity,localization, processing, expression,
+      etc.)
+    is_a: association
+  gene affects chemical association:
+    name: gene affects chemical association
+    description: Describes an effect that a gene or gene product has on a chemical
+      entity (e.g. an impact of on its abundance, activity, localization, processing,
+      transport, etc.)
+    examples:
+    - value: JsonObj(subject='TRPC4', predicate='affects', qualified_predicte='causes',
+        object='Barium', object_aspect_qualifier='transport', object_direction_qualifier='increased')
+    is_a: association
+  drug to gene association:
+    name: drug to gene association
+    description: An interaction between a drug and a gene or gene product.
+    related_mappings:
+    - SIO:001257
+    is_a: association
+    mixins:
+    - drug to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  material sample to entity association mixin:
+    name: material sample to entity association mixin
+    description: An association between a material sample and something.
+    mixin: true
+    defining_slots:
+    - subject
+  material sample derivation association:
+    name: material sample derivation association
+    description: An association between a material sample and the material entity
+      from which it is derived.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+  material sample to disease or phenotypic feature association:
+    name: material sample to disease or phenotypic feature association
+    description: An association between a material sample and a disease or phenotype.
+    is_a: association
+    mixins:
+    - material sample to entity association mixin
+    - entity to disease or phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - object
+  disease to entity association mixin:
+    name: disease to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  entity to exposure event association mixin:
+    name: entity to exposure event association mixin
+    description: An association between some entity and an exposure event.
+    mixin: true
+    defining_slots:
+    - object
+  disease to exposure event association:
+    name: disease to exposure event association
+    description: An association between an exposure event and a disease.
+    is_a: association
+    mixins:
+    - disease to entity association mixin
+    - entity to exposure event association mixin
+    defining_slots:
+    - subject
+    - object
+  entity to outcome association mixin:
+    name: entity to outcome association mixin
+    description: An association between some entity and an outcome
+    mixin: true
+    defining_slots:
+    - object
+  exposure event to outcome association:
+    name: exposure event to outcome association
+    description: An association between an exposure event and an outcome.
+    is_a: association
+    mixins:
+    - entity to outcome association mixin
+    defining_slots:
+    - subject
+    - object
+  frequency qualifier mixin:
+    name: frequency qualifier mixin
+    description: Qualifier for frequency type associations
+    mixin: true
+  entity to feature or disease qualifiers mixin:
+    name: entity to feature or disease qualifiers mixin
+    description: Qualifiers for entity to disease or phenotype associations.
+    is_a: frequency qualifier mixin
+    mixin: true
+  feature or disease qualifiers to entity mixin:
+    name: feature or disease qualifiers to entity mixin
+    description: Qualifiers for disease or phenotype to entity associations.
+    is_a: frequency qualifier mixin
+    mixin: true
+  entity to phenotypic feature association mixin:
+    name: entity to phenotypic feature association mixin
+    is_a: entity to feature or disease qualifiers mixin
+    mixin: true
+    mixins:
+    - frequency quantifier
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  phenotypic feature to entity association mixin:
+    name: phenotypic feature to entity association mixin
+    is_a: feature or disease qualifiers to entity mixin
+    mixin: true
+    mixins:
+    - frequency quantifier
+    defining_slots:
+    - subject
+  phenotypic feature to phenotypic feature association:
+    name: phenotypic feature to phenotypic feature association
+    description: Association between two concept nodes of phenotypic character, qualified
+      by the predicate used. This association may typically be used to specify 'similar_to'
+      or 'member_of' relationships.
+    is_a: association
+    mixins:
+    - phenotypic feature to entity association mixin
+    - entity to phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  information content entity to named thing association:
+    name: information content entity to named thing association
+    description: association between a named thing and a information content entity
+      where the specific context of the relationship between that named thing and
+      the publication is unknown. For example, model organisms databases often capture
+      the knowledge that a gene is found in a journal article, but not specifically
+      the context in which that gene was documented in the article. In these cases,
+      this association with the accompanying predicate 'mentions' could be used. Conversely,
+      for more specific associations (like 'gene to disease association', the publication
+      should be captured as an edge property).
+    in_subset:
+    - model_organism_database
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  entity to disease association mixin:
+    name: entity to disease association mixin
+    description: mixin class for any association whose object (target node) is a disease
+    is_a: entity to feature or disease qualifiers mixin
+    mixin: true
+    defining_slots:
+    - object
+  disease or phenotypic feature to entity association mixin:
+    name: disease or phenotypic feature to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  disease or phenotypic feature to location association:
+    name: disease or phenotypic feature to location association
+    description: An association between either a disease or a phenotypic feature and
+      an anatomical entity, where the disease/feature manifests in that site.
+    is_a: association
+    mixins:
+    - disease or phenotypic feature to entity association mixin
+  disease or phenotypic feature to genetic inheritance association:
+    name: disease or phenotypic feature to genetic inheritance association
+    description: An association between either a disease or a phenotypic feature and
+      its mode of (genetic) inheritance.
+    is_a: association
+    mixins:
+    - disease or phenotypic feature to entity association mixin
+  entity to disease or phenotypic feature association mixin:
+    name: entity to disease or phenotypic feature association mixin
+    mixin: true
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  genotype to entity association mixin:
+    name: genotype to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  genotype to phenotypic feature association:
+    name: genotype to phenotypic feature association
+    description: Any association between one genotype and a phenotypic feature, where
+      having the genotype confers the phenotype, either in isolation or through environment
+    is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    - genotype to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  exposure event to phenotypic feature association:
+    name: exposure event to phenotypic feature association
+    description: Any association between an environment and a phenotypic feature,
+      where being in the environment influences the phenotype.
+    is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - object
+  disease to phenotypic feature association:
+    name: disease to phenotypic feature association
+    description: An association between a disease and a phenotypic feature in which
+      the phenotypic feature is associated with the disease in some way.
+    close_mappings:
+    - dcid:DiseaseSymptomAssociation
+    is_a: association
+    mixins:
+    - frequency quantifier
+    - entity to phenotypic feature association mixin
+    - disease to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  case to phenotypic feature association:
+    name: case to phenotypic feature association
+    description: An association between a case (e.g. individual patient) and a phenotypic
+      feature in which the individual has or has had the phenotype.
+    is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    - case to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  behavior to behavioral feature association:
+    name: behavior to behavioral feature association
+    description: An association between an mixture behavior and a behavioral feature
+      manifested by the individual exhibited or has exhibited the behavior.
+    is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - object
+  gene to entity association mixin:
+    name: gene to entity association mixin
+    mixin: true
+    defining_slots:
+    - subject
+  variant to entity association mixin:
+    name: variant to entity association mixin
+    local_names:
+      ga4gh:
+        local_name_source: ga4gh
+        local_name_value: variant annotation
+    mixin: true
+    defining_slots:
+    - subject
+  gene to disease or phenotypic feature association:
+    name: gene to disease or phenotypic feature association
+    comments:
+    - NCIT:R176 refers to the inverse relationship
+    - for use in describing the affect that the loss of function of a gene can have
+      on exacerbating or ameliorating a symptom/phenotype
+    - if the relationship of the statement using this predicate is statistical in
+      nature, please use `associated with likelihood` or one of its children.
+    narrow_mappings:
+    - WBVocab:Gene-Phenotype-Association
+    - dcid:DiseaseGeneAssociation
+    - SIO:000983
+    is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    - gene to entity association mixin
+  gene to phenotypic feature association:
+    name: gene to phenotypic feature association
+    exact_mappings:
+    - WBVocab:Gene-Phenotype-Association
+    is_a: gene to disease or phenotypic feature association
+    mixins:
+    - entity to phenotypic feature association mixin
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  gene to disease association:
+    name: gene to disease association
+    comments:
+    - NCIT:R176 refers to the inverse relationship
+    exact_mappings:
+    - SIO:000983
+    close_mappings:
+    - dcid:DiseaseGeneAssociation
+    is_a: gene to disease or phenotypic feature association
+    mixins:
+    - entity to disease association mixin
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  causal gene to disease association:
+    name: causal gene to disease association
+    is_a: gene to disease association
+    mixins:
+    - entity to disease association mixin
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  correlated gene to disease association:
+    name: correlated gene to disease association
+    is_a: gene to disease association
+    mixins:
+    - entity to disease association mixin
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+  druggable gene to disease association:
+    name: druggable gene to disease association
+    is_a: gene to disease association
+    mixins:
+    - entity to disease association mixin
+    - gene to entity association mixin
+    defining_slots:
+    - subject
+    - object
+    - predicate
+  phenotypic feature to disease association:
+    name: phenotypic feature to disease association
+    is_a: association
+    mixins:
+    - entity to disease association mixin
+    - phenotypic feature to entity association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  variant to gene association:
+    name: variant to gene association
+    description: An association between a variant and a gene, where the variant has
+      a genetic association with the gene (i.e. is in linkage disequilibrium)
+    is_a: association
+    mixins:
+    - variant to entity association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  variant to gene expression association:
+    name: variant to gene expression association
+    description: An association between a variant and expression of a gene (i.e. e-QTL)
+    is_a: variant to gene association
+    mixins:
+    - gene expression mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  variant to population association:
+    name: variant to population association
+    description: An association between a variant and a population, where the variant
+      has particular frequency in the population
+    is_a: association
+    mixins:
+    - variant to entity association mixin
+    - frequency quantifier
+    - frequency qualifier mixin
+    defining_slots:
+    - subject
+    - object
+  population to population association:
+    name: population to population association
+    description: An association between a two populations
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  variant to phenotypic feature association:
+    name: variant to phenotypic feature association
+    is_a: association
+    mixins:
+    - variant to entity association mixin
+    - entity to phenotypic feature association mixin
+    defining_slots:
+    - subject
+    - object
+  variant to disease association:
+    name: variant to disease association
+    comments:
+    - TODO decide no how to model pathogenicity
+    is_a: association
+    mixins:
+    - variant to entity association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - object
+  genotype to disease association:
+    name: genotype to disease association
+    comments:
+    - TODO decide no how to model pathogenicity
+    is_a: association
+    mixins:
+    - genotype to entity association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - object
+  model to disease association mixin:
+    name: model to disease association mixin
+    description: This mixin is used for any association class for which the subject
+      (source node) plays the role of a 'model', in that it recapitulates some features
+      of the disease in a way that is useful for studying the disease outside a patient
+      carrying the disease
+    mixin: true
+  gene as a model of disease association:
+    name: gene as a model of disease association
+    is_a: gene to disease association
+    mixins:
+    - model to disease association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  variant as a model of disease association:
+    name: variant as a model of disease association
+    is_a: variant to disease association
+    mixins:
+    - model to disease association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  genotype as a model of disease association:
+    name: genotype as a model of disease association
+    is_a: genotype to disease association
+    mixins:
+    - model to disease association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  cell line as a model of disease association:
+    name: cell line as a model of disease association
+    is_a: cell line to disease or phenotypic feature association
+    mixins:
+    - model to disease association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  organismal entity as a model of disease association:
+    name: organismal entity as a model of disease association
+    is_a: association
+    mixins:
+    - model to disease association mixin
+    - entity to disease association mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  organism to organism association:
+    name: organism to organism association
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  taxon to taxon association:
+    name: taxon to taxon association
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene has variant that contributes to disease association:
+    name: gene has variant that contributes to disease association
+    is_a: gene to disease association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene to expression site association:
+    name: gene to expression site association
+    description: An association between a gene and a gene expression site, possibly
+      qualified by stage/timing info.
+    notes:
+    - 'TBD: introduce subclasses for distinction between wild-type and experimental
+      conditions?'
+    see_also:
+    - https://github.com/monarch-initiative/ingest-artifacts/tree/master/sources/BGee
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  sequence variant modulates treatment association:
+    name: sequence variant modulates treatment association
+    description: An association between a sequence variant and a treatment or health
+      intervention. The treatment object itself encompasses both the disease and the
+      drug used.
+    comments:
+    - An alternate way to model the same information could be via a qualifier
+    is_a: association
+    abstract: true
+    defining_slots:
+    - subject
+    - object
+  functional association:
+    name: functional association
+    description: An association between a macromolecular machine mixin (gene, gene
+      product or complex of gene products) and either a molecular activity, a biological
+      process or a cellular location in which a function is executed.
+    is_a: association
+  macromolecular machine to entity association mixin:
+    name: macromolecular machine to entity association mixin
+    description: an association which has a macromolecular machine mixin as a subject
+    mixin: true
+  macromolecular machine to molecular activity association:
+    name: macromolecular machine to molecular activity association
+    description: A functional association between a macromolecular machine (gene,
+      gene product or complex) and a molecular activity (as represented in the GO
+      molecular function branch), where the entity carries out the activity, or contributes
+      to its execution.
+    is_a: functional association
+    mixins:
+    - macromolecular machine to entity association mixin
+  macromolecular machine to biological process association:
+    name: macromolecular machine to biological process association
+    description: A functional association between a macromolecular machine (gene,
+      gene product or complex) and a biological process or pathway (as represented
+      in the GO biological process branch), where the entity carries out some part
+      of the process, regulates it, or acts upstream of it.
+    is_a: functional association
+    mixins:
+    - macromolecular machine to entity association mixin
+  macromolecular machine to cellular component association:
+    name: macromolecular machine to cellular component association
+    description: A functional association between a macromolecular machine (gene,
+      gene product or complex) and a cellular component (as represented in the GO
+      cellular component branch), where the entity carries out its function in the
+      cellular component.
+    is_a: functional association
+    mixins:
+    - macromolecular machine to entity association mixin
+  molecular activity to chemical entity association:
+    name: molecular activity to chemical entity association
+    description: Added in response to capturing relationship between microbiome activities
+      as measured via measurements of blood analytes as collected via blood and stool
+      samples
+    is_a: association
+  molecular activity to molecular activity association:
+    name: molecular activity to molecular activity association
+    description: Added in response to capturing relationship between microbiome activities
+      as measured via measurements of blood analytes as collected via blood and stool
+      samples
+    is_a: association
+  gene to go term association:
+    name: gene to go term association
+    aliases:
+    - functional association
+    exact_mappings:
+    - WBVocab:Gene-GO-Association
+    is_a: functional association
+    defining_slots:
+    - subject
+    - object
+  entity to disease association:
+    name: entity to disease association
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  entity to phenotypic feature association:
+    name: entity to phenotypic feature association
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  sequence association:
+    name: sequence association
+    description: An association between a sequence feature and a nucleic acid entity
+      it is localized to.
+    is_a: association
+  genomic sequence localization:
+    name: genomic sequence localization
+    description: A relationship between a sequence feature and a nucleic acid entity
+      it is localized to. The reference entity may be a chromosome, chromosome region
+      or information entity such as a contig.
+    exact_mappings:
+    - dcid:GenomeAnnotation
+    broad_mappings:
+    - dcid:Chromosome
+    is_a: sequence association
+  sequence feature relationship:
+    name: sequence feature relationship
+    description: For example, a particular exon is part of a particular transcript
+      or gene
+    exact_mappings:
+    - CHADO:feature_relationship
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  transcript to gene relationship:
+    name: transcript to gene relationship
+    description: A gene is a collection of transcripts
+    is_a: sequence feature relationship
+    defining_slots:
+    - subject
+    - object
+  gene to gene product relationship:
+    name: gene to gene product relationship
+    description: A gene is transcribed and potentially translated to a gene product
+    is_a: sequence feature relationship
+    defining_slots:
+    - subject
+    - object
+  exon to transcript relationship:
+    name: exon to transcript relationship
+    description: A transcript is formed from multiple exons
+    is_a: sequence feature relationship
+    defining_slots:
+    - subject
+    - object
+  chemical entity or gene or gene product regulates gene association:
+    name: chemical entity or gene or gene product regulates gene association
+    description: A regulatory relationship between two genes
+    is_a: association
+  anatomical entity to anatomical entity association:
+    name: anatomical entity to anatomical entity association
+    is_a: association
+    abstract: true
+    defining_slots:
+    - subject
+    - object
+  anatomical entity to anatomical entity part of association:
+    name: anatomical entity to anatomical entity part of association
+    description: A relationship between two anatomical entities where the relationship
+      is mereological, i.e the two entities are related by parthood. This includes
+      relationships between cellular components and cells, between cells and tissues,
+      tissues and whole organisms
+    is_a: anatomical entity to anatomical entity association
+    defining_slots:
+    - predicate
+  anatomical entity to anatomical entity ontogenic association:
+    name: anatomical entity to anatomical entity ontogenic association
+    description: A relationship between two anatomical entities where the relationship
+      is ontogenic, i.e. the two entities are related by development. A number of
+      different relationship types can be used to specify the precise nature of the
+      relationship.
+    is_a: anatomical entity to anatomical entity association
+    defining_slots:
+    - predicate
+  organism taxon to entity association:
+    name: organism taxon to entity association
+    description: An association between an organism taxon and another entity
+    mixin: true
+    defining_slots:
+    - subject
+  organism taxon to organism taxon association:
+    name: organism taxon to organism taxon association
+    description: A relationship between two organism taxon nodes
+    is_a: association
+    abstract: true
+    mixins:
+    - organism taxon to entity association
+    defining_slots:
+    - subject
+    - object
+  organism taxon to organism taxon specialization:
+    name: organism taxon to organism taxon specialization
+    description: 'A child-parent relationship between two taxa. For example: Homo
+      sapiens subclass_of Homo'
+    is_a: organism taxon to organism taxon association
+    defining_slots:
+    - predicate
+  organism taxon to organism taxon interaction:
+    name: organism taxon to organism taxon interaction
+    description: 'An interaction relationship between two taxa. This may be a symbiotic
+      relationship (encompassing mutualism and parasitism), or it may be non-symbiotic.
+      Example: plague transmitted_by flea; cattle domesticated_by Homo sapiens; plague
+      infects Homo sapiens'
+    is_a: organism taxon to organism taxon association
+    defining_slots:
+    - predicate
+  organism taxon to environment association:
+    name: organism taxon to environment association
+    is_a: association
+    abstract: true
+    mixins:
+    - organism taxon to entity association
