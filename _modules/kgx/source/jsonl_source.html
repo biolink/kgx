@@ -1,17 +1,17 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>kgx.source.jsonl_source - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/notebooks.css" />
     
@@ -161,18 +161,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -185,7 +188,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -245,9 +248,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.source.json_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonSource</span>
 
 
-<div class="viewcode-block" id="JsonlSource">
-<a class="viewcode-back" href="../../../reference/source.html#kgx.source.jsonl_source.JsonlSource">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">JsonlSource</span><span class="p">(</span><span class="n">JsonSource</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonlSource"><a class="viewcode-back" href="../../../reference/source.html#kgx.source.jsonl_source.JsonlSource">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">JsonlSource</span><span class="p">(</span><span class="n">JsonSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    JsonlSource is responsible for reading data as records</span>
 <span class="sd">    from JSON Lines.</span>
@@ -256,9 +257,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">owner</span><span class="p">)</span>
 
-<div class="viewcode-block" id="JsonlSource.parse">
-<a class="viewcode-back" href="../../../reference/source.html#kgx.source.jsonl_source.JsonlSource.parse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<div class="viewcode-block" id="JsonlSource.parse"><a class="viewcode-back" href="../../../reference/source.html#kgx.source.jsonl_source.JsonlSource.parse">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;jsonl&quot;</span><span class="p">,</span>
@@ -307,9 +306,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">jsonlines</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">FH</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">FH</span><span class="p">:</span>
-                    <span class="k">yield</span> <span class="n">m</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
-</div>
-
+                    <span class="k">yield</span> <span class="n">m</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>
@@ -342,11 +339,14 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

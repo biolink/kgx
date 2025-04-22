@@ -1,17 +1,17 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>kgx.sink.neo_sink - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/notebooks.css" />
     
@@ -161,18 +161,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -185,7 +188,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -241,9 +244,7 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="NeoSink">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NeoSink</span><span class="p">(</span><span class="n">Sink</span><span class="p">):</span>
+<div class="viewcode-block" id="NeoSink"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NeoSink</span><span class="p">(</span><span class="n">Sink</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NeoSink is responsible for writing data as records</span>
 <span class="sd">    to a Neo4j instance.</span>
@@ -287,9 +288,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">node_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="NeoSink.write_node">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.write_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NeoSink.write_node"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.write_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cache a node record that is to be written to Neo4j.</span>
 <span class="sd">        This method writes a cache of node records when the</span>
@@ -310,7 +309,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node_cache</span><span class="p">[</span><span class="n">category</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_count</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_node_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -348,9 +346,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="NeoSink.write_edge">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.write_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NeoSink.write_edge"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.write_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cache an edge record that is to be written to Neo4j.</span>
 <span class="sd">        This method writes a cache of edge records when the</span>
@@ -371,7 +367,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">edge_cache</span><span class="p">[</span><span class="n">edge_predicate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_count</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_edge_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -398,19 +393,14 @@
                         <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="p">)</span>
 
-<div class="viewcode-block" id="NeoSink.finalize">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.finalize">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NeoSink.finalize"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.finalize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write any remaining cached node and/or edge records.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_node_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_edge_cache</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="NeoSink.sanitize_category">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.sanitize_category">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NeoSink.sanitize_category"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.sanitize_category">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sanitize_category</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sanitize category for use in UNWIND cypher clause.</span>
@@ -430,10 +420,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">`&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">category</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="NeoSink.generate_unwind_node_query">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_node_query">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NeoSink.generate_unwind_node_query"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_node_query">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_unwind_node_query</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate UNWIND cypher query for saving nodes into Neo4j.</span>
@@ -462,10 +449,7 @@
 
         <span class="k">return</span> <span class="n">query</span></div>
 
-
-<div class="viewcode-block" id="NeoSink.generate_unwind_edge_query">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NeoSink.generate_unwind_edge_query"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.generate_unwind_edge_query">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_unwind_edge_query</span><span class="p">(</span><span class="n">edge_predicate</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate UNWIND cypher query for saving edges into Neo4j.</span>
@@ -492,10 +476,7 @@
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">query</span></div>
 
-
-<div class="viewcode-block" id="NeoSink.create_constraints">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraints">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">set</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NeoSink.create_constraints"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraints">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">set</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a unique constraint on node &#39;id&#39; for all ``categories`` in Neo4j.</span>
 
@@ -523,10 +504,7 @@
                         <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NeoSink.create_constraint_query">
-<a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraint_query">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NeoSink.create_constraint_query"><a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.neo_sink.NeoSink.create_constraint_query">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_constraint_query</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Cypher CONSTRAINT query</span>
@@ -543,9 +521,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;CREATE CONSTRAINT IF NOT EXISTS ON (n:</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">) ASSERT n.id IS UNIQUE&quot;</span>
-        <span class="k">return</span> <span class="n">query</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">query</span></div></div>
 </pre></div>
         </article>
       </div>
@@ -578,11 +554,14 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

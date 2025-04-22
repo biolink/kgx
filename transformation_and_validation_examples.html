@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Knowledge Graphs in Memory" href="reference/graph.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>KGX transformation and validation examples - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
     
@@ -162,18 +162,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -186,7 +189,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -233,14 +236,14 @@
         </div>
         <article role="main">
           <section id="kgx-transformation-and-validation-examples">
-<h1>KGX transformation and validation examples<a class="headerlink" href="#kgx-transformation-and-validation-examples" title="Link to this heading">¶</a></h1>
+<h1>KGX transformation and validation examples<a class="headerlink" href="#kgx-transformation-and-validation-examples" title="Permalink to this heading">#</a></h1>
 <p>There are two modes for using KGX:</p>
 <ul class="simple">
 <li><p>Using KGX as a module</p></li>
 <li><p>Using KGX CLI</p></li>
 </ul>
 <section id="using-kgx-as-a-module">
-<h2>Using KGX as a module<a class="headerlink" href="#using-kgx-as-a-module" title="Link to this heading">¶</a></h2>
+<h2>Using KGX as a module<a class="headerlink" href="#using-kgx-as-a-module" title="Permalink to this heading">#</a></h2>
 <p>KGX provides a variety of functionality that can be achieved by your script
 by importing KGX as a module and calling the relevant classes/methods as needed.</p>
 <p>Examples on how to use the KGX as a module can be found in
@@ -248,11 +251,11 @@ by importing KGX as a module and calling the relevant classes/methods as needed.
 may also be obtained by examination of the <a class="reference external" href="https://github.com/biolink/kgx/tree/master/tests">tests folder</a>.</p>
 </section>
 <section id="using-kgx-cli">
-<h2>Using KGX CLI<a class="headerlink" href="#using-kgx-cli" title="Link to this heading">¶</a></h2>
+<h2>Using KGX CLI<a class="headerlink" href="#using-kgx-cli" title="Permalink to this heading">#</a></h2>
 <p>The KGX CLI is a way of accessing KGX’s functionality directly from the command line.</p>
 <p>Currently, the CLI supports the following operations:</p>
 <section id="graph-summary">
-<h3>graph-summary<a class="headerlink" href="#graph-summary" title="Link to this heading">¶</a></h3>
+<h3>graph-summary<a class="headerlink" href="#graph-summary" title="Permalink to this heading">#</a></h3>
 <p>Summarizes a graph and generate a YAML report regarding the composition of node and edge types in the graph.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>kgx<span class="w"> </span>graph-summary<span class="w"> </span>--input-format<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
 <span class="w">                      </span>--output<span class="w"> </span>graph_stats.yaml<span class="w"> </span><span class="se">\</span>
@@ -272,7 +275,7 @@ may also be obtained by examination of the <a class="reference external" href="h
 <p>Some basic validation is done during <strong>graph-summary</strong> operation, with detected errors reported on the <code class="docutils literal notranslate"><span class="pre">--error_log</span></code> (default: <code class="docutils literal notranslate"><span class="pre">stderr</span></code>).  For more complete graph validation,  the <strong>validate</strong> command (below) may be used.</p>
 </section>
 <section id="validate">
-<h3>validate<a class="headerlink" href="#validate" title="Link to this heading">¶</a></h3>
+<h3>validate<a class="headerlink" href="#validate" title="Permalink to this heading">#</a></h3>
 <p>Validate a graph for Biolink Model compliance and generate a report for nodes
 and edges that are not compliant (if any).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>kgx<span class="w"> </span>validate<span class="w"> </span>--input-format<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
@@ -281,7 +284,7 @@ and edges that are not compliant (if any).</p>
 </div>
 </section>
 <section id="neo4j-download">
-<h3>neo4j-download<a class="headerlink" href="#neo4j-download" title="Link to this heading">¶</a></h3>
+<h3>neo4j-download<a class="headerlink" href="#neo4j-download" title="Permalink to this heading">#</a></h3>
 <p>Download a (sub)graph from a local or remote Neo4j instance.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>kgx<span class="w"> </span>neo4j-download<span class="w"> </span>--uri<span class="w"> </span>http://localhost:7474<span class="w"> </span><span class="se">\</span>
 <span class="w">                       </span>--username<span class="w"> </span>neo4j<span class="w"> </span><span class="se">\</span>
@@ -292,7 +295,7 @@ and edges that are not compliant (if any).</p>
 </div>
 </section>
 <section id="neo4j-upload">
-<h3>neo4j-upload<a class="headerlink" href="#neo4j-upload" title="Link to this heading">¶</a></h3>
+<h3>neo4j-upload<a class="headerlink" href="#neo4j-upload" title="Permalink to this heading">#</a></h3>
 <p>Upload a (sub)graph to a clean local or remote Neo4j instance.</p>
 <p><strong>Note:</strong> This operation expects the Neo4j instance to be empty. This operation
 does not support updating an existing Neo4j graph. Writing to an existing graph
@@ -306,7 +309,7 @@ may lead to side effects.</p>
 </div>
 </section>
 <section id="transform">
-<h3>transform<a class="headerlink" href="#transform" title="Link to this heading">¶</a></h3>
+<h3>transform<a class="headerlink" href="#transform" title="Permalink to this heading">#</a></h3>
 <p>Transform a graph from one serialization to another (including a knowledge source InfoRes rewrite).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>kgx<span class="w"> </span>transform<span class="w"> </span>--input-format<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
 <span class="w">                  </span>--output<span class="w"> </span>test_graph.json<span class="w"> </span><span class="se">\</span>
@@ -323,7 +326,7 @@ may lead to side effects.</p>
 </div>
 </section>
 <section id="merge">
-<h3>merge<a class="headerlink" href="#merge" title="Link to this heading">¶</a></h3>
+<h3>merge<a class="headerlink" href="#merge" title="Permalink to this heading">#</a></h3>
 <p>Merge two (or more) graphs as defined by a YAML merge configuration.</p>
 <p>A sample of the merge configuration can be found <a class="reference external" href="https://github.com/NCATS-Tangerine/kgx/blob/master/examples/sample-merge-config.yml">here</a></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>kgx<span class="w"> </span>merge<span class="w"> </span>--merge-config<span class="w"> </span>merge.yaml
@@ -402,11 +405,14 @@ may lead to side effects.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

@@ -1,0 +1,468 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>TRAPI Source - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="trapi-source">
+<h1>TRAPI Source<a class="headerlink" href="#trapi-source" title="Permalink to this heading">#</a></h1>
+<p>For TRAPI details, see: <a class="reference external" href="https://github.com/NCATSTranslator/ReasonerAPI">Reasoner API Documentation</a></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">TrapiSource</span></code> is responsible for reading data from TRAPI (Translator Reasoner API) JSON format and converting
+it into KGX format.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.source.trapi_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrapiSource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.graph.nx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">NxGraph</span>
+
+<span class="c1"># Create a graph</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">NxGraph</span><span class="p">()</span>
+
+<span class="c1"># Initialize the source</span>
+<span class="n">source</span> <span class="o">=</span> <span class="n">TrapiSource</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+<span class="c1"># Parse TRAPI file</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;input.json&quot;</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;json&quot;</span>
+<span class="p">):</span>
+    <span class="c1"># Process records (nodes and edges)</span>
+    <span class="k">if</span> <span class="n">record</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Edge</span>
+            <span class="c1"># Handle edge</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Node</span>
+            <span class="c1"># Handle node</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str): The filename to read from</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">format</span></code> (str, optional): The file format (<code class="docutils literal notranslate"><span class="pre">json</span></code> or <code class="docutils literal notranslate"><span class="pre">jsonl</span></code>), defaults to <code class="docutils literal notranslate"><span class="pre">json</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compression</span></code> (str, optional): The compression type (<code class="docutils literal notranslate"><span class="pre">gz</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">provided_by</span></code> (str, optional): The name of the provider to assign to records</p></li>
+</ul>
+</section>
+<section id="format-conversion">
+<h2>Format Conversion<a class="headerlink" href="#format-conversion" title="Permalink to this heading">#</a></h2>
+<section id="node-mappings">
+<h3>Node Mappings<a class="headerlink" href="#node-mappings" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>TRAPI node ID → KGX id</p></li>
+<li><p>TRAPI name → KGX name</p></li>
+<li><p>TRAPI categories → KGX category</p></li>
+<li><p>TRAPI attributes → KGX properties</p></li>
+</ul>
+</section>
+<section id="edge-mappings">
+<h3>Edge Mappings<a class="headerlink" href="#edge-mappings" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>TRAPI subject → KGX subject</p></li>
+<li><p>TRAPI predicate → KGX predicate</p></li>
+<li><p>TRAPI object → KGX object</p></li>
+<li><p>TRAPI sources → KGX primary_knowledge_source and provided_by</p></li>
+<li><p>TRAPI source_record_urls → KGX pks_record_urls</p></li>
+<li><p>TRAPI qualifiers → KGX qualifiers</p></li>
+</ul>
+</section>
+</section>
+<section id="input-format">
+<h2>Input Format<a class="headerlink" href="#input-format" title="Permalink to this heading">#</a></h2>
+<p>The source can read data from two formats:</p>
+<ol class="arabic">
+<li><p><strong>JSON format</strong> (default) - A single JSON file with the structure:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  &quot;knowledge_graph&quot;: {
+    &quot;nodes&quot;: {
+      &quot;CURIE1&quot;: { ... },
+      &quot;CURIE2&quot;: { ... }
+    },
+    &quot;edges&quot;: {
+      &quot;EDGE1&quot;: { ... },
+      &quot;EDGE2&quot;: { ... }
+    }
+  }
+}
+</pre></div>
+</div>
+</li>
+<li><p><strong>JSONLines format</strong> - Each line contains a separate JSON object:</p>
+<ul class="simple">
+<li><p>First line: Header with metadata</p></li>
+<li><p>Subsequent lines: Individual nodes and edges</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="example-input">
+<h2>Example Input<a class="headerlink" href="#example-input" title="Permalink to this heading">#</a></h2>
+<section id="node-in-trapi-format">
+<h3>Node in TRAPI format<a class="headerlink" href="#node-in-trapi-format" title="Permalink to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;CURIE1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Haptoglobin&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;categories&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Protein&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;attribute_type_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:description&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Haptoglobin protein&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;value_type_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:Phenomenon&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="node-in-kgx-format-after-conversion">
+<h3>Node in KGX format (after conversion)<a class="headerlink" href="#node-in-kgx-format-after-conversion" title="Permalink to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CURIE1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Haptoglobin&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Protein&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Haptoglobin protein&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="edge-in-trapi-format">
+<h3>Edge in TRAPI format<a class="headerlink" href="#edge-in-trapi-format" title="Permalink to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;edge1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UniProtKB:P00738&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:gene_associated_with_condition&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;resource_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;infores:semmeddb&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;resource_role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;primary_knowledge_source&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="edge-in-kgx-format-after-conversion">
+<h3>Edge in KGX format (after conversion)<a class="headerlink" href="#edge-in-kgx-format-after-conversion" title="Permalink to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UniProtKB:P00738&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:gene_associated_with_condition&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;infores:semmeddb&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">TRAPI Source</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#format-conversion">Format Conversion</a><ul>
+<li><a class="reference internal" href="#node-mappings">Node Mappings</a></li>
+<li><a class="reference internal" href="#edge-mappings">Edge Mappings</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#input-format">Input Format</a></li>
+<li><a class="reference internal" href="#example-input">Example Input</a><ul>
+<li><a class="reference internal" href="#node-in-trapi-format">Node in TRAPI format</a></li>
+<li><a class="reference internal" href="#node-in-kgx-format-after-conversion">Node in KGX format (after conversion)</a></li>
+<li><a class="reference internal" href="#edge-in-trapi-format">Edge in TRAPI format</a></li>
+<li><a class="reference internal" href="#edge-in-kgx-format-after-conversion">Edge in KGX format (after conversion)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reference" href="reference/index.html" /><link rel="prev" title="Installation" href="installation.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="KGX Schema" href="kgx_schema_generation.html" /><link rel="prev" title="Installation" href="installation.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
-        <title>KGX Format - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>KGX Specification - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
     
@@ -162,18 +162,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">KGX Specification</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -186,7 +189,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -232,84 +235,60 @@
           </label>
         </div>
         <article role="main">
-          <section id="kgx-format">
-<h1>KGX Format<a class="headerlink" href="#kgx-format" title="Link to this heading">¶</a></h1>
+          <section id="kgx-specification">
+<h1>KGX Specification<a class="headerlink" href="#kgx-specification" title="Permalink to this heading">#</a></h1>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs.</p>
-<section id="table-of-contents">
-<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="#introduction">Introduction</a></p></li>
-<li><p><a class="reference internal" href="#kgx-format">KGX format</a></p>
-<ul>
-<li><p><a class="reference internal" href="#node-record">Node Record</a></p>
-<ul>
-<li><p><a class="reference internal" href="#core-node-record-elements"><span class="xref myst">Core Node Record Elements</span></a></p></li>
-<li><p><a class="reference internal" href="#optional-node-record-elements"><span class="xref myst">Optional Node Record Elements</span></a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#edge-record">Edge Record</a></p>
-<ul>
-<li><p><a class="reference internal" href="#core-edge-record-elements"><span class="xref myst">Core Edge Record Elements</span></a></p></li>
-<li><p><a class="reference internal" href="#optional-edge-record-elements"><span class="xref myst">Optional Edge Record Elements</span></a></p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#kgx-format-as-json">KGX format as JSON</a></p></li>
-<li><p><a class="reference internal" href="#kgx-format-as-tsv">KGX format as TSV</a></p></li>
-<li><p><a class="reference internal" href="#kgx-format-as-json-lines"><span class="xref myst">KGX format as JSON Lines</span></a></p></li>
-<li><p><a class="reference internal" href="#kgx-format-as-rdf-turtle">KGX format as RDF Turtle</a></p></li>
-</ul>
-</section>
+<div class="toctree-wrapper compound">
+</div>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs.</p>
 <p>This specification aims at defining how this format is structured and organized, describing the required fields and their significance, followed by examples of the KGX format in TSV, JSON, and RDF.</p>
 </section>
-<section id="id1">
-<h2>KGX format<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="kgx-format">
+<h2>KGX format<a class="headerlink" href="#kgx-format" title="Permalink to this heading">#</a></h2>
 <p>The KGX format came to be as a way of representing Biolink Model compliant knowledge graphs as flat files that can be processed, subsetted, and exchanged easily. The simplest way of thinking of the format is to think how one would expect a graph (for example, in Neo4j) to be seralized into a file.</p>
 <p>Each node (or edge) is represented with all of its properties that further describes the node (or edge).</p>
 <section id="node-record">
-<h3>Node Record<a class="headerlink" href="#node-record" title="Link to this heading">¶</a></h3>
+<h3>Node Record<a class="headerlink" href="#node-record" title="Permalink to this heading">#</a></h3>
 <p>We refer to each serialization of a node as a Node record.</p>
 <p>Each node record has a set of elements that describes the node.</p>
 <section id="core-node-record-elements">
-<h4>Core Node Record Elements<a class="headerlink" href="#core-node-record-elements" title="Link to this heading">¶</a></h4>
+<h4>Core Node Record Elements<a class="headerlink" href="#core-node-record-elements" title="Permalink to this heading">#</a></h4>
 <p>There are 2 required elements for a Node record:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://biolink.github.io/biolink-model/id">id</a></p></li>
 <li><p><a class="reference external" href="https://biolink.github.io/biolink-model/category">category</a></p></li>
 </ul>
 <section id="id">
-<h5>id<a class="headerlink" href="#id" title="Link to this heading">¶</a></h5>
+<h5>id<a class="headerlink" href="#id" title="Permalink to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">id</span></code> element must have a value as a CURIE that uniquely identifies the node in the graph.</p>
 </section>
 <section id="category">
-<h5>category<a class="headerlink" href="#category" title="Link to this heading">¶</a></h5>
+<h5>category<a class="headerlink" href="#category" title="Permalink to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">category</span></code> element is used to name the high level class in which this entity is categorized.
 The element is a multivalued list which must have a value from the Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy.</p>
 </section>
 </section>
 <section id="optional-node-record-elements">
-<h4>Optional Node Record Elements<a class="headerlink" href="#optional-node-record-elements" title="Link to this heading">¶</a></h4>
+<h4>Optional Node Record Elements<a class="headerlink" href="#optional-node-record-elements" title="Permalink to this heading">#</a></h4>
 <section id="biolink-model-elements">
-<h5>Biolink Model Elements<a class="headerlink" href="#biolink-model-elements" title="Link to this heading">¶</a></h5>
+<h5>Biolink Model Elements<a class="headerlink" href="#biolink-model-elements" title="Permalink to this heading">#</a></h5>
 <p>A node can have additional properties, as defined in the Biolink Model.</p>
 <p>For example, <a class="reference external" href="https://biolink.github.io/biolink-model/name">name</a>, <a class="reference external" href="https://biolink.github.io/biolink-model/description">description</a>, and <a class="reference external" href="https://biolink.github.io/biolink-model/xref">xref</a>.  Nodes can also optionally have a <a class="reference external" href="https://biolink.github.io/biolink-model/provided_by"><code class="docutils literal notranslate"><span class="pre">provided_by</span></code></a> property.</p>
 </section>
 <section id="non-biolink-model-elements">
-<h5>Non-Biolink Model elements<a class="headerlink" href="#non-biolink-model-elements" title="Link to this heading">¶</a></h5>
+<h5>Non-Biolink Model elements<a class="headerlink" href="#non-biolink-model-elements" title="Permalink to this heading">#</a></h5>
 <p>A node can also have other properties that are not from the Biolink Model. While it is recommended that these properties are well represented in the model to begin with, having these as node properties will not violate the specification.</p>
 </section>
 </section>
 </section>
 <section id="edge-record">
-<h3>Edge Record<a class="headerlink" href="#edge-record" title="Link to this heading">¶</a></h3>
+<h3>Edge Record<a class="headerlink" href="#edge-record" title="Permalink to this heading">#</a></h3>
 <p>We refer to each serialization of an edge as an Edge record.</p>
 <p>Each edge record has a set of elements that describes the edge.</p>
 <section id="core-edge-record-elements">
-<h4>Core Edge Record Elements<a class="headerlink" href="#core-edge-record-elements" title="Link to this heading">¶</a></h4>
+<h4>Core Edge Record Elements<a class="headerlink" href="#core-edge-record-elements" title="Permalink to this heading">#</a></h4>
 <p>There are 3 required elements for an Edge record:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://biolink.github.io/biolink-model/subject">subject</a></p></li>
@@ -317,39 +296,42 @@ The element is a multivalued list which must have a value from the Biolink <a cl
 <li><p><a class="reference external" href="https://biolink.github.io/biolink-model/object">object</a></p></li>
 </ul>
 <section id="subject">
-<h5>subject<a class="headerlink" href="#subject" title="Link to this heading">¶</a></h5>
+<h5>subject<a class="headerlink" href="#subject" title="Permalink to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">subject</span></code> element is used to refer to the source node in an edge/statement/assertion and must be the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the source node.</p>
 </section>
 <section id="predicate">
-<h5>predicate<a class="headerlink" href="#predicate" title="Link to this heading">¶</a></h5>
+<h5>predicate<a class="headerlink" href="#predicate" title="Permalink to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">predicate</span></code> element is used to refer to the predicate/relationship that links a source node to a target node in an edge/statement/assertion.
 This element must have a value from the Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/related_to">related_to</a> hierarchy.</p>
 </section>
 <section id="object">
-<h5>object<a class="headerlink" href="#object" title="Link to this heading">¶</a></h5>
+<h5>object<a class="headerlink" href="#object" title="Permalink to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">object</span></code> element is used to refer to the target node in an edge/statement/assertion and must be the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the target node.</p>
 </section>
 </section>
 <section id="edge-provenance">
-<h4>Edge Provenance<a class="headerlink" href="#edge-provenance" title="Link to this heading">¶</a></h4>
+<h4>Edge Provenance<a class="headerlink" href="#edge-provenance" title="Permalink to this heading">#</a></h4>
 <p>Edge provenance, if specified, should be specified by one of a fixed set of elements.  The original <a class="reference external" href="https://biolink.github.io/biolink-model/provided_by"><code class="docutils literal notranslate"><span class="pre">provided_by</span></code></a> property is now deprecated for edges in favor of the Biolink Model 2.0 defined <a class="reference external" href="https://biolink.github.io/biolink-model/knowledge_source"><code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code></a> association slot or one of its descendents - <a class="reference external" href="https://biolink.github.io/biolink-model/aggregator_knowledge_source"><code class="docutils literal notranslate"><span class="pre">aggregator_knowledge_source</span></code></a>,  <a class="reference external" href="https://biolink.github.io/biolink-model/primary_knowledge_source"><code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code></a> and <a class="reference external" href="https://biolink.github.io/biolink-model/original_knowledge_source"><code class="docutils literal notranslate"><span class="pre">original_knowledge_source</span></code></a> - or the related association slot, <a class="reference external" href="https://biolink.github.io/biolink-model/supporting_data_source"><code class="docutils literal notranslate"><span class="pre">supporting_data_source</span></code></a>.</p>
 </section>
 <section id="optional-edge-record-elements">
-<h4>Optional Edge Record Elements<a class="headerlink" href="#optional-edge-record-elements" title="Link to this heading">¶</a></h4>
-<section id="id2">
-<h5>Biolink Model Elements<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h5>
+<h4>Optional Edge Record Elements<a class="headerlink" href="#optional-edge-record-elements" title="Permalink to this heading">#</a></h4>
+<section id="id1">
+<h5>Biolink Model Elements<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h5>
 <p>An edge can have additional properties, as defined in the Biolink Model.</p>
 <p>For example, <a class="reference external" href="https://biolink.github.io/biolink-model/category">category</a> and <a class="reference external" href="https://biolink.github.io/biolink-model/publications">publications</a>.</p>
 </section>
-<section id="id3">
-<h5>Non-Biolink Model Elements<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h5>
+<section id="id2">
+<h5>Non-Biolink Model Elements<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h5>
 <p>An edge can also have other properties that are not from Biolink Model. While it is recommended that these properties are well represented in the model to begin with, having these as edge properties will not violate the specification.</p>
 </section>
 </section>
 </section>
 </section>
+<section id="format-serializations">
+<h2>Format Serializations<a class="headerlink" href="#format-serializations" title="Permalink to this heading">#</a></h2>
+<p>KGX supports multiple serialization formats for knowledge graphs, each with its own structure and characteristics. Below are the different serialization formats supported by KGX.</p>
 <section id="kgx-format-as-json">
-<h2>KGX format as JSON<a class="headerlink" href="#kgx-format-as-json" title="Link to this heading">¶</a></h2>
+<h3>KGX format as JSON<a class="headerlink" href="#kgx-format-as-json" title="Permalink to this heading">#</a></h3>
 <p>The structure of the KGX JSON format is as follows:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;nodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
@@ -390,7 +372,7 @@ This element must have a value from the Biolink <a class="reference external" hr
 </div>
 </section>
 <section id="kgx-format-as-tsv">
-<h2>KGX format as TSV<a class="headerlink" href="#kgx-format-as-tsv" title="Link to this heading">¶</a></h2>
+<h3>KGX format as TSV<a class="headerlink" href="#kgx-format-as-tsv" title="Permalink to this heading">#</a></h3>
 <p>The KGX TSV format is structured slightly different from the JSON in that there are two files - one for nodes and another for edges.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">nodes.tsv</span></code>: each row corresponds to a Node record and each column corresponds to an element in the Node record (i.e. a node property).</p></li>
@@ -415,27 +397,27 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 <li><p>Fields that accept lists of value - e.g. the above fields for <code class="docutils literal notranslate"><span class="pre">category</span></code> (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with <code class="docutils literal notranslate"><span class="pre">biolink:Gene</span></code> and <code class="docutils literal notranslate"><span class="pre">biolink:Disease</span></code>) and <code class="docutils literal notranslate"><span class="pre">publications</span></code> - have values typically a list of values delimited by a Unix pipe (‘|’) character, unless otherwise programmatically overridden, using an available <code class="docutils literal notranslate"><span class="pre">list_delimiter</span></code> parameter, during TSV <em>source</em> or <em>sink</em> data parsing by the KGX software tool)</p></li>
 </ul>
 </section>
-<section id="kgx-json-lines-format-specification">
-<h2>KGX JSON Lines Format Specification<a class="headerlink" href="#kgx-json-lines-format-specification" title="Link to this heading">¶</a></h2>
+<section id="kgx-format-as-json-lines">
+<h3>KGX format as JSON Lines<a class="headerlink" href="#kgx-format-as-json-lines" title="Permalink to this heading">#</a></h3>
 <p>The JSON Lines format provides a simple and efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format combines the advantages of JSON (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.</p>
 <section id="file-structure">
-<h3>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h3>
+<h4>File Structure<a class="headerlink" href="#file-structure" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains one node per line, each as a complete JSON object</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_edges.jsonl</span></code>: Contains one edge per line, each as a complete JSON object</p></li>
 </ul>
 </section>
 <section id="node-record-format">
-<h3>Node Record Format<a class="headerlink" href="#node-record-format" title="Link to this heading">¶</a></h3>
+<h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Permalink to this heading">#</a></h4>
 <section id="required-properties">
-<h4>Required Properties<a class="headerlink" href="#required-properties" title="Link to this heading">¶</a></h4>
+<h5>Required Properties<a class="headerlink" href="#required-properties" title="Permalink to this heading">#</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): A CURIE that uniquely identifies the node in the graph</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> (array of strings): List of Biolink categories for the node, from the <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy</p></li>
 </ul>
 </section>
 <section id="common-optional-properties">
-<h4>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Link to this heading">¶</a></h4>
+<h5>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Permalink to this heading">#</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (string): Human-readable name of the entity</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (string): Human-readable description of the entity</p></li>
@@ -446,9 +428,9 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </section>
 </section>
 <section id="edge-record-format">
-<h3>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Link to this heading">¶</a></h3>
-<section id="id4">
-<h4>Required Properties<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h4>
+<h4>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Permalink to this heading">#</a></h4>
+<section id="id3">
+<h5>Required Properties<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code> (string): CURIE of the source node</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code> (string): Biolink predicate representing the relationship type</p></li>
@@ -457,8 +439,8 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 <li><p><code class="docutils literal notranslate"><span class="pre">agent_type</span></code> (string): Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model</p></li>
 </ul>
 </section>
-<section id="id5">
-<h4>Common Optional Properties<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h4>
+<section id="id4">
+<h5>Common Optional Properties<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): Unique identifier for the edge, often a UUID</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">relation</span></code> (string): Relation CURIE from a formal relation ontology (e.g., RO)</p></li>
@@ -471,7 +453,7 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </section>
 </section>
 <section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h4>
 <p><strong>Node Example (nodes.jsonl)</strong>:</p>
 <p>Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -480,15 +462,19 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;biolink:Gene&quot;</span>
 <span class="w">  </span><span class="p">]</span>
-<span class="p">},</span>
-<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;biolink:Disease&quot;</span>
 <span class="w">  </span><span class="p">]</span>
-<span class="p">},</span>
-<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acetaminophen&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -514,8 +500,10 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 <span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
-<span class="p">},</span>
-<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;</span><span class="p">,</span>
 <span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:contributes_to&quot;</span><span class="p">,</span>
@@ -526,8 +514,10 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 <span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:26634245&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PMID:26634244&quot;</span><span class="p">],</span>
 <span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;observation&quot;</span><span class="p">,</span>
 <span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biological&quot;</span>
-<span class="p">},</span>
-<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c7d632b4-6708-4296-9cfe-44bc586d32c8&quot;</span><span class="p">,</span>
 <span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
 <span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:affects&quot;</span><span class="p">,</span>
@@ -549,7 +539,7 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </div>
 </section>
 <section id="usage-notes">
-<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Link to this heading">¶</a></h3>
+<h4>Usage Notes<a class="headerlink" href="#usage-notes" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
 <li><p>All field values should follow the KGX specification and Biolink Model requirements</p></li>
 <li><p>Arrays should be represented as JSON arrays (not pipe-delimited strings)</p></li>
@@ -558,7 +548,7 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </section>
 </section>
 <section id="kgx-format-as-rdf-turtle">
-<h2>KGX format as RDF Turtle<a class="headerlink" href="#kgx-format-as-rdf-turtle" title="Link to this heading">¶</a></h2>
+<h3>KGX format as RDF Turtle<a class="headerlink" href="#kgx-format-as-rdf-turtle" title="Permalink to this heading">#</a></h3>
 <p>A sample KGX RDF Turtle (TTL) that represents a graph with 2 nodes and 1 edge:</p>
 <div class="highlight-ttl notranslate"><div class="highlight"><pre><span></span>@<span class="nv">prefix</span><span class="w"> </span><span class="nv">OBO</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">purl</span>.<span class="nv">obolibrary</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">obo</span><span class="o">/&gt;</span><span class="w"> </span>.
 @<span class="nv">prefix</span><span class="w"> </span><span class="nv">biolink</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">w3id</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">biolink</span><span class="o">/</span><span class="nv">vocab</span><span class="o">/&gt;</span><span class="w"> </span>.
@@ -587,18 +577,19 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </div>
 </section>
 </section>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="reference/index.html">
+          <a class="next-page" href="kgx_schema_generation.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Reference</div>
+                <div class="title">KGX Schema</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -643,10 +634,9 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">KGX Format</a><ul>
-<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#">KGX Specification</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#id1">KGX format</a><ul>
+<li><a class="reference internal" href="#kgx-format">KGX format</a><ul>
 <li><a class="reference internal" href="#node-record">Node Record</a><ul>
 <li><a class="reference internal" href="#core-node-record-elements">Core Node Record Elements</a><ul>
 <li><a class="reference internal" href="#id">id</a></li>
@@ -669,17 +659,18 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </li>
 <li><a class="reference internal" href="#edge-provenance">Edge Provenance</a></li>
 <li><a class="reference internal" href="#optional-edge-record-elements">Optional Edge Record Elements</a><ul>
-<li><a class="reference internal" href="#id2">Biolink Model Elements</a></li>
-<li><a class="reference internal" href="#id3">Non-Biolink Model Elements</a></li>
+<li><a class="reference internal" href="#id1">Biolink Model Elements</a></li>
+<li><a class="reference internal" href="#id2">Non-Biolink Model Elements</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#format-serializations">Format Serializations</a><ul>
 <li><a class="reference internal" href="#kgx-format-as-json">KGX format as JSON</a></li>
 <li><a class="reference internal" href="#kgx-format-as-tsv">KGX format as TSV</a></li>
-<li><a class="reference internal" href="#kgx-json-lines-format-specification">KGX JSON Lines Format Specification</a><ul>
+<li><a class="reference internal" href="#kgx-format-as-json-lines">KGX format as JSON Lines</a><ul>
 <li><a class="reference internal" href="#file-structure">File Structure</a></li>
 <li><a class="reference internal" href="#node-record-format">Node Record Format</a><ul>
 <li><a class="reference internal" href="#required-properties">Required Properties</a></li>
@@ -687,8 +678,8 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </ul>
 </li>
 <li><a class="reference internal" href="#edge-record-format">Edge Record Format</a><ul>
-<li><a class="reference internal" href="#id4">Required Properties</a></li>
-<li><a class="reference internal" href="#id5">Common Optional Properties</a></li>
+<li><a class="reference internal" href="#id3">Required Properties</a></li>
+<li><a class="reference internal" href="#id4">Common Optional Properties</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
@@ -696,6 +687,8 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </ul>
 </li>
 <li><a class="reference internal" href="#kgx-format-as-rdf-turtle">KGX format as RDF Turtle</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -707,11 +700,14 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

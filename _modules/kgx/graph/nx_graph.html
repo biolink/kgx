@@ -1,17 +1,17 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>kgx.graph.nx_graph - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/notebooks.css" />
     
@@ -161,18 +161,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -185,7 +188,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -246,9 +249,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.utils.kgx_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_data_dict</span>
 
 
-<div class="viewcode-block" id="NxGraph">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NxGraph</span><span class="p">(</span><span class="n">BaseGraph</span><span class="p">):</span>
+<div class="viewcode-block" id="NxGraph"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NxGraph</span><span class="p">(</span><span class="n">BaseGraph</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NxGraph is a wrapper that provides methods to interact with a networkx.MultiDiGraph.</span>
 
@@ -260,9 +261,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">MultiDiGraph</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="NxGraph.add_node">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.add_node"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a node to the graph.</span>
 
@@ -280,10 +279,7 @@
             <span class="n">data</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.add_edge">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.add_edge"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -307,10 +303,7 @@
             <span class="n">data</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_key</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.add_node_attribute">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node_attribute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_node_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.add_node_attribute"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_node_attribute">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_node_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an attribute to a given node.</span>
 
@@ -326,10 +319,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">attr_key</span><span class="p">:</span> <span class="n">attr_value</span><span class="p">})</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.add_edge_attribute">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge_attribute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge_attribute</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.add_edge_attribute"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.add_edge_attribute">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge_attribute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -358,10 +348,7 @@
             <span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_key</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">attr_key</span><span class="p">:</span> <span class="n">attr_value</span><span class="p">}</span>
         <span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.update_node_attribute">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.update_node_attribute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_node_attribute</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.update_node_attribute"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.update_node_attribute">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update_node_attribute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">preserve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -391,10 +378,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">**</span><span class="n">updated</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">updated</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.update_edge_attribute">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.update_edge_attribute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_edge_attribute</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.update_edge_attribute"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.update_edge_attribute">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update_edge_attribute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -435,10 +419,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_key</span><span class="p">,</span> <span class="o">**</span><span class="n">updated</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">updated</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.get_node">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.get_node"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a node and its properties.</span>
 
@@ -458,10 +439,7 @@
             <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">n</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.get_edge">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.get_edge"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -487,10 +465,7 @@
             <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">e</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.nodes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.nodes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all nodes in a graph.</span>
 
@@ -507,10 +482,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.edges">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.edges"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.edges">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all edges in a graph.</span>
 
@@ -529,10 +501,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.in_edges">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.in_edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">in_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.in_edges"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.in_edges">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">in_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all incoming edges for a given node.</span>
 
@@ -553,10 +522,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.out_edges">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.out_edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">out_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.out_edges"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.out_edges">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">out_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all outgoing edges for a given node.</span>
 
@@ -577,10 +543,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.nodes_iter">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes_iter">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">nodes_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.nodes_iter"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.nodes_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">nodes_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an iterable to traverse through all the nodes in a graph.</span>
 
@@ -594,10 +557,7 @@
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">n</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.edges_iter">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.edges_iter">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">edges_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.edges_iter"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.edges_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">edges_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an iterable to traverse through all the edges in a graph.</span>
 
@@ -611,10 +571,7 @@
         <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.remove_node">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.remove_node"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove a given node from the graph.</span>
 
@@ -626,10 +583,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.remove_edge">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">remove_edge</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.remove_edge"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.remove_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -647,10 +601,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.has_node">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.has_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">has_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.has_node"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.has_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">has_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a given node exists in the graph.</span>
 
@@ -667,10 +618,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.has_edge">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.has_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">has_edge</span><span class="p">(</span>
+<div class="viewcode-block" id="NxGraph.has_edge"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.has_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">has_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">subject_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">edge_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -693,10 +641,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">subject_node</span><span class="p">,</span> <span class="n">object_node</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">edge_key</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.number_of_nodes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_nodes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.number_of_nodes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_nodes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of nodes in a graph.</span>
 
@@ -707,10 +652,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.number_of_edges">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.number_of_edges"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.number_of_edges">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of edges in a graph.</span>
 
@@ -721,28 +663,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.degree">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.degree">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="NxGraph.degree"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.degree">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the degree of all the nodes in a graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.clear">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.clear">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="NxGraph.clear"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.clear">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all the nodes and edges in the graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.set_node_attributes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.set_node_attributes">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NxGraph.set_node_attributes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.set_node_attributes">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set nodes attributes from a dictionary of key-values.</span>
@@ -757,10 +690,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">set_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.set_edge_attributes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.set_edge_attributes">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NxGraph.set_edge_attributes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.set_edge_attributes">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set nodes attributes from a dictionary of key-values.</span>
@@ -779,10 +709,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">set_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.get_node_attributes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node_attributes">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NxGraph.get_node_attributes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_node_attributes">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all nodes that have a value for the given attribute ``attr_key``.</span>
@@ -803,10 +730,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">get_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.get_edge_attributes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge_attributes">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NxGraph.get_edge_attributes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.get_edge_attributes">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all edges that have a value for the given attribute ``attr_key``.</span>
@@ -827,10 +751,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">get_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">attr_key</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="NxGraph.relabel_nodes">
-<a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.relabel_nodes">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NxGraph.relabel_nodes"><a class="viewcode-back" href="../../../reference/graph.html#kgx.graph.nx_graph.NxGraph.relabel_nodes">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relabel_nodes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Relabel identifiers for a series of nodes based on mappings.</span>
@@ -844,9 +765,7 @@
 <span class="sd">            and the value is the new identifier.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">relabel_nodes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-</div>
-
+        <span class="n">relabel_nodes</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>
@@ -879,11 +798,14 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

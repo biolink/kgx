@@ -1,17 +1,17 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>kgx.graph_operations.meta_knowledge_graph - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/notebooks.css" />
     
@@ -161,18 +161,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -185,7 +188,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -259,9 +262,7 @@
 <span class="c1"># leverages the new &quot;Transformer.process()&quot; data stream &quot;Inspector&quot;</span>
 <span class="c1"># design pattern, implemented here as a &quot;Callable&quot; inspection class.</span>
 <span class="c1">####################################################################</span>
-<div class="viewcode-block" id="mkg_default">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.mkg_default">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">mkg_default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+<div class="viewcode-block" id="mkg_default"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.mkg_default">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">mkg_default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    JSONEncoder &#39;default&#39; function override to</span>
 <span class="sd">    properly serialize &#39;Set&#39; objects (into &#39;List&#39;)</span>
@@ -279,14 +280,11 @@
         <span class="k">return</span> <span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span></div>
 
 
-
 <span class="n">_category_curie_regexp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^biolink:[A-Z][a-zA-Z]*$&quot;</span><span class="p">)</span>
 <span class="n">_predicate_curie_regexp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^biolink:[a-z][a-z_]*$&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MetaKnowledgeGraph">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MetaKnowledgeGraph</span><span class="p">(</span><span class="n">ErrorDetecting</span><span class="p">):</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MetaKnowledgeGraph</span><span class="p">(</span><span class="n">ErrorDetecting</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for generating a TRAPI 1.1 style of &quot;meta knowledge graph&quot; summary.</span>
 
@@ -371,9 +369,7 @@
         <span class="c1"># Overall graph statistics</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_stats</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_name">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_name"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_name">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -381,7 +377,6 @@
 <span class="sd">            Currently assigned knowledge graph name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">:</span> <span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -404,9 +399,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unexpected GraphEntityType: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity_type</span><span class="p">))</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_facet_counts">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_facet_counts">[docs]</a>
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_facet_counts"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_facet_counts">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_facet_counts</span><span class="p">(</span><span class="n">facets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">],</span> <span class="n">counts_by_source</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get node or edge facet counts</span>
@@ -433,10 +426,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">counts_by_source</span><span class="p">[</span><span class="s2">&quot;unknown&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category">[docs]</a>
-    <span class="k">class</span><span class="w"> </span><span class="nc">Category</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category">[docs]</a>    <span class="k">class</span><span class="w"> </span><span class="nc">Category</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal class for compiling statistics about a distinct category.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -469,9 +459,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count_by_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_name">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_name">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_name"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_name">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
@@ -480,10 +468,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_curie</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_cid">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_cid">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_cid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_cid"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_cid">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">get_cid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
@@ -492,10 +477,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_category_curie_map</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_curie</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_category_curie_from_index">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_category_curie_from_index">[docs]</a>
-        <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_category_curie_from_index"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_category_curie_from_index">[docs]</a>        <span class="nd">@classmethod</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">get_category_curie_from_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cid</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Parameters</span>
@@ -510,10 +492,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_category_curie_map</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_id_prefixes">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_id_prefixes">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_id_prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_id_prefixes"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_id_prefixes">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">get_id_prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
@@ -522,10 +501,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;id_prefixes&quot;</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_count">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_count"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
@@ -534,10 +510,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_count_by_source">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count_by_source">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_count_by_source</span><span class="p">(</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.get_count_by_source"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.get_count_by_source">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">get_count_by_source</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="n">facet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;provided_by&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
@@ -563,7 +536,6 @@
                     <span class="k">return</span> <span class="p">{</span><span class="n">source</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count_by_source&quot;</span><span class="p">]</span></div>
 
-
         <span class="k">def</span><span class="w"> </span><span class="nf">_compile_prefix_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">get_prefix</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix</span><span class="p">:</span>
@@ -585,9 +557,7 @@
                 <span class="n">data</span><span class="p">,</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.analyse_node_category">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.analyse_node_category">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">analyse_node_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.analyse_node_category"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.analyse_node_category">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">analyse_node_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Analyse metadata of a given graph node record of this category.</span>
 
@@ -603,10 +573,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_compile_prefix_stats</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_compile_category_source_stats</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.Category.json_object">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.json_object">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">json_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.Category.json_object"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.json_object">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">json_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
@@ -617,13 +584,9 @@
                 <span class="s2">&quot;id_prefixes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;id_prefixes&quot;</span><span class="p">]),</span>
                 <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;count_by_source&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_stats</span><span class="p">[</span><span class="s2">&quot;count_by_source&quot;</span><span class="p">],</span>
-            <span class="p">}</span></div>
-</div>
+            <span class="p">}</span></div></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_category">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_category">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Category</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_category"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_category">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Category</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of distinct (Biolink) categories encountered</span>
 <span class="sd">        in the knowledge graph (not including those of &#39;unknown&#39; category)</span>
@@ -639,7 +602,6 @@
 <span class="sd">            MetaKnowledgeGraph.Category object for a given Biolink category.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_stats</span><span class="p">[</span><span class="n">category_curie</span><span class="p">]</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_category_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
         <span class="c1"># we note here that category_curie *may be*</span>
@@ -671,9 +633,7 @@
 
             <span class="n">category_record</span><span class="o">.</span><span class="n">analyse_node_category</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.analyse_node">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.analyse_node"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Analyse metadata of one graph node record.</span>
 
@@ -719,7 +679,6 @@
         <span class="c1"># analyse them each independently...</span>
         <span class="k">for</span> <span class="n">category_field</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_category_field</span><span class="p">(</span><span class="n">category_field</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_capture_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">subj_obj_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -809,9 +768,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_compile_triple_source_stats</span><span class="p">(</span><span class="n">triple</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MetaKnowledgeGraph.analyse_edge">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_edge">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.analyse_edge"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_edge">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">analyse_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Analyse metadata of one graph edge record.</span>
 <span class="sd">        Parameters</span>
@@ -878,10 +835,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_process_triple</span><span class="p">(</span><span class="n">subject_category</span><span class="p">,</span> <span class="n">predicate</span><span class="p">,</span> <span class="n">object_category</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_number_of_categories">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_number_of_categories">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_number_of_categories"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_number_of_categories">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of distinct (Biolink) categories encountered</span>
 <span class="sd">        in the knowledge graph (not including those of &#39;unknown&#39; category)</span>
@@ -895,10 +849,7 @@
         <span class="c1"># return len([c for c in self.node_stats.keys() if c != &#39;unknown&#39;])</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_stats</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_node_stats">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_stats">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_node_stats"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_stats">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -924,10 +875,7 @@
 
         <span class="k">return</span> <span class="n">category_stats</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_stats">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_stats">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_stats"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_stats">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -944,10 +892,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">edge_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kedge</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_stats</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_nodes_count">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_nodes_count">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_nodes_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_nodes_count"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_nodes_count">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_nodes_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the total number of distinct nodes in the knowledge graph</span>
 <span class="sd">        (**not** including those ignored due to being of &#39;unknown&#39; category)</span>
@@ -959,10 +904,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_catalog</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_node_count_by_category">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_count_by_category">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_count_by_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_node_count_by_category"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_node_count_by_category">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_count_by_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of edges in the graph</span>
 <span class="sd">        with the specified (Biolink) category curie.</span>
@@ -991,10 +933,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_node_counts_across_categories">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_node_counts_across_categories">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_node_counts_across_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_node_counts_across_categories"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_node_counts_across_categories">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_node_counts_across_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The aggregate count of all node to category mappings for every category.</span>
 <span class="sd">        Note that nodes with multiple categories will have their count replicated</span>
@@ -1010,10 +949,7 @@
             <span class="n">count</span> <span class="o">+=</span> <span class="n">category</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">count</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_edges_count">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edges_count">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_edges_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_edges_count"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edges_count">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_edges_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the total number of &#39;valid&#39; edges in the data set</span>
 <span class="sd">        (ignoring those with &#39;unknown&#39; subject or predicate category mappings)</span>
@@ -1025,10 +961,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_record_count</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_mapping_count">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_mapping_count">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_mapping_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_mapping_count"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_mapping_count">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_mapping_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of distinct edge</span>
 <span class="sd">        Subject (category) - P (predicate) -&gt; Object (category)</span>
@@ -1041,10 +974,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_edge_stats</span><span class="p">())</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_predicate_count">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_predicate_count">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_predicate_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_predicate_count"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_predicate_count">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_predicate_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of distinct edge predicates</span>
 <span class="sd">        in the knowledge graph.</span>
@@ -1056,10 +986,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predicates</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_count_by_predicate">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_predicate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_count_by_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predicate_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_count_by_predicate"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_predicate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_count_by_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predicate_curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Counts the number of edges in the graph with the specified predicate.</span>
 
@@ -1086,10 +1013,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicates</span><span class="p">[</span><span class="n">predicate_curie</span><span class="p">]</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_edge_counts_across_mappings">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edge_counts_across_mappings">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_edge_counts_across_mappings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_total_edge_counts_across_mappings"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edge_counts_across_mappings">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_edge_counts_across_mappings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Aggregate count of the edges in the graph for every mapping. Edges</span>
 <span class="sd">        with subject and object nodes with multiple assigned categories will</span>
@@ -1105,10 +1029,7 @@
             <span class="n">count</span> <span class="o">+=</span> <span class="n">edge</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">count</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_count_by_source">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_source">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_count_by_source</span><span class="p">(</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_edge_count_by_source"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_edge_count_by_source">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_count_by_source</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">subject_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">predicate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1158,10 +1079,7 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph_nodes">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_nodes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph_nodes"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_nodes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Summarize the nodes in a graph.</span>
 
@@ -1179,10 +1097,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">analyse_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_stats</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph_edges">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph_edges"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph_edges">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Summarize the edges in a graph.</span>
 
@@ -1201,10 +1116,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">analyse_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_stats</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.summarize_graph"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.summarize_graph">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a meta knowledge graph that describes the composition of the graph.</span>
 
@@ -1234,10 +1146,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph_stats</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_stats</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.get_graph_summary">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_graph_summary">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_graph_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.get_graph_summary"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_graph_summary">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_graph_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to summarize_graph except that the node and edge statistics are already captured</span>
 <span class="sd">        in the MetaKnowledgeGraph class instance (perhaps by Transformer.process() stream inspection)</span>
@@ -1268,10 +1177,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph_stats</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_stats</span></div>
 
-
-<div class="viewcode-block" id="MetaKnowledgeGraph.save">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.save">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">file_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MetaKnowledgeGraph.save"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.save">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">file_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current MetaKnowledgeGraph to a specified (open) file (device).</span>
 
@@ -1292,14 +1198,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">file_format</span> <span class="ow">or</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
             <span class="n">dump</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
-</div>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="generate_meta_knowledge_graph">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.generate_meta_knowledge_graph">[docs]</a>
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;1.5.8&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Default is the use streaming graph_summary with inspector&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="generate_meta_knowledge_graph"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.generate_meta_knowledge_graph">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">deprecated_in</span><span class="o">=</span><span class="s2">&quot;1.5.8&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="s2">&quot;Default is the use streaming graph_summary with inspector&quot;</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_meta_knowledge_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a knowledge map that describes</span>
@@ -1320,10 +1222,7 @@
         <span class="n">dump</span><span class="p">(</span><span class="n">graph_stats</span><span class="p">,</span> <span class="n">mkgh</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">mkg_default</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="summarize_graph">
-<a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.summarize_graph">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="summarize_graph"><a class="viewcode-back" href="../../../reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.summarize_graph">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">summarize_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">BaseGraph</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a meta knowledge graph that describes the composition of the graph.</span>
 
@@ -1343,7 +1242,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mkg</span> <span class="o">=</span> <span class="n">MetaKnowledgeGraph</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mkg</span><span class="o">.</span><span class="n">summarize_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></div>
-
 </pre></div>
         </article>
       </div>
@@ -1376,11 +1274,14 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

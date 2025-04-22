@@ -1,0 +1,530 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reference" href="reference/index.html" /><link rel="prev" title="KGX Specification" href="kgx_format.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>KGX Schema - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="kgx-schema">
+<h1>KGX Schema<a class="headerlink" href="#kgx-schema" title="Permalink to this heading">#</a></h1>
+<p>This document describes the schema transformation process used to create the KGX schema based on the Biolink Model. The KGX schema defines the structure for knowledge graphs in the KGX format while leveraging the rich semantics of the Biolink Model.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<section id="purpose">
+<h3>Purpose<a class="headerlink" href="#purpose" title="Permalink to this heading">#</a></h3>
+<p>KGX (Knowledge Graph Exchange) is designed to be compatible with the Biolink Model while providing a simplified and more practical data model for knowledge graph exchange. The KGX schema extends the Biolink Model by:</p>
+<ol class="arabic simple">
+<li><p>Adding high-level <code class="docutils literal notranslate"><span class="pre">Node</span></code> and <code class="docutils literal notranslate"><span class="pre">Edge</span></code> classes as parent classes</p></li>
+<li><p>Providing a <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> container class</p></li>
+<li><p>Ensuring all Biolink classes and properties are available</p></li>
+</ol>
+<p>The relationship between KGX and Biolink can be summarized as:</p>
+<ul class="simple">
+<li><p>All Biolink classes are available in KGX</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Node</span></code> becomes a parent class of Biolink’s <code class="docutils literal notranslate"><span class="pre">named</span> <span class="pre">thing</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Edge</span></code> becomes a parent class of Biolink’s <code class="docutils literal notranslate"><span class="pre">association</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> is a KGX-specific class for the container structure</p></li>
+</ul>
+</section>
+<section id="benefits-of-this-approach">
+<h3>Benefits of This Approach<a class="headerlink" href="#benefits-of-this-approach" title="Permalink to this heading">#</a></h3>
+<p>This design provides several advantages:</p>
+<ol class="arabic simple">
+<li><p><strong>Simplified Interface</strong>: Applications can interact with knowledge graphs using the higher-level Node/Edge classes without needing to understand all Biolink class details.</p></li>
+<li><p><strong>Full Biolink Compatibility</strong>: All Biolink semantics remain available, allowing detailed typing when needed.</p></li>
+<li><p><strong>Automated Updates</strong>: When the Biolink Model is updated, the KGX schema can be automatically regenerated to stay in sync.</p></li>
+<li><p><strong>Container Structure</strong>: The KnowledgeGraph class provides a standard way to package nodes and edges together.</p></li>
+</ol>
+</section>
+</section>
+<section id="technical-implementation">
+<h2>Technical Implementation<a class="headerlink" href="#technical-implementation" title="Permalink to this heading">#</a></h2>
+<section id="schema-generation-process">
+<h3>Schema Generation Process<a class="headerlink" href="#schema-generation-process" title="Permalink to this heading">#</a></h3>
+<p>The KGX schema generation follows these steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Base KGX Schema</strong>: Define a base KGX schema (<code class="docutils literal notranslate"><span class="pre">kgx.yaml</span></code>) that imports the Biolink Model and adds KGX-specific classes (Node, Edge, KnowledgeGraph).</p></li>
+<li><p><strong>Schema Materialization</strong>: Merge all imported schemas (including Biolink) into a single file.</p></li>
+<li><p><strong>Transformation Specification</strong>: Define a LinkML transformation specification to modify the inheritance hierarchy.</p></li>
+<li><p><strong>Final Schema Generation</strong>: Apply the transformation to produce the final KGX schema.</p></li>
+</ol>
+</section>
+<section id="directory-structure">
+<h3>Directory Structure<a class="headerlink" href="#directory-structure" title="Permalink to this heading">#</a></h3>
+<p>Key files and directories:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>kgx/
+├── schema/
+│   ├── kgx.yaml                       # Base KGX schema that imports Biolink
+│   ├── kgx_merged.yaml                # Materialized schema with all imports
+│   ├── kgx_complete.yaml              # Final schema with inheritance structure
+│   ├── transformations/
+│   │   ├── kgx_inheritance.transform.yaml  # Transformation specification
+│   └── scripts/
+│       ├── generate_transform.py      # Script to generate transformation specs
+</pre></div>
+</div>
+</section>
+<section id="makefile-targets">
+<h3>Makefile Targets<a class="headerlink" href="#makefile-targets" title="Permalink to this heading">#</a></h3>
+<p>The schema generation process is automated through Makefile targets:</p>
+<div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="c"># Clean up intermediate schema files</span>
+<span class="nf">schema-clean</span><span class="o">:</span>
+<span class="w">	</span>@echo<span class="w"> </span><span class="s2">&quot;Cleaning up intermediate schema files...&quot;</span>
+<span class="w">	</span>rm<span class="w"> </span>-f<span class="w"> </span>kgx/schema/kgx_merged.yaml<span class="w"> </span>kgx/schema/kgx_final.yaml<span class="w"> </span>kgx/schema/derived_kgx_schema.yaml
+<span class="w">	</span>rm<span class="w"> </span>-f<span class="w"> </span>kgx/schema/transformations/full_transform.transform.yaml
+
+<span class="c"># Merge imported schemas (biolink-model) into a single file</span>
+<span class="nf">schema-merge</span><span class="o">:</span><span class="w"> </span><span class="n">schema</span>-<span class="n">clean</span>
+<span class="w">	</span>@echo<span class="w"> </span><span class="s2">&quot;Merging schemas...&quot;</span>
+<span class="w">	</span>poetry<span class="w"> </span>run<span class="w"> </span>gen-linkml<span class="w"> </span>--mergeimports<span class="w"> </span>--format<span class="w"> </span>yaml<span class="w"> </span>kgx/schema/kgx.yaml<span class="w"> </span>-o<span class="w"> </span>kgx/schema/kgx_merged.yaml
+
+<span class="c"># Generate transformation specification</span>
+<span class="nf">schema-transform</span><span class="o">:</span><span class="w"> </span><span class="n">schema</span>-<span class="n">merge</span>
+<span class="w">	</span>@echo<span class="w"> </span><span class="s2">&quot;Generating transformation specification...&quot;</span>
+<span class="w">	</span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>kgx/schema/scripts/generate_transform.py<span class="w"> </span>kgx/schema/kgx_merged.yaml<span class="w"> </span>kgx/schema/transformations/full_transform.transform.yaml
+
+<span class="c"># Apply transformation to create final schema</span>
+<span class="nf">schema-apply</span><span class="o">:</span><span class="w"> </span><span class="n">schema</span>-<span class="n">transform</span>
+<span class="w">	</span>@echo<span class="w"> </span><span class="s2">&quot;Applying transformation...&quot;</span>
+<span class="w">	</span>poetry<span class="w"> </span>run<span class="w"> </span>linkml-map<span class="w"> </span>derive-schema<span class="w"> </span>-T<span class="w"> </span>kgx/schema/transformations/full_transform.transform.yaml<span class="w"> </span>-o<span class="w"> </span>kgx/schema/kgx_complete.yaml<span class="w"> </span>kgx/schema/kgx_merged.yaml
+
+<span class="c"># Complete schema build process</span>
+<span class="nf">schema</span><span class="o">:</span><span class="w"> </span><span class="n">schema</span>-<span class="n">apply</span>
+<span class="w">	</span>@echo<span class="w"> </span><span class="s2">&quot;Schema build complete. Final schema is at kgx/schema/kgx_complete.yaml&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="regenerating-the-schema">
+<h3>Regenerating the Schema<a class="headerlink" href="#regenerating-the-schema" title="Permalink to this heading">#</a></h3>
+<p>To regenerate the schema, simply run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>schema
+</pre></div>
+</div>
+<p>This will:</p>
+<ol class="arabic simple">
+<li><p>Clean up any intermediate files</p></li>
+<li><p>Merge the Biolink schema with KGX-specific classes</p></li>
+<li><p>Generate a transformation specification</p></li>
+<li><p>Apply the transformation to create the final schema</p></li>
+</ol>
+</section>
+</section>
+<section id="transformation-details">
+<h2>Transformation Details<a class="headerlink" href="#transformation-details" title="Permalink to this heading">#</a></h2>
+<section id="base-schema-kgx-yaml">
+<h3>Base Schema (kgx.yaml)<a class="headerlink" href="#base-schema-kgx-yaml" title="Permalink to this heading">#</a></h3>
+<p>The base schema imports the Biolink Model and defines KGX-specific classes:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">imports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linkml:types</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/biolink/biolink-model</span>
+
+<span class="nt">classes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">KnowledgeGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A knowledge graph represented in KGX format</span>
+<span class="w">    </span><span class="nt">slots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nodes</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edges</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="nt">Node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A node in a KGX graph, superclass for NamedThing</span>
+<span class="w">    </span><span class="nt">slots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">description</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">category</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xref</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">provided by</span>
+<span class="w">    </span>
+<span class="w">  </span><span class="nt">Edge</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">An edge in a KGX graph, superclass for Association</span>
+<span class="w">    </span><span class="nt">slots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">subject</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">predicate</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relation</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">category</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">provided by</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge source</span>
+<span class="w">      </span><span class="c1"># ... other edge slots ...</span>
+
+<span class="nt">slots</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span>
+<span class="w">    </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">inlined</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span>
+<span class="w">  </span><span class="nt">edges</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Edge</span>
+<span class="w">    </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">inlined</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="transformation-specification">
+<h3>Transformation Specification<a class="headerlink" href="#transformation-specification" title="Permalink to this heading">#</a></h3>
+<p>The transformation specification modifies the inheritance structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">class_derivations</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Make &quot;named thing&quot; a child of Node</span>
+<span class="w">  </span><span class="s">&quot;named</span><span class="nv"> </span><span class="s">thing&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">populated_from</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;named</span><span class="nv"> </span><span class="s">thing&quot;</span>
+<span class="w">    </span><span class="nt">overrides</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">is_a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span>
+<span class="w">      </span>
+<span class="w">  </span><span class="c1"># Make &quot;association&quot; a child of Edge</span>
+<span class="w">  </span><span class="nt">association</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">populated_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">association</span>
+<span class="w">    </span><span class="nt">overrides</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">is_a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Edge</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="future-improvements">
+<h2>Future Improvements<a class="headerlink" href="#future-improvements" title="Permalink to this heading">#</a></h2>
+<p>Potential future improvements to the schema generation process:</p>
+<ol class="arabic simple">
+<li><p><strong>Automatic Class Case Conversion</strong>: Add support for converting Biolink’s space-separated class names (e.g., “named thing”) to CamelCase (e.g., “NamedThing”).</p></li>
+<li><p><strong>Slot Case Conversion</strong>: Convert Biolink’s space-separated slot names to snake_case automatically.</p></li>
+<li><p><strong>Schema Documentation</strong>: Generate comprehensive documentation for the KGX schema that includes both KGX-specific elements and inherited Biolink elements.</p></li>
+<li><p><strong>Validation Rules</strong>: Add KGX-specific validation rules to ensure data conforms to both KGX and Biolink requirements.</p></li>
+</ol>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://biolink.github.io/biolink-model/">Biolink Model</a></p></li>
+<li><p><a class="reference external" href="https://linkml.io/linkml/">LinkML Documentation</a></p></li>
+<li><p><a class="reference external" href="https://linkml.io/linkml-map/">LinkML Map Documentation</a></p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="reference/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="kgx_format.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">KGX Specification</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">KGX Schema</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#purpose">Purpose</a></li>
+<li><a class="reference internal" href="#benefits-of-this-approach">Benefits of This Approach</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#technical-implementation">Technical Implementation</a><ul>
+<li><a class="reference internal" href="#schema-generation-process">Schema Generation Process</a></li>
+<li><a class="reference internal" href="#directory-structure">Directory Structure</a></li>
+<li><a class="reference internal" href="#makefile-targets">Makefile Targets</a></li>
+<li><a class="reference internal" href="#regenerating-the-schema">Regenerating the Schema</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#transformation-details">Transformation Details</a><ul>
+<li><a class="reference internal" href="#base-schema-kgx-yaml">Base Schema (kgx.yaml)</a></li>
+<li><a class="reference internal" href="#transformation-specification">Transformation Specification</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-improvements">Future Improvements</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

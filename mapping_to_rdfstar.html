@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>Mapping kgx to rdf-star - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
     
@@ -162,18 +162,21 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kgx_format.html">KGX Format</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of KGX Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Graph Operations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -186,7 +189,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -233,14 +236,14 @@
         </div>
         <article role="main">
           <section id="mapping-kgx-to-rdf-star">
-<h1>Mapping kgx to rdf-star<a class="headerlink" href="#mapping-kgx-to-rdf-star" title="Link to this heading">¶</a></h1>
+<h1>Mapping kgx to rdf-star<a class="headerlink" href="#mapping-kgx-to-rdf-star" title="Permalink to this heading">#</a></h1>
 <p>The mapping is specified as mapping between (1) two tables (nodes and edges), two sets of
 mappings (column and prefix) and (2) an RDF* graph.</p>
 <ul class="simple">
 <li><p>RDF*: https://w3c.github.io/rdf-star/cg-spec/</p></li>
 </ul>
 <section id="input-tables">
-<h2>Input Tables<a class="headerlink" href="#input-tables" title="Link to this heading">¶</a></h2>
+<h2>Input Tables<a class="headerlink" href="#input-tables" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>nodes</p></li>
 <li><p>edges</p></li>
@@ -252,9 +255,9 @@ is used, multivalued fields are separated by <code class="docutils literal notra
 should be escaped with backquotes.</p>
 </section>
 <section id="input-mappings">
-<h2>Input Mappings<a class="headerlink" href="#input-mappings" title="Link to this heading">¶</a></h2>
+<h2>Input Mappings<a class="headerlink" href="#input-mappings" title="Permalink to this heading">#</a></h2>
 <section id="column-mappings">
-<h3>Column Mappings<a class="headerlink" href="#column-mappings" title="Link to this heading">¶</a></h3>
+<h3>Column Mappings<a class="headerlink" href="#column-mappings" title="Permalink to this heading">#</a></h3>
 <p>A set of column mappings is provided as input.</p>
 <p>A mapping <code class="docutils literal notranslate"><span class="pre">columnToProperty</span></code> maps between a column in either node or
 edges file and a URI.</p>
@@ -271,7 +274,7 @@ subproperty of rdf:type). However, the mapping from kgx to RDF* is
 independent of biolink, and can be used with any vocabulary.</p>
 </section>
 <section id="prefix-mappings-curie-expansion">
-<h3>Prefix Mappings (CURIE expansion)<a class="headerlink" href="#prefix-mappings-curie-expansion" title="Link to this heading">¶</a></h3>
+<h3>Prefix Mappings (CURIE expansion)<a class="headerlink" href="#prefix-mappings-curie-expansion" title="Permalink to this heading">#</a></h3>
 <p>A set of prefix mappings is provided as input.</p>
 <p>These may be specified using JSON-LD contexts, via a simple YAML
 file. As far as the specification goes, this is a simple pairwise
@@ -285,27 +288,27 @@ baseURI and appended onto LOCAL to make the URI.</p>
 </section>
 </section>
 <section id="node-sets">
-<h2>Node Sets<a class="headerlink" href="#node-sets" title="Link to this heading">¶</a></h2>
+<h2>Node Sets<a class="headerlink" href="#node-sets" title="Permalink to this heading">#</a></h2>
 <p>Each row is uniquely identified by the <code class="docutils literal notranslate"><span class="pre">id</span></code> column. There MUST NOT be
 more than one row with the same <code class="docutils literal notranslate"><span class="pre">id</span></code>. Each row MUST have an id specified.</p>
 <p>For each row-column combination <code class="docutils literal notranslate"><span class="pre">(R,C)</span></code> for columns other than <code class="docutils literal notranslate"><span class="pre">id</span></code>, a
 single triple is generated.</p>
-<div class="highlight-turtle notranslate"><div class="highlight"><pre><span></span><span class="err">uri</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">id</span><span class="p">)</span> <span class="err">columnToProperty</span><span class="p">(</span><span class="err">C</span><span class="p">)</span> <span class="err">literalValue</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">C</span><span class="p">)</span> <span class="p">.</span>
+<div class="highlight-turtle notranslate"><div class="highlight"><pre><span></span>uri(R.id) columnToProperty(C) literalValue(R.C) .
 </pre></div>
 </div>
 </section>
 <section id="edge-sets">
-<h2>Edge Sets<a class="headerlink" href="#edge-sets" title="Link to this heading">¶</a></h2>
+<h2>Edge Sets<a class="headerlink" href="#edge-sets" title="Permalink to this heading">#</a></h2>
 <p>Each edge is optionally uniquely identified by the <code class="docutils literal notranslate"><span class="pre">id</span></code> column. There
 MUST NOT be more than one row with same id (TODO).</p>
 <p>A triple is emitted for each row, where the triple is quoted and
 additional triples are emitted with the core triple as subject for
 each column C, where C is not in <code class="docutils literal notranslate"><span class="pre">{subject,predicate,object}</span></code></p>
-<div class="highlight-turtle notranslate"><div class="highlight"><pre><span></span><span class="err">&lt;&lt;</span> <span class="err">uri</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">subject</span><span class="p">)</span> <span class="err">uri</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">predicate</span><span class="p">)</span> <span class="err">uri</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">object</span><span class="p">)</span> <span class="err">&gt;&gt;</span>
-   <span class="err">columnToProperty</span><span class="p">(</span><span class="err">C</span><span class="mi">1</span><span class="p">)</span> <span class="err">literalOrNode</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">C</span><span class="mi">1</span><span class="p">,</span> <span class="err">C</span><span class="mi">1</span><span class="p">)</span> <span class="p">;</span>
-   <span class="err">columnToProperty</span><span class="p">(</span><span class="err">C</span><span class="mi">2</span><span class="p">)</span> <span class="err">literalOrNode</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">C</span><span class="mi">2</span><span class="p">,</span> <span class="err">C</span><span class="mi">2</span><span class="p">)</span> <span class="p">;</span>
-   <span class="p">...</span> <span class="p">;</span>
-   <span class="err">columnToProperty</span><span class="p">(</span><span class="err">Cn</span><span class="p">)</span> <span class="err">literalOrNode</span><span class="p">(</span><span class="err">R</span><span class="p">.</span><span class="err">Cn</span><span class="p">,</span> <span class="err">Cn</span><span class="p">)</span> <span class="p">.</span>
+<div class="highlight-turtle notranslate"><div class="highlight"><pre><span></span>&lt;&lt; uri(R.subject) uri(R.predicate) uri(R.object) &gt;&gt;
+   columnToProperty(C1) literalOrNode(R.C1, C1) ;
+   columnToProperty(C2) literalOrNode(R.C2, C2) ;
+   ... ;
+   columnToProperty(Cn) literalOrNode(R.Cn, Cn) .
 </pre></div>
 </div>
 <p>TODO: id field</p>
@@ -369,11 +372,14 @@ each column C, where C is not in <code class="docutils literal notranslate"><spa
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     </body>

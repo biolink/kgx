@@ -1,22 +1,13 @@
-# KGX Format
+# KGX Specification
 
 The KGX format is a serialization of Biolink Model compliant knowledge graphs.
 
-## Table of Contents
+```{toctree}
+:maxdepth: 2
+:hidden:
 
-- [Introduction](#introduction)
-- [KGX format](#kgx-format)
-    - [Node Record](#node-record)
-        - [Core Node Record Elements](#core-node-record-elements)
-        - [Optional Node Record Elements](#optional-node-record-elements)
-    - [Edge Record](#edge-record)
-        - [Core Edge Record Elements](#core-edge-record-elements)
-        - [Optional Edge Record Elements](#optional-edge-record-elements)
-- [KGX format as JSON](#kgx-format-as-json)
-- [KGX format as TSV](#kgx-format-as-tsv)
-- [KGX format as JSON Lines](#kgx-format-as-json-lines)
-- [KGX format as RDF Turtle](#kgx-format-as-rdf-turtle)
-        
+```
+
 ## Introduction
 
 The KGX format is a serialization of Biolink Model compliant knowledge graphs.
@@ -118,8 +109,11 @@ For example, [category](https://biolink.github.io/biolink-model/category) and [p
 An edge can also have other properties that are not from Biolink Model. While it is recommended that these properties are well represented in the model to begin with, having these as edge properties will not violate the specification.
 
 
+## Format Serializations
 
-## KGX format as JSON
+KGX supports multiple serialization formats for knowledge graphs, each with its own structure and characteristics. Below are the different serialization formats supported by KGX.
+
+### KGX format as JSON
 
 The structure of the KGX JSON format is as follows:
 
@@ -165,7 +159,7 @@ A sample KGX JSON that represents a graph with 2 nodes and 1 edge:
 
 ```
 
-## KGX format as TSV
+### KGX format as TSV
 
 The KGX TSV format is structured slightly different from the JSON in that there are two files - one for nodes and another for edges.
 
@@ -193,37 +187,37 @@ Few noted caveats of the TSV serialization:
 - Fields that accept lists of value - e.g. the above fields for `category` (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with `biolink:Gene` and `biolink:Disease`) and `publications` - have values typically a list of values delimited by a Unix pipe ('|') character, unless otherwise programmatically overridden, using an available `list_delimiter` parameter, during TSV _source_ or _sink_ data parsing by the KGX software tool)
 
 
-## KGX JSON Lines Format Specification
+### KGX format as JSON Lines
 
 The JSON Lines format provides a simple and efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format combines the advantages of JSON (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.
 
-### File Structure
+#### File Structure
 - `{filename}_nodes.jsonl`: Contains one node per line, each as a complete JSON object
 - `{filename}_edges.jsonl`: Contains one edge per line, each as a complete JSON object
 
-### Node Record Format
+#### Node Record Format
 
-#### Required Properties
+##### Required Properties
 - `id` (string): A CURIE that uniquely identifies the node in the graph
 - `category` (array of strings): List of Biolink categories for the node, from the [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy
 
-#### Common Optional Properties
+##### Common Optional Properties
 - `name` (string): Human-readable name of the entity
 - `description` (string): Human-readable description of the entity
 - `provided_by` (array of strings): List of sources that provided this node
 - `xref` (array of strings): List of database cross-references as CURIEs
 - `synonym` (array of strings): List of alternative names for the entity
 
-### Edge Record Format
+#### Edge Record Format
 
-#### Required Properties
+##### Required Properties
 - `subject` (string): CURIE of the source node
 - `predicate` (string): Biolink predicate representing the relationship type
 - `object` (string): CURIE of the target node
 - `knowledge_level` (string): Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model
 - `agent_type` (string): Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model
 
-#### Common Optional Properties
+##### Common Optional Properties
 - `id` (string): Unique identifier for the edge, often a UUID
 - `relation` (string): Relation CURIE from a formal relation ontology (e.g., RO)
 - `category` (array of strings): List of Biolink association categories
@@ -232,7 +226,7 @@ The JSON Lines format provides a simple and efficient way to represent KGX data 
 - `aggregator_knowledge_source` (array of strings): Knowledge aggregator sources
 - `publications` (array of strings): List of publication CURIEs supporting the edge
 
-### Examples
+#### Examples
 
 **Node Example (nodes.jsonl)**:
 
@@ -245,14 +239,18 @@ Each line in a nodes.jsonl file represents a complete node record. Here are exam
   "category": [
     "biolink:Gene"
   ]
-},
+}
+```
+```json
 {
   "id": "MONDO:0005002",
   "name": "chronic obstructive pulmonary disease",
   "category": [
     "biolink:Disease"
   ]
-},
+}
+```
+```json
 {
   "id": "CHEBI:15365",
   "name": "acetaminophen",
@@ -284,7 +282,9 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "relation": "RO:0003304",
   "knowledge_level": "assertion",
   "agent_type": "computational"
-},
+}
+```
+```json
 {
 "id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e",
 "subject": "HGNC:11603",
@@ -296,7 +296,9 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
 "publications": ["PMID:26634245", "PMID:26634244"],
 "knowledge_level": "observation",
 "agent_type": "biological"
-},
+}
+```
+```json
 {
 "id": "c7d632b4-6708-4296-9cfe-44bc586d32c8",
 "subject": "CHEBI:15365",
@@ -319,11 +321,12 @@ In the actual jsonlines file, each record would be on a single line without comm
 {"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwas-catalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
 ```
 
-### Usage Notes
+#### Usage Notes
 - All field values should follow the KGX specification and Biolink Model requirements
 - Arrays should be represented as JSON arrays (not pipe-delimited strings)
 - For large KGs, JSON Lines offers better streaming performance than monolithic JSON
-## KGX format as RDF Turtle
+
+### KGX format as RDF Turtle
 
 A sample KGX RDF Turtle (TTL) that represents a graph with 2 nodes and 1 edge:
 
