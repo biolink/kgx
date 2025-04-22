@@ -192,30 +192,137 @@ Few noted caveats of the TSV serialization:
 - The order of the columns can be specified for core properties but not for other Biolink or non-Biolink properties. This leads to a mismatch in expectation on the ordering of columns in the TSV for nodes and/or edges.
 - Fields that accept lists of value - e.g. the above fields for `category` (which in the Biolink Model may contain all the ancestors category classes of the most specific category, as noted in the above example with `biolink:Gene` and `biolink:Disease`) and `publications` - have values typically a list of values delimited by a Unix pipe ('|') character, unless otherwise programmatically overridden, using an available `list_delimiter` parameter, during TSV _source_ or _sink_ data parsing by the KGX software tool)
 
-## KGX format as JSON Lines
 
-The KGX JSON Lines format is similar to the TSV format in that there are two files - one for nodes and another for edges.
+## KGX JSON Lines Format Specification
 
-- `nodes.jsonl`: each row corresponds to a Node record.
-- `edges.jsonl`: each row corresponds to an Edge record.
+The JSON Lines format provides a simple and efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format combines the advantages of JSON (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.
 
-A sample KGX JSON Lines that represents a graph with 2 nodes and 1 edge:
+### File Structure
+- `{filename}_nodes.jsonl`: Contains one node per line, each as a complete JSON object
+- `{filename}_edges.jsonl`: Contains one edge per line, each as a complete JSON object
 
-nodes.jsonl
-```jsonlines
-{ "id": "HGNC:11603", "name": "TBX4", "category": ["biolink:Gene"],"provided_by": ["MonarchArchive:gwascatalog"] }
-{ "id": "MONDO:0005002", "name": "chronic obstructive pulmonary disease", "category": ["biolink:Disease"], "provided_by": ["MonarchArchive:gwascatalog"] }
+### Node Record Format
+
+#### Required Properties
+- `id` (string): A CURIE that uniquely identifies the node in the graph
+- `category` (array of strings): List of Biolink categories for the node, from the [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy
+
+#### Common Optional Properties
+- `name` (string): Human-readable name of the entity
+- `description` (string): Human-readable description of the entity
+- `provided_by` (array of strings): List of sources that provided this node
+- `xref` (array of strings): List of database cross-references as CURIEs
+- `synonym` (array of strings): List of alternative names for the entity
+
+### Edge Record Format
+
+#### Required Properties
+- `subject` (string): CURIE of the source node
+- `predicate` (string): Biolink predicate representing the relationship type
+- `object` (string): CURIE of the target node
+- `knowledge_level` (string): Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model
+- `agent_type` (string): Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model
+
+#### Common Optional Properties
+- `id` (string): Unique identifier for the edge, often a UUID
+- `relation` (string): Relation CURIE from a formal relation ontology (e.g., RO)
+- `category` (array of strings): List of Biolink association categories
+- `knowledge_source` (array of strings): Sources of knowledge (deprecated: `provided_by`)
+- `primary_knowledge_source` (array of strings): Primary knowledge sources
+- `aggregator_knowledge_source` (array of strings): Knowledge aggregator sources
+- `publications` (array of strings): List of publication CURIEs supporting the edge
+
+### Examples
+
+**Node Example (nodes.jsonl)**:
+
+Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:
+
+```json
+{
+  "id": "HGNC:11603",
+  "name": "TBX4",
+  "category": [
+    "biolink:Gene"
+  ]
+},
+{
+  "id": "MONDO:0005002",
+  "name": "chronic obstructive pulmonary disease",
+  "category": [
+    "biolink:Disease"
+  ]
+},
+{
+  "id": "CHEBI:15365",
+  "name": "acetaminophen",
+  "category": [
+    "biolink:SmallMolecule",
+    "biolink:ChemicalEntity"
+  ]
+}
 ```
 
-edges.jsonl
-```jsonlines
-{ "id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e", "subject": "HGNC:11603", "predicate": "biolink:contributes_to", "object": "MONDO:0005002", "relation": "RO:0003304", "category": ["biolink:GeneToDiseaseAssociation"], "primary_knowledge_source": ["MonarchArchive:gwascatalog"], "publications": ["PMID:26634245", "PMID:26634244"] }
+In the actual jsonlines file, each record would be on a single line without comments and formatting:
+
+```text
+{"id":"HGNC:11603","name":"TBX4","category":["biolink:Gene"]}
+{"id":"MONDO:0005002","name":"chronic obstructive pulmonary disease","category":["biolink:Disease"]}
+{"id":"CHEBI:15365","name":"acetaminophen","category":["biolink:SmallMolecule","biolink:ChemicalEntity"]}
 ```
 
-- The structure of jsonl nodes and edges is the same as the structures in the JSON representation,  but with one node or edge per line.
-- The jsonl is more streamable than json, without creating the sparseness of the TSV files.
+**Edge Example (edges.jsonl)**:
 
+Each line in a jsonlines file represents a complete edge record. Here are examples of different edge types:
 
+```json
+{
+  "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
+  "subject": "HGNC:11603",
+  "object": "MONDO:0005002",
+  "predicate": "biolink:related_to",
+  "relation": "RO:0003304",
+  "knowledge_level": "assertion",
+  "agent_type": "computational"
+},
+{
+"id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e",
+"subject": "HGNC:11603",
+"predicate": "biolink:contributes_to",
+"object": "MONDO:0005002",
+"relation": "RO:0003304",
+"category": ["biolink:GeneToDiseaseAssociation"],
+"primary_knowledge_source": ["infores:gwas-catalog"],
+"publications": ["PMID:26634245", "PMID:26634244"],
+"knowledge_level": "observation",
+"agent_type": "biological"
+},
+{
+"id": "c7d632b4-6708-4296-9cfe-44bc586d32c8",
+"subject": "CHEBI:15365",
+"predicate": "biolink:affects",
+"object": "GO:0006915",
+"relation": "RO:0002434",
+"category": ["biolink:ChemicalToProcessAssociation"],
+"primary_knowledge_source": ["infores:monarchinitiative"],
+"aggregator_knowledge_source": ["infores:biolink-api"],
+"publications": ["PMID:12345678"],
+"knowledge_level": "assertion",
+"agent_type": "computational"
+}
+```
+
+In the actual jsonlines file, each record would be on a single line without comments and formatting:
+
+```text
+{"id":"a8575c4e-61a6-428a-bf09-fcb3e8d1644d","subject":"HGNC:11603","object":"MONDO:0005002","predicate":"biolink:related_to","relation":"RO:0003304","knowledge_level":"assertion","agent_type":"computational"}
+{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwas-catalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
+```
+
+### Usage Notes
+- All field values should follow the KGX specification and Biolink Model requirements
+- Arrays should be represented as JSON arrays (not pipe-delimited strings)
+- For large KGs, JSON Lines offers better streaming performance than monolithic JSON
 ## KGX format as RDF Turtle
 
 A sample KGX RDF Turtle (TTL) that represents a graph with 2 nodes and 1 edge:
