@@ -22,7 +22,8 @@ TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.
    installation
    reference/index.md
    kgx_format
-   schema_transformation
+   kgx_schema_generation
+   mapping_to_rdfstar
    examples
 ```
 
