@@ -1319,27 +1319,28 @@ assumptions applied, if any.</p>
 <p><code class="docutils literal notranslate"><span class="pre">JsonlSource</span></code> is responsible for reading data from a KGX formatted JSON Lines using the
 <a class="reference external" href="https://jsonlines.readthedocs.io/en/latest/">jsonlines</a> library.</p>
 <p>KGX expects two separate JSON Lines files - one for nodes and another for edges.</p>
+</section>
 <section id="kgx-json-lines-format-specification">
-<h3>KGX JSON Lines Format Specification<a class="headerlink" href="#kgx-json-lines-format-specification" title="Link to this heading">¶</a></h3>
+<h2>KGX JSON Lines Format Specification<a class="headerlink" href="#kgx-json-lines-format-specification" title="Link to this heading">¶</a></h2>
 <p>The JSON Lines format provides an efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format is ideal for streaming large graphs and combines the advantages of JSON with line-oriented processing.</p>
 <section id="file-structure">
-<h4>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h4>
+<h3>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains one node per line, each as a complete JSON object</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_edges.jsonl</span></code>: Contains one edge per line, each as a complete JSON object</p></li>
 </ul>
 </section>
 <section id="node-record-format">
-<h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Link to this heading">¶</a></h4>
+<h3>Node Record Format<a class="headerlink" href="#node-record-format" title="Link to this heading">¶</a></h3>
 <section id="required-properties">
-<h5>Required Properties<a class="headerlink" href="#required-properties" title="Link to this heading">¶</a></h5>
+<h4>Required Properties<a class="headerlink" href="#required-properties" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): A CURIE that uniquely identifies the node in the graph</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> (array of strings): List of Biolink categories for the node, from the <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy</p></li>
 </ul>
 </section>
 <section id="common-optional-properties">
-<h5>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Link to this heading">¶</a></h5>
+<h4>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (string): Human-readable name of the entity</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (string): Human-readable description of the entity</p></li>
@@ -1350,9 +1351,9 @@ assumptions applied, if any.</p>
 </section>
 </section>
 <section id="edge-record-format">
-<h4>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Link to this heading">¶</a></h4>
+<h3>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Link to this heading">¶</a></h3>
 <section id="id1">
-<h5>Required Properties<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h5>
+<h4>Required Properties<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code> (string): CURIE of the source node</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code> (string): Biolink predicate representing the relationship type</p></li>
@@ -1362,7 +1363,7 @@ assumptions applied, if any.</p>
 </ul>
 </section>
 <section id="id2">
-<h5>Common Optional Properties<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h5>
+<h4>Common Optional Properties<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): Unique identifier for the edge, often a UUID</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">relation</span></code> (string): Relation CURIE from a formal relation ontology (e.g., RO)</p></li>
@@ -1375,7 +1376,7 @@ assumptions applied, if any.</p>
 </section>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h4>
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
 <p><strong>Node Example (nodes.jsonl)</strong>:</p>
 <p>Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -1419,7 +1420,7 @@ assumptions applied, if any.</p>
 <span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:GeneToDiseaseAssociation&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwascatalog&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwas-catalog&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:26634245&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PMID:26634244&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;observation&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biological&quot;</span>
@@ -1431,8 +1432,8 @@ assumptions applied, if any.</p>
 <span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GO:0006915&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0002434&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:ChemicalToProcessAssociation&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:monarch-kg&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;aggregator_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:monarch-kg-archive&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:monarchinitiative&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;aggregator_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:biolink-api&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:12345678&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
@@ -1441,12 +1442,12 @@ assumptions applied, if any.</p>
 </div>
 <p>In the actual jsonlines file, each record would be on a single line without comments and formatting:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;a8575c4e-61a6-428a-bf09-fcb3e8d1644d&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;predicate&quot;:&quot;biolink:related_to&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;knowledge_level&quot;:&quot;assertion&quot;,&quot;agent_type&quot;:&quot;computational&quot;}
-{&quot;id&quot;:&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;predicate&quot;:&quot;biolink:contributes_to&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;category&quot;:[&quot;biolink:GeneToDiseaseAssociation&quot;],&quot;primary_knowledge_source&quot;:[&quot;infores:gwascatalog&quot;],&quot;publications&quot;:[&quot;PMID:26634245&quot;,&quot;PMID:26634244&quot;],&quot;knowledge_level&quot;:&quot;observation&quot;,&quot;agent_type&quot;:&quot;biological&quot;}
+{&quot;id&quot;:&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;predicate&quot;:&quot;biolink:contributes_to&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;category&quot;:[&quot;biolink:GeneToDiseaseAssociation&quot;],&quot;primary_knowledge_source&quot;:[&quot;infores:gwas-catalog&quot;],&quot;publications&quot;:[&quot;PMID:26634245&quot;,&quot;PMID:26634244&quot;],&quot;knowledge_level&quot;:&quot;observation&quot;,&quot;agent_type&quot;:&quot;biological&quot;}
 </pre></div>
 </div>
 </section>
 <section id="reading-json-lines-with-kgx">
-<h4>Reading JSON Lines with KGX<a class="headerlink" href="#reading-json-lines-with-kgx" title="Link to this heading">¶</a></h4>
+<h3>Reading JSON Lines with KGX<a class="headerlink" href="#reading-json-lines-with-kgx" title="Link to this heading">¶</a></h3>
 <p>When using KGX to read JSON Lines files, the library will:</p>
 <ol class="arabic simple">
 <li><p>Parse each line as a complete JSON object</p></li>
@@ -1747,7 +1748,6 @@ assumptions applied, if any.</p>
 
 </dd></dl>
 
-</section>
 </section>
 </section>
 <section id="kgx-source-trapi-source">
@@ -4005,11 +4005,6 @@ assumptions applied, if any.</p>
 </dd></dl>
 
 </section>
-<section id="kgx-source-sparql-source">
-<h2>kgx.source.sparql_source<a class="headerlink" href="#kgx-source-sparql-source" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">SparqlSource</span></code> has yet to be implemented.</p>
-<p>In principle, <code class="docutils literal notranslate"><span class="pre">SparqlSource</span></code> should be able to read data from a local or remote SPARQL endpoint.</p>
-</section>
 </section>
 
         </article>
@@ -4163,7 +4158,7 @@ assumptions applied, if any.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-source-jsonl-source">kgx.source.jsonl_source</a><ul>
+<li><a class="reference internal" href="#kgx-source-jsonl-source">kgx.source.jsonl_source</a></li>
 <li><a class="reference internal" href="#kgx-json-lines-format-specification">KGX JSON Lines Format Specification</a><ul>
 <li><a class="reference internal" href="#file-structure">File Structure</a></li>
 <li><a class="reference internal" href="#node-record-format">Node Record Format</a><ul>
@@ -4199,8 +4194,6 @@ assumptions applied, if any.</p>
 <li><a class="reference internal" href="#kgx.source.jsonl_source.JsonlSource.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">JsonlSource.set_reverse_prefix_map()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.jsonl_source.JsonlSource.validate_edge"><code class="docutils literal notranslate"><span class="pre">JsonlSource.validate_edge()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.jsonl_source.JsonlSource.validate_node"><code class="docutils literal notranslate"><span class="pre">JsonlSource.validate_node()</span></code></a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -4385,7 +4378,6 @@ assumptions applied, if any.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-source-sparql-source">kgx.source.sparql_source</a></li>
 </ul>
 </li>
 </ul>

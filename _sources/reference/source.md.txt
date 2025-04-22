@@ -95,37 +95,37 @@ library, which allows for streaming data from the file.
 
 KGX expects two separate JSON Lines files - one for nodes and another for edges.
 
-### KGX JSON Lines Format Specification
+## KGX JSON Lines Format Specification
 
 The JSON Lines format provides an efficient way to represent KGX data where each line contains a single JSON object representing either a node or an edge. This format is ideal for streaming large graphs and combines the advantages of JSON with line-oriented processing.
 
-#### File Structure
+### File Structure
 - `{filename}_nodes.jsonl`: Contains one node per line, each as a complete JSON object
 - `{filename}_edges.jsonl`: Contains one edge per line, each as a complete JSON object
 
-#### Node Record Format
+### Node Record Format
 
-##### Required Properties
+#### Required Properties
 - `id` (string): A CURIE that uniquely identifies the node in the graph
 - `category` (array of strings): List of Biolink categories for the node, from the [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy
 
-##### Common Optional Properties
+#### Common Optional Properties
 - `name` (string): Human-readable name of the entity
 - `description` (string): Human-readable description of the entity
 - `provided_by` (array of strings): List of sources that provided this node
 - `xref` (array of strings): List of database cross-references as CURIEs
 - `synonym` (array of strings): List of alternative names for the entity
 
-#### Edge Record Format
+### Edge Record Format
 
-##### Required Properties
+#### Required Properties
 - `subject` (string): CURIE of the source node
 - `predicate` (string): Biolink predicate representing the relationship type
 - `object` (string): CURIE of the target node
 - `knowledge_level` (string): Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model
 - `agent_type` (string): Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model
 
-##### Common Optional Properties
+#### Common Optional Properties
 - `id` (string): Unique identifier for the edge, often a UUID
 - `relation` (string): Relation CURIE from a formal relation ontology (e.g., RO)
 - `category` (array of strings): List of Biolink association categories
@@ -134,7 +134,7 @@ The JSON Lines format provides an efficient way to represent KGX data where each
 - `aggregator_knowledge_source` (array of strings): Knowledge aggregator sources
 - `publications` (array of strings): List of publication CURIEs supporting the edge
 
-#### Examples
+### Examples
 
 **Node Example (nodes.jsonl)**:
 
@@ -187,7 +187,7 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "object": "MONDO:0005002",
   "relation": "RO:0003304",
   "category": ["biolink:GeneToDiseaseAssociation"],
-  "primary_knowledge_source": ["infores:gwascatalog"],
+  "primary_knowledge_source": ["infores:gwas-catalog"],
   "publications": ["PMID:26634245", "PMID:26634244"],
   "knowledge_level": "observation",
   "agent_type": "biological"
@@ -199,8 +199,8 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "object": "GO:0006915",
   "relation": "RO:0002434",
   "category": ["biolink:ChemicalToProcessAssociation"],
-  "primary_knowledge_source": ["infores:monarch-kg"],
-  "aggregator_knowledge_source": ["infores:monarch-kg-archive"],
+  "primary_knowledge_source": ["infores:monarchinitiative"],
+  "aggregator_knowledge_source": ["infores:biolink-api"],
   "publications": ["PMID:12345678"],
   "knowledge_level": "assertion",
   "agent_type": "computational"
@@ -211,10 +211,10 @@ In the actual jsonlines file, each record would be on a single line without comm
 
 ```text
 {"id":"a8575c4e-61a6-428a-bf09-fcb3e8d1644d","subject":"HGNC:11603","object":"MONDO:0005002","predicate":"biolink:related_to","relation":"RO:0003304","knowledge_level":"assertion","agent_type":"computational"}
-{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwascatalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
+{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwas-catalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
 ```
 
-#### Reading JSON Lines with KGX
+### Reading JSON Lines with KGX
 When using KGX to read JSON Lines files, the library will:
 1. Parse each line as a complete JSON object
 2. Validate required fields are present
@@ -316,16 +316,3 @@ to certain OWL axioms.
    :show-inheritance:
 ```
 
-## kgx.source.sparql_source
-
-`SparqlSource` has yet to be implemented.
-
-In principle, `SparqlSource` should be able to read data from a local or remote SPARQL endpoint. 
-
-
-```{eval-rst}
-.. automodule:: kgx.source.sparql_source
-   :members:
-   :inherited-members:
-   :show-inheritance:
-```
