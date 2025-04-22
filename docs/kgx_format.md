@@ -60,13 +60,13 @@ KGX supports multiple serialization formats for knowledge graphs.
         "id": "HGNC:11603",
         "name": "TBX4",
         "category": ["biolink:Gene"],
-        "provided_by": ["MonarchArchive:gwascatalog"]
+        "provided_by": ["infores:gwascatalog"]
       },
       {
         "id": "MONDO:0005002",
         "name": "chronic obstructive pulmonary disease",
         "category": ["biolink:Disease"],
-        "provided_by": ["MonarchArchive:gwascatalog"]
+        "provided_by": ["infores:gwascatalog"]
       }
     ],
     "edges" : [
@@ -77,7 +77,7 @@ KGX supports multiple serialization formats for knowledge graphs.
         "object": "MONDO:0005002",
         "relation": "RO:0003304",
         "category": ["biolink:GeneToDiseaseAssociation"],
-        "primary_knowledge_source": ["MonarchArchive:gwascatalog"],
+        "primary_knowledge_source": ["infores:gwascatalog"],
         "publications": ["PMID:26634245", "PMID:26634244"]
       }
     ]
@@ -91,7 +91,7 @@ KGX TSV format uses two files - one for nodes and another for edges.
 **nodes.tsv**
 ```tsv
 id	category	name	provided_by
-HGNC:11603	biolink:NamedThing|biolink:BiologicalEntity|biolink:Gene	TBX4	MonarchArchive:gwascatalog
+HGNC:11603	biolink:NamedThing|biolink:BiologicalEntity|biolink:Gene	TBX4	infores:gwascatalog
 MONDO:0005002	biolink:NamedThing|biolink:BiologicalEntity|biolink:DiseaseOrPhenotypicFeature|biolink:Disease	chronic obstructive pulmonary disease	infores:gwascatalog
 ```
 
