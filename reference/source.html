@@ -1,0 +1,471 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Sink" href="sink.html" /><link rel="prev" title="Examples" href="../examples.html" />
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2023.09.10 -->
+        <title>Source - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kgx_format.html">KGX Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Reference</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sink.html">Sink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graph.html">Graph</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="source">
+<h1>Source<a class="headerlink" href="#source" title="Link to this heading">¶</a></h1>
+<p>A Source can be implemented for any file, local, and/or remote store that can contains a graph. A Source is responsible for reading nodes and edges from the graph.</p>
+<p>A source must subclass <code class="docutils literal notranslate"><span class="pre">kgx.source.source.Source</span></code> class and must implement the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parse</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_nodes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_edges</span></code></p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">parse</span></code> method</strong></p>
+<ul class="simple">
+<li><p>Responsible for parsing a graph from a file/store</p></li>
+<li><p>Must return a generator that iterates over list of node and edge records from the graph</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">read_nodes</span></code> method</strong></p>
+<ul class="simple">
+<li><p>Responsible for reading nodes from the file/store</p></li>
+<li><p>Must return a generator that iterates over list of node records</p></li>
+<li><p>Each node record must be a 2-tuple <code class="docutils literal notranslate"><span class="pre">(node_id,</span> <span class="pre">node_data)</span></code> where,</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_id</span></code> is the node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_data</span></code> is a dictionary that represents the node properties</p></li>
+</ul>
+</li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">read_edges</span></code> method</strong></p>
+<ul class="simple">
+<li><p>Responsible for reading edges from the file/store</p></li>
+<li><p>Must return a generator that iterates over list of edge records</p></li>
+<li><p>Each edge record must be a 4-tuple <code class="docutils literal notranslate"><span class="pre">(subject_id,</span> <span class="pre">object_id,</span> <span class="pre">edge_key,</span> <span class="pre">edge_data)</span></code> where,</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> is the subject node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">object_id</span></code> is the object node CURIE</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_key</span></code> is the unique key for the edge</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_data</span></code> is a dictionary that represents the edge properties</p></li>
+</ul>
+</li>
+</ul>
+<section id="kgx-source-source">
+<h2>kgx.source.source<a class="headerlink" href="#kgx-source-source" title="Link to this heading">¶</a></h2>
+<p>Base class for all Sources in KGX.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-graph-source">
+<h2>kgx.source.graph_source<a class="headerlink" href="#kgx-source-graph-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GraphSource</span></code> is responsible for reading from an instance of <code class="docutils literal notranslate"><span class="pre">kgx.graph.base_graph.BaseGraph</span></code> and must use only
+the methods exposed by <code class="docutils literal notranslate"><span class="pre">BaseGraph</span></code> to access the graph.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.graph_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-tsv-source">
+<h2>kgx.source.tsv_source<a class="headerlink" href="#kgx-source-tsv-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">TsvSource</span></code> is responsible for reading from KGX formatted CSV or TSV using Pandas where every flat file is treated as a
+Pandas DataFrame and from which data are read in chunks.</p>
+<p>KGX expects two separate files - one for nodes and another for edges.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.tsv_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-json-source">
+<h2>kgx.source.json_source<a class="headerlink" href="#kgx-source-json-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">JsonSource</span></code> is responsible for reading data from a KGX formatted JSON using the <a class="reference external" href="https://pypi.org/project/ijson/">ijson</a>
+library, which allows for streaming data from the file.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.json_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-jsonl-source">
+<h2>kgx.source.jsonl_source<a class="headerlink" href="#kgx-source-jsonl-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">JsonlSource</span></code> is responsible for reading data from a KGX formatted JSON Lines using the
+<a class="reference external" href="https://jsonlines.readthedocs.io/en/latest/">jsonlines</a> library.</p>
+<p>KGX expects two separate JSON Lines files - one for nodes and another for edges.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.jsonl_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-trapi-source">
+<h2>kgx.source.trapi_source<a class="headerlink" href="#kgx-source-trapi-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">TrapiSource</span></code> is responsible for reading data from a <a class="reference external" href="https://github.com/NCATSTranslator/ReasonerAPI">Translator Reasoner API</a>
+formatted JSON.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.trapi_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-obograph-source">
+<h2>kgx.source.obograph_source<a class="headerlink" href="#kgx-source-obograph-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ObographSource</span></code> is responsible for reading data from <a class="reference external" href="https://github.com/geneontology/obographs">OBOGraphs</a> in JSON.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.obograph_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-sssom-source">
+<h2>kgx.source.sssom_source<a class="headerlink" href="#kgx-source-sssom-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SssomSource</span></code> is responsible for reading data from an <a class="reference external" href="https://github.com/mapping-commons/SSSOM">SSSOM</a>
+formatted files.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.sssom_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-neo-source">
+<h2>kgx.source.neo_source<a class="headerlink" href="#kgx-source-neo-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">NeoSource</span></code> is responsible for reading data from a local or remote Neo4j instance.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.neo_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-rdf-source">
+<h2>kgx.source.rdf_source<a class="headerlink" href="#kgx-source-rdf-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">RdfSource</span></code> is responsible for reading data from RDF N-Triples.</p>
+<p>This source makes use of a custom <code class="docutils literal notranslate"><span class="pre">kgx.parsers.ntriples_parser.CustomNTriplesParser</span></code> for parsing N-Triples,
+which extends <code class="docutils literal notranslate"><span class="pre">rdflib.plugins.parsers.ntriples.W3CNTriplesParser</span></code>.</p>
+<p>To ensure proper parsing of N-Triples and a relatively low memory footprint, it is recommended that the N-Triples
+be sorted based on the subject IRIs.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sort<span class="w"> </span>-k<span class="w"> </span><span class="m">1</span>,2<span class="w"> </span>-t<span class="w"> </span><span class="s1">&#39; &#39;</span><span class="w"> </span>data.nt<span class="w"> </span>&gt;<span class="w"> </span>data_sorted.nt
+</pre></div>
+</div>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.rdf_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-owl-source">
+<h2>kgx.source.owl_source<a class="headerlink" href="#kgx-source-owl-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">OwlSource</span></code> is responsible for parsing an <a class="reference external" href="https://www.w3.org/TR/owl-features/">OWL</a> ontology.</p>
+<p>When parsing an OWL, this source also adds <a class="reference external" href="https://github.com/cmungall/owlstar">OwlStar</a> annotations
+to certain OWL axioms.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.owl_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+<section id="kgx-source-sparql-source">
+<h2>kgx.source.sparql_source<a class="headerlink" href="#kgx-source-sparql-source" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SparqlSource</span></code> has yet to be implemented.</p>
+<p>In principle, <code class="docutils literal notranslate"><span class="pre">SparqlSource</span></code> should be able to read data from a local or remote SPARQL endpoint.</p>
+<div class="highlight-eval_rst notranslate"><div class="highlight"><pre><span></span>.. automodule:: kgx.source.sparql_source
+   :members:
+   :inherited-members:
+   :show-inheritance:
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="sink.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Sink</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../examples.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Examples</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Source</a><ul>
+<li><a class="reference internal" href="#kgx-source-source">kgx.source.source</a></li>
+<li><a class="reference internal" href="#kgx-source-graph-source">kgx.source.graph_source</a></li>
+<li><a class="reference internal" href="#kgx-source-tsv-source">kgx.source.tsv_source</a></li>
+<li><a class="reference internal" href="#kgx-source-json-source">kgx.source.json_source</a></li>
+<li><a class="reference internal" href="#kgx-source-jsonl-source">kgx.source.jsonl_source</a></li>
+<li><a class="reference internal" href="#kgx-source-trapi-source">kgx.source.trapi_source</a></li>
+<li><a class="reference internal" href="#kgx-source-obograph-source">kgx.source.obograph_source</a></li>
+<li><a class="reference internal" href="#kgx-source-sssom-source">kgx.source.sssom_source</a></li>
+<li><a class="reference internal" href="#kgx-source-neo-source">kgx.source.neo_source</a></li>
+<li><a class="reference internal" href="#kgx-source-rdf-source">kgx.source.rdf_source</a></li>
+<li><a class="reference internal" href="#kgx-source-owl-source">kgx.source.owl_source</a></li>
+<li><a class="reference internal" href="#kgx-source-sparql-source">kgx.source.sparql_source</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>
