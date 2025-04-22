@@ -1,4 +1,4 @@
-mapping kgx to rdf*
+# Mapping kgx to rdf-star
 
 The mapping is specified as mapping between (1) two tables (nodes and edges), two sets of
 mappings (column and prefix) and (2) an RDF* graph.

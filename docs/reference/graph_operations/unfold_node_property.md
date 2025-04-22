@@ -10,6 +10,6 @@ has property `P` and value `X`,
 
 ## kgx.graph_operations.unfold_node_property
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.unfold_node_property
 ```

@@ -53,9 +53,21 @@ pyarrow = "^15.0.2"
 recommonmark = "0.5.0"
 sphinx = "5.3.0"
 
-[tool.poetry.dev-dependencies]
-sphinx-rtd-theme = "*"
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+furo = {version = "^2023.03.27", extras = ["docs"]}
+sphinxcontrib-mermaid = {version = "^0.7.1", extras = ["docs"]}
+sphinx = "*"
 sphinx-click = "*"
+sphinx-rtd-theme = "*"
+myst-parser = "*"
+myst-nb = "*"  # <-- Add this line
+matplotlib = ">=3.7"
+sphinx-jinja = "^2.0.2"
+sphinxcontrib-programoutput = "^0.17"
+sphinx-design = "*" 
 
 [tool.poetry-dynamic-versioning]
 enable = false

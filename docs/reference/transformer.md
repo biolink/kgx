@@ -120,7 +120,7 @@ of transform call by using the `get_infores_catalog()` method of the **Transform
 ## kgx.transformer
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.transformer
    :members:
    :inherited-members:

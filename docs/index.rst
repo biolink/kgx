@@ -1,5 +1,5 @@
-# Welcome to the KGX documentation
-
+Welcome to the KGX documentation
+==================
 KGX is a utility library and set of command line tools for exchanging data in Knowledge Graphs (KGs).
 
 The tooling here is partly generic but intended primarily for building the translator-knowledge-graph,
@@ -12,18 +12,23 @@ The core data model is a Property Graph (PG), with the default representation us
 KGX supports Neo4j and RDF triple stores, along with other serialization formats such as
 TSV, CSV, JSON, JSON Lines, OBOGraph JSON, SSSOM, RDF NT, and OWL.
 
+Documentation
+=============
 
-## Contents
-
-```eval_rst
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: Contents:
 
    installation
-   reference/index.md
    kgx_format
-   kgx_schema_generation
-   mapping_to_rdfstar
-   examples
-```
+   reference/index
+   transformation_and_validation_examples
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
 

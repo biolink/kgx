@@ -9,6 +9,6 @@ using them in machine learning workflows.
 
 ## kgx.graph_operations.remove_singleton_nodes
 
-```eval_rst
+```{eval-rst}
 .. autofunction:: kgx.graph_operations.remove_singleton_nodes
 ```

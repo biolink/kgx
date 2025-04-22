@@ -1,4 +1,4 @@
-# Examples
+# KGX transformation and validation examples
 
 There are two modes for using KGX:
 

@@ -1,4 +1,4 @@
-# Graph
+# Knowledge Graphs in Memory
 
 KGX makes use of an in-memory labelled property graph for
 representing a Knowledge Graph.
@@ -17,7 +17,7 @@ Should you want to add support for a new graph store,
 as long as the graph is capable of successfully representing a property graph.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.graph.base_graph
    :members:
    :inherited-members:
@@ -33,7 +33,7 @@ The NxGraph subclasses `kgx.graph.base_graph.BaseGraph` and implements all
 the methods defined in `BaseGraph`.
 
 
-```eval_rst
+```{eval-rst}
 .. automodule:: kgx.graph.nx_graph
    :members:
    :inherited-members:
