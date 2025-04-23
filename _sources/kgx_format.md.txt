@@ -36,19 +36,19 @@ processed, subset, and exchanged easily. Each node or edge is represented with a
 
 We refer to each serialization of a node as a Node record, with the following elements:
 
-**Required Elements:**
+**Base-level Required Elements:**
 - `id`: CURIE that uniquely identifies the node in the graph
 - `category`: Multivalued list with values from the Biolink [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy
 
 **Optional Elements:**
 - Biolink Model properties: `name`, `description`, `xref`, `provided_by`, etc.
-- Non-Biolink Model properties are allowed and won't violate the specification
+- Note: Non-Biolink Model properties are allowed and won't violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.
 
 ### Edge Record Elements
 
 Each serialization of an edge (Edge record) includes:
 
-**Required Elements:**
+**Base-level Required Elements:**
 - `subject`: ID of the source node
 - `predicate`: Relationship type from Biolink [related_to](https://biolink.github.io/biolink-model/related_to) hierarchy
 - `object`: ID of the target node
@@ -61,11 +61,67 @@ Each serialization of an edge (Edge record) includes:
 
 **Optional Elements:**
 - Biolink Model properties: `category`, `publications`, etc.
-- Non-Biolink Model properties are allowed
+- Note: Non-Biolink Model properties are allowed and won't violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.
+
+When using KGX as a serialization framework (e.g. the "Transform" operations), note that KGX will try to add required properties with default values
+when not provided by the user.  It will also assign Biolink categories to nodes if not provided by the user.  This is done to ensure that the resulting knowledge graph is Biolink Model compliant.
 
 ## Format Serializations
 
-KGX supports multiple serialization formats for knowledge graphs.
+KGX supports multiple serialization formats for knowledge graphs.  KGX also has a very lightweight schema that imports
+the Biolink Model and makes two key adjustments to Biolink's class hierarchy: it adds an is_a relationship between
+"biolink:NamedThing" and "kgx:Node" and an is_a relationship between "biolink:Association" and "kgx:Edge"
+
+For more information and examples of the KGX overlay schema, please see: [KGX Schema Generation](kgx_schema_generation.md).
+For convenience, this is the base KGX schema:
+
+```yaml
+imports:
+  - linkml:types
+  - https://w3id.org/biolink/biolink-model
+
+classes:
+  KnowledgeGraph:
+    description: A knowledge graph represented in KGX format
+    slots:
+      - nodes
+      - edges
+  
+  Node:
+    description: A node in a KGX graph, superclass for NamedThing
+    slots:
+      - id
+      - name
+      - description
+      - category
+      - xref
+      - provided by
+      # ... other node slots ...
+    
+  Edge:
+    description: An edge in a KGX graph, superclass for Association
+    slots:
+      - id
+      - subject
+      - predicate
+      - object
+      - relation
+      - category
+      - provided by
+      - knowledge source
+      # ... other edge slots ...
+
+slots:
+  nodes:
+    range: Node
+    multivalued: true
+    inlined: true
+    
+  edges:
+    range: Edge
+    multivalued: true
+    inlined: true
+```
 
 ### KGX format as JSON
 
