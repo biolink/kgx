@@ -244,53 +244,57 @@
 <h2>Installation for users<a class="headerlink" href="#installation-for-users" title="Permalink to this heading">#</a></h2>
 <section id="installing-from-pypi">
 <h3>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Permalink to this heading">#</a></h3>
-<p>KGX is available on PyPI and can be installed using
-<a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> as follows,</p>
+<p>KGX is available on PyPI and can be installed using <a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>kgx
 </pre></div>
 </div>
-<p>To install a particular version of KGX, be sure to specify the version number,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">kgx</span><span class="o">==</span><span class="m">0</span>.5.0
+<p>To install a particular version of KGX, specify the version number:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">kgx</span><span class="o">==</span><span class="m">2</span>.4.2
 </pre></div>
 </div>
 </section>
 <section id="installing-from-github">
 <h3>Installing from GitHub<a class="headerlink" href="#installing-from-github" title="Permalink to this heading">#</a></h3>
-<p>Clone the GitHub repository and then install,</p>
+<p>Clone the GitHub repository and install using pip:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biolink/kgx
 <span class="nb">cd</span><span class="w"> </span>kgx
-python<span class="w"> </span>setup.py<span class="w"> </span>install
+pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 </section>
 </section>
 <section id="installation-for-developers">
 <h2>Installation for developers<a class="headerlink" href="#installation-for-developers" title="Permalink to this heading">#</a></h2>
-<section id="setting-up-a-development-environment">
-<h3>Setting up a development environment<a class="headerlink" href="#setting-up-a-development-environment" title="Permalink to this heading">#</a></h3>
-<p>To build directly from source, first clone the GitHub repository,</p>
+<section id="setting-up-a-development-environment-with-poetry">
+<h3>Setting up a development environment with Poetry<a class="headerlink" href="#setting-up-a-development-environment-with-poetry" title="Permalink to this heading">#</a></h3>
+<p>KGX uses <a class="reference external" href="https://python-poetry.org/">Poetry</a> for dependency management. First, install Poetry using <a class="reference external" href="https://pypa.github.io/pipx/">pipx</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pipx
+pipx<span class="w"> </span>ensurepath
+pipx<span class="w"> </span>install<span class="w"> </span>poetry
+</pre></div>
+</div>
+<p>Next, clone the GitHub repository:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biolink/kgx
 <span class="nb">cd</span><span class="w"> </span>kgx
 </pre></div>
 </div>
-<p>Then install the necessary dependencies listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+<p>Install all dependencies and create a virtual environment with Poetry:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install
 </pre></div>
 </div>
-<p>For convenience, make use of the <code class="docutils literal notranslate"><span class="pre">venv</span></code> module in Python3 to create a
-lightweight virtual environment,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">env</span>
-<span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
-
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<p>To activate the poetry virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>shell
 </pre></div>
 </div>
-<p>To install KGX you can do one of the following,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
-
-<span class="c1"># OR </span>
-
-python<span class="w"> </span>setup.py<span class="w"> </span>install
+</section>
+<section id="using-a-traditional-virtual-environment">
+<h3>Using a traditional virtual environment<a class="headerlink" href="#using-a-traditional-virtual-environment" title="Permalink to this heading">#</a></h3>
+<p>Alternatively, you can use a traditional virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/biolink/kgx
+<span class="nb">cd</span><span class="w"> </span>kgx
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>env
+<span class="nb">source</span><span class="w"> </span>env/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 </section>
@@ -313,8 +317,9 @@ on your local machine.</p>
 </pre></div>
 </div>
 <p><strong>Note:</strong> Setting up the Neo4j container is optional. If there is no container set up then the tests that rely on them are skipped.</p>
-<p>KGX tests are simply run using <code class="docutils literal notranslate"><span class="pre">make</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>tests
+<p>KGX tests are run using <code class="docutils literal notranslate"><span class="pre">make</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The Makefile already handles running commands through Poetry</span>
+make<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
 </section>
@@ -383,7 +388,8 @@ on your local machine.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#installation-for-developers">Installation for developers</a><ul>
-<li><a class="reference internal" href="#setting-up-a-development-environment">Setting up a development environment</a></li>
+<li><a class="reference internal" href="#setting-up-a-development-environment-with-poetry">Setting up a development environment with Poetry</a></li>
+<li><a class="reference internal" href="#using-a-traditional-virtual-environment">Using a traditional virtual environment</a></li>
 <li><a class="reference internal" href="#setting-up-a-testing-environment">Setting up a testing environment</a></li>
 </ul>
 </li>
