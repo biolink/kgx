@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="KGX Command Line Interface" href="cli/index.html" /><link rel="prev" title="Sink" href="sink.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>Validator - kgx documentation</title>
+        <title>KGX Validator - kgx documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -170,7 +170,7 @@
 <li class="toctree-l2"><a class="reference internal" href="transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sink.html">Sink</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Validator</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">KGX Validator</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli/cli_utils.html">CLI Utils</a></li>
@@ -237,376 +237,140 @@
           </label>
         </div>
         <article role="main">
-          <section id="validator">
-<h1>Validator<a class="headerlink" href="#validator" title="Permalink to this heading">#</a></h1>
-<p>The Validator validates an instance of kgx.graph.base_graph.BaseGraph for Biolink Model compliance.</p>
-<p>To validate a graph,</p>
+          <section id="kgx-validator">
+<h1>KGX Validator<a class="headerlink" href="#kgx-validator" title="Permalink to this heading">#</a></h1>
+<p>The KGX Validator is a tool that validates graph data for compliance with the
+<a class="reference external" href="https://biolink.github.io/biolink-model/">Biolink Model</a>. It performs validation across multiple facets of the
+knowledge graph, helping ensure data adheres to established standards.</p>
+<section id="key-validation-features">
+<h2>Key Validation Features<a class="headerlink" href="#key-validation-features" title="Permalink to this heading">#</a></h2>
+<p>The validator checks the following aspects of your knowledge graph:</p>
+<section id="node-validation">
+<h3>Node Validation<a class="headerlink" href="#node-validation" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Required Properties</strong>: Verifies that all required node properties (as defined by Biolink Model) are present</p></li>
+<li><p><strong>Property Types</strong>: Ensures node properties have the expected value types (string, URI/CURIE, double, list)</p></li>
+<li><p><strong>Property Values</strong>: Validates that node identifiers are properly formed CURIEs with prefixes defined in the Biolink Model JSON-LD context</p></li>
+<li><p><strong>Categories</strong>: Validates that node categories exist in the Biolink Model, are properly formatted in CamelCase</p></li>
+</ul>
+</section>
+<section id="edge-validation">
+<h3>Edge Validation<a class="headerlink" href="#edge-validation" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Required Properties</strong>: Verifies that all required edge properties are present</p></li>
+<li><p><strong>Property Types</strong>: Ensures edge properties have the expected value types</p></li>
+<li><p><strong>Property Values</strong>: Validates that subject and object properties are properly formed CURIEs with prefixes defined in the Biolink Model</p></li>
+<li><p><strong>Predicates</strong>: Validates that edge predicates exist in the Biolink Model and follow proper snake_case formatting</p></li>
+</ul>
+</section>
+<section id="biolink-model-integration">
+<h3>Biolink Model Integration<a class="headerlink" href="#biolink-model-integration" title="Permalink to this heading">#</a></h3>
+<p>The validator leverages the <a class="reference external" href="https://github.com/biolink/biolink-model-toolkit">Biolink Model Toolkit (BMT)</a> to:</p>
+<ul class="simple">
+<li><p>Access Biolink Model elements (classes, slots, predicates)</p></li>
+<li><p>Determine required properties for nodes and edges</p></li>
+<li><p>Verify node categories and edge predicates against the model</p></li>
+<li><p>Validate property value types based on model specifications</p></li>
+<li><p>Support validation against specific versions of the Biolink Model</p></li>
+</ul>
+</section>
+</section>
+<section id="error-tracking">
+<h2>Error Tracking<a class="headerlink" href="#error-tracking" title="Permalink to this heading">#</a></h2>
+<p>The validator captures and reports the following types of errors:</p>
+<ul class="simple">
+<li><p>Missing required properties</p></li>
+<li><p>Invalid property types</p></li>
+<li><p>Invalid property values</p></li>
+<li><p>Invalid categories and predicates</p></li>
+<li><p>Missing or malformed CURIEs</p></li>
+</ul>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Permalink to this heading">#</a></h2>
+<section id="basic-validation">
+<h3>Basic Validation<a class="headerlink" href="#basic-validation" title="Permalink to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Validator</span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">Validator</span><span class="p">()</span>
-<span class="n">v</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="c1"># Load a graph</span>
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">()</span>
+<span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;input.json&#39;</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">graph</span>
+
+<span class="c1"># Validate the graph</span>
+<span class="n">validator</span> <span class="o">=</span> <span class="n">Validator</span><span class="p">()</span>
+<span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+<span class="c1"># Get validation errors</span>
+<span class="n">errors</span> <span class="o">=</span> <span class="n">validator</span><span class="o">.</span><span class="n">get_errors</span><span class="p">()</span>
 </pre></div>
 </div>
-<section id="streaming-data-processing-mode">
-<h2>Streaming Data Processing Mode<a class="headerlink" href="#streaming-data-processing-mode" title="Permalink to this heading">#</a></h2>
-<p>For very large graphs, the Validator operation may now successfully process graph data equally well using data streaming (command flag <code class="docutils literal notranslate"><span class="pre">--stream=True</span></code>) which significantly minimizes the memory footprint required to process such graphs.</p>
 </section>
-<section id="biolink-model-versioning">
-<h2>Biolink Model Versioning<a class="headerlink" href="#biolink-model-versioning" title="Permalink to this heading">#</a></h2>
-<p>By default, the Validator validates against the latest Biolink Model release hosted by the current Biolink Model Toolkit; hwoever, one may override this default at the Validator class level using the <code class="docutils literal notranslate"><span class="pre">Validator.set_biolink_model(version=&quot;#.#.#&quot;)</span></code> where  <strong>#.#.#</strong>  is the <em>major.minor.patch</em> semantic versioning of the desired Biolink Model release.</p>
-<p>Every instance of Validator() persistently assumes the most recently set class level Biolink Model version. Resetting the class level Biolink Model does not change the version of  previously instantiated Validator() objects.  In a multi-threaded environment instantiating multiple validator objects, it may be necessary to wrap the <code class="docutils literal notranslate"><span class="pre">Validator.set_biolink_model</span></code> and <code class="docutils literal notranslate"><span class="pre">Validator()</span></code> object instantiation together within a single thread locked block.</p>
-<p>Note that the kgx <strong>validate</strong> CLI operation also has an optional <code class="docutils literal notranslate"><span class="pre">biolink_release</span></code> argument for the same purpose.</p>
+<section id="using-a-specific-biolink-model-version">
+<h3>Using a Specific Biolink Model Version<a class="headerlink" href="#using-a-specific-biolink-model-version" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Validator</span>
+
+<span class="c1"># Set Biolink Model version for validation</span>
+<span class="n">Validator</span><span class="o">.</span><span class="n">set_biolink_model</span><span class="p">(</span><span class="s2">&quot;3.1.0&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create validator with the specified version</span>
+<span class="n">validator</span> <span class="o">=</span> <span class="n">Validator</span><span class="p">()</span>
+<span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
-<section id="module-kgx.validator">
-<span id="kgx-validator"></span><h2>kgx.validator<a class="headerlink" href="#module-kgx.validator" title="Permalink to this heading">#</a></h2>
-<p>KGX Validator class</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="kgx.validator.Validator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kgx.validator.</span></span><span class="sig-name descname"><span class="pre">Validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_monitor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="utilities/kgx_utils.html#kgx.utils.kgx_utils.GraphEntityType" title="kgx.utils.kgx_utils.GraphEntityType"><span class="pre">GraphEntityType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorDetecting</span></code></p>
-<p>Class for validating a property graph.</p>
-<p>The optional ‘progress_monitor’ for the validator should be a lightweight Callable
-which is injected into the class ‘inspector’ Callable, designed to intercepts
-node and edge records streaming through the Validator (inside a Transformer.process() call.
-The first (GraphEntityType) argument of the Callable tags the record as a NODE or an EDGE.
-The second argument given to the Callable is the current record itself.
-This Callable is strictly meant to be procedural and should <em>not</em> mutate the record.
-The intent of this Callable is to provide a hook to KGX applications wanting the
-namesake function of passively monitoring the graph data stream. As such, the Callable
-could simply tally up the number of times it is called with a NODE or an EDGE, then
-provide a suitable (quick!) report of that count back to the KGX application. The
-Callable (function/callable class) should not modify the record and should be of low
-complexity, so as not to introduce a large computational overhead to validation!</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the generated report should be verbose or not (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
-<li><p><strong>progress_monitor</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="utilities/kgx_utils.html#kgx.utils.kgx_utils.GraphEntityType" title="kgx.utils.kgx_utils.GraphEntityType"><em>GraphEntityType</em></a><em>, </em><em>List</em><em>]</em><em>, </em><em>None</em><em>]</em><em>]</em>) – Function given a peek at the current record being processed by the class wrapped Callable.</p></li>
-<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – URL to (Biolink) Model Schema to be used for validated (default: None, use default Biolink Model Toolkit schema)</p></li>
-<li><p><strong>error_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Where to write any graph processing error message (stderr, by default)</p></li>
+<section id="streaming-validation-for-large-graphs">
+<h3>Streaming Validation for Large Graphs<a class="headerlink" href="#streaming-validation-for-large-graphs" title="Permalink to this heading">#</a></h3>
+<p>For very large graphs, use the streaming mode to minimize memory usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>validate<span class="w"> </span>--input-format<span class="w"> </span>tsv<span class="w"> </span>--stream<span class="o">=</span>True<span class="w"> </span>input_nodes.tsv<span class="w"> </span>input_edges.tsv
+</pre></div>
+</div>
+</section>
+</section>
+<section id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading">#</a></h2>
+<p>KGX provides a command-line interface for validation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>validate<span class="w"> </span>--input-format<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">             </span>--biolink-release<span class="w"> </span><span class="m">3</span>.1.0<span class="w"> </span><span class="se">\</span>
+<span class="w">             </span>--error-log<span class="w"> </span>validation_errors.json<span class="w"> </span><span class="se">\</span>
+<span class="w">             </span>input_nodes.tsv<span class="w"> </span>input_edges.tsv
+</pre></div>
+</div>
+</section>
+<section id="understanding-validation-messages">
+<h2>Understanding Validation Messages<a class="headerlink" href="#understanding-validation-messages" title="Permalink to this heading">#</a></h2>
+<p>Validation errors are categorized into different levels:</p>
+<ul class="simple">
+<li><p><strong>INFO</strong>: Informational messages about suggested improvements</p></li>
+<li><p><strong>WARNING</strong>: “Should” level recommendations for better compliance</p></li>
+<li><p><strong>ERROR</strong>: “Must” level requirements that violate model specifications</p></li>
 </ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.analyse_edge">
-<span class="sig-name descname"><span class="pre">analyse_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.analyse_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.analyse_edge" title="Permalink to this definition">#</a></dt>
-<dd><p>Analyse edge</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.analyse_node">
-<span class="sig-name descname"><span class="pre">analyse_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.analyse_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.analyse_node" title="Permalink to this definition">#</a></dt>
-<dd><p>Analyse Node</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.clear_errors">
-<span class="sig-name descname"><span class="pre">clear_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kgx.validator.Validator.clear_errors" title="Permalink to this definition">#</a></dt>
-<dd><p>Clears the current error log list</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_all_prefixes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_prefixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jsonld</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.13)"><span class="pre">set</span></a></span></span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_all_prefixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_all_prefixes" title="Permalink to this definition">#</a></dt>
-<dd><p>Get all prefixes from Biolink Model JSON-LD context.</p>
-<p>It also sets <code class="docutils literal notranslate"><span class="pre">self.prefixes</span></code> for subsequent access.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>jsonld</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – The JSON-LD context</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A set of prefixes</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[Dict]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_default_model_version">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_model_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_default_model_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_default_model_version" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the Default Biolink Model version</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_errors">
-<span class="sig-name descname"><span class="pre">get_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></span><a class="headerlink" href="#kgx.validator.Validator.get_errors" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the index list of distinct error messages.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Optional filter (case insensitive) name of error message level (generally either “Error” or “Warning”)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A raw dictionary of entities indexed by [message_level][error_type][message] or
-only just [error_type][message] specific to a given message level if the optional level filter is given</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_required_edge_properties">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_required_edge_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_required_edge_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_required_edge_properties" title="Permalink to this definition">#</a></dt>
-<dd><p>Get all properties for an edge that are required, as defined by Biolink Model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of required edge properties</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_required_node_properties">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_required_node_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_required_node_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_required_node_properties" title="Permalink to this definition">#</a></dt>
-<dd><p>Get all properties for a node that are required, as defined by Biolink Model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of required node properties</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_the_validator">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_the_validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_monitor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="utilities/kgx_utils.html#kgx.utils.kgx_utils.GraphEntityType" title="kgx.utils.kgx_utils.GraphEntityType"><span class="pre">GraphEntityType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_the_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_the_validator" title="Permalink to this definition">#</a></dt>
-<dd><p>Creates and manages a default singleton Validator in the module, when called</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_toolkit">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_toolkit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Toolkit</span></span></span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_toolkit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_toolkit" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the current default Validator Toolkit</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_validating_toolkit">
-<span class="sig-name descname"><span class="pre">get_validating_toolkit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_validating_toolkit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_validating_toolkit" title="Permalink to this definition">#</a></dt>
-<dd><p>Get Validating Biolink Model toolkit</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.get_validation_model_version">
-<span class="sig-name descname"><span class="pre">get_validation_model_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.get_validation_model_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.get_validation_model_version" title="Permalink to this definition">#</a></dt>
-<dd><p>Get Validating Biolink Model version</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.log_error">
-<span class="sig-name descname"><span class="pre">log_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ErrorType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MessageLevel</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">MessageLevel.ERROR</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kgx.validator.Validator.log_error" title="Permalink to this definition">#</a></dt>
-<dd><p>Log an error to the list of such errors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>entity</strong> – source of parse error</p></li>
-<li><p><strong>error_type</strong> – ValidationError ErrorType,</p></li>
-<li><p><strong>message</strong> – message string describing the error</p></li>
-<li><p><strong>message_level</strong> – ValidationError MessageLevel</p></li>
+<p>Example validation error output:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ERROR&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;INVALID_CATEGORY&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;Category &#39;gene&#39; is not in CamelCase form&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;NCBIGene:1234&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;MISSING_NODE_PROPERTY&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;Required node property &#39;category&#39; is missing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;MONDO:0005737&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="benefits-of-validation">
+<h2>Benefits of Validation<a class="headerlink" href="#benefits-of-validation" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Ensures consistency across knowledge graphs</p></li>
+<li><p>Identifies data quality issues early</p></li>
+<li><p>Facilitates data integration from multiple sources</p></li>
+<li><p>Improves interoperability between systems</p></li>
+<li><p>Provides guidance on Biolink Model compliance</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.set_biolink_model">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_biolink_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.set_biolink_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.set_biolink_model" title="Permalink to this definition">#</a></dt>
-<dd><p>Set Biolink Model version of Validator Toolkit</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate nodes and edges in a graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>graph</strong> (<a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The graph to validate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_categories">
-<span class="sig-name descname"><span class="pre">validate_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_categories" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate <code class="docutils literal notranslate"><span class="pre">category</span></code> field of a given node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
-<li><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_edge_predicate">
-<span class="sig-name descname"><span class="pre">validate_edge_predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_edge_predicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_edge_predicate" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate <code class="docutils literal notranslate"><span class="pre">edge_predicate</span></code> field of a given edge.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject identifier</p></li>
-<li><p><strong>object</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Edge properties</p></li>
-<li><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_edge_properties">
-<span class="sig-name descname"><span class="pre">validate_edge_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_edge_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_edge_properties" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks if all the required edge properties exist for a given edge.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject identifier</p></li>
-<li><p><strong>object</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Edge properties</p></li>
-<li><p><strong>required_properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – Required edge properties</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_edge_property_types">
-<span class="sig-name descname"><span class="pre">validate_edge_property_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_edge_property_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_edge_property_types" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks if edge properties have the expected value type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject identifier</p></li>
-<li><p><strong>object</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Edge properties</p></li>
-<li><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_edge_property_values">
-<span class="sig-name descname"><span class="pre">validate_edge_property_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_edge_property_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_edge_property_values" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate an edge property’s value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Subject identifier</p></li>
-<li><p><strong>object</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Object identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Edge properties</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_edges">
-<span class="sig-name descname"><span class="pre">validate_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_edges" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate all the edges in a graph.</p>
-<p>This method validates for the following,
-- Edge properties
-- Edge property type
-- Edge property value type
-- Edge predicate</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>graph</strong> (<a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The graph to validate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_node_properties">
-<span class="sig-name descname"><span class="pre">validate_node_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_node_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_node_properties" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks if all the required node properties exist for a given node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
-<li><p><strong>required_properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – Required node properties</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_node_property_types">
-<span class="sig-name descname"><span class="pre">validate_node_property_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolkit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Toolkit</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_node_property_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_node_property_types" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks if node properties have the expected value type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
-<li><p><strong>toolkit</strong> (<em>Optional</em><em>[</em><em>Toolkit</em><em>]</em>) – Optional externally provided toolkit (default: use Validator class defined toolkit)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_node_property_values">
-<span class="sig-name descname"><span class="pre">validate_node_property_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_node_property_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_node_property_values" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate a node property’s value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Node identifier</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Node properties</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.validate_nodes">
-<span class="sig-name descname"><span class="pre">validate_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><span class="pre">BaseGraph</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kgx/validator.html#Validator.validate_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.validator.Validator.validate_nodes" title="Permalink to this definition">#</a></dt>
-<dd><p>Validate all the nodes in a graph.</p>
-<p>This method validates for the following,
-- Node properties
-- Node property type
-- Node property value type
-- Node categories</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>graph</strong> (<a class="reference internal" href="graph.html#kgx.graph.base_graph.BaseGraph" title="kgx.graph.base_graph.BaseGraph"><em>kgx.graph.base_graph.BaseGraph</em></a>) – The graph to validate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kgx.validator.Validator.write_report">
-<span class="sig-name descname"><span class="pre">write_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outstream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.TextIO" title="(in Python v3.13)"><span class="pre">TextIO</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#kgx.validator.Validator.write_report" title="Permalink to this definition">#</a></dt>
-<dd><p>Write error get_errors to a file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>outstream</strong> (<em>TextIO</em>) – The stream to which to write</p></li>
-<li><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Optional filter (case insensitive) name of error message level (generally either “Error” or “Warning”)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<p>By using the KGX Validator, you can ensure your knowledge graphs adhere to the Biolink Model specifications,
+making them more interoperable and useful for downstream applications.</p>
 </section>
 </section>
 
@@ -665,41 +429,23 @@ only just [error_type][message] specific to a given message level if the optiona
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Validator</a><ul>
-<li><a class="reference internal" href="#streaming-data-processing-mode">Streaming Data Processing Mode</a></li>
-<li><a class="reference internal" href="#biolink-model-versioning">Biolink Model Versioning</a></li>
-<li><a class="reference internal" href="#module-kgx.validator">kgx.validator</a><ul>
-<li><a class="reference internal" href="#kgx.validator.Validator"><code class="docutils literal notranslate"><span class="pre">Validator</span></code></a><ul>
-<li><a class="reference internal" href="#kgx.validator.Validator.analyse_edge"><code class="docutils literal notranslate"><span class="pre">Validator.analyse_edge()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.analyse_node"><code class="docutils literal notranslate"><span class="pre">Validator.analyse_node()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.clear_errors"><code class="docutils literal notranslate"><span class="pre">Validator.clear_errors()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_all_prefixes"><code class="docutils literal notranslate"><span class="pre">Validator.get_all_prefixes()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_default_model_version"><code class="docutils literal notranslate"><span class="pre">Validator.get_default_model_version()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_errors"><code class="docutils literal notranslate"><span class="pre">Validator.get_errors()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_required_edge_properties"><code class="docutils literal notranslate"><span class="pre">Validator.get_required_edge_properties()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_required_node_properties"><code class="docutils literal notranslate"><span class="pre">Validator.get_required_node_properties()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_the_validator"><code class="docutils literal notranslate"><span class="pre">Validator.get_the_validator()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_toolkit"><code class="docutils literal notranslate"><span class="pre">Validator.get_toolkit()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_validating_toolkit"><code class="docutils literal notranslate"><span class="pre">Validator.get_validating_toolkit()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.get_validation_model_version"><code class="docutils literal notranslate"><span class="pre">Validator.get_validation_model_version()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.log_error"><code class="docutils literal notranslate"><span class="pre">Validator.log_error()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.set_biolink_model"><code class="docutils literal notranslate"><span class="pre">Validator.set_biolink_model()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate"><code class="docutils literal notranslate"><span class="pre">Validator.validate()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_categories"><code class="docutils literal notranslate"><span class="pre">Validator.validate_categories()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_edge_predicate"><code class="docutils literal notranslate"><span class="pre">Validator.validate_edge_predicate()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_edge_properties"><code class="docutils literal notranslate"><span class="pre">Validator.validate_edge_properties()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_edge_property_types"><code class="docutils literal notranslate"><span class="pre">Validator.validate_edge_property_types()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_edge_property_values"><code class="docutils literal notranslate"><span class="pre">Validator.validate_edge_property_values()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_edges"><code class="docutils literal notranslate"><span class="pre">Validator.validate_edges()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_node_properties"><code class="docutils literal notranslate"><span class="pre">Validator.validate_node_properties()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_node_property_types"><code class="docutils literal notranslate"><span class="pre">Validator.validate_node_property_types()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_node_property_values"><code class="docutils literal notranslate"><span class="pre">Validator.validate_node_property_values()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.validate_nodes"><code class="docutils literal notranslate"><span class="pre">Validator.validate_nodes()</span></code></a></li>
-<li><a class="reference internal" href="#kgx.validator.Validator.write_report"><code class="docutils literal notranslate"><span class="pre">Validator.write_report()</span></code></a></li>
+<li><a class="reference internal" href="#">KGX Validator</a><ul>
+<li><a class="reference internal" href="#key-validation-features">Key Validation Features</a><ul>
+<li><a class="reference internal" href="#node-validation">Node Validation</a></li>
+<li><a class="reference internal" href="#edge-validation">Edge Validation</a></li>
+<li><a class="reference internal" href="#biolink-model-integration">Biolink Model Integration</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#error-tracking">Error Tracking</a></li>
+<li><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
+<li><a class="reference internal" href="#basic-validation">Basic Validation</a></li>
+<li><a class="reference internal" href="#using-a-specific-biolink-model-version">Using a Specific Biolink Model Version</a></li>
+<li><a class="reference internal" href="#streaming-validation-for-large-graphs">Streaming Validation for Large Graphs</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
+<li><a class="reference internal" href="#understanding-validation-messages">Understanding Validation Messages</a></li>
+<li><a class="reference internal" href="#benefits-of-validation">Benefits of Validation</a></li>
 </ul>
 </li>
 </ul>

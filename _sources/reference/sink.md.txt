@@ -183,35 +183,59 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
   "subject": "HGNC:11603",
   "object": "MONDO:0005002",
-  "predicate": "biolink:related_to",
-  "relation": "RO:0003304",
+  "predicate": "biolink:contributes_to",
   "knowledge_level": "assertion",
   "agent_type": "computational"
-},
+}
+```
+
+```json
 {
-"id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e",
-"subject": "HGNC:11603",
-"predicate": "biolink:contributes_to",
-"object": "MONDO:0005002",
-"relation": "RO:0003304",
-"category": ["biolink:GeneToDiseaseAssociation"],
-"primary_knowledge_source": ["infores:gwas-catalog"],
-"publications": ["PMID:26634245", "PMID:26634244"],
-"knowledge_level": "observation",
-"agent_type": "biological"
-},
+  "id": "urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e",
+  "subject": "HGNC:11603",
+  "predicate": "biolink:contributes_to",
+  "object": "MONDO:0005002",
+  "category": [
+    "biolink:GeneToDiseaseAssociation"
+  ],
+  "primary_knowledge_source": [
+    "infores:agr"
+  ],
+  "aggregator_knowledge_source": [
+    "infores:monarchinitiative"
+  ],
+  "publications": [
+    "PMID:26634245",
+    "PMID:26634244"
+  ],
+  "knowledge_level": "manual_assertion",
+  "agent_type": ""
+}
+```
+
+```json
 {
-"id": "c7d632b4-6708-4296-9cfe-44bc586d32c8",
-"subject": "CHEBI:15365",
-"predicate": "biolink:affects",
-"object": "GO:0006915",
-"relation": "RO:0002434",
-"category": ["biolink:ChemicalToProcessAssociation"],
-"primary_knowledge_source": ["infores:monarchinitiative"],
-"aggregator_knowledge_source": ["infores:biolink-api"],
-"publications": ["PMID:12345678"],
-"knowledge_level": "assertion",
-"agent_type": "computational"
+  "id": "c7d632b4-6708-4296-9cfe-44bc586d32c8",
+  "subject": "CHEBI:15365",
+  "predicate": "biolink:affects",
+  "qualified_predicate": "biolink:causes",
+  "object": "HGNC:11603",
+  "object_aspect_qualifier": "biolink:expression",
+  "object_direction_qualifier": "biolink:increased",
+  "category": [
+    "biolink:ChemicalAffectsGeneAssociation"
+  ],
+  "primary_knowledge_source": [
+    "infores:ctd"
+  ],
+  "aggregator_knowledge_source": [
+    "infores:monarchinitiative"
+  ],
+  "publications": [
+    "PMID:12345678"
+  ],
+  "knowledge_level": "assertion",
+  "agent_type": "computational"
 }
 ```
 

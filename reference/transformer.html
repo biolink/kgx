@@ -170,7 +170,7 @@
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sink.html">Sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">KGX Validator</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli/cli_utils.html">CLI Utils</a></li>
@@ -280,23 +280,31 @@ intermediate graph as a substrate for various graph operations.</p>
 </div>
 <section id="inspecting-the-knowledge-data-flow">
 <h2>Inspecting the Knowledge Data Flow<a class="headerlink" href="#inspecting-the-knowledge-data-flow" title="Permalink to this heading">#</a></h2>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">transform</span></code> operation accepts an optional inspect <em>Callable</em> argument which injects node/edge data stream inspection into the <code class="docutils literal notranslate"><span class="pre">Transform.process</span></code> operation of <code class="docutils literal notranslate"><span class="pre">Transform.transform</span></code> operations.  See the unit  test module in the KGX project <a class="reference external" href="https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py">tests/integration/test_transform.py</a> for an example of usage of this callable argument.</p>
-<p>This feature, when coupled with the <code class="docutils literal notranslate"><span class="pre">--stream</span></code> and a ‘null’ Transformer Sink  (i.e. <code class="docutils literal notranslate"><span class="pre">output_args</span> <span class="pre">=</span> <span class="pre">{'format':</span> <span class="pre">'null'}'</span></code>), allows “just-in-time” processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">transform</span></code> operation accepts an optional inspect <em>Callable</em> argument which injects node/edge data
+stream inspection into the <code class="docutils literal notranslate"><span class="pre">Transform.process</span></code> operation of <code class="docutils literal notranslate"><span class="pre">Transform.transform</span></code> operations.  See the unit<br />
+test module in the KGX project <a class="reference external" href="https://github.com/biolink/kgx/blob/master/tests/integration/test_transform.py">tests/integration/test_transform.py</a> for an example of usage of this callable
+argument.</p>
+<p>This feature, when coupled with the <code class="docutils literal notranslate"><span class="pre">--stream</span></code> and a ‘null’ Transformer Sink  (i.e. <code class="docutils literal notranslate"><span class="pre">output_args</span> <span class="pre">=</span> <span class="pre">{'format':</span> <span class="pre">'null'}'</span></code>),
+allows “just-in-time” processing of the nodes and edges of huge graphs without incurring a large in-memory footprint.</p>
 </section>
 <section id="provenance-of-nodes-and-edges">
 <h2>Provenance of Nodes and Edges<a class="headerlink" href="#provenance-of-nodes-and-edges" title="Permalink to this heading">#</a></h2>
-<p>Biolink Model 2.0 specified new <a class="reference external" href="https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance">properties for edge provenance</a> to replace the (now deprecated) <code class="docutils literal notranslate"><span class="pre">provided_by</span></code> provenance property (the <code class="docutils literal notranslate"><span class="pre">provided_by</span></code> property may still be used for node annotation).</p>
-<p>One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments to specify default global values for these properties. Such values will be used when an edge lacks an explicit provenance property. If one does not specify such a global property, then the algorithm heuristically infers and sets a default <code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code> value.</p>
+<p>Biolink Model 2.0 specified new <a class="reference external" href="https://github.com/biolink/kgx/blob/master/specification/kgx-format.md#edge-provenance">properties for edge provenance</a> to replace the (now deprecated) <code class="docutils literal notranslate"><span class="pre">provided_by</span></code>
+provenance property (the <code class="docutils literal notranslate"><span class="pre">provided_by</span></code> property may still be used for node annotation).</p>
+<p>One or more of these provenance properties may optionally be inserted as dictionary entries into the input arguments
+to specify default global values for these properties. Such values will be used when an edge lacks an explicit
+provenance property. If one does not specify such a global property, then the algorithm heuristically infers and sets
+a default <code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code> value.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
 
 <span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">filename</span><span class="s1">&#39;: [</span>
-            <span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span> 
-            <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;graph_nodes.tsv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;graph_edges.tsv&#39;</span><span class="p">],</span>
     <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;tsv&#39;</span><span class="p">,</span>
     <span class="s1">&#39;provided_by&#39;</span><span class="p">:</span> <span class="s2">&quot;My Test Source&quot;</span><span class="p">,</span>
     <span class="s1">&#39;aggregator_knowledge_source&#39;</span><span class="p">:</span> <span class="s2">&quot;My Test Source&quot;</span>
-    
+
 <span class="p">}</span>
 
 <span class="n">t</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">()</span>

@@ -168,7 +168,7 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">KGX Validator</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
@@ -674,15 +674,11 @@
         <ul>
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.analyse_edge">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
 </li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.analyse_edge">(kgx.validator.Validator method)</a>
-</li>
         </ul></li>
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.analyse_node">analyse_node() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
 
         <ul>
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.analyse_node">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
-</li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.analyse_node">(kgx.validator.Validator method)</a>
 </li>
         </ul></li>
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category.analyse_node_category">analyse_node_category() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.Category method)</a>
@@ -793,8 +789,6 @@
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.clear_errors">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
 </li>
           <li><a href="reference/transformer.html#kgx.transformer.Transformer.clear_errors">(kgx.transformer.Transformer method)</a>
-</li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.clear_errors">(kgx.validator.Validator method)</a>
 </li>
         </ul></li>
         <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.clear_graph_metadata">clear_graph_metadata() (kgx.source.graph_source.GraphSource method)</a>
@@ -957,8 +951,6 @@
 </li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.generate_uuid">generate_uuid() (in module kgx.utils.kgx_utils)</a>
 </li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_all_prefixes">get_all_prefixes() (kgx.validator.Validator static method)</a>
-</li>
         <li><a href="reference/utilities/graph_utils.html#kgx.utils.graph_utils.get_ancestors">get_ancestors() (in module kgx.utils.graph_utils)</a>
 </li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_biolink_ancestors">get_biolink_ancestors() (in module kgx.utils.kgx_utils)</a>
@@ -1015,8 +1007,6 @@
 </li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_curie_lookup_service">get_curie_lookup_service() (in module kgx.utils.kgx_utils)</a>
 </li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_default_model_version">get_default_model_version() (kgx.validator.Validator class method)</a>
-</li>
         <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.get_edge">get_edge() (kgx.graph.base_graph.BaseGraph method)</a>
 
         <ul>
@@ -1045,8 +1035,6 @@
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.get_errors">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
 </li>
           <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_errors">(kgx.transformer.Transformer method)</a>
-</li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.get_errors">(kgx.validator.Validator method)</a>
 </li>
         </ul></li>
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_facet_counts">get_facet_counts() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph static method)</a>
@@ -1153,22 +1141,12 @@
 </li>
         <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.get_report_format_types">get_report_format_types() (in module kgx.cli.cli_utils)</a>
 </li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_required_edge_properties">get_required_edge_properties() (kgx.validator.Validator static method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_required_node_properties">get_required_node_properties() (kgx.validator.Validator static method)</a>
-</li>
         <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_sink">get_sink() (kgx.transformer.Transformer method)</a>
 </li>
         <li><a href="reference/transformer.html#kgx.transformer.Transformer.get_source">get_source() (kgx.transformer.Transformer method)</a>
 </li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_the_validator">get_the_validator() (kgx.validator.Validator class method)</a>
-</li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_toolkit">get_toolkit() (in module kgx.utils.kgx_utils)</a>
-
-        <ul>
-          <li><a href="reference/validator.html#kgx.validator.Validator.get_toolkit">(kgx.validator.Validator class method)</a>
 </li>
-        </ul></li>
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edge_counts_across_mappings">get_total_edge_counts_across_mappings() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
 </li>
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_edges_count">get_total_edges_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
@@ -1178,10 +1156,6 @@
         <li><a href="reference/graph_operations/meta_knowledge_graph.html#kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph.get_total_nodes_count">get_total_nodes_count() (kgx.graph_operations.meta_knowledge_graph.MetaKnowledgeGraph method)</a>
 </li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.get_type_for_property">get_type_for_property() (in module kgx.utils.kgx_utils)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_validating_toolkit">get_validating_toolkit() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.get_validation_model_version">get_validation_model_version() (kgx.validator.Validator method)</a>
 </li>
         <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.graph_summary">graph_summary() (in module kgx.cli.cli_utils)</a>
 </li>
@@ -1729,13 +1703,6 @@
           <li><a href="reference/utilities/rdf_utils.html#module-kgx.utils.rdf_utils">module</a>
 </li>
         </ul></li>
-        <li>
-    kgx.validator
-
-        <ul>
-          <li><a href="reference/validator.html#module-kgx.validator">module</a>
-</li>
-        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -1780,8 +1747,6 @@
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.log_error">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
 </li>
           <li><a href="reference/transformer.html#kgx.transformer.Transformer.log_error">(kgx.transformer.Transformer method)</a>
-</li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.log_error">(kgx.validator.Validator method)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -1875,8 +1840,6 @@
           <li><a href="reference/utilities/kgx_utils.html#module-kgx.utils.kgx_utils">kgx.utils.kgx_utils</a>
 </li>
           <li><a href="reference/utilities/rdf_utils.html#module-kgx.utils.rdf_utils">kgx.utils.rdf_utils</a>
-</li>
-          <li><a href="reference/validator.html#module-kgx.validator">kgx.validator</a>
 </li>
         </ul></li>
     </ul></td>
@@ -2128,8 +2091,6 @@
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.sentencecase_to_camelcase">sentencecase_to_camelcase() (in module kgx.utils.kgx_utils)</a>
 </li>
         <li><a href="reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.sentencecase_to_snakecase">sentencecase_to_snakecase() (in module kgx.utils.kgx_utils)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.set_biolink_model">set_biolink_model() (kgx.validator.Validator class method)</a>
 </li>
         <li><a href="reference/graph.html#kgx.graph.base_graph.BaseGraph.set_edge_attributes">set_edge_attributes() (kgx.graph.base_graph.BaseGraph static method)</a>
 
@@ -2506,12 +2467,6 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference/cli/cli_utils.html#kgx.cli.cli_utils.validate">validate() (in module kgx.cli.cli_utils)</a>
-
-        <ul>
-          <li><a href="reference/validator.html#kgx.validator.Validator.validate">(kgx.validator.Validator method)</a>
-</li>
-        </ul></li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_categories">validate_categories() (kgx.validator.Validator method)</a>
 </li>
         <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.validate_edge">validate_edge() (kgx.source.graph_source.GraphSource method)</a>
 
@@ -2537,18 +2492,8 @@
           <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.validate_edge">(kgx.source.tsv_source.TsvSource method)</a>
 </li>
         </ul></li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_predicate">validate_edge_predicate() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_properties">validate_edge_properties() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_property_types">validate_edge_property_types() (kgx.validator.Validator method)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edge_property_values">validate_edge_property_values() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_edges">validate_edges() (kgx.validator.Validator method)</a>
-</li>
         <li><a href="reference/source.html#kgx.source.graph_source.GraphSource.validate_node">validate_node() (kgx.source.graph_source.GraphSource method)</a>
 
         <ul>
@@ -2573,16 +2518,6 @@
           <li><a href="reference/source.html#kgx.source.tsv_source.TsvSource.validate_node">(kgx.source.tsv_source.TsvSource method)</a>
 </li>
         </ul></li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_properties">validate_node_properties() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_property_types">validate_node_property_types() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_node_property_values">validate_node_property_values() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator.validate_nodes">validate_nodes() (kgx.validator.Validator method)</a>
-</li>
-        <li><a href="reference/validator.html#kgx.validator.Validator">Validator (class in kgx.validator)</a>
-</li>
     </ul></td>
   </tr></table>
 </section>
@@ -2635,8 +2570,6 @@
           <li><a href="reference/graph_operations/summarize_graph.html#kgx.graph_operations.summarize_graph.GraphSummary.write_report">(kgx.graph_operations.summarize_graph.GraphSummary method)</a>
 </li>
           <li><a href="reference/transformer.html#kgx.transformer.Transformer.write_report">(kgx.transformer.Transformer method)</a>
-</li>
-          <li><a href="reference/validator.html#kgx.validator.Validator.write_report">(kgx.validator.Validator method)</a>
 </li>
         </ul></li>
     </ul></td>

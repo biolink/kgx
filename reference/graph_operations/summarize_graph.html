@@ -170,7 +170,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sink.html">Sink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../validator.html">Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validator.html">KGX Validator</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cli/cli_utils.html">CLI Utils</a></li>
@@ -244,12 +244,14 @@ generates summary statistics for the entire graph.</p>
 <p>This operation generates summary as a YAML (or JSON) in a format that is compatible with
 the <a class="reference external" href="https://knowledge-graph-hub.github.io/kg-covid-19-dashboard/">Knowledge Graph Hub dashboard</a>.</p>
 <p>The main entry point is the <code class="docutils literal notranslate"><span class="pre">kgx.graph_operations.summarize_graph.generate_graph_stats</span></code> method.</p>
-<p>The tool does detect and logs anomalies in the graph (defaults reporting  to stderr, but may be reset to a file using the <code class="docutils literal notranslate"><span class="pre">error_log</span></code> parameter)</p>
+<p>The tool does detect and logs anomalies in the graph (defaults reporting  to stderr, but may be reset to a file using
+the <code class="docutils literal notranslate"><span class="pre">error_log</span></code> parameter)</p>
 <p><strong>Note:</strong> To generate a summary statistics YAML that is consistent with Translator API (TRAPI) Release 1.1
 standards, refer to <a class="reference internal" href="meta_knowledge_graph.html"><span class="std std-doc">Meta Knowledge Graph</span></a>.</p>
 <section id="streaming-data-processing-mode">
 <h2>Streaming Data Processing Mode<a class="headerlink" href="#streaming-data-processing-mode" title="Permalink to this heading">#</a></h2>
-<p>For very large graphs, the Graph Summary operation may now successfully process graph data equally well  using data streaming (command flag <code class="docutils literal notranslate"><span class="pre">--stream=True</span></code>) which significantly minimizes the memory footprint required to process such graphs.</p>
+<p>For very large graphs, the Graph Summary operation may now successfully process graph data equally well  using data
+streaming (command flag <code class="docutils literal notranslate"><span class="pre">--stream=True</span></code>) which significantly minimizes the memory footprint required to process such graphs.</p>
 </section>
 <section id="module-kgx.graph_operations.summarize_graph">
 <span id="kgx-graph-operations-summarize-graph"></span><h2>kgx.graph_operations.summarize_graph<a class="headerlink" href="#module-kgx.graph_operations.summarize_graph" title="Permalink to this heading">#</a></h2>
