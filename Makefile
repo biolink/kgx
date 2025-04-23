@@ -4,13 +4,13 @@ VERSION = $(shell git tag | tail -1)
 test: unit-tests integration-tests
 
 unit-tests:
-	poetry run pytest tests/unit/test_source/*.py
-	poetry run pytest tests/unit/test_sink/*.py
-	poetry run pytest tests/unit/*.py
+	$(RUN) pytest tests/unit/test_source/*.py
+	$(RUN) pytest tests/unit/test_sink/*.py
+	$(RUN) pytest tests/unit/*.py
 
 
 integration-tests:
-	poetry run pytest tests/integration/*.py
+	$(RUN) pytest tests/integration/*.py
 
 docs:
 	cd docs && $(RUN) make html
