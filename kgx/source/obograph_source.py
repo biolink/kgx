@@ -123,6 +123,9 @@ class ObographSource(JsonSource):
         if "synonym" in node_properties:
             fixed_node["synonym"] = node_properties["synonym"]
 
+        if "exact_synonyms" in node_properties:
+            fixed_node["exact_synonyms"] = node_properties["exact_synonyms"]
+
         if "xrefs" in node_properties:
             fixed_node["xref"] = node_properties["xrefs"]
 
@@ -333,8 +336,10 @@ class ObographSource(JsonSource):
 
         if "synonyms" in meta:
             # parse 'synonyms' as 'synonym'
-            synonyms = [s["val"] for s in meta["synonyms"] if "val" in s]
-            properties["synonym"] = synonyms
+            properties["synonym"] = [s["val"] for s in meta["synonyms"] if "val" in s]
+            # make a parse synonym function
+            properties["exact_synonyms"] = [x['val'] for x in meta["synonyms"] if "pred" in x and x["pred"] == "hasExactSynonym" ]
+
 
         if "xrefs" in meta:
             # parse 'xrefs' as 'xrefs'
@@ -355,4 +360,5 @@ class ObographSource(JsonSource):
                         n = p["val"]
                     equivalent_nodes.append(n)
         properties["equivalent_nodes"] = equivalent_nodes
+
         return properties
