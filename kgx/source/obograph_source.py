@@ -126,6 +126,15 @@ class ObographSource(JsonSource):
         if "exact_synonyms" in node_properties:
             fixed_node["exact_synonyms"] = node_properties["exact_synonyms"]
 
+        if "related_synonyms" in node_properties:
+            fixed_node["related_synonyms"] = node_properties["related_synonyms"]
+
+        if "narrow_synonyms" in node_properties:
+            fixed_node["narrow_synonyms"] = node_properties["narrow_synonyms"]
+
+        if "broad_synonyms" in node_properties:
+            fixed_node["broad_synonyms"] = node_properties["broad_synonyms"]
+
         if "xrefs" in node_properties:
             fixed_node["xref"] = node_properties["xrefs"]
 
@@ -337,9 +346,10 @@ class ObographSource(JsonSource):
         if "synonyms" in meta:
             # parse 'synonyms' as 'synonym'
             properties["synonym"] = [s["val"] for s in meta["synonyms"] if "val" in s]
-            # make a parse synonym function
             properties["exact_synonyms"] = [x['val'] for x in meta["synonyms"] if "pred" in x and x["pred"] == "hasExactSynonym" ]
-
+            properties["related_synonyms"] = [x['val'] for x in meta["synonyms"] if "pred" in x and x["pred"] == "hasRelatedSynonym" ]
+            properties["broad_synonyms"] = [x['val'] for x in meta["synonyms"] if "pred" in x and x["pred"] == "hasBroadSynonym" ]
+            properties["narrow_synonyms"] = [x['val'] for x in meta["synonyms"] if "pred" in x and x["pred"] == "hasNarrowSynonym" ]
 
         if "xrefs" in meta:
             # parse 'xrefs' as 'xrefs'
