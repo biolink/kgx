@@ -993,6 +993,7 @@ def prepare_input_args(
             filename = args["filename"]
             if not filename.startswith(output_directory):
                 o["args"] = os.path.join(output_directory, filename)
+
     return input_args
 
 
@@ -1083,6 +1084,7 @@ def prepare_output_args(
             output_args["property_types"] = source_property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
+
     return output_args
 
 

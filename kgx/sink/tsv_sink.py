@@ -12,7 +12,18 @@ from kgx.utils.kgx_utils import (
 )
 
 
-DEFAULT_NODE_COLUMNS = {"id", "name", "category", "description", "provided_by"}
+DEFAULT_NODE_COLUMNS = {
+    "id",
+    "name",
+    "category",
+    "description",
+    "provided_by",
+    "synonym",
+    "exact_synonym",
+    "related_synonym",
+    "narrow_synonym",
+    "broad_synonym"
+}
 DEFAULT_EDGE_COLUMNS = {
     "id",
     "subject",
@@ -166,7 +177,7 @@ class TsvSink(Sink):
         """
         node_columns = cols.copy()
         core_columns = OrderedSet(
-            ["id", "category", "name", "description", "xref", "provided_by", "synonym"]
+            ["id", "category", "name", "description", "xref", "provided_by", "synonym", "exact_synonym", "broad_synonym", "narrow_synonym", "related_synonym"]
         )
         ordered_columns = OrderedSet()
         for c in core_columns:
