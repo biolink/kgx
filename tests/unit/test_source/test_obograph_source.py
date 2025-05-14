@@ -39,9 +39,13 @@ def test_read_obograph1():
     )
     assert n1["category"] == ["biolink:MolecularActivity"]
     assert "structure-specific DNA binding" in n1["synonym"]
-    assert "structure specific DNA binding" in n1["synonym"]
+
     assert "microtubule/chromatin interaction" in n1["synonym"]
     assert "plasmid binding" in n1["synonym"]
+
+    # related and narrow synonym
+    assert n1["related_synonyms"] == ['structure-specific DNA binding','structure specific DNA binding','microtubule/chromatin interaction']
+    assert n1["narrow_synonyms"] == ['plasmid binding']
 
     n2 = nodes["GO:0005575"]
     assert n2["id"] == "GO:0005575"
@@ -54,6 +58,14 @@ def test_read_obograph1():
     assert n2["xref"] == ["NIF_Subcellular:sao1337158144"]
     assert "goslim_chembl" in n2["subsets"]
     assert "goslim_generic" in n2["subsets"]
+
+    # just for exact synonym
+    n3 = nodes["GO:0005975"]
+    assert n3["exact_synonyms"] == ['carbohydrate metabolism']
+
+    # brad_synonym
+    n5 = nodes["GO:0003924"]
+    assert n5['broad_synonyms'][0].startswith('hydrolase activity')
 
 
 def test_read_jsonl2():
