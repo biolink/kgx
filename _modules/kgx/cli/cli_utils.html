@@ -1231,6 +1231,7 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">output_directory</span><span class="p">):</span>
                 <span class="n">o</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">input_args</span></div>
 
 
@@ -1321,6 +1322,7 @@
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_property_types</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;type </span><span class="si">{</span><span class="n">output_format</span><span class="si">}</span><span class="s2"> not yet supported for output&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">output_args</span></div>
 
 

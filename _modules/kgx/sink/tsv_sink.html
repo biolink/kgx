@@ -250,7 +250,18 @@
 <span class="p">)</span>
 
 
-<span class="n">DEFAULT_NODE_COLUMNS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;provided_by&quot;</span><span class="p">}</span>
+<span class="n">DEFAULT_NODE_COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;category&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;provided_by&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;synonym&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;exact_synonym&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;related_synonym&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;narrow_synonym&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;broad_synonym&quot;</span>
+<span class="p">}</span>
 <span class="n">DEFAULT_EDGE_COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;id&quot;</span><span class="p">,</span>
     <span class="s2">&quot;subject&quot;</span><span class="p">,</span>
@@ -404,7 +415,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">node_columns</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">core_columns</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;xref&quot;</span><span class="p">,</span> <span class="s2">&quot;provided_by&quot;</span><span class="p">,</span> <span class="s2">&quot;synonym&quot;</span><span class="p">]</span>
+            <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;xref&quot;</span><span class="p">,</span> <span class="s2">&quot;provided_by&quot;</span><span class="p">,</span> <span class="s2">&quot;synonym&quot;</span><span class="p">,</span> <span class="s2">&quot;exact_synonym&quot;</span><span class="p">,</span> <span class="s2">&quot;broad_synonym&quot;</span><span class="p">,</span> <span class="s2">&quot;narrow_synonym&quot;</span><span class="p">,</span> <span class="s2">&quot;related_synonym&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">ordered_columns</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">core_columns</span><span class="p">:</span>
