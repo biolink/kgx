@@ -36,7 +36,7 @@ class DuckDbSource(Source):
         if duckdb is None:
             raise ImportError("duckdb package is required for DuckDbSource")
         
-        self.connection = duckdb.connect(database_path)
+        self.connection = duckdb.connect(database_path, read_only=True)
         
         # Verify tables exist
         tables = self.connection.execute(

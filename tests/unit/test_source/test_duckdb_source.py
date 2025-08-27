@@ -96,6 +96,20 @@ def test_connect_db_success(sample_duckdb):
 
 
 @pytest.mark.skipif(not DUCKDB_AVAILABLE, reason="DuckDB not available")
+def test_connect_db_read_only(sample_duckdb):
+    """Test that database connection is read-only."""
+    t = Transformer()
+    source = DuckDbSource(t)
+    source._connect_db(sample_duckdb)
+    
+    # Attempt to insert should fail in read-only mode
+    with pytest.raises(duckdb.InvalidInputException, match="Cannot execute statement of type \"CREATE\".*read-only"):
+        source.connection.execute("CREATE TABLE test_write (id VARCHAR)")
+    
+    source.close()
+
+
+@pytest.mark.skipif(not DUCKDB_AVAILABLE, reason="DuckDB not available")
 def test_connect_db_missing_tables():
     """Test database connection with missing tables."""
     # Create database without required tables - get unique name
