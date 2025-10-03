@@ -18,6 +18,7 @@ from kgx.source import (
     RdfSource,
     OwlSource,
     SssomSource,
+    DuckDbSource,
 )
 from kgx.sink import (
     Sink,
@@ -47,6 +48,7 @@ SOURCE_MAP = {
     "obo-json": ObographSource,
     "trapi-json": TrapiSource,
     "neo4j": NeoSource,
+    "duckdb": DuckDbSource,
     "nt": RdfSource,
     "owl": OwlSource,
     "sssom": SssomSource,
