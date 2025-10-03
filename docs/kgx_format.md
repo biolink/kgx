@@ -132,13 +132,13 @@ slots:
         "id": "HGNC:11603",
         "name": "TBX4",
         "category": ["biolink:Gene"],
-        "provided_by": ["infores:gwascatalog"]
+        "provided_by": ["infores:hgnc"]
       },
       {
         "id": "MONDO:0005002",
         "name": "chronic obstructive pulmonary disease",
         "category": ["biolink:Disease"],
-        "provided_by": ["infores:gwascatalog"]
+        "provided_by": ["infores:mondo"]
       }
     ],
     "edges" : [
@@ -147,9 +147,8 @@ slots:
         "subject": "HGNC:11603",
         "predicate": "biolink:contributes_to",
         "object": "MONDO:0005002",
-        "relation": "RO:0003304",
         "category": ["biolink:GeneToDiseaseAssociation"],
-        "primary_knowledge_source": ["infores:gwascatalog"],
+        "primary_knowledge_source": ["infores:mondo"],
         "publications": ["PMID:26634245", "PMID:26634244"]
       }
     ]
