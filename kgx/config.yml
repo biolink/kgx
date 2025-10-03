@@ -18,6 +18,6 @@ logging:
   format: '[%(name)s][%(filename)s][%(funcName)20s] %(levelname)s: %(message)s'
 
 jsonld-context:
-  biolink: https://raw.githubusercontent.com/biolink/biolink-model/2.2.5/context.jsonld
+  biolink: https://raw.githubusercontent.com/biolink/biolink-model/v4.0.0/project/jsonld/biolink_model.context.jsonld
   monarch_context: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/monarch_context.jsonld
   obo_context: https://raw.githubusercontent.com/prefixcommons/biocontext/master/registry/obo_context.jsonld

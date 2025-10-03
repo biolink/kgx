@@ -1,4 +1,5 @@
 import importlib
+from functools import lru_cache
 from typing import Dict, Any, Optional
 import sys
 from os import path
@@ -10,12 +11,13 @@ import yaml
 import json
 import logging
 
+import curies
 from kgx.graph.base_graph import BaseGraph
 
 config: Optional[Dict[str, Any]] = None
 logger: Optional[logging.Logger] = None
 graph_store_class: Optional[BaseGraph] = None
-jsonld_context_map: Dict = {}
+jsonld_context_map: Dict[str, Dict[str, str]] = {}
 
 CONFIG_FILENAME = path.join(path.dirname(path.abspath(__file__)), "config.yml")
 
@@ -41,6 +43,13 @@ def get_config(filename: str = CONFIG_FILENAME) -> Dict:
     return config
 
 
+@lru_cache
+def get_converter(name: str = "biolink") -> curies.Converter:
+    """Get contents of a JSON-LD context."""
+    filepath = config["jsonld-context"][name]  # type: ignore
+    return curies.load_jsonld_context(filepath)
+
+
 def get_jsonld_context(name: str = "biolink"):
     """
     Get contents of a JSON-LD context.
@@ -55,19 +64,8 @@ def get_jsonld_context(name: str = "biolink"):
     if name in jsonld_context_map:
         content = jsonld_context_map[name]
     else:
-        filepath = config["jsonld-context"][name]  # type: ignore
-        if filepath.startswith("http"):
-            try:
-                content = requests.get(filepath).json()
-            except ConnectionError:
-                raise Exception(f"Unable to download JSON-LD context from {filepath}")
-        else:
-            if path.exists(filepath):
-                content = json.load(open(filepath))
-
-        if "@context" in content:
-            content = content["@context"]
-            jsonld_context_map[name] = content
+        converter = get_converter(name)
+        jsonld_context_map[name] = converter.bimap
     return content
 
 
