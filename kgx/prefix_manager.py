@@ -36,6 +36,8 @@ class PrefixManager(object):
             context = cu.read_remote_jsonld_context(url)
         else:
             context = get_jsonld_context()
+        if context is None:
+            context = {}
         self.set_prefix_map(context)
 
     def set_prefix_map(self, m: Dict) -> None:
