@@ -6,6 +6,14 @@ various formats.  KGX supports multiple serialization formats, including JSON, T
 KGX is both a format specification and a toolkit for serializing data conformant to Biolink Model in a variety of 
 formats.
 
+## Quick Note on Validation
+
+**KGX uses the official [Biolink Model JSON Schema](https://w3id.org/biolink/biolink-model/biolink-model.json) for validation.** 
+
+KGX JSON Lines format is simply Biolink Model-compliant JSON objects, one per line. There is no separate "KGX schema"—we validate directly against the Biolink Model schema. For a detailed explanation of how KGX validation works, see: **[KGX and Biolink Model JSON Schema Validation](kgx_biolink_validation.md)**.
+
+---
+
 There are some notable initial design decisions for KGX that influence the behavior of the KGX toolkit:
 * KGX is a serialization format for Biolink Model compliant knowledge graphs
 * KGX is a flat file format that can be processed, subset, and exchanged easily
