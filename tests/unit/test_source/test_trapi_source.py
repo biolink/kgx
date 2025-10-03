@@ -325,6 +325,17 @@ def test_read_trapi_jsonl():
     assert e["predicate"] == "biolink:gene_associated_with_condition"
 
 
+def test_read_trapi_with_attributes():
+    t = Transformer()
+    s = TrapiSource(t)
+
+    g = list(s.parse(os.path.join(RESOURCE_DIR, "trapi_sample.json")))
+    nodes = {}
+    edges = {}
+    print("graph is:", g)
+    for rec in g:
+        print("rec", rec)
+
 def test_read_compressed_trapi():
     """
     Read from a compressed TRAPI JSON file.

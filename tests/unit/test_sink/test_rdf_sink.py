@@ -79,7 +79,7 @@ def test_write_rdf3():
             # type is fully expanded.
             counter = counter+1
     assert counter > 0
-    assert len(lines) == 42
+    assert len(lines) == 44
 
 
 @pytest.mark.parametrize(

@@ -483,6 +483,10 @@ class TrapiSource(JsonSource):
             else:
                 edge_copy["predicate"] = edge_copy["relation_label"]
         
+        # Set default predicate if none is provided
+        if "predicate" not in edge_copy or not edge_copy["predicate"]:
+            edge_copy["predicate"] = "biolink:related_to"
+        
         # Process edge attributes
         if "attributes" in edge_copy and edge_copy["attributes"]:
             self._process_edge_attributes(edge_copy["attributes"], edge_copy)

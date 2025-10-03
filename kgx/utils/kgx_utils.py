@@ -227,19 +227,27 @@ def format_biolink_slots(s: str) -> str:
 
 MONARCH_CONVERTER = get_converter("monarch_context")
 OBO_CONVERTER = get_converter("obo_context")
-DEFAULT_CONVERTER = curies.chain([MONARCH_CONVERTER, OBO_CONVERTER])
+try:
+    DEFAULT_CONVERTER = curies.chain([MONARCH_CONVERTER, OBO_CONVERTER])
+except ValueError as e:
+    log.warning(f"Duplicate prefix definitions detected when chaining converters: {e}")
+    DEFAULT_CONVERTER = MONARCH_CONVERTER
 
 
 def _resolve_converter(prefix_maps: Optional[List[Dict[str, str]]] = None) -> curies.Converter:
     if not prefix_maps:
         return DEFAULT_CONVERTER
-    return curies.chain([
-        *(
-            curies.load_prefix_map(prefix_map)
-            for prefix_map in prefix_maps
-        ),
-        DEFAULT_CONVERTER,
-    ])
+    try:
+        return curies.chain([
+            *(
+                curies.load_prefix_map(prefix_map)
+                for prefix_map in prefix_maps
+            ),
+            DEFAULT_CONVERTER,
+        ])
+    except ValueError as e:
+        log.warning(f"Duplicate prefix definitions detected when resolving converter: {e}")
+        return DEFAULT_CONVERTER
 
 
 def contract(

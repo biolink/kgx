@@ -31,7 +31,7 @@ def get_graph():
         "D", "C", **{"subject": "D", "object": "C", "predicate": "biolink:sub_class_of"}
     )
     graph.add_edge(
-        "D", "A", **{"subject": "D", "object": "A", "predicate": "biolink:related_to"}
+        "D", "A", **{"subject": "D", "object": "A", "predicate": "biolink:related_to", "nested_attribute1": [{"nested_attribute2": "value", "alternative_url":"url_value"}, {"nested_attribute2": "value"}]}
     )
     graph.add_edge(
         "E", "D", **{"subject": "E", "object": "D", "predicate": "biolink:sub_class_of"}
