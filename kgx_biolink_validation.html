@@ -272,11 +272,16 @@
 <h3>The Schema Hierarchy<a class="headerlink" href="#the-schema-hierarchy" title="Permalink to this heading">#</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Biolink Model JSON Schema (https://w3id.org/biolink/biolink-model/biolink-model.json)
     ↓
-  Defines: NamedThing, Association, and all their descendants
+  Defines: KnowledgeGraph (root class)
+    ↓
+  KnowledgeGraph has two properties:
+    - nodes: array of NamedThing instances
+    - edges: array of Association instances
     ↓
   KGX validates against these definitions
     ↓
   Your JSON Lines data: One NamedThing or Association per line
+  (split across {filename}_nodes.jsonl and {filename}_edges.jsonl)
 </pre></div>
 </div>
 </section>
@@ -337,15 +342,38 @@ cat<span class="w"> </span>nodes.jsonl<span class="w"> </span><span class="p">|<
 </ul>
 <p><strong>Still JSON Schema Compliant:</strong>
 Each line is a JSON object that validates against the Biolink Model schema. The newline delimiter doesn’t change the schema validation—it just changes how we store multiple objects.</p>
+<p><strong>JSON Lines as a Bundle:</strong>
+When working with KGX JSON Lines format, you typically work with a <strong>bundle</strong> of two files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains the <code class="docutils literal notranslate"><span class="pre">nodes</span></code> array from <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code>, with one node per line</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{filename}_edges.jsonl</span></code>: Contains the <code class="docutils literal notranslate"><span class="pre">edges</span></code> array from <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code>, with one edge per line</p></li>
+</ul>
+<p>This bundle represents the same <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> structure defined in the Biolink Model JSON Schema, but split into separate files for efficient processing.</p>
 </section>
 <hr class="docutils" />
 <section id="the-schema-relationship">
 <h2>The Schema Relationship<a class="headerlink" href="#the-schema-relationship" title="Permalink to this heading">#</a></h2>
 <section id="biolink-model-json-schema-structure">
 <h3>Biolink Model JSON Schema Structure<a class="headerlink" href="#biolink-model-json-schema-structure" title="Permalink to this heading">#</a></h3>
+<p>The Biolink Model JSON Schema defines a root <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> class:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
-  &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;definitions&quot;: {
+  &quot;$defs&quot;: {
+    &quot;KnowledgeGraph&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;description&quot;: &quot;A knowledge graph represented in KGX format&quot;,
+      &quot;properties&quot;: {
+        &quot;nodes&quot;: {
+          &quot;description&quot;: &quot;A list of entities that can be a subject or object of an association&quot;,
+          &quot;type&quot;: [&quot;array&quot;, &quot;null&quot;],
+          &quot;items&quot;: { &quot;anyOf&quot;: [{ &quot;$ref&quot;: &quot;#/$defs/NamedThing&quot; }, ...] }
+        },
+        &quot;edges&quot;: {
+          &quot;description&quot;: &quot;A list of associations between two entities&quot;,
+          &quot;type&quot;: [&quot;array&quot;, &quot;null&quot;],
+          &quot;items&quot;: { &quot;anyOf&quot;: [{ &quot;$ref&quot;: &quot;#/$defs/Association&quot; }, ...] }
+        }
+      }
+    },
     &quot;NamedThing&quot;: {
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {

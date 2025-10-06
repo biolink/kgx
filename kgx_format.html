@@ -248,6 +248,11 @@ formats.</p>
 <section id="quick-note-on-validation">
 <h2>Quick Note on Validation<a class="headerlink" href="#quick-note-on-validation" title="Permalink to this heading">#</a></h2>
 <p><strong>KGX uses the official <a class="reference external" href="https://w3id.org/biolink/biolink-model/biolink-model.json">Biolink Model JSON Schema</a> for validation.</strong></p>
+<p>The Biolink Model JSON Schema defines a root class called <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> with two key properties:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nodes</span></code>: A list of entities (instances of <code class="docutils literal notranslate"><span class="pre">NamedThing</span></code> or its descendants)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: A list of associations (instances of <code class="docutils literal notranslate"><span class="pre">Association</span></code> or its descendants)</p></li>
+</ul>
 <p>KGX JSON Lines format is simply Biolink Model-compliant JSON objects, one per line. There is no separate “KGX schema”—we validate directly against the Biolink Model schema. For a detailed explanation of how KGX validation works, see: <strong><a class="reference internal" href="kgx_biolink_validation.html"><span class="std std-doc">KGX and Biolink Model JSON Schema Validation</span></a></strong>.</p>
 <hr class="docutils" />
 <p>There are some notable initial design decisions for KGX that influence the behavior of the KGX toolkit:</p>
@@ -485,10 +490,15 @@ single JSON object representing either a node or an edge. This format combines t
 (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.</p>
 <section id="file-structure">
 <h4>File Structure<a class="headerlink" href="#file-structure" title="Permalink to this heading">#</a></h4>
+<p>A KGX JSON Lines <strong>bundle</strong> typically consists of two files:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains one node per line, each as a complete JSON object</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_edges.jsonl</span></code>: Contains one edge per line, each as a complete JSON object</p></li>
 </ul>
+<p>Together, these two files represent a complete <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> as defined in the Biolink Model JSON Schema.
+While the JSON format combines both nodes and edges in a single file under the <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> structure,
+the JSON Lines format splits them into separate files for efficient streaming and processing. Both approaches
+validate against the same Biolink Model schema.</p>
 </section>
 <section id="node-record-format">
 <h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Permalink to this heading">#</a></h4>
