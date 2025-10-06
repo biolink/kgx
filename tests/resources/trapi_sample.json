@@ -1,0 +1,51 @@
+{
+  "knowledge_graph": {
+    "edges": [
+      {
+        "subject": "HGNC:11603",
+        "predicate": "biolink:genetically_associated_with",
+        "object": "MONDO:0004992"
+      },
+      {
+        "subject": "HGNC:11603",
+        "predicate": "biolink:genetically_associated_with",
+        "object": "MONDO:0004992",
+        "sources": [
+          {
+            "resource_id": "infores:uniprot",
+            "resource_role": "primary_knowledge_source"
+          },
+          {
+            "resource_id": "infores:diseases",
+            "resource_role": "aggregator_knowledge_source",
+            "upstream_resource_ids": [
+              "infores:uniprot"
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "attribute_type_id": "biolink:knowledge_level",
+            "value": "knowledge_assertion"
+          },
+          {
+            "attribute_type_id": "biolink:agent_type",
+            "value": "manual_validation_of_automated_agent"
+          },
+          {
+            "attribute_type_id": "SEPIO:0000168",
+            "value": 4.0
+          },
+          {
+            "attribute_type_id": "biolink:original_subject",
+            "value": "ENSEMBL:ENSP00000501180"
+          },
+          {
+            "attribute_type_id": "biolink:original_object",
+            "value": "DOID:162"
+          }
+        ]
+      }
+    ]
+  }
+}

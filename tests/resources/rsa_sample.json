@@ -37,20 +37,17 @@
     {
       "id": "a8575c4e-61a6-428a-bf09-fcb3e8d1644d",
       "source_id": "HGNC:11603",
-      "target_id": "MONDO:0005002",
-      "relation_label": ["biolink:related_to"]
+      "target_id": "MONDO:0005002"
     },
     {
       "id": "2d38345a-e9bf-4943-accb-dccba351dd04",
       "source_id": "HGNC:11603",
-      "target_id": "MONDO:0013238",
-      "relation_label": ["biolink:related_to"]
+      "target_id": "MONDO:0013238"
     },
     {
       "id": "d7edcb4b-af58-468a-8f86-ed737859693a",
       "source_id": "HGNC:11603",
-      "target_id": "MONDO:0013329",
-      "relation_label": ["biolink:related_to"]
+      "target_id": "MONDO:0013329"
     }
     ]
   },

@@ -6,6 +6,14 @@ various formats.  KGX supports multiple serialization formats, including JSON, T
 KGX is both a format specification and a toolkit for serializing data conformant to Biolink Model in a variety of 
 formats.
 
+## Quick Note on Validation
+
+**KGX uses the official [Biolink Model JSON Schema](https://w3id.org/biolink/biolink-model/biolink-model.json) for validation.** 
+
+KGX JSON Lines format is simply Biolink Model-compliant JSON objects, one per line. There is no separate "KGX schema"—we validate directly against the Biolink Model schema. For a detailed explanation of how KGX validation works, see: **[KGX and Biolink Model JSON Schema Validation](kgx_biolink_validation.md)**.
+
+---
+
 There are some notable initial design decisions for KGX that influence the behavior of the KGX toolkit:
 * KGX is a serialization format for Biolink Model compliant knowledge graphs
 * KGX is a flat file format that can be processed, subset, and exchanged easily
@@ -40,9 +48,27 @@ We refer to each serialization of a node as a Node record, with the following el
 - `id`: CURIE that uniquely identifies the node in the graph
 - `category`: Multivalued list with values from the Biolink [NamedThing](https://biolink.github.io/biolink-model/NamedThing) hierarchy
 
-**Optional Elements:**
-- Biolink Model properties: `name`, `description`, `xref`, `provided_by`, etc.
-- Note: Non-Biolink Model properties are allowed and won't violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.
+**Common Optional Properties:**
+- `name` (string): Human-readable name of the entity
+- `description` (string): Human-readable description of the entity
+- `provided_by` (array of strings): Sources that created or assembled this node (NOTE: for nodes only, not edges)
+- `xref` (array of strings): Database cross-references as CURIEs (e.g., ["ENSEMBL:ENSG00000123456"])
+- `synonym` (array of strings): Alternative names for the entity
+- `iri` (string): IRI form of the identifier
+- `same_as` (array of strings): Entities that are semantically equivalent
+- `url` (string): Full URL for an external resource about the node (when CURIE is not sufficient)
+
+**Domain-Specific Properties:**
+- **For Genes/Proteins**: 
+  - `in_taxon` (array of strings): Taxonomic classification CURIEs (e.g., ["NCBITaxon:9606"] for human)
+  - `in_taxon_label` (string): Human-readable taxon name (e.g., "Homo sapiens")
+  - `symbol` (string): Gene symbol
+- **For Publications**: 
+  - `publications` (array of strings): Referenced publications as CURIEs (e.g., ["PMID:12345678"])
+  - Note: While `publications` is typically an edge property, it can be used on nodes representing publication entities themselves
+  
+**Additional Notes:**
+- Non-Biolink Model properties are allowed and won't violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.
 
 ### Edge Record Elements
 
@@ -52,16 +78,46 @@ Each serialization of an edge (Edge record) includes:
 - `subject`: ID of the source node
 - `predicate`: Relationship type from Biolink [related_to](https://biolink.github.io/biolink-model/related_to) hierarchy
 - `object`: ID of the target node
-- `knowledge_level`: Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model
-- `agent_type`: Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model
+- `knowledge_level`: Level of knowledge representation according to Biolink Model (see valid values below)
+- `agent_type`: Type of autonomous agent that generated the edge according to Biolink Model (see valid values below)
 
 **Edge Provenance:**
-- Use `knowledge_source` or its descendants (`primary_knowledge_source`, etc.)
-- `publications`: List of publication CURIEs supporting the edge
+- `primary_knowledge_source`: The most upstream source of knowledge (e.g., "infores:mondo")
+- `aggregator_knowledge_source`: Intermediate resources through which knowledge passed (e.g., ["infores:biolink-api"])
+- `publications`: List of publication CURIEs supporting the edge (e.g., ["PMID:12345678"])
 
 **Optional Elements:**
 - Biolink Model properties: `category`, `publications`, etc.
 - Note: Non-Biolink Model properties are allowed and won't violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.
+
+**Valid Values for Required Edge Properties:**
+
+*KnowledgeLevelEnum* - Indicates the level of knowledge representation:
+- `knowledge_assertion`: A statement of purported fact based on assessment of direct evidence
+- `logical_entailment`: A conclusion that follows logically from established facts
+- `prediction`: A statement of possible fact based on probabilistic reasoning
+- `statistical_association`: Reports concepts/variables as statistically associated in a dataset
+- `observation`: Reports (and possibly quantifies) a phenomenon observed to occur
+- `not_provided`: Knowledge level cannot be determined
+
+*AgentTypeEnum* - Indicates the type of autonomous agent that generated the edge:
+- `manual_agent`: Human-driven agent
+- `automated_agent`: Fully automated process
+- `data_analysis_pipeline`: Structured data processing pipeline
+- `computational_model`: Model-based computation
+- `text_mining_agent`: Text mining/NLP processes
+- `image_processing_agent`: Image analysis processes
+- `manual_validation_of_automated_agent`: Human validation of automated results
+- `not_provided`: Agent type information not available
+
+**Important Notes on Deprecated Properties:**
+
+- **`relation` (DEPRECATED for edges)**: The `relation` slot is deprecated in the Biolink Model. While KGX still supports it for backwards compatibility, new implementations should use `predicate` instead. The `predicate` property represents high-level semantic relationships from the Biolink Model hierarchy, while `relation` was originally intended for more specific ontological relations (e.g., from the Relations Ontology).
+
+- **`provided_by` vs knowledge source properties**: 
+  - `provided_by` is a **node-only** property representing sources that created or assembled the node
+  - For **edges**, use `primary_knowledge_source` and `aggregator_knowledge_source` instead
+  - This distinction is critical for proper knowledge provenance tracking
 
 When using KGX as a serialization framework (e.g. the "Transform" operations), note that KGX will try to add required properties with default values
 when not provided by the user.  It will also assign Biolink categories to nodes if not provided by the user.  This is done to ensure that the resulting knowledge graph is Biolink Model compliant.
@@ -132,13 +188,13 @@ slots:
         "id": "HGNC:11603",
         "name": "TBX4",
         "category": ["biolink:Gene"],
-        "provided_by": ["infores:gwascatalog"]
+        "provided_by": ["infores:hgnc"]
       },
       {
         "id": "MONDO:0005002",
         "name": "chronic obstructive pulmonary disease",
         "category": ["biolink:Disease"],
-        "provided_by": ["infores:gwascatalog"]
+        "provided_by": ["infores:mondo"]
       }
     ],
     "edges" : [
@@ -147,9 +203,8 @@ slots:
         "subject": "HGNC:11603",
         "predicate": "biolink:contributes_to",
         "object": "MONDO:0005002",
-        "relation": "RO:0003304",
         "category": ["biolink:GeneToDiseaseAssociation"],
-        "primary_knowledge_source": ["infores:gwascatalog"],
+        "primary_knowledge_source": ["infores:mondo"],
         "publications": ["PMID:26634245", "PMID:26634244"]
       }
     ]
@@ -225,42 +280,61 @@ single JSON object representing either a node or an edge. This format combines t
 
 Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:
 
+**Example 1: Gene node with organism taxon**
 ```json
 {
   "id": "HGNC:11603",
   "name": "TBX4",
-  "category": [
-    "biolink:Gene"
-  ]
+  "symbol": "TBX4",
+  "category": ["biolink:Gene"],
+  "in_taxon": ["NCBITaxon:9606"],
+  "in_taxon_label": "Homo sapiens",
+  "xref": ["ENSEMBL:ENSG00000121075", "NCBIGENE:9496"],
+  "provided_by": ["infores:hgnc"]
 }
 ```
+
+**Example 2: Disease node**
 ```json
 {
   "id": "MONDO:0005002",
   "name": "chronic obstructive pulmonary disease",
-  "category": [
-    "biolink:Disease"
-  ]
+  "category": ["biolink:Disease"],
+  "synonym": ["COPD", "chronic obstructive airway disease"],
+  "xref": ["DOID:3083", "UMLS:C0024117"],
+  "provided_by": ["infores:mondo"]
 }
 ```
+
+**Example 3: Clinical trial node with URL**
 ```json
 {
-  "id": "CHEBI:15365",
-  "name": "acetaminophen",
-  "category": [
-    "biolink:SmallMolecule",
-    "biolink:ChemicalEntity"
-  ]
+  "id": "CLINICALTRIALS:NCT01015638",
+  "name": "Study of Drug X for Treatment Y",
+  "category": ["biolink:ClinicalTrial"],
+  "url": "https://clinicaltrials.gov/ct2/show/NCT01015638",
+  "provided_by": ["infores:clinicaltrials"]
 }
 ```
+
+**Example 4: Publication node**
+```json
+{
+  "id": "PMID:12345678",
+  "name": "Genetic basis of disease X",
+  "category": ["biolink:Publication"],
+  "url": "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+  "provided_by": ["infores:pubmed"]
+}
 ```
 
 In the actual jsonlines file, each record would be on a single line without comments and formatting:
 
 ```text
-{"id":"HGNC:11603","name":"TBX4","category":["biolink:Gene"]}
-{"id":"MONDO:0005002","name":"chronic obstructive pulmonary disease","category":["biolink:Disease"]}
-{"id":"CHEBI:15365","name":"acetaminophen","category":["biolink:SmallMolecule","biolink:ChemicalEntity"]}
+{"id":"HGNC:11603","name":"TBX4","symbol":"TBX4","category":["biolink:Gene"],"in_taxon":["NCBITaxon:9606"],"in_taxon_label":"Homo sapiens","xref":["ENSEMBL:ENSG00000121075","NCBIGENE:9496"],"provided_by":["infores:hgnc"]}
+{"id":"MONDO:0005002","name":"chronic obstructive pulmonary disease","category":["biolink:Disease"],"synonym":["COPD","chronic obstructive airway disease"],"xref":["DOID:3083","UMLS:C0024117"],"provided_by":["infores:mondo"]}
+{"id":"CLINICALTRIALS:NCT01015638","name":"Study of Drug X for Treatment Y","category":["biolink:ClinicalTrial"],"url":"https://clinicaltrials.gov/ct2/show/NCT01015638","provided_by":["infores:clinicaltrials"]}
+{"id":"PMID:12345678","name":"Genetic basis of disease X","category":["biolink:Publication"],"url":"https://pubmed.ncbi.nlm.nih.gov/12345678/","provided_by":["infores:pubmed"]}
 ```
 
 **Edge Example (edges.jsonl)**:
@@ -273,9 +347,8 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "subject": "HGNC:11603",
   "object": "MONDO:0005002",
   "predicate": "biolink:related_to",
-  "relation": "RO:0003304",
-  "knowledge_level": "assertion",
-  "agent_type": "computational"
+  "knowledge_level": "knowledge_assertion",
+  "agent_type": "computational_model"
 }
 ```
 
@@ -285,7 +358,6 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "subject": "HGNC:11603",
   "predicate": "biolink:contributes_to",
   "object": "MONDO:0005002",
-  "relation": "RO:0003304",
   "category": [
     "biolink:GeneToDiseaseAssociation"
   ],
@@ -297,7 +369,7 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
     "PMID:26634244"
   ],
   "knowledge_level": "observation",
-  "agent_type": "biological"
+  "agent_type": "manual_agent"
 }
 ```
 
@@ -307,7 +379,6 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "subject": "CHEBI:15365",
   "predicate": "biolink:affects",
   "object": "GO:0006915",
-  "relation": "RO:0002434",
   "category": [
     "biolink:ChemicalToProcessAssociation"
   ],
@@ -320,16 +391,16 @@ Each line in a jsonlines file represents a complete edge record. Here are exampl
   "publications": [
     "PMID:12345678"
   ],
-  "knowledge_level": "assertion",
-  "agent_type": "computational"
+  "knowledge_level": "prediction",
+  "agent_type": "text_mining_agent"
 }
 ```
 
 In the actual jsonlines file, each record would be on a single line without comments and formatting:
 
 ```text
-{"id":"a8575c4e-61a6-428a-bf09-fcb3e8d1644d","subject":"HGNC:11603","object":"MONDO:0005002","predicate":"biolink:related_to","relation":"RO:0003304","knowledge_level":"assertion","agent_type":"computational"}
-{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","relation":"RO:0003304","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwas-catalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"biological"}
+{"id":"a8575c4e-61a6-428a-bf09-fcb3e8d1644d","subject":"HGNC:11603","object":"MONDO:0005002","predicate":"biolink:related_to","knowledge_level":"knowledge_assertion","agent_type":"computational_model"}
+{"id":"urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e","subject":"HGNC:11603","predicate":"biolink:contributes_to","object":"MONDO:0005002","category":["biolink:GeneToDiseaseAssociation"],"primary_knowledge_source":["infores:gwas-catalog"],"publications":["PMID:26634245","PMID:26634244"],"knowledge_level":"observation","agent_type":"manual_agent"}
 ```
 
 **nodes.jsonl**
