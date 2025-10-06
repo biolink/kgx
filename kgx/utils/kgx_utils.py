@@ -21,14 +21,9 @@ from bmt import Toolkit
 from cachetools import LRUCache
 import pandas as pd
 import numpy as np
-import curies
-
-from kgx.config import (
-    get_logger,
-    get_jsonld_context,
-    get_biolink_model_schema,
-    get_converter,
-)
+from prefixcommons.curie_util import contract_uri
+from prefixcommons.curie_util import expand_uri
+from kgx.config import get_logger, get_jsonld_context, get_biolink_model_schema
 from kgx.graph.base_graph import BaseGraph
 
 curie_lookup_service = None
@@ -225,36 +220,12 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
-MONARCH_CONVERTER = get_converter("monarch_context")
-OBO_CONVERTER = get_converter("obo_context")
-try:
-    DEFAULT_CONVERTER = curies.chain([MONARCH_CONVERTER, OBO_CONVERTER])
-except ValueError as e:
-    log.warning(f"Duplicate prefix definitions detected when chaining converters: {e}")
-    DEFAULT_CONVERTER = MONARCH_CONVERTER
-
-
-def _resolve_converter(prefix_maps: Optional[List[Dict[str, str]]] = None) -> curies.Converter:
-    if not prefix_maps:
-        return DEFAULT_CONVERTER
-    try:
-        return curies.chain([
-            *(
-                curies.load_prefix_map(prefix_map)
-                for prefix_map in prefix_maps
-            ),
-            DEFAULT_CONVERTER,
-        ])
-    except ValueError as e:
-        log.warning(f"Duplicate prefix definitions detected when resolving converter: {e}")
-        return DEFAULT_CONVERTER
-
-
 def contract(
-    uri: str, prefix_maps: Optional[List[Dict[str, str]]] = None, fallback: bool = True
+    uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True
 ) -> str:
     """
     Contract a given URI to a CURIE, based on mappings from `prefix_maps`.
+    If no prefix map is provided then will use defaults from prefixcommons-py.
 
     This method will return the URI as the CURIE if there is no mapping found.
 
@@ -265,7 +236,8 @@ def contract(
     prefix_maps: Optional[List[Dict]]
         A list of prefix maps to use for mapping
     fallback: bool
-        Defunct option. New implementation always chains with default prefix maps.
+        Determines whether to fallback to default prefix mappings, as determined
+        by `prefixcommons.curie_util`, when URI prefix is not found in `prefix_maps`.
 
     Returns
     -------
@@ -273,11 +245,30 @@ def contract(
         A CURIE corresponding to the URI
 
     """
-    return _resolve_converter(prefix_maps).compress(uri, passthrough=True)
+    curie = uri
+    default_curie_maps = [
+        get_jsonld_context("monarch_context"),
+        get_jsonld_context("obo_context"),
+    ]
+    if prefix_maps:
+        curie_list = contract_uri(uri, prefix_maps)
+        if len(curie_list) == 0:
+            if fallback:
+                curie_list = contract_uri(uri, default_curie_maps)
+                if curie_list:
+                    curie = curie_list[0]
+        else:
+            curie = curie_list[0]
+    else:
+        curie_list = contract_uri(uri, default_curie_maps)
+        if len(curie_list) > 0:
+            curie = curie_list[0]
+
+    return curie
 
 
 def expand(
-    curie: str, prefix_maps: Optional[List[Dict[str, str]]] = None, fallback: bool = True
+    curie: str, prefix_maps: Optional[List[dict]] = None, fallback: bool = True
 ) -> str:
     """
     Expand a given CURIE to an URI, based on mappings from `prefix_map`.
@@ -291,7 +282,8 @@ def expand(
     prefix_maps: Optional[List[dict]]
         A list of prefix maps to use for mapping
     fallback: bool
-        Defunct option. New implementation always chains with default prefix maps.
+        Determines whether to fallback to default prefix mappings, as determined
+        by `prefixcommons.curie_util`, when CURIE prefix is not found in `prefix_maps`.
 
     Returns
     -------
@@ -299,7 +291,18 @@ def expand(
         A URI corresponding to the CURIE
 
     """
-    return _resolve_converter(prefix_maps).expand(curie, passthrough=True)
+    default_curie_maps = [
+        get_jsonld_context("monarch_context"),
+        get_jsonld_context("obo_context"),
+    ]
+    if prefix_maps:
+        uri = expand_uri(curie, prefix_maps)
+        if uri == curie and fallback:
+            uri = expand_uri(curie, default_curie_maps)
+    else:
+        uri = expand_uri(curie, default_curie_maps)
+
+    return uri
 
 
 _default_toolkit = None
