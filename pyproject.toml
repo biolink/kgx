@@ -21,7 +21,7 @@ packages = [
 python = "^3.9"
 Click = "*"
 SPARQLWrapper = ">=1.8.2"
-bmt = "^1.4.0"
+bmt = "^1.4.6"
 cachetools = "^5.0.0"
 deprecation = "^2.1.0"
 docker = "^6.0.0"
@@ -68,7 +68,7 @@ myst-nb = "*"  # <-- Add this line
 matplotlib = ">=3.7"
 sphinx-jinja = "^2.0.2"
 sphinxcontrib-programoutput = "^0.17"
-sphinx-design = "*" 
+sphinx-design = "*"
 
 [tool.poetry-dynamic-versioning]
 enable = true
