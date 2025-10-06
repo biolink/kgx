@@ -10,6 +10,10 @@ formats.
 
 **KGX uses the official [Biolink Model JSON Schema](https://w3id.org/biolink/biolink-model/biolink-model.json) for validation.** 
 
+The Biolink Model JSON Schema defines a root class called `KnowledgeGraph` with two key properties:
+- `nodes`: A list of entities (instances of `NamedThing` or its descendants)
+- `edges`: A list of associations (instances of `Association` or its descendants)
+
 KGX JSON Lines format is simply Biolink Model-compliant JSON objects, one per line. There is no separate "KGX schema"—we validate directly against the Biolink Model schema. For a detailed explanation of how KGX validation works, see: **[KGX and Biolink Model JSON Schema Validation](kgx_biolink_validation.md)**.
 
 ---
@@ -240,8 +244,15 @@ single JSON object representing either a node or an edge. This format combines t
 (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.
 
 ##### File Structure
+
+A KGX JSON Lines **bundle** typically consists of two files:
 - `{filename}_nodes.jsonl`: Contains one node per line, each as a complete JSON object
 - `{filename}_edges.jsonl`: Contains one edge per line, each as a complete JSON object
+
+Together, these two files represent a complete `KnowledgeGraph` as defined in the Biolink Model JSON Schema. 
+While the JSON format combines both nodes and edges in a single file under the `KnowledgeGraph` structure, 
+the JSON Lines format splits them into separate files for efficient streaming and processing. Both approaches 
+validate against the same Biolink Model schema.
 
 ##### Node Record Format
 

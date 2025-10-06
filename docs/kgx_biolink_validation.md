@@ -32,11 +32,16 @@ KGX doesn't invent a new schema. KGX uses the **official Biolink Model JSON Sche
 ```
 Biolink Model JSON Schema (https://w3id.org/biolink/biolink-model/biolink-model.json)
     ↓
-  Defines: NamedThing, Association, and all their descendants
+  Defines: KnowledgeGraph (root class)
+    ↓
+  KnowledgeGraph has two properties:
+    - nodes: array of NamedThing instances
+    - edges: array of Association instances
     ↓
   KGX validates against these definitions
     ↓
   Your JSON Lines data: One NamedThing or Association per line
+  (split across {filename}_nodes.jsonl and {filename}_edges.jsonl)
 ```
 
 ---
@@ -93,16 +98,40 @@ JSON Lines (`.jsonl`) is simply newline-delimited JSON. Each line is a complete,
 **Still JSON Schema Compliant:**
 Each line is a JSON object that validates against the Biolink Model schema. The newline delimiter doesn't change the schema validation—it just changes how we store multiple objects.
 
+**JSON Lines as a Bundle:**
+When working with KGX JSON Lines format, you typically work with a **bundle** of two files:
+- `{filename}_nodes.jsonl`: Contains the `nodes` array from `KnowledgeGraph`, with one node per line
+- `{filename}_edges.jsonl`: Contains the `edges` array from `KnowledgeGraph`, with one edge per line
+
+This bundle represents the same `KnowledgeGraph` structure defined in the Biolink Model JSON Schema, but split into separate files for efficient processing.
+
 ---
 
 ## The Schema Relationship
 
 ### Biolink Model JSON Schema Structure
 
+The Biolink Model JSON Schema defines a root `KnowledgeGraph` class:
+
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
+  "$defs": {
+    "KnowledgeGraph": {
+      "type": "object",
+      "description": "A knowledge graph represented in KGX format",
+      "properties": {
+        "nodes": {
+          "description": "A list of entities that can be a subject or object of an association",
+          "type": ["array", "null"],
+          "items": { "anyOf": [{ "$ref": "#/$defs/NamedThing" }, ...] }
+        },
+        "edges": {
+          "description": "A list of associations between two entities",
+          "type": ["array", "null"],
+          "items": { "anyOf": [{ "$ref": "#/$defs/Association" }, ...] }
+        }
+      }
+    },
     "NamedThing": {
       "type": "object",
       "properties": {
