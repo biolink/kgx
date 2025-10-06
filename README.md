@@ -28,7 +28,7 @@ categorized using Biolink classes, edges are labeled using valid Biolink relatio
 
 Internal representation is a property graph, specifically a networkx MultiDiGraph.
 
-The structure of this graph is expected to conform to the Biolink Model standard, as specified in the [KGX format specification](specification/kgx-format.md).
+The structure of this graph is expected to conform to the Biolink Model standard, as specified in the [KGX format specification](docs/kgx_format.md).
 
 In addition to the main code-base, KGX also provides a series of [command line operations](https://kgx.readthedocs.io/en/latest/examples.html#using-kgx-cli).
 

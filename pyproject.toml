@@ -50,7 +50,7 @@ stringcase = "^1.2.0"
 terminaltables = "^3.1.0"
 tox = "^4.13.0"
 validators = "^0.20.0"
-pyarrow = "^15.0.2"
+pyarrow = "^18.0.0"
 recommonmark = "0.5.0"
 sphinx = "5.3.0"
 
