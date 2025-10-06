@@ -162,14 +162,14 @@ lxml = ["lxml"]
 
 [[package]]
 name = "bmt"
-version = "1.4.4"
+version = "1.4.6"
 description = "Biolink Model Toolkit: A Python API for working with the Biolink Model"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "bmt-1.4.4-py3-none-any.whl", hash = "sha256:e00c7eddb6e2f1843989a1099d02a208c3f3101afe54589421eb50b50967ed64"},
-    {file = "bmt-1.4.4.tar.gz", hash = "sha256:d18467c8e5265c1a550f71c4e53780e2b6916a600e04b1b9d72d1fe1daa0b99f"},
+    {file = "bmt-1.4.6-py3-none-any.whl", hash = "sha256:f7b9d096c554aeec49996cf9c142d9c3a1dc78cee33d72734e2032fb2aa033b0"},
+    {file = "bmt-1.4.6.tar.gz", hash = "sha256:ea0dfce825e6f5f6ef4e0bc81bad0696d36b6f4292540db57e730afea69bd7b9"},
 ]
 
 [package.dependencies]
@@ -4674,4 +4674,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "c1b6fa67cfbfbf0ca94741bdeb03dd1f3bafd6d6f5750e70591f77335f0de324"
+content-hash = "604f06923c9f7a74b8560752ce9520fb9ff4156190bf7e4c9a84b17d4e3c92ef"
