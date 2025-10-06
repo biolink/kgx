@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="KGX Schema" href="kgx_schema_generation.html" /><link rel="prev" title="Installation" href="installation.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="KGX and Biolink Model JSON Schema Validation" href="kgx_biolink_validation.html" /><link rel="prev" title="Installation" href="installation.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
         <title>KGX Specification - kgx documentation</title>
@@ -165,6 +165,7 @@
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">KGX Specification</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_biolink_validation.html">KGX and Biolink Model JSON Schema Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
@@ -244,6 +245,11 @@ and organization of this format, detailing the required fields and their signifi
 various formats.  KGX supports multiple serialization formats, including JSON, TSV, JSON Lines, and RDF Turtle.  Thus
 KGX is both a format specification and a toolkit for serializing data conformant to Biolink Model in a variety of
 formats.</p>
+<section id="quick-note-on-validation">
+<h2>Quick Note on Validation<a class="headerlink" href="#quick-note-on-validation" title="Permalink to this heading">#</a></h2>
+<p><strong>KGX uses the official <a class="reference external" href="https://w3id.org/biolink/biolink-model/biolink-model.json">Biolink Model JSON Schema</a> for validation.</strong></p>
+<p>KGX JSON Lines format is simply Biolink Model-compliant JSON objects, one per line. There is no separate “KGX schema”—we validate directly against the Biolink Model schema. For a detailed explanation of how KGX validation works, see: <strong><a class="reference internal" href="kgx_biolink_validation.html"><span class="std std-doc">KGX and Biolink Model JSON Schema Validation</span></a></strong>.</p>
+<hr class="docutils" />
 <p>There are some notable initial design decisions for KGX that influence the behavior of the KGX toolkit:</p>
 <ul class="simple">
 <li><p>KGX is a serialization format for Biolink Model compliant knowledge graphs</p></li>
@@ -256,6 +262,7 @@ and allow non-Biolink Model properties in an effort to be more inclusive of exis
 </ul>
 <div class="toctree-wrapper compound">
 </div>
+</section>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs. This specification defines
@@ -274,10 +281,36 @@ processed, subset, and exchanged easily. Each node or edge is represented with a
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code>: CURIE that uniquely identifies the node in the graph</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">category</span></code>: Multivalued list with values from the Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy</p></li>
 </ul>
-<p><strong>Optional Elements:</strong></p>
+<p><strong>Common Optional Properties:</strong></p>
 <ul class="simple">
-<li><p>Biolink Model properties: <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">description</span></code>, <code class="docutils literal notranslate"><span class="pre">xref</span></code>, <code class="docutils literal notranslate"><span class="pre">provided_by</span></code>, etc.</p></li>
-<li><p>Note: Non-Biolink Model properties are allowed and won’t violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (string): Human-readable name of the entity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (string): Human-readable description of the entity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">provided_by</span></code> (array of strings): Sources that created or assembled this node (NOTE: for nodes only, not edges)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xref</span></code> (array of strings): Database cross-references as CURIEs (e.g., [“ENSEMBL:ENSG00000123456”])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synonym</span></code> (array of strings): Alternative names for the entity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iri</span></code> (string): IRI form of the identifier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">same_as</span></code> (array of strings): Entities that are semantically equivalent</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> (string): Full URL for an external resource about the node (when CURIE is not sufficient)</p></li>
+</ul>
+<p><strong>Domain-Specific Properties:</strong></p>
+<ul class="simple">
+<li><p><strong>For Genes/Proteins</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">in_taxon</span></code> (array of strings): Taxonomic classification CURIEs (e.g., [“NCBITaxon:9606”] for human)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">in_taxon_label</span></code> (string): Human-readable taxon name (e.g., “Homo sapiens”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">symbol</span></code> (string): Gene symbol</p></li>
+</ul>
+</li>
+<li><p><strong>For Publications</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">publications</span></code> (array of strings): Referenced publications as CURIEs (e.g., [“PMID:12345678”])</p></li>
+<li><p>Note: While <code class="docutils literal notranslate"><span class="pre">publications</span></code> is typically an edge property, it can be used on nodes representing publication entities themselves</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Additional Notes:</strong></p>
+<ul class="simple">
+<li><p>Non-Biolink Model properties are allowed and won’t violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.</p></li>
 </ul>
 </section>
 <section id="edge-record-elements">
@@ -288,18 +321,51 @@ processed, subset, and exchanged easily. Each node or edge is represented with a
 <li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code>: ID of the source node</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code>: Relationship type from Biolink <a class="reference external" href="https://biolink.github.io/biolink-model/related_to">related_to</a> hierarchy</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">object</span></code>: ID of the target node</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">knowledge_level</span></code>: Level of knowledge representation (observation, assertion, concept, statement) according to Biolink Model</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">agent_type</span></code>: Autonomous agents for edges (informational, computational, biochemical, biological) according to Biolink Model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">knowledge_level</span></code>: Level of knowledge representation according to Biolink Model (see valid values below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agent_type</span></code>: Type of autonomous agent that generated the edge according to Biolink Model (see valid values below)</p></li>
 </ul>
 <p><strong>Edge Provenance:</strong></p>
 <ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">knowledge_source</span></code> or its descendants (<code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code>, etc.)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">publications</span></code>: List of publication CURIEs supporting the edge</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code>: The most upstream source of knowledge (e.g., “infores:mondo”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aggregator_knowledge_source</span></code>: Intermediate resources through which knowledge passed (e.g., [“infores:biolink-api”])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">publications</span></code>: List of publication CURIEs supporting the edge (e.g., [“PMID:12345678”])</p></li>
 </ul>
 <p><strong>Optional Elements:</strong></p>
 <ul class="simple">
 <li><p>Biolink Model properties: <code class="docutils literal notranslate"><span class="pre">category</span></code>, <code class="docutils literal notranslate"><span class="pre">publications</span></code>, etc.</p></li>
 <li><p>Note: Non-Biolink Model properties are allowed and won’t violate the specification - this was an intentional design decision to be more inclusive of existing knowledge graphs and allow Biolink to evolve without breaking existing knowledge graphs.</p></li>
+</ul>
+<p><strong>Valid Values for Required Edge Properties:</strong></p>
+<p><em>KnowledgeLevelEnum</em> - Indicates the level of knowledge representation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">knowledge_assertion</span></code>: A statement of purported fact based on assessment of direct evidence</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logical_entailment</span></code>: A conclusion that follows logically from established facts</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prediction</span></code>: A statement of possible fact based on probabilistic reasoning</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">statistical_association</span></code>: Reports concepts/variables as statistically associated in a dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observation</span></code>: Reports (and possibly quantifies) a phenomenon observed to occur</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">not_provided</span></code>: Knowledge level cannot be determined</p></li>
+</ul>
+<p><em>AgentTypeEnum</em> - Indicates the type of autonomous agent that generated the edge:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">manual_agent</span></code>: Human-driven agent</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">automated_agent</span></code>: Fully automated process</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_analysis_pipeline</span></code>: Structured data processing pipeline</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computational_model</span></code>: Model-based computation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text_mining_agent</span></code>: Text mining/NLP processes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">image_processing_agent</span></code>: Image analysis processes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">manual_validation_of_automated_agent</span></code>: Human validation of automated results</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">not_provided</span></code>: Agent type information not available</p></li>
+</ul>
+<p><strong>Important Notes on Deprecated Properties:</strong></p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">relation</span></code> (DEPRECATED for edges)</strong>: The <code class="docutils literal notranslate"><span class="pre">relation</span></code> slot is deprecated in the Biolink Model. While KGX still supports it for backwards compatibility, new implementations should use <code class="docutils literal notranslate"><span class="pre">predicate</span></code> instead. The <code class="docutils literal notranslate"><span class="pre">predicate</span></code> property represents high-level semantic relationships from the Biolink Model hierarchy, while <code class="docutils literal notranslate"><span class="pre">relation</span></code> was originally intended for more specific ontological relations (e.g., from the Relations Ontology).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">provided_by</span></code> vs knowledge source properties</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">provided_by</span></code> is a <strong>node-only</strong> property representing sources that created or assembled the node</p></li>
+<li><p>For <strong>edges</strong>, use <code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code> and <code class="docutils literal notranslate"><span class="pre">aggregator_knowledge_source</span></code> instead</p></li>
+<li><p>This distinction is critical for proper knowledge provenance tracking</p></li>
+</ul>
+</li>
 </ul>
 <p>When using KGX as a serialization framework (e.g. the “Transform” operations), note that KGX will try to add required properties with default values
 when not provided by the user.  It will also assign Biolink categories to nodes if not provided by the user.  This is done to ensure that the resulting knowledge graph is Biolink Model compliant.</p>
@@ -367,13 +433,13 @@ For convenience, this is the base KGX schema:</p>
 <span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Gene&quot;</span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwascatalog&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:hgnc&quot;</span><span class="p">]</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Disease&quot;</span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwascatalog&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:mondo&quot;</span><span class="p">]</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">],</span>
 <span class="w">    </span><span class="nt">&quot;edges&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -382,9 +448,8 @@ For convenience, this is the base KGX schema:</p>
 <span class="w">        </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:contributes_to&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:GeneToDiseaseAssociation&quot;</span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:gwascatalog&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;primary_knowledge_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:mondo&quot;</span><span class="p">],</span>
 <span class="w">        </span><span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;PMID:26634245&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PMID:26634244&quot;</span><span class="p">]</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
@@ -474,41 +539,55 @@ single JSON object representing either a node or an edge. This format combines t
 <h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h4>
 <p><strong>Node Example (nodes.jsonl)</strong>:</p>
 <p>Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:</p>
+<p><strong>Example 1: Gene node with organism taxon</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;biolink:Gene&quot;</span>
-<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="nt">&quot;symbol&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TBX4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Gene&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;in_taxon&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;NCBITaxon:9606&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;in_taxon_label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Homo sapiens&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;xref&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ENSEMBL:ENSG00000121075&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;NCBIGENE:9496&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:hgnc&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p><strong>Example 2: Disease node</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chronic obstructive pulmonary disease&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;biolink:Disease&quot;</span>
-<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Disease&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;synonym&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;COPD&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;chronic obstructive airway disease&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;xref&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;DOID:3083&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;UMLS:C0024117&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:mondo&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p><strong>Example 3: Clinical trial node with URL</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acetaminophen&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;biolink:SmallMolecule&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;biolink:ChemicalEntity&quot;</span>
-<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CLINICALTRIALS:NCT01015638&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Study of Drug X for Treatment Y&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:ClinicalTrial&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://clinicaltrials.gov/ct2/show/NCT01015638&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:clinicaltrials&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-In the actual jsonlines file, each record would be on a single line without comments and formatting:
-
-```text
-{&quot;id&quot;:&quot;HGNC:11603&quot;,&quot;name&quot;:&quot;TBX4&quot;,&quot;category&quot;:[&quot;biolink:Gene&quot;]}
-{&quot;id&quot;:&quot;MONDO:0005002&quot;,&quot;name&quot;:&quot;chronic obstructive pulmonary disease&quot;,&quot;category&quot;:[&quot;biolink:Disease&quot;]}
-{&quot;id&quot;:&quot;CHEBI:15365&quot;,&quot;name&quot;:&quot;acetaminophen&quot;,&quot;category&quot;:[&quot;biolink:SmallMolecule&quot;,&quot;biolink:ChemicalEntity&quot;]}
+<p><strong>Example 4: Publication node</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PMID:12345678&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Genetic basis of disease X&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;biolink:Publication&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://pubmed.ncbi.nlm.nih.gov/12345678/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;provided_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;infores:pubmed&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the actual jsonlines file, each record would be on a single line without comments and formatting:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;HGNC:11603&quot;,&quot;name&quot;:&quot;TBX4&quot;,&quot;symbol&quot;:&quot;TBX4&quot;,&quot;category&quot;:[&quot;biolink:Gene&quot;],&quot;in_taxon&quot;:[&quot;NCBITaxon:9606&quot;],&quot;in_taxon_label&quot;:&quot;Homo sapiens&quot;,&quot;xref&quot;:[&quot;ENSEMBL:ENSG00000121075&quot;,&quot;NCBIGENE:9496&quot;],&quot;provided_by&quot;:[&quot;infores:hgnc&quot;]}
+{&quot;id&quot;:&quot;MONDO:0005002&quot;,&quot;name&quot;:&quot;chronic obstructive pulmonary disease&quot;,&quot;category&quot;:[&quot;biolink:Disease&quot;],&quot;synonym&quot;:[&quot;COPD&quot;,&quot;chronic obstructive airway disease&quot;],&quot;xref&quot;:[&quot;DOID:3083&quot;,&quot;UMLS:C0024117&quot;],&quot;provided_by&quot;:[&quot;infores:mondo&quot;]}
+{&quot;id&quot;:&quot;CLINICALTRIALS:NCT01015638&quot;,&quot;name&quot;:&quot;Study of Drug X for Treatment Y&quot;,&quot;category&quot;:[&quot;biolink:ClinicalTrial&quot;],&quot;url&quot;:&quot;https://clinicaltrials.gov/ct2/show/NCT01015638&quot;,&quot;provided_by&quot;:[&quot;infores:clinicaltrials&quot;]}
+{&quot;id&quot;:&quot;PMID:12345678&quot;,&quot;name&quot;:&quot;Genetic basis of disease X&quot;,&quot;category&quot;:[&quot;biolink:Publication&quot;],&quot;url&quot;:&quot;https://pubmed.ncbi.nlm.nih.gov/12345678/&quot;,&quot;provided_by&quot;:[&quot;infores:pubmed&quot;]}
 </pre></div>
 </div>
 <p><strong>Edge Example (edges.jsonl)</strong>:</p>
@@ -518,9 +597,8 @@ In the actual jsonlines file, each record would be on a single line without comm
 <span class="w">  </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:related_to&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
+<span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;knowledge_assertion&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational_model&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -529,7 +607,6 @@ In the actual jsonlines file, each record would be on a single line without comm
 <span class="w">  </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HGNC:11603&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:contributes_to&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONDO:0005002&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0003304&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;biolink:GeneToDiseaseAssociation&quot;</span>
 <span class="w">  </span><span class="p">],</span>
@@ -541,7 +618,7 @@ In the actual jsonlines file, each record would be on a single line without comm
 <span class="w">    </span><span class="s2">&quot;PMID:26634244&quot;</span>
 <span class="w">  </span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;observation&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biological&quot;</span>
+<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;manual_agent&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -550,7 +627,6 @@ In the actual jsonlines file, each record would be on a single line without comm
 <span class="w">  </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEBI:15365&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;predicate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;biolink:affects&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GO:0006915&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;relation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RO:0002434&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;biolink:ChemicalToProcessAssociation&quot;</span>
 <span class="w">  </span><span class="p">],</span>
@@ -563,14 +639,14 @@ In the actual jsonlines file, each record would be on a single line without comm
 <span class="w">  </span><span class="nt">&quot;publications&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;PMID:12345678&quot;</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computational&quot;</span>
+<span class="w">  </span><span class="nt">&quot;knowledge_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text_mining_agent&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>In the actual jsonlines file, each record would be on a single line without comments and formatting:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;a8575c4e-61a6-428a-bf09-fcb3e8d1644d&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;predicate&quot;:&quot;biolink:related_to&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;knowledge_level&quot;:&quot;assertion&quot;,&quot;agent_type&quot;:&quot;computational&quot;}
-{&quot;id&quot;:&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;predicate&quot;:&quot;biolink:contributes_to&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;relation&quot;:&quot;RO:0003304&quot;,&quot;category&quot;:[&quot;biolink:GeneToDiseaseAssociation&quot;],&quot;primary_knowledge_source&quot;:[&quot;infores:gwas-catalog&quot;],&quot;publications&quot;:[&quot;PMID:26634245&quot;,&quot;PMID:26634244&quot;],&quot;knowledge_level&quot;:&quot;observation&quot;,&quot;agent_type&quot;:&quot;biological&quot;}
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&quot;id&quot;:&quot;a8575c4e-61a6-428a-bf09-fcb3e8d1644d&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;predicate&quot;:&quot;biolink:related_to&quot;,&quot;knowledge_level&quot;:&quot;knowledge_assertion&quot;,&quot;agent_type&quot;:&quot;computational_model&quot;}
+{&quot;id&quot;:&quot;urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e&quot;,&quot;subject&quot;:&quot;HGNC:11603&quot;,&quot;predicate&quot;:&quot;biolink:contributes_to&quot;,&quot;object&quot;:&quot;MONDO:0005002&quot;,&quot;category&quot;:[&quot;biolink:GeneToDiseaseAssociation&quot;],&quot;primary_knowledge_source&quot;:[&quot;infores:gwas-catalog&quot;],&quot;publications&quot;:[&quot;PMID:26634245&quot;,&quot;PMID:26634244&quot;],&quot;knowledge_level&quot;:&quot;observation&quot;,&quot;agent_type&quot;:&quot;manual_agent&quot;}
 </pre></div>
 </div>
 <p><strong>nodes.jsonl</strong></p>
@@ -629,12 +705,12 @@ In the actual jsonlines file, each record would be on a single line without comm
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="kgx_schema_generation.html">
+          <a class="next-page" href="kgx_biolink_validation.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">KGX Schema</div>
+                <div class="title">KGX and Biolink Model JSON Schema Validation</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -680,6 +756,7 @@ In the actual jsonlines file, each record would be on a single line without comm
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">KGX Specification</a><ul>
+<li><a class="reference internal" href="#quick-note-on-validation">Quick Note on Validation</a></li>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#kgx-format">KGX Format</a><ul>
 <li><a class="reference internal" href="#node-record-elements">Node Record Elements</a></li>

@@ -164,6 +164,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kgx_biolink_validation.html">KGX and Biolink Model JSON Schema Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../kgx_schema_generation.html">KGX Schema</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/transformer.html">Transformer</a></li>
@@ -720,6 +721,10 @@
                 <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;relation_label&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;relation_label&quot;</span><span class="p">]</span>
+        
+        <span class="c1"># Set default predicate if none is provided</span>
+        <span class="k">if</span> <span class="s2">&quot;predicate&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">edge_copy</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]:</span>
+            <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;biolink:related_to&quot;</span>
         
         <span class="c1"># Process edge attributes</span>
         <span class="k">if</span> <span class="s2">&quot;attributes&quot;</span> <span class="ow">in</span> <span class="n">edge_copy</span> <span class="ow">and</span> <span class="n">edge_copy</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]:</span>

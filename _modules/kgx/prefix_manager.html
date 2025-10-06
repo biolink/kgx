@@ -164,6 +164,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../kgx_biolink_validation.html">KGX and Biolink Model JSON Schema Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../kgx_schema_generation.html">KGX Schema</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../reference/transformer.html">Transformer</a></li>
@@ -239,7 +240,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">curies</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">prefixcommons.curie_util</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cu</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cachetools</span><span class="w"> </span><span class="kn">import</span> <span class="n">LRUCache</span><span class="p">,</span> <span class="n">cached</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_jsonld_context</span><span class="p">,</span> <span class="n">get_logger</span>
@@ -271,8 +272,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">url</span><span class="p">:</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">curies</span><span class="o">.</span><span class="n">load_jsonld_context</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="n">context</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">bimap</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">cu</span><span class="o">.</span><span class="n">read_remote_jsonld_context</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">context</span> <span class="o">=</span> <span class="n">get_jsonld_context</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_map</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
