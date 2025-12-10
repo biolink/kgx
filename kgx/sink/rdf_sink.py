@@ -62,8 +62,14 @@ class RdfSink(Sink):
         **kwargs: Any,
     ):
         super().__init__(owner)
-        if format not in {"nt"}:
-            raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
+
+        self.format = format.lower() if format else "nt"
+        self.filename = filename
+        self.compression = compression
+
+        if self.format not in {"nt", "jelly"}:
+            raise ValueError(f"Unsupported RDF serialization format '{self.format}'")
+
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map["OBAN"])
@@ -79,12 +85,17 @@ class RdfSink(Sink):
             self.BIOLINK.Association,
             self.OBAN.association,
         }
-        if compression == "gz":
-            f = gzip.open(filename, "wb")
+
+        if self.format == "jelly":
+            self.graph = rdflib.Graph()
+            self.FH = None
         else:
-            f = open(filename, "wb")
-        self.FH = f
-        self.encoding = "ascii"
+            if compression == "gz":
+                f = gzip.open(filename, "wb")
+            else:
+                f = open(filename, "wb")
+            self.FH = f
+            self.encoding = "ascii"
 
     def set_reverse_predicate_mapping(self, m: Dict) -> None:
         """
@@ -180,7 +191,10 @@ class RdfSink(Sink):
             The object
 
         """
-        self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
+        if self.format == "jelly":
+            self.graph.add((s, p, o))
+        else:
+            self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
 
     def write_edge(self, record: Dict) -> None:
         """
@@ -567,4 +581,11 @@ class RdfSink(Sink):
         """
         Perform any operations after writing the file.
         """
-        self.FH.close()
+        if self.format == "jelly":
+            if self.compression == "gz":
+                with gzip.open(self.filename, "wb") as fh:
+                    self.graph.serialize(destination=fh, format="jelly")
+            else:
+                self.graph.serialize(destination=self.filename, format="jelly")
+        else:
+            self.FH.close()
