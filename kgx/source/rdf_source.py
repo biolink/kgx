@@ -135,8 +135,27 @@ class RdfSource(Source):
         This method reads from RDF N-Triples and yields records.
 
         .. note::
-            N-Triples are parsed in a streaming fashion via CustomNTriplesParser.
-            Jelly (binary RDF) is parsed via RDFLib (non-streaming).
+            To ensure proper parsing of N-Triples and a relatively low memory footprint,
+            it is recommended that the N-Triples be sorted based on the subject IRIs.
+
+            ```sort -k 1,2 -t ' ' data.nt > data_sorted.nt```
+
+        Parameters
+        ----------
+        filename: str
+            The filename to parse
+        format: str
+            The RDF serialization format (``nt`` or ``jelly``).
+        compression: Optional[str]
+            The compression type (``gz``)
+        kwargs: Any
+            Any additional arguments
+
+        Returns
+        -------
+        Generator
+            A generator for records
+
         """
         self.set_provenance_map(kwargs)
 
