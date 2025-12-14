@@ -10,6 +10,7 @@ from kgx.error_detection import ErrorType, MessageLevel
 from kgx.prefix_manager import PrefixManager
 from kgx.config import get_logger
 from kgx.parsers.ntriples_parser import CustomNTriplesParser
+from kgx.parsers.jelly_parser import JellyParser
 from kgx.source.source import Source, DEFAULT_EDGE_PREDICATE
 from kgx.utils.graph_utils import curie_lookup
 from kgx.utils.kgx_utils import (
@@ -37,7 +38,7 @@ class RdfSource(Source):
     from RDF.
 
     .. note::
-        Currently only RDF N-Triples are supported.
+        Currently only RDF N-Triples and Jelly are supported.
 
     """
 
@@ -160,24 +161,11 @@ class RdfSource(Source):
         self.set_provenance_map(kwargs)
 
         if format == "jelly":
-            from rdflib import Graph
-
-            g = Graph()
-            if compression == "gz":
-                fh = gzip.open(filename, "rb")
-                try:
-                    g.parse(fh, format="jelly")
-                finally:
-                    fh.close()
-            else:
-                g.parse(filename, format="jelly")
-
-            for s, p, o in g:
-                for _ in self.triple(s, p, o):
-                    pass
-
+            parser = JellyParser(self)
+            yield from parser.parse(filename, compression)
             log.info(f"Done parsing {filename} (jelly)")
-        else:
+
+        elif format == "nt":
             p = CustomNTriplesParser(self)
 
             if compression == "gz":
@@ -185,6 +173,9 @@ class RdfSource(Source):
             else:
                 yield from p.parse(open(filename, "rb"))
             log.info(f"Done parsing {filename}")
+
+        else:
+            raise ValueError(f"Unsupported format: {format}")
 
         for n in self.reified_nodes:
             data = self.node_cache.pop(n)

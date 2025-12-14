@@ -33,7 +33,7 @@ class RdfSink(Sink):
     to an RDF serialization.
 
     .. note::
-        Currently only RDF N-Triples serialization is supported.
+        Currently RDF N-Triples and Jelly serializations are supported.
 
     Parameters
     ----------
@@ -62,12 +62,8 @@ class RdfSink(Sink):
         **kwargs: Any,
     ):
         super().__init__(owner)
-
-        self.format = format.lower() if format else "nt"
-        self.filename = filename
-        self.compression = compression
-
-        if self.format not in {"nt", "jelly"}:
+        self.format = format
+        if format not in {"nt", "jelly"}:
             raise ValueError(f"Unsupported RDF serialization format '{self.format}'")
 
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
@@ -85,16 +81,16 @@ class RdfSink(Sink):
             self.BIOLINK.Association,
             self.OBAN.association,
         }
-
         if self.format == "jelly":
-            self.graph = rdflib.Graph()
+            self._jelly_filename = filename
+            self._jelly_compression = compression
+            self._jelly_triples = []
             self.FH = None
         else:
             if compression == "gz":
-                f = gzip.open(filename, "wb")
+                self.FH = gzip.open(filename, "wb")
             else:
-                f = open(filename, "wb")
-            self.FH = f
+                self.FH = open(filename, "wb")
             self.encoding = "ascii"
 
     def set_reverse_predicate_mapping(self, m: Dict) -> None:
@@ -192,7 +188,8 @@ class RdfSink(Sink):
 
         """
         if self.format == "jelly":
-            self.graph.add((s, p, o))
+            from pyjelly.integrations.rdflib.parse import Triple
+            self._jelly_triples.append(Triple(s, p, o))
         else:
             self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
 
@@ -582,10 +579,16 @@ class RdfSink(Sink):
         Perform any operations after writing the file.
         """
         if self.format == "jelly":
-            if self.compression == "gz":
-                with gzip.open(self.filename, "wb") as fh:
-                    self.graph.serialize(destination=fh, format="jelly")
+            from pyjelly.integrations.rdflib.serialize import flat_stream_to_file
+
+            if self._jelly_compression == "gz":
+                fh = gzip.open(self._jelly_filename, "wb")
             else:
-                self.graph.serialize(destination=self.filename, format="jelly")
+                fh = open(self._jelly_filename, "wb")
+
+            try:
+                flat_stream_to_file(iter(self._jelly_triples), fh)
+            finally:
+                fh.close()
         else:
             self.FH.close()
