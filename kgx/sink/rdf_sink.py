@@ -82,10 +82,33 @@ class RdfSink(Sink):
             self.OBAN.association,
         }
         if self.format == "jelly":
-            self._jelly_filename = filename
-            self._jelly_compression = compression
-            self._jelly_triples = []
-            self.FH = None
+            from pyjelly.serialize.streams import TripleStream, SerializerOptions
+            from pyjelly.options import StreamParameters
+            from pyjelly import jelly
+            from pyjelly.serialize.ioutils import write_delimited, write_single
+
+            if compression == "gz":
+                self.FH = gzip.open(filename, "wb")
+            else:
+                self.FH = open(filename, "wb")
+
+            params = StreamParameters(
+                generalized_statements=False,
+                rdf_star=False,
+            )
+            options = SerializerOptions(
+                logical_type=jelly.LOGICAL_STREAM_TYPE_FLAT_TRIPLES,
+                params=params,
+            )
+
+            self._jelly_stream = TripleStream.for_rdflib(options=options)
+            self._jelly_stream.enroll()
+
+            self._jelly_write = (
+                write_delimited
+                if self._jelly_stream.options.params.delimited
+                else write_single
+            )
         else:
             if compression == "gz":
                 self.FH = gzip.open(filename, "wb")
@@ -188,8 +211,9 @@ class RdfSink(Sink):
 
         """
         if self.format == "jelly":
-            from pyjelly.integrations.rdflib.parse import Triple
-            self._jelly_triples.append(Triple(s, p, o))
+            frame = self._jelly_stream.triple((s, p, o))
+            if frame:
+                self._jelly_write(frame, self.FH)
         else:
             self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
 
@@ -579,16 +603,8 @@ class RdfSink(Sink):
         Perform any operations after writing the file.
         """
         if self.format == "jelly":
-            from pyjelly.integrations.rdflib.serialize import flat_stream_to_file
-
-            if self._jelly_compression == "gz":
-                fh = gzip.open(self._jelly_filename, "wb")
-            else:
-                fh = open(self._jelly_filename, "wb")
-
-            try:
-                flat_stream_to_file(iter(self._jelly_triples), fh)
-            finally:
-                fh.close()
+            if frame := self._jelly_stream.flow.to_stream_frame():
+                self._jelly_write(frame, self.FH)
+            self.FH.close()
         else:
             self.FH.close()
