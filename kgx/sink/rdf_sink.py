@@ -81,21 +81,22 @@ class RdfSink(Sink):
             self.BIOLINK.Association,
             self.OBAN.association,
         }
+        if compression == "gz":
+            self.FH = gzip.open(filename, "wb")
+        else:
+            self.FH = open(filename, "wb")
+
         if self.format == "jelly":
             from pyjelly.serialize.streams import TripleStream, SerializerOptions
             from pyjelly.options import StreamParameters
             from pyjelly import jelly
-            from pyjelly.serialize.ioutils import write_delimited, write_single
-
-            if compression == "gz":
-                self.FH = gzip.open(filename, "wb")
-            else:
-                self.FH = open(filename, "wb")
+            from pyjelly.serialize.ioutils import write_delimited
 
             params = StreamParameters(
                 generalized_statements=False,
                 rdf_star=False,
             )
+
             options = SerializerOptions(
                 logical_type=jelly.LOGICAL_STREAM_TYPE_FLAT_TRIPLES,
                 params=params,
@@ -104,16 +105,9 @@ class RdfSink(Sink):
             self._jelly_stream = TripleStream.for_rdflib(options=options)
             self._jelly_stream.enroll()
 
-            self._jelly_write = (
-                write_delimited
-                if self._jelly_stream.options.params.delimited
-                else write_single
-            )
+            self._jelly_write = write_delimited
+
         else:
-            if compression == "gz":
-                self.FH = gzip.open(filename, "wb")
-            else:
-                self.FH = open(filename, "wb")
             self.encoding = "ascii"
 
     def set_reverse_predicate_mapping(self, m: Dict) -> None:
@@ -605,6 +599,5 @@ class RdfSink(Sink):
         if self.format == "jelly":
             if frame := self._jelly_stream.flow.to_stream_frame():
                 self._jelly_write(frame, self.FH)
-            self.FH.close()
-        else:
-            self.FH.close()
+
+        self.FH.close()
