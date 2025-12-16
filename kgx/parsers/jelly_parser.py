@@ -7,7 +7,6 @@ similar to CustomNTriplesParser but for Jelly format.
 
 import gzip
 from typing import Generator, Optional, IO
-from contextlib import contextmanager
 
 from rdflib import URIRef
 

@@ -172,7 +172,7 @@ class RdfSource(Source):
                 yield from p.parse(gzip.open(filename, "rb"))
             else:
                 yield from p.parse(open(filename, "rb"))
-            log.info(f"Done parsing {filename}")
+            log.info(f"Done parsing {filename} (jelly)")
 
         else:
             raise ValueError(f"Unsupported format: {format}")
