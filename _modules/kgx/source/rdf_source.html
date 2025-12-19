@@ -8,7 +8,7 @@
         <title>kgx.source.rdf_source - kgx documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -249,6 +249,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.prefix_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrefixManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.parsers.ntriples_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomNTriplesParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kgx.parsers.jelly_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">JellyParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.source.source</span><span class="w"> </span><span class="kn">import</span> <span class="n">Source</span><span class="p">,</span> <span class="n">DEFAULT_EDGE_PREDICATE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.utils.graph_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">curie_lookup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kgx.utils.kgx_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -276,7 +277,7 @@
 <span class="sd">    from RDF.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        Currently only RDF N-Triples are supported.</span>
+<span class="sd">        Currently only RDF N-Triples and Jelly are supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -384,7 +385,7 @@
 <span class="sd">        filename: str</span>
 <span class="sd">            The filename to parse</span>
 <span class="sd">        format: str</span>
-<span class="sd">            The format (``nt``)</span>
+<span class="sd">            The RDF serialization format (``nt`` or ``jelly``).</span>
 <span class="sd">        compression: Optional[str]</span>
 <span class="sd">            The compression type (``gz``)</span>
 <span class="sd">        kwargs: Any</span>
@@ -396,15 +397,24 @@
 <span class="sd">            A generator for records</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">CustomNTriplesParser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">set_provenance_map</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;gz&quot;</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;jelly&quot;</span><span class="p">:</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">JellyParser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">yield from</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">compression</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done parsing </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (jelly)&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">CustomNTriplesParser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;gz&quot;</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done parsing </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (nt)&quot;</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done parsing </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format: </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reified_nodes</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
