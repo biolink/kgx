@@ -2,7 +2,11 @@ import os
 from kgx.transformer import Transformer
 from tests import RESOURCE_DIR, TARGET_DIR
 
+
 def test_jelly_roundtrip_basic():
+    """
+    Test basic roundtrip: transform TSV to Jelly format and back.
+    """
     input_args = {
         "filename": [
             os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
@@ -25,6 +29,9 @@ def test_jelly_roundtrip_basic():
 
 
 def test_jelly_read_only():
+    """
+    Test reading a Jelly format file.
+    """
     jelly_file = os.path.join(TARGET_DIR, "rt_jelly.jelly")
 
     t = Transformer()
@@ -32,6 +39,9 @@ def test_jelly_read_only():
 
 
 def test_jelly_write_only():
+    """
+    Test writing a graph to Jelly format.
+    """
     input_args = {
         "filename": [
             os.path.join(RESOURCE_DIR, "test2_nodes.tsv"),
@@ -51,6 +61,9 @@ def test_jelly_write_only():
 
 
 def test_jelly_filters():
+    """
+    Test Jelly format with node filters applied.
+    """
     input_args = {
         "filename": [
             os.path.join(RESOURCE_DIR, "graph_nodes.tsv"),
@@ -73,6 +86,9 @@ def test_jelly_filters():
 
 
 def test_jelly_to_tsv():
+    """
+    Test converting a Jelly format file back to TSV format.
+    """
     jelly_file = os.path.join(TARGET_DIR, "rt_jelly.jelly")
     out_prefix = os.path.join(TARGET_DIR, "from_jelly")
 
