@@ -33,7 +33,7 @@ class RdfSink(Sink):
     to an RDF serialization.
 
     .. note::
-        Currently only RDF N-Triples serialization is supported.
+        Currently RDF N-Triples and Jelly serializations are supported.
 
     Parameters
     ----------
@@ -62,8 +62,10 @@ class RdfSink(Sink):
         **kwargs: Any,
     ):
         super().__init__(owner)
-        if format not in {"nt"}:
-            raise ValueError(f"Only RDF N-Triples ('nt') serialization supported.")
+        self.format = format
+        if format not in {"nt", "jelly"}:
+            raise ValueError(f"Unsupported RDF serialization format '{self.format}'")
+
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
         self.OBAN = Namespace(self.prefix_manager.prefix_map["OBAN"])
@@ -80,11 +82,33 @@ class RdfSink(Sink):
             self.OBAN.association,
         }
         if compression == "gz":
-            f = gzip.open(filename, "wb")
+            self.FH = gzip.open(filename, "wb")
         else:
-            f = open(filename, "wb")
-        self.FH = f
-        self.encoding = "ascii"
+            self.FH = open(filename, "wb")
+
+        if self.format == "jelly":
+            from pyjelly.serialize.streams import TripleStream, SerializerOptions
+            from pyjelly.options import StreamParameters
+            from pyjelly import jelly
+            from pyjelly.serialize.ioutils import write_delimited
+
+            params = StreamParameters(
+                generalized_statements=False,
+                rdf_star=False,
+            )
+
+            options = SerializerOptions(
+                logical_type=jelly.LOGICAL_STREAM_TYPE_FLAT_TRIPLES,
+                params=params,
+            )
+
+            self._jelly_stream = TripleStream.for_rdflib(options=options)
+            self._jelly_stream.enroll()
+
+            self._jelly_write = write_delimited
+
+        else:
+            self.encoding = "ascii"
 
     def set_reverse_predicate_mapping(self, m: Dict) -> None:
         """
@@ -180,7 +204,12 @@ class RdfSink(Sink):
             The object
 
         """
-        self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
+        if self.format == "jelly":
+            frame = self._jelly_stream.triple((s, p, o))
+            if frame:
+                self._jelly_write(frame, self.FH)
+        else:
+            self.FH.write(_nt_row((s, p, o)).encode(self.encoding, "_rdflib_nt_escape"))
 
     def write_edge(self, record: Dict) -> None:
         """
@@ -567,4 +596,8 @@ class RdfSink(Sink):
         """
         Perform any operations after writing the file.
         """
+        if self.format == "jelly":
+            if frame := self._jelly_stream.flow.to_stream_frame():
+                self._jelly_write(frame, self.FH)
+
         self.FH.close()
