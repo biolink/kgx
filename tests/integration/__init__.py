@@ -1,4 +1,3 @@
-import docker
 import pytest
 from neo4j import GraphDatabase
 
@@ -36,6 +35,44 @@ def clean_slate():
     try:
         http_driver.session().run(q)
         print("deleted all nodes")
+    except Exception as e:
+        print(e)
+
+
+ARANGO_CONTAINER_NAME = "kgx-arango-integration-test"
+DEFAULT_ARANGO_URL = "http://localhost:8529"
+DEFAULT_ARANGO_USERNAME = "root"
+DEFAULT_ARANGO_PASSWORD = ""
+DEFAULT_ARANGO_DATABASE = "_system"
+
+
+def check_arango_container():
+    """
+    Check whether the ArangoDB instance is reachable.
+    """
+    try:
+        from urllib.parse import urlparse
+        import http.client
+        parsed = urlparse(DEFAULT_ARANGO_URL)
+        conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=2)
+        conn.request("GET", "/_api/version")
+        return conn.getresponse().status == 200
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="function")
+def clean_arango_slate():
+    print("tearing down arango db")
+    from arango import ArangoClient
+
+    client = ArangoClient(hosts=DEFAULT_ARANGO_URL)
+    db = client.db(DEFAULT_ARANGO_DATABASE, username=DEFAULT_ARANGO_USERNAME, password=DEFAULT_ARANGO_PASSWORD)
+    try:
+        for col_name in ["nodes", "edges"]:
+            if db.has_collection(col_name):
+                db.delete_collection(col_name)
+        print("deleted all arango collections")
     except Exception as e:
         print(e)
 
