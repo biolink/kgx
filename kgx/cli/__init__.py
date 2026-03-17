@@ -13,6 +13,8 @@ from kgx.cli.cli_utils import (
     validate,
     neo4j_download,
     neo4j_upload,
+    arango_download,
+    arango_upload,
     transform,
     merge,
     summary_report_types,
@@ -396,6 +398,264 @@ def neo4j_upload_wrapper(
         exit(0)
     except Exception as nue:
         get_logger().error(f"kgx.neo4j_upload error: {str(nue)}")
+        exit(1)
+
+
+@cli.command(name="arangodb-download")
+@click.option(
+    "--uri",
+    "-l",
+    required=True,
+    type=str,
+    help="ArangoDB URI to download from. For example, http://localhost:8529",
+)
+@click.option("--database", "-d", required=True, type=str, help="ArangoDB database name")
+@click.option("--username", "-u", required=True, type=str, help="ArangoDB username")
+@click.option("--password", "-p", required=True, type=str, help="ArangoDB password")
+@click.option(
+    "--output", "-o", required=True, type=click.Path(exists=False), help="Output"
+)
+@click.option(
+    "--output-format",
+    "-f",
+    required=True,
+    help=f"The output format. Can be one of {get_output_file_types()}",
+)
+@click.option(
+    "--output-compression", required=False, help="The output compression type"
+)
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
+@click.option(
+    "--node-filters",
+    "-n",
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help=f"Filters for filtering nodes from the input graph",
+)
+@click.option(
+    "--edge-filters",
+    "-e",
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help=f"Filters for filtering edges from the input graph",
+)
+@click.option(
+    "--node-collection",
+    required=False,
+    type=str,
+    multiple=True,
+    help="Name of a vertex collection (repeatable; default: nodes)",
+)
+@click.option(
+    "--edge-collection",
+    required=False,
+    type=str,
+    multiple=True,
+    help="Name of an edge collection (repeatable; default: edges)",
+)
+@click.option(
+    "--all-collections",
+    is_flag=True,
+    help="Discover and export all non-system collections in the database",
+)
+def arangodb_download_wrapper(
+    uri: str,
+    database: str,
+    username: str,
+    password: str,
+    output: str,
+    output_format: str,
+    output_compression: str,
+    stream: bool,
+    node_filters: Tuple,
+    edge_filters: Tuple,
+    node_collection: Tuple,
+    edge_collection: Tuple,
+    all_collections: bool,
+):
+    """
+    Download nodes and edges from an ArangoDB database.
+    \f
+
+    Parameters
+    ----------
+    uri: str
+        ArangoDB URI. For example, http://localhost:8529
+    database: str
+        The database name
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    output: str
+        Where to write the output (stdout, by default)
+    output_format: str
+        The output type (``tsv``, by default)
+    output_compression: str
+        The output compression type
+    stream: bool
+        Whether to parse input as a stream
+    node_filters: Tuple[str, str]
+        Node filters
+    edge_filters: Tuple[str, str]
+        Edge filters
+    node_collection: Tuple[str]
+        Names of vertex collections
+    edge_collection: Tuple[str]
+        Names of edge collections
+    all_collections: bool
+        Whether to discover and export all non-system collections
+
+    """
+    try:
+        arango_download(
+            uri,
+            database,
+            username,
+            password,
+            output,
+            output_format,
+            output_compression,
+            stream,
+            node_filters,
+            edge_filters,
+            node_collections=list(node_collection) if node_collection else None,
+            edge_collections=list(edge_collection) if edge_collection else None,
+            all_collections=all_collections,
+        )
+        exit(0)
+    except Exception as ade:
+        get_logger().error(f"kgx.arango_download error: {str(ade)}")
+        exit(1)
+
+
+@cli.command(name="arangodb-upload")
+@click.argument("inputs", required=True, type=click.Path(exists=True), nargs=-1)
+@click.option(
+    "--input-format",
+    "-i",
+    required=True,
+    help=f"The input format. Can be one of {get_input_file_types()}",
+)
+@click.option(
+    "--input-compression", "-c", required=False, help="The input compression type"
+)
+@click.option(
+    "--uri",
+    "-l",
+    required=True,
+    type=str,
+    help="ArangoDB URI to upload to. For example, http://localhost:8529",
+)
+@click.option("--database", "-d", required=True, type=str, help="ArangoDB database name")
+@click.option("--username", "-u", required=True, type=str, help="ArangoDB username")
+@click.option("--password", "-p", required=True, type=str, help="ArangoDB password")
+@click.option("--stream", "-s", is_flag=True, help="Parse input as a stream")
+@click.option(
+    "--node-filters",
+    "-n",
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help=f"Filters for filtering nodes from the input graph",
+)
+@click.option(
+    "--edge-filters",
+    "-e",
+    required=False,
+    type=click.Tuple([str, str]),
+    multiple=True,
+    help=f"Filters for filtering edges from the input graph",
+)
+@click.option(
+    "--node-collection",
+    required=False,
+    type=str,
+    default="nodes",
+    help="Name of the vertex collection (default: nodes)",
+)
+@click.option(
+    "--edge-collection",
+    required=False,
+    type=str,
+    default="edges",
+    help="Name of the edge collection (default: edges)",
+)
+@click.option(
+    "--curie-routing",
+    is_flag=True,
+    help="Route nodes/edges to per-CURIE-prefix collections (e.g., CL:1000300 -> collection CL)",
+)
+def arangodb_upload_wrapper(
+    inputs: List[str],
+    input_format: str,
+    input_compression: str,
+    uri: str,
+    database: str,
+    username: str,
+    password: str,
+    stream: bool,
+    node_filters: Tuple[str, str],
+    edge_filters: Tuple[str, str],
+    node_collection: str = "nodes",
+    edge_collection: str = "edges",
+    curie_routing: bool = False,
+):
+    """
+    Upload a set of nodes/edges to an ArangoDB database.
+    \f
+
+    Parameters
+    ----------
+    inputs: List[str]
+        A list of files that contains nodes/edges
+    input_format: str
+        The input format
+    input_compression: str
+        The input compression type
+    uri: str
+        The full HTTP address for ArangoDB database
+    database: str
+        The database name
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    stream: bool
+        Whether to parse input as a stream
+    node_filters: Tuple[str, str]
+        Node filters
+    edge_filters: Tuple[str, str]
+        Edge filters
+    node_collection: str
+        Name of the vertex collection
+    edge_collection: str
+        Name of the edge collection
+    curie_routing: bool
+        Whether to route to per-CURIE-prefix collections
+
+    """
+    try:
+        arango_upload(
+            inputs,
+            input_format,
+            input_compression,
+            uri,
+            database,
+            username,
+            password,
+            stream,
+            node_filters,
+            edge_filters,
+            node_collection,
+            edge_collection,
+            curie_routing=curie_routing,
+        )
+        exit(0)
+    except Exception as aue:
+        get_logger().error(f"kgx.arango_upload error: {str(aue)}")
         exit(1)
 
 

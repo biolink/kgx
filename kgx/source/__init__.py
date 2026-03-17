@@ -5,6 +5,7 @@ from .jsonl_source import JsonlSource
 from .obograph_source import ObographSource
 from .trapi_source import TrapiSource
 from .neo_source import NeoSource
+from .arango_source import ArangoSource
 from .duckdb_source import DuckDbSource
 from .rdf_source import RdfSource
 from .graph_source import GraphSource

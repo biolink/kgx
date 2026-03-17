@@ -15,6 +15,7 @@ from kgx.source import (
     ObographSource,
     TrapiSource,
     NeoSource,
+    ArangoSource,
     RdfSource,
     OwlSource,
     SssomSource,
@@ -26,6 +27,7 @@ from kgx.sink import (
     JsonSink,
     JsonlSink,
     NeoSink,
+    ArangoSink,
     NullSink,
     RdfSink,
     SqlSink,
@@ -48,6 +50,7 @@ SOURCE_MAP = {
     "obo-json": ObographSource,
     "trapi-json": TrapiSource,
     "neo4j": NeoSource,
+    "arangodb": ArangoSource,
     "duckdb": DuckDbSource,
     "nt": RdfSource,
     "jelly": RdfSource,
@@ -62,6 +65,7 @@ SINK_MAP = {
     "json": JsonSink,
     "jsonl": JsonlSink,
     "neo4j": NeoSink,
+    "arangodb": ArangoSink,
     "nt": RdfSink,
     "jelly": RdfSink,
     "null": NullSink,
@@ -170,7 +174,7 @@ class Transformer(ErrorDetecting):
         # Optional process() data stream inspector
         self.inspector = inspector
 
-        if input_format in {"neo4j", "graph"}:
+        if input_format in {"neo4j", "arangodb", "graph"}:
             source = self.get_source(input_format)
             source.set_prefix_map(prefix_map)
             source.set_node_filters(node_filters)

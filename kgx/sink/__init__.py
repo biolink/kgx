@@ -3,6 +3,7 @@ from .graph_sink import GraphSink
 from .json_sink import JsonSink
 from .jsonl_sink import JsonlSink
 from .neo_sink import NeoSink
+from .arango_sink import ArangoSink
 from .null_sink import NullSink
 from .parquet_sink import ParquetSink
 from .rdf_sink import RdfSink
