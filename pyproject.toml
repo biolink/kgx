@@ -24,7 +24,7 @@ SPARQLWrapper = ">=1.8.2"
 bmt = "^1.4.6"
 cachetools = "^5.0.0"
 deprecation = "^2.1.0"
-docker = "^6.0.0"
+docker = "^7.0.0"
 docutils = ">=0.18.1"
 duckdb = "^1.0.0"
 exceptiongroup = {version = "^1.0.0", python = "<3.11"}
