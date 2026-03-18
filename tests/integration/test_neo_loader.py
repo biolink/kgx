@@ -7,8 +7,8 @@ from tests.unit import clean_database
 from kgx.config import get_logger
 
 from tests.integration import (
-    check_container,
-    CONTAINER_NAME,
+    check_neo4j_container,
+    NEO4J_CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
@@ -18,7 +18,7 @@ logger = get_logger()
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_csv_to_neo4j_load_to_graph_transform(clean_database):
     """
@@ -64,7 +64,7 @@ def test_csv_to_neo4j_load_to_graph_transform(clean_database):
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_json_to_neo4j_load_to_graph_transform(clean_database):
     """

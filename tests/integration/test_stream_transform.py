@@ -7,12 +7,12 @@ from kgx.transformer import Transformer
 from tests import TARGET_DIR, RESOURCE_DIR
 
 from tests.integration import (
-    check_container,
-    CONTAINER_NAME,
+    check_neo4j_container,
+    NEO4J_CONTAINER_NAME,
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
-    clean_slate
+    clean_neo4j_slate
 )
 
 
@@ -607,7 +607,7 @@ def test_transform6(query):
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform7():
     """
@@ -634,7 +634,7 @@ def test_transform7():
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform8():
     clean_database()
@@ -652,7 +652,7 @@ def test_transform8():
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform9():
     clean_database()
@@ -673,7 +673,7 @@ def test_transform9():
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform10():
     clean_database()
@@ -694,7 +694,7 @@ def test_transform10():
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform11():
     clean_database()
@@ -715,7 +715,7 @@ def test_transform11():
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_transform12():
     clean_database()

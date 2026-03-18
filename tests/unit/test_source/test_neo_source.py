@@ -9,8 +9,8 @@ from tests.unit import (
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
     load_graph_dictionary,
-    check_container,
-    CONTAINER_NAME
+    check_neo4j_container,
+    NEO4J_CONTAINER_NAME
 )
 
 
@@ -34,7 +34,7 @@ queries = [
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_read_neo(clean_database):
     """
