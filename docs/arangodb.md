@@ -4,9 +4,11 @@ KGX supports reading from and writing to ArangoDB databases via the `arangodb-do
 
 ## Approach
 
+ArangoDB uses collections as containers for vertex and edges, while Neo4j uses labels and relationship types as classifiers. In addition, in ArangoDB, edges are JSON documents in a collection with _from and _to fields. KGX adopts a convention for ArangoDB which accommodates this key difference.
+
 ### CURIE Reconstruction
 
-Many ArangoDB knowledge graph databases use a convention where:
+KGX supports ArangoDB knowledge graph databases which use a convention where:
 
 - **Node collections** are named by ontology prefix (e.g., `CL`, `UBERON`, `MONDO`)
 - **Node `_key` values** are the ontology local ID (e.g., `1000300`)
@@ -28,9 +30,9 @@ On **import** with `--curie-routing`, KGX reverses this process:
 
 Since `arangodb-download` writes standard KGX format files (TSV, JSON, etc.), the output can be used directly as input to any other KGX sink — including Neo4j upload. The exported files contain fully-reconstructed CURIEs for node IDs and edge subject/object fields, which are valid KGX records for any downstream format.
 
-Edge `subject` and `object` fields are reconstructed from `_from`/`_to` when not stored in the edge document. This is the case for Cell-KN databases, which rely entirely on `_from`/`_to` for edge endpoints rather than storing `subject`/`object` as document fields.
+Edge `subject` and `object` fields are reconstructed from `_from`/`_to` when not stored in the edge document. This is the case for databases which rely entirely on `_from`/`_to` for edge endpoints rather than storing `subject`/`object` as document fields.
 
-The reverse direction — Neo4j download followed by ArangoDB upload — is also structurally compatible, but is **lossy**. `NeoSource` only extracts three fields per node (`id`, `name`, `category`) and four per edge (`subject`, `predicate`, `relation`, `object`); all other properties stored in Neo4j are dropped. By contrast, `ArangoSource` returns full documents. If `--curie-routing` is used on upload, node IDs must be proper CURIEs; if Neo4j nodes lack a stored `id` property, `NeoSource` falls back to Neo4j's internal integer node ID, which is not a CURIE and will not route correctly.
+The reverse direction (Neo4j download followed by ArangoDB upload) is also structurally compatible, but is **lossy**. `NeoSource` only extracts three fields per node (`id`, `name`, `category`) and four per edge (`subject`, `predicate`, `relation`, `object`); all other properties stored in Neo4j are dropped. By contrast, `ArangoSource` returns full documents. If `--curie-routing` is used on upload, node IDs must be proper CURIEs; if Neo4j nodes lack a stored `id` property, `NeoSource` falls back to Neo4j's internal integer node ID, which is not a CURIE and will not route correctly.
 
 ### Collection Discovery
 
@@ -53,7 +55,7 @@ Export all collections from a database to TSV:
 ```bash
 kgx arangodb-download \
   -l http://localhost:8529 \
-  -d Cell-KN-Ontologies \
+  -d database \
   -u root \
   -p password \
   -o /tmp/ontologies_export \
@@ -66,7 +68,7 @@ Export specific collections:
 ```bash
 kgx arangodb-download \
   -l http://localhost:8529 \
-  -d Cell-KN-Ontologies \
+  -d database \
   -u root \
   -p password \
   -o /tmp/cl_uberon_export \
@@ -86,7 +88,7 @@ kgx arangodb-upload \
   /tmp/ontologies_export_nodes.tsv /tmp/ontologies_export_edges.tsv \
   -i tsv \
   -l http://localhost:8529 \
-  -d MyDatabase \
+  -d database \
   -u root \
   -p password
 ```
@@ -98,7 +100,7 @@ kgx arangodb-upload \
   /tmp/ontologies_export_nodes.tsv /tmp/ontologies_export_edges.tsv \
   -i tsv \
   -l http://localhost:8529 \
-  -d MyDatabase \
+  -d database \
   -u root \
   -p password \
   --curie-routing
@@ -150,7 +152,7 @@ from kgx.cli.cli_utils import arango_download
 
 transformer = arango_download(
     uri="http://localhost:8529",
-    database="Cell-KN-Ontologies",
+    database="database",
     username="root",
     password="password",
     output="/tmp/export",
@@ -171,7 +173,7 @@ transformer = arango_upload(
     input_format="tsv",
     input_compression=None,
     uri="http://localhost:8529",
-    database="MyDatabase",
+    database="database",
     username="root",
     password="password",
     stream=False,
