@@ -166,7 +166,8 @@ class ArangoSink(Sink):
         if self.curie_routing:
             prefix, local_id = self._split_curie(record["id"])
             target_collection = prefix if prefix else self.node_collection_name
-            record["_key"] = local_id
+            # Ensure ArangoDB _key constraints are respected even when routing by CURIE
+            record["_key"] = self._sanitize_key(local_id)
         else:
             target_collection = record.pop("_collection", self.node_collection_name)
             record["_key"] = self._sanitize_key(record["id"])
@@ -199,18 +200,28 @@ class ArangoSink(Sink):
         if self.curie_routing:
             subj_prefix, subj_local = self._split_curie(subject_id)
             obj_prefix, obj_local = self._split_curie(object_id)
-            target_collection = f"{subj_prefix}-{obj_prefix}" if subj_prefix and obj_prefix else self.edge_collection_name
+            target_collection = (
+                f"{subj_prefix}-{obj_prefix}"
+                if subj_prefix and obj_prefix
+                else self.edge_collection_name
+            )
             subj_collection = subj_prefix if subj_prefix else self.node_collection_name
-            obj_collection = obj_prefix if obj_prefix else self.node_collection_name
+            sanitized_subj_local = self._sanitize_key(subj_local)
             predicate = record.get("predicate", "")
-            record["_from"] = f"{subj_collection}/{subj_local}"
-            record["_to"] = f"{obj_collection}/{obj_local}"
-            record["_key"] = f"{subj_local}-{predicate}-{obj_local}"
+            obj_collection = obj_prefix if obj_prefix else self.node_collection_name
+            sanitized_obj_local = self._sanitize_key(obj_local)
+            record["_from"] = f"{subj_collection}/{sanitized_subj_local}"
+            record["_to"] = f"{obj_collection}/{sanitized_obj_local}"
+            record["_key"] = self._sanitize_key(f"{subj_local}-{predicate}-{obj_local}")
         else:
             target_collection = record.pop("_collection", self.edge_collection_name)
             predicate = record.get("predicate", "")
-            record["_from"] = f"{self.node_collection_name}/{self._sanitize_key(subject_id)}"
-            record["_to"] = f"{self.node_collection_name}/{self._sanitize_key(object_id)}"
+            record["_from"] = (
+                f"{self.node_collection_name}/{self._sanitize_key(subject_id)}"
+            )
+            record["_to"] = (
+                f"{self.node_collection_name}/{self._sanitize_key(object_id)}"
+            )
             record["_key"] = self._sanitize_key(f"{subject_id}-{predicate}-{object_id}")
         record["_collection"] = target_collection
         self.edge_cache.append((target_collection, record))

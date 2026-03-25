@@ -137,9 +137,7 @@ def graph_summary(
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
 
     # streaming assumed, throwing away the output graph
-    output_args = {
-        "format": "null"
-    }
+    output_args = {"format": "null"}
 
     # default here is for Streaming to be applied
     transformer = Transformer(stream=True)
@@ -878,13 +876,18 @@ def merge(
                     if "compression" in destination_info
                     else None
                 )
-                if destination_info['format'] == 'nt':
-                    output_args['property_types'] = top_level_args['property_types']
-                    if 'property_types' in top_level_args and 'property_types' in destination_info.keys():
-                        output_args['property_types'].update(destination_info['property_types'])
-                if destination_info['format'] in {'csv', 'tsv'}:
-                    output_args['node_properties'] = node_properties
-                    output_args['edge_properties'] = edge_properties
+                if destination_info["format"] == "nt":
+                    output_args["property_types"] = top_level_args["property_types"]
+                    if (
+                        "property_types" in top_level_args
+                        and "property_types" in destination_info.keys()
+                    ):
+                        output_args["property_types"].update(
+                            destination_info["property_types"]
+                        )
+                if destination_info["format"] in {"csv", "tsv"}:
+                    output_args["node_properties"] = node_properties
+                    output_args["edge_properties"] = edge_properties
             else:
                 raise TypeError(
                     f"type {destination_info['format']} not yet supported for KGX merge operation."
@@ -1157,6 +1160,8 @@ def prepare_input_args(
             input_args["node_collection"] = source["node_collection"]
         if "edge_collection" in source:
             input_args["edge_collection"] = source["edge_collection"]
+        if "all_collections" in source:
+            input_args["all_collections"] = source["all_collections"]
     else:
         raise TypeError(f"Type {input_format} not yet supported")
 
@@ -1255,6 +1260,8 @@ def prepare_output_args(
             output_args["node_collection"] = source["output"]["node_collection"]
         if "edge_collection" in source["output"]:
             output_args["edge_collection"] = source["output"]["edge_collection"]
+        if "curie_routing" in source["output"]:
+            output_args["curie_routing"] = source["output"]["curie_routing"]
     elif output_format in get_input_file_types():
         output_args["filename"] = output
         output_args["compression"] = output_compression
@@ -1265,9 +1272,9 @@ def prepare_output_args(
                 else True
             )
             output_args["reverse_prefix_map"] = source_reverse_prefix_map
-            output_args[
-                "reverse_predicate_mappings"
-            ] = source_reverse_predicate_mappings
+            output_args["reverse_predicate_mappings"] = (
+                source_reverse_predicate_mappings
+            )
             output_args["property_types"] = source_property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")

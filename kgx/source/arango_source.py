@@ -69,7 +69,9 @@ class ArangoSource(Source):
                 edge_collections.append(col["name"])
         doc_collections.sort()
         edge_collections.sort()
-        log.info(f"Discovered {len(doc_collections)} document collections, {len(edge_collections)} edge collections")
+        log.info(
+            f"Discovered {len(doc_collections)} document collections, {len(edge_collections)} edge collections"
+        )
         return doc_collections, edge_collections
 
     def parse(
@@ -138,8 +140,10 @@ class ArangoSource(Source):
 
         self.set_provenance_map(kwargs)
 
-        self.node_filters = node_filters
-        self.edge_filters = edge_filters
+        if self.node_filters is not None:
+            self.node_filters = node_filters
+        if self.edge_filters is not None:
+            self.edge_filters = edge_filters
 
         # Determine which collections to export
         if all_collections:
@@ -154,22 +158,33 @@ class ArangoSource(Source):
         for nc in node_cols:
             log.info(f"Reading nodes from collection: {nc}")
             for page in self.get_pages(
-                self.get_nodes, start, end, page_size=page_size,
-                node_collection=nc, **kwargs
+                self.get_nodes,
+                start,
+                end,
+                page_size=page_size,
+                node_collection=nc,
+                **kwargs,
             ):
                 yield from self.load_nodes(page)
 
         for ec in edge_cols:
             log.info(f"Reading edges from collection: {ec}")
             for page in self.get_pages(
-                self.get_edges, start, end, page_size=page_size,
-                edge_collection=ec, **kwargs
+                self.get_edges,
+                start,
+                end,
+                page_size=page_size,
+                edge_collection=ec,
+                **kwargs,
             ):
                 yield from self.load_edges(page)
 
     def get_nodes(
-        self, skip: int = 0, limit: int = 0,
-        node_collection: str = "nodes", **kwargs: Any
+        self,
+        skip: int = 0,
+        limit: int = 0,
+        node_collection: str = "nodes",
+        **kwargs: Any,
     ) -> List:
         """
         Get a page of nodes from ArangoDB.
@@ -215,9 +230,11 @@ class ArangoSource(Source):
         return nodes
 
     def get_edges(
-        self, skip: int = 0, limit: int = 0,
+        self,
+        skip: int = 0,
+        limit: int = 0,
         edge_collection: str = "edges",
-        **kwargs: Any
+        **kwargs: Any,
     ) -> List:
         """
         Get a page of edges from ArangoDB.
@@ -265,7 +282,9 @@ class ArangoSource(Source):
                 object_node = record["object"]
 
                 if subject_node is None or object_node is None:
-                    log.warning(f"Skipping edge with missing subject or object: {edge_data}")
+                    log.warning(
+                        f"Skipping edge with missing subject or object: {edge_data}"
+                    )
                     continue
 
                 # Reconstruct CURIEs from _from/_to
@@ -479,19 +498,21 @@ class ArangoSource(Source):
             values = node_filters["category"]
             if isinstance(values, (list, set, tuple)):
                 bind_vars["cat_values"] = list(values)
-                clauses.append("LENGTH(INTERSECTION(doc.category, @cat_values)) > 0")
             elif isinstance(values, str):
                 bind_vars["cat_values"] = [values]
-                clauses.append("LENGTH(INTERSECTION(doc.category, @cat_values)) > 0")
+            clauses.append(
+                "HAS(doc, 'provided_by') AND IS_LIST(doc.provided_by) AND @prov_values ANY IN doc.provided_by"
+            )
 
         if "provided_by" in node_filters and node_filters["provided_by"]:
             values = node_filters["provided_by"]
             if isinstance(values, (list, set, tuple)):
                 bind_vars["prov_values"] = list(values)
-                clauses.append("@prov_values ANY IN doc.provided_by")
             elif isinstance(values, str):
                 bind_vars["prov_values"] = [values]
-                clauses.append("@prov_values ANY IN doc.provided_by")
+            clauses.append(
+                "HAS(doc, 'provided_by') AND IS_LIST(doc.provided_by) AND @prov_values ANY IN doc.provided_by"
+            )
 
         if clauses:
             return "FILTER " + " AND ".join(clauses), bind_vars
@@ -524,7 +545,10 @@ class ArangoSource(Source):
                 bind_vars["subj_cat_values"] = list(values)
             else:
                 bind_vars["subj_cat_values"] = [values]
-            clauses.append("LENGTH(INTERSECTION(s.category, @subj_cat_values)) > 0")
+            clauses.append(
+                "s.category != null AND IS_LIST(s.category) AND "
+                "LENGTH(INTERSECTION(s.category, @subj_cat_values)) > 0"
+            )
 
         if "object_category" in edge_filters and edge_filters["object_category"]:
             values = edge_filters["object_category"]
@@ -532,7 +556,10 @@ class ArangoSource(Source):
                 bind_vars["obj_cat_values"] = list(values)
             else:
                 bind_vars["obj_cat_values"] = [values]
-            clauses.append("LENGTH(INTERSECTION(o.category, @obj_cat_values)) > 0")
+            clauses.append(
+                "o.category != null AND IS_LIST(o.category) AND "
+                "LENGTH(INTERSECTION(o.category, @obj_cat_values)) > 0"
+            )
 
         if "predicate" in edge_filters and edge_filters["predicate"]:
             values = edge_filters["predicate"]
@@ -550,7 +577,10 @@ class ArangoSource(Source):
                     bind_vars[var_name] = list(values)
                 else:
                     bind_vars[var_name] = [values]
-                clauses.append(f"@{var_name} ANY IN edge.{ksf}")
+                clauses.append(
+                    f"edge.{ksf} != null AND IS_LIST(edge.{ksf}) AND "
+                    f"@{var_name} ANY IN edge.{ksf}"
+                )
 
         if clauses:
             return "FILTER " + " AND ".join(clauses), bind_vars

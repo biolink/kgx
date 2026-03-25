@@ -42,7 +42,7 @@ Databases may contain many per-ontology collections. The `--all-collections` fla
 
 Both `arangodb-download` and `arangodb-upload` support all standard KGX formats — not just TSV.
 
-**Download output formats:** `tsv`, `csv`, `json`, `jsonl`, `nt`, `jelly`, `parquet`, `sql`, `neo4j`, `arangodb`, `graph`, `null`
+**Download output formats (file-based):** `tsv`, `csv`, `json`, `jsonl`, `nt`, `jelly`, `parquet`, `sql`
 
 **Upload input formats:** `tsv`, `csv`, `json`, `jsonl`, `obojson`, `obo-json`, `trapi-json`, `nt`, `jelly`, `owl`, `parquet`, `duckdb`, `sssom`, `neo4j`, `arangodb`, `graph`
 
