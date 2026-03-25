@@ -202,16 +202,16 @@ class ArangoSink(Sink):
             target_collection = f"{subj_prefix}-{obj_prefix}" if subj_prefix and obj_prefix else self.edge_collection_name
             subj_collection = subj_prefix if subj_prefix else self.node_collection_name
             obj_collection = obj_prefix if obj_prefix else self.node_collection_name
+            predicate = record.get("predicate", "")
             record["_from"] = f"{subj_collection}/{subj_local}"
             record["_to"] = f"{obj_collection}/{obj_local}"
-            record["_key"] = f"{subj_local}-{obj_local}"
+            record["_key"] = f"{subj_local}-{predicate}-{obj_local}"
         else:
             target_collection = record.pop("_collection", self.edge_collection_name)
             predicate = record.get("predicate", "")
             record["_from"] = f"{self.node_collection_name}/{self._sanitize_key(subject_id)}"
             record["_to"] = f"{self.node_collection_name}/{self._sanitize_key(object_id)}"
             record["_key"] = self._sanitize_key(f"{subject_id}-{predicate}-{object_id}")
-
         record["_collection"] = target_collection
         self.edge_cache.append((target_collection, record))
         self.edge_count += 1
