@@ -100,7 +100,7 @@ class ArangoSink(Sink):
             else:
                 col = self.db.collection(name)
             # Ensure a persistent index on 'id' for fast lookups
-            col.add_persistent_index(fields=["id"], unique=True)
+            col.add_index({"type": "persistent", "fields": ["id"], "unique": True})
             self._vertex_collections[name] = col
         return self._vertex_collections[name]
 

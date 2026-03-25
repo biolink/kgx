@@ -186,16 +186,12 @@ rely on them are skipped.
 
 ### Setting up a testing environment for ArangoDB
 
-KGX also has a suite of tests that rely on Docker containers to run ArangoDB specific tests.
+KGX also has a suite of tests that rely on a running ArangoDB instance. A single container serves
+both unit and integration tests:
 
 ```bash
-docker run -d --name kgx-arango-integration-test -p 8529:8529 --env ARANGO_NO_AUTH=1 arangodb:latest
+docker run -d -p 8529:8529 --env ARANGO_NO_AUTH=1 arangodb/arangodb:latest
 ```
 
-```bash
-docker run -d --name kgx-arango-unit-test -p 8529:8529 --env ARANGO_NO_AUTH=1 arangodb:latest
-```
-
-**Note:** The integration and unit test containers use the same port and cannot run simultaneously.
-Setting up the ArangoDB container is optional. If there is no container set up then the tests that
-rely on them are skipped.
+**Note:** Setting up the ArangoDB container is optional. If ArangoDB is not reachable on
+`localhost:8529` then the tests that rely on it are skipped.
