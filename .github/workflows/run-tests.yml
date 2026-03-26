@@ -55,6 +55,7 @@ jobs:
         run: |
           docker run --detach --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
           docker run --detach --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3.0
+          docker run --detach --name kgx-arango-unit-test -p 8529:8529 --env ARANGO_NO_AUTH=1 arangodb
           docker ps -a
       - name: Wait
         uses: jakejarvis/wait-action@master
