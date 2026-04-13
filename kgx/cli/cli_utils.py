@@ -137,9 +137,7 @@ def graph_summary(
         raise ValueError(f"report_type must be one of {summary_report_types.keys()}")
 
     # streaming assumed, throwing away the output graph
-    output_args = {
-        "format": "null"
-    }
+    output_args = {"format": "null"}
 
     # default here is for Streaming to be applied
     transformer = Transformer(stream=True)
@@ -345,6 +343,160 @@ def neo4j_upload(
     )
     transformer.save(
         {"uri": uri, "username": username, "password": password, "format": "neo4j"}
+    )
+    return transformer
+
+
+def arango_download(
+    uri: str,
+    database: str,
+    username: str,
+    password: str,
+    output: str,
+    output_format: str,
+    output_compression: Optional[str],
+    stream: bool,
+    node_filters: Optional[Tuple] = None,
+    edge_filters: Optional[Tuple] = None,
+    node_collections: Optional[List[str]] = None,
+    edge_collections: Optional[List[str]] = None,
+    all_collections: bool = False,
+) -> Transformer:
+    """
+    Download nodes and edges from an ArangoDB database.
+
+    Parameters
+    ----------
+    uri: str
+        ArangoDB URI. For example, http://localhost:8529
+    database: str
+        The database name
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    output: str
+        Where to write the output (stdout, by default)
+    output_format: Optional[str]
+        The output type (``tsv``, by default)
+    output_compression: Optional[str]
+        The output compression type
+    stream: bool
+        Whether to parse input as a stream
+    node_filters: Optional[Tuple]
+        Node filters
+    edge_filters: Optional[Tuple]
+        Edge filters
+    node_collections: Optional[List[str]]
+        Names of vertex collections to export
+    edge_collections: Optional[List[str]]
+        Names of edge collections to export
+    all_collections: bool
+        Whether to discover and export all non-system collections
+
+    Returns
+    -------
+    kgx.Transformer
+        The Transformer
+    """
+    transformer = Transformer(stream=stream)
+    source_config = {
+        "uri": uri,
+        "database": database,
+        "username": username,
+        "password": password,
+        "format": "arangodb",
+        "node_filters": node_filters,
+        "edge_filters": edge_filters,
+        "all_collections": all_collections,
+    }
+    if node_collections:
+        source_config["node_collections"] = node_collections
+    if edge_collections:
+        source_config["edge_collections"] = edge_collections
+    transformer.transform(source_config)
+
+    if not output_format:
+        output_format = "tsv"
+    transformer.save(
+        {"filename": output, "format": output_format, "compression": output_compression}
+    )
+    return transformer
+
+
+def arango_upload(
+    inputs: List[str],
+    input_format: str,
+    input_compression: Optional[str],
+    uri: str,
+    database: str,
+    username: str,
+    password: str,
+    stream: bool,
+    node_filters: Optional[Tuple] = None,
+    edge_filters: Optional[Tuple] = None,
+    node_collection: str = "nodes",
+    edge_collection: str = "edges",
+    curie_routing: bool = False,
+) -> Transformer:
+    """
+    Upload a set of nodes/edges to an ArangoDB database.
+
+    Parameters
+    ----------
+    inputs: List[str]
+        A list of files that contains nodes/edges
+    input_format: str
+        The input format
+    input_compression: Optional[str]
+        The input compression type
+    uri: str
+        The full HTTP address for ArangoDB database
+    database: str
+        The database name
+    username: str
+        Username for authentication
+    password: str
+        Password for authentication
+    stream: bool
+        Whether to parse input as a stream
+    node_filters: Optional[Tuple]
+        Node filters
+    edge_filters: Optional[Tuple]
+        Edge filters
+    node_collection: str
+        Name of the vertex collection
+    edge_collection: str
+        Name of the edge collection
+    curie_routing: bool
+        Whether to route to per-CURIE-prefix collections
+
+    Returns
+    -------
+    kgx.Transformer
+        The Transformer
+    """
+    transformer = Transformer(stream=stream)
+    transformer.transform(
+        {
+            "filename": inputs,
+            "format": input_format,
+            "compression": input_compression,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
+        }
+    )
+    transformer.save(
+        {
+            "uri": uri,
+            "database": database,
+            "username": username,
+            "password": password,
+            "format": "arangodb",
+            "node_collection": node_collection,
+            "edge_collection": edge_collection,
+            "curie_routing": curie_routing,
+        }
     )
     return transformer
 
@@ -704,6 +856,15 @@ def merge(
                 output_args["uri"] = destination_info["uri"]
                 output_args["username"] = destination_info["username"]
                 output_args["password"] = destination_info["password"]
+            elif destination_info["format"] == "arangodb":
+                output_args["uri"] = destination_info["uri"]
+                output_args["database"] = destination_info["database"]
+                output_args["username"] = destination_info["username"]
+                output_args["password"] = destination_info["password"]
+                if "node_collection" in destination_info:
+                    output_args["node_collection"] = destination_info["node_collection"]
+                if "edge_collection" in destination_info:
+                    output_args["edge_collection"] = destination_info["edge_collection"]
             elif destination_info["format"] in get_input_file_types():
                 filename = destination_info["filename"]
                 if isinstance(filename, list):
@@ -715,13 +876,18 @@ def merge(
                     if "compression" in destination_info
                     else None
                 )
-                if destination_info['format'] == 'nt':
-                    output_args['property_types'] = top_level_args['property_types']
-                    if 'property_types' in top_level_args and 'property_types' in destination_info.keys():
-                        output_args['property_types'].update(destination_info['property_types'])
-                if destination_info['format'] in {'csv', 'tsv'}:
-                    output_args['node_properties'] = node_properties
-                    output_args['edge_properties'] = edge_properties
+                if destination_info["format"] == "nt":
+                    output_args["property_types"] = top_level_args["property_types"]
+                    if (
+                        "property_types" in top_level_args
+                        and "property_types" in destination_info.keys()
+                    ):
+                        output_args["property_types"].update(
+                            destination_info["property_types"]
+                        )
+                if destination_info["format"] in {"csv", "tsv"}:
+                    output_args["node_properties"] = node_properties
+                    output_args["edge_properties"] = edge_properties
             else:
                 raise TypeError(
                     f"type {destination_info['format']} not yet supported for KGX merge operation."
@@ -979,6 +1145,23 @@ def prepare_input_args(
             "edge_filters": edge_filters,
             "prefix_map": prefix_map,
         }
+    elif input_format == "arangodb":
+        input_args = {
+            "uri": source["uri"],
+            "database": source["database"],
+            "username": source["username"],
+            "password": source["password"],
+            "format": input_format,
+            "node_filters": node_filters,
+            "edge_filters": edge_filters,
+            "prefix_map": prefix_map,
+        }
+        if "node_collection" in source:
+            input_args["node_collection"] = source["node_collection"]
+        if "edge_collection" in source:
+            input_args["edge_collection"] = source["edge_collection"]
+        if "all_collections" in source:
+            input_args["all_collections"] = source["all_collections"]
     else:
         raise TypeError(f"Type {input_format} not yet supported")
 
@@ -1068,6 +1251,17 @@ def prepare_output_args(
         output_args["uri"] = source["output"]["uri"]
         output_args["username"] = source["output"]["username"]
         output_args["password"] = source["output"]["password"]
+    elif output_format == "arangodb":
+        output_args["uri"] = source["output"]["uri"]
+        output_args["database"] = source["output"]["database"]
+        output_args["username"] = source["output"]["username"]
+        output_args["password"] = source["output"]["password"]
+        if "node_collection" in source["output"]:
+            output_args["node_collection"] = source["output"]["node_collection"]
+        if "edge_collection" in source["output"]:
+            output_args["edge_collection"] = source["output"]["edge_collection"]
+        if "curie_routing" in source["output"]:
+            output_args["curie_routing"] = source["output"]["curie_routing"]
     elif output_format in get_input_file_types():
         output_args["filename"] = output
         output_args["compression"] = output_compression
@@ -1078,9 +1272,9 @@ def prepare_output_args(
                 else True
             )
             output_args["reverse_prefix_map"] = source_reverse_prefix_map
-            output_args[
-                "reverse_predicate_mappings"
-            ] = source_reverse_predicate_mappings
+            output_args["reverse_predicate_mappings"] = (
+                source_reverse_predicate_mappings
+            )
             output_args["property_types"] = source_property_types
     else:
         raise ValueError(f"type {output_format} not yet supported for output")

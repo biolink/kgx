@@ -3,16 +3,16 @@ from neo4j import GraphDatabase
 
 from kgx.graph.nx_graph import NxGraph
 
-CONTAINER_NAME = "kgx-neo4j-unit-test"
+NEO4J_CONTAINER_NAME = "kgx-neo4j-unit-test"
 DEFAULT_NEO4J_URL = "neo4j://localhost:7687"
 DEFAULT_NEO4J_USERNAME = "neo4j"
 DEFAULT_NEO4J_PASSWORD = "test"
 DEFAULT_NEO4J_DATABASE = "neo4j"
 
 
-def check_container():
+def check_neo4j_container():
     """
-    Check whether the container with the name ``CONTAINER_NAME``
+    Check whether the container with the name ``NEO4J_CONTAINER_NAME``
     is currently running.
     """
     try:
@@ -21,7 +21,7 @@ def check_container():
         client = docker.from_env()
         status = False
         try:
-            c = client.containers.get(CONTAINER_NAME)
+            c = client.containers.get(NEO4J_CONTAINER_NAME)
             if c.status == "running":
                 status = True
         except:
@@ -46,6 +46,45 @@ def clean_database():
             session.run(q)
         except Exception as e:
             print(e)
+
+
+ARANGO_CONTAINER_NAME = "kgx-arango-unit-test"
+DEFAULT_ARANGO_URL = "http://localhost:8529"
+DEFAULT_ARANGO_USERNAME = "root"
+DEFAULT_ARANGO_PASSWORD = ""
+DEFAULT_ARANGO_DATABASE = "_system"
+
+
+def check_arango_container():
+    """
+    Check whether the ArangoDB instance is reachable.
+    """
+    try:
+        from urllib.parse import urlparse
+        import http.client
+        parsed = urlparse(DEFAULT_ARANGO_URL)
+        conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=2)
+        conn.request("GET", "/_api/version")
+        return conn.getresponse().status == 200
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="function")
+def clean_arango_database():
+    """
+    Drop and recreate nodes/edges collections in ArangoDB test container.
+    """
+    from arango import ArangoClient
+
+    client = ArangoClient(hosts=DEFAULT_ARANGO_URL)
+    db = client.db(DEFAULT_ARANGO_DATABASE, username=DEFAULT_ARANGO_USERNAME, password=DEFAULT_ARANGO_PASSWORD)
+    try:
+        for col_name in ["nodes", "edges"]:
+            if db.has_collection(col_name):
+                db.delete_collection(col_name)
+    except Exception as e:
+        print(e)
 
 
 # this is a bit of misnomer: yes, it processes a stream

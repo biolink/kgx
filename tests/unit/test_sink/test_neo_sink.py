@@ -11,8 +11,8 @@ from tests.unit import (
     DEFAULT_NEO4J_URL,
     DEFAULT_NEO4J_USERNAME,
     DEFAULT_NEO4J_PASSWORD,
-    check_container,
-    CONTAINER_NAME,
+    check_neo4j_container,
+    NEO4J_CONTAINER_NAME,
 )
 from tests.unit import get_graph
 
@@ -39,7 +39,7 @@ def test_create_constraint_query(category):
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_write_neo1(clean_database):
     """
@@ -80,7 +80,7 @@ def test_write_neo1(clean_database):
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 @pytest.mark.parametrize(
     "query",
@@ -115,7 +115,7 @@ def test_write_neo2(clean_database, query):
 
 
 @pytest.mark.skipif(
-    not check_container(), reason=f"Container {CONTAINER_NAME} is not running"
+    not check_neo4j_container(), reason=f"Container {NEO4J_CONTAINER_NAME} is not running"
 )
 def test_write_neo3(clean_database):
     """

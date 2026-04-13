@@ -4,18 +4,18 @@ from neo4j import GraphDatabase
 
 from kgx.graph.nx_graph import NxGraph
 
-CONTAINER_NAME = "kgx-neo4j-integration-test"
+NEO4J_CONTAINER_NAME = "kgx-neo4j-integration-test"
 DEFAULT_NEO4J_URL = "neo4j://localhost:7687"
 DEFAULT_NEO4J_USERNAME = "neo4j"
 DEFAULT_NEO4J_PASSWORD = "test"
 
 
-def check_container():
+def check_neo4j_container():
     try:
         client = docker.from_env()
         status = False
         try:
-            c = client.containers.get(CONTAINER_NAME)
+            c = client.containers.get(NEO4J_CONTAINER_NAME)
             if c.status == "running":
                 status = True
         except:
@@ -26,7 +26,7 @@ def check_container():
 
 
 @pytest.fixture(scope="function")
-def clean_slate():
+def clean_neo4j_slate():
     print("tearing down db")
     http_driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
@@ -36,6 +36,49 @@ def clean_slate():
     try:
         http_driver.session().run(q)
         print("deleted all nodes")
+    except Exception as e:
+        print(e)
+
+
+ARANGO_CONTAINER_NAME = "kgx-arango-integration-test"
+DEFAULT_ARANGO_URL = "http://localhost:8529"
+DEFAULT_ARANGO_USERNAME = "root"
+DEFAULT_ARANGO_PASSWORD = ""
+DEFAULT_ARANGO_DATABASE = "_system"
+
+
+def check_arango_container():
+    """
+    Check whether the ArangoDB instance is reachable.
+    """
+    try:
+        from urllib.parse import urlparse
+        import http.client
+
+        parsed = urlparse(DEFAULT_ARANGO_URL)
+        conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=2)
+        conn.request("GET", "/_api/version")
+        return conn.getresponse().status == 200
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="function")
+def clean_arango_slate():
+    print("tearing down arango db")
+    from arango import ArangoClient
+
+    client = ArangoClient(hosts=DEFAULT_ARANGO_URL)
+    db = client.db(
+        DEFAULT_ARANGO_DATABASE,
+        username=DEFAULT_ARANGO_USERNAME,
+        password=DEFAULT_ARANGO_PASSWORD,
+    )
+    try:
+        for col_name in ["nodes", "edges"]:
+            if db.has_collection(col_name):
+                db.delete_collection(col_name)
+        print("deleted all arango collections")
     except Exception as e:
         print(e)
 
@@ -50,7 +93,7 @@ def get_graph(source):
             "name": "Node A",
             "category": ["biolink:NamedThing"],
             "source": source,
-        }
+        },
     )
     g1.add_node(
         "B",
@@ -59,7 +102,7 @@ def get_graph(source):
             "name": "Node B",
             "category": ["biolink:NamedThing"],
             "source": source,
-        }
+        },
     )
     g1.add_node(
         "C",
@@ -68,7 +111,7 @@ def get_graph(source):
             "name": "Node C",
             "category": ["biolink:NamedThing"],
             "source": source,
-        }
+        },
     )
     g1.add_edge(
         "B",
@@ -78,7 +121,7 @@ def get_graph(source):
             "object": "A",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
 
     g2 = NxGraph()
@@ -96,7 +139,7 @@ def get_graph(source):
             "object": "A",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
     g2.add_edge(
         "C",
@@ -106,7 +149,7 @@ def get_graph(source):
             "object": "B",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
     g2.add_edge(
         "D",
@@ -116,7 +159,7 @@ def get_graph(source):
             "object": "C",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
     g2.add_edge(
         "D",
@@ -126,7 +169,7 @@ def get_graph(source):
             "object": "A",
             "predicate": "biolink:related_to",
             "source": source,
-        }
+        },
     )
     g2.add_edge(
         "E",
@@ -136,7 +179,7 @@ def get_graph(source):
             "object": "D",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
     g2.add_edge(
         "F",
@@ -146,7 +189,7 @@ def get_graph(source):
             "object": "D",
             "predicate": "biolink:sub_class_of",
             "source": source,
-        }
+        },
     )
 
     g3 = NxGraph()
@@ -164,7 +207,7 @@ def get_graph(source):
             "object": "B",
             "predicate": "biolink:related_to",
             "source": source,
-        }
+        },
     )
 
     g4 = NxGraph()
@@ -175,7 +218,7 @@ def get_graph(source):
             "category": ["biolink:Gene"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "B",
@@ -184,7 +227,7 @@ def get_graph(source):
             "category": ["biolink:Gene"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "A1",
@@ -193,7 +236,7 @@ def get_graph(source):
             "category": ["biolink:Protein"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "A2",
@@ -202,7 +245,7 @@ def get_graph(source):
             "category": ["biolink:Protein"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "B1",
@@ -211,7 +254,7 @@ def get_graph(source):
             "category": ["biolink:Protein"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "X",
@@ -220,7 +263,7 @@ def get_graph(source):
             "category": ["biolink:Drug"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_node(
         "Y",
@@ -229,7 +272,7 @@ def get_graph(source):
             "category": ["biolink:Drug"],
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_edge(
         "A",
@@ -240,7 +283,7 @@ def get_graph(source):
             "predicate": "biolink:has_gene_product",
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_edge(
         "A",
@@ -251,7 +294,7 @@ def get_graph(source):
             "predicate": "biolink:has_gene_product",
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_edge(
         "B",
@@ -262,7 +305,7 @@ def get_graph(source):
             "predicate": "biolink:has_gene_product",
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_edge(
         "X",
@@ -273,7 +316,7 @@ def get_graph(source):
             "predicate": "biolink:interacts_with",
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     g4.add_edge(
         "Y",
@@ -284,6 +327,6 @@ def get_graph(source):
             "predicate": "biolink:interacts_with",
             "provided_by": source,
             "source": source,
-        }
+        },
     )
     return [g1, g2, g3, g4]

@@ -18,7 +18,8 @@ internally in Python using a [networkx MultiDiGraph model](https://networkx.gith
 KGX allows conversion to and from:
 
  * RDF serializations (read/write) and SPARQL endpoints (read)
- * Neo4j endpoints (read) or Neo4j dumps (write)
+ * Neo4j endpoints (read/write)
+ * ArangoDB endpoints (read/write)
  * CSV/TSV and JSON (see [associated data formats](docs/data-preparation.md) and [example script to load CSV/TSV to Neo4j](./examples/scripts/load_csv_to_neo4j.py))
  * Reasoner Standard API format
  * OBOGraph JSON format
@@ -162,7 +163,7 @@ poetry install
 
 ### Setting up a testing environment for Neo4j
 
-This release of KGX supports graph source and sink transactions with the 4.3 release of Neo4j.
+This release of KGX supports graph source and sink transactions with Neo4j 4.4.
 
 KGX has a suite of tests that rely on Docker containers to run Neo4j specific tests.
 
@@ -172,12 +173,25 @@ on your local machine.
 Once Docker is up and running, run the following commands:
 
 ```bash
-docker run -d --rm --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3
+docker run -d --name kgx-neo4j-integration-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.4
 ```
 
 ```bash
-docker run -d --rm --name kgx-neo4j-unit-test -p 8484:7474 -p 8888:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.3
+docker run -d --name kgx-neo4j-unit-test -p 7474:7474 -p 7687:7687 --env NEO4J_AUTH=neo4j/test neo4j:4.4
 ```
 
-**Note:** Setting up the Neo4j container is optional. If there is no container set up
-then the tests that rely on them are skipped.
+**Note:** The integration and unit test containers use the same ports and cannot run simultaneously.
+Setting up the Neo4j container is optional. If there is no container set up then the tests that
+rely on them are skipped.
+
+### Setting up a testing environment for ArangoDB
+
+KGX also has a suite of tests that rely on a running ArangoDB instance. A single container serves
+both unit and integration tests:
+
+```bash
+docker run -d -p 8529:8529 --env ARANGO_NO_AUTH=1 arangodb/arangodb:latest
+```
+
+**Note:** Setting up the ArangoDB container is optional. If ArangoDB is not reachable on
+`localhost:8529` then the tests that rely on it are skipped.
