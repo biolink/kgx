@@ -17,7 +17,7 @@ from tests.integration import (
 
 
 def clean_database():
-    if not check_container():
+    if not check_neo4j_container():
         return
     driver = GraphDatabase.driver(
         DEFAULT_NEO4J_URL, auth=(DEFAULT_NEO4J_USERNAME, DEFAULT_NEO4J_PASSWORD)
