@@ -254,6 +254,7 @@
     <span class="n">ObographSource</span><span class="p">,</span>
     <span class="n">TrapiSource</span><span class="p">,</span>
     <span class="n">NeoSource</span><span class="p">,</span>
+    <span class="n">ArangoSource</span><span class="p">,</span>
     <span class="n">RdfSource</span><span class="p">,</span>
     <span class="n">OwlSource</span><span class="p">,</span>
     <span class="n">SssomSource</span><span class="p">,</span>
@@ -265,6 +266,7 @@
     <span class="n">JsonSink</span><span class="p">,</span>
     <span class="n">JsonlSink</span><span class="p">,</span>
     <span class="n">NeoSink</span><span class="p">,</span>
+    <span class="n">ArangoSink</span><span class="p">,</span>
     <span class="n">NullSink</span><span class="p">,</span>
     <span class="n">RdfSink</span><span class="p">,</span>
     <span class="n">SqlSink</span><span class="p">,</span>
@@ -287,6 +289,7 @@
     <span class="s2">&quot;obo-json&quot;</span><span class="p">:</span> <span class="n">ObographSource</span><span class="p">,</span>
     <span class="s2">&quot;trapi-json&quot;</span><span class="p">:</span> <span class="n">TrapiSource</span><span class="p">,</span>
     <span class="s2">&quot;neo4j&quot;</span><span class="p">:</span> <span class="n">NeoSource</span><span class="p">,</span>
+    <span class="s2">&quot;arangodb&quot;</span><span class="p">:</span> <span class="n">ArangoSource</span><span class="p">,</span>
     <span class="s2">&quot;duckdb&quot;</span><span class="p">:</span> <span class="n">DuckDbSource</span><span class="p">,</span>
     <span class="s2">&quot;nt&quot;</span><span class="p">:</span> <span class="n">RdfSource</span><span class="p">,</span>
     <span class="s2">&quot;jelly&quot;</span><span class="p">:</span> <span class="n">RdfSource</span><span class="p">,</span>
@@ -301,6 +304,7 @@
     <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">JsonSink</span><span class="p">,</span>
     <span class="s2">&quot;jsonl&quot;</span><span class="p">:</span> <span class="n">JsonlSink</span><span class="p">,</span>
     <span class="s2">&quot;neo4j&quot;</span><span class="p">:</span> <span class="n">NeoSink</span><span class="p">,</span>
+    <span class="s2">&quot;arangodb&quot;</span><span class="p">:</span> <span class="n">ArangoSink</span><span class="p">,</span>
     <span class="s2">&quot;nt&quot;</span><span class="p">:</span> <span class="n">RdfSink</span><span class="p">,</span>
     <span class="s2">&quot;jelly&quot;</span><span class="p">:</span> <span class="n">RdfSink</span><span class="p">,</span>
     <span class="s2">&quot;null&quot;</span><span class="p">:</span> <span class="n">NullSink</span><span class="p">,</span>
@@ -409,7 +413,7 @@
         <span class="c1"># Optional process() data stream inspector</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span> <span class="o">=</span> <span class="n">inspector</span>
 
-        <span class="k">if</span> <span class="n">input_format</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;neo4j&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">}:</span>
+        <span class="k">if</span> <span class="n">input_format</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;neo4j&quot;</span><span class="p">,</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">}:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">input_format</span><span class="p">)</span>
             <span class="n">source</span><span class="o">.</span><span class="n">set_prefix_map</span><span class="p">(</span><span class="n">prefix_map</span><span class="p">)</span>
             <span class="n">source</span><span class="o">.</span><span class="n">set_node_filters</span><span class="p">(</span><span class="n">node_filters</span><span class="p">)</span>

@@ -1,0 +1,569 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+        <title>ArangoDB Support for KGX - kgx documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">kgx  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">kgx  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kgx_format.html">KGX Specification</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_biolink_validation.html">KGX and Biolink Model JSON Schema Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/validator.html">KGX Validator</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/meta_knowledge_graph.html">Meta Knowledge Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_identifiers.html">Remap Node Identifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_node_property.html">Remap Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remap_edge_property.html">Remap Edge Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/fold_predicate.html">Fold Predicate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/unfold_node_property.html">Unfold Node Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/prefix_manager.html">Prefix Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/curie_lookup_service.html">CURIE Lookup Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graph.html">Knowledge Graphs in Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transformation_and_validation_examples.html">KGX transformation and validation examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">KGX Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data-preparation.html">Data preparation for use with KGX</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="arangodb-support-for-kgx">
+<h1>ArangoDB Support for KGX<a class="headerlink" href="#arangodb-support-for-kgx" title="Permalink to this heading">#</a></h1>
+<p>KGX supports reading from and writing to ArangoDB databases via the <code class="docutils literal notranslate"><span class="pre">arangodb-download</span></code> and <code class="docutils literal notranslate"><span class="pre">arangodb-upload</span></code> CLI commands, or programmatically through the <code class="docutils literal notranslate"><span class="pre">ArangoSource</span></code> and <code class="docutils literal notranslate"><span class="pre">ArangoSink</span></code> classes.</p>
+<section id="approach">
+<h2>Approach<a class="headerlink" href="#approach" title="Permalink to this heading">#</a></h2>
+<p>ArangoDB uses collections as containers for vertex and edges, while Neo4j uses labels and relationship types as classifiers. In addition, in ArangoDB, edges are JSON documents in a collection with _from and _to fields. KGX adopts a convention for ArangoDB which accommodates this key difference.</p>
+<section id="curie-reconstruction">
+<h3>CURIE Reconstruction<a class="headerlink" href="#curie-reconstruction" title="Permalink to this heading">#</a></h3>
+<p>KGX supports ArangoDB knowledge graph databases which use a convention where:</p>
+<ul class="simple">
+<li><p><strong>Node collections</strong> are named by ontology prefix (e.g., <code class="docutils literal notranslate"><span class="pre">CL</span></code>, <code class="docutils literal notranslate"><span class="pre">UBERON</span></code>, <code class="docutils literal notranslate"><span class="pre">MONDO</span></code>)</p></li>
+<li><p><strong>Node <code class="docutils literal notranslate"><span class="pre">_key</span></code> values</strong> are the ontology local ID (e.g., <code class="docutils literal notranslate"><span class="pre">1000300</span></code>)</p></li>
+<li><p><strong>Edge collections</strong> are named by the subject and object ontology prefixes separated by a hyphen (e.g., <code class="docutils literal notranslate"><span class="pre">CL-UBERON</span></code>)</p></li>
+<li><p><strong>Edge <code class="docutils literal notranslate"><span class="pre">_from</span></code>/<code class="docutils literal notranslate"><span class="pre">_to</span></code> values</strong> reference the appropriate node collections (e.g., <code class="docutils literal notranslate"><span class="pre">CL/1000300</span></code>, <code class="docutils literal notranslate"><span class="pre">UBERON/0001992</span></code>)</p></li>
+</ul>
+<p>On <strong>export</strong>, KGX reconstructs full CURIEs from this convention:</p>
+<ul class="simple">
+<li><p>Node ID: <code class="docutils literal notranslate"><span class="pre">{collection}:{_key}</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">CL:1000300</span></code>)</p></li>
+<li><p>Edge subject: derived from <code class="docutils literal notranslate"><span class="pre">_from</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">CL/1000300</span></code> becomes <code class="docutils literal notranslate"><span class="pre">CL:1000300</span></code>)</p></li>
+<li><p>Edge object: derived from <code class="docutils literal notranslate"><span class="pre">_to</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">UBERON/0001992</span></code> becomes <code class="docutils literal notranslate"><span class="pre">UBERON:0001992</span></code>)</p></li>
+</ul>
+<p>On <strong>import</strong> with <code class="docutils literal notranslate"><span class="pre">--curie-routing</span></code>, KGX reverses this process:</p>
+<ul class="simple">
+<li><p>Node CURIE prefix determines the target collection (e.g., <code class="docutils literal notranslate"><span class="pre">CL:1000300</span></code> goes to collection <code class="docutils literal notranslate"><span class="pre">CL</span></code> with <code class="docutils literal notranslate"><span class="pre">_key</span></code> <code class="docutils literal notranslate"><span class="pre">1000300</span></code>)</p></li>
+<li><p>Edge subject/object prefixes determine the edge collection (e.g., subject <code class="docutils literal notranslate"><span class="pre">CL:...</span></code> to object <code class="docutils literal notranslate"><span class="pre">UBERON:...</span></code> goes to collection <code class="docutils literal notranslate"><span class="pre">CL-UBERON</span></code>)</p></li>
+</ul>
+</section>
+<section id="compatibility-with-other-sources-and-sinks">
+<h3>Compatibility with Other Sources and Sinks<a class="headerlink" href="#compatibility-with-other-sources-and-sinks" title="Permalink to this heading">#</a></h3>
+<p>Since <code class="docutils literal notranslate"><span class="pre">arangodb-download</span></code> writes standard KGX format files (TSV, JSON, etc.), the output can be used directly as input to any other KGX sink — including Neo4j upload. The exported files contain fully-reconstructed CURIEs for node IDs and edge subject/object fields, which are valid KGX records for any downstream format.</p>
+<p>Edge <code class="docutils literal notranslate"><span class="pre">subject</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> fields are reconstructed from <code class="docutils literal notranslate"><span class="pre">_from</span></code>/<code class="docutils literal notranslate"><span class="pre">_to</span></code> when not stored in the edge document. This is the case for databases which rely entirely on <code class="docutils literal notranslate"><span class="pre">_from</span></code>/<code class="docutils literal notranslate"><span class="pre">_to</span></code> for edge endpoints rather than storing <code class="docutils literal notranslate"><span class="pre">subject</span></code>/<code class="docutils literal notranslate"><span class="pre">object</span></code> as document fields.</p>
+<p>The reverse direction (Neo4j download followed by ArangoDB upload) is also structurally compatible, but is <strong>lossy</strong>. <code class="docutils literal notranslate"><span class="pre">NeoSource</span></code> only extracts three fields per node (<code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">category</span></code>) and four per edge (<code class="docutils literal notranslate"><span class="pre">subject</span></code>, <code class="docutils literal notranslate"><span class="pre">predicate</span></code>, <code class="docutils literal notranslate"><span class="pre">relation</span></code>, <code class="docutils literal notranslate"><span class="pre">object</span></code>); all other properties stored in Neo4j are dropped. By contrast, <code class="docutils literal notranslate"><span class="pre">ArangoSource</span></code> returns full documents. If <code class="docutils literal notranslate"><span class="pre">--curie-routing</span></code> is used on upload, node IDs must be proper CURIEs; if Neo4j nodes lack a stored <code class="docutils literal notranslate"><span class="pre">id</span></code> property, <code class="docutils literal notranslate"><span class="pre">NeoSource</span></code> falls back to Neo4j’s internal integer node ID, which is not a CURIE and will not route correctly.</p>
+</section>
+<section id="collection-discovery">
+<h3>Collection Discovery<a class="headerlink" href="#collection-discovery" title="Permalink to this heading">#</a></h3>
+<p>Databases may contain many per-ontology collections. The <code class="docutils literal notranslate"><span class="pre">--all-collections</span></code> flag automatically discovers all non-system document and edge collections, eliminating the need to enumerate them manually.</p>
+</section>
+</section>
+<section id="supported-formats">
+<h2>Supported Formats<a class="headerlink" href="#supported-formats" title="Permalink to this heading">#</a></h2>
+<p>Both <code class="docutils literal notranslate"><span class="pre">arangodb-download</span></code> and <code class="docutils literal notranslate"><span class="pre">arangodb-upload</span></code> support all standard KGX formats — not just TSV.</p>
+<p><strong>Download output formats (file-based):</strong> <code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">csv</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonl</span></code>, <code class="docutils literal notranslate"><span class="pre">nt</span></code>, <code class="docutils literal notranslate"><span class="pre">jelly</span></code>, <code class="docutils literal notranslate"><span class="pre">parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">sql</span></code></p>
+<p><strong>Upload input formats:</strong> <code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">csv</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonl</span></code>, <code class="docutils literal notranslate"><span class="pre">obojson</span></code>, <code class="docutils literal notranslate"><span class="pre">obo-json</span></code>, <code class="docutils literal notranslate"><span class="pre">trapi-json</span></code>, <code class="docutils literal notranslate"><span class="pre">nt</span></code>, <code class="docutils literal notranslate"><span class="pre">jelly</span></code>, <code class="docutils literal notranslate"><span class="pre">owl</span></code>, <code class="docutils literal notranslate"><span class="pre">parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">duckdb</span></code>, <code class="docutils literal notranslate"><span class="pre">sssom</span></code>, <code class="docutils literal notranslate"><span class="pre">neo4j</span></code>, <code class="docutils literal notranslate"><span class="pre">arangodb</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code></p>
+</section>
+<section id="cli-usage">
+<h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Permalink to this heading">#</a></h2>
+<section id="download-export">
+<h3>Download (Export)<a class="headerlink" href="#download-export" title="Permalink to this heading">#</a></h3>
+<p>Export all collections from a database to TSV:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-download<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-l<span class="w"> </span>http://localhost:8529<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>database<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-u<span class="w"> </span>root<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/tmp/ontologies_export<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--all-collections
+</pre></div>
+</div>
+<p>Export specific collections:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-download<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-l<span class="w"> </span>http://localhost:8529<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>database<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-u<span class="w"> </span>root<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/tmp/cl_uberon_export<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-collection<span class="w"> </span>CL<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-collection<span class="w"> </span>UBERON<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--edge-collection<span class="w"> </span>CL-UBERON<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--edge-collection<span class="w"> </span>CL-CL
+</pre></div>
+</div>
+</section>
+<section id="upload-import">
+<h3>Upload (Import)<a class="headerlink" href="#upload-import" title="Permalink to this heading">#</a></h3>
+<p>Import into flat <code class="docutils literal notranslate"><span class="pre">nodes</span></code>/<code class="docutils literal notranslate"><span class="pre">edges</span></code> collections (default behavior):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-upload<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/tmp/ontologies_export_nodes.tsv<span class="w"> </span>/tmp/ontologies_export_edges.tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-l<span class="w"> </span>http://localhost:8529<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>database<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-u<span class="w"> </span>root<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>password
+</pre></div>
+</div>
+<p>Import with per-CURIE-prefix collection routing (reconstructs original structure):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-upload<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/tmp/ontologies_export_nodes.tsv<span class="w"> </span>/tmp/ontologies_export_edges.tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>tsv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-l<span class="w"> </span>http://localhost:8529<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>database<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-u<span class="w"> </span>root<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--curie-routing
+</pre></div>
+</div>
+</section>
+<section id="options-reference">
+<h3>Options Reference<a class="headerlink" href="#options-reference" title="Permalink to this heading">#</a></h3>
+<p><strong>arangodb-download:</strong></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--uri</span></code></p></td>
+<td><p>ArangoDB URI (e.g., <code class="docutils literal notranslate"><span class="pre">http://localhost:8529</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--database</span></code></p></td>
+<td><p>Database name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">--username</span></code></p></td>
+<td><p>Username</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span></code>, <code class="docutils literal notranslate"><span class="pre">--password</span></code></p></td>
+<td><p>Password</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span></code>, <code class="docutils literal notranslate"><span class="pre">--output</span></code></p></td>
+<td><p>Output file path prefix</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-f</span></code>, <code class="docutils literal notranslate"><span class="pre">--output-format</span></code></p></td>
+<td><p>Output format (<code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonl</span></code>, etc.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-compression</span></code></p></td>
+<td><p>Output compression type</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--stream</span></code></p></td>
+<td><p>Parse as a stream</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--node-collection</span></code></p></td>
+<td><p>Vertex collection name (repeatable)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--edge-collection</span></code></p></td>
+<td><p>Edge collection name (repeatable)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all-collections</span></code></p></td>
+<td><p>Auto-discover and export all non-system collections</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span></code>, <code class="docutils literal notranslate"><span class="pre">--node-filters</span></code></p></td>
+<td><p>Node filters (key value pair)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-e</span></code>, <code class="docutils literal notranslate"><span class="pre">--edge-filters</span></code></p></td>
+<td><p>Edge filters (key value pair)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>arangodb-upload:</strong></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">--input-format</span></code></p></td>
+<td><p>Input format (<code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonl</span></code>, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span></code>, <code class="docutils literal notranslate"><span class="pre">--input-compression</span></code></p></td>
+<td><p>Input compression type</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--uri</span></code></p></td>
+<td><p>ArangoDB URI</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--database</span></code></p></td>
+<td><p>Database name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">--username</span></code></p></td>
+<td><p>Username</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span></code>, <code class="docutils literal notranslate"><span class="pre">--password</span></code></p></td>
+<td><p>Password</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--stream</span></code></p></td>
+<td><p>Parse as a stream</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--node-collection</span></code></p></td>
+<td><p>Default vertex collection name (default: <code class="docutils literal notranslate"><span class="pre">nodes</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--edge-collection</span></code></p></td>
+<td><p>Default edge collection name (default: <code class="docutils literal notranslate"><span class="pre">edges</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--curie-routing</span></code></p></td>
+<td><p>Route to per-CURIE-prefix collections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span></code>, <code class="docutils literal notranslate"><span class="pre">--node-filters</span></code></p></td>
+<td><p>Node filters (key value pair)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-e</span></code>, <code class="docutils literal notranslate"><span class="pre">--edge-filters</span></code></p></td>
+<td><p>Edge filters (key value pair)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="programmatic-usage">
+<h2>Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permalink to this heading">#</a></h2>
+<section id="export">
+<h3>Export<a class="headerlink" href="#export" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">arango_download</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">arango_download</span><span class="p">(</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s2">&quot;http://localhost:8529&quot;</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s2">&quot;database&quot;</span><span class="p">,</span>
+    <span class="n">username</span><span class="o">=</span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="n">password</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;/tmp/export&quot;</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;tsv&quot;</span><span class="p">,</span>
+    <span class="n">output_compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">all_collections</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="import">
+<h3>Import<a class="headerlink" href="#import" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kgx.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">arango_upload</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">arango_upload</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/tmp/export_nodes.tsv&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp/export_edges.tsv&quot;</span><span class="p">],</span>
+    <span class="n">input_format</span><span class="o">=</span><span class="s2">&quot;tsv&quot;</span><span class="p">,</span>
+    <span class="n">input_compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s2">&quot;http://localhost:8529&quot;</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s2">&quot;database&quot;</span><span class="p">,</span>
+    <span class="n">username</span><span class="o">=</span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="n">password</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+    <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">curie_routing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">python-arango</span></code> package is required:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install<span class="w">  </span><span class="c1"># python-arango is included in pyproject.toml</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, KGX Authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">ArangoDB Support for KGX</a><ul>
+<li><a class="reference internal" href="#approach">Approach</a><ul>
+<li><a class="reference internal" href="#curie-reconstruction">CURIE Reconstruction</a></li>
+<li><a class="reference internal" href="#compatibility-with-other-sources-and-sinks">Compatibility with Other Sources and Sinks</a></li>
+<li><a class="reference internal" href="#collection-discovery">Collection Discovery</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#supported-formats">Supported Formats</a></li>
+<li><a class="reference internal" href="#cli-usage">CLI Usage</a><ul>
+<li><a class="reference internal" href="#download-export">Download (Export)</a></li>
+<li><a class="reference internal" href="#upload-import">Upload (Import)</a></li>
+<li><a class="reference internal" href="#options-reference">Options Reference</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#programmatic-usage">Programmatic Usage</a><ul>
+<li><a class="reference internal" href="#export">Export</a></li>
+<li><a class="reference internal" href="#import">Import</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

@@ -253,11 +253,246 @@
 <dd><p>Show the version and exit.</p>
 </dd></dl>
 
+<section id="kgx-arangodb-download">
+<h3>arangodb-download<a class="headerlink" href="#kgx-arangodb-download" title="Permalink to this heading">#</a></h3>
+<p>Download nodes and edges from an ArangoDB database.</p>
+<section id="parameters">
+<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">#</a></h4>
+<dl class="simple">
+<dt>uri: str</dt><dd><p>ArangoDB URI. For example, <a class="reference external" href="http://localhost:8529">http://localhost:8529</a></p>
+</dd>
+<dt>database: str</dt><dd><p>The database name</p>
+</dd>
+<dt>username: str</dt><dd><p>Username for authentication</p>
+</dd>
+<dt>password: str</dt><dd><p>Password for authentication</p>
+</dd>
+<dt>output: str</dt><dd><p>Where to write the output (stdout, by default)</p>
+</dd>
+<dt>output_format: str</dt><dd><p>The output type (<code class="docutils literal notranslate"><span class="pre">tsv</span></code>, by default)</p>
+</dd>
+<dt>output_compression: str</dt><dd><p>The output compression type</p>
+</dd>
+<dt>stream: bool</dt><dd><p>Whether to parse input as a stream</p>
+</dd>
+<dt>node_filters: Tuple[str, str]</dt><dd><p>Node filters</p>
+</dd>
+<dt>edge_filters: Tuple[str, str]</dt><dd><p>Edge filters</p>
+</dd>
+<dt>node_collection: Tuple[str]</dt><dd><p>Names of vertex collections</p>
+</dd>
+<dt>edge_collection: Tuple[str]</dt><dd><p>Names of edge collections</p>
+</dd>
+<dt>all_collections: bool</dt><dd><p>Whether to discover and export all non-system collections</p>
+</dd>
+</dl>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-download<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-l">
+<span id="cmdoption-kgx-arangodb-download-uri"></span><span class="sig-name descname"><span class="pre">-l</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--uri</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;uri&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-l" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB URI to download from. For example, <a class="reference external" href="http://localhost:8529">http://localhost:8529</a></p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-d">
+<span id="cmdoption-kgx-arangodb-download-database"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--database</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;database&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-d" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB database name</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-u">
+<span id="cmdoption-kgx-arangodb-download-username"></span><span class="sig-name descname"><span class="pre">-u</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--username</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;username&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-u" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB username</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-p">
+<span id="cmdoption-kgx-arangodb-download-password"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--password</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;password&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-p" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB password</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-o">
+<span id="cmdoption-kgx-arangodb-download-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-o" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> Output</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-f">
+<span id="cmdoption-kgx-arangodb-download-output-format"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-f" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> The output format. Can be one of (‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘neo4j’, ‘arangodb’, ‘nt’, ‘jelly’, ‘null’, ‘sql’, ‘tsv’, ‘parquet’)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-output-compression">
+<span class="sig-name descname"><span class="pre">--output-compression</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_compression&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-output-compression" title="Permalink to this definition">#</a></dt>
+<dd><p>The output compression type</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-s">
+<span id="cmdoption-kgx-arangodb-download-stream"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--stream</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-s" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse input as a stream</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-n">
+<span id="cmdoption-kgx-arangodb-download-node-filters"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--node-filters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;node_filters&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-n" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters for filtering nodes from the input graph</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-e">
+<span id="cmdoption-kgx-arangodb-download-edge-filters"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--edge-filters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;edge_filters&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters for filtering edges from the input graph</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-node-collection">
+<span class="sig-name descname"><span class="pre">--node-collection</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;node_collection&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-node-collection" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of a vertex collection (repeatable; default: nodes)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-edge-collection">
+<span class="sig-name descname"><span class="pre">--edge-collection</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;edge_collection&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-edge-collection" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of an edge collection (repeatable; default: edges)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-all-collections">
+<span class="sig-name descname"><span class="pre">--all-collections</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-all-collections" title="Permalink to this definition">#</a></dt>
+<dd><p>Discover and export all non-system collections in the database</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="kgx-arangodb-upload">
+<h3>arangodb-upload<a class="headerlink" href="#kgx-arangodb-upload" title="Permalink to this heading">#</a></h3>
+<p>Upload a set of nodes/edges to an ArangoDB database.</p>
+<section id="id1">
+<h4>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
+<dl class="simple">
+<dt>inputs: List[str]</dt><dd><p>A list of files that contains nodes/edges</p>
+</dd>
+<dt>input_format: str</dt><dd><p>The input format</p>
+</dd>
+<dt>input_compression: str</dt><dd><p>The input compression type</p>
+</dd>
+<dt>uri: str</dt><dd><p>The full HTTP address for ArangoDB database</p>
+</dd>
+<dt>database: str</dt><dd><p>The database name</p>
+</dd>
+<dt>username: str</dt><dd><p>Username for authentication</p>
+</dd>
+<dt>password: str</dt><dd><p>Password for authentication</p>
+</dd>
+<dt>stream: bool</dt><dd><p>Whether to parse input as a stream</p>
+</dd>
+<dt>node_filters: Tuple[str, str]</dt><dd><p>Node filters</p>
+</dd>
+<dt>edge_filters: Tuple[str, str]</dt><dd><p>Edge filters</p>
+</dd>
+<dt>node_collection: str</dt><dd><p>Name of the vertex collection</p>
+</dd>
+<dt>edge_collection: str</dt><dd><p>Name of the edge collection</p>
+</dd>
+<dt>curie_routing: bool</dt><dd><p>Whether to route to per-CURIE-prefix collections</p>
+</dd>
+</dl>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-upload<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>INPUTS...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-i">
+<span id="cmdoption-kgx-arangodb-upload-input-format"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-i" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-c">
+<span id="cmdoption-kgx-arangodb-upload-input-compression"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-compression</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_compression&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-c" title="Permalink to this definition">#</a></dt>
+<dd><p>The input compression type</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-l">
+<span id="cmdoption-kgx-arangodb-upload-uri"></span><span class="sig-name descname"><span class="pre">-l</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--uri</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;uri&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-l" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB URI to upload to. For example, <a class="reference external" href="http://localhost:8529">http://localhost:8529</a></p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-d">
+<span id="cmdoption-kgx-arangodb-upload-database"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--database</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;database&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-d" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB database name</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-u">
+<span id="cmdoption-kgx-arangodb-upload-username"></span><span class="sig-name descname"><span class="pre">-u</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--username</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;username&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-u" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB username</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-p">
+<span id="cmdoption-kgx-arangodb-upload-password"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--password</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;password&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-p" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>Required</strong> ArangoDB password</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-s">
+<span id="cmdoption-kgx-arangodb-upload-stream"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--stream</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-s" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse input as a stream</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-n">
+<span id="cmdoption-kgx-arangodb-upload-node-filters"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--node-filters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;node_filters&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-n" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters for filtering nodes from the input graph</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-e">
+<span id="cmdoption-kgx-arangodb-upload-edge-filters"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--edge-filters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;edge_filters&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters for filtering edges from the input graph</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-node-collection">
+<span class="sig-name descname"><span class="pre">--node-collection</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;node_collection&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-node-collection" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the vertex collection (default: nodes)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-edge-collection">
+<span class="sig-name descname"><span class="pre">--edge-collection</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;edge_collection&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-edge-collection" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the edge collection (default: edges)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-curie-routing">
+<span class="sig-name descname"><span class="pre">--curie-routing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-curie-routing" title="Permalink to this definition">#</a></dt>
+<dd><p>Route nodes/edges to per-CURIE-prefix collections (e.g., CL:1000300 -&gt; collection CL)</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-upload-arg-INPUTS">
+<span id="cmdoption-kgx-arangodb-upload-arg-inputs"></span><span class="sig-name descname"><span class="pre">INPUTS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-upload-arg-INPUTS" title="Permalink to this definition">#</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</section>
+</section>
 <section id="kgx-graph-summary">
 <h3>graph-summary<a class="headerlink" href="#kgx-graph-summary" title="Permalink to this heading">#</a></h3>
 <p>Loads and summarizes a knowledge graph from a set of input files.</p>
-<section id="parameters">
-<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">#</a></h4>
+<section id="id2">
+<h4>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>inputs: List[str]</dt><dd><p>Input file</p>
 </dd>
@@ -289,7 +524,7 @@ For example, <code class="docutils literal notranslate"><span class="pre">['orig
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-graph-summary-i">
 <span id="cmdoption-kgx-graph-summary-input-format"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-graph-summary-i" title="Permalink to this definition">#</a></dt>
-<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -357,8 +592,8 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <p class="admonition-title">Note</p>
 <p>Everything here is driven by the <code class="docutils literal notranslate"><span class="pre">merge-config</span></code> YAML.</p>
 </div>
-<section id="id1">
-<h4>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
+<section id="id3">
+<h4>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>merge_config: str</dt><dd><p>Merge config YAML</p>
 </dd>
@@ -402,8 +637,8 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <section id="kgx-neo4j-download">
 <h3>neo4j-download<a class="headerlink" href="#kgx-neo4j-download" title="Permalink to this heading">#</a></h3>
 <p>Download nodes and edges from Neo4j database.</p>
-<section id="id2">
-<h4>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
+<section id="id4">
+<h4>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>uri: str</dt><dd><p>Neo4j URI. For example, <a class="reference external" href="https://localhost:7474">https://localhost:7474</a></p>
 </dd>
@@ -455,7 +690,7 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-neo4j-download-f">
 <span id="cmdoption-kgx-neo4j-download-output-format"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-neo4j-download-f" title="Permalink to this definition">#</a></dt>
-<dd><p><strong>Required</strong> The output format. Can be one of (‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘neo4j’, ‘nt’, ‘jelly’, ‘null’, ‘sql’, ‘tsv’, ‘parquet’)</p>
+<dd><p><strong>Required</strong> The output format. Can be one of (‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘neo4j’, ‘arangodb’, ‘nt’, ‘jelly’, ‘null’, ‘sql’, ‘tsv’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -487,8 +722,8 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <section id="kgx-neo4j-upload">
 <h3>neo4j-upload<a class="headerlink" href="#kgx-neo4j-upload" title="Permalink to this heading">#</a></h3>
 <p>Upload a set of nodes/edges to a Neo4j database.</p>
-<section id="id3">
-<h4>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h4>
+<section id="id5">
+<h4>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>inputs: List[str]</dt><dd><p>A list of files that contains nodes/edges</p>
 </dd>
@@ -516,7 +751,7 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-neo4j-upload-i">
 <span id="cmdoption-kgx-neo4j-upload-input-format"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-neo4j-upload-i" title="Permalink to this definition">#</a></dt>
-<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -573,8 +808,8 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <section id="kgx-transform">
 <h3>transform<a class="headerlink" href="#kgx-transform" title="Permalink to this heading">#</a></h3>
 <p>Transform a Knowledge Graph from one serialization form to another.</p>
-<section id="id4">
-<h4>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h4>
+<section id="id6">
+<h4>Parameters<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>inputs: List[str]</dt><dd><p>A list of files that contains nodes/edges</p>
 </dd>
@@ -612,7 +847,7 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-transform-i">
 <span id="cmdoption-kgx-transform-input-format"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-transform-i" title="Permalink to this definition">#</a></dt>
-<dd><p>The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+<dd><p>The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -630,7 +865,7 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-transform-f">
 <span id="cmdoption-kgx-transform-output-format"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-transform-f" title="Permalink to this definition">#</a></dt>
-<dd><p>The output format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+<dd><p>The output format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -699,8 +934,8 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <section id="kgx-validate">
 <h3>validate<a class="headerlink" href="#kgx-validate" title="Permalink to this heading">#</a></h3>
 <p>Run KGX validator on an input file to check for Biolink Model compliance.</p>
-<section id="id5">
-<h4>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
+<section id="id7">
+<h4>Parameters<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h4>
 <dl class="simple">
 <dt>inputs: List[str]</dt><dd><p>Input files</p>
 </dd>
@@ -720,7 +955,7 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-validate-i">
 <span id="cmdoption-kgx-validate-input-format"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--input-format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_format&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-validate-i" title="Permalink to this definition">#</a></dt>
-<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
+<dd><p><strong>Required</strong> The input format. Can be one of (‘tsv’, ‘csv’, ‘graph’, ‘json’, ‘jsonl’, ‘obojson’, ‘obo-json’, ‘trapi-json’, ‘neo4j’, ‘arangodb’, ‘duckdb’, ‘nt’, ‘jelly’, ‘owl’, ‘sssom’, ‘parquet’)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -810,28 +1045,36 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
             <ul>
 <li><a class="reference internal" href="#">KGX CLI</a><ul>
 <li><a class="reference internal" href="#kgx">kgx</a><ul>
-<li><a class="reference internal" href="#kgx-graph-summary">graph-summary</a><ul>
+<li><a class="reference internal" href="#kgx-arangodb-download">arangodb-download</a><ul>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-merge">merge</a><ul>
+<li><a class="reference internal" href="#kgx-arangodb-upload">arangodb-upload</a><ul>
 <li><a class="reference internal" href="#id1">Parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-neo4j-download">neo4j-download</a><ul>
+<li><a class="reference internal" href="#kgx-graph-summary">graph-summary</a><ul>
 <li><a class="reference internal" href="#id2">Parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-neo4j-upload">neo4j-upload</a><ul>
+<li><a class="reference internal" href="#kgx-merge">merge</a><ul>
 <li><a class="reference internal" href="#id3">Parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-transform">transform</a><ul>
+<li><a class="reference internal" href="#kgx-neo4j-download">neo4j-download</a><ul>
 <li><a class="reference internal" href="#id4">Parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kgx-validate">validate</a><ul>
+<li><a class="reference internal" href="#kgx-neo4j-upload">neo4j-upload</a><ul>
 <li><a class="reference internal" href="#id5">Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-transform">transform</a><ul>
+<li><a class="reference internal" href="#id6">Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kgx-validate">validate</a><ul>
+<li><a class="reference internal" href="#id7">Parameters</a></li>
 </ul>
 </li>
 </ul>

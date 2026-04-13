@@ -376,9 +376,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;report_type must be one of </span><span class="si">{</span><span class="n">summary_report_types</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># streaming assumed, throwing away the output graph</span>
-    <span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span>
-    <span class="p">}</span>
+    <span class="n">output_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">}</span>
 
     <span class="c1"># default here is for Streaming to be applied</span>
     <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -584,6 +582,160 @@
     <span class="p">)</span>
     <span class="n">transformer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
         <span class="p">{</span><span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="n">uri</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;neo4j&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">transformer</span></div>
+
+
+<div class="viewcode-block" id="arango_download"><a class="viewcode-back" href="../../../reference/cli/cli_utils.html#kgx.cli.cli_utils.arango_download">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">arango_download</span><span class="p">(</span>
+    <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_compression</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">node_filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">node_collections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_collections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">all_collections</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download nodes and edges from an ArangoDB database.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uri: str</span>
+<span class="sd">        ArangoDB URI. For example, http://localhost:8529</span>
+<span class="sd">    database: str</span>
+<span class="sd">        The database name</span>
+<span class="sd">    username: str</span>
+<span class="sd">        Username for authentication</span>
+<span class="sd">    password: str</span>
+<span class="sd">        Password for authentication</span>
+<span class="sd">    output: str</span>
+<span class="sd">        Where to write the output (stdout, by default)</span>
+<span class="sd">    output_format: Optional[str]</span>
+<span class="sd">        The output type (``tsv``, by default)</span>
+<span class="sd">    output_compression: Optional[str]</span>
+<span class="sd">        The output compression type</span>
+<span class="sd">    stream: bool</span>
+<span class="sd">        Whether to parse input as a stream</span>
+<span class="sd">    node_filters: Optional[Tuple]</span>
+<span class="sd">        Node filters</span>
+<span class="sd">    edge_filters: Optional[Tuple]</span>
+<span class="sd">        Edge filters</span>
+<span class="sd">    node_collections: Optional[List[str]]</span>
+<span class="sd">        Names of vertex collections to export</span>
+<span class="sd">    edge_collections: Optional[List[str]]</span>
+<span class="sd">        Names of edge collections to export</span>
+<span class="sd">    all_collections: bool</span>
+<span class="sd">        Whether to discover and export all non-system collections</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kgx.Transformer</span>
+<span class="sd">        The Transformer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+    <span class="n">source_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="n">uri</span><span class="p">,</span>
+        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+        <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;node_filters&quot;</span><span class="p">:</span> <span class="n">node_filters</span><span class="p">,</span>
+        <span class="s2">&quot;edge_filters&quot;</span><span class="p">:</span> <span class="n">edge_filters</span><span class="p">,</span>
+        <span class="s2">&quot;all_collections&quot;</span><span class="p">:</span> <span class="n">all_collections</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">node_collections</span><span class="p">:</span>
+        <span class="n">source_config</span><span class="p">[</span><span class="s2">&quot;node_collections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_collections</span>
+    <span class="k">if</span> <span class="n">edge_collections</span><span class="p">:</span>
+        <span class="n">source_config</span><span class="p">[</span><span class="s2">&quot;edge_collections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_collections</span>
+    <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">source_config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">output_format</span><span class="p">:</span>
+        <span class="n">output_format</span> <span class="o">=</span> <span class="s2">&quot;tsv&quot;</span>
+    <span class="n">transformer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">output_format</span><span class="p">,</span> <span class="s2">&quot;compression&quot;</span><span class="p">:</span> <span class="n">output_compression</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">transformer</span></div>
+
+
+<div class="viewcode-block" id="arango_upload"><a class="viewcode-back" href="../../../reference/cli/cli_utils.html#kgx.cli.cli_utils.arango_upload">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">arango_upload</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">input_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">input_compression</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">node_filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">node_collection</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nodes&quot;</span><span class="p">,</span>
+    <span class="n">edge_collection</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;edges&quot;</span><span class="p">,</span>
+    <span class="n">curie_routing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upload a set of nodes/edges to an ArangoDB database.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs: List[str]</span>
+<span class="sd">        A list of files that contains nodes/edges</span>
+<span class="sd">    input_format: str</span>
+<span class="sd">        The input format</span>
+<span class="sd">    input_compression: Optional[str]</span>
+<span class="sd">        The input compression type</span>
+<span class="sd">    uri: str</span>
+<span class="sd">        The full HTTP address for ArangoDB database</span>
+<span class="sd">    database: str</span>
+<span class="sd">        The database name</span>
+<span class="sd">    username: str</span>
+<span class="sd">        Username for authentication</span>
+<span class="sd">    password: str</span>
+<span class="sd">        Password for authentication</span>
+<span class="sd">    stream: bool</span>
+<span class="sd">        Whether to parse input as a stream</span>
+<span class="sd">    node_filters: Optional[Tuple]</span>
+<span class="sd">        Node filters</span>
+<span class="sd">    edge_filters: Optional[Tuple]</span>
+<span class="sd">        Edge filters</span>
+<span class="sd">    node_collection: str</span>
+<span class="sd">        Name of the vertex collection</span>
+<span class="sd">    edge_collection: str</span>
+<span class="sd">        Name of the edge collection</span>
+<span class="sd">    curie_routing: bool</span>
+<span class="sd">        Whether to route to per-CURIE-prefix collections</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kgx.Transformer</span>
+<span class="sd">        The Transformer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+    <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">input_format</span><span class="p">,</span>
+            <span class="s2">&quot;compression&quot;</span><span class="p">:</span> <span class="n">input_compression</span><span class="p">,</span>
+            <span class="s2">&quot;node_filters&quot;</span><span class="p">:</span> <span class="n">node_filters</span><span class="p">,</span>
+            <span class="s2">&quot;edge_filters&quot;</span><span class="p">:</span> <span class="n">edge_filters</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">transformer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="n">uri</span><span class="p">,</span>
+            <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">database</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;node_collection&quot;</span><span class="p">:</span> <span class="n">node_collection</span><span class="p">,</span>
+            <span class="s2">&quot;edge_collection&quot;</span><span class="p">:</span> <span class="n">edge_collection</span><span class="p">,</span>
+            <span class="s2">&quot;curie_routing&quot;</span><span class="p">:</span> <span class="n">curie_routing</span><span class="p">,</span>
+        <span class="p">}</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">transformer</span></div>
 
@@ -943,6 +1095,15 @@
                 <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span>
                 <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
                 <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">:</span>
+                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span>
+                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span>
+                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
+                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;node_collection&quot;</span> <span class="ow">in</span> <span class="n">destination_info</span><span class="p">:</span>
+                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;edge_collection&quot;</span> <span class="ow">in</span> <span class="n">destination_info</span><span class="p">:</span>
+                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">get_input_file_types</span><span class="p">():</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -954,13 +1115,18 @@
                     <span class="k">if</span> <span class="s2">&quot;compression&quot;</span> <span class="ow">in</span> <span class="n">destination_info</span>
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">destination_info</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-                    <span class="n">output_args</span><span class="p">[</span><span class="s1">&#39;property_types&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_level_args</span><span class="p">[</span><span class="s1">&#39;property_types&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="s1">&#39;property_types&#39;</span> <span class="ow">in</span> <span class="n">top_level_args</span> <span class="ow">and</span> <span class="s1">&#39;property_types&#39;</span> <span class="ow">in</span> <span class="n">destination_info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="n">output_args</span><span class="p">[</span><span class="s1">&#39;property_types&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">destination_info</span><span class="p">[</span><span class="s1">&#39;property_types&#39;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">destination_info</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;tsv&#39;</span><span class="p">}:</span>
-                    <span class="n">output_args</span><span class="p">[</span><span class="s1">&#39;node_properties&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_properties</span>
-                    <span class="n">output_args</span><span class="p">[</span><span class="s1">&#39;edge_properties&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_properties</span>
+                <span class="k">if</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">top_level_args</span>
+                        <span class="ow">and</span> <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">destination_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">):</span>
+                        <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                            <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="n">destination_info</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;tsv&quot;</span><span class="p">}:</span>
+                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;node_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_properties</span>
+                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;edge_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_properties</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;type </span><span class="si">{</span><span class="n">destination_info</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> not yet supported for KGX merge operation.&quot;</span>
@@ -1218,6 +1384,23 @@
             <span class="s2">&quot;edge_filters&quot;</span><span class="p">:</span> <span class="n">edge_filters</span><span class="p">,</span>
             <span class="s2">&quot;prefix_map&quot;</span><span class="p">:</span> <span class="n">prefix_map</span><span class="p">,</span>
         <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">input_format</span> <span class="o">==</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">:</span>
+        <span class="n">input_args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">input_format</span><span class="p">,</span>
+            <span class="s2">&quot;node_filters&quot;</span><span class="p">:</span> <span class="n">node_filters</span><span class="p">,</span>
+            <span class="s2">&quot;edge_filters&quot;</span><span class="p">:</span> <span class="n">edge_filters</span><span class="p">,</span>
+            <span class="s2">&quot;prefix_map&quot;</span><span class="p">:</span> <span class="n">prefix_map</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="s2">&quot;node_collection&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">input_args</span><span class="p">[</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;edge_collection&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">input_args</span><span class="p">[</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;all_collections&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">input_args</span><span class="p">[</span><span class="s2">&quot;all_collections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;all_collections&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type </span><span class="si">{</span><span class="n">input_format</span><span class="si">}</span><span class="s2"> not yet supported&quot;</span><span class="p">)</span>
 
@@ -1307,6 +1490,17 @@
         <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span>
         <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
         <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;arangodb&quot;</span><span class="p">:</span>
+        <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span>
+        <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;database&quot;</span><span class="p">]</span>
+        <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
+        <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;node_collection&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]:</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;node_collection&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;edge_collection&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]:</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;edge_collection&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;curie_routing&quot;</span> <span class="ow">in</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]:</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;curie_routing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;curie_routing&quot;</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">output_format</span> <span class="ow">in</span> <span class="n">get_input_file_types</span><span class="p">():</span>
         <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span>
         <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_compression</span>
@@ -1317,9 +1511,9 @@
                 <span class="k">else</span> <span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_reverse_prefix_map</span>
-            <span class="n">output_args</span><span class="p">[</span>
-                <span class="s2">&quot;reverse_predicate_mappings&quot;</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="n">source_reverse_predicate_mappings</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mappings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">source_reverse_predicate_mappings</span>
+            <span class="p">)</span>
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_property_types</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;type </span><span class="si">{</span><span class="n">output_format</span><span class="si">}</span><span class="s2"> not yet supported for output&quot;</span><span class="p">)</span>
