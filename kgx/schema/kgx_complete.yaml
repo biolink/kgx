@@ -22,9 +22,6 @@ prefixes:
   AspGD:
     prefix_prefix: AspGD
     prefix_reference: http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=
-  biolink:
-    prefix_prefix: biolink
-    prefix_reference: https://w3id.org/biolink/vocab/
   bioschemas:
     prefix_prefix: bioschemas
     prefix_reference: https://bioschemas.org/
@@ -115,6 +112,9 @@ prefixes:
   fabio:
     prefix_prefix: fabio
     prefix_reference: http://purl.org/spar/fabio/
+  FMA:
+    prefix_prefix: FMA
+    prefix_reference: http://purl.obolibrary.org/obo/FMA_
   foaf:
     prefix_prefix: foaf
     prefix_reference: http://xmlns.com/foaf/0.1/
@@ -400,8 +400,101 @@ prefixes:
   PMC:
     prefix_prefix: PMC
     prefix_reference: http://europepmc.org/articles/PMC
+  biolink:
+    prefix_prefix: biolink
+    prefix_reference: https://w3id.org/biolink/vocab/
+  uspto-patent:
+    prefix_prefix: uspto-patent
+    prefix_reference: http://www.uspto.gov/patent/grant/v1/
 default_prefix: https://w3id.org/biolink/kgx/schema-derived/
 enums:
+  ResponseEnum:
+    name: ResponseEnum
+    description: A response to a treatment or intervention
+    permissible_values:
+      therapeutic_response:
+        text: therapeutic_response
+        description: A positive response to a treatment or intervention
+      negative:
+        text: negative
+        description: A negative response to a treatment or intervention
+  ResponseTargetEnum:
+    name: ResponseTargetEnum
+    description: The target of a treatment or intervention
+    permissible_values:
+      cohort:
+        text: cohort
+        description: A group of individuals that are the target of a treatment or
+          intervention
+      cell line:
+        text: cell line
+        description: A cell line that is the target of a treatment or intervention
+      individual:
+        text: individual
+        description: An individual that is the target of a treatment or intervention
+      sample:
+        text: sample
+        description: A biological materialsample that is the target of a treatment
+          or intervention
+  ClinicalTrialStatusEnum:
+    name: ClinicalTrialStatusEnum
+    description: 'Enumeration of clinical trial statuses indicating the recruitment
+      state, availability, or regulatory status of a clinical study or intervention.
+
+      '
+    permissible_values:
+      ACTIVE_NOT_RECRUITING:
+        text: ACTIVE_NOT_RECRUITING
+        description: The study is ongoing but not currently recruiting participants.
+      APPROVED_FOR_MARKETING:
+        text: APPROVED_FOR_MARKETING
+        description: The intervention has received regulatory approval for marketing.
+      AVAILABLE:
+        text: AVAILABLE
+        description: The intervention or data is available for use or distribution.
+      COMPLETED:
+        text: COMPLETED
+        description: The study has ended normally and participants are no longer being
+          examined or treated.
+      ENROLLING_BY_INVITATION:
+        text: ENROLLING_BY_INVITATION
+        description: Participants are being enrolled by invitation only.
+      NO_LONGER_AVAILABLE:
+        text: NO_LONGER_AVAILABLE
+        description: The intervention or data is no longer available.
+      NOT_YET_RECRUITING:
+        text: NOT_YET_RECRUITING
+        description: The study has not yet started recruiting participants.
+      RECRUITING:
+        text: RECRUITING
+        description: The study is currently recruiting participants.
+      SUSPENDED:
+        text: SUSPENDED
+        description: The study has been temporarily halted but may resume.
+      TEMPORARILY_NOT_AVAILABLE:
+        text: TEMPORARILY_NOT_AVAILABLE
+        description: The intervention or data is not currently available but may become
+          available later.
+      TERMINATED:
+        text: TERMINATED
+        description: The study has stopped prematurely and will not start again.
+      UNKNOWN:
+        text: UNKNOWN
+        description: The recruitment or availability status is unknown.
+      WITHDRAWN:
+        text: WITHDRAWN
+        description: The study was halted before enrolling its first participant.
+  ClinicalTrialAgeStageEnum:
+    name: ClinicalTrialAgeStageEnum
+    description: Enumeration of age stages or populations commonly used in clinical
+      trials to categorize participant demographics and target populations.
+    permissible_values:
+      adult:
+        text: adult
+      child:
+        text: child
+      older_adult:
+        text: older_adult
   ApprovalStatusEnum:
     name: ApprovalStatusEnum
     description: ''
@@ -556,6 +649,19 @@ enums:
           to determine the safety and dosage of the drug, and about 70% of these drugs
           move on to the next clinical research phase.
         is_a: clinical_trial_phase
+      clinical_trial_phase_1_to_2:
+        text: clinical_trial_phase_1_to_2
+        description: A study that tests the safety, side effects, and best dose of
+          a new treatment. Phase I/II clinical trials also test how well a certain
+          type of cancer or other disease responds to a new treatment. In the phase
+          II part of the clinical trial, patients usually receive the highest dose
+          of treatment that did not cause harmful side effects in the phase I part
+          of the clinical trial. Combining phases I and II may allow research questions
+          to be answered more quickly or with fewer patients. Also called phase 1/phase
+          2 clinical trial.
+        is_a: clinical_trial_phase
+        see_also:
+        - https://www.cancer.gov/publications/dictionaries/cancer-terms/def/phase-i-ii-clinical-trial
       clinical_trial_phase_2:
         text: clinical_trial_phase_2
         description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 2 involves
@@ -564,6 +670,17 @@ enums:
           and its purpose is to monitor the efficacy of the drug, as well as note
           side effects that may occur.
         is_a: clinical_trial_phase
+      clinical_trial_phase_2_to_3:
+        text: clinical_trial_phase_2_to_3
+        description: A study that tests how well a new treatment works for a certain
+          type of cancer or other disease and compares the new treatment with a standard
+          treatment. Phase II/III clinical trials may also provide more information
+          about the safety and side effects of the new treatment. Combining phases
+          II and III may allow research questions to be answered more quickly or with
+          fewer patients. Also called phase 2/phase 3 clinical trial.
+        is_a: clinical_trial_phase
+        see_also:
+        - https://www.cancer.gov/publications/dictionaries/cancer-terms/def/phase-ii-iii-clinical-trial
       clinical_trial_phase_3:
         text: clinical_trial_phase_3
         description: In the FDA Clinical Trial Phase, the Clinical Trial Phase 3 involves
@@ -624,15 +741,24 @@ enums:
       loss_of_function_variant_form:
         text: loss_of_function_variant_form
         is_a: genetic_variant_form
+      non_loss_of_function_variant_form:
+        text: non_loss_of_function_variant_form
+        is_a: genetic_variant_form
       gain_of_function_variant_form:
         text: gain_of_function_variant_form
-        is_a: genetic_variant_form
+        is_a: non_loss_of_function_variant_form
+      dominant_negative_variant_form:
+        text: dominant_negative_variant_form
+        is_a: non_loss_of_function_variant_form
       polymorphic_form:
         text: polymorphic_form
         is_a: genetic_variant_form
       snp_form:
         text: snp_form
         is_a: polymorphic_form
+      mutant_form:
+        text: mutant_form
+        is_a: genetic_variant_form
       analog_form:
         text: analog_form
         is_a: modified_form
@@ -677,10 +803,9 @@ enums:
         text: degradation
       cleavage:
         text: cleavage
-        is_a: degradation
       hydrolysis:
         text: hydrolysis
-        is_a: degradation
+        is_a: cleavage
       metabolic_processing:
         text: metabolic_processing
       mutation_rate:
@@ -701,6 +826,8 @@ enums:
         text: interaction
       release:
         text: release
+      isomerization:
+        text: isomerization
       secretion:
         text: secretion
         is_a: transport
@@ -815,17 +942,196 @@ enums:
   CausalMechanismQualifierEnum:
     name: CausalMechanismQualifierEnum
     permissible_values:
-      binding:
-        text: binding
-        description: A causal mechanism mediated by the direct contact between effector
-          and target chemical or biomolecular entity, which form a stable physical
-          interaction.
+      modulation:
+        text: modulation
+        description: A causal mechanism that effects the normal functioning of a protein
+          in some way e.g., mixed agonist/antagonist or unclear whether action is
+          positive or negative
+      allosteric_modulation:
+        text: allosteric_modulation
+        description: A modulation mechanism that occurs when a chemical exerts an
+          effect on a protein targets via a different binding site than the natural
+          ('orthosteric') ligand site.
+        is_a: modulation
+      mixed_allosteric_modulation:
+        text: mixed_allosteric_modulation
+        description: An allosteric modulation mechanism that occurs when a chemical
+          may exert an activating effect or an inhibitory effect in different conditions
+          / contexts (e.g. concentration, receptor conformational state, signaling
+          pathway context, receptor subtype, cellular environment).
+        is_a: allosteric_modulation
+      biphasic_allosteric_modulation:
+        text: biphasic_allosteric_modulation
+        description: A mixed allosteric modulation mechanism that occurs when a chemical
+          exerts an activating effect at lower concentrations, and an inhibitory effect
+          at higher concentrations.
+        is_a: mixed_allosteric_modulation
+      mixed_agonism:
+        text: mixed_agonism
+        description: An modulation mechanism in which the effector acts as both an
+          agonist (activating a receptor) and an antagonist (blocking a receptor)
+          at different receptor sites.
+        is_a: modulation
+      positive_modulation:
+        text: positive_modulation
+        description: A modulation mechanism that positively effects the normal functioning
+          of a target by increasing or enhancing its activity or abundance, or its
+          sensitivity to other factors that do so.
+        is_a: modulation
+      potentiation:
+        text: potentiation
+        description: A positive modulation mechanism in which the effector binds to
+          and enhances or intensifies the effect of some other chemical or drug on
+          its target.
+        is_a: positive_modulation
+      induction:
+        text: induction
+        description: A positive modulation mechanism in which the effector binds to
+          and increases the activity/rate of an enzyme that processes drugs in the
+          body.
+        is_a: positive_modulation
+        close_mappings:
+        - DGIdb:inducer
+      cofactor:
+        text: cofactor
+        description: A positive modulation mechanism in which the effector (usually
+          some non-protein chemical compound or metallic ion) is required for a target
+          enzyme's biological/catalytic activity.
+        is_a: positive_modulation
+      activation:
+        text: activation
+        description: A positive modulation mechanism in which the effector binds to
+          and positively affects the normal functioning of its target.
+        is_a: positive_modulation
+        close_mappings:
+        - CHEMBL.MECHANISM:activator
+        - DGIdb:activator
+      positive_allosteric_modulation:
+        text: positive_allosteric_modulation
+        description: A positive modulation mechanism in which the effector enhances
+          the action of the endogenous ligand of a receptor by binding to a site distinct
+          from that ligand (i.e. non-competitive inhibition)
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:positive_allosteric_modulator
+        - CHEMBL.MECHANISM:positive_modulator
+        - DGIdb:positive_allosteric_modulator
+        broad_mappings:
+        - DGIdb:modulator
+        - DGIdb:allosteric_modulator
+      agonism:
+        text: agonism
+        description: An activation mechanism in which the effector binds and activates
+          a receptor to mimic the effect of an endogenous ligand.
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:agonist
+        - DGIdb:agonist
+        narrow_mappings:
+        - CHEMBL.MECHANISM:partial_agonist
+        - DGIdb:partial_agonist
+      partial_agonism:
+        text: partial_agonism
+        description: An agonism mechanism in which the effector binds to and only
+          partially activates a receptor (relative to the response to a full agonist)
+        is_a: agonism
+      biased_agonism:
+        text: biased_agonism
+        description: An agonism mechanism in which the effector  binds to a receptor
+          and activates certain signaling pathways while ignoring others, allowing
+          it to produce a desired effect without unwanted side effects.
+        is_a: agonism
+      antibody_agonism:
+        text: antibody_agonism
+        description: An agonism mechanism in which the effector is an antobody that
+          binds and activates a receptor to mimic the effect of an endogenous ligand.
+        is_a: agonism
+      molecular_channel_opening:
+        text: molecular_channel_opening
+        description: An activation mechanism in which the effector binds to a molecular
+          channel and facilitates transport of ions through it.
+        is_a: activation
+        close_mappings:
+        - CHEMBL.MECHANISM:opener
+      stimulation:
+        text: stimulation
+        description: An activation mechanism in which the effector directly or indirectly
+          affects its target, stimulating a physiological response.
+        is_a: activation
+        close_mappings:
+        - DGIdb:stimulator
+        - SEMMEDDB:STIMULATES
+        - DGIdb:stimulator
+      guanyl_nucleotide_exchange:
+        text: guanyl_nucleotide_exchange
+        description: An activation mechanism in which the effector catalyzes the exchange
+          of guanosine diphosphate (GDP) for guanosine triphosphate (GTP) in a guanine
+          nucleotide-binding protein (G-protein).
+        is_a: activation
+      negative_modulation:
+        text: negative_modulation
+        description: A modulation mechanism that negatively effects the normal functioning
+          of a target by decreasing or impeding its activity or abundance, or its
+          sensitivity to other factors that do so.
+        is_a: modulation
+        narrow_mappings:
+        - DGIdb:negative_modulator
+      negative_gene_editing_modulation:
+        text: negative_gene_editing_modulation
+        description: A negative modulation mechanism in which the effector elicits
+          the negative modulation of its target through a gene editing activity.
+        is_a: negative_modulation
+      gtpase_activation:
+        text: gtpase_activation
+        description: An activation mechanism in which the effector accelerates the
+          intrinsic GTPase activity of a G-protein, promoting the conversion of the
+          active, GTP-bound form to the inactive, GDP-bound form, thereby terminating
+          a signaling event. Note that this is a negative modulation mechanism because
+          the target is the G-protein whose activity is attenuated through gtpase
+          activation.
+        is_a: negative_modulation
+      atpase_activation:
+        text: atpase_activation
+        description: An activation mechanism in which the effector accelerates the
+          intrinsic ATPase activity of a target protein, promoting the conversion
+          of the active, ATP-bound form to the inactive, ADP-bound form, thereby terminating
+          a signaling event. Note that this is a negative modulation mechanism because
+          the target is the protein whose activity is attenuated through atpase activation.
+        is_a: negative_modulation
+      antisense_oligonucleotide_inhibition:
+        text: antisense_oligonucleotide_inhibition
+        description: A negative modulation mechanism in which an antisense oligonucleotide
+          effector prevents translation of a complementary mRNA sequence through binding
+          and targeting it for degradation. Note that while this is called "inhibition',
+          it is not inhibition in the classic biochemical sense that requires a direct
+          interaction between effector and target.
+        is_a: negative_modulation
+      rna_interference_inhibition:
+        text: rna_interference_inhibition
+        description: A negative modulation mechanism in which an effector small interfering
+          RNA (siRNA) molecule finds and destroys messenger RNA (mRNA) with a complementary
+          sequence, preventing a specific gene from being translated into a protein.
+          Note that while this is called "inhibition', it is not inhibition in the
+          classic biochemical sense that requires a direct interaction between effector
+          and target.
+        is_a: negative_modulation
+      suppression:
+        text: suppression
+        description: A negative modulation mechanism in which the effector directly
+          or indirectly affects its target, suppressing a physiological process.
+        is_a: negative_modulation
+      feedback_inhibition:
+        text: feedback_inhibition
+        description: An negative modulation mechanism in which the end product of
+          a metabolic pathway inhibits an enzyme early in that same pathway, which
+          stops the production of the final product when it's no longer needed.
+        is_a: negative_modulation
       inhibition:
         text: inhibition
-        description: A causal mechanism in which the effector binds to the target
-          and negatively effects its normal function, e.g. prevention of enzymatic
-          reaction or activation of downstream pathway.
-        is_a: binding
+        description: A negative modulation mechanism in which the effector binds to
+          the target and negatively effects its normal function, e.g. prevention of
+          enzymatic reaction or activation of downstream pathway.
+        is_a: negative_modulation
         close_mappings:
         - DGIdb:inhibitor
         - SEMMEDDB:INHIBITS
@@ -841,12 +1147,12 @@ enums:
         - DGIdb:negative_modulator
       antibody_inhibition:
         text: antibody_inhibition
-        description: A causal mechanism in which an antibody specifically binds to
-          and interferes with the target.
+        description: An inhibition mechanism in which an antibody effector specifically
+          binds to and interferes with the target.
         is_a: inhibition
       antagonism:
         text: antagonism
-        description: A causal mechanism in which the effector binds to a receptor
+        description: An inhibition mechanism in which the effector binds to a receptor
           and prevents activation by an agonist through competing for the binding
           site.
         is_a: inhibition
@@ -855,108 +1161,340 @@ enums:
         - CHEMBL.MECHANISM:antagonist
         narrow_mappings:
         - CHEMBL.MECHANISM:allosteric_antagonist
+      allosteric_antagonism:
+        text: allosteric_antagonism
+        description: An inhibition mechanism in which the effector binds to a receptor
+          at an allosteric site and prevents activation by a positive allosteric modulator
+          at that site.
+        is_a: antagonism
+      non_competitive_antagonism:
+        text: non_competitive_antagonism
+        description: An inhibition mechanism in which the effector binds a site distinct
+          from the agonist's binding site (non-orthosteric), or irreversibly/insurmountably
+          inactivates the receptor - reduces the receptor’s maximal response (Emax)
+          in a way that cannot be overcome by adding more agonist.
+        is_a: antagonism
+      competitive_inhibition:
+        text: competitive_inhibition
+        description: An inhibition mechanism in which the effector binds to a target
+          molecule (such as an enzyme) and prevents the binding of a substrate (or
+          another binding partner) and vice versa.
+        is_a: inhibition
+      noncompetitive_inhibition:
+        text: noncompetitive_inhibition
+        description: An inhibition mechanism in which the effector binds to a target
+          molecule (such as an enzyme) at a site other than the active site, in a
+          way that reduces the activity of the target.
+        is_a: inhibition
+      negative_allosteric_modulation:
+        text: negative_allosteric_modulation
+        description: A noncompetitive inhibition mechanism in which the effector reduces
+          or prevents the action of the endogenous ligand of a receptor by binding
+          to a site distinct from that ligand, and causing a conformational change
+          that affects ligand binding.
+        is_a: noncompetitive_inhibition
+        close_mappings:
+        - CHEMBL.MECHANISM:negative_allosteric_modulator
+        - DGIdb:inhibitory_allosteric_modulator
+      gating_inhibition:
+        text: gating_inhibition
+        description: An inhibition mechanism mediated by the transition of ion channels
+          between their open (conducting) and closed (non-conducting) conformational
+          states.
+        is_a: inhibition
+      irreversible_inhibition:
+        text: irreversible_inhibition
+        description: An inhibition mechanism in which an effector permanently binds
+          to a target, permanently disrupting its activity.
+        is_a: inhibition
       molecular_channel_blockage:
         text: molecular_channel_blockage
-        description: A causal mechanism in which the effector binds to a molecular
+        description: An inhibition mechanism in which the effector binds to a molecular
           channel and prevents or reduces transport of ions through it.
         is_a: inhibition
       inverse_agonism:
         text: inverse_agonism
-        description: A causal mechanism in which the effector binds to the same receptor-binding
-          site as an agonist and antagonizes its effects, often exerting the opposite
-          effect of the agonist by suppressing spontaneous receptor signaling.
+        description: An inhibition mechanism in which the effector binds to the same
+          receptor-binding site as an agonist and antagonizes its effects, often exerting
+          the opposite effect of the agonist by suppressing spontaneous receptor signaling.
         is_a: inhibition
         close_mappings:
         - CHEMBL.MECHANISM:inverse_agonist
         - DGIdb:inverse_agonist
-      negative_allosteric_modulation:
-        text: negative_allosteric_modulation
-        description: A causal mechanism in which the effector reduces or prevents
-          the action of the endogenous ligand of a receptor by binding to a site distinct
-          from that ligand (i.e. non-competitive inhibition)
-        is_a: inhibition
-        close_mappings:
-        - CHEMBL.MECHANISM:negative_allosteric_modulator
-        - DGIdb:inhibitory_allosteric_modulator
-        narrow_mappings:
-        - DGIdb:negative_modulator
-      agonism:
-        text: agonism
-        description: A causal mechanism in which the effector binds and activates
-          a receptor to mimic the effect of an endogenous ligand.
-        is_a: activation
-        close_mappings:
-        - CHEMBL.MECHANISM:agonist
-        - DGIdb:agonist
-        narrow_mappings:
-        - CHEMBL.MECHANISM:partial_agonist
-        - DGIdb:partial_agonist
-      molecular_channel_opening:
-        text: molecular_channel_opening
-        description: A causal mechanism in which the effector binds to a molecular
-          channel and facilitates transport of ions through it.
-        is_a: activation
-        close_mappings:
-        - CHEMBL.MECHANISM:opener
-      positive_allosteric_modulation:
-        text: positive_allosteric_modulation
-        description: A causal mechanism in which the effector enhances the action
-          of the endogenous ligand of a receptor by binding to a site distinct from
-          that ligand (i.e. non-competitive inhibition)
-        is_a: activation
-        close_mappings:
-        - CHEMBL.MECHANISM:positive_allosteric_modulator
-        - CHEMBL.MECHANISM:positive_modulator
-        - DGIdb:positive_allosteric_modulator
-        broad_mappings:
-        - DGIdb:modulator
-        - DGIdb:allosteric_modulator
-      potentiation:
-        text: potentiation
-        description: A causal mechanism in which the effector  binds to and enhances
-          or intensifies the effect of some other chemical or drug on its target.
-        is_a: binding
-      activation:
-        text: activation
-        description: A causal mechanism in which the effector binds to and positively
-          affects the normal functioning of its target.
-        is_a: binding
-        close_mappings:
-        - CHEMBL.MECHANISM:activator
-        - DGIdb:activator
-      inducer:
-        text: inducer
-        description: A causal mechanism in which the effector binds to and increases
-          the activity/rate of an enzyme that processes drugs in the body.
-        is_a: binding
-        close_mappings:
-        - DGIdb:inducer
-      transcriptional_regulation:
-        text: transcriptional_regulation
-        description: A causal mechanism mediated by through the control of target
-          gene transcription
-      signaling_mediated_control:
-        text: signaling_mediated_control
-        description: A causal mechanism mediated by the activation or control of signaling
-          events that influence the some aspect of the target entity (e.g. its activity,
-          processing, transport, etc)
+      binding:
+        text: binding
+        description: A modulation mechanism mediated by the direct contact between
+          effector and target chemical or biomolecular entity, which form a stable
+          physical interaction (typically non-covalent).
+        is_a: modulation
+      covalent_binding:
+        text: covalent_binding
+        description: A modulation mechanism mediated by a direct covalent binding
+          interaction between effector and target chemical or biomolecular entity.
+        is_a: modulation
+      adduction:
+        text: adduction
+        description: A covalent binding mechanism in which a drug-protein adduct forms
+          by the covalent binding of electrophilic drugs or their reactive metabolite(s)
+          to a target protein.
+        is_a: covalent_binding
+      crosslinking:
+        text: crosslinking
+        description: A covalent binding mechanism in which an effector induces cross-linking
+          of target proteins or nucleic acids - covalently joining them into a rigid
+          structure.
+        is_a: covalent_binding
+      transglutamination:
+        text: transglutamination
+        description: A covalent binding mechanism involving formation of a covalent
+          bond between a glutamine residue and an amine as catalyzed by a transglutaminase.
+        is_a: covalent_binding
+      disuphide_binding:
+        text: disuphide_binding
+        description: A covalent binding mechanism involving a covalent bond formed
+          between two cysteine residues in or between proteins.
+        is_a: covalent_binding
       stabilization:
         text: stabilization
-        is_a: activation
+        description: A modulation mechanism in which the effector increases the conformational
+          stability of a protein or complex.
+        is_a: modulation
         close_mappings:
         - CHEMBL.MECHANISM:stabiliser
-      stimulation:
-        text: stimulation
-        is_a: activation
-        close_mappings:
-        - DGIdb:stimulator
-        - SEMMEDDB:STIMULATES
-        - DGIdb:stimulator
-      releasing_activity:
-        text: releasing_activity
-        is_a: activation
+      chaperone_mediated_stabilization:
+        text: chaperone_mediated_stabilization
+        description: ''
+        is_a: stabilization
+      destabilization:
+        text: destabilization
+        description: A modulation mechanism in which a chaperone molecule directly
+          binds to a partially folded biosynthetic intermediate to stabilize the protein
+          and allow it to complete the folding process to yield a functional protein.
+        is_a: modulation
+      degradation:
+        text: degradation
+        description: A modulation mechanism that controls protein and cellular component
+          levels through the regulated breakdown and recycling of molecules.
+        is_a: modulation
+      cleavage:
+        text: cleavage
+        description: A modulation mechanism in which an effector promotes degeneration
+          of the target protein through cleaving of the peptide bonds.
+        is_a: modulation
+      hydrolysis:
+        text: hydrolysis
+        description: A modulation mechanism in which an effector cleaves its target
+          through a chemical reaction where a molecule of water is used to break a
+          bond.
+        is_a: modulation
+      disruption:
+        text: disruption
+        description: A modulation mechanism in which an effector destabilizes or disrupts
+          a protein complex, macromolecular assembly, cell membrane etc.
+        is_a: modulation
+      opening:
+        text: opening
+        description: A modulation mechanism in which an effector positively effects
+          the normal functioning of an ion channel e.g., facilitates transport of
+          ions through the channel.
+        is_a: modulation
+      multitarget_modulation:
+        text: multitarget_modulation
+        description: A modulation mechanism in which an effector achieves a physiological
+          effect through simultaneous interaction with multiple gene targets.
+        is_a: modulation
+      chelation:
+        text: chelation
+        description: A modulation mechanism in which an effector binds to a metal
+          ion target, reducing its availability/reactivity for further interactions.
+        is_a: modulation
+      release:
+        text: release
+        description: A modulation mechanism in which an effector reverses the normal
+          functioning of a transporter, causing release of the substrate, rather than
+          uptake
+        is_a: modulation
         close_mappings:
         - CHEMBL:MECHANISM:releasing_agent
+      sequestration:
+        text: sequestration
+        description: A modulation mechanism in which an effector binds to a substance
+          such as a drug, toxin or metabolite and reduces its availability for further
+          interactions.
+        is_a: modulation
+      oxidoreduction:
+        text: oxidoreduction
+        description: A modulation mechanism in which in which electrons are transferred
+          between molecules catalyzed by an oxidoreductase enzyme.
+        is_a: modulation
+      exogenous_protein:
+        text: exogenous_protein
+        description: A modulation mechanism in which a protein from an exogenous source
+          acts as a substitute or supplement for a specific protein which is absent
+          or has reduced function in an affected target/subject.
+        is_a: modulation
+      exogenous_gene:
+        text: exogenous_gene
+        description: A modulation mechanism in which a nucleic acid from an exogenous
+          source acts as a substitute or supplement for a specific gene which is absent
+          or has reduced function in an affected target/subject.
+        is_a: modulation
+      transcriptional_regulation:
+        text: transcriptional_regulation
+        description: A modulation mechanism mediated by through the control of target
+          gene transcription.
+        is_a: modulation
+      translational_regulation:
+        text: translational_regulation
+        description: A modulation mechanism mediated by through the control of target
+          gene translation.
+        is_a: modulation
+      catalytic_activity:
+        text: catalytic_activity
+        description: A modulation mechanism mediated by through the catalytic activity
+          of the effector on the target.
+        is_a: modulation
+      chemical_modification:
+        text: chemical_modification
+        description: A modulation mechanism mediated by a protein/complex effector
+          altering a small molecule by modifying it or converting it to something
+          else.
+        is_a: modulation
+      relocalization:
+        text: relocalization
+        description: A modulation mechanism mediated by an effector that alters the
+          localization of a target in the cell or body.
+        is_a: modulation
+      isomerization:
+        text: isomerization
+        description: A modulation mechanism mediated by an effector that alters the
+          isomeric conformation of a target.
+        is_a: modulation
+      signaling_mediated_control:
+        text: signaling_mediated_control
+        description: A modulation mechanism mediated by the activation or control
+          of signaling events that influence the some aspect of the target entity
+          (e.g. its activity, processing, transport, etc.).
+        is_a: modulation
+      immune_system_modulation:
+        text: immune_system_modulation
+        description: A modulation mechanism in which the actions of the effector on
+          the immune system ultimately mediate the affects a target.
+        is_a: modulation
+      vaccine_antigen:
+        text: vaccine_antigen
+        description: An immune system modulation mechanism in which a vaccine mediates
+          its effect through the activation of the immune system against the target.
+        is_a: immune_system_modulation
+      post_transcriptional_regulation:
+        text: post_transcriptional_regulation
+        description: A modulation mechanism which controls expression of a target
+          gene at the RNA level after a gene has been transcribed into messenger RNA
+          (mRNA).
+        is_a: modulation
+      molecular_modification:
+        text: molecular_modification
+        description: A modulation mechanism through which an effect is mediated by
+          the modification of a target, through addition of chemical moieties such
+          phosphate groups, ubiquitin, lipids, etc., which alter its activity or cellular
+          behavior.
+        is_a: modulation
+      phosphorylation:
+        text: phosphorylation
+        is_a: molecular_modification
+      dephosphorylation:
+        text: dephosphorylation
+        is_a: molecular_modification
+      neddylation:
+        text: neddylation
+        is_a: molecular_modification
+      deneddylation:
+        text: deneddylation
+        is_a: molecular_modification
+      lipidation:
+        text: lipidation
+        is_a: molecular_modification
+      palmitoylation:
+        text: palmitoylation
+        is_a: lipidation
+      myristoylation:
+        text: myristoylation
+        is_a: lipidation
+      tyrosination:
+        text: tyrosination
+        is_a: molecular_modification
+      carboxylation:
+        text: carboxylation
+        is_a: molecular_modification
+      ubiquitination:
+        text: ubiquitination
+        is_a: molecular_modification
+      monoubiquitination:
+        text: monoubiquitination
+        is_a: ubiquitination
+      polyubiquitination:
+        text: polyubiquitination
+        is_a: ubiquitination
+      deubiquitination:
+        text: deubiquitination
+        is_a: molecular_modification
+      sulfation:
+        text: sulfation
+        is_a: molecular_modification
+      reduction:
+        text: reduction
+        description: A molecular modification mechanism in which an effector modifies
+          a target substrate via a reduction reaction.
+        is_a: molecular_modification
+      oxidation:
+        text: oxidation
+        description: A molecular modification mechanism in which an effector modifies
+          a target substrate via an oxidation reaction.
+        is_a: molecular_modification
+      acetylation:
+        text: acetylation
+        is_a: molecular_modification
+      deacetylation:
+        text: deacetylation
+        is_a: molecular_modification
+      glycosylation:
+        text: glycosylation
+        is_a: molecular_modification
+      deglycosylation:
+        text: deglycosylation
+        is_a: molecular_modification
+      methylation:
+        text: methylation
+        is_a: molecular_modification
+      trimethylation:
+        text: trimethylation
+        is_a: methylation
+      demethylation:
+        text: demethylation
+        is_a: molecular_modification
+      sumoylation:
+        text: sumoylation
+        is_a: molecular_modification
+      desumoylation:
+        text: desumoylation
+        is_a: molecular_modification
+      ADP-ribosylation:
+        text: ADP-ribosylation
+        is_a: molecular_modification
+      de-ADP-ribosylation:
+        text: de-ADP-ribosylation
+        is_a: molecular_modification
+      ampylation:
+        text: ampylation
+        description: A molecular modification involving the addition of an adenylyl
+          (AMP) moiety to a substrate protein residue.
+        is_a: molecular_modification
+      hydroxylation:
+        text: hydroxylation
+        is_a: molecular_modification
+      s_nitrosylation:
+        text: s_nitrosylation
+        is_a: molecular_modification
   LogicalInterpretationEnum:
     name: LogicalInterpretationEnum
     permissible_values:
@@ -1089,6 +1627,27 @@ enums:
         text: aggregator_knowledge_source
       supporting_data_source:
         text: supporting_data_source
+  AffinityParameterEnum:
+    name: AffinityParameterEnum
+    description: The types of parameters that can be used to describe the affinity
+      between two entities, characteristically chemicals and proteins.
+    permissible_values:
+      pIC50:
+        text: pIC50
+        description: Negative logarithm of the molar concentration of a chemical that
+          produces a 50% inhibition of a function
+      pEC50:
+        text: pEC50
+        description: Negative logarithm of the molar concentration of a chemical that
+          produces a 50% excitation of a function
+      pAC50:
+        text: pAC50
+      pXC50:
+        text: pXC50
+      pKi:
+        text: pKi
+      pKd:
+        text: pKd
   FDAIDAAdverseEventEnum:
     name: FDAIDAAdverseEventEnum
     description: 'please consult with the FDA guidelines as proposed in this document:
@@ -1153,51 +1712,51 @@ enums:
         text: manual_agent
         description: A human agent who is responsible for generating a statement of
           knowledge. The human may utilize computationally generated information as
-          evidence for the resulting knowledge,  but the human is the one who ultimately
-          interprets/reasons with  this evidence to produce a statement of knowledge.
+          evidence for the resulting knowledge, but the human is the one who ultimately
+          interprets/reasons with this evidence to produce a statement of knowledge.
       automated_agent:
         text: automated_agent
         description: An automated agent, typically a software program or tool, that
-          is  responsible for generating a statement of knowledge. Human contribution  to
-          the knowledge creation process ends with the definition and coding of algorithms
-          or analysis pipelines that get executed by the automated agent.
+          is responsible for generating a statement of knowledge. Human contribution
+          to the knowledge creation process ends with the definition and coding of
+          algorithms or analysis pipelines that get executed by the automated agent.
       data_analysis_pipeline:
         text: data_analysis_pipeline
         description: An automated agent that executes an analysis workflow over data
-          and  reports the direct results of the analysis. These typically report  statistical
+          and reports the direct results of the analysis. These typically report statistical
           associations/correlations between variables in the input dataset, and do
           not interpret/infer broader conclusions from associations the analysis reveals
           in the data.
         is_a: automated_agent
         notes:
-        - If an analysis pipeline includes any rules for generating broader  conclusions
+        - If an analysis pipeline includes any rules for generating broader conclusions
           based on the dataset-specific statistical correlations it calculates (e.g.
-          create a 'treats' edge when the analysis reveals a  drug-disease correlation
-          in the data with statistical scores that meet a  certain threshold) - we
+          create a 'treats' edge when the analysis reveals a drug-disease correlation
+          in the data with statistical scores that meet a certain threshold) - we
           would consider this agent to be a Computational Model rather than just a
           Data Analysis Pipeline.
       computational_model:
         text: computational_model
         description: An automated agent that generates knowledge statements (typically
           predictions) based on rules/logic explicitly encoded in an algorithm (e.g.
-          heuristic models, supervised classifiers), or learned from patterns  observed
+          heuristic models, supervised classifiers), or learned from patterns observed
           in data (e.g. ML models, unsupervised classifiers).
         is_a: automated_agent
         notes:
-        - The bar is quite low relatively for what is considered to be a  ‘computational
-          model’ by our definition. Even agents/tools that apply  simple rules or
-          logic to the output of an ingest or analysis pipeline to allow for a stronger
-          or more general conclusion to be stated can  qualify an agent as a model.
-          For example, an ingest pipeline that applies rules to its ingest of  clinical
-          trials data to create a 'treats' prediction edge when the  source reports
+        - The bar is quite low relatively for what is considered to be a ‘computational
+          model’ by our definition. Even agents/tools that apply simple rules or logic
+          to the output of an ingest or analysis pipeline to allow for a stronger
+          or more general conclusion to be stated can qualify an agent as a model.
+          For example, an ingest pipeline that applies rules to its ingest of clinical
+          trials data to create a 'treats' prediction edge when the source reports
           a drug to be in phase 2 or 3 trials represents a computational model because
           it is automatically drawing a stronger conclusion than the source reports,
           based on logic encoded in the ingest pipeline. Similarly, a data analysis
-          pipeline that is extended with rules to  automatically generate broader
-          conclusions based on dataset-specific statistical correlations (e.g. create
-          a 'treats' edge when the analysis reveals a drug-disease correlation in
-          the data with statistical scores  that meet a certain threshold), would
-          also qualify as a computational  model by our definition.
+          pipeline that is extended with rules to automatically generate broader conclusions
+          based on dataset-specific statistical correlations (e.g. create a 'treats'
+          edge when the analysis reveals a drug-disease correlation in the data with
+          statistical scores that meet a certain threshold), would also qualify as
+          a computational model by our definition.
       text_mining_agent:
         text: text_mining_agent
         description: An automated agent that uses Natural Language Processing to recognize
@@ -1205,35 +1764,35 @@ enums:
           semantics (e.g. as an edge in a knowledge graph).
         is_a: automated_agent
         notes:
-        - The original statement in the source text is typically made by a human /  manual
-          agent, but if a specific encoding of this knowledge is produced by a text-mining
-          tool, it has an agent_type of 'text_mining_agent'. Examples of text mining
-          agents include SemmedDB, and the Translator Text-Mining Knowledge Provider.
-          Note that text-mining tools are prone to erroneous interpretation of  concepts
-          and relationships, and can fail to provide important details  about the
-          context in which the original knowledge was reported - so users should always
-          consult the source text for a text-mined statement to assess its veracity
-          and relevance.
+        - The original statement in the source text is typically made by a human /
+          manual agent, but if a specific encoding of this knowledge is produced by
+          a text-mining tool, it has an agent_type of 'text_mining_agent'. Examples
+          of text mining agents include SemmedDB, and the Translator Text-Mining Knowledge
+          Provider. Note that text-mining tools are prone to erroneous interpretation
+          of concepts and relationships, and can fail to provide important details
+          about the context in which the original knowledge was reported - so users
+          should always consult the source text for a text-mined statement to assess
+          its veracity and relevance.
       image_processing_agent:
         text: image_processing_agent
         description: An automated agent that processes images to generate textual
-          statements of  knowledge derived from the image and/or expressed in text
-          the image  depicts (e.g. via OCR).
+          statements of knowledge derived from the image and/or expressed in text
+          the image depicts (e.g. via OCR).
         is_a: automated_agent
       manual_validation_of_automated_agent:
         text: manual_validation_of_automated_agent
         description: A human agent reviews and validates/approves the veracity of
-          knowledge  that is initially generated by an automated agent.
+          knowledge that is initially generated by an automated agent.
         notes:
         - This term applies when a human was only involved in evaluating the veracity
-          of a knowledge statement that was generated by an automated agent. It is  important
-          to indicate when such manual review has occurred, because it can give a
-          user more confidence in an automated statement.
+          of a knowledge statement that was generated by an automated agent. It is
+          important to indicate when such manual review has occurred, because it can
+          give a user more confidence in an automated statement.
       not_provided:
         text: not_provided
         description: The agent type is not provided, typically because it cannot be
           determined from available information if the agent that generated the knowledge
-          is  manual or automated.
+          is manual or automated.
   KnowledgeLevelEnum:
     name: KnowledgeLevelEnum
     in_subset:
@@ -1243,11 +1802,11 @@ enums:
         text: knowledge_assertion
         description: A statement of purported fact that is put forth by an agent as
           true, based on assessment of direct evidence. Assertions are likely but
-          not  definitively true.
+          not definitively true.
         notes:
         - Knowledge Assertions are supported by direct evidence deemed sufficient
-          by some agent to support a confidence assertion of truth. Our certainty  in
-          this truth is not absolute, but is typically higher than for Predictions.
+          by some agent to support a confidence assertion of truth. Our certainty
+          in this truth is not absolute, but is typically higher than for Predictions.
         aliases:
         - assertion
       logical_entailment:
@@ -1257,12 +1816,12 @@ enums:
           part of finger, finger part of hand --> fingernail part of hand).
         notes:
         - These statements report entailed conclusions derived through dedictive inference.
-          They are not directly asserted by a source, but logically follow from statement(s)  a
-          source does make - and are necessarily true if their supporting premises
-          are true.  In practice, these will primarily be entailments based on logic
-          encoded in ontologies.  Examples include propagation of annotated knowledge
+          They are not directly asserted by a source, but logically follow from statement(s)
+          a source does make - and are necessarily true if their supporting premises
+          are true. In practice, these will primarily be entailments based on logic
+          encoded in ontologies. Examples include propagation of annotated knowledge
           to hierarchically-related concepts, across paths through a graph constructed
-          from transitive relationships, or sets of  relationships that support property
+          from transitive relationships, or sets of relationships that support property
           chain inference.
         aliases:
         - deductive_inference
@@ -1277,10 +1836,10 @@ enums:
           are drawn about a broader/global population based on data from a representative
           cohort. For example, a prediction that a drug may treat a particular disease
           based on its chemical similarity to known drugs that treat the disease,
-          and the fact that it can inhibit proteins  in a pathway that is associated
+          and the fact that it can inhibit proteins in a pathway that is associated
           with the disease As Predictions are based on weaker forms of inference and
-          evidence, they are typically  considered lower confidence statements as
-          compared to Knowledge Assertions and Logical Entailments.
+          evidence, they are typically considered lower confidence statements as compared
+          to Knowledge Assertions and Logical Entailments.
         aliases:
         - hypothesis
       statistical_association:
@@ -1292,31 +1851,31 @@ enums:
         notes:
         - Such statements report the direct results of some statistical analysis.
           Their scope is limited tp the cohort/dataset interrogated in the analysis,
-          and they do not make broader claims or draw  more meaningful conclusions
-          about the domain of discourse. Note however that such Statistical  Associations
+          and they do not make broader claims or draw more meaningful conclusions
+          about the domain of discourse. Note however that such Statistical Associations
           can be used as evidence to support a more pointed/precise Prediction or
-          Assertion  of knowledge. For example, e.g. a Statistical Association between
+          Assertion of knowledge. For example, e.g. a Statistical Association between
           'Metformin Prescription' and 'Diabetes Diagnosis' in EHR records could support
-          a Prediction that 'Metformin treats Diabetes',  or 'Metformin causes Diabetes'.
-          This 'treats' edge may have a knowledge_level of 'Prediction',  but the
-          provider could use the 'evidence_type' edge property to indicate that this
-          prediction is  based on a 'Statistical Association'. Because Statistical
-          Associations directly report analysis-specific  results, we can consider
-          them to be inherently true statements, whose broader utility is dependent
-          on  subsequent generalization of the reported result to a broader population,
-          and/or interpretation of the  result as support for a more meaningful statements
-          about the domain of discourse.
+          a Prediction that 'Metformin treats Diabetes', or 'Metformin causes Diabetes'.
+          This 'treats' edge may have a knowledge_level of 'Prediction', but the provider
+          could use the 'evidence_type' edge property to indicate that this prediction
+          is based on a 'Statistical Association'. Because Statistical Associations
+          directly report analysis-specific results, we can consider them to be inherently
+          true statements, whose broader utility is dependent on subsequent generalization
+          of the reported result to a broader population, and/or interpretation of
+          the result as support for a more meaningful statements about the domain
+          of discourse.
       observation:
         text: observation
         description: A statement reporting (and possibly quantifying) a phenomenon
-          that was observed to occur -  absent any analysis or interpretation that
+          that was observed to occur - absent any analysis or interpretation that
           generates a statistical association or supports a broader conclusion or
           inference.
         notes:
         - An observation that "56362 people self-reported taking melatonin to treat
           migraines" is agnostic to whether melatonin is an effective or approved
           treatment - it only claims that it was taken for this purpose. Such observations,
-          however, may be used as the basis for predicting that a  drug may be efficacious
+          however, may be used as the basis for predicting that a drug may be efficacious
           against a disease.
       not_provided:
         text: not_provided
@@ -1325,7 +1884,7 @@ enums:
         notes:
         - This term is most often applied for text-mined edges, as NLP tools are typically
           not able to detect a specific knowledge level for the concept relationships
-          they extract (e.g. whether the author  was predicting or asserting a relationship,
+          they extract (e.g. whether the author was predicting or asserting a relationship,
           or merely observed it to occur).
 classes:
   KnowledgeGraph:
@@ -1337,6 +1896,15 @@ classes:
   Edge:
     name: Edge
     description: An edge in a KGX graph, will be superclass for association
+  knowledge graph:
+    name: knowledge graph
+    description: A knowledge graph is a structured representation of knowledge in
+      the form of a graph, where nodes represent entities or concepts, and edges represent
+      relationships between them. Knowledge graphs are used to organize and connect
+      information from various sources, enabling better understanding, analysis, and
+      reasoning about complex domains.
+    abstract: true
+    tree_root: true
   mapping collection:
     name: mapping collection
     description: A collection of deprecated mappings.
@@ -1547,6 +2115,39 @@ classes:
       trial or experimental research investigation.
     is_a: information content entity
     abstract: true
+  concept count analysis result:
+    name: concept count analysis result
+    description: A result of a concept count analysis.
+    is_a: study result
+  observed expected frequency analysis result:
+    name: observed expected frequency analysis result
+    description: A result of a observed expected frequency analysis.
+    is_a: study result
+  relative frequency analysis result:
+    name: relative frequency analysis result
+    description: A result of a relative frequency analysis.
+    is_a: study result
+  chi squared analysis result:
+    name: chi squared analysis result
+    description: A result of a chi squared analysis.
+    is_a: study result
+  log odds analysis result:
+    name: log odds analysis result
+    description: A result of a log odds ratio analysis.
+    is_a: study result
+  text mining study result:
+    name: text mining study result
+    description: A study result that represents information extracted from text using
+      natural language processing techniques. This includes the extracted text, location
+      offsets within the source document, confidence scores, and other metadata related
+      to the text mining process.
+    is_a: study result
+  icees study result:
+    name: icees study result
+    description: A study result that represents a result, from a supporting Study,
+      which is specifically associated with an Integrated Clinical and Environmental
+      Exposures Service (ICEES) knowledge assertion.
+    is_a: study result
   study:
     name: study
     description: a detailed investigation and/or analysis
@@ -1576,30 +2177,6 @@ classes:
     close_mappings:
     - NCIT:C19984
     is_a: information content entity
-  concept count analysis result:
-    name: concept count analysis result
-    description: A result of a concept count analysis.
-    is_a: study result
-  observed expected frequency analysis result:
-    name: observed expected frequency analysis result
-    description: A result of a observed expected frequency analysis.
-    is_a: study result
-  relative frequency analysis result:
-    name: relative frequency analysis result
-    description: A result of a relative frequency analysis.
-    is_a: study result
-  text mining result:
-    name: text mining result
-    description: A result of text mining.
-    is_a: study result
-  chi squared analysis result:
-    name: chi squared analysis result
-    description: A result of a chi squared analysis.
-    is_a: study result
-  log odds analysis result:
-    name: log odds analysis result
-    description: A result of a log odds ratio analysis.
-    is_a: study result
   agent:
     name: agent
     id_prefixes:
@@ -2044,6 +2621,8 @@ classes:
     - CHEBI:23367
     - bioschemas:MolecularEntity
     is_a: chemical entity
+    mixins:
+    - ontology class
   chemical entity:
     name: chemical entity
     id_prefixes:
@@ -2181,6 +2760,8 @@ classes:
     - NCIT:C20401
     - SNOMEDCT:49616005
     is_a: chemical entity
+    mixins:
+    - ontology class
   nucleic acid entity:
     name: nucleic acid entity
     id_prefixes:
@@ -2787,6 +3368,8 @@ classes:
     narrow_mappings:
     - HsapDv:0000000
     is_a: organismal entity
+    mixins:
+    - ontology class
   individual organism:
     name: individual organism
     id_prefixes:
@@ -2837,6 +3420,8 @@ classes:
     narrow_mappings:
     - STY:T033
     is_a: biological entity
+    mixins:
+    - ontology class
     union_of:
     - disease
     - phenotypic feature
@@ -2970,6 +3555,7 @@ classes:
     - ZFA
     - FBbt
     - WBbt
+    - FMA
     description: A subcellular location, cell type or gross anatomical part
     in_subset:
     - model_organism_database
@@ -2998,6 +3584,7 @@ classes:
     is_a: organismal entity
     mixins:
     - physical essence
+    - ontology class
   cellular component:
     name: cellular component
     id_prefixes:
@@ -3093,7 +3680,15 @@ classes:
     - IUPHAR.FAMILY
     description: A union of gene loci or gene products. Frequently an identifier for
       one will be used as proxy for another
+    close_mappings:
+    - DRUGBANK:target
     is_a: macromolecular machine mixin
+    mixin: true
+  gene or gene product or gene family:
+    name: gene or gene product or gene family
+    description: A union of gene family or gene loci or gene products, useful to define
+      the association between a gene or gene product or gene family and some other
+      general class of entity (e.g. biological process or anatomical entity)
     mixin: true
   gene:
     name: gene
@@ -3597,7 +4192,7 @@ classes:
     description: The age group in which (disease) symptom manifestations appear.
     notes:
     - This class is in Biolink to support HP ontology annotations which use "onset"
-      (with terms from HP)  as an annotation on a disease to phenotypic feature association.  This
+      (with terms from HP) as an annotation on a disease to phenotypic feature association.  This
       should be the primary use case for this class.
     exact_mappings:
     - HP:0003674
@@ -3609,7 +4204,15 @@ classes:
     is_a: named thing
   clinical trial:
     name: clinical trial
-    is_a: clinical entity
+    id_prefixes:
+    - CLINICALTRIALS
+    description: A clinical trial is a research study that prospectively assigns human
+      participants or groups of humans to one or more health-related interventions
+      to evaluate the effects on health outcomes.
+    exact_mappings:
+    - NCIT:C71104
+    - SIO:001000
+    is_a: study
   clinical intervention:
     name: clinical intervention
     is_a: clinical entity
@@ -3671,17 +4274,17 @@ classes:
     - experimental condition
     exact_mappings:
     - XCO:0000000
-    is_a: ontology class
-    mixin: true
+    is_a: named thing
+    mixins:
+    - ontology class
   genomic background exposure:
     name: genomic background exposure
     description: A genomic background exposure is where an individual's specific genomic
       background of genes, sequence variants or other pre-existing genomic conditions
       constitute a kind of 'exposure' to the organism, leading to or influencing an
       outcome.
-    is_a: attribute
+    is_a: exposure event
     mixins:
-    - exposure event
     - gene grouping mixin
     - physical essence
     - genomic entity
@@ -3716,9 +4319,7 @@ classes:
     description: A pathological process, when viewed as an exposure, representing
       a precondition, leading to or influencing an outcome, e.g. autoimmunity leading
       to disease.
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   pathological anatomical structure:
     name: pathological anatomical structure
     description: An anatomical structure with the potential of have an abnormal or
@@ -3734,18 +4335,15 @@ classes:
     description: An abnormal anatomical structure, when viewed as an exposure, representing
       an precondition, leading to or influencing an outcome, e.g. thrombosis leading
       to an ischemic disease outcome.
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   disease or phenotypic feature exposure:
     name: disease or phenotypic feature exposure
     description: A disease or phenotypic feature state, when viewed as an exposure,
       represents an precondition, leading to or influencing an outcome, e.g. HIV predisposing
       an individual to infections; a relative deficiency of skin pigmentation predisposing
       an individual to skin cancer.
-    is_a: attribute
+    is_a: exposure event
     mixins:
-    - exposure event
     - pathological entity mixin
   chemical exposure:
     name: chemical exposure
@@ -3753,14 +4351,12 @@ classes:
     exact_mappings:
     - ECTO:9000000
     - SIO:001399
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   complex chemical exposure:
     name: complex chemical exposure
     description: A complex chemical exposure is an intake of a chemical mixture (e.g.
       gasoline), other than a drug.
-    is_a: attribute
+    is_a: exposure event
   drug exposure:
     name: drug exposure
     description: A drug exposure is an intake of a particular drug.
@@ -3773,8 +4369,6 @@ classes:
     broad_mappings:
     - SIO:001005
     is_a: chemical exposure
-    mixins:
-    - exposure event
   drug to gene interaction exposure:
     name: drug to gene interaction exposure
     description: drug to gene interaction exposure is a drug exposure is where the
@@ -3795,9 +4389,8 @@ classes:
     - SIO:001398
     broad_mappings:
     - MAXO:0000058
-    is_a: named thing
+    is_a: exposure event
     mixins:
-    - exposure event
     - chemical or drug or treatment
   biotic exposure:
     name: biotic exposure
@@ -3806,9 +4399,7 @@ classes:
     aliases:
     - viral exposure
     - bacterial exposure
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   geographic exposure:
     name: geographic exposure
     description: A geographic exposure is a factor relating to geographic proximity
@@ -3831,30 +4422,22 @@ classes:
     - dcid:TropicalDepressionEvent
     - dcid:WinterStoremEvent
     is_a: environmental exposure
-    mixins:
-    - exposure event
   environmental exposure:
     name: environmental exposure
     description: A environmental exposure is a factor relating to abiotic processes
       in the environment including sunlight (UV-B), atmospheric (heat, cold, general
       pollution) and water-born contaminants.
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   behavioral exposure:
     name: behavioral exposure
     description: A behavioral exposure is a factor relating to behavior impacting
       an individual.
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   socioeconomic exposure:
     name: socioeconomic exposure
     description: A socioeconomic exposure is a factor relating to social and financial
       status of an affected individual (e.g. poverty).
-    is_a: attribute
-    mixins:
-    - exposure event
+    is_a: exposure event
   outcome:
     name: outcome
     description: An entity that has the role of being the consequence of an exposure
@@ -3920,8 +4503,21 @@ classes:
     - rdf:Statement
     - owl:Axiom
     is_a: Edge
+  disease associated with response to chemical entity association:
+    name: disease associated with response to chemical entity association
+    description: A statistical association between a disease and a chemical entity
+      where the chemical entity has a therapeutic or adverse effect on the disease
+      progression, symptoms or outcomes in a patient, cell line, or any model system.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+    - response context qualifier
+    - response target context qualifier
   chemical entity assesses named thing association:
     name: chemical entity assesses named thing association
+    deprecated: 'True'
     is_a: association
   contributor association:
     name: contributor association
@@ -3983,6 +4579,44 @@ classes:
       ancestry usually inferred by sequence comparisons. The genes in a given family
       generally share common sequence motifs which generally map onto shared gene
       product structure-function relationships.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene family to gene or gene product or gene family association:
+    name: gene family to gene or gene product or gene family association
+    description: Relationship between a gene family and a contained gene or gene product
+      or gene family.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  gene or gene product or gene family to biological process or activity association:
+    name: gene or gene product or gene family to biological process or activity association
+    description: Relationship between a gene or gene product or gene family to a specified
+      biological process or activity (e.g. molecular activity, biological process
+      or pathway).
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  biological process or activity to gene or gene product or gene family association:
+    name: biological process or activity to gene or gene product or gene family association
+    description: Relationship between a biological processor activity (e.g. molecular
+      activity, biological process or pathway) to gene or gene product or gene family.
+    is_a: association
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  biological process or activity to biological process or activity association:
+    name: biological process or activity to biological process or activity association
+    description: Classification relationship between biological processes or activities
+      (e.g. coupling of two molecular activities;  assignment of molecular activity
+      to a pathway; implicating a pathway in a biological process; etc.)
     is_a: association
     defining_slots:
     - subject
@@ -4054,6 +4688,7 @@ classes:
   chemical to entity association mixin:
     name: chemical to entity association mixin
     description: An interaction between a chemical entity and another entity
+    deprecated: 'True'
     is_a: chemical entity to entity association mixin
     mixin: true
     defining_slots:
@@ -4064,20 +4699,18 @@ classes:
     mixin: true
     defining_slots:
     - subject
-  chemical to chemical association:
-    name: chemical to chemical association
+  chemical entity to chemical entity association:
+    name: chemical entity to chemical entity association
     description: A relationship between two chemical entities. This can encompass
       actual interactions as well as temporal causal edges, e.g. one chemical converted
       to another.
     is_a: association
-    mixins:
-    - chemical to entity association mixin
     defining_slots:
     - subject
     - object
   reaction to participant association:
     name: reaction to participant association
-    is_a: chemical to chemical association
+    is_a: chemical entity to chemical entity association
     defining_slots:
     - subject
     - predicate
@@ -4085,27 +4718,26 @@ classes:
   reaction to catalyst association:
     name: reaction to catalyst association
     is_a: reaction to participant association
-  chemical to chemical derivation association:
-    name: chemical to chemical derivation association
+  chemical entity to chemical derivation association:
+    name: chemical entity to chemical derivation association
     description: 'A causal relationship between two chemical entities, where the subject
       represents the upstream entity and the object represents the downstream. For
       any such association there is an implicit reaction: IF R has-input C1 AND R
       has-output C2 AND R enabled-by P AND R type Reaction THEN C1 derives-into C2
       catalyst qualifier P'
-    is_a: chemical to chemical association
+    is_a: chemical entity to chemical entity association
     defining_slots:
     - subject
     - predicate
     - object
-  chemical to disease or phenotypic feature association:
-    name: chemical to disease or phenotypic feature association
+  chemical entity to disease or phenotypic feature association:
+    name: chemical entity to disease or phenotypic feature association
     description: An interaction between a chemical entity and a phenotype or disease,
       where the presence of the chemical gives rise to or exacerbates the phenotype.
     narrow_mappings:
     - SIO:000993
     is_a: association
     mixins:
-    - chemical to entity association mixin
     - entity to disease or phenotypic feature association mixin
     defining_slots:
     - subject
@@ -4117,7 +4749,6 @@ classes:
       feature is a secondary undesirable effect.
     is_a: association
     mixins:
-    - chemical to entity association mixin
     - entity to disease or phenotypic feature association mixin
     - entity to feature or disease qualifiers mixin
     defining_slots:
@@ -4132,7 +4763,6 @@ classes:
       feature is a secondary, typically (but not always) undesirable effect.
     is_a: chemical or drug or treatment to disease or phenotypic feature association
     mixins:
-    - chemical to entity association mixin
     - entity to disease or phenotypic feature association mixin
     defining_slots:
     - subject
@@ -4153,18 +4783,21 @@ classes:
     description: Association that holds the relationship between a reaction and the
       pathway it participates in.
     is_a: association
-  chemical to pathway association:
-    name: chemical to pathway association
+  chemical entity to pathway association:
+    name: chemical entity to pathway association
     description: An interaction between a chemical entity and a biological process
       or pathway.
     exact_mappings:
     - SIO:001250
     is_a: association
-    mixins:
-    - chemical to entity association mixin
     defining_slots:
     - subject
     - object
+  chemical entity to biological process association:
+    name: chemical entity to biological process association
+    description: An association between a chemical entity and a biological process,
+      where the chemical entity has some effect on the biological process.
+    is_a: association
   named thing associated with likelihood of named thing association:
     name: named thing associated with likelihood of named thing association
     description: ''
@@ -4180,40 +4813,44 @@ classes:
     - population context qualifier
   chemical gene interaction association:
     name: chemical gene interaction association
-    description: describes a physical interaction between a chemical entity and a
-      gene or gene product. Any biological or chemical effect resulting from such
-      an interaction are out of scope, and covered by the ChemicalAffectsGeneAssociation
-      type (e.g. impact of a chemical on the abundance, activity, structure, etc,
-      of either participant in the interaction)
-    exact_mappings:
+    description: describes an interaction between a chemical entity and a gene or
+      gene product. Any biological or chemical effect resulting from such an interaction
+      are out of scope, and covered by the ChemicalAffectsGeneAssociation type (e.g.
+      impact of a chemical on the abundance, activity, structure, etc, of either participant
+      in the interaction)
+    broad_mappings:
     - SIO:001257
     is_a: association
-    mixins:
-    - chemical to entity association mixin
   gene regulates gene association:
     name: gene regulates gene association
     description: Describes a regulatory relationship between two genes or gene products.
     examples:
-    - value: JsonObj(subject='NCBIGene:551', predicate='regulates', qualified_predicte='causes',
+    - value: JsonObj(subject='NCBIGene:551', predicate='regulates', qualified_predicate='causes',
         object='NCBIGene:1636', object_aspect_qualifier='activity_or_abundance', object_direction_qualifier='downregulated')
     is_a: association
   process regulates process association:
     name: process regulates process association
     description: Describes a regulatory relationship between two genes or gene products.
     is_a: association
+  chemical affects biological entity association:
+    name: chemical affects biological entity association
+    description: Describes an effect that a chemical has on a biological entity (e.g.
+      an impact of on its abundance, activity,localization, processing, expression,
+      etc.)
+    is_a: association
   chemical affects gene association:
     name: chemical affects gene association
     description: Describes an effect that a chemical has on a gene or gene product
       (e.g. an impact of on its abundance, activity,localization, processing, expression,
       etc.)
-    is_a: association
+    is_a: chemical affects biological entity association
   gene affects chemical association:
     name: gene affects chemical association
     description: Describes an effect that a gene or gene product has on a chemical
       entity (e.g. an impact of on its abundance, activity, localization, processing,
       transport, etc.)
     examples:
-    - value: JsonObj(subject='TRPC4', predicate='affects', qualified_predicte='causes',
+    - value: JsonObj(subject='TRPC4', predicate='affects', qualified_predicate='causes',
         object='Barium', object_aspect_qualifier='transport', object_direction_qualifier='increased')
     is_a: association
   drug to gene association:
@@ -4294,6 +4931,16 @@ classes:
   entity to feature or disease qualifiers mixin:
     name: entity to feature or disease qualifiers mixin
     description: Qualifiers for entity to disease or phenotype associations.
+    is_a: frequency qualifier mixin
+    mixin: true
+  entity to feature or variant qualifiers mixin:
+    name: entity to feature or variant qualifiers mixin
+    description: Qualifiers for entity to variant associations.
+    is_a: frequency qualifier mixin
+    mixin: true
+  entity to feature or gene qualifiers mixin:
+    name: entity to feature or gene qualifiers mixin
+    description: Qualifiers for entity to gene associations.
     is_a: frequency qualifier mixin
     mixin: true
   feature or disease qualifiers to entity mixin:
@@ -4431,7 +5078,27 @@ classes:
     - case to entity association mixin
     defining_slots:
     - subject
+    - predicate
     - object
+  case to disease association:
+    name: case to disease association
+    description: An association between a Case (patient) and a Disease
+    is_a: association
+    mixins:
+    - case to entity association mixin
+  case to variant association:
+    name: case to variant association
+    description: Association between a Case and a Genetic Variant
+    is_a: association
+    mixins:
+    - case to entity association mixin
+  case to gene association:
+    name: case to gene association
+    description: Association between a Case and a Gene (e.g., indicating a gene of
+      interest for the case)
+    is_a: association
+    mixins:
+    - case to entity association mixin
   behavior to behavioral feature association:
     name: behavior to behavioral feature association
     description: An association between an mixture behavior and a behavioral feature
@@ -4493,7 +5160,6 @@ classes:
     - dcid:DiseaseGeneAssociation
     is_a: gene to disease or phenotypic feature association
     mixins:
-    - entity to disease association mixin
     - gene to entity association mixin
     defining_slots:
     - subject
@@ -4502,7 +5168,6 @@ classes:
     name: causal gene to disease association
     is_a: gene to disease association
     mixins:
-    - entity to disease association mixin
     - gene to entity association mixin
     defining_slots:
     - subject
@@ -4516,6 +5181,7 @@ classes:
     defining_slots:
     - subject
     - object
+    - predicate
   druggable gene to disease association:
     name: druggable gene to disease association
     is_a: gene to disease association
@@ -4857,6 +5523,22 @@ classes:
     is_a: anatomical entity to anatomical entity association
     defining_slots:
     - predicate
+  gene or gene product or gene family to anatomical entity association:
+    name: gene or gene product or gene family to anatomical entity association
+    description: An association between a gene or gene product or gene family and
+      an anatomical entity.
+    is_a: association
+    defining_slots:
+    - subject
+    - object
+  biological process or activity to anatomical entity association:
+    name: biological process or activity to anatomical entity association
+    description: An association between a biological process or activity and an anatomical
+      entity.
+    is_a: association
+    defining_slots:
+    - subject
+    - object
   organism taxon to entity association:
     name: organism taxon to entity association
     description: An association between an organism taxon and another entity
