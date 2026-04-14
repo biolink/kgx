@@ -403,11 +403,24 @@ prefixes:
   biolink:
     prefix_prefix: biolink
     prefix_reference: https://w3id.org/biolink/vocab/
+  METPO:
+    prefix_prefix: METPO
+    prefix_reference: https://w3id.org/metpo/
   uspto-patent:
     prefix_prefix: uspto-patent
     prefix_reference: http://www.uspto.gov/patent/grant/v1/
 default_prefix: https://w3id.org/biolink/kgx/schema-derived/
 enums:
+  BinaryRelationEnum:
+    name: BinaryRelationEnum
+    description: Mathematical binary relation qualifiers of a value in its context.
+    permissible_values:
+      less_than:
+        text: less_than
+      equal_to:
+        text: equal_to
+      greater_than:
+        text: greater_than
   ResponseEnum:
     name: ResponseEnum
     description: A response to a treatment or intervention
@@ -1579,9 +1592,9 @@ enums:
         text: tchem
         description: 'These targets do not have known drug or small molecule activities
           that satisfy the activity thresholds detailed below AND satisfy one or more
-          of the following criteria: target is above the cutoff criteria for Tdark
-          target is annotated with a Gene Ontology Molecular Function or Biological
-          Process leaf term(s) with an Experimental Evidence code'
+          of the following criteria: target is above the cutoff criteria for the target
+          is annotated with a Gene Ontology Molecular Function or Biological Process
+          leaf term(s) with an Experimental Evidence code'
       tdark:
         text: tdark
         description: 'These are targets about which virtually nothing is known. They
@@ -1609,8 +1622,17 @@ enums:
         text: oral
       absorption_through_the_skin:
         text: absorption_through_the_skin
+      injection:
+        text: injection
       intravenous_injection:
         text: intravenous_injection
+        is_a: injection
+      subcutaneous_injection:
+        text: subcutaneous_injection
+        is_a: injection
+      intramuscular_injection:
+        text: intramuscular_injection
+        is_a: injection
   ResourceRoleEnum:
     name: ResourceRoleEnum
     description: The role played by the information reource in serving as a source
@@ -1630,24 +1652,41 @@ enums:
   AffinityParameterEnum:
     name: AffinityParameterEnum
     description: The types of parameters that can be used to describe the affinity
-      between two entities, characteristically chemicals and proteins.
+      between two entities, characteristically chemicals and proteins. The values
+      are generally stated as the negative base 10 logarithm of the raw measurements.
     permissible_values:
       pIC50:
         text: pIC50
-        description: Negative logarithm of the molar concentration of a chemical that
-          produces a 50% inhibition of a function
+        description: Negative base 10 logarithm of the the inhibitory concentration
+          50% (IC50) measures the concentration needed to block or inhibit a biological
+          response.
       pEC50:
         text: pEC50
-        description: Negative logarithm of the molar concentration of a chemical that
-          produces a 50% excitation of a function
+        description: Negative base 10 logarithm of the molar concentration of a chemical
+          that produces a 50% excitation of a function
       pAC50:
         text: pAC50
       pXC50:
         text: pXC50
       pKi:
         text: pKi
+        description: Negative base 10 logarithm of the equilibrium binding affinity
+          for a ligand that reduces the activity of its binding partner. Ki represents
+          the concentration at which the inhibitor ligand occupies 50% of the receptor
+          sites when no competing ligand is present
+      pKon:
+        text: pKon
+        description: Negative base 10 logarithm of the association rate constant (Kon)
+          describes the rate at which molecules bind to each other.
+      pKoff:
+        text: pKoff
+        description: Negative base 10 logarithm of the dissociation rate constant
+          (koff) describes the rate at which they dissociate.
       pKd:
         text: pKd
+        description: Negative base 10 logarithm of the equilibrium dissociation constant
+          (KD) which is a measure of the binding affinity and is defined as the ratio
+          of koff to kon.
   FDAIDAAdverseEventEnum:
     name: FDAIDAAdverseEventEnum
     description: 'please consult with the FDA guidelines as proposed in this document:
@@ -1865,6 +1904,17 @@ enums:
           of the reported result to a broader population, and/or interpretation of
           the result as support for a more meaningful statements about the domain
           of discourse.
+      text_co_occurrence:
+        text: text_co_occurrence
+        description: A statement reporting that mentions of two concepts in some corpus
+          of text (e.g. the biomedical literature) occur together at a statistically
+          significant frequency - suggesting that a real-world biological or clinical
+          relationship may exist between the concepts.
+        notes:
+        - Such statements often utilize NLP/text-mining to identify concept mentions
+          in text, but the reported statement is generated by a data analysis pipeline
+          that performs calculations on mention counts and determines the strength
+          of their correlation.
       observation:
         text: observation
         description: A statement reporting (and possibly quantifying) a phenomenon
@@ -1886,6 +1936,30 @@ enums:
           not able to detect a specific knowledge level for the concept relationships
           they extract (e.g. whether the author was predicting or asserting a relationship,
           or merely observed it to occur).
+  GeneToPhenotypicFeaturePredicateEnum:
+    name: GeneToPhenotypicFeaturePredicateEnum
+    description: Enumeration of predicates permissible for use in gene to phenotypic
+      feature associations. This constrains the relationship types that can be used
+      between genes and phenotypic features.
+    permissible_values:
+      biolink:causes:
+        text: biolink:causes
+      biolink:contributes_to:
+        text: biolink:contributes_to
+      biolink:associated_with:
+        text: biolink:associated_with
+      biolink:has_phenotype:
+        text: biolink:has_phenotype
+  GeneToDiseasePredicateEnum:
+    name: GeneToDiseasePredicateEnum
+    description: Enumeration of predicates permissible for use in gene to disease
+      associations. This constrains the relationship types that can be used between
+      genes and diseases.
+    permissible_values:
+      biolink:contributes_to:
+        text: biolink:contributes_to
+      biolink:associated_with:
+        text: biolink:associated_with
 classes:
   KnowledgeGraph:
     name: KnowledgeGraph
@@ -2113,7 +2187,7 @@ classes:
       activity at any scale that is aimed at generating knowledge or hypotheses. This
       may include a single assay or computational analyses, or a larger scale clinical
       trial or experimental research investigation.
-    is_a: information content entity
+    is_a: named thing
     abstract: true
   concept count analysis result:
     name: concept count analysis result
@@ -2269,9 +2343,15 @@ classes:
     - evidence code
     exact_mappings:
     - ECO:0000000
-    is_a: information content entity
+    is_a: named thing
+    mixins:
+    - ontology class
     values_from:
     - eco
+  evidence:
+    name: evidence
+    description: Dereferences detailed evidence that supports an association
+    is_a: information content entity
   publication:
     name: publication
     id_prefixes:
@@ -2671,6 +2751,13 @@ classes:
     - chemical or drug or treatment
     - chemical entity or gene or gene product
     - chemical entity or protein or polypeptide
+  affinity measurement:
+    name: affinity measurement
+    description: The type of measurement describing the strength of an affinity between
+      two entities. For instance, if a chemical inhibits a protein with a pIC50 of
+      8.6, the affinity parameter is pIC50 and the affinity value is 8.6. The binary
+      relation, if given, qualifies the affinity as greater than, less than, or equal.
+    is_a: named thing
   small molecule:
     name: small molecule
     id_prefixes:
@@ -3422,9 +3509,6 @@ classes:
     is_a: biological entity
     mixins:
     - ontology class
-    union_of:
-    - disease
-    - phenotypic feature
   disease:
     name: disease
     id_prefixes:
@@ -3763,6 +3847,7 @@ classes:
     - GO
     - PR
     - REACT
+    - CHEMBL.TARGET
     - ComplexPortal
     description: A stable assembly of two or more macromolecules, i.e. proteins, nucleic
       acids, carbohydrates or lipids, in which at least one component is a protein
@@ -4745,8 +4830,8 @@ classes:
   chemical or drug or treatment to disease or phenotypic feature association:
     name: chemical or drug or treatment to disease or phenotypic feature association
     description: This association defines a relationship between a chemical or treatment
-      (or procedure) and a disease or phenotypic feature where the disease or phenotypic
-      feature is a secondary undesirable effect.
+      (or procedure) and a disease or phenotypic feature where the chemical or treatment
+      is used to treat, or is being studied to treat, the disease or phenotypic feature.
     is_a: association
     mixins:
     - entity to disease or phenotypic feature association mixin
@@ -4755,15 +4840,29 @@ classes:
     - subject
     - predicate
     - object
-  chemical or drug or treatment side effect disease or phenotypic feature association:
-    name: chemical or drug or treatment side effect disease or phenotypic feature
-      association
+  chemical or drug or treatment adverse event association:
+    name: chemical or drug or treatment adverse event association
     description: This association defines a relationship between a chemical or treatment
-      (or procedure) and a disease or phenotypic feature where the disesae or phenotypic
-      feature is a secondary, typically (but not always) undesirable effect.
-    is_a: chemical or drug or treatment to disease or phenotypic feature association
+      (or procedure) and a disease or phenotypic feature where the disease or phenotypic
+      feature is an untoward medical occurrence that happens during treatment, whether
+      or not considered related to the treatment.
+    is_a: association
     mixins:
     - entity to disease or phenotypic feature association mixin
+    - entity to feature or disease qualifiers mixin
+    defining_slots:
+    - subject
+    - predicate
+    - object
+  chemical or drug or treatment side effect association:
+    name: chemical or drug or treatment side effect association
+    description: This association defines a relationship between a chemical or treatment
+      (or procedure) and a disease or phenotypic feature where the disease or phenotypic
+      feature is an unintended, but predictable, secondary effect of the treatment.
+    is_a: association
+    mixins:
+    - entity to disease or phenotypic feature association mixin
+    - entity to feature or disease qualifiers mixin
     defining_slots:
     - subject
     - predicate
@@ -4820,6 +4919,14 @@ classes:
       in the interaction)
     broad_mappings:
     - SIO:001257
+    is_a: association
+  macromolecular machine has substrate association:
+    name: macromolecular machine has substrate association
+    description: Describes the relationship between an enzyme (usually a macromolecular
+      complex or gene product) and the molecules it acts on (substrate). The substrate
+      can be a chemical, a polypeptide, or a protein.
+    notes:
+    - Using macromolecular machine should cover cases of gene-protein conflation.
     is_a: association
   gene regulates gene association:
     name: gene regulates gene association
@@ -5123,27 +5230,20 @@ classes:
     mixin: true
     defining_slots:
     - subject
-  gene to disease or phenotypic feature association:
-    name: gene to disease or phenotypic feature association
+  gene to phenotypic feature association:
+    name: gene to phenotypic feature association
     comments:
     - NCIT:R176 refers to the inverse relationship
     - for use in describing the affect that the loss of function of a gene can have
       on exacerbating or ameliorating a symptom/phenotype
     - if the relationship of the statement using this predicate is statistical in
       nature, please use `associated with likelihood` or one of its children.
-    narrow_mappings:
+    exact_mappings:
     - WBVocab:Gene-Phenotype-Association
+    narrow_mappings:
     - dcid:DiseaseGeneAssociation
     - SIO:000983
     is_a: association
-    mixins:
-    - entity to phenotypic feature association mixin
-    - gene to entity association mixin
-  gene to phenotypic feature association:
-    name: gene to phenotypic feature association
-    exact_mappings:
-    - WBVocab:Gene-Phenotype-Association
-    is_a: gene to disease or phenotypic feature association
     mixins:
     - entity to phenotypic feature association mixin
     - gene to entity association mixin
@@ -5154,11 +5254,15 @@ classes:
     name: gene to disease association
     comments:
     - NCIT:R176 refers to the inverse relationship
+    - for use in describing the affect that the loss of function of a gene can have
+      on exacerbating or ameliorating a disease
+    - if the relationship of the statement using this predicate is statistical in
+      nature, please use `associated with likelihood` or one of its children.
     exact_mappings:
     - SIO:000983
     close_mappings:
     - dcid:DiseaseGeneAssociation
-    is_a: gene to disease or phenotypic feature association
+    is_a: association
     mixins:
     - gene to entity association mixin
     defining_slots:
@@ -5166,7 +5270,7 @@ classes:
     - object
   causal gene to disease association:
     name: causal gene to disease association
-    is_a: gene to disease association
+    is_a: association
     mixins:
     - gene to entity association mixin
     defining_slots:
@@ -5174,7 +5278,7 @@ classes:
     - object
   correlated gene to disease association:
     name: correlated gene to disease association
-    is_a: gene to disease association
+    is_a: association
     mixins:
     - entity to disease association mixin
     - gene to entity association mixin
@@ -5505,12 +5609,25 @@ classes:
     defining_slots:
     - subject
     - object
-  anatomical entity to anatomical entity part of association:
-    name: anatomical entity to anatomical entity part of association
+  anatomical entity has part anatomical entity association:
+    name: anatomical entity has part anatomical entity association
     description: A relationship between two anatomical entities where the relationship
-      is mereological, i.e the two entities are related by parthood. This includes
-      relationships between cellular components and cells, between cells and tissues,
-      tissues and whole organisms
+      is mereological, i.e the two entities are related by parthood, that is, the
+      subject is has the object entity as a part (the expected predicate is "biolink:has_part"
+      or suitable predicate slots inheriting from it, i.e., "biolink:has_plasma_membrane_part",  "biolink:has_variant_part",
+      etc.). This includes relationships between cells and cellular components, between
+      issues and cells, whole organisms and tissues.
+    is_a: anatomical entity to anatomical entity association
+    defining_slots:
+    - predicate
+  anatomical entity part of anatomical entity association:
+    name: anatomical entity part of anatomical entity association
+    description: A relationship between two anatomical entities where the relationship
+      is mereological, i.e the two entities are related by parthood, that is, the
+      subject is a part of the object entity (the expected predicate is "biolink:part_of"
+      or suitable predicate slots inheriting from it, i.e., "biolink:plasma_membrane_part_of",  "biolink:variant_part_of",
+      etc.). This includes relationships between cellular components and cells, between
+      cells and tissues, tissues and whole organisms.
     is_a: anatomical entity to anatomical entity association
     defining_slots:
     - predicate
