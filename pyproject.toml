@@ -18,7 +18,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 Click = "*"
 SPARQLWrapper = ">=1.8.2"
 bmt = "^1.4.6"

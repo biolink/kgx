@@ -1,4 +1,4 @@
-FROM python:3.9-bullseye as builder
+FROM python:3.10-bullseye as builder
 
 # https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
 ENV PYTHONFAULTHANDLER=1 \
@@ -22,7 +22,7 @@ COPY kgx kgx/
 RUN poetry build
 
 #######################################
-FROM python:3.9-slim-bullseye as runner
+FROM python:3.10-slim-bullseye as runner
 
 RUN useradd --create-home kgxuser
 WORKDIR /kgx

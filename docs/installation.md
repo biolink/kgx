@@ -1,6 +1,6 @@
 # Installation
 
-The installation for KGX requires Python 3.9 or greater.
+The installation for KGX requires Python 3.10 or greater.
 
 ## Installation for users
 
