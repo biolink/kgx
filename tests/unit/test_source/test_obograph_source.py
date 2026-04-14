@@ -44,6 +44,7 @@ def test_read_obograph1():
     assert "plasmid binding" in n1["synonym"]
 
     # related and narrow synonym
+    assert len(n1["related_synonym"]) == 3
     assert n1["related_synonym"] == ['structure-specific DNA binding','structure specific DNA binding','microtubule/chromatin interaction']
     assert n1["narrow_synonym"] == ['plasmid binding']
 
