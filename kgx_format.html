@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="KGX and Biolink Model JSON Schema Validation" href="kgx_biolink_validation.html" /><link rel="prev" title="Installation" href="installation.html" />
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="KGX and Biolink Model JSON Schema Validation" href="kgx_biolink_validation.html"><link rel="prev" title="Installation" href="installation.html">
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>KGX Specification - kgx documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.5ea377869091fd0449014c60fc090103.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/css/common.css" />
     <link rel="stylesheet" type="text/css" href="_static/css/notebooks.css" />
     
@@ -21,8 +21,8 @@
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -73,7 +73,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -88,34 +88,73 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -123,8 +162,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -132,16 +170,15 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -149,7 +186,6 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
   
   <span class="sidebar-brand-text">kgx  documentation</span>
   
@@ -162,22 +198,22 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">KGX Specification</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">KGX Specification</a><input aria-label="Toggle navigation of KGX Specification" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_biolink_validation.html">KGX and Biolink Model JSON Schema Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kgx_schema_generation.html">KGX Schema</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input aria-label="Toggle navigation of Reference" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/transformer.html">Transformer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/source.html">Source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/sink.html">Sink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/validator.html">KGX Validator</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/cli/index.html">KGX Command Line Interface</a><input aria-label="Toggle navigation of KGX Command Line Interface" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/kgx_cli.html">KGX CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/cli/cli_utils.html">CLI Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/graph_operations/index.html">Graph Operations</a><input aria-label="Toggle navigation of Graph Operations" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/clique_merge.html">Clique Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/graph_merge.html">Graph Merge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/summarize_graph.html">Summarize Graph</a></li>
@@ -190,7 +226,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference/graph_operations/remove_singleton_nodes.html">Remove Singleton Nodes</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/utilities/index.html">Utilities</a><input aria-label="Toggle navigation of Utilities" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/kgx_utils.html">KGX Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/graph_utils.html">Graph Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/utilities/rdf_utils.html">RDF Utils</a></li>
@@ -223,30 +259,34 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/kgx_format.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="kgx-specification">
-<h1>KGX Specification<a class="headerlink" href="#kgx-specification" title="Permalink to this heading">#</a></h1>
+<h1>KGX Specification<a class="headerlink" href="#kgx-specification" title="Link to this heading">¶</a></h1>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs. This document outlines the structure
 and organization of this format, detailing the required fields and their significance, along with examples in
 various formats.  KGX supports multiple serialization formats, including JSON, TSV, JSON Lines, and RDF Turtle.  Thus
 KGX is both a format specification and a toolkit for serializing data conformant to Biolink Model in a variety of
 formats.</p>
 <section id="quick-note-on-validation">
-<h2>Quick Note on Validation<a class="headerlink" href="#quick-note-on-validation" title="Permalink to this heading">#</a></h2>
+<h2>Quick Note on Validation<a class="headerlink" href="#quick-note-on-validation" title="Link to this heading">¶</a></h2>
 <p><strong>KGX uses the official <a class="reference external" href="https://w3id.org/biolink/biolink-model/biolink-model.json">Biolink Model JSON Schema</a> for validation.</strong></p>
 <p>The Biolink Model JSON Schema defines a root class called <code class="docutils literal notranslate"><span class="pre">KnowledgeGraph</span></code> with two key properties:</p>
 <ul class="simple">
@@ -269,17 +309,17 @@ and allow non-Biolink Model properties in an effort to be more inclusive of exis
 </div>
 </section>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
 <p>The KGX format is a serialization of Biolink Model compliant knowledge graphs. This specification defines
 how this format is structured and organized, describing the required fields and their significance,
 with examples in various formats.</p>
 </section>
 <section id="kgx-format">
-<h2>KGX Format<a class="headerlink" href="#kgx-format" title="Permalink to this heading">#</a></h2>
+<h2>KGX Format<a class="headerlink" href="#kgx-format" title="Link to this heading">¶</a></h2>
 <p>The KGX format represents Biolink Model compliant knowledge graphs as flat files that can be
 processed, subset, and exchanged easily. Each node or edge is represented with all properties that describe it.</p>
 <section id="node-record-elements">
-<h3>Node Record Elements<a class="headerlink" href="#node-record-elements" title="Permalink to this heading">#</a></h3>
+<h3>Node Record Elements<a class="headerlink" href="#node-record-elements" title="Link to this heading">¶</a></h3>
 <p>We refer to each serialization of a node as a Node record, with the following elements:</p>
 <p><strong>Base-level Required Elements:</strong></p>
 <ul class="simple">
@@ -319,7 +359,7 @@ processed, subset, and exchanged easily. Each node or edge is represented with a
 </ul>
 </section>
 <section id="edge-record-elements">
-<h3>Edge Record Elements<a class="headerlink" href="#edge-record-elements" title="Permalink to this heading">#</a></h3>
+<h3>Edge Record Elements<a class="headerlink" href="#edge-record-elements" title="Link to this heading">¶</a></h3>
 <p>Each serialization of an edge (Edge record) includes:</p>
 <p><strong>Base-level Required Elements:</strong></p>
 <ul class="simple">
@@ -377,7 +417,7 @@ when not provided by the user.  It will also assign Biolink categories to nodes 
 </section>
 </section>
 <section id="format-serializations">
-<h2>Format Serializations<a class="headerlink" href="#format-serializations" title="Permalink to this heading">#</a></h2>
+<h2>Format Serializations<a class="headerlink" href="#format-serializations" title="Link to this heading">¶</a></h2>
 <p>KGX supports multiple serialization formats for knowledge graphs.  KGX also has a very lightweight schema that imports
 the Biolink Model and makes two key adjustments to Biolink’s class hierarchy: it adds an is_a relationship between
 “biolink:NamedThing” and “kgx:Node” and an is_a relationship between “biolink:Association” and “kgx:Edge”</p>
@@ -431,7 +471,7 @@ For convenience, this is the base KGX schema:</p>
 </pre></div>
 </div>
 <section id="kgx-format-as-json">
-<h3>KGX format as JSON<a class="headerlink" href="#kgx-format-as-json" title="Permalink to this heading">#</a></h3>
+<h3>KGX format as JSON<a class="headerlink" href="#kgx-format-as-json" title="Link to this heading">¶</a></h3>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;nodes&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
@@ -463,7 +503,7 @@ For convenience, this is the base KGX schema:</p>
 </div>
 </section>
 <section id="kgx-format-as-tsv">
-<h3>KGX format as TSV<a class="headerlink" href="#kgx-format-as-tsv" title="Permalink to this heading">#</a></h3>
+<h3>KGX format as TSV<a class="headerlink" href="#kgx-format-as-tsv" title="Link to this heading">¶</a></h3>
 <p>KGX TSV format uses two files - one for nodes and another for edges.</p>
 <p><strong>nodes.tsv</strong></p>
 <div class="highlight-tsv notranslate"><div class="highlight"><pre><span></span>id	category	name	provided_by
@@ -484,12 +524,12 @@ urn:uuid:5b06e86f-d768-4cd9-ac27-abe31e95ab1e	HGNC:11603	biolink:contributes_to	
 </ul>
 </section>
 <section id="kgx-format-as-json-lines">
-<h3>KGX format as JSON Lines<a class="headerlink" href="#kgx-format-as-json-lines" title="Permalink to this heading">#</a></h3>
+<h3>KGX format as JSON Lines<a class="headerlink" href="#kgx-format-as-json-lines" title="Link to this heading">¶</a></h3>
 <p>The JSON Lines format provides a simple and efficient way to represent KGX data where each line contains a
 single JSON object representing either a node or an edge. This format combines the advantages of JSON
 (flexible schema, native support for lists and nested objects) with the streaming capabilities of line-oriented formats.</p>
 <section id="file-structure">
-<h4>File Structure<a class="headerlink" href="#file-structure" title="Permalink to this heading">#</a></h4>
+<h4>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h4>
 <p>A KGX JSON Lines <strong>bundle</strong> typically consists of two files:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">{filename}_nodes.jsonl</span></code>: Contains one node per line, each as a complete JSON object</p></li>
@@ -501,16 +541,16 @@ the JSON Lines format splits them into separate files for efficient streaming an
 validate against the same Biolink Model schema.</p>
 </section>
 <section id="node-record-format">
-<h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Permalink to this heading">#</a></h4>
+<h4>Node Record Format<a class="headerlink" href="#node-record-format" title="Link to this heading">¶</a></h4>
 <section id="required-properties">
-<h5>Required Properties<a class="headerlink" href="#required-properties" title="Permalink to this heading">#</a></h5>
+<h5>Required Properties<a class="headerlink" href="#required-properties" title="Link to this heading">¶</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): A CURIE that uniquely identifies the node in the graph</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> (array of strings): List of Biolink categories for the node, from the <a class="reference external" href="https://biolink.github.io/biolink-model/NamedThing">NamedThing</a> hierarchy</p></li>
 </ul>
 </section>
 <section id="common-optional-properties">
-<h5>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Permalink to this heading">#</a></h5>
+<h5>Common Optional Properties<a class="headerlink" href="#common-optional-properties" title="Link to this heading">¶</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (string): Human-readable name of the entity</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (string): Human-readable description of the entity</p></li>
@@ -521,9 +561,9 @@ validate against the same Biolink Model schema.</p>
 </section>
 </section>
 <section id="edge-record-format">
-<h4>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Permalink to this heading">#</a></h4>
+<h4>Edge Record Format<a class="headerlink" href="#edge-record-format" title="Link to this heading">¶</a></h4>
 <section id="id1">
-<h5>Required Properties<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h5>
+<h5>Required Properties<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code> (string): CURIE of the source node</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code> (string): Biolink predicate representing the relationship type</p></li>
@@ -533,7 +573,7 @@ validate against the same Biolink Model schema.</p>
 </ul>
 </section>
 <section id="id2">
-<h5>Common Optional Properties<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h5>
+<h5>Common Optional Properties<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h5>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (string): Unique identifier for the edge, often a UUID</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">relation</span></code> (string): Relation CURIE from a formal relation ontology (e.g., RO)</p></li>
@@ -546,7 +586,7 @@ validate against the same Biolink Model schema.</p>
 </section>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h4>
+<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h4>
 <p><strong>Node Example (nodes.jsonl)</strong>:</p>
 <p>Each line in a nodes.jsonl file represents a complete node record. Here are examples of different node types:</p>
 <p><strong>Example 1: Gene node with organism taxon</strong></p>
@@ -672,7 +712,7 @@ validate against the same Biolink Model schema.</p>
 </section>
 </section>
 <section id="usage-notes">
-<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Permalink to this heading">#</a></h3>
+<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>All field values should follow the KGX specification and Biolink Model requirements</p></li>
 <li><p>Arrays should be represented as JSON arrays (not pipe-delimited strings)</p></li>
@@ -680,7 +720,7 @@ validate against the same Biolink Model schema.</p>
 </ul>
 </section>
 <section id="kgx-format-as-rdf-turtle">
-<h3>KGX format as RDF Turtle<a class="headerlink" href="#kgx-format-as-rdf-turtle" title="Permalink to this heading">#</a></h3>
+<h3>KGX format as RDF Turtle<a class="headerlink" href="#kgx-format-as-rdf-turtle" title="Link to this heading">¶</a></h3>
 <div class="highlight-ttl notranslate"><div class="highlight"><pre><span></span>@<span class="nv">prefix</span><span class="w"> </span><span class="nv">OBO</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">purl</span>.<span class="nv">obolibrary</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">obo</span><span class="o">/&gt;</span><span class="w"> </span>.
 @<span class="nv">prefix</span><span class="w"> </span><span class="nv">biolink</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">https</span>:<span class="o">//</span><span class="nv">w3id</span>.<span class="nv">org</span><span class="o">/</span><span class="nv">biolink</span><span class="o">/</span><span class="nv">vocab</span><span class="o">/&gt;</span><span class="w"> </span>.
 @<span class="nv">prefix</span><span class="w"> </span><span class="nv">rdf</span>:<span class="w"> </span><span class="o">&lt;</span><span class="nv">http</span>:<span class="o">//</span><span class="nv">www</span>.<span class="nv">w3</span>.<span class="nv">org</span><span class="o">/</span><span class="mi">1999</span><span class="o">/</span><span class="mi">02</span><span class="o">/</span><span class="mi">22</span><span class="o">-</span><span class="nv">rdf</span><span class="o">-</span><span class="nv">syntax</span><span class="o">-</span><span class="nv">ns</span>#<span class="o">&gt;</span><span class="w"> </span>.
@@ -806,15 +846,10 @@ validate against the same Biolink Model schema.</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/furo.js"></script>
-    <script src="_static/design-tabs.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     </body>
 </html>
