@@ -394,14 +394,14 @@ wheels = [
 
 [[package]]
 name = "click"
-version = "8.3.2"
+version = "8.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/57/75/31212c6bf2503fdf920d87fee5d7a86a2e3bcf444984126f13d8e4016804/click-8.3.2.tar.gz", hash = "sha256:14162b8b3b3550a7d479eafa77dfd3c38d9dc8951f6f69c78913a8f9a7540fd5", size = 302856, upload-time = "2026-04-03T19:14:45.118Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/20/71885d8b97d4f3dde17b1fdb92dbd4908b00541c5a3379787137285f602e/click-8.3.2-py3-none-any.whl", hash = "sha256:1924d2c27c5653561cd2cae4548d1406039cb79b858b747cfea24924bbc1616d", size = 108379, upload-time = "2026-04-03T19:14:43.505Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/d4/7ebdbd03970677812aac39c869717059dbb71a4cfc033ca6e5221787892c/click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2", size = 98188, upload-time = "2024-12-21T18:38:41.666Z" },
 ]
 
 [[package]]
@@ -1567,7 +1567,7 @@ docs = [
 requires-dist = [
     { name = "bmt", specifier = ">=1.4.6,<2.0.0" },
     { name = "cachetools", specifier = ">=5.0.0,<6.0.0" },
-    { name = "click" },
+    { name = "click", specifier = ">=8.0,<8.2" },
     { name = "deprecation", specifier = ">=2.1.0,<3.0.0" },
     { name = "docker", specifier = ">=7.0.0,<8.0.0" },
     { name = "docutils", specifier = ">=0.18.1" },
@@ -1840,7 +1840,7 @@ wheels = [
 
 [[package]]
 name = "linkml"
-version = "1.9.3"
+version = "1.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "antlr4-python3-runtime" },
@@ -1869,9 +1869,9 @@ dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/cf/ab84deb8130d63d9a7baa52cd88b134ea9ad2186eeb4df6cdd3b837e6058/linkml-1.9.3.tar.gz", hash = "sha256:96de208001dae5bde43092ce0f3fab61df4c85231939476dc3f93d0b5b0d4590", size = 263725, upload-time = "2025-07-30T19:58:33.837Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/57/e480d016c94ac1dcfeccde3fd751fa1464545e3de2446c9ebf9fe66dd393/linkml-1.10.0.tar.gz", hash = "sha256:ca70bba1474bc7de37edd33005a8a556d4718190584ab2c88f7c46d090477d55", size = 334216, upload-time = "2026-02-25T17:13:32.086Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/91/54/5bb8f9fd0fbdd076a631bcae7c5aa3f8c1447e04650b79e45f77fab661e4/linkml-1.9.3-py3-none-any.whl", hash = "sha256:77f2e566ce03f897bc0a9dc49d4d933a859d2a78ef56f080c9a0f8415becb884", size = 336474, upload-time = "2025-07-30T19:58:30.483Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/54/0d01e407b3b8657cb1a58031e3f23e7039d26338173a130a3be30fdd8e0b/linkml-1.10.0-py3-none-any.whl", hash = "sha256:2d4934f000977489352307336267a8a4270de3156187c3394d542a0a4b8130e5", size = 434438, upload-time = "2026-02-25T17:13:29.068Z" },
 ]
 
 [[package]]
