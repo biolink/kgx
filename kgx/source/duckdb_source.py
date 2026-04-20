@@ -287,16 +287,24 @@ class DuckDbSource(Source):
         Process a node dictionary into KGX format.
         """
         try:
+            # Get category, ensuring it's a list for downstream processing
+            category = node_data.get('category', 'biolink:NamedThing')
+            if isinstance(category, str):
+                # Handle pipe-delimited categories or single category
+                category = [c.strip() for c in category.split('|') if c.strip()]
+            elif not isinstance(category, list):
+                category = [str(category)] if category else ['biolink:NamedThing']
+
             node = {
                 'id': node_data['id'],
-                'category': node_data.get('category', 'biolink:NamedThing')
+                'category': category
             }
-            
+
             # Add other properties
             for key, value in node_data.items():
                 if key not in ['id', 'category'] and value is not None:
                     node[key] = value
-            
+
             # Return (node_id, node_data) format expected by transformer
             return (node_data['id'], node)
         except Exception as e:
