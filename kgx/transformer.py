@@ -1,5 +1,9 @@
+import copy
 import itertools
+import multiprocessing
 import os
+import shutil
+import tempfile
 from os.path import exists
 from sys import stderr
 from typing import Dict, Generator, List, Optional, Callable, Set
@@ -78,6 +82,18 @@ SINK_MAP = {
 log = get_logger()
 
 
+def _parallel_worker(args):
+    """
+    Worker entry point for Transformer parallel mode. Runs in a child
+    process spawned by Transformer._run_parallel. Builds a fresh
+    Transformer and runs a single-threaded streaming transform over a
+    pre-computed source partition, writing to a part file.
+    """
+    input_args, output_args = args
+    t = Transformer(stream=True)
+    t.transform(input_args=input_args, output_args=output_args)
+
+
 class Transformer(ErrorDetecting):
     """
     The Transformer class is responsible for transforming data from one
@@ -137,6 +153,7 @@ class Transformer(ErrorDetecting):
         input_args: Dict,
         output_args: Optional[Dict] = None,
         inspector: Optional[Callable[[GraphEntityType, List], None]] = None,
+        parallel: int = 1,
     ) -> None:
         """
         Transform an input source and write to an output sink.
@@ -161,6 +178,12 @@ class Transformer(ErrorDetecting):
         inspector: Optional[Callable[[GraphEntityType, List], None]]
             Optional Callable to 'inspect' source records during processing.
         """
+        if parallel and parallel > 1:
+            if self._run_parallel(input_args, output_args, inspector, parallel):
+                return
+            # _run_parallel returned False: prerequisites not met, fall through
+            # to sequential processing.
+
         sources = []
         generators = []
         input_format = input_args["format"]
@@ -317,6 +340,98 @@ class Transformer(ErrorDetecting):
         for s in sources:
             for k, v in s.get_infores_catalog().items():
                 self._infores_catalog[k] = v
+
+    def _run_parallel(
+        self,
+        input_args: Dict,
+        output_args: Optional[Dict],
+        inspector: Optional[Callable[[GraphEntityType, List], None]],
+        parallel: int,
+    ) -> bool:
+        """
+        Try to run a parallel multiprocessing transform. Returns True if the
+        parallel run completed; False if prerequisites aren't met (in which
+        case the caller should fall back to sequential).
+
+        Prerequisites:
+        - ``output_args`` must be set, must name a single output ``filename``,
+          and must use a sink format that is safe to byte-concatenate
+          across part files (currently: ``nt`` without gzip compression).
+        - The source class must implement ``partitions(filename, n)``.
+        - ``inspector`` is not supported in parallel mode (would not run in
+          the parent process).
+        - Exactly one input filename.
+        """
+        if output_args is None:
+            log.warning("parallel mode requires output_args; falling back to sequential")
+            return False
+        if inspector is not None:
+            log.warning("parallel mode does not support inspector; falling back to sequential")
+            return False
+
+        out_format = output_args.get("format")
+        out_compression = output_args.get("compression")
+        if out_format != "nt" or out_compression == "gz":
+            log.warning(
+                "parallel mode currently supports only format='nt' without gzip; "
+                "falling back to sequential"
+            )
+            return False
+
+        out_filename = output_args.get("filename")
+        if not isinstance(out_filename, str):
+            log.warning("parallel mode requires output_args['filename'] to be a single string path")
+            return False
+
+        input_format = input_args.get("format")
+        source_cls = SOURCE_MAP.get(input_format)
+        if source_cls is None or not hasattr(source_cls, "partitions"):
+            log.warning(
+                f"parallel mode: source format '{input_format}' does not support "
+                "partitioning; falling back to sequential"
+            )
+            return False
+
+        in_filenames = input_args.get("filename")
+        if not isinstance(in_filenames, list) or len(in_filenames) != 1:
+            log.warning(
+                "parallel mode requires exactly one input filename; falling back to sequential"
+            )
+            return False
+
+        # Compute partitions using a throwaway source instance.
+        probe = source_cls(self)
+        probe_kwargs = {k: v for k, v in input_args.items() if k != "filename"}
+        partitions = probe.partitions(in_filenames[0], parallel, **probe_kwargs)
+
+        tmpdir = tempfile.mkdtemp(prefix="kgx_parallel_")
+        try:
+            tasks = []
+            part_files = []
+            for i, part in enumerate(partitions):
+                part_path = os.path.join(tmpdir, f"part_{i:04d}.nt")
+                part_files.append(part_path)
+                worker_input = copy.deepcopy(input_args)
+                worker_input["filename"] = list(in_filenames)
+                worker_input.update(part)
+                worker_output = copy.deepcopy(output_args)
+                worker_output["filename"] = part_path
+                tasks.append((worker_input, worker_output))
+
+            ctx = multiprocessing.get_context("spawn")
+            with ctx.Pool(parallel) as pool:
+                pool.map(_parallel_worker, tasks)
+
+            with open(out_filename, "wb") as out_fh:
+                for pf in part_files:
+                    with open(pf, "rb") as part_fh:
+                        shutil.copyfileobj(part_fh, out_fh, length=4 * 1024 * 1024)
+                    # Free disk eagerly: part files can be tens of GB each.
+                    os.unlink(pf)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+        return True
 
     def get_infores_catalog(self):
         """
