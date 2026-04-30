@@ -79,6 +79,9 @@ class RdfSink(Sink):
         self.format = format
         if format not in {"nt", "jelly"}:
             raise ValueError(f"Unsupported RDF serialization format '{self.format}'")
+        # N-Triples is line-oriented and safe to concatenate; Jelly is a
+        # framed binary stream and is not.
+        self.is_concatenable = (format == "nt") and (compression != "gz")
 
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')

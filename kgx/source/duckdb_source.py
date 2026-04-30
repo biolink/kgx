@@ -49,6 +49,64 @@ class DuckDbSource(Source):
         if 'edges' not in table_names:
             raise ValueError("Required 'edges' table not found in DuckDB database")
 
+    def partitions(
+        self,
+        filename: str,
+        n_partitions: int,
+        **kwargs: Any,
+    ) -> List[Dict[str, int]]:
+        """
+        Compute disjoint (node, edge) ranges that together cover the full
+        contents of the given DuckDB file. Each returned dict can be passed
+        as keyword arguments to :meth:`parse` to read just that partition.
+
+        Parameters
+        ----------
+        filename: str
+            Path to the DuckDB database file
+        n_partitions: int
+            Number of partitions to produce
+
+        Returns
+        -------
+        List[Dict[str, int]]
+            One dict per partition with keys ``node_start``, ``node_end``,
+            ``edge_start``, ``edge_end``.
+        """
+        if duckdb is None:
+            raise ImportError("duckdb package is required for DuckDbSource")
+        if n_partitions < 1:
+            raise ValueError("n_partitions must be >= 1")
+
+        conn = duckdb.connect(filename, read_only=True)
+        try:
+            node_count = conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
+            edge_count = conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
+        finally:
+            conn.close()
+
+        def _chunks(total: int, n: int) -> List[Tuple[int, int]]:
+            base, rem = divmod(total, n)
+            ranges = []
+            offset = 0
+            for i in range(n):
+                size = base + (1 if i < rem else 0)
+                ranges.append((offset, offset + size))
+                offset += size
+            return ranges
+
+        node_ranges = _chunks(node_count, n_partitions)
+        edge_ranges = _chunks(edge_count, n_partitions)
+        return [
+            {
+                "node_start": node_ranges[i][0],
+                "node_end": node_ranges[i][1],
+                "edge_start": edge_ranges[i][0],
+                "edge_end": edge_ranges[i][1],
+            }
+            for i in range(n_partitions)
+        ]
+
     def parse(
         self,
         filename: str,
@@ -88,6 +146,11 @@ class DuckDbSource(Source):
             A generator for records
 
         """
+        node_start = kwargs.pop("node_start", None)
+        node_end = kwargs.pop("node_end", None)
+        edge_start = kwargs.pop("edge_start", None)
+        edge_end = kwargs.pop("edge_end", None)
+
         self._connect_db(filename)
 
         self.set_provenance_map(kwargs)
@@ -95,9 +158,28 @@ class DuckDbSource(Source):
         kwargs["is_directed"] = is_directed
         self.node_filters = node_filters
         self.edge_filters = edge_filters
-        
+
+        # Partition mode: independent (node_start, node_end) and
+        # (edge_start, edge_end) ranges. Used by Transformer's parallel mode.
+        if any(v is not None for v in (node_start, node_end, edge_start, edge_end)):
+            ns = node_start or 0
+            ne = node_end if node_end is not None else 0
+            es = edge_start or 0
+            ee = edge_end if edge_end is not None else 0
+            if ne > ns:
+                for page in self.get_pages(
+                    self.get_nodes, ns, ne, page_size=page_size, **kwargs
+                ):
+                    yield from self.load_nodes(page)
+            if ee > es:
+                for page in self.get_pages(
+                    self.get_edges, es, ee, page_size=page_size, **kwargs
+                ):
+                    yield from self.load_edges(page)
+            return
+
         record_count = 0
-        
+
         # Process nodes first
         for page in self.get_pages(
             self.get_nodes, start, end, page_size=page_size, **kwargs
