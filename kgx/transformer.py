@@ -422,6 +422,8 @@ class Transformer(ErrorDetecting):
                 for pf in part_files:
                     with open(pf, "rb") as part_fh:
                         shutil.copyfileobj(part_fh, out_fh, length=4 * 1024 * 1024)
+                    # Free disk eagerly: part files can be tens of GB each.
+                    os.unlink(pf)
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
