@@ -729,7 +729,15 @@ def arangodb_upload_wrapper(
     required=False,
     type=int,
     default=1,
-    help="Number of processes to use",
+    help="Number of processes to use (transform-config mode: parallelizes across sources)",
+)
+@click.option(
+    "--parallel",
+    required=False,
+    type=int,
+    default=1,
+    help="Number of worker processes for partitioned export within a single transform "
+    "(currently DuckDB source + N-Triples sink without gzip; falls back to sequential otherwise)",
 )
 def transform_wrapper(
     inputs: List[str],
@@ -745,6 +753,7 @@ def transform_wrapper(
     source: Optional[List],
     knowledge_sources: Optional[List[Tuple[str, str]]],
     processes: int,
+    parallel: int,
     infores_catalog: Optional[str] = None,
 ):
     """
@@ -798,6 +807,7 @@ def transform_wrapper(
             source=source,
             knowledge_sources=knowledge_sources,
             processes=processes,
+            parallel=parallel,
             infores_catalog=infores_catalog,
         )
         exit(0)

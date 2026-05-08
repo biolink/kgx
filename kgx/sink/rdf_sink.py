@@ -26,6 +26,20 @@ log = get_logger()
 property_mapping: OrderedDict = OrderedDict()
 reverse_property_mapping: OrderedDict = OrderedDict()
 
+_DEFAULT_URI_TYPES: frozenset = frozenset({
+    "biolink:type",
+    "biolink:category",
+    "biolink:subject",
+    "biolink:object",
+    "biolink:relation",
+    "biolink:predicate",
+    "rdf:type",
+    "rdf:subject",
+    "rdf:predicate",
+    "rdf:object",
+    "type",
+})
+
 
 class RdfSink(Sink):
     """
@@ -65,6 +79,9 @@ class RdfSink(Sink):
         self.format = format
         if format not in {"nt", "jelly"}:
             raise ValueError(f"Unsupported RDF serialization format '{self.format}'")
+        # N-Triples is line-oriented and safe to concatenate; Jelly is a
+        # framed binary stream and is not.
+        self.is_concatenable = (format == "nt") and (compression != "gz")
 
         self.DEFAULT = Namespace(self.prefix_manager.prefix_map[""])
         # self.OBO = Namespace('http://purl.obolibrary.org/obo/')
@@ -81,10 +98,19 @@ class RdfSink(Sink):
             self.BIOLINK.Association,
             self.OBAN.association,
         }
+        self._uriref_cache: dict = {}
+        self._xsd_string_uri = self.prefix_manager.expand("xsd:string")
+        # Pre-compute associations set once (used only when reify_all_edges=False)
+        self._associations = set(
+            self.prefix_manager.contract(x) for x in self.reification_types
+        )
+        self._associations.update(
+            str(x) for x in self.toolkit.get_all_associations(formatted=True)
+        )
         if compression == "gz":
             self.FH = gzip.open(filename, "wb")
         else:
-            self.FH = open(filename, "wb")
+            self.FH = open(filename, "wb", buffering=1048576)
 
         if self.format == "jelly":
             from pyjelly.serialize.streams import TripleStream, SerializerOptions
@@ -180,7 +206,7 @@ class RdfSink(Sink):
             else:
                 prop_uri = canonical_uri if canonical_uri else element_uri
             prop_type = self._get_property_type(prop_uri)
-            log.debug(f"prop {k} has prop_uri {prop_uri} and prop_type {prop_type}")
+            log.debug("prop %s has prop_uri %s and prop_type %s", k, prop_uri, prop_type)
             prop_uri = self.uriref(prop_uri)
             if isinstance(v, (list, set, tuple)):
                 for x in v:
@@ -222,19 +248,13 @@ class RdfSink(Sink):
 
         """
         ecache = []
-        associations = set(
-            [self.prefix_manager.contract(x) for x in self.reification_types]
-        )
-        associations.update(
-            [str(x) for x in set(self.toolkit.get_all_associations(formatted=True))]
-        )
         if self.reify_all_edges:
             reified_node = self.reify(record["subject"], record["object"], record)
             s = reified_node["subject"]
             p = reified_node["predicate"]
             o = reified_node["object"]
             ecache.append((s, p, o))
-            n = reified_node["id"]
+            n_uriref = URIRef(reified_node["id"])
             for prop, value in reified_node.items():
                 if prop in {"id", "association_id", "edge_key"}:
                     continue
@@ -249,22 +269,21 @@ class RdfSink(Sink):
                 else:
                     if prop in self.reverse_predicate_mapping:
                         prop_uri = self.reverse_predicate_mapping[prop]
-                        # prop_uri = self.prefix_manager.contract(prop_uri)
                     else:
                         prop_uri = predicate
                 prop_type = self._get_property_type(prop)
-                log.debug(
-                    f"prop {prop} has prop_uri {prop_uri} and prop_type {prop_type}"
-                )
+                log.debug("prop %s has prop_uri %s and prop_type %s", prop, prop_uri, prop_type)
                 prop_uri = self.uriref(prop_uri)
                 if isinstance(value, list):
                     for x in value:
                         value_uri = self._prepare_object(prop, prop_type, x)
-                        self._write_triple(URIRef(n), prop_uri, value_uri)
+                        self._write_triple(n_uriref, prop_uri, value_uri)
                 else:
                     value_uri = self._prepare_object(prop, prop_type, value)
-                    self._write_triple(URIRef(n), prop_uri, value_uri)
+                    self._write_triple(n_uriref, prop_uri, value_uri)
         else:
+            associations = self._associations
+            at_least_one_type_in_associations = False
             if "type" in record:
                 for type in record["type"]:
                     if type in associations:
@@ -282,7 +301,7 @@ class RdfSink(Sink):
                 p = reified_node["predicate"]
                 o = reified_node["object"]
                 ecache.append((s, p, o))
-                n = reified_node["id"]
+                n_uriref = URIRef(reified_node["id"])
                 for prop, value in reified_node.items():
                     if prop in {"id", "association_id", "edge_key"}:
                         continue
@@ -297,7 +316,6 @@ class RdfSink(Sink):
                     else:
                         if prop in self.reverse_predicate_mapping:
                             prop_uri = self.reverse_predicate_mapping[prop]
-                            # prop_uri = self.prefix_manager.contract(prop_uri)
                         else:
                             prop_uri = predicate
                     prop_type = self._get_property_type(prop)
@@ -305,10 +323,10 @@ class RdfSink(Sink):
                     if isinstance(value, list):
                         for x in value:
                             value_uri = self._prepare_object(prop, prop_type, x)
-                            self._write_triple(URIRef(n), prop_uri, value_uri)
+                            self._write_triple(n_uriref, prop_uri, value_uri)
                     else:
                         value_uri = self._prepare_object(prop, prop_type, value)
-                        self._write_triple(URIRef(n), prop_uri, value_uri)
+                        self._write_triple(n_uriref, prop_uri, value_uri)
             else:
                 s = self.uriref(record["subject"])
                 p = self.uriref(record["predicate"])
@@ -332,6 +350,10 @@ class RdfSink(Sink):
             URIRef form of the input ``identifier``
 
         """
+        try:
+            return self._uriref_cache[identifier]
+        except KeyError:
+            pass
         if identifier.startswith("urn:uuid:"):
             uri = identifier
         elif identifier in reverse_property_mapping:
@@ -356,7 +378,9 @@ class RdfSink(Sink):
             # if identifier == uri:
             #     if PrefixManager.is_curie(identifier):
             #         identifier = identifier.replace(':', '_')
-        return URIRef(uri)
+        result = URIRef(uri)
+        self._uriref_cache[identifier] = result
+        return result
 
     def _prepare_object(
         self, prop: str, prop_type: str, value: Any
@@ -392,7 +416,7 @@ class RdfSink(Sink):
         elif prop_type.startswith("xsd"):
             o = Literal(value, datatype=self.prefix_manager.expand(prop_type))
         else:
-            o = Literal(value, datatype=self.prefix_manager.expand("xsd:string"))
+            o = Literal(value, datatype=self._xsd_string_uri)
         return o
 
     def _get_property_type(self, p: str) -> str:
@@ -410,20 +434,7 @@ class RdfSink(Sink):
             The type for property name
 
         """
-        default_uri_types = {
-            "biolink:type",
-            "biolink:category",
-            "biolink:subject",
-            "biolink:object",
-            "biolink:relation",
-            "biolink:predicate",
-            "rdf:type",
-            "rdf:subject",
-            "rdf:predicate",
-            "rdf:object",
-            "type"
-        }
-        if p in default_uri_types:
+        if p in _DEFAULT_URI_TYPES:
             t = "uriorcurie"
         else:
             if p in self.property_types:
@@ -582,9 +593,7 @@ class RdfSink(Sink):
         else:
             # generate a UUID for the reified node
             node_id = self.uriref(generate_uuid())
-        reified_node = data.copy()
-        if "category" in reified_node:
-            del reified_node["category"]
+        reified_node = {k: v for k, v in data.items() if k != "category"}
         reified_node["id"] = node_id
         reified_node["type"] = "biolink:Association"
         reified_node["subject"] = s

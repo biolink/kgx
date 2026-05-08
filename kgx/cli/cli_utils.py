@@ -566,6 +566,7 @@ def transform(
     # for now, in case it signifies an unimplemented concept
     # destination: Optional[List] = None,
     processes: int = 1,
+    parallel: int = 1,
     infores_catalog: Optional[str] = None,
 ) -> None:
     """
@@ -598,7 +599,11 @@ def transform(
     knowledge_sources: Optional[List[Tuple[str, str]]]
         A list of named knowledge sources with (string, boolean or tuple rewrite) specification
     processes: int
-        Number of processes to use
+        Number of processes to use (transform-config mode: parallelizes across sources)
+    parallel: int
+        Number of worker processes for partitioned export within a single transform.
+        Currently effective only for DuckDB source + N-Triples sink without gzip;
+        other configurations fall back to sequential export.
     infores_catalog: Optional[str]
         Optional dump of a TSV file of InfoRes CURIE to
         Knowledge Source mappings (not yet available in transform_config calling mode)
@@ -717,6 +722,7 @@ def transform(
             output_directory=None,
             stream=stream,
             infores_catalog=infores_catalog,
+            parallel=parallel,
         )
 
 
@@ -976,6 +982,7 @@ def transform_source(
     preserve_graph: bool = True,
     stream: bool = False,
     infores_catalog: Optional[str] = None,
+    parallel: int = 1,
 ) -> Sink:
     """
     Transform a source from a transform config YAML.
@@ -1009,6 +1016,10 @@ def transform_source(
         Whether to parse input as a stream
     infores_catalog: Optional[str]
         Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings
+    parallel: int
+        Number of worker processes for partitioned export. Effective only when the
+        source/sink combination supports it (DuckDB → N-Triples without gzip);
+        otherwise falls back to sequential.
 
     Returns
     -------
@@ -1034,7 +1045,7 @@ def transform_source(
         property_types,
     )
     transformer = Transformer(stream=stream, infores_catalog=infores_catalog)
-    transformer.transform(input_args, output_args)
+    transformer.transform(input_args, output_args, parallel=parallel)
 
     if not preserve_graph:
         transformer.store.graph.clear()
