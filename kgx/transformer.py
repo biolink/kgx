@@ -389,7 +389,7 @@ class Transformer(ErrorDetecting):
             return False
 
         in_filenames = input_args.get("filename")
-        if not isinstance(in_filenames, list) or len(in_filenames) != 1:
+        if not isinstance(in_filenames, (list, tuple)) or len(in_filenames) != 1:
             log.warning(
                 "parallel mode requires exactly one input filename; falling back to sequential"
             )

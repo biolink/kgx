@@ -112,6 +112,40 @@ def test_parallel_matches_sequential(populated_duckdb):
 
 
 @pytest.mark.skipif(not DUCKDB_AVAILABLE, reason="DuckDB not available")
+def test_cli_parallel_matches_sequential(populated_duckdb):
+    """`kgx transform --stream --parallel N` must match `--stream` sequential output."""
+    from click.testing import CliRunner
+
+    from kgx.cli import cli
+
+    seq_path = tempfile.mktemp(suffix=".nt")
+    par_path = tempfile.mktemp(suffix=".nt")
+    runner = CliRunner()
+    try:
+        seq_result = runner.invoke(
+            cli,
+            ["transform", "--stream", "-i", "duckdb", "-f", "nt", "-o", seq_path, populated_duckdb],
+        )
+        assert seq_result.exit_code == 0, seq_result.output
+
+        par_result = runner.invoke(
+            cli,
+            ["transform", "--stream", "-i", "duckdb", "-f", "nt", "--parallel", "4",
+             "-o", par_path, populated_duckdb],
+        )
+        assert par_result.exit_code == 0, par_result.output
+
+        seq_lines = _read_sorted_lines(seq_path)
+        par_lines = _read_sorted_lines(par_path)
+        assert seq_lines == par_lines
+        assert len(par_lines) > 0
+    finally:
+        for p in (seq_path, par_path):
+            if os.path.exists(p):
+                os.unlink(p)
+
+
+@pytest.mark.skipif(not DUCKDB_AVAILABLE, reason="DuckDB not available")
 def test_parallel_unsupported_format_falls_back(populated_duckdb, caplog):
     """Unsupported sink format should warn and run sequentially, not raise."""
     out_path = tempfile.mktemp(suffix=".tsv")
