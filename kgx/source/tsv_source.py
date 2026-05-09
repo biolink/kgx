@@ -38,7 +38,16 @@ class TsvSource(Source):
             Prefix to IRI map
 
         """
-        self.prefix_manager.set_prefix_map(m)
+        # Use update (additive) rather than set (destructive). The base
+        # PrefixManager loads ~600 default prefix mappings from the JSON-LD
+        # context (HGNC, NCBIGene, MONDO, …) in __init__; calling
+        # `set_prefix_map({})` here — as the transformer does when no
+        # caller-supplied prefix_map is provided — would discard all of them
+        # and leave only the hardcoded biolink/owlstar/MONARCH triplet.
+        # That broke contraction of identifiers.org/hgnc/, identifiers.org/ncbigene/,
+        # and many other URI prefixes for every TSV-derived source (including
+        # ObographSource, which inherits from this).
+        self.prefix_manager.update_prefix_map(m)
 
     def set_reverse_prefix_map(self, m: Dict) -> None:
         """

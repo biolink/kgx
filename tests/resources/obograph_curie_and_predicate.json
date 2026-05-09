@@ -1,0 +1,41 @@
+{
+  "graphs": [
+    {
+      "id": "test",
+      "nodes": [
+        {
+          "id": "http://identifiers.org/ncbigene/698782",
+          "lbl": "MLH1",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://identifiers.org/hgnc/5",
+          "lbl": "A1BG",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/NCBITaxon_9544",
+          "lbl": "Macaca mulatta",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+          "lbl": "Homo sapiens",
+          "type": "CLASS"
+        }
+      ],
+      "edges": [
+        {
+          "sub": "http://identifiers.org/ncbigene/698782",
+          "pred": "http://purl.obolibrary.org/obo/RO_0002162",
+          "obj": "http://purl.obolibrary.org/obo/NCBITaxon_9544"
+        },
+        {
+          "sub": "http://identifiers.org/hgnc/5",
+          "pred": "http://purl.obolibrary.org/obo/RO_0002162",
+          "obj": "http://purl.obolibrary.org/obo/NCBITaxon_9606"
+        }
+      ]
+    }
+  ]
+}
