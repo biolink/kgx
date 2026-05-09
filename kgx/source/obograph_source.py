@@ -203,7 +203,12 @@ class ObographSource(JsonSource):
                 element = get_biolink_element(curie)
                 if not element:
                     try:
-                        mapping = self.toolkit.get_element_by_mapping(edge["pred"])
+                        # bmt's get_element_by_mapping recognizes CURIE form
+                        # (e.g. "RO:0002162"), not IRIs. The CURIE is computed
+                        # above as `curie`; passing the IRI here silently falls
+                        # back to biolink:related_to for relations that have a
+                        # perfectly good biolink slot mapping.
+                        mapping = self.toolkit.get_element_by_mapping(curie)
                         if mapping:
                             element = self.toolkit.get_element(mapping)
 
