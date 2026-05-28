@@ -120,3 +120,29 @@ def test_prefix_manager_contract(query):
     """
     pm = PrefixManager()
     assert pm.contract(query[0]) == query[1]
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        # OBO-hosted ontologies that aren't in the biolink default JSON-LD context
+        # but ARE in the prefixcommons monarch/obo contexts. The wildcard
+        # OBO: <http://purl.obolibrary.org/obo/> in the biolink context must NOT
+        # shadow the more-specific match available via the fallback contexts.
+        ("http://purl.obolibrary.org/obo/FBbt_00000001", "FBbt:00000001"),
+        ("http://purl.obolibrary.org/obo/WBbt_0000100", "WBbt:0000100"),
+        ("http://purl.obolibrary.org/obo/ZFA_0000000", "ZFA:0000000"),
+        ("http://purl.obolibrary.org/obo/XAO_0000000", "XAO:0000000"),
+        ("http://purl.obolibrary.org/obo/OBA_0000001", "OBA:0000001"),
+        ("http://purl.obolibrary.org/obo/EMAPA_0000001", "EMAPA:0000001"),
+        ("http://purl.obolibrary.org/obo/DDPHENO_0000001", "DDPHENO:0000001"),
+    ],
+)
+def test_prefix_manager_contract_longest_match(query):
+    """
+    Regression: when multiple registered prefixes can contract a URI, prefer
+    the most-specific (longest IRI) mapping rather than letting the wildcard
+    OBO: prefix swallow ontology-specific IDs.
+    """
+    pm = PrefixManager()
+    assert pm.contract(query[0]) == query[1]

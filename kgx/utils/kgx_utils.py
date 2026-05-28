@@ -251,13 +251,21 @@ def contract(
         get_jsonld_context("obo_context"),
     ]
     if prefix_maps:
-        curie_list = contract_uri(uri, prefix_maps)
-        if len(curie_list) == 0:
-            if fallback:
-                curie_list = contract_uri(uri, default_curie_maps)
-                if curie_list:
-                    curie = curie_list[0]
+        # When fallback is enabled, search the default contexts alongside the
+        # caller-supplied maps so prefixcommons picks the most-specific (longest
+        # IRI) match overall. Otherwise a wildcard prefix in prefix_maps (e.g.
+        # OBO: <http://purl.obolibrary.org/obo/>) shadows ontology-specific
+        # mappings that only exist in the default contexts (FBbt, OBA, EMAPA, …).
+        # Drop the empty "" prefix from defaults: it ties with named prefixes
+        # of the same IRI (notably MONARCH) and would otherwise win iteration
+        # order, contracting to bare ":local" forms.
+        if fallback:
+            fallback_maps = [{k: v for k, v in m.items() if k} for m in default_curie_maps]
+            search_maps = prefix_maps + fallback_maps
         else:
+            search_maps = prefix_maps
+        curie_list = contract_uri(uri, search_maps)
+        if curie_list:
             curie = curie_list[0]
     else:
         curie_list = contract_uri(uri, default_curie_maps)
