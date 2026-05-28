@@ -290,6 +290,11 @@
 <span class="sd">        Transformer to which the GraphSink belongs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># Subclasses set True when the on-disk format is line-oriented and</span>
+    <span class="c1"># safe to byte-concatenate across independently-written part files</span>
+    <span class="c1"># (e.g. N-Triples). Used by Transformer&#39;s parallel mode.</span>
+    <span class="n">is_concatenable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span> <span class="o">=</span> <span class="n">PrefixManager</span><span class="p">()</span>

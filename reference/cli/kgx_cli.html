@@ -967,7 +967,13 @@ The merged graph can then be written to a local/remote Neo4j instance OR be seri
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-kgx-transform-p">
 <span id="cmdoption-kgx-transform-processes"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--processes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;processes&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-transform-p" title="Link to this definition">¶</a></dt>
-<dd><p>Number of processes to use</p>
+<dd><p>Number of processes to use (transform-config mode: parallelizes across sources)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-transform-parallel">
+<span class="sig-name descname"><span class="pre">--parallel</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;parallel&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-transform-parallel" title="Link to this definition">¶</a></dt>
+<dd><p>Number of worker processes for partitioned export within a single transform (currently DuckDB source + N-Triples sink without gzip; falls back to sequential otherwise)</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>

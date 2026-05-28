@@ -869,6 +869,7 @@
     <span class="c1"># for now, in case it signifies an unimplemented concept</span>
     <span class="c1"># destination: Optional[List] = None,</span>
     <span class="n">processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">infores_catalog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -901,7 +902,11 @@
 <span class="sd">    knowledge_sources: Optional[List[Tuple[str, str]]]</span>
 <span class="sd">        A list of named knowledge sources with (string, boolean or tuple rewrite) specification</span>
 <span class="sd">    processes: int</span>
-<span class="sd">        Number of processes to use</span>
+<span class="sd">        Number of processes to use (transform-config mode: parallelizes across sources)</span>
+<span class="sd">    parallel: int</span>
+<span class="sd">        Number of worker processes for partitioned export within a single transform.</span>
+<span class="sd">        Currently effective only for DuckDB source + N-Triples sink without gzip;</span>
+<span class="sd">        other configurations fall back to sequential export.</span>
 <span class="sd">    infores_catalog: Optional[str]</span>
 <span class="sd">        Optional dump of a TSV file of InfoRes CURIE to</span>
 <span class="sd">        Knowledge Source mappings (not yet available in transform_config calling mode)</span>
@@ -1020,6 +1025,7 @@
             <span class="n">output_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">infores_catalog</span><span class="o">=</span><span class="n">infores_catalog</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -1288,6 +1294,7 @@
     <span class="n">preserve_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">infores_catalog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sink</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transform a source from a transform config YAML.</span>
@@ -1321,6 +1328,10 @@
 <span class="sd">        Whether to parse input as a stream</span>
 <span class="sd">    infores_catalog: Optional[str]</span>
 <span class="sd">        Optional dump of a TSV file of InfoRes CURIE to Knowledge Source mappings</span>
+<span class="sd">    parallel: int</span>
+<span class="sd">        Number of worker processes for partitioned export. Effective only when the</span>
+<span class="sd">        source/sink combination supports it (DuckDB → N-Triples without gzip);</span>
+<span class="sd">        otherwise falls back to sequential.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1346,7 +1357,7 @@
         <span class="n">property_types</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">infores_catalog</span><span class="o">=</span><span class="n">infores_catalog</span><span class="p">)</span>
-    <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="p">,</span> <span class="n">output_args</span><span class="p">)</span>
+    <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="p">,</span> <span class="n">output_args</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">preserve_graph</span><span class="p">:</span>
         <span class="n">transformer</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>

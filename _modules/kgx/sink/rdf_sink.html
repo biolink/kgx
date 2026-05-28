@@ -300,6 +300,20 @@
 <span class="n">property_mapping</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 <span class="n">reverse_property_mapping</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
+<span class="n">_DEFAULT_URI_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;biolink:type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biolink:category&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biolink:subject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biolink:object&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biolink:relation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biolink:predicate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rdf:type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rdf:subject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rdf:predicate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rdf:object&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
 
 <div class="viewcode-block" id="RdfSink">
 <a class="viewcode-back" href="../../../reference/sink.html#kgx.sink.rdf_sink.RdfSink">[docs]</a>
@@ -341,6 +355,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="nb">format</span>
         <span class="k">if</span> <span class="nb">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;jelly&quot;</span><span class="p">}:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported RDF serialization format &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="c1"># N-Triples is line-oriented and safe to concatenate; Jelly is a</span>
+        <span class="c1"># framed binary stream and is not.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_concatenable</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">compression</span> <span class="o">!=</span> <span class="s2">&quot;gz&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">prefix_map</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">])</span>
         <span class="c1"># self.OBO = Namespace(&#39;http://purl.obolibrary.org/obo/&#39;)</span>
@@ -357,10 +374,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">BIOLINK</span><span class="o">.</span><span class="n">Association</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">OBAN</span><span class="o">.</span><span class="n">association</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uriref_cache</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xsd_string_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="s2">&quot;xsd:string&quot;</span><span class="p">)</span>
+        <span class="c1"># Pre-compute associations set once (used only when reify_all_edges=False)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_associations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reification_types</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_associations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span><span class="o">.</span><span class="n">get_all_associations</span><span class="p">(</span><span class="n">formatted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;gz&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">FH</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">FH</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FH</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1048576</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;jelly&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">pyjelly.serialize.streams</span><span class="w"> </span><span class="kn">import</span> <span class="n">TripleStream</span><span class="p">,</span> <span class="n">SerializerOptions</span>
@@ -464,7 +490,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">prop_uri</span> <span class="o">=</span> <span class="n">canonical_uri</span> <span class="k">if</span> <span class="n">canonical_uri</span> <span class="k">else</span> <span class="n">element_uri</span>
             <span class="n">prop_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_type</span><span class="p">(</span><span class="n">prop_uri</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;prop </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> has prop_uri </span><span class="si">{</span><span class="n">prop_uri</span><span class="si">}</span><span class="s2"> and prop_type </span><span class="si">{</span><span class="n">prop_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;prop </span><span class="si">%s</span><span class="s2"> has prop_uri </span><span class="si">%s</span><span class="s2"> and prop_type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">)</span>
             <span class="n">prop_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uriref</span><span class="p">(</span><span class="n">prop_uri</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
@@ -509,19 +535,13 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ecache</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">associations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reification_types</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">associations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span><span class="o">.</span><span class="n">get_all_associations</span><span class="p">(</span><span class="n">formatted</span><span class="o">=</span><span class="kc">True</span><span class="p">))]</span>
-        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reify_all_edges</span><span class="p">:</span>
             <span class="n">reified_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reify</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">],</span> <span class="n">record</span><span class="p">)</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">]</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]</span>
             <span class="n">o</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span>
             <span class="n">ecache</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">o</span><span class="p">))</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="n">n_uriref</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">reified_node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;association_id&quot;</span><span class="p">,</span> <span class="s2">&quot;edge_key&quot;</span><span class="p">}:</span>
                     <span class="k">continue</span>
@@ -536,22 +556,21 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_predicate_mapping</span><span class="p">:</span>
                         <span class="n">prop_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_predicate_mapping</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span>
-                        <span class="c1"># prop_uri = self.prefix_manager.contract(prop_uri)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">prop_uri</span> <span class="o">=</span> <span class="n">predicate</span>
                 <span class="n">prop_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_type</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;prop </span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2"> has prop_uri </span><span class="si">{</span><span class="n">prop_uri</span><span class="si">}</span><span class="s2"> and prop_type </span><span class="si">{</span><span class="n">prop_type</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;prop </span><span class="si">%s</span><span class="s2"> has prop_uri </span><span class="si">%s</span><span class="s2"> and prop_type </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">)</span>
                 <span class="n">prop_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uriref</span><span class="p">(</span><span class="n">prop_uri</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                         <span class="n">value_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_object</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">URIRef</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">n_uriref</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">value_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_object</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">URIRef</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">n_uriref</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">associations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_associations</span>
+            <span class="n">at_least_one_type_in_associations</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
                 <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">associations</span><span class="p">:</span>
@@ -569,7 +588,7 @@
                 <span class="n">p</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">]</span>
                 <span class="n">o</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span>
                 <span class="n">ecache</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">o</span><span class="p">))</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">n_uriref</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
                 <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">reified_node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;association_id&quot;</span><span class="p">,</span> <span class="s2">&quot;edge_key&quot;</span><span class="p">}:</span>
                         <span class="k">continue</span>
@@ -584,7 +603,6 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_predicate_mapping</span><span class="p">:</span>
                             <span class="n">prop_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_predicate_mapping</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span>
-                            <span class="c1"># prop_uri = self.prefix_manager.contract(prop_uri)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">prop_uri</span> <span class="o">=</span> <span class="n">predicate</span>
                     <span class="n">prop_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_type</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
@@ -592,10 +610,10 @@
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                             <span class="n">value_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_object</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">URIRef</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">n_uriref</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">value_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_object</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">prop_type</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">URIRef</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_write_triple</span><span class="p">(</span><span class="n">n_uriref</span><span class="p">,</span> <span class="n">prop_uri</span><span class="p">,</span> <span class="n">value_uri</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uriref</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">])</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uriref</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;predicate&quot;</span><span class="p">])</span>
@@ -622,6 +640,10 @@
 <span class="sd">            URIRef form of the input ``identifier``</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uriref_cache</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
         <span class="k">if</span> <span class="n">identifier</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;urn:uuid:&quot;</span><span class="p">):</span>
             <span class="n">uri</span> <span class="o">=</span> <span class="n">identifier</span>
         <span class="k">elif</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="n">reverse_property_mapping</span><span class="p">:</span>
@@ -646,7 +668,9 @@
             <span class="c1"># if identifier == uri:</span>
             <span class="c1">#     if PrefixManager.is_curie(identifier):</span>
             <span class="c1">#         identifier = identifier.replace(&#39;:&#39;, &#39;_&#39;)</span>
-        <span class="k">return</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span></div>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uriref_cache</span><span class="p">[</span><span class="n">identifier</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_object</span><span class="p">(</span>
@@ -683,7 +707,7 @@
         <span class="k">elif</span> <span class="n">prop_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;xsd&quot;</span><span class="p">):</span>
             <span class="n">o</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">prop_type</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">o</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="s2">&quot;xsd:string&quot;</span><span class="p">))</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_xsd_string_uri</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">o</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_property_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -701,20 +725,7 @@
 <span class="sd">            The type for property name</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">default_uri_types</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;biolink:type&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biolink:category&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biolink:subject&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biolink:object&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biolink:relation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biolink:predicate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf:type&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf:subject&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf:predicate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf:object&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;type&quot;</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">default_uri_types</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_DEFAULT_URI_TYPES</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="s2">&quot;uriorcurie&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">property_types</span><span class="p">:</span>
@@ -881,9 +892,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># generate a UUID for the reified node</span>
             <span class="n">node_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uriref</span><span class="p">(</span><span class="n">generate_uuid</span><span class="p">())</span>
-        <span class="n">reified_node</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;category&quot;</span> <span class="ow">in</span> <span class="n">reified_node</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span>
+        <span class="n">reified_node</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;category&quot;</span><span class="p">}</span>
         <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_id</span>
         <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;biolink:Association&quot;</span>
         <span class="n">reified_node</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
