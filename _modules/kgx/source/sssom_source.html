@@ -329,7 +329,10 @@
 <span class="sd">            Prefix to IRI map</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">set_prefix_map</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+        <span class="c1"># See TsvSource.set_prefix_map for the rationale: use update (additive)</span>
+        <span class="c1"># rather than set (destructive) so the JSON-LD context defaults aren&#39;t</span>
+        <span class="c1"># discarded when a caller passes no overrides.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">update_prefix_map</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SssomSource.set_reverse_prefix_map">

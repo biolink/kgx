@@ -493,7 +493,12 @@
                 <span class="n">element</span> <span class="o">=</span> <span class="n">get_biolink_element</span><span class="p">(</span><span class="n">curie</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">element</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span><span class="o">.</span><span class="n">get_element_by_mapping</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">])</span>
+                        <span class="c1"># bmt&#39;s get_element_by_mapping recognizes CURIE form</span>
+                        <span class="c1"># (e.g. &quot;RO:0002162&quot;), not IRIs. The CURIE is computed</span>
+                        <span class="c1"># above as `curie`; passing the IRI here silently falls</span>
+                        <span class="c1"># back to biolink:related_to for relations that have a</span>
+                        <span class="c1"># perfectly good biolink slot mapping.</span>
+                        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span><span class="o">.</span><span class="n">get_element_by_mapping</span><span class="p">(</span><span class="n">curie</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">mapping</span><span class="p">:</span>
                             <span class="n">element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
 

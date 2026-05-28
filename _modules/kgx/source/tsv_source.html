@@ -316,7 +316,16 @@
 <span class="sd">            Prefix to IRI map</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">set_prefix_map</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+        <span class="c1"># Use update (additive) rather than set (destructive). The base</span>
+        <span class="c1"># PrefixManager loads ~600 default prefix mappings from the JSON-LD</span>
+        <span class="c1"># context (HGNC, NCBIGene, MONDO, …) in __init__; calling</span>
+        <span class="c1"># `set_prefix_map({})` here — as the transformer does when no</span>
+        <span class="c1"># caller-supplied prefix_map is provided — would discard all of them</span>
+        <span class="c1"># and leave only the hardcoded biolink/owlstar/MONARCH triplet.</span>
+        <span class="c1"># That broke contraction of identifiers.org/hgnc/, identifiers.org/ncbigene/,</span>
+        <span class="c1"># and many other URI prefixes for every TSV-derived source (including</span>
+        <span class="c1"># ObographSource, which inherits from this).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">update_prefix_map</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TsvSource.set_reverse_prefix_map">
