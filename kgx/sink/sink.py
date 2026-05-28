@@ -14,6 +14,11 @@ class Sink(object):
         Transformer to which the GraphSink belongs
     """
 
+    # Subclasses set True when the on-disk format is line-oriented and
+    # safe to byte-concatenate across independently-written part files
+    # (e.g. N-Triples). Used by Transformer's parallel mode.
+    is_concatenable: bool = False
+
     def __init__(self, owner):
         self.owner = owner
         self.prefix_manager = PrefixManager()
