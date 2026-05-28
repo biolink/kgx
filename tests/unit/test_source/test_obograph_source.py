@@ -28,7 +28,12 @@ def test_read_obograph1():
                 nodes[rec[0]] = rec[1]
 
     assert len(nodes) == 176
-    assert len(edges) == 205
+    # Was 205 prior to the predicate-mapping fix: two distinct relations
+    # (BFO:0000050 and RO:0002211) between GO:0007165 and GO:0008150 were both
+    # silently demoted to biolink:related_to and produced colliding deterministic
+    # edge ids, conflating them in the dict. With BFO:0000050 now correctly
+    # mapped to biolink:part_of, all three edges are kept distinct.
+    assert len(edges) == 206
 
     n1 = nodes["GO:0003677"]
     assert n1["id"] == "GO:0003677"
@@ -91,7 +96,12 @@ def test_read_jsonl2():
                 nodes[rec[0]] = rec[1]
 
     assert len(nodes) == 176
-    assert len(edges) == 205
+    # Was 205 prior to the predicate-mapping fix: two distinct relations
+    # (BFO:0000050 and RO:0002211) between GO:0007165 and GO:0008150 were both
+    # silently demoted to biolink:related_to and produced colliding deterministic
+    # edge ids, conflating them in the dict. With BFO:0000050 now correctly
+    # mapped to biolink:part_of, all three edges are kept distinct.
+    assert len(edges) == 206
 
     n1 = nodes["GO:0003677"]
     assert n1["id"] == "GO:0003677"
@@ -265,6 +275,64 @@ def test_error_detection():
         t.write_report(None, "Error")
     if len(t.get_errors("Warning")) > 0:
         t.write_report(None, "Warning")
+
+
+def test_identifiers_org_uris_contracted_via_transform():
+    """
+    Regression: when running through ``transform()``, the prefix manager's
+    ~600 default JSON-LD context mappings used to be wiped out by
+    ``TsvSource.set_prefix_map({})``, leaving non-OBO IRIs uncontracted in the
+    TSV output. After the fix, identifiers.org/{hgnc,ncbigene} URIs land as
+    proper CURIEs.
+    """
+    output_basename = os.path.join(TARGET_DIR, "obograph_curie_and_predicate")
+    transform(
+        inputs=[os.path.join(RESOURCE_DIR, "obograph_curie_and_predicate.json")],
+        input_format="obojson",
+        output=output_basename,
+        output_format="tsv",
+        stream=False,
+    )
+
+    tin = Transformer()
+    g = TsvSource(tin).parse(
+        filename=output_basename + "_nodes.tsv", format="tsv"
+    )
+    nodes = {}
+    for rec in g:
+        if rec and len(rec) != 4:
+            nodes[rec[0]] = rec[1]
+
+    # Node ids are CURIEs, not IRIs. The original IRI is preserved in `iri`.
+    assert "NCBIGene:698782" in nodes
+    assert nodes["NCBIGene:698782"]["iri"] == "http://identifiers.org/ncbigene/698782"
+    assert "HGNC:5" in nodes
+    assert nodes["HGNC:5"]["iri"] == "http://identifiers.org/hgnc/5"
+
+
+def test_obograph_predicate_mapping_uses_curie():
+    """
+    Regression: ``ObographSource.read_edge`` used to pass the IRI to
+    ``bmt.Toolkit.get_element_by_mapping``, which only recognizes CURIE form.
+    The lookup silently returned None and well-mapped RO predicates fell
+    through to the catch-all biolink:related_to. After the fix, RO:0002162
+    resolves to its proper biolink slot (in_taxon).
+    """
+    t = Transformer()
+    s = ObographSource(t)
+    g = s.parse(os.path.join(RESOURCE_DIR, "obograph_curie_and_predicate.json"))
+
+    edges = []
+    for rec in g:
+        if rec and len(rec) == 4:
+            edges.append(rec[3])
+
+    taxon_edges = [e for e in edges if e.get("relation") == "RO:0002162"]
+    assert len(taxon_edges) == 2
+    for e in taxon_edges:
+        assert e["predicate"] == "biolink:in_taxon", (
+            f"expected biolink:in_taxon for RO:0002162, got {e['predicate']!r}"
+        )
 
 
 def test_phenio_obojson_to_tsv():

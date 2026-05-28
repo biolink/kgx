@@ -393,10 +393,13 @@ def test_transform3(query):
                     "category",
                 ],
             },
+            # 206 (not 205): BFO:0000050 now maps to biolink:part_of via the
+            # fixed get_element_by_mapping(curie) call, so the part_of edge no
+            # longer collides on edge-id with a previously-collapsed related_to.
             176,
-            205,
+            206,
             176,
-            205,
+            206,
         ),
         (
             {
@@ -408,9 +411,9 @@ def test_transform3(query):
                 "format": "jsonl",
             },
             176,
-            205,
+            206,
             176,
-            205,
+            206,
         ),
         (
             {
@@ -422,9 +425,9 @@ def test_transform3(query):
                 "format": "nt",
             },
             176,
-            205,
+            206,
             176,
-            205,
+            206,
         ),
         (
             {
@@ -692,7 +695,7 @@ def test_transform10():
         })
 
     assert t1.store.graph.number_of_nodes() == 176
-    assert t1.store.graph.number_of_edges() == 205
+    assert t1.store.graph.number_of_edges() == 206
 
 
 @pytest.mark.skipif(

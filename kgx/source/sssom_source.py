@@ -51,7 +51,10 @@ class SssomSource(Source):
             Prefix to IRI map
 
         """
-        self.prefix_manager.set_prefix_map(m)
+        # See TsvSource.set_prefix_map for the rationale: use update (additive)
+        # rather than set (destructive) so the JSON-LD context defaults aren't
+        # discarded when a caller passes no overrides.
+        self.prefix_manager.update_prefix_map(m)
 
     def set_reverse_prefix_map(self, m: Dict) -> None:
         """
