@@ -223,7 +223,7 @@ class ArangoSource(Source):
                 if "id" not in doc:
                     doc["id"] = f"{node_collection}:{key}"
                 doc.setdefault("name", "")
-                doc.setdefault("category", ["biolink:NamedThing"])
+                doc.setdefault("category", ["biolink:NamedThing", node_collection])
                 nodes.append(doc)
         except Exception as e:
             log.error(e)
@@ -293,21 +293,30 @@ class ArangoSource(Source):
                 to_ref = edge_data.pop("_to", "")
                 subject_curie = _arango_ref_to_curie(from_ref)
                 object_curie = _arango_ref_to_curie(to_ref)
+                subj_collection = from_ref.split("/", 1)[0] if "/" in from_ref else ""
+                obj_collection = to_ref.split("/", 1)[0] if "/" in to_ref else ""
+
+                subj_category = ["biolink:NamedThing"]
+                if subj_collection:
+                    subj_category.append(subj_collection)
+                obj_category = ["biolink:NamedThing"]
+                if obj_collection:
+                    obj_category.append(obj_collection)
 
                 subject_node.pop("_key", "")
                 if "id" not in subject_node:
                     subject_node["id"] = subject_curie
                 subject_node.setdefault("name", "")
-                subject_node.setdefault("category", ["biolink:NamedThing"])
+                subject_node.setdefault("category", subj_category)
 
                 object_node.pop("_key", "")
                 if "id" not in object_node:
                     object_node["id"] = object_curie
                 object_node.setdefault("name", "")
-                object_node.setdefault("category", ["biolink:NamedThing"])
+                object_node.setdefault("category", obj_category)
 
-                edge_data.setdefault("predicate", "biolink:related_to")
-                edge_data.setdefault("relation", "biolink:related_to")
+                edge_data.setdefault("predicate", edge_collection)
+                edge_data.setdefault("relation", edge_collection)
 
                 edges.append([subject_node, edge_data, object_node])
         except Exception as e:
