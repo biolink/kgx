@@ -220,6 +220,24 @@ def format_biolink_slots(s: str) -> str:
         return f"biolink:{formatted}"
 
 
+def _most_specific(uri: str, primary: List[str], fallback: List[str]) -> List[str]:
+    """Return whichever candidate list consumed the longest IRI prefix.
+
+    The length of the IRI prefix a CURIE consumed is ``len(uri) - len(local id)``,
+    so the candidate with the shortest local part is the most specific one.
+    ``primary`` wins ties, keeping the caller's prefix map canonical.
+    """
+
+    def local_len(curie: str) -> int:
+        return len(curie.split(":", 1)[-1])
+
+    if not primary:
+        return fallback
+    if min(map(local_len, fallback)) < min(map(local_len, primary)):
+        return fallback
+    return primary
+
+
 def contract(
     uri: str, prefix_maps: Optional[List[Dict]] = None, fallback: bool = True
 ) -> str:
@@ -252,12 +270,17 @@ def contract(
     ]
     if prefix_maps:
         curie_list = contract_uri(uri, prefix_maps)
-        if len(curie_list) == 0:
-            if fallback:
-                curie_list = contract_uri(uri, default_curie_maps)
-                if curie_list:
-                    curie = curie_list[0]
-        else:
+        if fallback:
+            # A catch-all namespace in prefix_maps (e.g. biolink's
+            # OBO -> http://purl.obolibrary.org/obo/) matches every OBO IRI, so
+            # a bare "did we get any match" test would shadow the far more
+            # specific mappings the default maps carry (DDPHENO_, FBbt_, ...).
+            # Consider both tiers and keep the most specific match, i.e. the one
+            # that consumed the longest IRI prefix; prefix_maps wins a tie.
+            fallback_list = contract_uri(uri, default_curie_maps)
+            if fallback_list:
+                curie_list = _most_specific(uri, curie_list, fallback_list)
+        if curie_list:
             curie = curie_list[0]
     else:
         curie_list = contract_uri(uri, default_curie_maps)
