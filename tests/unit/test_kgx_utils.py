@@ -398,3 +398,64 @@ def test_sanitize_export_property(query):
         assert query[1] == value
     else:
         assert query[1] in value
+
+
+# A catch-all namespace, i.e. one whose IRI is a bare prefix of many more
+# specific namespaces. biolink's `OBO -> http://purl.obolibrary.org/obo/` is the
+# real-world example that motivated these tests.
+CATCH_ALL_PREFIX_MAP = {"OBO": "http://purl.obolibrary.org/obo/"}
+
+
+@pytest.mark.parametrize(
+    "uri,expected",
+    [
+        # obo_context has a DDPHENO_ mapping; the catch-all must not shadow it.
+        ("http://purl.obolibrary.org/obo/DDPHENO_0000001", "DDPHENO:0000001"),
+        ("http://purl.obolibrary.org/obo/FBbt_00000001", "FBbt:00000001"),
+        ("http://purl.obolibrary.org/obo/EMAPA_16040", "EMAPA:16040"),
+        # Nothing more specific exists for these, so the catch-all still applies.
+        (
+            "http://purl.obolibrary.org/obo/fbbt#has_function_in",
+            "OBO:fbbt#has_function_in",
+        ),
+        (
+            "http://purl.obolibrary.org/obo/go/extensions/ro_0002092",
+            "OBO:go/extensions/ro_0002092",
+        ),
+    ],
+)
+def test_contract_catch_all_does_not_shadow_specific_mapping(uri, expected):
+    """
+    Test that a catch-all namespace in prefix_maps does not suppress the fallback.
+
+    A catch-all matches every IRI beneath it, so gating the fallback on "did
+    prefix_maps match anything" means a more specific mapping in the default
+    maps is never reached.
+    """
+    assert contract(uri, prefix_maps=[CATCH_ALL_PREFIX_MAP], fallback=True) == expected
+
+
+def test_contract_prefix_maps_win_ties():
+    """
+    Test that prefix_maps stays canonical when it is as specific as the fallback.
+    """
+    # obo_context maps GO -> http://purl.obolibrary.org/obo/GO_; an equally
+    # specific caller-supplied mapping must not be overridden by it.
+    curie = contract(
+        "http://purl.obolibrary.org/obo/GO_0008150",
+        prefix_maps=[{"GENE_ONTOLOGY": "http://purl.obolibrary.org/obo/GO_"}],
+        fallback=True,
+    )
+    assert curie == "GENE_ONTOLOGY:0008150"
+
+
+def test_contract_catch_all_is_kept_without_fallback():
+    """
+    Test that fallback=False still contracts using only the given prefix_maps.
+    """
+    curie = contract(
+        "http://purl.obolibrary.org/obo/DDPHENO_0000001",
+        prefix_maps=[CATCH_ALL_PREFIX_MAP],
+        fallback=False,
+    )
+    assert curie == "OBO:DDPHENO_0000001"
