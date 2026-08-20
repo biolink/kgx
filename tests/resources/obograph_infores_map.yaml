@@ -1,0 +1,20 @@
+---
+configuration:
+  # tests/target is gitignored; keep generated output out of tests/resources
+  output_directory: ../target/obograph_infores_map
+  checkpoint: false
+transform:
+  source:
+    edge-annotations:
+      input:
+        name: "PHENIO"
+        format: obojson
+        filename:
+          - obograph_edge_annotations.json
+        infores_map:
+          cl: cell-ontology
+          hsapdv: HsapDv
+      output:
+        format: tsv
+        filename:
+          - InforesMap
