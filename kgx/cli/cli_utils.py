@@ -1146,6 +1146,12 @@ def prepare_input_args(
             "edge_filters": edge_filters,
             "prefix_map": source_prefix_map,
         }
+        # obojson: maps an ontology file stem to the InfoRes ID a project uses
+        # for it, for the primary_knowledge_source derived from
+        # prov:wasDerivedFrom. Only passed on when configured, so other
+        # sources never see the argument.
+        if "infores_map" in source["input"] and source["input"]["infores_map"]:
+            input_args["infores_map"] = source["input"]["infores_map"]
     elif input_format == "neo4j":
         input_args = {
             "uri": source["uri"],
