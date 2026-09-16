@@ -28,6 +28,8 @@ class ArangoSource(Source):
         self.node_count = 0
         self.edge_count = 0
         self.seen_nodes = set()
+        self.use_arango_id = False
+        self.document_id_property = "document_id"
 
     def _connect_db(self, uri: str, database: str, username: str, password: str):
         """
@@ -90,6 +92,8 @@ class ArangoSource(Source):
         node_collections: List[str] = None,
         edge_collections: List[str] = None,
         all_collections: bool = False,
+        use_arango_id: bool = False,
+        document_id_property: str = "document_id",
         **kwargs: Any,
     ) -> typing.Generator:
         """
@@ -128,6 +132,20 @@ class ArangoSource(Source):
             A list of edge collection names to export
         all_collections: bool
             If True, discover and export all non-system collections
+        use_arango_id: bool
+            If True, derive every node ``id``, and every edge ``subject`` and
+            ``object``, from the ArangoDB document handle (``_id``,
+            ``_from``, ``_to``; e.g., ``CL/1000300`` becomes ``CL:1000300``),
+            even when the document stores its own ``id`` or the edge its own
+            ``subject``/``object``.  Use this for databases not written by
+            KGX, where handles are unique by construction but an ``id``
+            attribute is ordinary data that need not be unique.  A node's own
+            ``id`` value is kept under ``document_id_property``.  If False
+            (the default), a stored ``id`` is used as is, which is right for
+            databases written by ``ArangoSink``.
+        document_id_property: str
+            The property that receives a node's own ``id`` value when
+            ``use_arango_id`` is True (``document_id``)
         kwargs: Any
             Any additional arguments
 
@@ -137,6 +155,8 @@ class ArangoSource(Source):
             A generator for records
         """
         self._connect_db(uri, database, username, password)
+        self.use_arango_id = use_arango_id
+        self.document_id_property = document_id_property
 
         self.set_provenance_map(kwargs)
 
@@ -207,7 +227,7 @@ class ArangoSource(Source):
         """
         filter_clause, bind_vars = self.build_aql_node_filter(self.node_filters)
 
-        query = f"FOR doc IN `{node_collection}` {filter_clause} LIMIT @offset, @limit RETURN UNSET(doc, '_id', '_rev')"
+        query = f"FOR doc IN `{node_collection}` {filter_clause} LIMIT @offset, @limit RETURN UNSET(doc, '_rev')"
         bind_vars["offset"] = skip
         bind_vars["limit"] = limit if limit else page_size_default(limit)
 
@@ -216,18 +236,49 @@ class ArangoSource(Source):
         try:
             cursor = self.db.aql.execute(query, bind_vars=bind_vars)
             for doc in cursor:
-                # Reconstruct CURIE from collection name and _key only when
-                # the document has no stored 'id' (per-ontology collection convention).
-                # e.g., collection "CL", _key "1000300" -> "CL:1000300"
-                key = doc.pop("_key", "")
-                if "id" not in doc:
-                    doc["id"] = f"{node_collection}:{key}"
-                doc.setdefault("name", "")
-                doc.setdefault("category", ["biolink:NamedThing"])
-                nodes.append(doc)
+                nodes.append(self._prepare_node(doc))
         except Exception as e:
             log.error(e)
         return nodes
+
+    def _prepare_node(self, doc: Dict) -> Dict:
+        """
+        Turn an ArangoDB document into a node record.
+
+        The CURIE is reconstructed from the document handle (per-ontology
+        collection convention), e.g., ``_id`` ``CL/1000300`` becomes
+        ``CL:1000300``.  It becomes the node ``id`` if the document stores no
+        ``id``, or always if ``use_arango_id`` is set, in which case a stored
+        ``id`` moves to ``document_id_property``.
+
+        Parameters
+        ----------
+        doc: Dict
+            An ArangoDB document, including ``_id`` and ``_key``
+
+        Returns
+        -------
+        Dict
+            The node record
+        """
+        arango_id = doc.pop("_id")
+        doc.pop("_key", None)
+        curie = _arango_ref_to_curie(arango_id)
+        if self.use_arango_id:
+            if "id" in doc:
+                if self.document_id_property in doc:
+                    log.warning(
+                        f"{arango_id}: '{self.document_id_property}' is already set; "
+                        f"dropping the document's own id {doc['id']!r}"
+                    )
+                else:
+                    doc[self.document_id_property] = doc["id"]
+            doc["id"] = curie
+        elif "id" not in doc:
+            doc["id"] = curie
+        doc.setdefault("name", "")
+        doc.setdefault("category", ["biolink:NamedThing"])
+        return doc
 
     def get_edges(
         self,
@@ -264,9 +315,9 @@ class ArangoSource(Source):
             f"{filter_clause} "
             f"LIMIT @offset, @limit "
             f"RETURN {{"
-            f"subject: UNSET(s, '_id', '_rev'), "
-            f"edge: MERGE(UNSET(edge, '_id', '_rev', '_key'), {{_from: edge._from, _to: edge._to}}), "
-            f"object: UNSET(o, '_id', '_rev')"
+            f"subject: UNSET(s, '_rev'), "
+            f"edge: UNSET(edge, '_rev', '_key'), "
+            f"object: UNSET(o, '_rev')"
             f"}}"
         )
         bind_vars["offset"] = skip
@@ -287,24 +338,15 @@ class ArangoSource(Source):
                     )
                     continue
 
-                # Reconstruct CURIEs from _from/_to
-                # e.g., _from "CL/1000302" -> "CL:1000302"
-                from_ref = edge_data.pop("_from", "")
-                to_ref = edge_data.pop("_to", "")
-                subject_curie = _arango_ref_to_curie(from_ref)
-                object_curie = _arango_ref_to_curie(to_ref)
-
-                subject_node.pop("_key", "")
-                if "id" not in subject_node:
-                    subject_node["id"] = subject_curie
-                subject_node.setdefault("name", "")
-                subject_node.setdefault("category", ["biolink:NamedThing"])
-
-                object_node.pop("_key", "")
-                if "id" not in object_node:
-                    object_node["id"] = object_curie
-                object_node.setdefault("name", "")
-                object_node.setdefault("category", ["biolink:NamedThing"])
+                # The endpoints are the _from/_to documents, so their CURIEs
+                # follow the same rule as nodes read from their collections.
+                edge_data.pop("_from", None)
+                edge_data.pop("_to", None)
+                subject_node = self._prepare_node(subject_node)
+                object_node = self._prepare_node(object_node)
+                if self.use_arango_id:
+                    edge_data["subject"] = subject_node["id"]
+                    edge_data["object"] = object_node["id"]
 
                 edge_data.setdefault("predicate", "biolink:related_to")
                 edge_data.setdefault("relation", "biolink:related_to")
@@ -414,14 +456,12 @@ class ArangoSource(Source):
         subject_node = edge_record[0]
         edge_data = edge_record[1]
         object_node = edge_record[2]
+        arango_id = edge_data.pop("_id", None)
 
         self.set_edge_provenance(edge_data)
 
         if "id" not in edge_data.keys():
             edge_data["id"] = generate_uuid()
-        key = generate_edge_key(
-            subject_node["id"], edge_data["predicate"], object_node["id"]
-        )
 
         edge_data = self.validate_edge(edge_data)
         if not edge_data:
@@ -429,6 +469,25 @@ class ArangoSource(Source):
 
         edge_data = sanitize_import(edge_data.copy())
         self.edge_properties.update(edge_data.keys())
+        # Key the edge by its document handle, which is unique, rather than
+        # by (subject, predicate, object): the predicate defaults to the
+        # collection name, so edges between the same nodes in one collection
+        # would otherwise overwrite each other in a GraphSink, which keys
+        # edges by a 'key' field when there is one and does not store it.
+        # It is not registered as an edge property, so it adds no column to
+        # a TSV export.
+        if arango_id:
+            if "key" in edge_data:
+                log.warning(
+                    f"{arango_id}: replacing its 'key' attribute "
+                    f"{edge_data['key']!r} with the document handle"
+                )
+            edge_data["key"] = arango_id
+            key = arango_id
+        else:
+            key = generate_edge_key(
+                subject_node["id"], edge_data["predicate"], object_node["id"]
+            )
         return subject_node["id"], object_node["id"], key, edge_data
 
     def get_pages(

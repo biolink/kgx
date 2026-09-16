@@ -49,11 +49,14 @@ class GraphSink(Sink):
         Parameters
         ----------
         record: Dict
-            An edge record
+            An edge record, keyed by its ``key`` field if it has one
+            (which is not stored as an edge property), else by subject,
+            predicate and object
 
         """
         if "key" in record:
-            key = (record["key"])
+            key = record["key"]
+            record = {k: v for k, v in record.items() if k != "key"}
         else:
             key = generate_edge_key(
                  record["subject"], record["predicate"], record["object"]

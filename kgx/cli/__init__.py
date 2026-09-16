@@ -460,6 +460,20 @@ def neo4j_upload_wrapper(
     is_flag=True,
     help="Discover and export all non-system collections in the database",
 )
+@click.option(
+    "--use-arango-id",
+    is_flag=True,
+    help="Take node ids and edge subject/object from ArangoDB _id/_from/_to, "
+    "even when documents store their own id",
+)
+@click.option(
+    "--document-id-property",
+    required=False,
+    type=str,
+    default="document_id",
+    show_default=True,
+    help="Property that keeps a document's own id under --use-arango-id",
+)
 def arangodb_download_wrapper(
     uri: str,
     database: str,
@@ -474,6 +488,8 @@ def arangodb_download_wrapper(
     node_collection: Tuple,
     edge_collection: Tuple,
     all_collections: bool,
+    use_arango_id: bool,
+    document_id_property: str,
 ):
     """
     Download nodes and edges from an ArangoDB database.
@@ -507,6 +523,11 @@ def arangodb_download_wrapper(
         Names of edge collections
     all_collections: bool
         Whether to discover and export all non-system collections
+    use_arango_id: bool
+        Whether to derive node ids and edge subject/object from ArangoDB
+        document handles rather than stored ``id`` values
+    document_id_property: str
+        The property that keeps a document's own ``id`` under ``use_arango_id``
 
     """
     try:
@@ -524,6 +545,8 @@ def arangodb_download_wrapper(
             node_collections=list(node_collection) if node_collection else None,
             edge_collections=list(edge_collection) if edge_collection else None,
             all_collections=all_collections,
+            use_arango_id=use_arango_id,
+            document_id_property=document_id_property,
         )
         exit(0)
     except Exception as ade:
