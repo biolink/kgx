@@ -361,6 +361,8 @@ def arango_download(
     node_collections: Optional[List[str]] = None,
     edge_collections: Optional[List[str]] = None,
     all_collections: bool = False,
+    use_arango_id: bool = False,
+    document_id_property: str = "document_id",
 ) -> Transformer:
     """
     Download nodes and edges from an ArangoDB database.
@@ -393,6 +395,11 @@ def arango_download(
         Names of edge collections to export
     all_collections: bool
         Whether to discover and export all non-system collections
+    use_arango_id: bool
+        Whether to derive node ids and edge subject/object from ArangoDB
+        document handles rather than stored ``id`` values
+    document_id_property: str
+        The property that keeps a document's own ``id`` under ``use_arango_id``
 
     Returns
     -------
@@ -409,6 +416,8 @@ def arango_download(
         "node_filters": node_filters,
         "edge_filters": edge_filters,
         "all_collections": all_collections,
+        "use_arango_id": use_arango_id,
+        "document_id_property": document_id_property,
     }
     if node_collections:
         source_config["node_collections"] = node_collections
