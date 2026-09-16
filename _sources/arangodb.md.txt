@@ -21,6 +21,10 @@ On **export**, KGX reconstructs full CURIEs from this convention:
 - Edge subject: derived from `_from` (e.g., `CL/1000300` becomes `CL:1000300`)
 - Edge object: derived from `_to` (e.g., `UBERON/0001992` becomes `UBERON:0001992`)
 
+By default this applies only to documents with no stored `id` field; a stored `id` is used as is, and edge endpoints follow it. That is right for databases written by `arangodb-upload`, which stores each node's CURIE in `id`. For other databases, where `id` may be ordinary data that need not match the document or be unique, pass `--use-arango-id` (`use_arango_id=True` in the source arguments): node IDs, and edge subjects and objects, then always come from `_id`, `_from` and `_to`, and a document's own `id` is kept under `--document-id-property` (default `document_id`).
+
+Each edge is keyed by its ArangoDB `_id`, so edges between the same two nodes in the same collection (for example, two edges that differ only by a label attribute) are all exported, even when their predicate is the same.
+
 On **import** with `--curie-routing`, KGX reverses this process:
 
 - Node CURIE prefix determines the target collection (e.g., `CL:1000300` goes to collection `CL` with `_key` `1000300`)
@@ -123,6 +127,8 @@ kgx arangodb-upload \
 | `--node-collection` | Vertex collection name (repeatable) |
 | `--edge-collection` | Edge collection name (repeatable) |
 | `--all-collections` | Auto-discover and export all non-system collections |
+| `--use-arango-id` | Take node IDs and edge subject/object from `_id`/`_from`/`_to`, even when documents store their own `id` |
+| `--document-id-property` | Property that keeps a document's own `id` under `--use-arango-id` (default `document_id`) |
 | `-n`, `--node-filters` | Node filters (key value pair) |
 | `-e`, `--edge-filters` | Edge filters (key value pair) |
 

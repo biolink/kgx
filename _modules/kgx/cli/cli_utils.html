@@ -658,6 +658,8 @@
     <span class="n">node_collections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">edge_collections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">all_collections</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_arango_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">document_id_property</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;document_id&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download nodes and edges from an ArangoDB database.</span>
@@ -690,6 +692,11 @@
 <span class="sd">        Names of edge collections to export</span>
 <span class="sd">    all_collections: bool</span>
 <span class="sd">        Whether to discover and export all non-system collections</span>
+<span class="sd">    use_arango_id: bool</span>
+<span class="sd">        Whether to derive node ids and edge subject/object from ArangoDB</span>
+<span class="sd">        document handles rather than stored ``id`` values</span>
+<span class="sd">    document_id_property: str</span>
+<span class="sd">        The property that keeps a document&#39;s own ``id`` under ``use_arango_id``</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -706,6 +713,8 @@
         <span class="s2">&quot;node_filters&quot;</span><span class="p">:</span> <span class="n">node_filters</span><span class="p">,</span>
         <span class="s2">&quot;edge_filters&quot;</span><span class="p">:</span> <span class="n">edge_filters</span><span class="p">,</span>
         <span class="s2">&quot;all_collections&quot;</span><span class="p">:</span> <span class="n">all_collections</span><span class="p">,</span>
+        <span class="s2">&quot;use_arango_id&quot;</span><span class="p">:</span> <span class="n">use_arango_id</span><span class="p">,</span>
+        <span class="s2">&quot;document_id_property&quot;</span><span class="p">:</span> <span class="n">document_id_property</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">node_collections</span><span class="p">:</span>
         <span class="n">source_config</span><span class="p">[</span><span class="s2">&quot;node_collections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_collections</span>

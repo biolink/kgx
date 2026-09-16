@@ -326,6 +326,11 @@
 </dd>
 <dt>all_collections: bool</dt><dd><p>Whether to discover and export all non-system collections</p>
 </dd>
+<dt>use_arango_id: bool</dt><dd><p>Whether to derive node ids and edge subject/object from ArangoDB
+document handles rather than stored <code class="docutils literal notranslate"><span class="pre">id</span></code> values</p>
+</dd>
+<dt>document_id_property: str</dt><dd><p>The property that keeps a document’s own <code class="docutils literal notranslate"><span class="pre">id</span></code> under <code class="docutils literal notranslate"><span class="pre">use_arango_id</span></code></p>
+</dd>
 </dl>
 <p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kgx<span class="w"> </span>arangodb-download<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
@@ -408,6 +413,23 @@
 <dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-all-collections">
 <span class="sig-name descname"><span class="pre">--all-collections</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-all-collections" title="Link to this definition">¶</a></dt>
 <dd><p>Discover and export all non-system collections in the database</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-use-arango-id">
+<span class="sig-name descname"><span class="pre">--use-arango-id</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-use-arango-id" title="Link to this definition">¶</a></dt>
+<dd><p>Take node ids and edge subject/object from ArangoDB _id/_from/_to, even when documents store their own id</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-kgx-arangodb-download-document-id-property">
+<span class="sig-name descname"><span class="pre">--document-id-property</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;document_id_property&gt;</span></span><a class="headerlink" href="#cmdoption-kgx-arangodb-download-document-id-property" title="Link to this definition">¶</a></dt>
+<dd><p>Property that keeps a document’s own id under –use-arango-id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'document_id'</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
