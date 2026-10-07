@@ -660,31 +660,40 @@ def transform(
             if key in source:
                 source_to_parse[key] = val
 
-        results = []
-        pool = Pool(processes=processes)
-        for k, v in source_to_parse.items():
-            log.info(f"Spawning process for '{k}'")
-            result = pool.apply_async(
-                transform_source,
-                (
-                    k,
-                    v,
-                    output_directory,
-                    top_level_args["prefix_map"],
-                    top_level_args["node_property_predicates"],
-                    top_level_args["predicate_mappings"],
-                    top_level_args["reverse_prefix_map"],
-                    top_level_args["reverse_predicate_mappings"],
-                    top_level_args["property_types"],
-                    top_level_args["checkpoint"],
-                    False,
-                    stream,
-                ),
-            )
-            results.append(result)
-        pool.close()
-        pool.join()
-        graphs = [r.get() for r in results]
+        source_kwargs = dict(
+            output_directory=output_directory,
+            prefix_map=top_level_args["prefix_map"],
+            node_property_predicates=top_level_args["node_property_predicates"],
+            predicate_mappings=top_level_args["predicate_mappings"],
+            reverse_prefix_map=top_level_args["reverse_prefix_map"],
+            reverse_predicate_mappings=top_level_args["reverse_predicate_mappings"],
+            property_types=top_level_args["property_types"],
+            checkpoint=top_level_args["checkpoint"],
+            preserve_graph=False,
+            stream=stream,
+            parallel=parallel,
+            exclude_node_properties=top_level_args["exclude_node_properties"],
+            exclude_edge_properties=top_level_args["exclude_edge_properties"],
+        )
+        if parallel and parallel > 1:
+            # Partitioned export starts its own worker pool, and pool workers
+            # are daemonic and cannot have children, so run sources in this
+            # process and let each one parallelize internally.
+            graphs = []
+            for k, v in source_to_parse.items():
+                log.info(f"Transforming '{k}' with {parallel} workers")
+                graphs.append(transform_source(k, v, **source_kwargs))
+        else:
+            results = []
+            pool = Pool(processes=processes)
+            for k, v in source_to_parse.items():
+                log.info(f"Spawning process for '{k}'")
+                results.append(
+                    pool.apply_async(transform_source, (k, v), source_kwargs)
+                )
+            pool.close()
+            pool.join()
+            graphs = [r.get() for r in results]
     else:
         source_dict: Dict = {
             "input": {
@@ -992,6 +1001,8 @@ def transform_source(
     stream: bool = False,
     infores_catalog: Optional[str] = None,
     parallel: int = 1,
+    exclude_node_properties: Optional[List[str]] = None,
+    exclude_edge_properties: Optional[List[str]] = None,
 ) -> Sink:
     """
     Transform a source from a transform config YAML.
@@ -1029,6 +1040,10 @@ def transform_source(
         Number of worker processes for partitioned export. Effective only when the
         source/sink combination supports it (DuckDB → N-Triples without gzip);
         otherwise falls back to sequential.
+    exclude_node_properties: Optional[List[str]]
+        Node properties to drop from every record before it reaches the sink
+    exclude_edge_properties: Optional[List[str]]
+        Edge properties to drop from every record before it reaches the sink
 
     Returns
     -------
@@ -1052,6 +1067,9 @@ def transform_source(
         reverse_prefix_map,
         reverse_predicate_mappings,
         property_types,
+        prefix_map=prefix_map,
+        exclude_node_properties=exclude_node_properties,
+        exclude_edge_properties=exclude_edge_properties,
     )
     transformer = Transformer(stream=stream, infores_catalog=infores_catalog)
     transformer.transform(input_args, output_args, parallel=parallel)
@@ -1207,6 +1225,9 @@ def prepare_output_args(
     reverse_prefix_map: Dict = None,
     reverse_predicate_mappings: Dict = None,
     property_types: Dict = None,
+    prefix_map: Dict = None,
+    exclude_node_properties: Optional[List[str]] = None,
+    exclude_edge_properties: Optional[List[str]] = None,
 ) -> Dict:
     """
     Prepare output arguments for Transformer.
@@ -1292,12 +1313,30 @@ def prepare_output_args(
                 else True
             )
             output_args["reverse_prefix_map"] = source_reverse_prefix_map
-            output_args["reverse_predicate_mappings"] = (
+            output_args["reverse_predicate_mapping"] = (
                 source_reverse_predicate_mappings
             )
             output_args["property_types"] = source_property_types
+            # CURIE prefix -> IRI expansions for the sink, so a config can
+            # declare prefixes the Biolink context does not define.
+            source_prefix_map = dict(prefix_map or {})
+            source_prefix_map.update(source.get("prefix_map") or {})
+            if source_prefix_map:
+                output_args["prefix_map"] = source_prefix_map
     else:
         raise ValueError(f"type {output_format} not yet supported for output")
+
+    # Properties dropped from every record before it reaches the sink: the
+    # top-level lists unioned with any given for this source.
+    for kind, top_level in (
+        ("node", exclude_node_properties),
+        ("edge", exclude_edge_properties),
+    ):
+        excluded = set(top_level or []) | set(
+            source.get(f"exclude_{kind}_properties") or []
+        )
+        if excluded:
+            output_args[f"exclude_{kind}_properties"] = sorted(excluded)
 
     return output_args
 
@@ -1378,4 +1417,6 @@ def prepare_top_level_args(d: Dict) -> Dict:
         args["property_types"] = d["property_types"]
     else:
         args["property_types"] = {}
+    args["exclude_node_properties"] = list(d.get("exclude_node_properties") or [])
+    args["exclude_edge_properties"] = list(d.get("exclude_edge_properties") or [])
     return args
