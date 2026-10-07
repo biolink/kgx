@@ -151,7 +151,11 @@ class RdfSink(Sink):
 
         """
         for k, v in m.items():
-            self.reverse_predicate_mapping[v] = URIRef(k)
+            if PrefixManager.is_iri(str(k)) and not PrefixManager.is_iri(str(v)):
+                # tolerate the inverted IRI -> property name form, which is
+                # what this method previously required despite its docstring
+                k, v = v, k
+            self.reverse_predicate_mapping[k] = URIRef(v)
 
     def set_property_types(self, m: Dict) -> None:
         """
@@ -196,13 +200,12 @@ class RdfSink(Sink):
                 predicate,
                 property_name,
             ) = self.process_predicate(k)
-            if element_uri is None:
+            if k in self.reverse_predicate_mapping:
+                # an explicit mapping takes precedence over Biolink resolution
+                prop_uri = self.reverse_predicate_mapping[k]
+            elif element_uri is None:
                 # not a biolink predicate
-                if k in self.reverse_predicate_mapping:
-                    prop_uri = self.reverse_predicate_mapping[k]
-                    # prop_uri = self.prefix_manager.contract(prop_uri)
-                else:
-                    prop_uri = k
+                prop_uri = k
             else:
                 prop_uri = canonical_uri if canonical_uri else element_uri
             prop_type = self._get_property_type(prop_uri)
@@ -264,13 +267,13 @@ class RdfSink(Sink):
                     predicate,
                     property_name,
                 ) = self.process_predicate(prop)
-                if element_uri:
+                if prop in self.reverse_predicate_mapping:
+                    # an explicit mapping takes precedence over Biolink resolution
+                    prop_uri = self.reverse_predicate_mapping[prop]
+                elif element_uri:
                     prop_uri = canonical_uri if canonical_uri else element_uri
                 else:
-                    if prop in self.reverse_predicate_mapping:
-                        prop_uri = self.reverse_predicate_mapping[prop]
-                    else:
-                        prop_uri = predicate
+                    prop_uri = predicate
                 prop_type = self._get_property_type(prop)
                 log.debug("prop %s has prop_uri %s and prop_type %s", prop, prop_uri, prop_type)
                 prop_uri = self.uriref(prop_uri)
@@ -311,13 +314,13 @@ class RdfSink(Sink):
                         predicate,
                         property_name,
                     ) = self.process_predicate(prop)
-                    if element_uri:
+                    if prop in self.reverse_predicate_mapping:
+                        # an explicit mapping takes precedence over Biolink resolution
+                        prop_uri = self.reverse_predicate_mapping[prop]
+                    elif element_uri:
                         prop_uri = canonical_uri if canonical_uri else element_uri
                     else:
-                        if prop in self.reverse_predicate_mapping:
-                            prop_uri = self.reverse_predicate_mapping[prop]
-                        else:
-                            prop_uri = predicate
+                        prop_uri = predicate
                     prop_type = self._get_property_type(prop)
                     prop_uri = self.uriref(prop_uri)
                     if isinstance(value, list):
