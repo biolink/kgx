@@ -284,5 +284,5 @@ class NeoSink(Sink):
             The Cypher CONSTRAINT query
 
         """
-        query = f"CREATE CONSTRAINT IF NOT EXISTS ON (n:{category}) ASSERT n.id IS UNIQUE"
+        query = f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{category}) REQUIRE n.id IS UNIQUE"
         return query
