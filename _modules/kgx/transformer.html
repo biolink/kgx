@@ -355,6 +355,14 @@
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
+<span class="c1"># Properties a sink needs to identify a record; never dropped by an exclusion list.</span>
+<span class="n">PROTECTED_NODE_PROPERTIES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">})</span>
+<span class="n">PROTECTED_EDGE_PROPERTIES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="s2">&quot;predicate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">})</span>
+
+<span class="c1"># Keys in output_args that configure a sink after construction rather than</span>
+<span class="c1"># being passed to its constructor.</span>
+<span class="n">SINK_SETTING_KEYS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">})</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parallel_worker</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -408,6 +416,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_filters</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_filters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude_node_properties</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude_edge_properties</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">GraphEntityType</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -461,6 +471,8 @@
                 <span class="k">return</span>
             <span class="c1"># _run_parallel returned False: prerequisites not met, fall through</span>
             <span class="c1"># to sequential processing.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_property_exclusions</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
 
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">generators</span> <span class="o">=</span> <span class="p">[]</span>
@@ -529,16 +541,7 @@
                                     <span class="sa">f</span><span class="s2">&quot;streaming. The exported format will be limited to a subset of the columns.&quot;</span><span class="p">,</span>
                             <span class="n">message_level</span><span class="o">=</span><span class="n">MessageLevel</span><span class="o">.</span><span class="n">WARNING</span>
                         <span class="p">)</span>
-                <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sink</span><span class="p">(</span><span class="o">**</span><span class="n">output_args</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;reverse_prefix_map&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                    <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_prefix_map</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sink</span><span class="p">,</span> <span class="n">RdfSink</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="s2">&quot;reverse_predicate_mapping&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                        <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_predicate_mapping</span><span class="p">(</span>
-                            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mapping&quot;</span><span class="p">]</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                        <span class="n">sink</span><span class="o">.</span><span class="n">set_property_types</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">])</span>
+                <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_sink</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
                 <span class="c1"># stream from source to sink</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">source_generator</span><span class="p">,</span> <span class="n">sink</span><span class="p">)</span>
                 <span class="n">sink</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
@@ -581,18 +584,9 @@
                         <span class="n">output_args</span><span class="p">[</span>
                             <span class="s2">&quot;edge_properties&quot;</span>
                         <span class="p">]</span> <span class="o">=</span> <span class="n">intermediate_source</span><span class="o">.</span><span class="n">edge_properties</span>
-                    <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sink</span><span class="p">(</span><span class="o">**</span><span class="n">output_args</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;reverse_prefix_map&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                        <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_prefix_map</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sink</span><span class="p">,</span> <span class="n">RdfSink</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="s2">&quot;reverse_predicate_mapping&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                            <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_predicate_mapping</span><span class="p">(</span>
-                                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mapping&quot;</span><span class="p">]</span>
-                            <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                        <span class="n">sink</span><span class="o">.</span><span class="n">set_property_types</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">])</span>
+                    <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_sink</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sink</span><span class="p">(</span><span class="o">**</span><span class="n">output_args</span><span class="p">)</span>
+                    <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_sink</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
                     <span class="n">sink</span><span class="o">.</span><span class="n">node_properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">intermediate_source</span><span class="o">.</span><span class="n">node_properties</span><span class="p">)</span>
                     <span class="n">sink</span><span class="o">.</span><span class="n">edge_properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">intermediate_source</span><span class="o">.</span><span class="n">edge_properties</span><span class="p">)</span>
 
@@ -763,14 +757,18 @@
                     <span class="k">if</span> <span class="n">write_edge</span><span class="p">:</span>
                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">(</span><span class="n">GraphEntityType</span><span class="o">.</span><span class="n">EDGE</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span>
-                        <span class="n">sink</span><span class="o">.</span><span class="n">write_edge</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">sink</span><span class="o">.</span><span class="n">write_edge</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_without</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude_edge_properties</span><span class="p">)</span>
+                        <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>  <span class="c1"># infer a node record</span>
                     <span class="k">if</span> <span class="s2">&quot;category&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_filters</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_seen_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">inspector</span><span class="p">(</span><span class="n">GraphEntityType</span><span class="o">.</span><span class="n">NODE</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span>
                     <span class="c1"># last element of rec is the node properties</span>
-                    <span class="n">sink</span><span class="o">.</span><span class="n">write_node</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+                    <span class="n">sink</span><span class="o">.</span><span class="n">write_node</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_without</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude_node_properties</span><span class="p">)</span>
+                    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Transformer.save">
@@ -795,18 +793,10 @@
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;node_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">node_properties</span>
         <span class="k">if</span> <span class="s2">&quot;edge_properties&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;edge_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">edge_properties</span>
-        <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sink</span><span class="p">(</span><span class="o">**</span><span class="n">output_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_property_exclusions</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
+        <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_sink</span><span class="p">(</span><span class="n">output_args</span><span class="p">)</span>
         <span class="n">sink</span><span class="o">.</span><span class="n">node_properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">node_properties</span><span class="p">)</span>
         <span class="n">sink</span><span class="o">.</span><span class="n">edge_properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">edge_properties</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;reverse_prefix_map&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-            <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_prefix_map</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sink</span><span class="p">,</span> <span class="n">RdfSink</span><span class="p">):</span>
-            <span class="k">if</span> <span class="s2">&quot;reverse_predicate_mapping&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_predicate_mapping</span><span class="p">(</span>
-                    <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mapping&quot;</span><span class="p">]</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
-                <span class="n">sink</span><span class="o">.</span><span class="n">set_property_types</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">source_generator</span><span class="p">,</span> <span class="n">sink</span><span class="p">)</span>
         <span class="n">sink</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
 
@@ -834,6 +824,61 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2"> in an unrecognized format&quot;</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_property_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take the node and edge property exclusion lists out of ``output_args``.</span>
+
+<span class="sd">        Excluded properties are dropped from every record before it reaches</span>
+<span class="sd">        the sink, for any output format. Properties a sink needs to identify</span>
+<span class="sd">        a record (``PROTECTED_NODE_PROPERTIES``, ``PROTECTED_EDGE_PROPERTIES``)</span>
+<span class="sd">        are never excluded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_args</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">protected</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">PROTECTED_NODE_PROPERTIES</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="n">PROTECTED_EDGE_PROPERTIES</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">requested</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">output_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;exclude_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">_properties&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
+            <span class="n">blocked</span> <span class="o">=</span> <span class="n">requested</span> <span class="o">&amp;</span> <span class="n">protected</span>
+            <span class="k">if</span> <span class="n">blocked</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Ignoring exclusion of required </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> properties: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">blocked</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;exclude_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">_properties&quot;</span><span class="p">,</span> <span class="n">requested</span> <span class="o">-</span> <span class="n">protected</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_without</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">excluded</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``record`` minus the ``excluded`` keys, without mutating it.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">excluded</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">record</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_sink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sink</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the output sink and apply the settings carried in ``output_args``:</span>
+<span class="sd">        prefix map, reverse prefix map, and for RDF sinks the reverse predicate</span>
+<span class="sd">        mapping and property types.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sink</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sink</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">output_args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SINK_SETTING_KEYS</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">):</span>
+            <span class="n">sink</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">update_prefix_map</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;reverse_prefix_map&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
+            <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_prefix_map</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sink</span><span class="p">,</span> <span class="n">RdfSink</span><span class="p">):</span>
+            <span class="c1"># prepare_output_args historically emitted the plural key while this</span>
+            <span class="c1"># class read the singular one, so accept either.</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">output_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reverse_predicate_mapping&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">output_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;reverse_predicate_mappings&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">mapping</span><span class="p">:</span>
+                <span class="n">sink</span><span class="o">.</span><span class="n">set_reverse_predicate_mapping</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;property_types&quot;</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">:</span>
+                <span class="n">sink</span><span class="o">.</span><span class="n">set_property_types</span><span class="p">(</span><span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">sink</span>
 
 <div class="viewcode-block" id="Transformer.get_sink">
 <a class="viewcode-back" href="../../reference/transformer.html#kgx.transformer.Transformer.get_sink">[docs]</a>

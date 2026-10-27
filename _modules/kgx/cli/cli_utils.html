@@ -963,31 +963,40 @@
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
                 <span class="n">source_to_parse</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
-        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">processes</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">source_to_parse</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spawning process for &#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span>
-                <span class="n">transform_source</span><span class="p">,</span>
-                <span class="p">(</span>
-                    <span class="n">k</span><span class="p">,</span>
-                    <span class="n">v</span><span class="p">,</span>
-                    <span class="n">output_directory</span><span class="p">,</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;node_property_predicates&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;predicate_mappings&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mappings&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">],</span>
-                    <span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">],</span>
-                    <span class="kc">False</span><span class="p">,</span>
-                    <span class="n">stream</span><span class="p">,</span>
-                <span class="p">),</span>
-            <span class="p">)</span>
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-        <span class="n">graphs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">source_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">output_directory</span><span class="o">=</span><span class="n">output_directory</span><span class="p">,</span>
+            <span class="n">prefix_map</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">],</span>
+            <span class="n">node_property_predicates</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;node_property_predicates&quot;</span><span class="p">],</span>
+            <span class="n">predicate_mappings</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;predicate_mappings&quot;</span><span class="p">],</span>
+            <span class="n">reverse_prefix_map</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">],</span>
+            <span class="n">reverse_predicate_mappings</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mappings&quot;</span><span class="p">],</span>
+            <span class="n">property_types</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">],</span>
+            <span class="n">checkpoint</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">],</span>
+            <span class="n">preserve_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+            <span class="n">exclude_node_properties</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;exclude_node_properties&quot;</span><span class="p">],</span>
+            <span class="n">exclude_edge_properties</span><span class="o">=</span><span class="n">top_level_args</span><span class="p">[</span><span class="s2">&quot;exclude_edge_properties&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">parallel</span> <span class="ow">and</span> <span class="n">parallel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Partitioned export starts its own worker pool, and pool workers</span>
+            <span class="c1"># are daemonic and cannot have children, so run sources in this</span>
+            <span class="c1"># process and let each one parallelize internally.</span>
+            <span class="n">graphs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">source_to_parse</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming &#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39; with </span><span class="si">{</span><span class="n">parallel</span><span class="si">}</span><span class="s2"> workers&quot;</span><span class="p">)</span>
+                <span class="n">graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transform_source</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">source_kwargs</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">processes</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">source_to_parse</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spawning process for &#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">transform_source</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">source_kwargs</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="n">graphs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">source_dict</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -1304,6 +1313,8 @@
     <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">infores_catalog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">exclude_node_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exclude_edge_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sink</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transform a source from a transform config YAML.</span>
@@ -1341,6 +1352,10 @@
 <span class="sd">        Number of worker processes for partitioned export. Effective only when the</span>
 <span class="sd">        source/sink combination supports it (DuckDB → N-Triples without gzip);</span>
 <span class="sd">        otherwise falls back to sequential.</span>
+<span class="sd">    exclude_node_properties: Optional[List[str]]</span>
+<span class="sd">        Node properties to drop from every record before it reaches the sink</span>
+<span class="sd">    exclude_edge_properties: Optional[List[str]]</span>
+<span class="sd">        Edge properties to drop from every record before it reaches the sink</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1364,6 +1379,9 @@
         <span class="n">reverse_prefix_map</span><span class="p">,</span>
         <span class="n">reverse_predicate_mappings</span><span class="p">,</span>
         <span class="n">property_types</span><span class="p">,</span>
+        <span class="n">prefix_map</span><span class="o">=</span><span class="n">prefix_map</span><span class="p">,</span>
+        <span class="n">exclude_node_properties</span><span class="o">=</span><span class="n">exclude_node_properties</span><span class="p">,</span>
+        <span class="n">exclude_edge_properties</span><span class="o">=</span><span class="n">exclude_edge_properties</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">infores_catalog</span><span class="o">=</span><span class="n">infores_catalog</span><span class="p">)</span>
     <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_args</span><span class="p">,</span> <span class="n">output_args</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span>
@@ -1531,6 +1549,9 @@
     <span class="n">reverse_prefix_map</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">reverse_predicate_mappings</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">property_types</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">prefix_map</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exclude_node_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exclude_edge_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prepare output arguments for Transformer.</span>
@@ -1616,12 +1637,30 @@
                 <span class="k">else</span> <span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_prefix_map&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_reverse_prefix_map</span>
-            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mappings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;reverse_predicate_mapping&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">source_reverse_predicate_mappings</span>
             <span class="p">)</span>
             <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_property_types</span>
+            <span class="c1"># CURIE prefix -&gt; IRI expansions for the sink, so a config can</span>
+            <span class="c1"># declare prefixes the Biolink context does not define.</span>
+            <span class="n">source_prefix_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">prefix_map</span> <span class="ow">or</span> <span class="p">{})</span>
+            <span class="n">source_prefix_map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">source_prefix_map</span><span class="p">:</span>
+                <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;prefix_map&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_prefix_map</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;type </span><span class="si">{</span><span class="n">output_format</span><span class="si">}</span><span class="s2"> not yet supported for output&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Properties dropped from every record before it reaches the sink: the</span>
+    <span class="c1"># top-level lists unioned with any given for this source.</span>
+    <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">top_level</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">exclude_node_properties</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="n">exclude_edge_properties</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">excluded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">top_level</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;exclude_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">_properties&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">excluded</span><span class="p">:</span>
+            <span class="n">output_args</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;exclude_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output_args</span></div>
 
@@ -1708,6 +1747,8 @@
         <span class="n">args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">args</span><span class="p">[</span><span class="s2">&quot;property_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;exclude_node_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exclude_node_properties&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;exclude_edge_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exclude_edge_properties&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="k">return</span> <span class="n">args</span></div>
 
 </pre></div>
