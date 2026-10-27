@@ -120,3 +120,38 @@ def test_prefix_manager_contract(query):
     """
     pm = PrefixManager()
     assert pm.contract(query[0]) == query[1]
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        # OBO ontologies with no entry of their own in the JSON-LD context. The
+        # context's catch-all `OBO -> http://purl.obolibrary.org/obo/` matches
+        # them, and must not suppress the specific mappings in obo_context.
+        ("http://purl.obolibrary.org/obo/DDPHENO_0000001", "DDPHENO:0000001"),
+        ("http://purl.obolibrary.org/obo/FBbt_00000001", "FBbt:00000001"),
+        ("http://purl.obolibrary.org/obo/EMAPA_16040", "EMAPA:16040"),
+        ("http://purl.obolibrary.org/obo/WBbt_0005733", "WBbt:0005733"),
+        ("http://purl.obolibrary.org/obo/ZFA_0000001", "ZFA:0000001"),
+        ("http://purl.obolibrary.org/obo/XAO_0000001", "XAO:0000001"),
+        ("http://purl.obolibrary.org/obo/ZFS_0000001", "ZFS:0000001"),
+        ("http://purl.obolibrary.org/obo/CHR_0000001", "CHR:0000001"),
+        # Ontologies that do have their own context entry are unaffected.
+        ("http://purl.obolibrary.org/obo/HP_0000001", "HP:0000001"),
+        ("http://purl.obolibrary.org/obo/MONDO_0000001", "MONDO:0000001"),
+        ("http://purl.obolibrary.org/obo/RO_0002162", "RO:0002162"),
+        ("http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050"),
+        # IRIs beneath the OBO namespace that no per-ontology mapping covers
+        # keep the catch-all, as before.
+        (
+            "http://purl.obolibrary.org/obo/fbbt#has_function_in",
+            "OBO:fbbt#has_function_in",
+        ),
+    ],
+)
+def test_prefix_manager_contract_obo_idspaces(query):
+    """
+    Test that the OBO catch-all does not shadow per-ontology mappings.
+    """
+    pm = PrefixManager()
+    assert pm.contract(query[0]) == query[1]
