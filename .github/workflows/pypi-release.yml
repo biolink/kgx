@@ -26,7 +26,7 @@ jobs:
       run: uv build
 
     - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.13.0
+      uses: pypa/gh-action-pypi-publish@v1.14.3
       with:
         user: __token__
         password: ${{ secrets.KGX_PYPI_TOKEN }}
