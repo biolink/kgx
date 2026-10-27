@@ -1,0 +1,392 @@
+{
+  "graphs": [
+    {
+      "id": "http://purl.obolibrary.org/obo/phenio.owl",
+      "nodes": [
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0000004",
+          "lbl": "adrenocortical insufficiency",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0002816",
+          "lbl": "adrenal gland disease",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0000005",
+          "lbl": "alopecia, neurologic defects, and endocrinopathy syndrome",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0100118",
+          "lbl": "syndromic alopecia",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0000009",
+          "lbl": "inherited bleeding disorder, platelet-type",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0002243",
+          "lbl": "hemorrhagic disease",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0002245",
+          "lbl": "blood platelet disease",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0000133",
+          "lbl": "intrinsic cardiomyopathy",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0100137",
+          "lbl": "cardiomyopathy",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0018642",
+          "lbl": "nodular lymphocyte predominant Hodgkin lymphoma",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/GO_0007249",
+          "lbl": "canonical NF-kappaB signal transduction",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0005815",
+          "lbl": "mucinous adenocarcinoma",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0021040",
+          "lbl": "adenocarcinoma",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/MONDO_0000290",
+          "lbl": "candidiasis",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/NCBITaxon_5763",
+          "lbl": "Candida",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/CL_4304384",
+          "lbl": "myeloid dendritic cell",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/CL_0011111",
+          "lbl": "dendritic cell",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/CL_0000014",
+          "lbl": "germ line stem cell",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/CL_0000034",
+          "lbl": "stem cell",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/FBbt_00000001",
+          "lbl": "organism",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/UBERON_0000468",
+          "lbl": "multicellular organism",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/HP_0000988",
+          "lbl": "skin rash",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/HsapDv_0000049",
+          "lbl": "human life cycle stage",
+          "type": "CLASS"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/HsapDv_0000198",
+          "lbl": "prime adulthood stage",
+          "type": "CLASS"
+        }
+      ],
+      "edges": [
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000004",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0002816",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "DOID:10493"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Inferred"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000005",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0100118",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "https://orcid.org/0000-0002-5002-8648"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000009",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0002243",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "DOID:2218"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Redundant"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "https://orcid.org/0000-0002-6601-2165"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000009",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0002245",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Entailed"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Redundant"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000133",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0100137",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "PMID:29804726"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0018642",
+          "pred": "http://purl.obolibrary.org/obo/RO_0000057",
+          "obj": "http://purl.obolibrary.org/obo/GO_0007249",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "doi:10.1038/ncomms6360"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0005815",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/MONDO_0021040",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "EFO:0007331"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:0018520-obsoleted"
+              },
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Entailed"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0000290",
+          "pred": "http://purl.obolibrary.org/obo/RO_0002451",
+          "obj": "http://purl.obolibrary.org/obo/NCBITaxon_5763",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://purl.org/dc/elements/1.1/source",
+                "val": "MONDO:Wikidata"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/CL_4304384",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/CL_0011111",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#evidence",
+                "val": "http://identifiers.org/ncbigene/140919"
+              },
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#evidence",
+                "val": "http://identifiers.org/ncbigene/14415"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/cl.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/CL_0000014",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/CL_0000034",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#is_inferred",
+                "val": "true"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/cl.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/FBbt_00000001",
+          "pred": "is_a",
+          "obj": "http://purl.obolibrary.org/obo/UBERON_0000468",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "https://w3id.org/sssom/mapping_cardinality",
+                "val": "n:1"
+              },
+              {
+                "pred": "https://w3id.org/sssom/mapping_date",
+                "val": "2024-07-12"
+              },
+              {
+                "pred": "https://w3id.org/sssom/mapping_justification",
+                "val": "https://w3id.org/semapv/vocab/ManualMappingCuration"
+              },
+              {
+                "pred": "https://w3id.org/sssom/object_label",
+                "val": "multicellular organism"
+              },
+              {
+                "pred": "https://w3id.org/sssom/subject_label",
+                "val": "organism"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/HsapDv_0000049",
+          "pred": "part_of",
+          "obj": "http://purl.obolibrary.org/obo/HsapDv_0000198",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#notes",
+                "val": "debatable"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/hsapdv.owl"
+              }
+            ]
+          }
+        },
+        {
+          "sub": "http://purl.obolibrary.org/obo/MONDO_0018642",
+          "pred": "http://purl.obolibrary.org/obo/RO_0002200",
+          "obj": "http://purl.obolibrary.org/obo/HP_0000988",
+          "meta": {
+            "basicPropertyValues": [
+              {
+                "pred": "http://www.geneontology.org/formats/oboInOwl#source",
+                "val": "PMID:33340416"
+              },
+              {
+                "pred": "http://www.w3.org/ns/prov#wasDerivedFrom",
+                "val": "http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/imports/merged_import.owl"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
