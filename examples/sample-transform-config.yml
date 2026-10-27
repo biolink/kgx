@@ -2,7 +2,7 @@ configuration:
   output_directory: output_data
   checkpoint: false
   prefix_map:
-    # define non-canonical CURIE to IRI mappings
+    # define non-canonical CURIE to IRI mappings (also used to expand CURIEs in RDF output)
   node_property_predicates:
     # define predicates that are to be treated as direct node properties (for RDF)
   predicate_mappings:
@@ -12,7 +12,11 @@ configuration:
   reverse_prefix_map:
     # define IRI to CURIE mappings
   reverse_predicate_mappings:
-    # map property names to non-canonical predicates (for RDF)
+    # map property names to non-canonical predicates (for RDF); takes precedence over Biolink
+  exclude_node_properties:
+    # node properties to drop from every record before it reaches the output
+  exclude_edge_properties:
+    # edge properties to drop from every record before it reaches the output
 transform:
   source:
     hgnc-dataset:

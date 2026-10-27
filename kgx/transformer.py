@@ -81,6 +81,14 @@ SINK_MAP = {
 
 log = get_logger()
 
+# Properties a sink needs to identify a record; never dropped by an exclusion list.
+PROTECTED_NODE_PROPERTIES = frozenset({"id"})
+PROTECTED_EDGE_PROPERTIES = frozenset({"id", "subject", "predicate", "object"})
+
+# Keys in output_args that configure a sink after construction rather than
+# being passed to its constructor.
+SINK_SETTING_KEYS = frozenset({"prefix_map"})
+
 
 def _parallel_worker(args):
     """
@@ -132,6 +140,8 @@ class Transformer(ErrorDetecting):
         self.stream = stream
         self.node_filters = {}
         self.edge_filters = {}
+        self.exclude_node_properties: Set[str] = set()
+        self.exclude_edge_properties: Set[str] = set()
 
         self.inspector: Optional[Callable[[GraphEntityType, List], None]] = None
 
@@ -183,6 +193,8 @@ class Transformer(ErrorDetecting):
                 return
             # _run_parallel returned False: prerequisites not met, fall through
             # to sequential processing.
+
+        self._set_property_exclusions(output_args)
 
         sources = []
         generators = []
@@ -251,16 +263,7 @@ class Transformer(ErrorDetecting):
                                     f"streaming. The exported format will be limited to a subset of the columns.",
                             message_level=MessageLevel.WARNING
                         )
-                sink = self.get_sink(**output_args)
-                if "reverse_prefix_map" in output_args:
-                    sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
-                if isinstance(sink, RdfSink):
-                    if "reverse_predicate_mapping" in output_args:
-                        sink.set_reverse_predicate_mapping(
-                            output_args["reverse_predicate_mapping"]
-                        )
-                    if "property_types" in output_args:
-                        sink.set_property_types(output_args["property_types"])
+                sink = self._build_sink(output_args)
                 # stream from source to sink
                 self.process(source_generator, sink)
                 sink.finalize()
@@ -303,18 +306,9 @@ class Transformer(ErrorDetecting):
                         output_args[
                             "edge_properties"
                         ] = intermediate_source.edge_properties
-                    sink = self.get_sink(**output_args)
-                    if "reverse_prefix_map" in output_args:
-                        sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
-                    if isinstance(sink, RdfSink):
-                        if "reverse_predicate_mapping" in output_args:
-                            sink.set_reverse_predicate_mapping(
-                                output_args["reverse_predicate_mapping"]
-                            )
-                    if "property_types" in output_args:
-                        sink.set_property_types(output_args["property_types"])
+                    sink = self._build_sink(output_args)
                 else:
-                    sink = self.get_sink(**output_args)
+                    sink = self._build_sink(output_args)
                     sink.node_properties.update(intermediate_source.node_properties)
                     sink.edge_properties.update(intermediate_source.edge_properties)
 
@@ -479,14 +473,18 @@ class Transformer(ErrorDetecting):
                     if write_edge:
                         if self.inspector:
                             self.inspector(GraphEntityType.EDGE, rec)
-                        sink.write_edge(rec[-1])
+                        sink.write_edge(
+                            self._without(rec[-1], self.exclude_edge_properties)
+                        )
                 else:  # infer a node record
                     if "category" in self.node_filters:
                         self._seen_nodes.add(rec[0])
                     if self.inspector:
                         self.inspector(GraphEntityType.NODE, rec)
                     # last element of rec is the node properties
-                    sink.write_node(rec[-1])
+                    sink.write_node(
+                        self._without(rec[-1], self.exclude_node_properties)
+                    )
 
     def save(self, output_args: Dict) -> None:
         """
@@ -508,18 +506,10 @@ class Transformer(ErrorDetecting):
             output_args["node_properties"] = source.node_properties
         if "edge_properties" not in output_args:
             output_args["edge_properties"] = source.edge_properties
-        sink = self.get_sink(**output_args)
+        self._set_property_exclusions(output_args)
+        sink = self._build_sink(output_args)
         sink.node_properties.update(source.node_properties)
         sink.edge_properties.update(source.edge_properties)
-        if "reverse_prefix_map" in output_args:
-            sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
-        if isinstance(sink, RdfSink):
-            if "reverse_predicate_mapping" in output_args:
-                sink.set_reverse_predicate_mapping(
-                    output_args["reverse_predicate_mapping"]
-                )
-            if "property_types" in output_args:
-                sink.set_property_types(output_args["property_types"])
         self.process(source_generator, sink)
         sink.finalize()
 
@@ -543,6 +533,61 @@ class Transformer(ErrorDetecting):
             return s(self)
         else:
             raise TypeError(f"{format} in an unrecognized format")
+
+    def _set_property_exclusions(self, output_args: Optional[Dict]) -> None:
+        """
+        Take the node and edge property exclusion lists out of ``output_args``.
+
+        Excluded properties are dropped from every record before it reaches
+        the sink, for any output format. Properties a sink needs to identify
+        a record (``PROTECTED_NODE_PROPERTIES``, ``PROTECTED_EDGE_PROPERTIES``)
+        are never excluded.
+        """
+        if not output_args:
+            return
+        for kind, protected in (
+            ("node", PROTECTED_NODE_PROPERTIES),
+            ("edge", PROTECTED_EDGE_PROPERTIES),
+        ):
+            requested = set(output_args.pop(f"exclude_{kind}_properties", None) or [])
+            blocked = requested & protected
+            if blocked:
+                log.warning(
+                    f"Ignoring exclusion of required {kind} properties: {sorted(blocked)}"
+                )
+            setattr(self, f"exclude_{kind}_properties", requested - protected)
+
+    @staticmethod
+    def _without(record: Dict, excluded: Set[str]) -> Dict:
+        """Return ``record`` minus the ``excluded`` keys, without mutating it."""
+        if not excluded:
+            return record
+        return {k: v for k, v in record.items() if k not in excluded}
+
+    def _build_sink(self, output_args: Dict) -> Sink:
+        """
+        Create the output sink and apply the settings carried in ``output_args``:
+        prefix map, reverse prefix map, and for RDF sinks the reverse predicate
+        mapping and property types.
+        """
+        sink = self.get_sink(
+            **{k: v for k, v in output_args.items() if k not in SINK_SETTING_KEYS}
+        )
+        if output_args.get("prefix_map"):
+            sink.prefix_manager.update_prefix_map(output_args["prefix_map"])
+        if "reverse_prefix_map" in output_args:
+            sink.set_reverse_prefix_map(output_args["reverse_prefix_map"])
+        if isinstance(sink, RdfSink):
+            # prepare_output_args historically emitted the plural key while this
+            # class read the singular one, so accept either.
+            mapping = output_args.get("reverse_predicate_mapping") or output_args.get(
+                "reverse_predicate_mappings"
+            )
+            if mapping:
+                sink.set_reverse_predicate_mapping(mapping)
+            if "property_types" in output_args:
+                sink.set_property_types(output_args["property_types"])
+        return sink
 
     def get_sink(self, **kwargs: Dict) -> Sink:
         """
