@@ -268,9 +268,9 @@ prefixes:
   ORCID:
     prefix_prefix: ORCID
     prefix_reference: https://orcid.org/
-  orphanet:
-    prefix_prefix: orphanet
-    prefix_reference: http://www.orpha.net/ORDO/Orphanet_
+  ORDO:
+    prefix_prefix: ORDO
+    prefix_reference: http://www.orpha.net/ORDO/
   os:
     prefix_prefix: os
     prefix_reference: https://github.com/cmungall/owlstar/blob/master/owlstar.ttl
@@ -403,6 +403,9 @@ prefixes:
   biolink:
     prefix_prefix: biolink
     prefix_reference: https://w3id.org/biolink/vocab/
+  IUPHARobj:
+    prefix_prefix: IUPHARobj
+    prefix_reference: https://www.guidetopharmacology.org/GRAC/ObjectDisplayForward?objectId=
   METPO:
     prefix_prefix: METPO
     prefix_reference: https://w3id.org/metpo/
@@ -431,6 +434,50 @@ enums:
       negative:
         text: negative
         description: A negative response to a treatment or intervention
+  TreatmentOutcomeEnum:
+    name: TreatmentOutcomeEnum
+    description: The outcome of treating a disease or phenotypic feature with a chemical
+      entity.
+    permissible_values:
+      fully_recovered:
+        text: fully_recovered
+        description: Complete recovery following treatment; free of symptoms with
+          no lasting health problems.
+        exact_mappings:
+        - NCIT:C82467
+        narrow_mappings:
+        - NCIT:C4870
+      improved:
+        text: improved
+        description: Partial improvement following treatment.
+        exact_mappings:
+        - NCIT:C125459
+        narrow_mappings:
+        - NCIT:C18058
+      unchanged:
+        text: unchanged
+        description: No change in the condition following treatment.
+        exact_mappings:
+        - NCIT:C71687
+        narrow_mappings:
+        - NCIT:C18213
+      deteriorated:
+        text: deteriorated
+        description: Worsening of the condition following treatment.
+        exact_mappings:
+        - NCIT:C25751
+        narrow_mappings:
+        - NCIT:C35571
+      died:
+        text: died
+        description: Death following treatment.
+        exact_mappings:
+        - NCIT:C28554
+      unknown:
+        text: unknown
+        description: Treatment outcome is unknown.
+        exact_mappings:
+        - NCIT:C17998
   ResponseTargetEnum:
     name: ResponseTargetEnum
     description: The target of a treatment or intervention
@@ -2267,7 +2314,7 @@ classes:
       that nodes in a biolink compatible KG can be considered both instances of biolink
       classes, and OWL classes in their own right. In general you should not need
       to use this class directly. Instead, use the appropriate biolink class. For
-      example, for the GO concept of endocytosis (GO:0006897), use bl:BiologicalProcess
+      example, for the GO concept of endocytosis (GO:0006897), use biolink:BiologicalProcess
       as the type.
     comments:
     - This is modeled as a mixin. 'ontology class' should not be the primary type
@@ -3495,7 +3542,7 @@ classes:
       nutritional, medical or technical use. Is a material entity that is created
       or changed during material processing.
     exact_mappings:
-    - OBI:0000047
+    - COB:0000026
     is_a: chemical mixture
   drug:
     name: drug
@@ -3875,7 +3922,7 @@ classes:
     - DOID
     - OMIM
     - OMIM.PS
-    - orphanet
+    - ORDO
     - EFO
     - UMLS
     - MESH
@@ -4125,6 +4172,7 @@ classes:
     - FBbt
     - WBbt
     - XAO
+    - FMA
     description: An anatomical structure that has more than one cell as a part.
     examples:
     - value: UBERON:0000955
@@ -4262,6 +4310,7 @@ classes:
     - REACT
     - CHEMBL.TARGET
     - ComplexPortal
+    - IUPHARobj
     description: A stable assembly of two or more macromolecules, i.e. proteins, nucleic
       acids, carbohydrates or lipids, in which at least one component is a protein
       and the constituent parts function together.
@@ -5041,6 +5090,25 @@ classes:
         agent_type: manual_agent
         publications:
         - PMID:15289437
+    - description: GtoPdb target 378 (5-HT3AB) is a source-defined macromolecular
+        complex. The same IUPHARobj identifier has species-specific protein compositions,
+        so each has_part assertion requires taxon context.
+      object:
+        subject: IUPHARobj:378
+        predicate: biolink:has_part
+        object: UniProtKB:P46098
+        category: biolink:Association
+        knowledge_level: knowledge_assertion
+        agent_type: manual_agent
+        species_context_qualifier: NCBITaxon:9606
+    - object:
+        subject: IUPHARobj:378
+        predicate: biolink:has_part
+        object: UniProtKB:P23979
+        category: biolink:Association
+        knowledge_level: knowledge_assertion
+        agent_type: manual_agent
+        species_context_qualifier: NCBITaxon:10090
     - object:
         subject: NCBIGene:4357
         predicate: biolink:enables
@@ -5360,34 +5428,6 @@ classes:
         category: biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation
         knowledge_level: knowledge_assertion
         agent_type: manual_validation_of_automated_agent
-    - object:
-        subject: PUBCHEM.COMPOUND:134612761
-        predicate: biolink:diagnoses
-        object: UMLS:C1720505
-        category: biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation
-        knowledge_level: knowledge_assertion
-        agent_type: manual_validation_of_automated_agent
-    - object:
-        subject: CHEBI:82720
-        predicate: biolink:preventative_for_condition
-        object: UMLS:C1320716
-        category: biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation
-        knowledge_level: knowledge_assertion
-        agent_type: manual_validation_of_automated_agent
-    - object:
-        subject: CHEBI:6919
-        predicate: biolink:treats
-        object: EFO:1001421
-        category: biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation
-        knowledge_level: knowledge_assertion
-        agent_type: manual_validation_of_automated_agent
-    - object:
-        subject: CHEBI:135361
-        predicate: biolink:treats
-        object: MONDO:0005324
-        category: biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation
-        knowledge_level: knowledge_assertion
-        agent_type: manual_validation_of_automated_agent
     narrow_mappings:
     - SIO:000993
     is_a: association
@@ -5401,10 +5441,32 @@ classes:
     description: This association defines a relationship between a chemical or treatment
       (or procedure) and a disease or phenotypic feature where the chemical or treatment
       is used to treat, or is being studied to treat, the disease or phenotypic feature.
+    examples:
+    - object:
+        subject: CHEBI:6919
+        predicate: biolink:treats
+        object: EFO:1001421
+        category: biolink:ChemicalOrDrugOrTreatmentToDiseaseOrPhenotypicFeatureAssociation
+        knowledge_level: knowledge_assertion
+        agent_type: manual_validation_of_automated_agent
+    - object:
+        subject: CHEBI:135361
+        predicate: biolink:treats
+        object: MONDO:0005324
+        category: biolink:ChemicalOrDrugOrTreatmentToDiseaseOrPhenotypicFeatureAssociation
+        knowledge_level: knowledge_assertion
+        agent_type: manual_validation_of_automated_agent
+    - object:
+        subject: CHEBI:82720
+        predicate: biolink:preventative_for_condition
+        object: UMLS:C1320716
+        category: biolink:ChemicalOrDrugOrTreatmentToDiseaseOrPhenotypicFeatureAssociation
+        knowledge_level: knowledge_assertion
+        agent_type: manual_validation_of_automated_agent
     is_a: association
     mixins:
     - entity to disease or phenotypic feature association mixin
-    - entity to feature or disease qualifiers mixin
+    - clinical trial and regulatory approval context mixin
     defining_slots:
     - subject
     - predicate
@@ -5418,7 +5480,6 @@ classes:
     is_a: association
     mixins:
     - entity to disease or phenotypic feature association mixin
-    - entity to feature or disease qualifiers mixin
     defining_slots:
     - subject
     - predicate
@@ -5431,7 +5492,6 @@ classes:
     is_a: association
     mixins:
     - entity to disease or phenotypic feature association mixin
-    - entity to feature or disease qualifiers mixin
     defining_slots:
     - subject
     - predicate
@@ -5766,8 +5826,21 @@ classes:
     mixin: true
   entity to feature or disease qualifiers mixin:
     name: entity to feature or disease qualifiers mixin
-    description: Qualifiers for entity to disease or phenotype associations.
-    is_a: frequency qualifier mixin
+    description: DEPRECATED. An accidental duplicate of 'entity to disease or phenotypic
+      feature association mixin' - "feature" here was shorthand for "phenotypic feature",
+      so the two classes named the same scope while carrying disjoint slots. Use 'entity
+      to disease or phenotypic feature association mixin' instead; this class now
+      inherits from it and adds nothing.
+    deprecated: 'true'
+  clinical trial and regulatory approval context mixin:
+    name: clinical trial and regulatory approval context mixin
+    description: 'A mixin providing the clinical trial and regulatory approval context
+      of an association between an entity (typically a chemical, drug, or treatment)
+      and the disease or phenotypic feature it is used, or is being studied, to treat.
+      These slots are association-scoped: they describe the entity''s status with
+      respect to this particular indication. For the entity''s overall regulatory
+      status independent of any one indication, see the node properties ''highest
+      FDA approval status'' and ''drug regulatory status world wide''.'
     mixin: true
   entity to feature or variant qualifiers mixin:
     name: entity to feature or variant qualifiers mixin
@@ -5788,7 +5861,7 @@ classes:
     name: entity to phenotypic feature association mixin
     description: A mixin applied to any association whose object (target node) is
       a phenotypic feature.
-    is_a: entity to feature or disease qualifiers mixin
+    is_a: entity to disease or phenotypic feature association mixin
     mixin: true
     mixins:
     - frequency quantifier
@@ -5838,7 +5911,7 @@ classes:
   entity to disease association mixin:
     name: entity to disease association mixin
     description: mixin class for any association whose object (target node) is a disease
-    is_a: entity to feature or disease qualifiers mixin
+    is_a: entity to disease or phenotypic feature association mixin
     mixin: true
     defining_slots:
     - object
@@ -5863,6 +5936,11 @@ classes:
     - disease or phenotypic feature to entity association mixin
   entity to disease or phenotypic feature association mixin:
     name: entity to disease or phenotypic feature association mixin
+    description: A mixin applied to any association whose object (target node) is
+      a disease or a phenotypic feature. Provides the shared qualifier vocabulary
+      for such statements; subtypes narrow the object range to a disease or to a phenotypic
+      feature specifically.
+    is_a: frequency qualifier mixin
     mixin: true
     defining_slots:
     - subject
@@ -6034,6 +6112,7 @@ classes:
     is_a: association
     mixins:
     - gene to entity association mixin
+    - entity to disease association mixin
     defining_slots:
     - subject
     - object
@@ -6442,8 +6521,8 @@ classes:
   entity to disease association:
     name: entity to disease association
     description: An association between any entity and a disease, capturing clinical
-      context such as approval status, research phase, FDA regulatory approvals, and
-      number of cases.
+      context such as approval status, research phase, regulatory approvals, and number
+      of cases.
     examples:
     - object:
         subject: CHEBI:50681
@@ -6467,6 +6546,13 @@ classes:
         knowledge_level: observation
         agent_type: manual_validation_of_automated_agent
     - object:
+        subject: CHEBI:78538
+        predicate: biolink:applied_to_treat
+        object: MONDO:0005294
+        category: biolink:EntityToDiseaseAssociation
+        knowledge_level: observation
+        agent_type: manual_validation_of_automated_agent
+    - object:
         subject: RXCUI:1367436
         predicate: biolink:contraindicated_in
         object: MONDO:0004981
@@ -6476,13 +6562,16 @@ classes:
         publications:
         - a280f164-2833-4f37-96e3-a857c91f77f2
     is_a: association
+    mixins:
+    - entity to disease association mixin
+    - clinical trial and regulatory approval context mixin
     defining_slots:
     - subject
     - object
   entity to phenotypic feature association:
     name: entity to phenotypic feature association
     description: An association between any entity and a phenotypic feature, capturing
-      clinical context such as approval status, research phase, FDA regulatory approvals,
+      clinical context such as approval status, research phase, regulatory approvals,
       and number of cases.
     examples:
     - object:
@@ -6500,13 +6589,6 @@ classes:
         knowledge_level: knowledge_assertion
         agent_type: manual_agent
     - object:
-        subject: CHEBI:78538
-        predicate: biolink:applied_to_treat
-        object: MONDO:0005294
-        category: biolink:EntityToPhenotypicFeatureAssociation
-        knowledge_level: observation
-        agent_type: manual_validation_of_automated_agent
-    - object:
         subject: RXCUI:617430
         predicate: biolink:contraindicated_in
         object: HP:0001410
@@ -6520,6 +6602,9 @@ classes:
         - babf3b8d-f2ce-407d-9407-728c45eb19ee
         - d74e93e5-11c9-434e-a60c-4a4f911dd0f8
     is_a: association
+    mixins:
+    - entity to phenotypic feature association mixin
+    - clinical trial and regulatory approval context mixin
     defining_slots:
     - subject
     - object
