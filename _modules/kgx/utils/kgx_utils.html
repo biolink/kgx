@@ -512,6 +512,24 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;biolink:</span><span class="si">{</span><span class="n">formatted</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_most_specific</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">primary</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">fallback</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whichever candidate list consumed the longest IRI prefix.</span>
+
+<span class="sd">    The length of the IRI prefix a CURIE consumed is ``len(uri) - len(local id)``,</span>
+<span class="sd">    so the candidate with the shortest local part is the most specific one.</span>
+<span class="sd">    ``primary`` wins ties, keeping the caller&#39;s prefix map canonical.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">local_len</span><span class="p">(</span><span class="n">curie</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">curie</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">primary</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fallback</span>
+    <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">local_len</span><span class="p">,</span> <span class="n">fallback</span><span class="p">))</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">local_len</span><span class="p">,</span> <span class="n">primary</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">fallback</span>
+    <span class="k">return</span> <span class="n">primary</span>
+
+
 <div class="viewcode-block" id="contract">
 <a class="viewcode-back" href="../../../reference/utilities/kgx_utils.html#kgx.utils.kgx_utils.contract">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">contract</span><span class="p">(</span>
@@ -546,12 +564,17 @@
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">prefix_maps</span><span class="p">:</span>
         <span class="n">curie_list</span> <span class="o">=</span> <span class="n">contract_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">prefix_maps</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">curie_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
-                <span class="n">curie_list</span> <span class="o">=</span> <span class="n">contract_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">default_curie_maps</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">curie_list</span><span class="p">:</span>
-                    <span class="n">curie</span> <span class="o">=</span> <span class="n">curie_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
+            <span class="c1"># A catch-all namespace in prefix_maps (e.g. biolink&#39;s</span>
+            <span class="c1"># OBO -&gt; http://purl.obolibrary.org/obo/) matches every OBO IRI, so</span>
+            <span class="c1"># a bare &quot;did we get any match&quot; test would shadow the far more</span>
+            <span class="c1"># specific mappings the default maps carry (DDPHENO_, FBbt_, ...).</span>
+            <span class="c1"># Consider both tiers and keep the most specific match, i.e. the one</span>
+            <span class="c1"># that consumed the longest IRI prefix; prefix_maps wins a tie.</span>
+            <span class="n">fallback_list</span> <span class="o">=</span> <span class="n">contract_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">default_curie_maps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fallback_list</span><span class="p">:</span>
+                <span class="n">curie_list</span> <span class="o">=</span> <span class="n">_most_specific</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">curie_list</span><span class="p">,</span> <span class="n">fallback_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">curie_list</span><span class="p">:</span>
             <span class="n">curie</span> <span class="o">=</span> <span class="n">curie_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">curie_list</span> <span class="o">=</span> <span class="n">contract_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">default_curie_maps</span><span class="p">)</span>
