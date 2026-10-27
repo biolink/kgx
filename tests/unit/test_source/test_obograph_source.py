@@ -451,8 +451,9 @@ def test_edge_annotations_evidence_and_passthrough():
     e = edges[("CL:4304384", "CL:0011111")]
     assert e["has_evidence"] == ["NCBIGene:140919", "NCBIGene:14415"]
 
-    # FBbt has no prefix-map entry, so it contracts to the generic OBO prefix
-    e = edges[("OBO:FBbt_00000001", "UBERON:0000468")]
+    # FBbt has no prefix-map entry, but the specific fallback namespace wins
+    # over the catch-all OBO prefix
+    e = edges[("FBbt:00000001", "UBERON:0000468")]
     assert e["mapping_justification"] == (
         "https://w3id.org/semapv/vocab/ManualMappingCuration"
     )
