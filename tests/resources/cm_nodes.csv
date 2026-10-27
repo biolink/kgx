@@ -1,5 +1,5 @@
 id,name,category
-HGNC:7670,,biolink:Gene|Node|biolink:NamedThing
+HGNC:7670,,biolink:Gene|NonBiolinkNode|biolink:NamedThing
 OMIM:601937,,biolink:Gene
 ENSEMBL:ENSG00000124151,,biolink:Disease
 NCBIGene:8202,,biolink:Gene

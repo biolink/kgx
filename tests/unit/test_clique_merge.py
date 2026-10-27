@@ -75,9 +75,10 @@ def test_check_all_categories2():
 
     assert len(vbc) == 4
     assert len(ibc) == 0
-    assert (
-        len(ic) == 8
-    )  # mixins are not valid biolink categories, but they are ancestors.
+    # mixins are not valid biolink categories, but they are ancestors; the
+    # number of mixin ancestors varies across Biolink Model releases, so
+    # everything that is not a valid category must be an invalid one
+    assert len(ic) == len(categories) - len(vbc)
 
     categories = ["biolink:NamedThing", "biolink:GeneOrGeneProduct", "biolink:Gene"]
     vbc, ibc, ic = check_all_categories(categories)
@@ -85,7 +86,7 @@ def test_check_all_categories2():
     assert len(ibc) == 0
     assert len(ic) == 1
 
-    categories = ["biolink:NamedThing", "biolink:GeneOrGeneProduct", "Node"]
+    categories = ["biolink:NamedThing", "biolink:GeneOrGeneProduct", "NonBiolinkNode"]
     vbc, ibc, ic = check_all_categories(categories)
     assert len(vbc) == 1
     assert len(ibc) == 0
@@ -256,13 +257,13 @@ def test_clique_merge3():
     ppm = {"biolink:Gene": ["HGNC", "NCBIGene", "ENSEMBL", "OMIM"]}
     g1 = NxGraph()
     g1.add_node("HGNC:1", **{"category": ["biolink:Gene"]})
-    g1.add_node("OMIM:2", **{"category": ["biolink:NamedThing", "Node"]})
+    g1.add_node("OMIM:2", **{"category": ["biolink:NamedThing", "NonBiolinkNode"]})
     g1.add_node("NCBIGene:3", **{"category": ["biolink:NamedThing"]})
     g1.add_node("ENSEMBL:4", **{"category": ["biolink:Gene"]})
 
     g1.add_node("ENSEMBL:6", **{"category": ["biolink:Gene"]})
     g1.add_node("HGNC:7", **{"category": ["biolink:NamedThing"]})
-    g1.add_node("NCBIGene:8", **{"category": ["biolink:NamedThing", "Node"]})
+    g1.add_node("NCBIGene:8", **{"category": ["biolink:NamedThing", "NonBiolinkNode"]})
 
     g1.add_edge(
         "ENSEMBL:4",

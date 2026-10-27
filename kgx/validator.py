@@ -66,7 +66,11 @@ class Validator(ErrorDetecting):
         Creates and manages a default singleton Validator in the module, when called
         """
         if not cls._the_validator:
-            cls.set_biolink_model("v4.1.6")
+            # honor a Biolink Model release previously set by the user via
+            # set_biolink_model(); otherwise, fall back to the default release
+            # bundled with the currently installed Biolink Model Toolkit (bmt)
+            if not cls._currently_active_toolkit:
+                cls.set_biolink_model(None)
             cls._the_validator = Validator(
                 verbose=verbose,
                 progress_monitor=progress_monitor,
