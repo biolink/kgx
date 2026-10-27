@@ -19,7 +19,7 @@ classifiers = [
 dependencies = [
     "Click",
     "SPARQLWrapper>=1.8.2",
-    "bmt>=1.4.6,<2.0.0",
+    "bmt>=1.5.0,<2.0.0",
     "cachetools>=5.0.0,<6.0.0",
     "deprecation>=2.1.0,<3.0.0",
     "docker>=7.0.0,<8.0.0",

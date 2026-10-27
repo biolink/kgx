@@ -80,8 +80,17 @@ def test_get_biolink_ancestors():
     """
     ancestors1 = get_biolink_ancestors("phenotypic feature")
     assert ancestors1 is not None
-    # changed to 6 from 5 when biolink model updated to 2.2.1 and mixins are included in ancestry
-    assert len(ancestors1) == 6
+    # the exact size of the ancestry closure varies across Biolink Model
+    # releases (mixins are included), so check for the stable core ancestors
+    # instead of an exact count
+    expected_ancestors = {
+        "biolink:PhenotypicFeature",
+        "biolink:DiseaseOrPhenotypicFeature",
+        "biolink:BiologicalEntity",
+        "biolink:NamedThing",
+        "biolink:Entity",
+    }
+    assert expected_ancestors.issubset(set(ancestors1))
 
 
 def test_generate_edge_key():

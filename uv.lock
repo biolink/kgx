@@ -123,17 +123,33 @@ wheels = [
 ]
 
 [[package]]
-name = "bmt"
-version = "1.4.6"
+name = "biolink-model"
+version = "4.4.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "deprecation" },
     { name = "linkml-runtime" },
-    { name = "stringcase" },
+    { name = "pydantic", version = "2.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "pydantic", version = "2.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/6b/46e2aed81a8fda96cbf811e2c869db7100c8308127f1bd3d63d3f549a67f/bmt-1.4.6.tar.gz", hash = "sha256:ea0dfce825e6f5f6ef4e0bc81bad0696d36b6f4292540db57e730afea69bd7b9", size = 15847, upload-time = "2025-10-06T23:31:34.761Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/e7/3726cdfd6fe1e56b36166f520627fe5cdf503a891407ddb55e7e90bdb2c2/biolink_model-4.4.6.tar.gz", hash = "sha256:9fec7249cfbc19a6a3a1ddd2757a9f86fd893b50210a47847364255ddd919946", size = 4125333, upload-time = "2026-10-09T23:09:44.525Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/4a/548942d033add1b1ace0384605190769c72181bff9a8e70effaa9a8211d3/bmt-1.4.6-py3-none-any.whl", hash = "sha256:f7b9d096c554aeec49996cf9c142d9c3a1dc78cee33d72734e2032fb2aa033b0", size = 16303, upload-time = "2025-10-06T23:31:33.486Z" },
+    { url = "https://files.pythonhosted.org/packages/de/36/d352b574c274d8098ae6e7d3ddddd24f3f23f68345d659a4e52056e27d38/biolink_model-4.4.6-py3-none-any.whl", hash = "sha256:22359ced4f7f6f8a335000584bbf619d3596ff691b8b0f41aa852360b41cfc3c", size = 371561, upload-time = "2026-10-09T23:09:42.634Z" },
+]
+
+[[package]]
+name = "bmt"
+version = "1.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "biolink-model" },
+    { name = "casefy" },
+    { name = "deprecation" },
+    { name = "pyyaml" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/16/11/34a9aa62262bd46a05fcdea9fcb27d81d7c7f650986f2f8bd3379f76850b/bmt-1.5.0.tar.gz", hash = "sha256:f053e83897c8e4d11a5499ff7de3cd1b66b59cd28562ebddf88cb60ad4cec862", size = 137094, upload-time = "2026-08-11T01:07:44.092Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/49/fdf58fd9d5ebbc9970656e2129270fce8aee987bab814662a1179d8cde23/bmt-1.5.0-py3-none-any.whl", hash = "sha256:2a9ca7b3b31102911d3b5e2c5973cb3c8a06334d4ac4ae0afb9df1990622db7c", size = 20429, upload-time = "2026-08-11T01:07:43.214Z" },
 ]
 
 [[package]]
@@ -143,6 +159,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6c/81/3747dad6b14fa2cf53fcf10548cf5aea6913e96fab41a3c198676f8948a5/cachetools-5.5.2.tar.gz", hash = "sha256:1a661caa9175d26759571b2e19580f9d6393969e5dfca11fdb1f947a23e640d4", size = 28380, upload-time = "2025-02-20T21:01:19.524Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/72/76/20fa66124dbe6be5cafeb312ece67de6b61dd91a0247d1ea13db4ebb33c2/cachetools-5.5.2-py3-none-any.whl", hash = "sha256:d26a22bcc62eb95c3beabd9f1ee5e820d3d2704fe2967cbe350e20c8ffcd3f0a", size = 10080, upload-time = "2025-02-20T21:01:16.647Z" },
+]
+
+[[package]]
+name = "casefy"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/24/9c732e8e3585a1dc621c9c1349e55e87070c95d3c2d57bd8c5083ec8d731/casefy-1.1.0.tar.gz", hash = "sha256:849d6e0f80506fac70ab8e18999a4ca1eb7d8f70941682383d64aa22a7497f8f", size = 123884, upload-time = "2025-03-07T14:36:44.897Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f1/6a/1766f8c163951a3c9aeb30a4e6f5de9b2eed8389e3906c4cf30fcb475be6/casefy-1.1.0-py3-none-any.whl", hash = "sha256:a3dfcb14d85902d90702db1e9835760237f6a73ec0ae3b7e991ad767513a3cbc", size = 6539, upload-time = "2025-03-07T14:36:37.546Z" },
 ]
 
 [[package]]
@@ -1597,7 +1622,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bmt", specifier = ">=1.4.6,<2.0.0" },
+    { name = "bmt", specifier = ">=1.5.0,<2.0.0" },
     { name = "cachetools", specifier = ">=5.0.0,<6.0.0" },
     { name = "click" },
     { name = "deprecation", specifier = ">=2.1.0,<3.0.0" },
