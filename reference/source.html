@@ -2181,6 +2181,28 @@ assumptions applied, if any.</p>
 <p>ObographSource is responsible for reading data as records
 from an OBO Graph JSON.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.annotation_property_name">
+<span class="sig-name descname"><span class="pre">annotation_property_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.annotation_property_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.annotation_property_name" title="Link to this definition">¶</a></dt>
+<dd><p>Return the column name for an axiom annotation with no Biolink slot.</p>
+<p>Only the SSSOM vocabulary and the properties named in
+<code class="docutils literal notranslate"><span class="pre">ANNOTATION_ALIASES</span></code> earn a column; everything else returns None and
+is folded into <code class="docutils literal notranslate"><span class="pre">_annotations</span></code> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pred</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The annotation property IRI</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A property name, e.g. <code class="docutils literal notranslate"><span class="pre">mapping_justification</span></code> for an SSSOM slot
+or <code class="docutils literal notranslate"><span class="pre">notes</span></code> for <code class="docutils literal notranslate"><span class="pre">oboInOwl#notes</span></code>, or None if the annotation
+belongs in the catch-all.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.check_edge_filter">
 <span class="sig-name descname"><span class="pre">check_edge_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.check_edge_filter" title="Link to this definition">¶</a></dt>
 <dd><p>Check if an edge passes defined edge filters.</p>
@@ -2215,11 +2237,48 @@ from an OBO Graph JSON.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.classify_source">
+<span class="sig-name descname"><span class="pre">classify_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.classify_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.classify_source" title="Link to this definition">¶</a></dt>
+<dd><p>Classify a <code class="docutils literal notranslate"><span class="pre">source</span></code> axiom annotation value by its shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The annotation value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One of <code class="docutils literal notranslate"><span class="pre">publication</span></code>, <code class="docutils literal notranslate"><span class="pre">agent</span></code>, <code class="docutils literal notranslate"><span class="pre">entailment</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code> or
+<code class="docutils literal notranslate"><span class="pre">xref</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.clear_graph_metadata">
 <span class="sig-name descname"><span class="pre">clear_graph_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.clear_graph_metadata" title="Link to this definition">¶</a></dt>
 <dd><p>Clears a Source graph’s internal graph_metadata. The value of such graph metadata is (now)
 generally a Callable function. This operation can be used in the code when the metadata is
 no longer needed, but may cause peculiar Python object persistent problems downstream.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.derive_infores">
+<span class="sig-name descname"><span class="pre">derive_infores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.derive_infores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.derive_infores" title="Link to this definition">¶</a></dt>
+<dd><p>Derive an InfoRes CURIE from a <code class="docutils literal notranslate"><span class="pre">prov:wasDerivedFrom</span></code> release IRI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>iri</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The IRI of the contributing ontology, e.g.
+<code class="docutils literal notranslate"><span class="pre">http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An InfoRes CURIE such as <code class="docutils literal notranslate"><span class="pre">infores:mondo</span></code>, or None if no stem
+could be recovered.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2249,6 +2308,26 @@ no longer needed, but may cause peculiar Python object persistent problems downs
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.normalize_reference">
+<span class="sig-name descname"><span class="pre">normalize_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.normalize_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.normalize_reference" title="Link to this definition">¶</a></dt>
+<dd><p>Contract an annotation value to a CURIE, tidying stray whitespace.</p>
+<p>MONDO contains hand-entered values such as <code class="docutils literal notranslate"><span class="pre">&quot;PMID:</span> <span class="pre">16322613&quot;</span></code>; left
+alone the space makes the CURIE unusable downstream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The annotation value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value as a CURIE where one could be derived, else the input
+with surrounding whitespace removed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.parse">
 <span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.15)"><span class="pre">Generator</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.parse" title="Link to this definition">¶</a></dt>
 <dd><p>This method reads from JSON and yields records.</p>
@@ -2266,6 +2345,29 @@ no longer needed, but may cause peculiar Python object persistent problems downs
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Generator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.parse_edge_meta">
+<span class="sig-name descname"><span class="pre">parse_edge_meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><span class="pre">Dict</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.parse_edge_meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.parse_edge_meta" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the ‘meta’ field of an edge into evidence and provenance properties.</p>
+<p>OWL axiom annotations are carried through an obographs conversion as
+<code class="docutils literal notranslate"><span class="pre">edges[].meta</span></code>. This maps the ones with Biolink equivalents onto
+association slots (<code class="docutils literal notranslate"><span class="pre">primary_knowledge_source</span></code>, <code class="docutils literal notranslate"><span class="pre">publications</span></code>,
+<code class="docutils literal notranslate"><span class="pre">has_evidence</span></code>, <code class="docutils literal notranslate"><span class="pre">knowledge_level</span></code>, <code class="docutils literal notranslate"><span class="pre">agent_type</span></code>, <code class="docutils literal notranslate"><span class="pre">xref</span></code>) and
+passes the rest through under their own names, so nothing is dropped.
+Every <code class="docutils literal notranslate"><span class="pre">source</span></code> value is also retained verbatim in <code class="docutils literal notranslate"><span class="pre">_source</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>meta</strong> (<em>Dict</em>) – meta dictionary for the edge</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Edge properties derived from the axiom annotations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2470,6 +2572,27 @@ Can be either a string or a set.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>m</strong> (<em>Dict</em>) – IRI to prefix map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kgx.source.obograph_source.ObographSource.split_references">
+<span class="sig-name descname"><span class="pre">split_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a></span></span><a class="reference internal" href="../_modules/kgx/source/obograph_source.html#ObographSource.split_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kgx.source.obograph_source.ObographSource.split_references" title="Link to this definition">¶</a></dt>
+<dd><p>Split an annotation value that packs several references into one string.</p>
+<p>A handful of MONDO axioms carry values like
+<code class="docutils literal notranslate"><span class="pre">&quot;PMID:32181500,</span> <span class="pre">PMID:32905580&quot;</span></code>. Splitting only when every resulting
+token still looks like a CURIE leaves ordinary values, including
+<code class="docutils literal notranslate"><span class="pre">&quot;PMID:</span> <span class="pre">16322613&quot;</span></code>, alone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The annotation value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One or more normalized references.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4319,12 +4442,17 @@ assumptions applied, if any.</p>
 </li>
 <li><a class="reference internal" href="#kgx-source-obograph-source">kgx.source.obograph_source</a><ul>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource"><code class="docutils literal notranslate"><span class="pre">ObographSource</span></code></a><ul>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.annotation_property_name"><code class="docutils literal notranslate"><span class="pre">ObographSource.annotation_property_name()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.check_edge_filter"><code class="docutils literal notranslate"><span class="pre">ObographSource.check_edge_filter()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.check_node_filter"><code class="docutils literal notranslate"><span class="pre">ObographSource.check_node_filter()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.classify_source"><code class="docutils literal notranslate"><span class="pre">ObographSource.classify_source()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.clear_graph_metadata"><code class="docutils literal notranslate"><span class="pre">ObographSource.clear_graph_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.derive_infores"><code class="docutils literal notranslate"><span class="pre">ObographSource.derive_infores()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.get_category"><code class="docutils literal notranslate"><span class="pre">ObographSource.get_category()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.get_infores_catalog"><code class="docutils literal notranslate"><span class="pre">ObographSource.get_infores_catalog()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.normalize_reference"><code class="docutils literal notranslate"><span class="pre">ObographSource.normalize_reference()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.parse"><code class="docutils literal notranslate"><span class="pre">ObographSource.parse()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.parse_edge_meta"><code class="docutils literal notranslate"><span class="pre">ObographSource.parse_edge_meta()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.parse_meta"><code class="docutils literal notranslate"><span class="pre">ObographSource.parse_meta()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.read_edge"><code class="docutils literal notranslate"><span class="pre">ObographSource.read_edge()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.read_edges"><code class="docutils literal notranslate"><span class="pre">ObographSource.read_edges()</span></code></a></li>
@@ -4339,6 +4467,7 @@ assumptions applied, if any.</p>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.set_prefix_map"><code class="docutils literal notranslate"><span class="pre">ObographSource.set_prefix_map()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.set_provenance_map"><code class="docutils literal notranslate"><span class="pre">ObographSource.set_provenance_map()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.set_reverse_prefix_map"><code class="docutils literal notranslate"><span class="pre">ObographSource.set_reverse_prefix_map()</span></code></a></li>
+<li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.split_references"><code class="docutils literal notranslate"><span class="pre">ObographSource.split_references()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.validate_edge"><code class="docutils literal notranslate"><span class="pre">ObographSource.validate_edge()</span></code></a></li>
 <li><a class="reference internal" href="#kgx.source.obograph_source.ObographSource.validate_node"><code class="docutils literal notranslate"><span class="pre">ObographSource.validate_node()</span></code></a></li>
 </ul>

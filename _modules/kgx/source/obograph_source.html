@@ -273,6 +273,7 @@
         <article role="main" id="furo-main-content">
           <h1>Source code for kgx.source.obograph_source</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Any</span>
@@ -300,10 +301,86 @@
     <span class="n">HAS_OBO_NAMESPACE</span> <span class="o">=</span> <span class="s2">&quot;http://www.geneontology.org/formats/oboInOwl#hasOBONamespace&quot;</span>
     <span class="n">SKOS_EXACT_MATCH</span> <span class="o">=</span> <span class="s2">&quot;http://www.w3.org/2004/02/skos/core#exactMatch&quot;</span>
 
+    <span class="c1"># Axiom annotation predicates that carry evidence and provenance. OWL axiom</span>
+    <span class="c1"># annotations survive an obographs conversion as ``edges[].meta``, which is</span>
+    <span class="c1"># where ontologies such as MONDO record why an assertion was made.</span>
+    <span class="n">PROV_WAS_DERIVED_FROM</span> <span class="o">=</span> <span class="s2">&quot;http://www.w3.org/ns/prov#wasDerivedFrom&quot;</span>
+    <span class="n">OIO_EVIDENCE</span> <span class="o">=</span> <span class="s2">&quot;http://www.geneontology.org/formats/oboInOwl#evidence&quot;</span>
+    <span class="n">OIO_IS_INFERRED</span> <span class="o">=</span> <span class="s2">&quot;http://www.geneontology.org/formats/oboInOwl#is_inferred&quot;</span>
+    <span class="n">SSSOM_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;https://w3id.org/sssom/&quot;</span>
+    <span class="c1"># MONDO writes oboInOwl#source; PHENIO rewrites it to dc:source when it</span>
+    <span class="c1"># merges components, so both spellings show up in the wild.</span>
+    <span class="n">SOURCE_PREDICATES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;http://purl.org/dc/elements/1.1/source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;http://purl.org/dc/terms/source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;http://www.geneontology.org/formats/oboInOwl#source&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Prefixes of ``source`` values that name a publication rather than a</span>
+    <span class="c1"># database record or a curator.</span>
+    <span class="n">PUBLICATION_PREFIXES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;PMID&quot;</span><span class="p">,</span> <span class="s2">&quot;PMCID&quot;</span><span class="p">,</span> <span class="s2">&quot;PMC&quot;</span><span class="p">,</span> <span class="s2">&quot;DOI&quot;</span><span class="p">,</span> <span class="s2">&quot;ISBN&quot;</span><span class="p">,</span> <span class="s2">&quot;ISSN&quot;</span><span class="p">,</span> <span class="s2">&quot;MEDLINE&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Sentinel ``source`` values meaning &quot;a reasoner put this edge here&quot;.</span>
+    <span class="n">ENTAILMENT_MARKERS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;MONDO:Inferred&quot;</span><span class="p">,</span> <span class="s2">&quot;MONDO:Entailed&quot;</span><span class="p">})</span>
+    <span class="c1"># MONDO overloads ``source`` with curation bookkeeping such as</span>
+    <span class="c1"># &quot;MONDO:Redundant&quot; and &quot;MONDO:prototype&quot;. Those share the MONDO namespace</span>
+    <span class="c1"># with real term references like &quot;MONDO:0016133-obsoleted&quot;, so tell them</span>
+    <span class="c1"># apart by whether the local part starts with a digit.</span>
+    <span class="n">CURATION_MARKER_NAMESPACES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;MONDO&quot;</span><span class="p">})</span>
+
+    <span class="c1"># ``prov:wasDerivedFrom`` names the contributing ontology as a release IRI,</span>
+    <span class="c1"># e.g. &quot;.../phenio/releases/2026-07-07/components/mondo.owl&quot;. The file stem</span>
+    <span class="c1"># is taken as the InfoRes ID as-is; the derivation stays mechanical rather</span>
+    <span class="c1"># than second-guessing what a project calls a source. Note the InfoRes</span>
+    <span class="c1"># registry does not agree with every stem (it lists &quot;hpo&quot;, not &quot;hp&quot;), so a</span>
+    <span class="c1"># project that cares should pass ``infores_map``. The one override here is</span>
+    <span class="c1"># for PHENIO&#39;s own merge of its imports, which has no ontology of its own.</span>
+    <span class="n">INFORES_OVERRIDES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;merged_import&quot;</span><span class="p">:</span> <span class="s2">&quot;phenio&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Edge fields that a passthrough annotation must never overwrite.</span>
+    <span class="n">RESERVED_EDGE_PROPERTIES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subject&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;predicate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;relation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;category&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;knowledge_source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;provided_by&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Axiom annotations with no Biolink slot but a well-known meaning; these get</span>
+    <span class="c1"># a column of their own, named readably rather than after an IAO number.</span>
+    <span class="c1"># Anything outside this set (and the SSSOM vocabulary) goes to _annotations:</span>
+    <span class="c1"># across PHENIO&#39;s components the tail is long and very sparse -- one-off</span>
+    <span class="c1"># per-ontology properties like &quot;todo&quot;, &quot;quote&quot; and even a misspelled</span>
+    <span class="c1"># &quot;cardonality&quot; would otherwise each claim a column of their own.</span>
+    <span class="n">ANNOTATION_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;http://purl.obolibrary.org/obo/IAO_0000233&quot;</span><span class="p">:</span> <span class="s2">&quot;term_tracker_item&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://purl.obolibrary.org/obo/IAO_0000116&quot;</span><span class="p">:</span> <span class="s2">&quot;editor_note&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://www.w3.org/2000/01/rdf-schema#comment&quot;</span><span class="p">:</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://www.w3.org/2000/01/rdf-schema#seeAlso&quot;</span><span class="p">:</span> <span class="s2">&quot;see_also&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://www.geneontology.org/formats/oboInOwl#notes&quot;</span><span class="p">:</span> <span class="s2">&quot;notes&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://purl.org/dc/terms/creator&quot;</span><span class="p">:</span> <span class="s2">&quot;creator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http://purl.org/dc/elements/1.1/date&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Column holding annotations that get no column of their own, as</span>
+    <span class="c1"># &quot;predicate=value&quot; pairs so the data is still recoverable.</span>
+    <span class="n">ANNOTATION_CATCHALL</span> <span class="o">=</span> <span class="s2">&quot;_annotations&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">owner</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">toolkit</span> <span class="o">=</span> <span class="n">Toolkit</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ecache</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">infores_map</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">INFORES_OVERRIDES</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ObographSource.parse">
 <a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.parse">[docs]</a>
@@ -335,6 +412,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_provenance_map</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;infores_map&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">infores_map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;infores_map&quot;</span><span class="p">])</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_nodes</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">compression</span><span class="p">)</span>
         <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_edges</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">compression</span><span class="p">)</span>
         <span class="k">yield from</span> <span class="n">chain</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
@@ -533,10 +612,268 @@
                 <span class="n">fixed_edge</span><span class="p">[</span><span class="s2">&quot;relation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">]</span>
 
         <span class="n">fixed_edge</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;meta&quot;</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">:</span>
+            <span class="n">fixed_edge</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_edge_meta</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;sub&quot;</span><span class="p">,</span> <span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="s2">&quot;obj&quot;</span><span class="p">}:</span>
+            <span class="c1"># &#39;meta&#39; is expanded into Biolink slots by parse_edge_meta above;</span>
+            <span class="c1"># copying it verbatim would emit the raw dict as a column value.</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;sub&quot;</span><span class="p">,</span> <span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="s2">&quot;obj&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">}:</span>
                 <span class="n">fixed_edge</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read_edge</span><span class="p">(</span><span class="n">fixed_edge</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.parse_edge_meta">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.parse_edge_meta">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_edge_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the &#39;meta&#39; field of an edge into evidence and provenance properties.</span>
+
+<span class="sd">        OWL axiom annotations are carried through an obographs conversion as</span>
+<span class="sd">        ``edges[].meta``. This maps the ones with Biolink equivalents onto</span>
+<span class="sd">        association slots (``primary_knowledge_source``, ``publications``,</span>
+<span class="sd">        ``has_evidence``, ``knowledge_level``, ``agent_type``, ``xref``) and</span>
+<span class="sd">        passes the rest through under their own names, so nothing is dropped.</span>
+<span class="sd">        Every ``source`` value is also retained verbatim in ``_source``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        meta: Dict</span>
+<span class="sd">            meta dictionary for the edge</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            Edge properties derived from the axiom annotations.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">properties</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">publications</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">evidence</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xrefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xrefs&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="s2">&quot;val&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">has_curator</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">entailed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">passthrough</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">bpv</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basicPropertyValues&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">bpv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">bpv</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pred</span> <span class="ow">or</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">pred</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROV_WAS_DERIVED_FROM</span><span class="p">:</span>
+                <span class="n">infores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derive_infores</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">infores</span><span class="p">:</span>
+                    <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;primary_knowledge_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">infores</span>
+            <span class="k">elif</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SOURCE_PREDICATES</span><span class="p">:</span>
+                <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify_source</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;publication&quot;</span><span class="p">:</span>
+                    <span class="n">publications</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_references</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;agent&quot;</span><span class="p">:</span>
+                    <span class="n">has_curator</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;entailment&quot;</span><span class="p">:</span>
+                    <span class="n">entailed</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;xref&quot;</span><span class="p">:</span>
+                    <span class="n">xrefs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_references</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="c1"># &#39;marker&#39; values are curation bookkeeping; they stay in</span>
+                <span class="c1"># &#39;_source&#39; but are not cross-references.</span>
+            <span class="k">elif</span> <span class="n">pred</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OIO_EVIDENCE</span><span class="p">:</span>
+                <span class="n">evidence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize_reference</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">pred</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">OIO_IS_INFERRED</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+                    <span class="n">entailed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_property_name</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">curie</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pred</span>
+                    <span class="n">other</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">curie</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">passthrough</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">publications</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;publications&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">publications</span>
+        <span class="k">if</span> <span class="n">evidence</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;has_evidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence</span>
+        <span class="k">if</span> <span class="n">xrefs</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;xref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xrefs</span>
+        <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sources</span>
+
+        <span class="c1"># An ORCID on the axiom means a human asserted it; a reasoner marker</span>
+        <span class="c1"># means it was entailed. When both are present the human wins, since the</span>
+        <span class="c1"># markers MONDO also emits (Redundant, indirect) describe the axiom&#39;s</span>
+        <span class="c1"># position in the hierarchy rather than how it was arrived at.</span>
+        <span class="k">if</span> <span class="n">has_curator</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;agent_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;manual_agent&quot;</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;knowledge_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;knowledge_assertion&quot;</span>
+        <span class="k">elif</span> <span class="n">entailed</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;agent_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;automated_agent&quot;</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;knowledge_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;logical_entailment&quot;</span>
+        <span class="k">elif</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;knowledge_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;knowledge_assertion&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">passthrough</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># An annotation whose local name happens to match a core edge field</span>
+            <span class="c1"># (oboInOwl#id, say) would otherwise corrupt the record.</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESERVED_EDGE_PROPERTIES</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;annotation_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">values</span>
+
+        <span class="k">if</span> <span class="n">other</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ANNOTATION_CATCHALL</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="k">return</span> <span class="n">properties</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.split_references">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.split_references">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split an annotation value that packs several references into one string.</span>
+
+<span class="sd">        A handful of MONDO axioms carry values like</span>
+<span class="sd">        ``&quot;PMID:32181500, PMID:32905580&quot;``. Splitting only when every resulting</span>
+<span class="sd">        token still looks like a CURIE leaves ordinary values, including</span>
+<span class="sd">        ``&quot;PMID: 16322613&quot;``, alone.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val: str</span>
+<span class="sd">            The annotation value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            One or more normalized references.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_iri</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[,;\s]+&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">if</span> <span class="n">t</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize_reference</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize_reference</span><span class="p">(</span><span class="n">val</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.normalize_reference">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.normalize_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalize_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Contract an annotation value to a CURIE, tidying stray whitespace.</span>
+
+<span class="sd">        MONDO contains hand-entered values such as ``&quot;PMID: 16322613&quot;``; left</span>
+<span class="sd">        alone the space makes the CURIE unusable downstream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val: str</span>
+<span class="sd">            The annotation value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The value as a CURIE where one could be derived, else the input</span>
+<span class="sd">            with surrounding whitespace removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PrefixManager</span><span class="o">.</span><span class="n">is_iri</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="n">prefix</span><span class="p">,</span> <span class="n">colon</span><span class="p">,</span> <span class="n">local</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">colon</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">local</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix_manager</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">val</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.classify_source">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.classify_source">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">classify_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Classify a ``source`` axiom annotation value by its shape.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val: str</span>
+<span class="sd">            The annotation value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            One of ``publication``, ``agent``, ``entailment``, ``marker`` or</span>
+<span class="sd">            ``xref``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;https://orcid.org/&quot;</span><span class="p">,</span> <span class="s2">&quot;http://orcid.org/&quot;</span><span class="p">,</span> <span class="s2">&quot;ORCID:&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="s2">&quot;agent&quot;</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ENTAILMENT_MARKERS</span> <span class="ow">or</span> <span class="n">val</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/inferred&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;entailment&quot;</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">local</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prefix</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PUBLICATION_PREFIXES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;publication&quot;</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">CURATION_MARKER_NAMESPACES</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">local</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s2">&quot;marker&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;xref&quot;</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.derive_infores">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.derive_infores">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">derive_infores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derive an InfoRes CURIE from a ``prov:wasDerivedFrom`` release IRI.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        iri: str</span>
+<span class="sd">            The IRI of the contributing ontology, e.g.</span>
+<span class="sd">            ``http://purl.obolibrary.org/obo/phenio/releases/2026-07-07/components/mondo.owl``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[str]</span>
+<span class="sd">            An InfoRes CURIE such as ``infores:mondo``, or None if no stem</span>
+<span class="sd">            could be recovered.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">iri</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;.owl&quot;</span><span class="p">,</span> <span class="s2">&quot;.obo&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.ttl&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">extension</span><span class="p">):</span>
+                <span class="n">stem</span> <span class="o">=</span> <span class="n">stem</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">extension</span><span class="p">)]</span>
+                <span class="k">break</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;infores:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">infores_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stem</span><span class="p">,</span><span class="w"> </span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="ObographSource.annotation_property_name">
+<a class="viewcode-back" href="../../../reference/source.html#kgx.source.obograph_source.ObographSource.annotation_property_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotation_property_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the column name for an axiom annotation with no Biolink slot.</span>
+
+<span class="sd">        Only the SSSOM vocabulary and the properties named in</span>
+<span class="sd">        ``ANNOTATION_ALIASES`` earn a column; everything else returns None and</span>
+<span class="sd">        is folded into ``_annotations`` instead.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pred: str</span>
+<span class="sd">            The annotation property IRI</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[str]</span>
+<span class="sd">            A property name, e.g. ``mapping_justification`` for an SSSOM slot</span>
+<span class="sd">            or ``notes`` for ``oboInOwl#notes``, or None if the annotation</span>
+<span class="sd">            belongs in the catch-all.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ANNOTATION_ALIASES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ANNOTATION_ALIASES</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SSSOM_PREFIX</span><span class="p">):</span>
+            <span class="n">local</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SSSOM_PREFIX</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="k">return</span> <span class="n">inflection</span><span class="o">.</span><span class="n">underscore</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ObographSource.get_category">
