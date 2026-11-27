@@ -242,6 +242,11 @@ class SssomSource(Source):
         if not data:
             return  # ?
 
+        # SSSOM marks a mapping that does not hold with predicate_modifier
+        # 'Not'; Biolink records the same thing with the 'negated' slot.
+        if edge.pop("predicate_modifier", "") == "Not":
+            data["negated"] = True
+
         subject_node = {}
         object_node = {}
         for k, v in edge.items():
