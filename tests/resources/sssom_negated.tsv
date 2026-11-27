@@ -1,0 +1,3 @@
+subject_id	subject_label	predicate_id	predicate_modifier	object_id	object_label	mapping_justification
+AGRO:00002067	methylene urea	skos:exactMatch	Not	mesh:D051379	Mice	semapv:ManualMappingCuration
+CHEBI:16199	urea	skos:exactMatch		mesh:D014508	Urea	semapv:ManualMappingCuration

@@ -96,3 +96,25 @@ def test_load3():
         and e["license"] == "https://creativecommons.org/publicdomain/zero/1.0/"
     )
     assert "curie_map" not in e
+
+
+def test_load_negated():
+    """
+    Read a SSSOM file where one mapping has predicate_modifier 'Not'.
+    """
+    t = Transformer()
+    source = SssomSource(t)
+
+    g = source.parse(
+        filename=os.path.join(RESOURCE_DIR, "sssom_negated.tsv"), format="sssom"
+    )
+    nodes, edges = load_graph_dictionary(g)
+
+    e = edges["AGRO:00002067", "mesh:D051379"][0]
+    assert e["predicate"] == "biolink:exact_match"
+    assert e["negated"] is True
+    assert "predicate_modifier" not in e
+
+    e = edges["CHEBI:16199", "mesh:D014508"][0]
+    assert e["predicate"] == "biolink:exact_match"
+    assert "negated" not in e
